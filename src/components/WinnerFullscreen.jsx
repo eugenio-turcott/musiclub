@@ -1,15 +1,15 @@
 import React, { useEffect } from 'react';
 
-export function WinnerFullscreen({ winner, onClose }) {
+export function WinnerFullscreen({ winner, onClose, isOpen = true }) {
   useEffect(() => {
     const handleEsc = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && isOpen) onClose();
     };
     window.addEventListener('keydown', handleEsc);
     return () => window.removeEventListener('keydown', handleEsc);
-  }, [onClose]);
+  }, [onClose, isOpen]);
 
-  if (!winner) return null;
+  if (!winner || !isOpen) return null;
 
   return (
     <div

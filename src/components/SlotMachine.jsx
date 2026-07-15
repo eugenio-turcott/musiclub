@@ -27,6 +27,7 @@ export function SlotMachine({
     e.preventDefault();
     if (password === ADMIN_PASSWORD) {
       setIsAdmin(true);
+      emitAdminStatus(true); // <--- AÑADIR ESTA LÍNEA
       setShowLogin(false);
       setPassword('');
       setMessage('🔓 Acceso concedido');
@@ -39,8 +40,17 @@ export function SlotMachine({
 
   const handleLogout = () => {
     setIsAdmin(false);
+    emitAdminStatus(false); // <--- AÑADIR ESTA LÍNEA
     setMessage('🔒 Sesión cerrada');
     setTimeout(() => setMessage('🎰 ¡Tira la palanca!'), 1500);
+  };
+
+  // Función para emitir el estado del admin
+  const emitAdminStatus = (status) => {
+    const event = new CustomEvent('adminStatusChange', {
+      detail: { isAdmin: status },
+    });
+    window.dispatchEvent(event);
   };
 
   const getAlbumForReel = (index) => {
