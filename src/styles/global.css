@@ -82,6 +82,19 @@
   }
 }
 
+@keyframes spin-slow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+
 /* Confetti */
 .confetti-piece {
   position: fixed;
@@ -120,4 +133,23 @@
   background: linear-gradient(180deg, #f5576c, #f093fb);
   border-radius: 10px;
   box-shadow: 0 0 20px rgba(245, 87, 108, 0.3);
+}
+
+/* Custom Scrollbar para componentes */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(245, 87, 108, 0.3);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 87, 108, 0.5);
 }

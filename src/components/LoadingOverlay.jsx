@@ -1,53 +1,49 @@
-// src/components/LoadingOverlay.jsx
-import React from 'react';
+import React from "react";
 
-export function LoadingOverlay({ loading, message = 'Cargando...' }) {
+export function LoadingOverlay({ loading, message = "Cargando..." }) {
   if (!loading) return null;
 
   return (
     <div
       style={{
-        position: 'fixed',
+        position: "fixed",
         top: 0,
         left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
+        width: "100%",
+        height: "100%",
+        backgroundColor: "rgba(0, 0, 0, 0.85)",
+        backdropFilter: "blur(12px)",
+        WebkitBackdropFilter: "blur(12px)",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: 99999,
-        animation: 'fadeIn 0.3s ease',
+        animation: "fadeIn 0.3s ease",
       }}
     >
-      {/* Anillo de carga con neón */}
-      <div style={{ position: 'relative', marginBottom: '30px' }}>
-        {/* Glow externo */}
+      <div style={{ position: "relative", marginBottom: "30px" }}>
         <div
           style={{
-            position: 'absolute',
-            top: '-20px',
-            left: '-20px',
-            right: '-20px',
-            bottom: '-20px',
-            borderRadius: '50%',
+            position: "absolute",
+            top: "-20px",
+            left: "-20px",
+            right: "-20px",
+            bottom: "-20px",
+            borderRadius: "50%",
             background:
-              'radial-gradient(circle, rgba(245,87,108,0.15), transparent 70%)',
-            animation: 'pulseGlow 1.5s ease-in-out infinite',
+              "radial-gradient(circle, rgba(245,87,108,0.15), transparent 70%)",
+            animation: "pulseGlow 1.5s ease-in-out infinite",
           }}
         />
 
-        {/* SVG del spinner */}
         <svg
           width="80"
           height="80"
           viewBox="0 0 80 80"
           style={{
-            animation: 'spin 1s linear infinite',
-            filter: 'drop-shadow(0 0 30px rgba(245,87,108,0.3))',
+            animation: "spin 1s linear infinite",
+            filter: "drop-shadow(0 0 30px rgba(245,87,108,0.3))",
           }}
         >
           <defs>
@@ -58,8 +54,8 @@ export function LoadingOverlay({ loading, message = 'Cargando...' }) {
               x2="100%"
               y2="100%"
             >
-              <stop offset="0%" style={{ stopColor: '#f5576c' }} />
-              <stop offset="100%" style={{ stopColor: '#f093fb' }} />
+              <stop offset="0%" style={{ stopColor: "#f5576c" }} />
+              <stop offset="100%" style={{ stopColor: "#f093fb" }} />
             </linearGradient>
           </defs>
           <circle
@@ -81,79 +77,76 @@ export function LoadingOverlay({ loading, message = 'Cargando...' }) {
             strokeDasharray="150"
             strokeDashoffset="40"
             style={{
-              animation: 'dash 1.5s ease-in-out infinite',
+              animation: "dash 1.5s ease-in-out infinite",
             }}
           />
         </svg>
       </div>
 
-      {/* Título */}
       <h2
         style={{
-          color: '#ffffff',
-          fontSize: '1.8rem',
+          color: "#ffffff",
+          fontSize: "1.8rem",
           fontWeight: 700,
-          marginBottom: '12px',
-          letterSpacing: '-0.02em',
-          textShadow: '0 0 30px rgba(245,87,108,0.2)',
+          marginBottom: "12px",
+          letterSpacing: "-0.02em",
+          textShadow: "0 0 30px rgba(245,87,108,0.2)",
         }}
       >
         {message}
       </h2>
 
-      {/* Subtítulo con puntos animados */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          color: 'rgba(255,255,255,0.3)',
-          fontSize: '0.9rem',
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          color: "rgba(255,255,255,0.3)",
+          fontSize: "0.9rem",
         }}
       >
         <span>Preparando la máquina</span>
         <span
           style={{
-            display: 'inline-flex',
-            gap: '4px',
+            display: "inline-flex",
+            gap: "4px",
           }}
         >
           <span
             style={{
-              width: '6px',
-              height: '6px',
-              background: '#f5576c',
-              borderRadius: '50%',
-              display: 'inline-block',
-              animation: 'pulseDot 1.4s infinite ease-in-out both',
+              width: "6px",
+              height: "6px",
+              background: "#f5576c",
+              borderRadius: "50%",
+              display: "inline-block",
+              animation: "pulseDot 1.4s infinite ease-in-out both",
             }}
           />
           <span
             style={{
-              width: '6px',
-              height: '6px',
-              background: '#f5576c',
-              borderRadius: '50%',
-              display: 'inline-block',
-              animation: 'pulseDot 1.4s infinite ease-in-out both',
-              animationDelay: '-0.16s',
+              width: "6px",
+              height: "6px",
+              background: "#f5576c",
+              borderRadius: "50%",
+              display: "inline-block",
+              animation: "pulseDot 1.4s infinite ease-in-out both",
+              animationDelay: "-0.16s",
             }}
           />
           <span
             style={{
-              width: '6px',
-              height: '6px',
-              background: '#f5576c',
-              borderRadius: '50%',
-              display: 'inline-block',
-              animation: 'pulseDot 1.4s infinite ease-in-out both',
-              animationDelay: '-0.32s',
+              width: "6px",
+              height: "6px",
+              background: "#f5576c",
+              borderRadius: "50%",
+              display: "inline-block",
+              animation: "pulseDot 1.4s infinite ease-in-out both",
+              animationDelay: "-0.32s",
             }}
           />
         </span>
       </div>
 
-      {/* Estilos para las animaciones */}
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }

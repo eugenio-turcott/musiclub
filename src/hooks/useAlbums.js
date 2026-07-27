@@ -1,6 +1,5 @@
-// src/hooks/useAlbums.js
 import { useState, useEffect } from 'react';
-import { albumsApi } from '../services/api'; // <-- IMPORTANTE: agregar esta línea
+import { albumsApi } from '../services/api';
 
 const FALLBACK_ALBUMS = [
   {
