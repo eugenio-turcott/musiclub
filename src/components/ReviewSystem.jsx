@@ -1,5 +1,6 @@
+// src/components/ReviewSystem.jsx
 import React, { useState, useEffect, useCallback } from "react";
-import { reviewsApi } from "../services/api";
+import { supabaseService } from "../services/supabaseClient";
 
 const CRITERIOS = [
   { id: "produccion", label: "🎛️ Producción", max: 10 },
@@ -24,14 +25,15 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadReviews = useCallback(async () => {
-    if (!album) return;
+    if (!album || !album.id) {
+      console.warn("No album id available");
+      return;
+    }
 
     setLoading(true);
     try {
-      const result = await reviewsApi.getReviews(album.album, album.artista);
-      if (result.success) {
-        setReviews(result.data || []);
-      }
+      const data = await supabaseService.getReviews(album.id);
+      setReviews(data || []);
     } catch (error) {
       console.error("Error loading reviews:", error);
     }
@@ -39,7 +41,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
   }, [album]);
 
   useEffect(() => {
-    if (album) {
+    if (album && album.id) {
       loadReviews();
     }
   }, [album, loadReviews]);
@@ -71,31 +73,33 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
     }
 
     const reviewData = {
-      album: album.album,
-      artista: album.artista,
-      reviewer: userName.trim(),
-      email: userEmail.trim(),
-      ratings,
+      albumId: album.id,
+      reviewerName: userName.trim(),
+      reviewerEmail: userEmail.trim(),
+      trackRatings: {},
+      ratingProduccion: ratings.produccion,
+      ratingComposicion: ratings.composicion,
+      ratingLetras: ratings.letras,
+      ratingOriginalidad: ratings.originalidad,
+      ratingCohesion: ratings.cohesion,
+      ratingReplay: ratings.replay,
+      ratingGeneral: ratings.general,
       comment: comment.trim(),
     };
 
     try {
-      const result = await reviewsApi.submitReview(reviewData);
-      if (result.success) {
-        setSuccess(true);
-        setRatings({});
-        setComment("");
-        setUserName("");
-        setUserEmail("");
-        setShowReviewForm(false);
-        await loadReviews();
-        if (onReviewSubmitted) onReviewSubmitted();
-        setTimeout(() => setSuccess(false), 3000);
-      } else {
-        setError(result.error || "Error al enviar la review");
-      }
+      await supabaseService.submitReview(reviewData);
+      setSuccess(true);
+      setRatings({});
+      setComment("");
+      setUserName("");
+      setUserEmail("");
+      setShowReviewForm(false);
+      await loadReviews();
+      if (onReviewSubmitted) onReviewSubmitted();
+      setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      setError("Error de conexión. Intenta de nuevo.");
+      setError(error.message || "Error al enviar la review");
     }
     setIsSubmitting(false);
   };
@@ -111,8 +115,16 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
     if (!reviewList || reviewList.length === 0) return null;
 
     const total = reviewList.reduce((sum, review) => {
-      const ratings = review.ratings || {};
-      const values = Object.values(ratings);
+      const values = [
+        review.rating_produccion,
+        review.rating_composicion,
+        review.rating_letras,
+        review.rating_originalidad,
+        review.rating_cohesion,
+        review.rating_replay,
+        review.rating_general,
+      ].filter((v) => v !== null && v !== undefined);
+
       if (values.length === 0) return sum;
       const avg = values.reduce((a, b) => a + b, 0) / values.length;
       return sum + avg;
@@ -149,8 +161,16 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
       ) : reviews.length > 0 ? (
         <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
           {reviews.map((review, idx) => {
-            const ratings = review.ratings || {};
-            const values = Object.values(ratings);
+            const values = [
+              review.rating_produccion,
+              review.rating_composicion,
+              review.rating_letras,
+              review.rating_originalidad,
+              review.rating_cohesion,
+              review.rating_replay,
+              review.rating_general,
+            ].filter((v) => v !== null && v !== undefined);
+
             const avg =
               values.length > 0
                 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
@@ -164,16 +184,18 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
                   <div>
                     <span className="text-white/80 text-sm font-medium">
-                      {review.reviewer || "Anónimo"}
+                      {review.reviewer_name || "Anónimo"}
                     </span>
-                    {review.email && (
+                    {review.reviewer_email && (
                       <span className="text-white/20 text-xs ml-2">
-                        {review.email}
+                        {review.reviewer_email}
                       </span>
                     )}
                     <span className="text-white/20 text-xs ml-2">
-                      {review.timestamp
-                        ? new Date(review.timestamp).toLocaleDateString("es-ES")
+                      {review.created_at
+                        ? new Date(review.created_at).toLocaleDateString(
+                            "es-ES",
+                          )
                         : ""}
                     </span>
                   </div>
@@ -187,17 +209,25 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
                 )}
 
                 <div className="flex flex-wrap gap-1 mt-2">
-                  {Object.entries(ratings).map(([key, value]) => {
-                    const criterio = CRITERIOS.find((c) => c.id === key);
-                    return criterio ? (
-                      <span
-                        key={key}
-                        className="text-[10px] text-white/30 bg-white/5 px-2 py-0.5 rounded-full"
-                      >
-                        {criterio.label.split(" ")[1]}: {value}
-                      </span>
-                    ) : null;
-                  })}
+                  {[
+                    { key: "rating_produccion", label: "🎛️" },
+                    { key: "rating_composicion", label: "🎵" },
+                    { key: "rating_letras", label: "📝" },
+                    { key: "rating_originalidad", label: "💡" },
+                    { key: "rating_cohesion", label: "🔗" },
+                    { key: "rating_replay", label: "🔄" },
+                    { key: "rating_general", label: "⭐" },
+                  ].map(
+                    ({ key, label }) =>
+                      review[key] && (
+                        <span
+                          key={key}
+                          className="text-[10px] text-white/30 bg-white/5 px-2 py-0.5 rounded-full"
+                        >
+                          {label}: {review[key]}
+                        </span>
+                      ),
+                  )}
                 </div>
               </div>
             );
@@ -213,7 +243,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
         </div>
       )}
 
-      {/* Botón para dejar review - AHORA DISPONIBLE PARA TODOS */}
+      {/* Botón para dejar review */}
       {!showReviewForm && (
         <button
           onClick={() => setShowReviewForm(true)}
@@ -223,7 +253,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
         </button>
       )}
 
-      {/* Formulario de review - AHORA PÚBLICO */}
+      {/* Formulario de review */}
       {showReviewForm && (
         <form
           onSubmit={handleSubmitReview}
@@ -323,7 +353,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
           </button>
 
           <p className="text-white/20 text-[10px] text-center mt-2">
-            Tu review se guardará en el Google Sheet del álbum
+            Tu review se guardará en Supabase
           </p>
         </form>
       )}

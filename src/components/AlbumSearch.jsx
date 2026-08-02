@@ -1,7 +1,7 @@
 // src/components/AlbumSearch.jsx
 import React, { useState } from "react";
 import { searchAlbum, getAlbumDetails } from "../services/spotifyApi";
-import { googleSheetsApi } from "../services/googleSheetsApi";
+import { supabaseService } from "../services/supabaseClient";
 
 export function AlbumSearch({ onAlbumCreated }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,7 +40,7 @@ export function AlbumSearch({ onAlbumCreated }) {
       const details = await getAlbumDetails(album.id);
       if (details.success) {
         setAlbumDetails(details.album);
-        setSearchResults([]); // Limpiar resultados al seleccionar
+        setSearchResults([]);
       } else {
         setError(details.error || "Error al obtener detalles");
       }
@@ -61,25 +61,20 @@ export function AlbumSearch({ onAlbumCreated }) {
         albumName: albumDetails.name,
         artistName: albumDetails.artists[0],
         imageUrl: albumDetails.image,
-        tracks: albumDetails.tracks.map((track) => ({
-          track_number: track.track_number,
-          name: track.name,
-        })),
+        spotifyLink: albumDetails.external_urls?.spotify || null,
+        addedBy: "Sistema",
+        addedByEmail: "sistema@maquinamusical.com",
       };
 
-      const result = await googleSheetsApi.createAlbum(albumData);
+      await supabaseService.createAlbum(albumData);
 
-      if (result.success) {
-        setAlbumDetails(null);
-        setSearchResults([]);
-        setSearchQuery("");
-        if (onAlbumCreated) onAlbumCreated();
-        alert("✅ ¡Álbum creado exitosamente! Ahora aparece en el pool.");
-      } else {
-        setError(result.error || "Error al crear el álbum");
-      }
+      setAlbumDetails(null);
+      setSearchResults([]);
+      setSearchQuery("");
+      if (onAlbumCreated) onAlbumCreated();
+      alert("✅ ¡Álbum creado exitosamente! Ahora aparece en el pool.");
     } catch (error) {
-      setError("Error al crear el álbum");
+      setError(error.message || "Error al crear el álbum");
     }
     setCreating(false);
   };

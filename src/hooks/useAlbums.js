@@ -1,43 +1,21 @@
+// src/hooks/useAlbums.js
 import { useState, useEffect } from 'react';
-import { albumsApi } from '../services/api';
+import { supabaseService } from '../services/supabaseClient';
 
 const FALLBACK_ALBUMS = [
   {
     artista: 'Madonna',
     album: 'Confessions II',
-    imagen:
-      'https://www.madonna.com/cdn/shop/files/CONFESSIONS2_745da7c4-683d-40ac-9a33-62dfc582e3a5.jpg?v=1782941623',
+    imagen: 'https://www.madonna.com/cdn/shop/files/CONFESSIONS2_745da7c4-683d-40ac-9a33-62dfc582e3a5.jpg?v=1782941623',
+    id: 'fallback-1'
   },
   {
     artista: 'Little Jesus',
     album: 'Disco de Oro',
-    imagen:
-      'https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/190759443620.jpg',
+    imagen: 'https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/190759443620.jpg',
+    id: 'fallback-2'
   },
-  {
-    artista: 'Fujii Kaze',
-    album: 'Prema',
-    imagen:
-      'https://m.media-amazon.com/images/I/71AEchV3YiL._UF1000,1000_QL80_.jpg',
-  },
-  {
-    artista: 'Rosé',
-    album: 'Rosie',
-    imagen:
-      'https://m.media-amazon.com/images/I/91xxhrUT8yL._UF1000,1000_QL80_.jpg',
-  },
-  {
-    artista: 'pH-1',
-    album: 'WHAT HAVE WE DONE',
-    imagen:
-      'https://cdn-images.dzcdn.net/images/cover/09a9157913ade51c21fbfd65d290275b/0x1900-000000-80-0-0.jpg',
-  },
-  {
-    artista: 'Knocked Loose',
-    album: "You Won't Go...",
-    imagen:
-      'https://m.media-amazon.com/images/I/81H4eStQkKL._UF1000,1000_QL80_.jpg',
-  },
+  // ... más fallbacks
 ];
 
 export function useAlbums() {
@@ -48,28 +26,40 @@ export function useAlbums() {
   const fetchAlbums = async () => {
     setLoading(true);
     try {
-      const result = await albumsApi.getActiveAlbums();
+      const data = await supabaseService.getActiveAlbums();
 
-      if (result.albums && result.albums.length > 0) {
-        setAlbums(result.albums);
+      // Mapear al formato esperado por los componentes
+      const mappedAlbums = data.map(album => ({
+        id: album.id,
+        album: album.album_name,
+        artista: album.artist_name,
+        imagen: album.image_url,
+        spotifyLink: album.spotify_link,
+        youtubeLink: album.youtube_link,
+        appleMusicLink: album.apple_music_link,
+        status: album.status
+      }));
+
+      if (mappedAlbums.length > 0) {
+        setAlbums(mappedAlbums);
         setError(null);
       } else {
         setAlbums(FALLBACK_ALBUMS);
         setError('Usando álbumes de ejemplo (sin datos)');
       }
     } catch (error) {
-      console.warn('Usando álbumes de ejemplo:', error);
+      console.warn('Error fetching albums:', error);
       setAlbums(FALLBACK_ALBUMS);
       setError('Usando álbumes de ejemplo (error de conexión)');
     }
     setLoading(false);
   };
 
-  const markAlbumAsInactive = async (album, artista) => {
+  const markAlbumAsInactive = async (albumName, artistName) => {
     try {
-      await albumsApi.markAsInactive(album, artista);
+      await supabaseService.markAlbumInactive(albumName, artistName);
       setAlbums((prev) =>
-        prev.filter((a) => !(a.album === album && a.artista === artista))
+        prev.filter((a) => !(a.album === albumName && a.artista === artistName))
       );
       return true;
     } catch (error) {
