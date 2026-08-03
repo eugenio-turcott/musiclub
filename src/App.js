@@ -1,5 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'; // 👈 Quitar Link y useNavigate
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
@@ -14,6 +15,7 @@ import { AlbumSearch } from './components/AlbumSearch';
 import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
+import { SEO } from './components/SEO';
 
 // Componente principal de la app
 function MainApp() {
@@ -82,109 +84,114 @@ function MainApp() {
   }
 
   return (
-    <div className="min-h-screen cyber-grid p-4 sm:p-6 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header con info de usuario */}
-        <div className="flex justify-between items-center mb-4">
-          <Header />
-          <div className="flex items-center gap-2">
-            {isAuthenticated && user ? (
-              <>
-                <div className="flex items-center gap-2">
-                  {user.avatar && (
-                    <img
-                      src={user.avatar}
-                      alt={user.name}
-                      className="w-8 h-8 rounded-full border border-[#f5576c]/30"
-                    />
-                  )}
-                  <span className="text-white/40 text-xs hidden sm:inline">
-                    {user.name || user.email}
-                    {isAdmin && (
-                      <span className="ml-2 text-[#f5576c] font-bold">
-                        ⭐ Admin
-                      </span>
+    <>
+      <SEO />
+      <div className="min-h-screen cyber-grid p-4 sm:p-6 md:p-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header con info de usuario */}
+          <div className="flex justify-between items-center mb-4">
+            <Header />
+            <div className="flex items-center gap-2">
+              {isAuthenticated && user ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    {user.avatar && (
+                      <img
+                        src={user.avatar}
+                        alt={user.name}
+                        className="w-8 h-8 rounded-full border border-[#f5576c]/30"
+                      />
                     )}
-                  </span>
-                </div>
+                    <span className="text-white/40 text-xs hidden sm:inline">
+                      {user.name || user.email}
+                      {isAdmin && (
+                        <span className="ml-2 text-[#f5576c] font-bold">
+                          ⭐ Admin
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="text-xs text-white/30 hover:text-white/60 transition-colors px-3 py-1 border border-white/10 rounded-full hover:border-white/20"
+                  >
+                    {isAdmin ? '🔓 Cerrar' : '🚪 Salir'}
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={logout}
-                  className="text-xs text-white/30 hover:text-white/60 transition-colors px-3 py-1 border border-white/10 rounded-full hover:border-white/20"
+                  onClick={handleLoginClick}
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors px-4 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full hover:border-[#f5576c]/50"
                 >
-                  {isAdmin ? '🔓 Cerrar' : '🚪 Salir'}
+                  🔑 Iniciar Sesión
                 </button>
-              </>
-            ) : (
-              <button
-                onClick={handleLoginClick}
-                className="text-xs text-white/40 hover:text-white/70 transition-colors px-4 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full hover:border-[#f5576c]/50"
-              >
-                🔑 Iniciar Sesión
-              </button>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Login Modal */}
-        <LoginModal
-          isOpen={showLogin}
-          onClose={() => setShowLogin(false)}
-          onLogin={() => {}}
-          onGoogleLogin={handleGoogleLogin}
-          loading={authLoading}
-          googleLoading={authLoading}
-        />
-
-        {/* Winner Display - Siempre visible si hay ganador */}
-        {localWinner && (
-          <WinnerDisplay
-            winner={localWinner}
-            onReset={isAdmin ? handleResetWinner : null}
+          {/* Login Modal */}
+          <LoginModal
+            isOpen={showLogin}
+            onClose={() => setShowLogin(false)}
+            onLogin={() => {}}
+            onGoogleLogin={handleGoogleLogin}
+            loading={authLoading}
+            googleLoading={authLoading}
           />
-        )}
 
-        {/* Slot Machine */}
-        <SlotMachine
-          albums={albums}
-          onSpinComplete={handleSpinComplete}
-          isSpinning={isSpinning}
-          onSpinStart={handleSpinStart}
-          markAlbumAsInactive={markAlbumAsInactive}
-          isAdmin={isAdmin}
-          user={user}
-        />
+          {/* Winner Display - Siempre visible si hay ganador */}
+          {localWinner && (
+            <WinnerDisplay
+              winner={localWinner}
+              onReset={isAdmin ? handleResetWinner : null}
+            />
+          )}
 
-        {/* Album Search - Solo admin */}
-        {isAdmin && <AlbumSearch onAlbumCreated={handleAlbumCreated} />}
+          {/* Slot Machine */}
+          <SlotMachine
+            albums={albums}
+            onSpinComplete={handleSpinComplete}
+            isSpinning={isSpinning}
+            onSpinStart={handleSpinStart}
+            markAlbumAsInactive={markAlbumAsInactive}
+            isAdmin={isAdmin}
+            user={user}
+          />
 
-        {/* Album Grid */}
-        <AlbumGrid
-          albums={albums}
-          loading={loading}
-          error={error}
-          winner={localWinner}
-        />
+          {/* Album Search - Solo admin */}
+          {isAdmin && <AlbumSearch onAlbumCreated={handleAlbumCreated} />}
 
-        {/* Rankings - Siempre visible */}
-        <Rankings albums={albums} isAdmin={isAdmin} />
+          {/* Album Grid */}
+          <AlbumGrid
+            albums={albums}
+            loading={loading}
+            error={error}
+            winner={localWinner}
+          />
 
-        {/* Footer con enlaces */}
-        <Footer />
+          {/* Rankings - Siempre visible */}
+          <Rankings albums={albums} isAdmin={isAdmin} />
+
+          {/* Footer con enlaces */}
+          <Footer />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 // App principal con Router
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainApp />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
-        <Route path="/terms" element={<TermsOfService />} />
-      </Routes>
-    </BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<MainApp />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
+        </Routes>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }
 
