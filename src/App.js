@@ -1,153 +1,103 @@
-// src/App.js
-import React, { useState, useEffect } from 'react';
-import { HelmetProvider } from 'react-helmet-async';
-import { BrowserRouter, Routes, Route } from 'react-router-dom'; // 👈 Quitar Link y useNavigate
-import { useAlbums } from './hooks/useAlbums';
-import { useAuth } from './hooks/useAuth';
+// src/App.jsx
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AppHeader } from './components/AppHeader';
 import { SlotMachine } from './components/SlotMachine';
 import { AlbumGrid } from './components/AlbumGrid';
-import { Header } from './components/Header';
-import { LoadingOverlay } from './components/LoadingOverlay';
+import { AlbumSearch } from './components/AlbumSearch';
+import { Rankings } from './components/Rankings';
 import { WinnerDisplay } from './components/WinnerDisplay';
 import { LoginModal } from './components/LoginModal';
-import { Rankings } from './components/Rankings';
-import { AlbumSearch } from './components/AlbumSearch';
+import { LoadingOverlay } from './components/LoadingOverlay';
 import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
-import { SEO } from './components/SEO';
+import { useAlbums } from './hooks/useAlbums';
+import { useAuth } from './hooks/useAuth';
 
-// Componente principal de la app
-function MainApp() {
+function AppContent() {
   const {
     albums,
+    winner,
     loading,
     error,
-    markAlbumAsInactive,
     refetch,
-    winner,
-    resetWinner,
+    markAlbumAsInactive,
+    // resetWinner - eliminado porque no se usa
   } = useAlbums();
+
   const {
     user,
-    isAdmin,
     loading: authLoading,
+    isAdmin,
     loginWithGoogle,
     logout,
-    isAuthenticated,
+    // isAuthenticated - eliminado porque no se usa
   } = useAuth();
 
   const [isSpinning, setIsSpinning] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [localWinner, setLocalWinner] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
 
-  // Usar el winner del hook o el local
-  useEffect(() => {
-    if (winner) {
-      setLocalWinner(winner);
+  const handleLogin = () => setShowLoginModal(true);
+
+  const handleLoginWithGoogle = async () => {
+    setLoginLoading(true);
+    const result = await loginWithGoogle();
+    setLoginLoading(false);
+    if (result.success && !result.redirecting) {
+      setShowLoginModal(false);
     }
-  }, [winner]);
+    return result;
+  };
 
-  const handleSpinComplete = (selectedAlbum) => {
-    setLocalWinner(selectedAlbum);
-    setIsSpinning(false);
+  const handleLogout = async () => {
+    await logout();
   };
 
   const handleSpinStart = () => {
     setIsSpinning(true);
   };
 
-  const handleResetWinner = async () => {
-    await resetWinner();
-    setLocalWinner(null);
+  const handleSpinComplete = () => {
+    setIsSpinning(false);
   };
-
-  const handleAlbumCreated = () => {
-    refetch();
-  };
-
-  const handleLoginClick = () => {
-    setShowLogin(true);
-  };
-
-  const handleGoogleLogin = async () => {
-    const result = await loginWithGoogle();
-    if (result.success) {
-      setShowLogin(false);
-    }
-    return result;
-  };
-
-  // Mostrar loading si está cargando autenticación o álbumes
-  if (authLoading || loading) {
-    return <LoadingOverlay loading={true} message="Cargando..." />;
-  }
 
   return (
-    <>
-      <SEO />
-      <div className="min-h-screen cyber-grid p-4 sm:p-6 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          {/* Header con info de usuario */}
-          <div className="flex justify-between items-center mb-4">
-            <Header />
-            <div className="flex items-center gap-2">
-              {isAuthenticated && user ? (
-                <>
-                  <div className="flex items-center gap-2">
-                    {user.avatar && (
-                      <img
-                        src={user.avatar}
-                        alt={user.name}
-                        className="w-8 h-8 rounded-full border border-[#f5576c]/30"
-                      />
-                    )}
-                    <span className="text-white/40 text-xs hidden sm:inline">
-                      {user.name || user.email}
-                      {isAdmin && (
-                        <span className="ml-2 text-[#f5576c] font-bold">
-                          ⭐ Admin
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                  <button
-                    onClick={logout}
-                    className="text-xs text-white/30 hover:text-white/60 transition-colors px-3 py-1 border border-white/10 rounded-full hover:border-white/20"
-                  >
-                    {isAdmin ? '🔓 Cerrar' : '🚪 Salir'}
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={handleLoginClick}
-                  className="text-xs text-white/40 hover:text-white/70 transition-colors px-4 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full hover:border-[#f5576c]/50"
-                >
-                  🔑 Iniciar Sesión
-                </button>
-              )}
-            </div>
-          </div>
+    <div className="min-h-screen cyber-grid p-4 sm:p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header con logo y login */}
+        <AppHeader
+          user={user}
+          isAdmin={isAdmin}
+          onLogin={handleLogin}
+          onLogout={handleLogout}
+          loading={authLoading}
+        />
 
-          {/* Login Modal */}
-          <LoginModal
-            isOpen={showLogin}
-            onClose={() => setShowLogin(false)}
-            onLogin={() => {}}
-            onGoogleLogin={handleGoogleLogin}
-            loading={authLoading}
-            googleLoading={authLoading}
-          />
+        {/* Loading Overlay */}
+        <LoadingOverlay
+          loading={loading || isSpinning}
+          message={
+            isSpinning ? '🎰 GIRANDO LA MÁQUINA...' : 'Cargando álbumes...'
+          }
+        />
 
-          {/* Winner Display - Siempre visible si hay ganador */}
-          {localWinner && (
-            <WinnerDisplay
-              winner={localWinner}
-              onReset={isAdmin ? handleResetWinner : null}
-            />
-          )}
+        {/* Login Modal */}
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onLogin={handleLoginWithGoogle}
+          onGoogleLogin={handleLoginWithGoogle}
+          loading={loginLoading}
+          googleLoading={loginLoading}
+        />
 
-          {/* Slot Machine */}
+        {/* Winner Display - SIEMPRE visible */}
+        <WinnerDisplay winner={winner} />
+
+        {/* Slot Machine - Solo visible si hay álbumes */}
+        {albums.length > 0 && (
           <SlotMachine
             albums={albums}
             onSpinComplete={handleSpinComplete}
@@ -157,41 +107,38 @@ function MainApp() {
             isAdmin={isAdmin}
             user={user}
           />
+        )}
 
-          {/* Album Search - Solo admin */}
-          {isAdmin && <AlbumSearch onAlbumCreated={handleAlbumCreated} />}
+        {/* Rankings */}
+        <Rankings albums={albums} isAdmin={isAdmin} />
 
-          {/* Album Grid */}
-          <AlbumGrid
-            albums={albums}
-            loading={loading}
-            error={error}
-            winner={localWinner}
-          />
+        {/* Álbumes - Catálogo completo */}
+        <AlbumGrid
+          albums={albums}
+          loading={loading}
+          error={error}
+          winner={winner}
+        />
 
-          {/* Rankings - Siempre visible */}
-          <Rankings albums={albums} isAdmin={isAdmin} />
+        {/* Búsqueda de álbumes en Spotify (solo admin) */}
+        {isAdmin && <AlbumSearch onAlbumCreated={refetch} />}
 
-          {/* Footer con enlaces */}
-          <Footer />
-        </div>
+        {/* Footer */}
+        <Footer />
       </div>
-    </>
+    </div>
   );
 }
 
-// App principal con Router
-function App() {
+export function App() {
   return (
-    <HelmetProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<MainApp />} />
-          <Route path="/privacy" element={<PrivacyPolicy />} />
-          <Route path="/terms" element={<TermsOfService />} />
-        </Routes>
-      </BrowserRouter>
-    </HelmetProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<AppContent />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
+      </Routes>
+    </Router>
   );
 }
 

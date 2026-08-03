@@ -1,32 +1,37 @@
 // src/components/ReviewSystem.jsx
-import React, { useState, useEffect, useCallback } from "react";
-import { supabaseService } from "../services/supabaseClient";
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabaseService } from '../services/supabaseClient';
 
 const CRITERIOS = [
-  { id: "produccion", label: "🎛️ Producción", max: 10 },
-  { id: "composicion", label: "🎵 Composición", max: 10 },
-  { id: "letras", label: "📝 Letras", max: 10 },
-  { id: "originalidad", label: "💡 Originalidad", max: 10 },
-  { id: "cohesion", label: "🔗 Cohesión", max: 10 },
-  { id: "replay", label: "🔄 Replay Value", max: 10 },
-  { id: "general", label: "⭐ Calificación General", max: 10 },
+  { id: 'produccion', label: '🎛️ Producción', max: 10 },
+  { id: 'composicion', label: '🎵 Composición', max: 10 },
+  { id: 'letras', label: '📝 Letras', max: 10 },
+  { id: 'originalidad', label: '💡 Originalidad', max: 10 },
+  { id: 'cohesion', label: '🔗 Cohesión', max: 10 },
+  { id: 'replay', label: '🔄 Replay Value', max: 10 },
+  { id: 'general', label: '⭐ Calificación General', max: 10 },
 ];
 
-export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
+export function ReviewSystem({
+  album,
+  onReviewSubmitted,
+  isAdmin,
+  isFromSpotify = false, // Nueva prop para diferenciar
+}) {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [userName, setUserName] = useState("");
-  const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState('');
+  const [userEmail, setUserEmail] = useState('');
   const [ratings, setRatings] = useState({});
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadReviews = useCallback(async () => {
     if (!album || !album.id) {
-      console.warn("No album id available");
+      console.warn('No album id available');
       return;
     }
 
@@ -35,7 +40,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
       const data = await supabaseService.getReviews(album.id);
       setReviews(data || []);
     } catch (error) {
-      console.error("Error loading reviews:", error);
+      console.error('Error loading reviews:', error);
     }
     setLoading(false);
   }, [album]);
@@ -52,7 +57,6 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
     setSuccess(false);
     setIsSubmitting(true);
 
-    // Validar que todos los criterios estén calificados
     const missingCriterios = CRITERIOS.filter((c) => !ratings[c.id]);
     if (missingCriterios.length > 0) {
       setError(`Por favor califica todos los criterios`);
@@ -61,13 +65,13 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
     }
 
     if (!userName.trim()) {
-      setError("Por favor ingresa tu nombre");
+      setError('Por favor ingresa tu nombre');
       setIsSubmitting(false);
       return;
     }
 
-    if (!userEmail.trim() || !userEmail.includes("@")) {
-      setError("Por favor ingresa un email válido");
+    if (!userEmail.trim() || !userEmail.includes('@')) {
+      setError('Por favor ingresa un email válido');
       setIsSubmitting(false);
       return;
     }
@@ -91,15 +95,15 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
       await supabaseService.submitReview(reviewData);
       setSuccess(true);
       setRatings({});
-      setComment("");
-      setUserName("");
-      setUserEmail("");
+      setComment('');
+      setUserName('');
+      setUserEmail('');
       setShowReviewForm(false);
       await loadReviews();
       if (onReviewSubmitted) onReviewSubmitted();
       setTimeout(() => setSuccess(false), 3000);
     } catch (error) {
-      setError(error.message || "Error al enviar la review");
+      setError(error.message || 'Error al enviar la review');
     }
     setIsSubmitting(false);
   };
@@ -141,7 +145,15 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
     <div className="mt-6 pt-6 border-t border-white/5">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
         <h4 className="text-white/80 text-sm tracking-wider uppercase flex items-center gap-2">
-          🎧 Reviews
+          {isFromSpotify ? (
+            <>
+              🎧 <span className="text-[#f5576c]">Reviews de la Comunidad</span>
+            </>
+          ) : (
+            <>
+              🎧 <span className="text-[#f5576c]">Reviews del Club</span>
+            </>
+          )}
           <span className="text-white/20 text-xs font-normal">
             ({reviews.length})
           </span>
@@ -174,7 +186,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
             const avg =
               values.length > 0
                 ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
-                : "N/A";
+                : 'N/A';
 
             return (
               <div
@@ -184,7 +196,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
                   <div>
                     <span className="text-white/80 text-sm font-medium">
-                      {review.reviewer_name || "Anónimo"}
+                      {review.reviewer_name || 'Anónimo'}
                     </span>
                     {review.reviewer_email && (
                       <span className="text-white/20 text-xs ml-2">
@@ -194,9 +206,9 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
                     <span className="text-white/20 text-xs ml-2">
                       {review.created_at
                         ? new Date(review.created_at).toLocaleDateString(
-                            "es-ES",
+                            'es-ES'
                           )
-                        : ""}
+                        : ''}
                     </span>
                   </div>
                   <span className="text-[#f5576c] text-sm font-bold">
@@ -210,13 +222,13 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
 
                 <div className="flex flex-wrap gap-1 mt-2">
                   {[
-                    { key: "rating_produccion", label: "🎛️" },
-                    { key: "rating_composicion", label: "🎵" },
-                    { key: "rating_letras", label: "📝" },
-                    { key: "rating_originalidad", label: "💡" },
-                    { key: "rating_cohesion", label: "🔗" },
-                    { key: "rating_replay", label: "🔄" },
-                    { key: "rating_general", label: "⭐" },
+                    { key: 'rating_produccion', label: '🎛️' },
+                    { key: 'rating_composicion', label: '🎵' },
+                    { key: 'rating_letras', label: '📝' },
+                    { key: 'rating_originalidad', label: '💡' },
+                    { key: 'rating_cohesion', label: '🔗' },
+                    { key: 'rating_replay', label: '🔄' },
+                    { key: 'rating_general', label: '⭐' },
                   ].map(
                     ({ key, label }) =>
                       review[key] && (
@@ -226,7 +238,7 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
                         >
                           {label}: {review[key]}
                         </span>
-                      ),
+                      )
                   )}
                 </div>
               </div>
@@ -260,7 +272,13 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
           className="mt-4 bg-white/5 rounded-2xl p-4 border border-white/10"
         >
           <div className="flex justify-between items-center mb-3">
-            <h5 className="text-white/60 text-sm">Nueva Review</h5>
+            <h5 className="text-white/60 text-sm">
+              {isFromSpotify ? (
+                <>🎵 Review de Álbum Externo</>
+              ) : (
+                <>🎧 Review de Álbum del Club</>
+              )}
+            </h5>
             <button
               type="button"
               onClick={() => setShowReviewForm(false)}
@@ -345,15 +363,15 @@ export function ReviewSystem({ album, onReviewSubmitted, isAdmin }) {
             disabled={isSubmitting}
             className={`w-full py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold transition-all ${
               isSubmitting
-                ? "opacity-50 cursor-not-allowed"
-                : "hover:scale-[1.02]"
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:scale-[1.02]'
             }`}
           >
-            {isSubmitting ? "Enviando..." : "📤 Enviar Review"}
+            {isSubmitting ? 'Enviando...' : '📤 Enviar Review'}
           </button>
 
           <p className="text-white/20 text-[10px] text-center mt-2">
-            Tu review se guardará en Supabase
+            Tu review se guardará en la base de datos
           </p>
         </form>
       )}
