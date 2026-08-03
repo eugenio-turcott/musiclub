@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
-import { ReviewSystem } from "./ReviewSystem";
+// src/components/SlotMachine.jsx
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { ReviewSystem } from './ReviewSystem';
 
 export function SlotMachine({
   albums,
@@ -7,82 +8,50 @@ export function SlotMachine({
   isSpinning,
   onSpinStart,
   markAlbumAsInactive,
+  isAdmin = false,
+  user = null,
 }) {
   const [reels, setReels] = useState([0, 0, 0]);
   const [isSpinningLocal, setIsSpinningLocal] = useState(false);
   const [showWin, setShowWin] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
-  const [message, setMessage] = useState("🎰 ¡Tira la palanca!");
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [password, setPassword] = useState("");
+  const [message, setMessage] = useState('🎰 ¡Tira la palanca!');
   const [finalWinner, setFinalWinner] = useState(null);
   const carruselIntervalRef = useRef(null);
   const isMounted = useRef(true);
   const carruselTimeoutRef = useRef(null);
 
-  const ADMIN_PASSWORD = "AMMPACC2026$";
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      emitAdminStatus(true);
-      setShowLogin(false);
-      setPassword("");
-      setMessage("🔓 Acceso concedido");
-      setTimeout(() => setMessage("🎰 ¡Tira la palanca!"), 1500);
-    } else {
-      setMessage("❌ Contraseña incorrecta");
-      setTimeout(() => setMessage("🎰 ¡Tira la palanca!"), 2000);
-    }
-  };
-
-  const handleLogout = () => {
-    setIsAdmin(false);
-    emitAdminStatus(false);
-    setMessage("🔒 Sesión cerrada");
-    setTimeout(() => setMessage("🎰 ¡Tira la palanca!"), 1500);
-  };
-
-  const emitAdminStatus = (status) => {
-    const event = new CustomEvent("adminStatusChange", {
-      detail: { isAdmin: status },
-    });
-    window.dispatchEvent(event);
-  };
-
   const getAlbumForReel = (index) => {
-    if (!albums.length) return { album: "???", artista: "???", imagen: "" };
+    if (!albums.length) return { album: '???', artista: '???', imagen: '' };
     return albums[index % albums.length];
   };
 
   const launchConfetti = () => {
     const colors = [
-      "#f5576c",
-      "#f093fb",
-      "#ffd93d",
-      "#6bcb77",
-      "#4d96ff",
-      "#ff6b6b",
-      "#ff9ff3",
-      "#00d2ff",
+      '#f5576c',
+      '#f093fb',
+      '#ffd93d',
+      '#6bcb77',
+      '#4d96ff',
+      '#ff6b6b',
+      '#ff9ff3',
+      '#00d2ff',
     ];
     for (let i = 0; i < 120; i++) {
-      const piece = document.createElement("div");
-      piece.className = "confetti-piece";
-      piece.style.left = Math.random() * 100 + "%";
-      piece.style.top = "-10px";
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.top = '-10px';
       piece.style.background =
         colors[Math.floor(Math.random() * colors.length)];
-      piece.style.width = Math.random() * 8 + 4 + "px";
-      piece.style.height = Math.random() * 8 + 4 + "px";
-      piece.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
-      piece.style.animationDuration = Math.random() * 2.5 + 2 + "s";
-      piece.style.animationDelay = Math.random() * 0.8 + "s";
+      piece.style.width = Math.random() * 8 + 4 + 'px';
+      piece.style.height = Math.random() * 8 + 4 + 'px';
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      piece.style.animationDuration = Math.random() * 2.5 + 2 + 's';
+      piece.style.animationDelay = Math.random() * 0.8 + 's';
       piece.style.transform = `rotate(${Math.random() * 360}deg)`;
       piece.style.boxShadow = `0 0 10px ${colors[Math.floor(Math.random() * colors.length)]}`;
-      piece.style.zIndex = "10000";
+      piece.style.zIndex = '10000';
       document.body.appendChild(piece);
       setTimeout(() => {
         if (piece.parentNode) piece.remove();
@@ -211,7 +180,7 @@ export function SlotMachine({
     setIsSpinningLocal(true);
     setShowWin(false);
     if (onSpinStart) onSpinStart();
-    setMessage("🎰 GIRANDO...");
+    setMessage('🎰 GIRANDO...');
     setSpinCount((prev) => prev + 1);
 
     setReels([0, 0, 0]);
@@ -227,15 +196,15 @@ export function SlotMachine({
       attempts++;
       let currentReelsState = [0, 0, 0];
 
-      setMessage("🎰 GIRANDO COLUMNA 1...");
+      setMessage('🎰 GIRANDO COLUMNA 1...');
       await spinSingleReel(0, result[0], 1200, currentReelsState);
       currentReelsState = [result[0], 0, 0];
 
-      setMessage("🎰 GIRANDO COLUMNA 2...");
+      setMessage('🎰 GIRANDO COLUMNA 2...');
       await spinSingleReel(1, result[1], 1000, currentReelsState);
       currentReelsState = [result[0], result[1], 0];
 
-      setMessage("🎰 GIRANDO COLUMNA 3...");
+      setMessage('🎰 GIRANDO COLUMNA 3...');
       await spinSingleReel(2, result[2], 800, currentReelsState);
 
       await new Promise((resolve) => setTimeout(resolve, 100));
@@ -249,7 +218,7 @@ export function SlotMachine({
         winner = albums[r1];
         setFinalWinner(winner);
         setShowWin(true);
-        setMessage("🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!");
+        setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
         launchConfetti();
         setReels([r1, r2, r3]);
 
@@ -283,14 +252,14 @@ export function SlotMachine({
           result[2] = newResult[2];
           await attemptSpin();
         } else {
-          setMessage("🎯 ÚLTIMO INTENTO...");
+          setMessage('🎯 ÚLTIMO INTENTO...');
           const winnerIndex = Math.floor(Math.random() * albums.length);
           const forcedResult = [winnerIndex, winnerIndex, winnerIndex];
           setReels(forcedResult);
           winner = albums[winnerIndex];
           setFinalWinner(winner);
           setShowWin(true);
-          setMessage("🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!");
+          setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
           launchConfetti();
 
           if (onSpinComplete) {
@@ -364,42 +333,6 @@ export function SlotMachine({
 
   return (
     <div className="py-6">
-      {showLogin && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-xl flex items-center justify-center z-[9999] p-4">
-          <div className="bg-black/90 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-8 max-w-md w-full">
-            <h3 className="text-white text-2xl sm:text-3xl font-bold text-center mb-4 cyber-text">
-              🔐 ACCESO ADMIN
-            </h3>
-            <p className="text-white/40 text-sm text-center mb-6">
-              Ingresa la contraseña para acceder a la máquina
-            </p>
-            <form onSubmit={handleLogin} className="space-y-4">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Contraseña"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#f5576c]/50 transition-colors"
-                autoFocus
-              />
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold py-3 rounded-xl hover:scale-[1.02] transition-all duration-300"
-              >
-                ACCEDER
-              </button>
-              <button
-                type="button"
-                onClick={() => setShowLogin(false)}
-                className="w-full text-white/30 text-sm hover:text-white/50 transition-colors"
-              >
-                Cancelar
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
-
       <div className="relative max-w-3xl mx-auto">
         <div className="absolute -inset-1 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-[#f5576c] rounded-3xl blur-xl opacity-50 animate-pulse"></div>
 
@@ -408,12 +341,13 @@ export function SlotMachine({
             <span className="text-xs sm:text-sm tracking-[0.3em] text-[#f5576c] border border-[#f5576c]/20 px-4 py-1 rounded-full">
               PRIMER POOL DE ÁLBUMES
             </span>
-            <button
-              onClick={isAdmin ? handleLogout : () => setShowLogin(true)}
-              className="text-xs sm:text-sm text-white/30 hover:text-white/60 transition-colors px-3 py-1 border border-white/10 rounded-full hover:border-white/20"
-            >
-              {isAdmin ? "🔓 Admin" : "🔒 Login"}
-            </button>
+            <div className="flex items-center gap-2">
+              {user && (
+                <span className="text-[10px] text-white/30">
+                  {isAdmin ? '👑 Admin' : `👤 ${user.name || user.email}`}
+                </span>
+              )}
+            </div>
           </div>
 
           <div className="text-center mb-3">
@@ -429,17 +363,17 @@ export function SlotMachine({
                   key={idx}
                   className={`relative bg-black/50 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
                     isWinnerReel
-                      ? "border-[#f5576c] shadow-[0_0_60px_rgba(245,87,108,0.5)]"
+                      ? 'border-[#f5576c] shadow-[0_0_60px_rgba(245,87,108,0.5)]'
                       : isCarruselActive && !isSpinningLocal && !isSpinning
-                        ? "border-[#f5576c]/30 shadow-[0_0_30px_rgba(245,87,108,0.08)]"
-                        : "border-white/5"
+                        ? 'border-[#f5576c]/30 shadow-[0_0_30px_rgba(245,87,108,0.08)]'
+                        : 'border-white/5'
                   }`}
                   style={{
                     animation: isWinnerReel
-                      ? "slotWin 0.8s ease-in-out"
+                      ? 'slotWin 0.8s ease-in-out'
                       : isCarruselActive && !isSpinningLocal && !isSpinning
-                        ? "carruselPulse 1.2s ease-in-out infinite"
-                        : "none",
+                        ? 'carruselPulse 1.2s ease-in-out infinite'
+                        : 'none',
                   }}
                 >
                   <div className="aspect-square flex flex-col items-center justify-center p-2 sm:p-3 relative">
@@ -477,21 +411,21 @@ export function SlotMachine({
               <span
                 className={`w-2 h-2 rounded-full ${
                   isSpinningLocal
-                    ? "bg-[#f5576c] animate-pulse"
+                    ? 'bg-[#f5576c] animate-pulse'
                     : isWinner
-                      ? "bg-green-500"
+                      ? 'bg-green-500'
                       : isCarruselActive
-                        ? "bg-[#f5576c]/70 animate-pulse"
-                        : "bg-green-500/50"
+                        ? 'bg-[#f5576c]/70 animate-pulse'
+                        : 'bg-green-500/50'
                 }`}
               ></span>
               {isSpinningLocal
-                ? "GIRANDO..."
+                ? 'GIRANDO...'
                 : isWinner
-                  ? "¡GANADOR!"
+                  ? '¡GANADOR!'
                   : isCarruselActive
-                    ? "BLOQUEADO"
-                    : "LISTO"}
+                    ? 'BLOQUEADO'
+                    : 'LISTO'}
             </div>
             {spinCount > 0 && (
               <div className="text-[10px] sm:text-xs text-white/20">
@@ -509,8 +443,8 @@ export function SlotMachine({
                   relative px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg transition-all duration-300
                   ${
                     isSpinningLocal || isSpinning
-                      ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                      : "bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white hover:scale-105 hover:shadow-[0_0_40px_rgba(245,87,108,0.5)] active:scale-95"
+                      ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white hover:scale-105 hover:shadow-[0_0_40px_rgba(245,87,108,0.5)] active:scale-95'
                   }
                 `}
               >
@@ -520,21 +454,21 @@ export function SlotMachine({
                 <span className="relative flex items-center gap-2 sm:gap-3">
                   <span className="text-xl sm:text-2xl">🎰</span>
                   {isSpinningLocal || isSpinning
-                    ? "GIRANDO..."
-                    : "¡TIRAR PALANCA!"}
+                    ? 'GIRANDO...'
+                    : '¡TIRAR PALANCA!'}
                   <span className="text-[10px] sm:text-xs tracking-wider opacity-50">
-                    {!isSpinningLocal && !isSpinning && "▶"}
+                    {!isSpinningLocal && !isSpinning && '▶'}
                   </span>
                 </span>
               </button>
             ) : (
               <button
-                onClick={() => setShowLogin(true)}
+                onClick={() => {}}
                 className="relative px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg transition-all duration-300 bg-gray-800/50 text-white/30 cursor-not-allowed border border-white/5"
               >
                 <span className="relative flex items-center gap-2 sm:gap-3">
                   <span className="text-xl sm:text-2xl">🔒</span>
-                  BLOQUEADO
+                  {user ? 'Solo Admin puede girar' : 'Inicia sesión para girar'}
                   <span className="text-[10px] sm:text-xs tracking-wider opacity-30">
                     🔐
                   </span>
@@ -549,14 +483,41 @@ export function SlotMachine({
               <ReviewSystem
                 album={finalWinner}
                 isAdmin={isAdmin}
-                onReviewSubmitted={() => {
-                  // Opcional: refrescar datos
-                }}
+                onReviewSubmitted={() => {}}
               />
             </div>
           )}
         </div>
       </div>
+
+      <style>{`
+        @keyframes slotWin {
+          0% { transform: scale(1); }
+          25% { transform: scale(1.05) rotate(-2deg); }
+          50% { transform: scale(1.1) rotate(2deg); }
+          75% { transform: scale(1.05) rotate(-1deg); }
+          100% { transform: scale(1) rotate(0deg); }
+        }
+        @keyframes carruselPulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.7; }
+        }
+        .confetti-piece {
+          position: fixed;
+          pointer-events: none;
+          animation: confettiFall linear forwards;
+        }
+        @keyframes confettiFall {
+          0% {
+            transform: translateY(0) rotate(0deg) scale(1);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) rotate(720deg) scale(0);
+            opacity: 0;
+          }
+        }
+      `}</style>
     </div>
   );
 }

@@ -1,35 +1,74 @@
 // src/hooks/useAlbums.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 
 const FALLBACK_ALBUMS = [
   {
-    artista: 'Madonna',
+    id: 'fallback-1',
     album: 'Confessions II',
-    imagen: 'https://www.madonna.com/cdn/shop/files/CONFESSIONS2_745da7c4-683d-40ac-9a33-62dfc582e3a5.jpg?v=1782941623',
-    id: 'fallback-1'
+    artista: 'Madonna',
+    imagen:
+      'https://www.madonna.com/cdn/shop/files/CONFESSIONS2_745da7c4-683d-40ac-9a33-62dfc582e3a5.jpg?v=1782941623',
+    status: 'ACTIVO',
+    added_by: 'Tadeo',
+    added_by_email: 'tadeoemiliano@hotmail.com',
   },
   {
-    artista: 'Little Jesus',
+    id: 'fallback-2',
     album: 'Disco de Oro',
-    imagen: 'https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/190759443620.jpg',
-    id: 'fallback-2'
+    artista: 'Little Jesus',
+    imagen:
+      'https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/190759443620.jpg',
+    status: 'ACTIVO',
+    added_by: 'Jesús',
+    added_by_email: 'jesusroberto005@gmail.com',
   },
-  // ... más fallbacks
+  {
+    id: 'fallback-3',
+    album: 'Prema',
+    artista: 'Fujii Kaze',
+    imagen:
+      'https://m.media-amazon.com/images/I/71AEchV3YiL._UF1000,1000_QL80_.jpg',
+    status: 'ACTIVO',
+    added_by: 'Devie',
+    added_by_email: 'devshtp24@gmail.com',
+  },
+  {
+    id: 'fallback-4',
+    album: 'Titanic Rising',
+    artista: 'Weyes Blood',
+    imagen:
+      'https://cdn-images.dzcdn.net/images/cover/f2edcff8208b6c8aeb2dccff39209043/1900x1900-000000-80-0-0.jpg',
+    status: 'ACTIVO',
+    added_by: 'Cait',
+    added_by_email: 'ricardodg351@gmail.com',
+  },
+  {
+    id: 'fallback-5',
+    album: 'Bodhiria',
+    artista: 'Judeline',
+    imagen:
+      'https://cdn-images.dzcdn.net/images/cover/a1041dd029a6ac9dd7eeb9f51c99517c/0x1900-000000-80-0-0.jpg',
+    status: 'ACTIVO',
+    added_by: 'Valentín',
+    added_by_email: 'valentihdz28@gmail.com',
+  },
 ];
 
 export function useAlbums() {
   const [albums, setAlbums] = useState([]);
+  const [winner, setWinner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchAlbums = async () => {
+  const fetchAlbums = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const data = await supabaseService.getActiveAlbums();
 
       // Mapear al formato esperado por los componentes
-      const mappedAlbums = data.map(album => ({
+      const mappedAlbums = data.map((album) => ({
         id: album.id,
         album: album.album_name,
         artista: album.artist_name,
@@ -37,46 +76,77 @@ export function useAlbums() {
         spotifyLink: album.spotify_link,
         youtubeLink: album.youtube_link,
         appleMusicLink: album.apple_music_link,
-        status: album.status
+        status: album.status,
+        added_by: album.added_by,
+        added_by_email: album.added_by_email,
+        created_at: album.created_at,
       }));
 
       if (mappedAlbums.length > 0) {
-        setAlbums(mappedAlbums);
+        // Separar ganador y activos
+        const winnerAlbum = mappedAlbums.find((a) => a.status === 'GANADOR');
+        const activeAlbums = mappedAlbums.filter((a) => a.status === 'ACTIVO');
+
+        setAlbums(activeAlbums);
+        setWinner(winnerAlbum || null);
         setError(null);
       } else {
+        // Usar fallbacks
         setAlbums(FALLBACK_ALBUMS);
+        setWinner(null);
         setError('Usando álbumes de ejemplo (sin datos)');
       }
     } catch (error) {
       console.warn('Error fetching albums:', error);
       setAlbums(FALLBACK_ALBUMS);
+      setWinner(null);
       setError('Usando álbumes de ejemplo (error de conexión)');
     }
     setLoading(false);
-  };
+  }, []);
 
-  const markAlbumAsInactive = async (albumName, artistName) => {
+  const markAlbumAsInactive = useCallback(
+    async (albumName, artistName) => {
+      try {
+        // Primero marcar como INACTIVO
+        await supabaseService.markAlbumInactive(albumName, artistName);
+
+        // Luego marcar como GANADOR
+        await supabaseService.markAlbumAsWinner(albumName, artistName);
+
+        // Refrescar lista
+        await fetchAlbums();
+        return true;
+      } catch (error) {
+        console.error('Error al marcar álbum:', error);
+        return false;
+      }
+    },
+    [fetchAlbums]
+  );
+
+  const resetWinner = useCallback(async () => {
     try {
-      await supabaseService.markAlbumInactive(albumName, artistName);
-      setAlbums((prev) =>
-        prev.filter((a) => !(a.album === albumName && a.artista === artistName))
-      );
+      await supabaseService.resetWinner();
+      await fetchAlbums();
       return true;
     } catch (error) {
-      console.error('Error al desactivar álbum:', error);
+      console.error('Error al resetear ganador:', error);
       return false;
     }
-  };
+  }, [fetchAlbums]);
 
   useEffect(() => {
     fetchAlbums();
-  }, []);
+  }, [fetchAlbums]);
 
   return {
     albums,
+    winner,
     loading,
     error,
     refetch: fetchAlbums,
     markAlbumAsInactive,
+    resetWinner,
   };
 }

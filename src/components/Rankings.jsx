@@ -1,57 +1,57 @@
 // src/components/Rankings.jsx
-import React, { useState, useEffect, useCallback } from "react";
-import { supabaseService } from "../services/supabaseClient";
+import React, { useState, useEffect, useCallback } from 'react';
+import { supabaseService } from '../services/supabaseClient';
 
 // Constantes para las categorías
 const CATEGORIES = [
   {
-    id: "general",
-    label: "General",
-    emoji: "⭐",
-    color: "from-purple-500 to-pink-500",
+    id: 'general',
+    label: 'General',
+    emoji: '⭐',
+    color: 'from-purple-500 to-pink-500',
   },
   {
-    id: "produccion",
-    label: "Producción",
-    emoji: "🎛️",
-    color: "from-blue-500 to-cyan-500",
+    id: 'produccion',
+    label: 'Producción',
+    emoji: '🎛️',
+    color: 'from-blue-500 to-cyan-500',
   },
   {
-    id: "composicion",
-    label: "Composición",
-    emoji: "🎵",
-    color: "from-green-500 to-emerald-500",
+    id: 'composicion',
+    label: 'Composición',
+    emoji: '🎵',
+    color: 'from-green-500 to-emerald-500',
   },
   {
-    id: "letras",
-    label: "Letras",
-    emoji: "📝",
-    color: "from-yellow-500 to-orange-500",
+    id: 'letras',
+    label: 'Letras',
+    emoji: '📝',
+    color: 'from-yellow-500 to-orange-500',
   },
   {
-    id: "originalidad",
-    label: "Originalidad",
-    emoji: "💡",
-    color: "from-indigo-500 to-purple-500",
+    id: 'originalidad',
+    label: 'Originalidad',
+    emoji: '💡',
+    color: 'from-indigo-500 to-purple-500',
   },
   {
-    id: "cohesion",
-    label: "Cohesión",
-    emoji: "🔗",
-    color: "from-red-500 to-rose-500",
+    id: 'cohesion',
+    label: 'Cohesión',
+    emoji: '🔗',
+    color: 'from-red-500 to-rose-500',
   },
   {
-    id: "replay",
-    label: "Replay Value",
-    emoji: "🔄",
-    color: "from-teal-500 to-cyan-500",
+    id: 'replay',
+    label: 'Replay Value',
+    emoji: '🔄',
+    color: 'from-teal-500 to-cyan-500',
   },
 ];
 
 // Emojis para medallas
-const MEDALS = ["🥇", "🥈", "🥉"];
+const MEDALS = ['🥇', '🥈', '🥉'];
 
-export function Rankings({ albums }) {
+export function Rankings({ albums, isAdmin = false }) {
   const [rankings, setRankings] = useState({
     topReviewers: [],
     topAlbums: [],
@@ -61,8 +61,8 @@ export function Rankings({ albums }) {
     totalReviews: 0,
   });
 
-  const [activeTab, setActiveTab] = useState("general");
-  const [activeView, setActiveView] = useState("albums");
+  const [activeTab, setActiveTab] = useState('general');
+  const [activeView, setActiveView] = useState('albums');
   const [expandedStats, setExpandedStats] = useState(false);
   const [animate, setAnimate] = useState(false);
 
@@ -91,7 +91,7 @@ export function Rankings({ albums }) {
       // Activar animación después de cargar
       setTimeout(() => setAnimate(true), 100);
     } catch (error) {
-      console.error("Error loading rankings:", error);
+      console.error('Error loading rankings:', error);
       setRankings((prev) => ({
         ...prev,
         loading: false,
@@ -106,17 +106,16 @@ export function Rankings({ albums }) {
 
   // Renderizar barras de calificación con animación
   const renderRatingBar = (rating, max = 10, delay = 0) => {
-    // Si rating es null o undefined, usar 0
     const safeRating = rating ?? 0;
     const percentage = Math.min((safeRating / max) * 100, 100);
     return (
       <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
         <div
           className={`h-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-1000 ${
-            animate ? "opacity-100" : "opacity-0"
+            animate ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
-            width: animate ? `${percentage}%` : "0%",
+            width: animate ? `${percentage}%` : '0%',
             transitionDelay: `${delay}ms`,
           }}
         />
@@ -136,8 +135,8 @@ export function Rankings({ albums }) {
       onClick={onClick}
       className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 ${
         active
-          ? `bg-gradient-to-r ${category.color} text-white shadow-lg shadow-${category.color.split(" ")[0].replace("from-", "")}/20`
-          : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
+          ? `bg-gradient-to-r ${category.color} text-white shadow-lg shadow-${category.color.split(' ')[0].replace('from-', '')}/20`
+          : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
       }`}
     >
       <span className="mr-1">{category.emoji}</span>
@@ -148,7 +147,7 @@ export function Rankings({ albums }) {
   // Formatear rating de forma segura
   const formatRating = (rating) => {
     if (rating === null || rating === undefined || isNaN(rating)) {
-      return "0.0";
+      return '0.0';
     }
     return rating.toFixed(1);
   };
@@ -160,15 +159,15 @@ export function Rankings({ albums }) {
           <div className="flex gap-2">
             <span
               className="w-3 h-3 bg-[#f5576c] rounded-full animate-bounce"
-              style={{ animationDelay: "0ms" }}
+              style={{ animationDelay: '0ms' }}
             ></span>
             <span
               className="w-3 h-3 bg-[#f093fb] rounded-full animate-bounce"
-              style={{ animationDelay: "150ms" }}
+              style={{ animationDelay: '150ms' }}
             ></span>
             <span
               className="w-3 h-3 bg-[#f5576c] rounded-full animate-bounce"
-              style={{ animationDelay: "300ms" }}
+              style={{ animationDelay: '300ms' }}
             ></span>
           </div>
           <span className="text-white/30 text-sm">Cargando rankings...</span>
@@ -181,7 +180,7 @@ export function Rankings({ albums }) {
 
   // Obtener los álbumes según la categoría activa
   const getActiveAlbums = () => {
-    if (activeTab === "general") {
+    if (activeTab === 'general') {
       return topAlbums;
     }
     return topByCategory[activeTab] || [];
@@ -210,9 +209,9 @@ export function Rankings({ albums }) {
           onClick={() => setExpandedStats(!expandedStats)}
           className="flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-colors px-3 py-1.5 bg-white/5 rounded-lg border border-white/5 hover:bg-white/10"
         >
-          {expandedStats ? "📊 Ver menos" : "📈 Ver estadísticas globales"}
+          {expandedStats ? '📊 Ver menos' : '📈 Ver estadísticas globales'}
           <span
-            className={`transition-transform duration-300 ${expandedStats ? "rotate-180" : ""}`}
+            className={`transition-transform duration-300 ${expandedStats ? 'rotate-180' : ''}`}
           >
             ▼
           </span>
@@ -256,7 +255,7 @@ export function Rankings({ albums }) {
                 {Array.from({ length: 10 }, (_, i) => i + 1).map((score) => {
                   const count = stats.distribution[score] || 0;
                   const max = Math.max(
-                    ...Object.values(stats.distribution || {}),
+                    ...Object.values(stats.distribution || {})
                   );
                   const height = max > 0 ? (count / max) * 100 : 0;
                   const isHighest = count === max && max > 0;
@@ -269,13 +268,13 @@ export function Rankings({ albums }) {
                       <div
                         className={`w-full rounded-t transition-all duration-700 ${
                           isHighest
-                            ? "bg-gradient-to-t from-[#f5576c] to-[#f093fb]"
-                            : "bg-[#f5576c]/40"
+                            ? 'bg-gradient-to-t from-[#f5576c] to-[#f093fb]'
+                            : 'bg-[#f5576c]/40'
                         }`}
                         style={{
                           height: animate
                             ? `${Math.max(height * 0.7, 2)}px`
-                            : "2px",
+                            : '2px',
                         }}
                       />
                       <span className="text-white/30 text-[8px] mt-1">
@@ -298,21 +297,21 @@ export function Rankings({ albums }) {
       {/* ===== TABS ===== */}
       <div className="flex flex-wrap gap-2 mb-4">
         <button
-          onClick={() => setActiveView("albums")}
+          onClick={() => setActiveView('albums')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-            activeView === "albums"
-              ? "bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20"
-              : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
+            activeView === 'albums'
+              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+              : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
           🎵 Álbumes
         </button>
         <button
-          onClick={() => setActiveView("reviewers")}
+          onClick={() => setActiveView('reviewers')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-            activeView === "reviewers"
-              ? "bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20"
-              : "bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70"
+            activeView === 'reviewers'
+              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+              : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
           👤 Reviewers
@@ -320,7 +319,7 @@ export function Rankings({ albums }) {
       </div>
 
       {/* ===== CATEGORÍAS (solo álbumes) ===== */}
-      {activeView === "albums" && (
+      {activeView === 'albums' && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {CATEGORIES.map((cat) => (
             <CategoryBadge
@@ -336,7 +335,7 @@ export function Rankings({ albums }) {
       {/* ===== CONTENIDO PRINCIPAL ===== */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* ÁLBUMES */}
-        {activeView === "albums" && (
+        {activeView === 'albums' && (
           <div className="lg:col-span-2">
             <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl p-4 border border-white/5">
               <div className="flex justify-between items-center mb-4">
@@ -344,7 +343,7 @@ export function Rankings({ albums }) {
                   <span>
                     {CATEGORIES.find((c) => c.id === activeTab)?.emoji}
                   </span>
-                  TOP Álbumes por{" "}
+                  TOP Álbumes por{' '}
                   {CATEGORIES.find((c) => c.id === activeTab)?.label}
                   <span className="text-white/20 font-normal text-[10px] ml-2">
                     {activeAlbums.length} resultados
@@ -367,15 +366,13 @@ export function Rankings({ albums }) {
               ) : (
                 <div className="space-y-2">
                   {activeAlbums.map((album, idx) => {
-                    // Obtener rating de forma segura
                     let rating;
-                    if (activeTab === "general") {
+                    if (activeTab === 'general') {
                       rating = album.avg_rating;
                     } else {
                       rating = album[`avg_${activeTab}`] || album.avg_rating;
                     }
 
-                    // Si rating es null, usar 0
                     const safeRating = rating ?? 0;
                     const isTop3 = idx < 3;
 
@@ -384,8 +381,8 @@ export function Rankings({ albums }) {
                         key={idx}
                         className={`flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-300 ${
                           isTop3
-                            ? "bg-gradient-to-r from-[#f5576c]/10 to-[#f093fb]/10 border border-[#f5576c]/20"
-                            : "bg-white/5 hover:bg-white/10"
+                            ? 'bg-gradient-to-r from-[#f5576c]/10 to-[#f093fb]/10 border border-[#f5576c]/20'
+                            : 'bg-white/5 hover:bg-white/10'
                         }`}
                         style={{
                           animationDelay: `${idx * 50}ms`,
@@ -401,11 +398,11 @@ export function Rankings({ albums }) {
                           src={album.image_url}
                           alt={album.album_name}
                           className={`w-12 h-12 object-cover rounded-lg flex-shrink-0 transition-all duration-300 ${
-                            isTop3 ? "ring-2 ring-[#f5576c]/30" : ""
+                            isTop3 ? 'ring-2 ring-[#f5576c]/30' : ''
                           }`}
                           onError={(e) => {
                             e.target.src =
-                              "https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵";
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
                           }}
                         />
 
@@ -437,15 +434,15 @@ export function Rankings({ albums }) {
                           <span
                             className={`text-sm font-bold ${
                               isTop3 && safeRating > 0
-                                ? "text-[#f5576c]"
-                                : "text-white/60"
+                                ? 'text-[#f5576c]'
+                                : 'text-white/60'
                             }`}
                           >
                             ★ {formatRating(safeRating)}
                           </span>
                           <span className="text-white/20 text-[9px]">
-                            {album.review_count}{" "}
-                            {album.review_count === 1 ? "review" : "reviews"}
+                            {album.review_count}{' '}
+                            {album.review_count === 1 ? 'review' : 'reviews'}
                           </span>
                         </div>
                       </div>
@@ -458,7 +455,7 @@ export function Rankings({ albums }) {
         )}
 
         {/* REVIEWERS */}
-        {activeView === "reviewers" && (
+        {activeView === 'reviewers' && (
           <div className="lg:col-span-2">
             <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl p-4 border border-white/5">
               <h4 className="text-white/60 text-xs tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
@@ -479,8 +476,8 @@ export function Rankings({ albums }) {
                       key={idx}
                       className={`flex items-center gap-3 rounded-xl px-3 py-2 transition-all duration-300 ${
                         idx < 3
-                          ? "bg-gradient-to-r from-[#f5576c]/10 to-[#f093fb]/10 border border-[#f5576c]/20"
-                          : "bg-white/5 hover:bg-white/10"
+                          ? 'bg-gradient-to-r from-[#f5576c]/10 to-[#f093fb]/10 border border-[#f5576c]/20'
+                          : 'bg-white/5 hover:bg-white/10'
                       }`}
                       style={{
                         animationDelay: `${idx * 100}ms`,
@@ -502,7 +499,7 @@ export function Rankings({ albums }) {
                           )}
                         </div>
                         <p className="text-white/30 text-xs">
-                          {reviewer.review_count} reviews ·{" "}
+                          {reviewer.review_count} reviews ·{' '}
                           {reviewer.album_count} álbumes
                         </p>
                       </div>
@@ -510,7 +507,7 @@ export function Rankings({ albums }) {
                       <div className="flex flex-col items-end flex-shrink-0">
                         <span
                           className={`text-sm font-bold ${
-                            idx < 3 ? "text-[#f5576c]" : "text-white/60"
+                            idx < 3 ? 'text-[#f5576c]' : 'text-white/60'
                           }`}
                         >
                           ★ {formatRating(reviewer.avg_rating)}
@@ -532,6 +529,9 @@ export function Rankings({ albums }) {
       <div className="mt-4 text-center text-white/10 text-[10px] tracking-wider">
         Datos actualizados en tiempo real · {rankings.totalReviews} reviews
         totales
+        {isAdmin && (
+          <span className="ml-4 text-[#f5576c]/40">🔑 Modo Admin</span>
+        )}
       </div>
 
       {/* ===== ESTILOS ADICIONALES ===== */}
