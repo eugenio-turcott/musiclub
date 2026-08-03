@@ -1,5 +1,5 @@
 // src/hooks/useAuth.js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react'; // 👈 Agregar useMemo
 import { supabase } from '../services/supabaseClient';
 
 export function useAuth() {
@@ -7,16 +7,21 @@ export function useAuth() {
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState(null);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // Lista de emails de administradores (puedes mover esto a la BD)
-  const ADMIN_EMAILS = [
-    'tadeoemiliano@hotmail.com',
-    // Agrega más admins aquí
-  ];
+  // 👈 Usar useMemo para que no se recree en cada render
+  const ADMIN_EMAILS = useMemo(
+    () => ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'],
+    []
+  );
 
-  const checkIsAdmin = (email) => {
-    return ADMIN_EMAILS.includes(email?.toLowerCase());
-  };
+  // 👈 checkIsAdmin ahora depende de ADMIN_EMAILS (que es estable)
+  const checkIsAdmin = useCallback(
+    (email) => {
+      return ADMIN_EMAILS.includes(email?.toLowerCase());
+    },
+    [ADMIN_EMAILS]
+  );
 
   // Cargar sesión al iniciar
   useEffect(() => {
@@ -29,20 +34,81 @@ export function useAuth() {
         } = await supabase.auth.getSession();
         if (error) throw error;
 
-        if (session) {
+        if (session?.user) {
           setSession(session);
-          const userData = {
-            id: session.user.id,
-            email: session.user.email,
-            name:
-              session.user.user_metadata?.full_name ||
-              session.user.email?.split('@')[0],
-            avatar: session.user.user_metadata?.avatar_url,
-            isRegistered: true,
-            role: checkIsAdmin(session.user.email) ? 'admin' : 'user',
-          };
+
+          // Buscar el perfil del usuario en la tabla profiles
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', session.user.email)
+            .maybeSingle();
+
+          // Si no existe perfil, crear uno
+          let userData;
+          if (!profile) {
+            // Crear perfil automáticamente
+            const { data: newProfile, error: createError } = await supabase
+              .from('profiles')
+              .insert([
+                {
+                  id: session.user.id,
+                  email: session.user.email,
+                  name:
+                    session.user.user_metadata?.full_name ||
+                    session.user.user_metadata?.name ||
+                    session.user.email?.split('@')[0],
+                  avatar_url:
+                    session.user.user_metadata?.avatar_url ||
+                    session.user.user_metadata?.picture,
+                  role: 'user',
+                },
+              ])
+              .select()
+              .single();
+
+            if (createError) {
+              console.error('Error creating profile:', createError);
+              // Fallback: usar datos del usuario sin perfil
+              userData = {
+                id: session.user.id,
+                email: session.user.email,
+                name:
+                  session.user.user_metadata?.full_name ||
+                  session.user.email?.split('@')[0],
+                avatar: session.user.user_metadata?.avatar_url,
+                role: 'user',
+                isRegistered: true,
+              };
+            } else {
+              userData = {
+                id: newProfile.id,
+                email: newProfile.email,
+                name: newProfile.name,
+                avatar: newProfile.avatar_url,
+                role: newProfile.role || 'user',
+                isRegistered: true,
+              };
+            }
+          } else {
+            userData = {
+              id: profile.id,
+              email: profile.email,
+              name: profile.name,
+              avatar: profile.avatar_url,
+              role: profile.role || 'user',
+              isRegistered: true,
+            };
+          }
+
+          // Verificar si es admin (por email o por rol en BD)
+          const isAdminUser =
+            userData.role === 'admin' || checkIsAdmin(userData.email);
+
+          userData.role = isAdminUser ? 'admin' : userData.role;
+
           setUser(userData);
-          setIsAdmin(userData.role === 'admin');
+          setIsAdmin(isAdminUser);
           localStorage.setItem(
             'maquina_musical_user',
             JSON.stringify(userData)
@@ -56,24 +122,51 @@ export function useAuth() {
 
     loadSession();
 
-    // Escuchar cambios en la autenticación
+    // Escuchar cambios en autenticación
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      if (event === 'SIGNED_IN' && session?.user) {
+        setIsRedirecting(false);
         setSession(session);
-        const userData = {
-          id: session.user.id,
-          email: session.user.email,
-          name:
-            session.user.user_metadata?.full_name ||
-            session.user.email?.split('@')[0],
-          avatar: session.user.user_metadata?.avatar_url,
-          isRegistered: true,
-          role: checkIsAdmin(session.user.email) ? 'admin' : 'user',
-        };
+
+        // Recargar perfil
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', session.user.email)
+          .maybeSingle();
+
+        let userData;
+        if (profile) {
+          userData = {
+            id: profile.id,
+            email: profile.email,
+            name: profile.name,
+            avatar: profile.avatar_url,
+            role: profile.role || 'user',
+            isRegistered: true,
+          };
+        } else {
+          userData = {
+            id: session.user.id,
+            email: session.user.email,
+            name:
+              session.user.user_metadata?.full_name ||
+              session.user.email?.split('@')[0],
+            avatar: session.user.user_metadata?.avatar_url,
+            role: 'user',
+            isRegistered: true,
+          };
+        }
+
+        const isAdminUser =
+          userData.role === 'admin' || checkIsAdmin(userData.email);
+
+        userData.role = isAdminUser ? 'admin' : userData.role;
+
         setUser(userData);
-        setIsAdmin(userData.role === 'admin');
+        setIsAdmin(isAdminUser);
         localStorage.setItem('maquina_musical_user', JSON.stringify(userData));
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
@@ -86,13 +179,14 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [checkIsAdmin]);
 
-  // Login con Google
   const loginWithGoogle = useCallback(async () => {
     try {
+      setIsRedirecting(true);
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithOAuth({
+
+      const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           redirectTo: window.location.origin,
@@ -103,17 +197,20 @@ export function useAuth() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        setIsRedirecting(false);
+        setLoading(false);
+        throw error;
+      }
 
-      // La redirección ocurre automáticamente
-      return { success: true };
+      return { success: true, redirecting: true };
     } catch (error) {
       setLoading(false);
+      setIsRedirecting(false);
       return { success: false, error: error.message };
     }
   }, []);
 
-  // Logout
   const logout = useCallback(async () => {
     try {
       setLoading(true);
@@ -136,9 +233,10 @@ export function useAuth() {
     loading,
     isAdmin,
     session,
+    isRedirecting,
     loginWithGoogle,
     logout,
-    checkIsAdmin,
     isAuthenticated: !!user,
+    checkIsAdmin,
   };
 }

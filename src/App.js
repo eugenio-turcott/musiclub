@@ -1,12 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  useNavigate,
-} from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom'; // 👈 Quitar Link y useNavigate
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
 import { SlotMachine } from './components/SlotMachine';
