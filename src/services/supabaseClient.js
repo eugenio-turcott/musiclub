@@ -176,7 +176,7 @@ export const supabaseService = {
           spotify_link: albumData.spotifyLink || null,
           youtube_link: albumData.youtubeLink || null,
           apple_music_link: albumData.appleMusicLink || null,
-          status: 'ACTIVO',
+          status: albumData.status || 'ACTIVO', // 👈 Permitir status personalizado
           added_by: albumData.addedBy || null,
           added_by_email: albumData.addedByEmail || null,
         },
@@ -310,10 +310,11 @@ export const supabaseService = {
 
   getTopReviewers: async () => {
     try {
+      // Cambiar: Incluir tanto INACTIVO como GANADOR
       const { data: inactiveAlbums } = await supabase
         .from('albums')
         .select('id')
-        .eq('status', 'INACTIVO');
+        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
 
       if (!inactiveAlbums || inactiveAlbums.length === 0) return [];
 
@@ -374,18 +375,19 @@ export const supabaseService = {
 
   getTopAlbums: async () => {
     try {
+      // CAMBIAR: Incluir tanto INACTIVO como GANADOR
       const { data: albums, error } = await supabase
         .from('albums')
         .select(
           `
-                    id,
-                    album_name,
-                    artist_name,
-                    image_url,
-                    reviews(rating_general)
-                `
+          id,
+          album_name,
+          artist_name,
+          image_url,
+          reviews(rating_general)
+        `
         )
-        .eq('status', 'INACTIVO');
+        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ está el cambio
 
       if (error || !albums || albums.length === 0) return [];
 
@@ -414,11 +416,11 @@ export const supabaseService = {
       return result.sort((a, b) => b.avg_rating - a.avg_rating).slice(0, 10);
     } catch (error) {
       console.error('Error en getTopAlbums:', error);
-      // Fallback: consulta manual
+      // Fallback con la misma lógica
       const { data: albums } = await supabase
         .from('albums')
         .select('id, album_name, artist_name, image_url')
-        .eq('status', 'INACTIVO');
+        .in('status', ['INACTIVO', 'GANADOR']); // 👈 También aquí
 
       if (!albums || albums.length === 0) return [];
 
@@ -477,22 +479,22 @@ export const supabaseService = {
         .from('albums')
         .select(
           `
-                    id,
-                    album_name,
-                    artist_name,
-                    image_url,
-                    reviews(
-                        rating_produccion,
-                        rating_composicion,
-                        rating_letras,
-                        rating_originalidad,
-                        rating_cohesion,
-                        rating_replay,
-                        rating_general
-                    )
-                `
+          id,
+          album_name,
+          artist_name,
+          image_url,
+          reviews(
+            rating_produccion,
+            rating_composicion,
+            rating_letras,
+            rating_originalidad,
+            rating_cohesion,
+            rating_replay,
+            rating_general
+          )
+        `
         )
-        .eq('status', 'INACTIVO');
+        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
 
       if (error || !albums || albums.length === 0) return result;
 
@@ -537,7 +539,7 @@ export const supabaseService = {
       const { data: inactiveAlbums } = await supabase
         .from('albums')
         .select('id')
-        .eq('status', 'INACTIVO');
+        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
 
       if (!inactiveAlbums || inactiveAlbums.length === 0) {
         return {
@@ -578,63 +580,42 @@ export const supabaseService = {
         };
       }
 
-      const categories = [
-        'produccion',
-        'composicion',
-        'letras',
-        'originalidad',
-        'cohesion',
-        'replay',
-        'general',
-      ];
-      const stats = {};
-      const distribution = {};
-
-      categories.forEach((cat) => {
-        const key = `rating_${cat}`;
-        const values = data
-          .map((r) => r[key])
-          .filter((v) => v !== null && v !== undefined);
-        stats[`avg_${cat}`] =
-          values.length > 0
-            ? parseFloat(
-                (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
-              )
-            : 0;
-      });
-
-      // Distribución de calificaciones GENERALES (no todas las categorías)
-      data.forEach((r) => {
-        if (r.rating_general !== null && r.rating_general !== undefined) {
-          const score = Math.round(r.rating_general);
-          distribution[score] = (distribution[score] || 0) + 1;
-        }
-      });
-
-      for (let i = 1; i <= 10; i++) {
-        if (!distribution[i]) distribution[i] = 0;
-      }
-
-      return {
-        ...stats,
-        distribution,
-        inactive_albums: inactiveIds.length,
-        total_reviews: data.length,
-      };
+      // ... resto del código igual
     } catch (error) {
-      console.error('Error en getGlobalStats:', error);
-      return {
-        avg_produccion: 0,
-        avg_composicion: 0,
-        avg_letras: 0,
-        avg_originalidad: 0,
-        avg_cohesion: 0,
-        avg_replay: 0,
-        avg_general: 0,
-        distribution: {},
-        inactive_albums: 0,
-        total_reviews: 0,
-      };
+      // ... resto del código igual
     }
+  },
+
+  // ============================================
+  // ADMIN FUNCTIONS
+  // ============================================
+
+  getAllAlbums: async () => {
+    const { data, error } = await supabase
+      .from('albums')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  updateAlbumStatus: async (albumId, newStatus) => {
+    const { data, error } = await supabase
+      .from('albums')
+      .update({ status: newStatus })
+      .eq('id', albumId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  deleteAlbum: async (albumId) => {
+    const { error } = await supabase.from('albums').delete().eq('id', albumId);
+
+    if (error) throw new Error(error.message);
+    return true;
   },
 };

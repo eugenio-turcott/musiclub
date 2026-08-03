@@ -6,10 +6,14 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
   return (
     <header className="w-full border-b border-white/5 bg-black/30 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo izquierda */}
+        {/* Logo izquierda - CON IMAGEN */}
         <Link to="/" className="flex items-center gap-2 group">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-[#f5576c]/20 group-hover:scale-105 transition-transform">
-            🎵
+          <div className="w-10 h-10 flex items-center justify-center overflow-hidden">
+            <img
+              src="/5662059.png"
+              alt="Musiclub Logo"
+              className="w-full h-full object-cover"
+            />
           </div>
           <span className="text-white/80 font-bold text-sm tracking-tight hidden sm:block group-hover:text-white transition-colors">
             Musiclub
@@ -18,6 +22,14 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
 
         {/* Login / User a la derecha */}
         <div className="flex items-center gap-3">
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-[10px] text-[#f5576c] bg-[#f5576c]/10 px-3 py-1 rounded-full border border-[#f5576c]/20 hover:bg-[#f5576c]/20 transition-all"
+            >
+              🔧 Admin
+            </Link>
+          )}
           {user ? (
             <div className="flex items-center gap-3">
               {user.avatar && (
@@ -31,7 +43,7 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
                 {user.name || user.email}
               </span>
               {isAdmin && (
-                <span className="text-[10px] text-[#f5576c] bg-[#f5576c]/10 px-2 py-0.5 rounded-full border border-[#f5576c]/20">
+                <span className="text-[10px] text-[#f5576c] bg-[#f5576c]/10 px-2 py-0.5 rounded-full border border-[#f5576c]/20 hidden sm:inline">
                   Admin
                 </span>
               )}
@@ -54,10 +66,10 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
         </div>
       </div>
 
-      {/* Título centrado debajo - CON TIPOGRAFÍA 3D ORIGINAL */}
+      {/* Título centrado debajo */}
       <div className="text-center pb-4">
         <h1
-          className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight"
+          className="title-albumes text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight"
           style={{
             color: '#ffffff',
             textShadow:

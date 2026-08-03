@@ -12,19 +12,14 @@ import { LoadingOverlay } from './components/LoadingOverlay';
 import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
+import { AdminPage } from './pages/AdminPage';
+// 👈 ELIMINAR: import { AdminPanel } from './components/AdminPanel';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
 
 function AppContent() {
-  const {
-    albums,
-    winner,
-    loading,
-    error,
-    refetch,
-    markAlbumAsInactive,
-    // resetWinner - eliminado porque no se usa
-  } = useAlbums();
+  const { albums, winner, loading, error, refetch, markAlbumAsInactive } =
+    useAlbums();
 
   const {
     user,
@@ -32,7 +27,6 @@ function AppContent() {
     isAdmin,
     loginWithGoogle,
     logout,
-    // isAuthenticated - eliminado porque no se usa
   } = useAuth();
 
   const [isSpinning, setIsSpinning] = useState(false);
@@ -118,10 +112,11 @@ function AppContent() {
           loading={loading}
           error={error}
           winner={winner}
+          user={user}
         />
 
         {/* Búsqueda de álbumes en Spotify (solo admin) */}
-        {isAdmin && <AlbumSearch onAlbumCreated={refetch} />}
+        {isAdmin && <AlbumSearch onAlbumCreated={refetch} user={user} />}
 
         {/* Footer */}
         <Footer />
@@ -137,6 +132,7 @@ export function App() {
         <Route path="/" element={<AppContent />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </Router>
   );

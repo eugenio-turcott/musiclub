@@ -135,7 +135,7 @@
   box-shadow: 0 0 20px rgba(245, 87, 108, 0.3);
 }
 
-/* Custom Scrollbar para componentes */
+/* src/index.css o src/App.css */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }

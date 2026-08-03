@@ -48,15 +48,10 @@ export function WinnerDisplay({ winner }) {
         <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#f5576c]/20 rounded-br-lg"></div>
 
         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 relative z-10">
-          {/* Imagen del álbum - GRANDE Y DESTACADA */}
+          {/* Imagen del álbum - GRANDE Y DESTACADA (sin cuadro giratorio) */}
           <div className="relative flex-shrink-0 group">
             <div className="absolute -inset-6 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="absolute -inset-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
-
-            {/* Anillo rotatorio */}
-            <div className="absolute -inset-2 rounded-xl border-2 border-transparent bg-gradient-to-r from-[#f5576c] to-[#f093fb] p-[2px] animate-spin-slow">
-              <div className="w-full h-full rounded-xl bg-black/80"></div>
-            </div>
 
             <img
               src={winner.imagen}
@@ -151,13 +146,6 @@ export function WinnerDisplay({ winner }) {
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           50% { transform: translateY(-10px) rotate(180deg); }
-        }
-        @keyframes spin-slow {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-          animation: spin-slow 4s linear infinite;
         }
       `}</style>
     </div>

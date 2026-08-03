@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 export function Header() {
   return (
@@ -6,9 +6,9 @@ export function Header() {
       <h1
         className="title-albumes text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight"
         style={{
-          color: "#ffffff",
+          color: '#ffffff',
           textShadow:
-            "0 0 7px rgba(245,87,108,0.3), 0 0 10px rgba(245,87,108,0.2), 0 0 21px rgba(245,87,108,0.15), 0 0 42px rgba(245,87,108,0.1)",
+            '0 0 7px rgba(245,87,108,0.3), 0 0 10px rgba(245,87,108,0.2), 0 0 21px rgba(245,87,108,0.15), 0 0 42px rgba(245,87,108,0.1)',
         }}
       >
         MÁQUINA MUSICAL
