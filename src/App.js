@@ -116,8 +116,7 @@ function AppContent() {
         />
 
         {/* Búsqueda de álbumes en Spotify (solo admin) */}
-        {isAdmin && <AlbumSearch onAlbumCreated={refetch} user={user} />}
-
+        <AlbumSearch onAlbumCreated={refetch} user={user} />
         {/* Footer */}
         <Footer />
       </div>
