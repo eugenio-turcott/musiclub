@@ -1,5 +1,5 @@
 // src/hooks/useAuth.js
-import { useState, useEffect, useCallback, useMemo } from 'react'; // 👈 Agregar useMemo
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 export function useAuth() {
@@ -9,13 +9,16 @@ export function useAuth() {
   const [session, setSession] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
-  // 👈 Usar useMemo para que no se recree en cada render
+  // 👈 REF para evitar dependencia en useEffect
+  const handleUserSessionRef = useRef(null);
+
+  // ADMIN_EMAILS - usa useMemo para estabilidad
   const ADMIN_EMAILS = useMemo(
     () => ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'],
     []
   );
 
-  // 👈 checkIsAdmin ahora depende de ADMIN_EMAILS (que es estable)
+  // checkIsAdmin
   const checkIsAdmin = useCallback(
     (email) => {
       return ADMIN_EMAILS.includes(email?.toLowerCase());
@@ -23,7 +26,116 @@ export function useAuth() {
     [ADMIN_EMAILS]
   );
 
-  // Cargar sesión al iniciar
+  // Crear o actualizar perfil con upsert
+  const upsertProfile = useCallback(async (userData) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert(
+          [{
+            id: userData.id,
+            email: userData.email,
+            name: userData.name,
+            avatar_url: userData.avatar_url,
+            role: userData.role || 'user',
+            updated_at: new Date().toISOString(),
+          }],
+          { onConflict: 'id' }
+        )
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error en upsertProfile:', error);
+        return { success: false, error };
+      }
+
+      return { success: true, data };
+    } catch (error) {
+      console.error('Excepción en upsertProfile:', error);
+      return { success: false, error };
+    }
+  }, []);
+
+  // Función para manejar la sesión del usuario
+  const handleUserSession = useCallback(
+    async (session) => {
+      try {
+        let { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('email', session.user.email)
+          .maybeSingle();
+
+        let userData;
+
+        if (profileError || !profile) {
+          const newUserData = {
+            id: session.user.id,
+            email: session.user.email,
+            name: session.user.user_metadata?.full_name ||
+              session.user.user_metadata?.name ||
+              session.user.email?.split('@')[0] ||
+              'Usuario',
+            avatar_url: session.user.user_metadata?.avatar_url ||
+              session.user.user_metadata?.picture ||
+              null,
+            role: 'user',
+          };
+
+          const result = await upsertProfile(newUserData);
+
+          if (result.success && result.data) {
+            userData = {
+              id: result.data.id,
+              email: result.data.email,
+              name: result.data.name,
+              avatar: result.data.avatar_url,
+              role: result.data.role || 'user',
+              isRegistered: true,
+            };
+          } else {
+            console.warn('No se pudo crear perfil, usando datos de sesión:', result.error);
+            userData = {
+              id: session.user.id,
+              email: session.user.email,
+              name: newUserData.name,
+              avatar: newUserData.avatar_url,
+              role: 'user',
+              isRegistered: false,
+            };
+          }
+        } else {
+          userData = {
+            id: profile.id,
+            email: profile.email,
+            name: profile.name,
+            avatar: profile.avatar_url,
+            role: profile.role || 'user',
+            isRegistered: true,
+          };
+        }
+
+        const isAdminUser = userData.role === 'admin' || checkIsAdmin(userData.email);
+        userData.role = isAdminUser ? 'admin' : userData.role;
+
+        setUser(userData);
+        setIsAdmin(isAdminUser);
+        localStorage.setItem('maquina_musical_user', JSON.stringify(userData));
+
+        return { success: true, user: userData };
+      } catch (error) {
+        console.error('Error en handleUserSession:', error);
+        return { success: false, error };
+      }
+    },
+    [upsertProfile, checkIsAdmin]
+  );
+
+  // 👈 GUARDAR handleUserSession en el ref
+  handleUserSessionRef.current = handleUserSession;
+
+  // Cargar sesión al iniciar - SIN dependencias problemáticas
   useEffect(() => {
     const loadSession = async () => {
       setLoading(true);
@@ -36,83 +148,8 @@ export function useAuth() {
 
         if (session?.user) {
           setSession(session);
-
-          // Buscar el perfil del usuario en la tabla profiles
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('email', session.user.email)
-            .maybeSingle();
-
-          // Si no existe perfil, crear uno
-          let userData;
-          if (!profile) {
-            // Crear perfil automáticamente
-            const { data: newProfile, error: createError } = await supabase
-              .from('profiles')
-              .insert([
-                {
-                  id: session.user.id,
-                  email: session.user.email,
-                  name:
-                    session.user.user_metadata?.full_name ||
-                    session.user.user_metadata?.name ||
-                    session.user.email?.split('@')[0],
-                  avatar_url:
-                    session.user.user_metadata?.avatar_url ||
-                    session.user.user_metadata?.picture,
-                  role: 'user',
-                },
-              ])
-              .select()
-              .single();
-
-            if (createError) {
-              console.error('Error creating profile:', createError);
-              // Fallback: usar datos del usuario sin perfil
-              userData = {
-                id: session.user.id,
-                email: session.user.email,
-                name:
-                  session.user.user_metadata?.full_name ||
-                  session.user.email?.split('@')[0],
-                avatar: session.user.user_metadata?.avatar_url,
-                role: 'user',
-                isRegistered: true,
-              };
-            } else {
-              userData = {
-                id: newProfile.id,
-                email: newProfile.email,
-                name: newProfile.name,
-                avatar: newProfile.avatar_url,
-                role: newProfile.role || 'user',
-                isRegistered: true,
-              };
-            }
-          } else {
-            userData = {
-              id: profile.id,
-              email: profile.email,
-              name: profile.name,
-              avatar: profile.avatar_url,
-              role: profile.role || 'user',
-              isRegistered: true,
-            };
-          }
-
-          // Verificar si es admin (por email o por rol en BD)
-          const isAdminUser =
-            userData.role === 'admin' || checkIsAdmin(userData.email);
-
-          userData.role = isAdminUser ? 'admin' : userData.role;
-
-          setUser(userData);
-          setIsAdmin(isAdminUser);
-          localStorage.setItem(
-            'maquina_musical_user',
-            JSON.stringify(userData)
-          );
+          // 👈 Usar el ref en lugar de la función directa
+          await handleUserSessionRef.current(session);
         }
       } catch (error) {
         console.error('Error loading session:', error);
@@ -129,45 +166,8 @@ export function useAuth() {
       if (event === 'SIGNED_IN' && session?.user) {
         setIsRedirecting(false);
         setSession(session);
-
-        // Recargar perfil
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('email', session.user.email)
-          .maybeSingle();
-
-        let userData;
-        if (profile) {
-          userData = {
-            id: profile.id,
-            email: profile.email,
-            name: profile.name,
-            avatar: profile.avatar_url,
-            role: profile.role || 'user',
-            isRegistered: true,
-          };
-        } else {
-          userData = {
-            id: session.user.id,
-            email: session.user.email,
-            name:
-              session.user.user_metadata?.full_name ||
-              session.user.email?.split('@')[0],
-            avatar: session.user.user_metadata?.avatar_url,
-            role: 'user',
-            isRegistered: true,
-          };
-        }
-
-        const isAdminUser =
-          userData.role === 'admin' || checkIsAdmin(userData.email);
-
-        userData.role = isAdminUser ? 'admin' : userData.role;
-
-        setUser(userData);
-        setIsAdmin(isAdminUser);
-        localStorage.setItem('maquina_musical_user', JSON.stringify(userData));
+        // 👈 Usar el ref en lugar de la función directa
+        await handleUserSessionRef.current(session);
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);
@@ -179,20 +179,23 @@ export function useAuth() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [checkIsAdmin]);
+  }, []); // 👈 Array vacío - sin dependencias
 
+  // Login con Google
   const loginWithGoogle = useCallback(async () => {
     try {
       setIsRedirecting(true);
       setLoading(true);
 
-      // 👇 DETECTAR SI ESTÁS EN PRODUCCIÓN O DESARROLLO
-      const redirectTo = window.location.origin; // Esto automáticamente usa localhost o vercel.app
+      const isProduction = window.location.hostname !== 'localhost';
+      const redirectTo = isProduction
+        ? 'https://musiclub-albums.vercel.app'
+        : window.location.origin;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectTo, // 👈 USA window.location.origin
+          redirectTo: redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -214,6 +217,7 @@ export function useAuth() {
     }
   }, []);
 
+  // Logout
   const logout = useCallback(async () => {
     try {
       setLoading(true);
@@ -231,6 +235,75 @@ export function useAuth() {
     }
   }, []);
 
+  // Login con email (legacy)
+  const loginWithEmail = useCallback(async (email, name) => {
+    try {
+      setLoading(true);
+
+      let { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+
+      let userData;
+
+      if (profileError || !profile) {
+        const newUserData = {
+          id: crypto.randomUUID(),
+          email: email,
+          name: name || email.split('@')[0],
+          avatar_url: null,
+          role: 'user',
+        };
+
+        const result = await upsertProfile(newUserData);
+
+        if (result.success && result.data) {
+          userData = {
+            id: result.data.id,
+            email: result.data.email,
+            name: result.data.name,
+            avatar: result.data.avatar_url,
+            role: result.data.role || 'user',
+            isRegistered: true,
+          };
+        } else {
+          userData = {
+            id: crypto.randomUUID(),
+            email: email,
+            name: name || email.split('@')[0],
+            avatar: null,
+            role: 'user',
+            isRegistered: false,
+          };
+        }
+      } else {
+        userData = {
+          id: profile.id,
+          email: profile.email,
+          name: profile.name,
+          avatar: profile.avatar_url,
+          role: profile.role || 'user',
+          isRegistered: true,
+        };
+      }
+
+      const isAdminUser = userData.role === 'admin' || checkIsAdmin(userData.email);
+      userData.role = isAdminUser ? 'admin' : userData.role;
+
+      setUser(userData);
+      setIsAdmin(isAdminUser);
+      localStorage.setItem('maquina_musical_user', JSON.stringify(userData));
+      setLoading(false);
+
+      return { success: true, user: userData };
+    } catch (error) {
+      setLoading(false);
+      return { success: false, error: error.message };
+    }
+  }, [upsertProfile, checkIsAdmin]);
+
   return {
     user,
     loading,
@@ -238,6 +311,7 @@ export function useAuth() {
     session,
     isRedirecting,
     loginWithGoogle,
+    loginWithEmail,
     logout,
     isAuthenticated: !!user,
     checkIsAdmin,
