@@ -1,10 +1,10 @@
 // src/components/AppHeader.jsx
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
   return (
-    <header className="w-full border-b border-white/5 bg-black/30 backdrop-blur-md">
+    <header className="w-full border-b border-white/5 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo izquierda - CON IMAGEN */}
         <Link to="/" className="flex items-center gap-2 group">
@@ -15,7 +15,7 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
               className="w-full h-full object-cover"
             />
           </div>
-          <span className="text-white/80 font-bold text-sm tracking-tight hidden sm:block group-hover:text-white transition-colors">
+          <span className="text-white/80 font-bold text-xl tracking-tight hidden sm:block group-hover:text-white transition-colors">
             Musiclub
           </span>
         </Link>
@@ -60,7 +60,7 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
               disabled={loading}
               className="px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-sm font-medium rounded-full hover:scale-105 transition-all disabled:opacity-50"
             >
-              {loading ? '...' : 'Iniciar sesión'}
+              {loading ? "..." : "Iniciar sesión"}
             </button>
           )}
         </div>
@@ -71,9 +71,9 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
         <h1
           className="title-albumes text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black tracking-tight"
           style={{
-            color: '#ffffff',
+            color: "#ffffff",
             textShadow:
-              '0 0 7px rgba(245,87,108,0.3), 0 0 10px rgba(245,87,108,0.2), 0 0 21px rgba(245,87,108,0.15), 0 0 42px rgba(245,87,108,0.1)',
+              "0 0 7px rgba(245,87,108,0.3), 0 0 10px rgba(245,87,108,0.2), 0 0 21px rgba(245,87,108,0.15), 0 0 42px rgba(245,87,108,0.1)",
           }}
         >
           MÁQUINA MUSICAL
