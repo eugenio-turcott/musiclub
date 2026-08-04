@@ -16,19 +16,20 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function getTopReviewersManual() {
   try {
-    const { data: inactiveAlbums } = await supabase
+    // 👈 INCLUIR INDIVIDUAL también
+    const { data: albumsWithReviews } = await supabase
       .from('albums')
       .select('id')
-      .eq('status', 'INACTIVO');
+      .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']); // 👈 AQUÍ el cambio
 
-    if (!inactiveAlbums || inactiveAlbums.length === 0) return [];
+    if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
 
-    const inactiveIds = inactiveAlbums.map((a) => a.id);
+    const albumIds = albumsWithReviews.map((a) => a.id);
 
     const { data: reviews } = await supabase
       .from('reviews')
       .select('reviewer_name, rating_general, album_id')
-      .in('album_id', inactiveIds);
+      .in('album_id', albumIds);
 
     if (!reviews || reviews.length === 0) return [];
 
@@ -261,19 +262,20 @@ export const supabaseService = {
   },
 
   getAllReviews: async () => {
-    const { data: inactiveAlbums } = await supabase
+    // 👈 INCLUIR INDIVIDUAL también
+    const { data: albumsWithReviews } = await supabase
       .from('albums')
       .select('id')
-      .eq('status', 'INACTIVO');
+      .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
 
-    if (!inactiveAlbums || inactiveAlbums.length === 0) return [];
+    if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
 
-    const inactiveIds = inactiveAlbums.map((a) => a.id);
+    const albumIds = albumsWithReviews.map((a) => a.id);
 
     const { data, error } = await supabase
       .from('reviews')
       .select('*, albums!inner(album_name, artist_name, image_url)')
-      .in('album_id', inactiveIds);
+      .in('album_id', albumIds);
 
     if (error) throw new Error(error.message);
     return data || [];
@@ -310,20 +312,20 @@ export const supabaseService = {
 
   getTopReviewers: async () => {
     try {
-      // Cambiar: Incluir tanto INACTIVO como GANADOR
-      const { data: inactiveAlbums } = await supabase
+      // 👈 INCLUIR INDIVIDUAL también
+      const { data: albumsWithReviews } = await supabase
         .from('albums')
         .select('id')
-        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
+        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']); // 👈 AQUÍ el cambio
 
-      if (!inactiveAlbums || inactiveAlbums.length === 0) return [];
+      if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
 
-      const inactiveIds = inactiveAlbums.map((a) => a.id);
+      const albumIds = albumsWithReviews.map((a) => a.id);
 
       const { data, error } = await supabase
         .from('reviews')
         .select('reviewer_name, rating_general, album_id')
-        .in('album_id', inactiveIds);
+        .in('album_id', albumIds);
 
       if (error || !data || data.length === 0) {
         return await getTopReviewersManual();
@@ -366,7 +368,7 @@ export const supabaseService = {
           (a, b) =>
             b.review_count - a.review_count || b.avg_rating - a.avg_rating
         )
-        .slice(0, 5);
+        .slice(0, 15);
     } catch (error) {
       console.error('Error en getTopReviewers:', error);
       return await getTopReviewersManual();
@@ -536,12 +538,13 @@ export const supabaseService = {
 
   getGlobalStats: async () => {
     try {
-      const { data: inactiveAlbums } = await supabase
+      // Obtener álbumes INACTIVOS y GANADORES (los que tienen reviews)
+      const { data: albumsWithReviews } = await supabase
         .from('albums')
         .select('id')
-        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
+        .in('status', ['INACTIVO', 'GANADOR']);
 
-      if (!inactiveAlbums || inactiveAlbums.length === 0) {
+      if (!albumsWithReviews || albumsWithReviews.length === 0) {
         return {
           avg_produccion: 0,
           avg_composicion: 0,
@@ -551,21 +554,21 @@ export const supabaseService = {
           avg_replay: 0,
           avg_general: 0,
           distribution: {},
-          inactive_albums: 0,
           total_reviews: 0,
         };
       }
 
-      const inactiveIds = inactiveAlbums.map((a) => a.id);
+      const albumIds = albumsWithReviews.map((a) => a.id);
 
-      const { data, error } = await supabase
+      // Obtener todas las reviews de esos álbumes
+      const { data: reviews, error } = await supabase
         .from('reviews')
         .select(
           'rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
         )
-        .in('album_id', inactiveIds);
+        .in('album_id', albumIds);
 
-      if (error || !data || data.length === 0) {
+      if (error || !reviews || reviews.length === 0) {
         return {
           avg_produccion: 0,
           avg_composicion: 0,
@@ -575,15 +578,121 @@ export const supabaseService = {
           avg_replay: 0,
           avg_general: 0,
           distribution: {},
-          inactive_albums: inactiveIds.length,
           total_reviews: 0,
         };
       }
 
-      // ... resto del código igual
+      // Calcular promedios por categoría
+      const categories = [
+        'produccion',
+        'composicion',
+        'letras',
+        'originalidad',
+        'cohesion',
+        'replay',
+        'general',
+      ];
+
+      const result = {};
+      const distribution = {};
+
+      categories.forEach((cat) => {
+        const key = `rating_${cat}`;
+        const values = reviews
+          .map((r) => r[key])
+          .filter((v) => v !== null && v !== undefined);
+
+        const avg =
+          values.length > 0
+            ? values.reduce((a, b) => a + b, 0) / values.length
+            : 0;
+
+        result[`avg_${cat}`] = parseFloat(avg.toFixed(1));
+
+        // Distribución para rating_general
+        if (cat === 'general') {
+          values.forEach((v) => {
+            const rounded = Math.round(v);
+            distribution[rounded] = (distribution[rounded] || 0) + 1;
+          });
+        }
+      });
+
+      return {
+        ...result,
+        distribution,
+        total_reviews: reviews.length,
+      };
     } catch (error) {
-      // ... resto del código igual
+      console.error('Error en getGlobalStats:', error);
+      return {
+        avg_produccion: 0,
+        avg_composicion: 0,
+        avg_letras: 0,
+        avg_originalidad: 0,
+        avg_cohesion: 0,
+        avg_replay: 0,
+        avg_general: 0,
+        distribution: {},
+        total_reviews: 0,
+      };
     }
+  },
+
+  // ==========================================
+  // TRACKS - Sincronización con Spotify
+  // ==========================================
+
+  updateAlbumTracks: async (albumId, tracks) => {
+    const { data, error } = await supabase
+      .from('albums')
+      .update({
+        tracks: tracks,
+        spotify_verified: true,
+      })
+      .eq('id', albumId)
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  getAlbumTracks: async (albumId) => {
+    const { data, error } = await supabase
+      .from('albums')
+      .select('tracks, spotify_verified')
+      .eq('id', albumId)
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
+  // Para crear álbum con tracks desde Spotify
+  createAlbumWithTracks: async (albumData) => {
+    const { data, error } = await supabase
+      .from('albums')
+      .insert([
+        {
+          album_name: albumData.albumName,
+          artist_name: albumData.artistName,
+          image_url: albumData.imageUrl,
+          spotify_link: albumData.spotifyLink || null,
+          youtube_link: albumData.youtubeLink || null,
+          apple_music_link: albumData.appleMusicLink || null,
+          status: albumData.status || 'ACTIVO',
+          added_by: albumData.addedBy || null,
+          added_by_email: albumData.addedByEmail || null,
+          tracks: albumData.tracks || [],
+          spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
+        },
+      ])
+      .select()
+      .single();
+
+    if (error) throw new Error(error.message);
+    return data;
   },
 
   // ============================================

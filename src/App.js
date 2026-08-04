@@ -70,12 +70,7 @@ function AppContent() {
         />
 
         {/* Loading Overlay */}
-        <LoadingOverlay
-          loading={loading || isSpinning}
-          message={
-            isSpinning ? '🎰 GIRANDO LA MÁQUINA...' : 'Cargando álbumes...'
-          }
-        />
+        <LoadingOverlay loading={loading} message="Cargando álbumes..." />
 
         {/* Login Modal */}
         <LoginModal
@@ -88,7 +83,12 @@ function AppContent() {
         />
 
         {/* Winner Display - SIEMPRE visible */}
-        <WinnerDisplay winner={winner} />
+        <WinnerDisplay
+          winner={winner}
+          isAdmin={isAdmin}
+          user={user}
+          onAlbumUpdated={refetch}
+        />
 
         {/* Slot Machine - Solo visible si hay álbumes */}
         {albums.length > 0 && (
@@ -113,6 +113,8 @@ function AppContent() {
           error={error}
           winner={winner}
           user={user}
+          isAdmin={isAdmin} // 👈 Esto ya debería estar
+          onAlbumUpdated={refetch}
         />
 
         {/* Búsqueda de álbumes en Spotify (solo admin) */}

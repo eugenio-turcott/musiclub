@@ -17,11 +17,13 @@ export function ReviewSystem({
   onReviewSubmitted,
   isAdmin,
   isFromSpotify = false,
-  isIndividual = false, // 👈 NUEVA PROP
+  isIndividual = false,
   tracks = [],
-  user = null, // 👈 USUARIO LOGUEADO
+  user = null,
+  showTrackReviews = false, // 👈 Prop recibida del padre
+  onToggleTrackReviews = null, // 👈 Prop recibida del padre
 }) {
-  const [showReviewForm, setShowReviewForm] = useState(isIndividual); // 👈 SI ES INDIVIDUAL, SIEMPRE ABIERTO
+  const [showReviewForm, setShowReviewForm] = useState(isIndividual);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState('');
@@ -32,7 +34,6 @@ export function ReviewSystem({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showTrackReviews, setShowTrackReviews] = useState(false);
 
   const loadReviews = useCallback(async () => {
     if (!album || !album.id) {
@@ -56,7 +57,6 @@ export function ReviewSystem({
     }
   }, [album, loadReviews]);
 
-  // 👈 SI EL USUARIO ESTÁ LOGUEADO, AUTOCOMPLETAR CAMPOS
   useEffect(() => {
     if (user) {
       setUserName(user.name || user.email?.split('@')[0] || '');
@@ -122,14 +122,15 @@ export function ReviewSystem({
       setTrackRatings({});
       setComment('');
 
-      // 👈 SI ES INDIVIDUAL, NO CERRAR EL FORMULARIO
       if (!isIndividual) {
         setUserName('');
         setUserEmail('');
         setShowReviewForm(false);
-        setShowTrackReviews(false);
+        // 👈 Eliminado setShowTrackReviews(false)
+        if (onToggleTrackReviews) {
+          onToggleTrackReviews(); // Opcional: cerrar canciones al enviar
+        }
       } else {
-        // Si es individual, mantener los datos del usuario
         if (user) {
           setUserName(user.name || user.email?.split('@')[0] || '');
           setUserEmail(user.email || '');
@@ -163,22 +164,15 @@ export function ReviewSystem({
     if (!reviewList || reviewList.length === 0) return null;
 
     const total = reviewList.reduce((sum, review) => {
-      const values = [
-        review.rating_produccion,
-        review.rating_composicion,
-        review.rating_letras,
-        review.rating_originalidad,
-        review.rating_cohesion,
-        review.rating_replay,
-        review.rating_general,
-      ].filter((v) => v !== null && v !== undefined);
-
-      if (values.length === 0) return sum;
-      const avg = values.reduce((a, b) => a + b, 0) / values.length;
-      return sum + avg;
+      const generalRating = review.rating_general;
+      if (generalRating !== null && generalRating !== undefined) {
+        return sum + generalRating;
+      }
+      return sum;
     }, 0);
 
-    return (total / reviewList.length).toFixed(1);
+    const avg = total / reviewList.length;
+    return Number.isInteger(avg) ? avg.toString() : avg.toFixed(1);
   };
 
   const average = getAverageRating(reviews);
@@ -216,14 +210,6 @@ export function ReviewSystem({
               {reviews.length}
             </span>
           </h4>
-          {tracks.length > 0 && (
-            <button
-              onClick={() => setShowTrackReviews(!showTrackReviews)}
-              className="text-[10px] text-white/30 hover:text-white/60 transition-colors bg-white/5 px-2 py-0.5 rounded-full border border-white/5"
-            >
-              {showTrackReviews ? '📝 Ocultar canciones' : '🎵 Ver canciones'}
-            </button>
-          )}
         </div>
         {average && (
           <span className="text-[#f5576c] text-sm font-bold bg-[#f5576c]/10 px-3 py-1 rounded-full border border-[#f5576c]/20 flex items-center gap-1">
@@ -231,85 +217,6 @@ export function ReviewSystem({
           </span>
         )}
       </div>
-
-      {/* Canciones para review */}
-      {tracks.length > 0 && (
-        <div className="mb-4 bg-white/5 rounded-xl p-3 border border-white/5">
-          <div className="flex justify-between items-center mb-2">
-            <h5 className="text-white/40 text-[10px] uppercase tracking-wider flex items-center gap-2">
-              <span>🎵</span> Canciones del álbum
-              {showReviewForm && (
-                <span className="text-white/20 text-[8px]">
-                  ({trackProgress}/{tracks.length} calificadas)
-                </span>
-              )}
-            </h5>
-            {showReviewForm && tracks.length > 0 && (
-              <span
-                className={`text-[8px] ${areAllTracksRated ? 'text-green-400' : 'text-yellow-400'}`}
-              >
-                {areAllTracksRated
-                  ? '✅ Todas calificadas'
-                  : '⚠️ Obligatorio calificar todas'}
-              </span>
-            )}
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-            {tracks.map((track, idx) => (
-              <div
-                key={track.id || idx}
-                className={`flex items-center gap-2 bg-black/30 px-2 py-1 rounded-lg ${
-                  showReviewForm ? 'border-l-2 border-[#f5576c]/30' : ''
-                }`}
-              >
-                <span className="text-white/10 text-xs w-5">
-                  {track.track_number || idx + 1}.
-                </span>
-                <span className="text-white/50 text-xs truncate flex-1">
-                  {track.name}
-                </span>
-                {showReviewForm ? (
-                  <div className="flex items-center gap-1 flex-shrink-0">
-                    <input
-                      type="range"
-                      min="1"
-                      max="10"
-                      step="0.5"
-                      value={trackRatings[track.id] || 5}
-                      onChange={(e) =>
-                        handleTrackRatingChange(track.id, e.target.value)
-                      }
-                      className="w-16 accent-[#f5576c] h-1 cursor-pointer"
-                      style={{
-                        background: `linear-gradient(to right, #f5576c 0%, #f5576c ${((trackRatings[track.id] || 5) / 10) * 100}%, rgba(255,255,255,0.1) ${((trackRatings[track.id] || 5) / 10) * 100}%, rgba(255,255,255,0.1) 100%)`,
-                      }}
-                    />
-                    <span className="text-white/40 text-xs w-5 text-right font-mono">
-                      {trackRatings[track.id] || 5}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="text-white/20 text-[8px]">🎵</span>
-                )}
-              </div>
-            ))}
-          </div>
-          {showReviewForm && tracks.length > 0 && (
-            <div className="mt-2 text-[8px] text-white/20 text-center">
-              {areAllTracksRated ? (
-                <span className="text-green-400">
-                  ✅ Todas las canciones calificadas
-                </span>
-              ) : (
-                <span className="text-yellow-400">
-                  ⚠️ Debes calificar todas las canciones (
-                  {tracks.length - trackProgress} pendientes)
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Lista de reviews existentes */}
       {loading ? (
@@ -320,21 +227,9 @@ export function ReviewSystem({
       ) : reviews.length > 0 ? (
         <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
           {reviews.map((review, idx) => {
-            const values = [
-              review.rating_produccion,
-              review.rating_composicion,
-              review.rating_letras,
-              review.rating_originalidad,
-              review.rating_cohesion,
-              review.rating_replay,
-              review.rating_general,
-            ].filter((v) => v !== null && v !== undefined);
-
-            const avg =
-              values.length > 0
-                ? (values.reduce((a, b) => a + b, 0) / values.length).toFixed(1)
-                : 'N/A';
-
+            const avg = review.rating_general
+              ? review.rating_general.toFixed(1)
+              : 'N/A';
             const trackRatingsData = review.track_ratings || {};
 
             return (
@@ -430,13 +325,14 @@ export function ReviewSystem({
         <div className="text-white/20 text-sm py-6 text-center border border-dashed border-white/5 rounded-xl">
           No hay reviews para este álbum.
           <br className="sm:hidden" />
+          <span className="hidden sm:inline"> </span>
           <span className="text-white/10 text-xs">
             ¡Sé el primero en dejar tu review!
           </span>
         </div>
       )}
 
-      {/* 👈 BOTÓN DE REVIEW - SOLO PARA NO INDIVIDUALES */}
+      {/* Botón de Review - Solo para no individuales */}
       {!isIndividual && !showReviewForm && (
         <button
           onClick={() => setShowReviewForm(true)}
@@ -446,7 +342,7 @@ export function ReviewSystem({
         </button>
       )}
 
-      {/* 👈 FORMULARIO - SIEMPRE VISIBLE PARA INDIVIDUALES, OPCIONAL PARA EL RESTO */}
+      {/* Formulario - Siempre visible para individuales, opcional para el resto */}
       {(showReviewForm || isIndividual) && (
         <form
           onSubmit={handleSubmitReview}
@@ -474,7 +370,10 @@ export function ReviewSystem({
                 type="button"
                 onClick={() => {
                   setShowReviewForm(false);
-                  setShowTrackReviews(false);
+                  // 👈 Eliminado setShowTrackReviews(false)
+                  if (onToggleTrackReviews) {
+                    onToggleTrackReviews(); // Opcional: cerrar canciones al cancelar
+                  }
                 }}
                 className="text-white/20 hover:text-white/40 text-sm transition-colors"
               >
@@ -483,7 +382,6 @@ export function ReviewSystem({
             )}
           </div>
 
-          {/* 👈 SI EL USUARIO NO ESTÁ LOGUEADO, MOSTRAR MENSAJE */}
           {!user && isIndividual && (
             <div className="mb-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-3">
               <p className="text-yellow-400/80 text-xs flex items-center gap-2">
@@ -507,7 +405,7 @@ export function ReviewSystem({
                 placeholder="Ej: Juan Pérez"
                 className="w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#f5576c]/50 transition-colors"
                 required
-                disabled={!!user} // 👈 Si está logueado, no editable
+                disabled={!!user}
               />
             </div>
             <div>
@@ -521,7 +419,7 @@ export function ReviewSystem({
                 placeholder="tu@email.com"
                 className="w-full bg-black/30 border border-white/10 rounded-xl px-3 py-2 text-white text-sm placeholder-white/20 focus:outline-none focus:border-[#f5576c]/50 transition-colors"
                 required
-                disabled={!!user} // 👈 Si está logueado, no editable
+                disabled={!!user}
               />
               {user && isIndividual && (
                 <p className="text-white/20 text-[8px] mt-1">
@@ -531,8 +429,87 @@ export function ReviewSystem({
             </div>
           </div>
 
+          {/* 👈 SECCIÓN DE CANCIONES - USA showTrackReviews DE LAS PROPS */}
+          {showTrackReviews && tracks.length > 0 && (
+            <div className="mb-4 bg-white/5 rounded-xl p-3 border border-white/5">
+              <div className="flex justify-between items-center mb-2">
+                <h5 className="text-white/40 text-[10px] uppercase tracking-wider flex items-center gap-2">
+                  <span>🎵</span> Canciones del álbum
+                  {showReviewForm && (
+                    <span className="text-white/20 text-[8px]">
+                      ({trackProgress}/{tracks.length} calificadas)
+                    </span>
+                  )}
+                </h5>
+                {showReviewForm && tracks.length > 0 && (
+                  <span
+                    className={`text-[8px] ${areAllTracksRated ? 'text-green-400' : 'text-yellow-400'}`}
+                  >
+                    {areAllTracksRated
+                      ? '✅ Todas calificadas'
+                      : '⚠️ Obligatorio calificar todas'}
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {tracks.map((track, idx) => (
+                  <div
+                    key={track.id || idx}
+                    className={`flex items-center gap-2 bg-black/30 px-2 py-1 rounded-lg ${
+                      showReviewForm ? 'border-l-2 border-[#f5576c]/30' : ''
+                    }`}
+                  >
+                    <span className="text-white/10 text-xs w-5">
+                      {track.track_number || idx + 1}.
+                    </span>
+                    <span className="text-white/50 text-xs truncate flex-1">
+                      {track.name}
+                    </span>
+                    {showReviewForm ? (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <input
+                          type="range"
+                          min="1"
+                          max="10"
+                          step="0.5"
+                          value={trackRatings[track.id] || 5}
+                          onChange={(e) =>
+                            handleTrackRatingChange(track.id, e.target.value)
+                          }
+                          className="w-16 accent-[#f5576c] h-1 cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, #f5576c 0%, #f5576c ${((trackRatings[track.id] || 5) / 10) * 100}%, rgba(255,255,255,0.1) ${((trackRatings[track.id] || 5) / 10) * 100}%, rgba(255,255,255,0.1) 100%)`,
+                          }}
+                        />
+                        <span className="text-white/40 text-xs w-5 text-right font-mono">
+                          {trackRatings[track.id] || 5}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-white/20 text-[8px]">🎵</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              {showReviewForm && tracks.length > 0 && (
+                <div className="mt-2 text-[8px] text-white/20 text-center">
+                  {areAllTracksRated ? (
+                    <span className="text-green-400">
+                      ✅ Todas las canciones calificadas
+                    </span>
+                  ) : (
+                    <span className="text-yellow-400">
+                      ⚠️ Debes calificar todas las canciones (
+                      {tracks.length - trackProgress} pendientes)
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Criterios de calificación */}
-          <div className="space-y-2 mb-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+          <div className="space-y-2 mb-4 max-h-[320px] overflow-y-auto pr-2 custom-scrollbar">
             <p className="text-white/30 text-[10px] uppercase tracking-wider mb-2">
               Califica cada criterio
             </p>
@@ -646,7 +623,10 @@ export function ReviewSystem({
                 type="button"
                 onClick={() => {
                   setShowReviewForm(false);
-                  setShowTrackReviews(false);
+                  // 👈 Eliminado setShowTrackReviews(false)
+                  if (onToggleTrackReviews) {
+                    onToggleTrackReviews(); // Opcional: cerrar canciones al cancelar
+                  }
                 }}
                 className="px-4 py-2.5 bg-white/5 border border-white/10 text-white/40 rounded-xl text-sm hover:bg-white/10 transition-all"
               >

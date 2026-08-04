@@ -83,14 +83,23 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setError(null);
 
     try {
+      // Preparar tracks con el formato correcto
+      const tracks = (albumDetails.tracks || []).map((track) => ({
+        id: track.id,
+        name: track.name,
+        duration_ms: track.duration_ms,
+        track_number: track.track_number,
+      }));
+
       const albumData = {
         albumName: albumDetails.name,
         artistName: albumDetails.artists[0],
         imageUrl: albumDetails.image,
         spotifyLink: albumDetails.external_urls?.spotify || null,
-        addedBy: user?.name || 'Sistema', // 👈 USAR EL USUARIO
-        addedByEmail: user?.email || 'sistema@maquinamusical.com', // 👈 USAR EL USUARIO
+        addedBy: user?.name || 'Sistema',
+        addedByEmail: user?.email || 'sistema@maquinamusical.com',
         status: 'INDIVIDUAL',
+        tracks: tracks, // 👈 GUARDAR TRACKS
       };
 
       const newAlbum = await supabaseService.createAlbum(albumData);
@@ -101,8 +110,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         artista: newAlbum.artist_name,
         imagen: newAlbum.image_url,
         spotifyLink: newAlbum.spotify_link,
-        tracks: albumDetails.tracks || [],
+        tracks: tracks, // 👈 PASAR TRACKS
         status: 'INDIVIDUAL',
+        spotify_verified: true,
       });
 
       setAlbumDetails(null);

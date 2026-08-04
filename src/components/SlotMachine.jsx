@@ -21,9 +21,12 @@ export function SlotMachine({
   const isMounted = useRef(true);
   const carruselTimeoutRef = useRef(null);
 
+  const machineAlbums = albums.filter((album) => album.status === 'ACTIVO');
+
   const getAlbumForReel = (index) => {
-    if (!albums.length) return { album: '???', artista: '???', imagen: '' };
-    return albums[index % albums.length];
+    if (!machineAlbums.length)
+      return { album: '???', artista: '???', imagen: '' };
+    return machineAlbums[index % machineAlbums.length];
   };
 
   const launchConfetti = () => {

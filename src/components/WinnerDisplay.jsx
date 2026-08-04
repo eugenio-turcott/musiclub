@@ -1,8 +1,41 @@
 // src/components/WinnerDisplay.jsx
-import React from 'react';
+import React, { useState } from 'react';
+import { ReviewSystem } from './ReviewSystem';
+import { supabase } from '../services/supabaseClient';
 
-export function WinnerDisplay({ winner }) {
+export function WinnerDisplay({
+  winner,
+  isAdmin = false,
+  user = null,
+  onAlbumUpdated,
+}) {
+  const [showReview, setShowReview] = useState(false);
+  const [reviewsEnabled, setReviewsEnabled] = useState(
+    winner?.reviews_enabled || false
+  );
+  const [toggling, setToggling] = useState(false);
+
   if (!winner) return null;
+
+  const toggleReviews = async () => {
+    if (!isAdmin || !winner) return;
+    setToggling(true);
+    try {
+      const newValue = !reviewsEnabled;
+      const { error } = await supabase
+        .from('albums')
+        .update({ reviews_enabled: newValue })
+        .eq('id', winner.id);
+
+      if (!error) {
+        setReviewsEnabled(newValue);
+        if (onAlbumUpdated) onAlbumUpdated();
+      }
+    } catch (error) {
+      console.error('Error toggling reviews:', error);
+    }
+    setToggling(false);
+  };
 
   return (
     <div className="mb-8 relative">
@@ -48,7 +81,7 @@ export function WinnerDisplay({ winner }) {
         <div className="absolute bottom-2 right-2 w-8 h-8 border-b-2 border-r-2 border-[#f5576c]/20 rounded-br-lg"></div>
 
         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 relative z-10">
-          {/* Imagen del álbum - GRANDE Y DESTACADA (sin cuadro giratorio) */}
+          {/* Imagen del álbum */}
           <div className="relative flex-shrink-0 group">
             <div className="absolute -inset-6 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
             <div className="absolute -inset-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
@@ -139,7 +172,59 @@ export function WinnerDisplay({ winner }) {
               </span>
             </div>
           </div>
+          {/* 👈 BOTÓN DE REVIEW - SOLO ADMIN PUEDE HABILITAR */}
+          <div className="absolute bottom-0 right-0 flex flex-wrap items-center gap-3">
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <button
+                  onClick={toggleReviews}
+                  disabled={toggling}
+                  className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                    reviewsEnabled
+                      ? 'bg-green-500/20 text-green-400 border border-green-500/20 hover:bg-green-500/30'
+                      : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
+                  }`}
+                >
+                  {toggling
+                    ? '🔄'
+                    : reviewsEnabled
+                      ? '✅ Reviews habilitados'
+                      : '🔒 Habilitar reviews'}
+                </button>
+              )}
+              {reviewsEnabled && (
+                <span className="text-[10px] text-green-400/60 bg-green-500/10 px-2 py-0.5 rounded-full">
+                  📝 Reviews abiertos
+                </span>
+              )}
+            </div>
+
+            {reviewsEnabled && (
+              <button
+                onClick={() => setShowReview(!showReview)}
+                className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/20"
+              >
+                {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
+              </button>
+            )}
+          </div>
         </div>
+
+        {/* 👈 REVIEW SYSTEM - Solo visible si está habilitado */}
+        {showReview && reviewsEnabled && (
+          <div className="mt-4">
+            <ReviewSystem
+              album={winner}
+              isFromSpotify={false}
+              isIndividual={false}
+              tracks={winner.tracks || []}
+              user={user}
+              onReviewSubmitted={() => {
+                if (onAlbumUpdated) onAlbumUpdated();
+              }}
+            />
+          </div>
+        )}
       </div>
 
       <style>{`

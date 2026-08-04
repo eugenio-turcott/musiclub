@@ -86,6 +86,8 @@ export function useAlbums() {
         added_by: album.added_by,
         added_by_email: album.added_by_email,
         created_at: album.created_at,
+        tracks: album.tracks || [], // 👈 AGREGAR
+        spotify_verified: album.spotify_verified || false, // 👈 AGREGAR
       }));
 
       if (mappedAlbums.length > 0) {
