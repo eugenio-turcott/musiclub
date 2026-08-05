@@ -177,9 +177,12 @@ export const supabaseService = {
           spotify_link: albumData.spotifyLink || null,
           youtube_link: albumData.youtubeLink || null,
           apple_music_link: albumData.appleMusicLink || null,
-          status: albumData.status || 'ACTIVO', // 👈 Permitir status personalizado
+          status: albumData.status || 'ACTIVO',
           added_by: albumData.addedBy || null,
           added_by_email: albumData.addedByEmail || null,
+          tracks: albumData.tracks || [],
+          spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
+          reviews_enabled: albumData.reviews_enabled || false, // 👈 AGREGAR
         },
       ])
       .select()

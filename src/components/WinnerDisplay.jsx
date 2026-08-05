@@ -1,5 +1,5 @@
 // src/components/WinnerDisplay.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ReviewSystem } from './ReviewSystem';
 import { supabase } from '../services/supabaseClient';
 
@@ -11,9 +11,16 @@ export function WinnerDisplay({
 }) {
   const [showReview, setShowReview] = useState(false);
   const [reviewsEnabled, setReviewsEnabled] = useState(
-    winner?.reviews_enabled || false
+    winner?.reviews_enabled || false // 👈 CARGAR DESDE PROPS
   );
   const [toggling, setToggling] = useState(false);
+
+  // 👈 ACTUALIZAR CUANDO CAMBIE EL WINNER
+  useEffect(() => {
+    if (winner) {
+      setReviewsEnabled(winner.reviews_enabled || false);
+    }
+  }, [winner]);
 
   if (!winner) return null;
 
@@ -29,6 +36,8 @@ export function WinnerDisplay({
 
       if (!error) {
         setReviewsEnabled(newValue);
+        // 👈 ACTUALIZAR EL WINNER LOCALMENTE
+        winner.reviews_enabled = newValue;
         if (onAlbumUpdated) onAlbumUpdated();
       }
     } catch (error) {

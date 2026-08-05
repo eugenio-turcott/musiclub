@@ -20,8 +20,8 @@ export function ReviewSystem({
   isIndividual = false,
   tracks = [],
   user = null,
-  showTrackReviews = false, // 👈 Prop recibida del padre
-  onToggleTrackReviews = null, // 👈 Prop recibida del padre
+  showTrackReviews = true, // 👈 DEFAULT TRUE
+  onToggleTrackReviews = null,
 }) {
   const [showReviewForm, setShowReviewForm] = useState(isIndividual);
   const [reviews, setReviews] = useState([]);
@@ -34,6 +34,9 @@ export function ReviewSystem({
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 👈 SIEMPRE MOSTRAR CANCIONES PARA INDIVIDUALES
+  const shouldShowTracks = isIndividual || showTrackReviews;
 
   const loadReviews = useCallback(async () => {
     if (!album || !album.id) {
@@ -77,7 +80,8 @@ export function ReviewSystem({
       return;
     }
 
-    if (tracks.length > 0) {
+    // 👈 VALIDAR CANCIONES SOLO SI SE DEBEN MOSTRAR
+    if (shouldShowTracks && tracks.length > 0) {
       const missingTracks = tracks.filter((track) => !trackRatings[track.id]);
       if (missingTracks.length > 0) {
         setError(
@@ -126,9 +130,8 @@ export function ReviewSystem({
         setUserName('');
         setUserEmail('');
         setShowReviewForm(false);
-        // 👈 Eliminado setShowTrackReviews(false)
         if (onToggleTrackReviews) {
-          onToggleTrackReviews(); // Opcional: cerrar canciones al enviar
+          onToggleTrackReviews();
         }
       } else {
         if (user) {
@@ -176,9 +179,12 @@ export function ReviewSystem({
   };
 
   const average = getAverageRating(reviews);
-  const areAllTracksRated =
-    tracks.length > 0 && tracks.every((track) => trackRatings[track.id]);
-  const trackProgress = tracks.filter((track) => trackRatings[track.id]).length;
+  const areAllTracksRated = shouldShowTracks
+    ? tracks.length > 0 && tracks.every((track) => trackRatings[track.id])
+    : true;
+  const trackProgress = shouldShowTracks
+    ? tracks.filter((track) => trackRatings[track.id]).length
+    : 0;
 
   if (!album) return null;
 
@@ -370,9 +376,8 @@ export function ReviewSystem({
                 type="button"
                 onClick={() => {
                   setShowReviewForm(false);
-                  // 👈 Eliminado setShowTrackReviews(false)
                   if (onToggleTrackReviews) {
-                    onToggleTrackReviews(); // Opcional: cerrar canciones al cancelar
+                    onToggleTrackReviews();
                   }
                 }}
                 className="text-white/20 hover:text-white/40 text-sm transition-colors"
@@ -429,8 +434,8 @@ export function ReviewSystem({
             </div>
           </div>
 
-          {/* 👈 SECCIÓN DE CANCIONES - USA showTrackReviews DE LAS PROPS */}
-          {showTrackReviews && tracks.length > 0 && (
+          {/* 👈 SECCIÓN DE CANCIONES - SOLO SI shouldShowTracks */}
+          {shouldShowTracks && tracks.length > 0 && (
             <div className="mb-4 bg-white/5 rounded-xl p-3 border border-white/5">
               <div className="flex justify-between items-center mb-2">
                 <h5 className="text-white/40 text-[10px] uppercase tracking-wider flex items-center gap-2">
@@ -564,7 +569,7 @@ export function ReviewSystem({
           </div>
 
           {/* Indicador obligatorio de canciones */}
-          {tracks.length > 0 && (
+          {shouldShowTracks && tracks.length > 0 && (
             <div className="mb-3 bg-yellow-500/5 border border-yellow-500/10 rounded-xl p-2">
               <p className="text-yellow-400/60 text-[10px] flex items-center gap-2">
                 <span>⚠️</span>
@@ -608,10 +613,12 @@ export function ReviewSystem({
             <button
               type="submit"
               disabled={
-                isSubmitting || (tracks.length > 0 && !areAllTracksRated)
+                isSubmitting ||
+                (shouldShowTracks && tracks.length > 0 && !areAllTracksRated)
               }
               className={`flex-1 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold transition-all ${
-                isSubmitting || (tracks.length > 0 && !areAllTracksRated)
+                isSubmitting ||
+                (shouldShowTracks && tracks.length > 0 && !areAllTracksRated)
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:scale-[1.02] shadow-lg shadow-[#f5576c]/20'
               }`}
@@ -623,9 +630,8 @@ export function ReviewSystem({
                 type="button"
                 onClick={() => {
                   setShowReviewForm(false);
-                  // 👈 Eliminado setShowTrackReviews(false)
                   if (onToggleTrackReviews) {
-                    onToggleTrackReviews(); // Opcional: cerrar canciones al cancelar
+                    onToggleTrackReviews();
                   }
                 }}
                 className="px-4 py-2.5 bg-white/5 border border-white/10 text-white/40 rounded-xl text-sm hover:bg-white/10 transition-all"

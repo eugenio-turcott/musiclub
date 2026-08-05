@@ -1,6 +1,6 @@
 // src/hooks/useAlbums.js
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../services/supabaseClient'; // 👈 AGREGAR ESTA IMPORTACIÓN
+import { supabase } from '../services/supabaseClient';
 
 const FALLBACK_ALBUMS = [
   {
@@ -12,6 +12,7 @@ const FALLBACK_ALBUMS = [
     status: 'ACTIVO',
     added_by: 'Tadeo',
     added_by_email: 'tadeoemiliano@hotmail.com',
+    reviews_enabled: false,
   },
   {
     id: 'fallback-2',
@@ -22,6 +23,7 @@ const FALLBACK_ALBUMS = [
     status: 'ACTIVO',
     added_by: 'Jesús',
     added_by_email: 'jesusroberto005@gmail.com',
+    reviews_enabled: false,
   },
   {
     id: 'fallback-3',
@@ -32,6 +34,7 @@ const FALLBACK_ALBUMS = [
     status: 'ACTIVO',
     added_by: 'Devie',
     added_by_email: 'devshtp24@gmail.com',
+    reviews_enabled: false,
   },
   {
     id: 'fallback-4',
@@ -42,6 +45,7 @@ const FALLBACK_ALBUMS = [
     status: 'ACTIVO',
     added_by: 'Cait',
     added_by_email: 'ricardodg351@gmail.com',
+    reviews_enabled: false,
   },
   {
     id: 'fallback-5',
@@ -52,6 +56,7 @@ const FALLBACK_ALBUMS = [
     status: 'ACTIVO',
     added_by: 'Valentín',
     added_by_email: 'valentihdz28@gmail.com',
+    reviews_enabled: false,
   },
 ];
 
@@ -65,7 +70,6 @@ export function useAlbums() {
     setLoading(true);
     setError(null);
     try {
-      // Usar supabase directamente
       const { data, error } = await supabase
         .from('albums')
         .select('*')
@@ -73,7 +77,6 @@ export function useAlbums() {
 
       if (error) throw new Error(error.message);
 
-      // Mapear al formato esperado por los componentes
       const mappedAlbums = data.map((album) => ({
         id: album.id,
         album: album.album_name,
@@ -86,26 +89,25 @@ export function useAlbums() {
         added_by: album.added_by,
         added_by_email: album.added_by_email,
         created_at: album.created_at,
-        tracks: album.tracks || [], // 👈 AGREGAR
-        spotify_verified: album.spotify_verified || false, // 👈 AGREGAR
+        tracks: album.tracks || [],
+        spotify_verified: album.spotify_verified || false,
+        reviews_enabled: album.reviews_enabled || false, // 👈 AGREGAR
       }));
 
       if (mappedAlbums.length > 0) {
-        // Separar ganador y activos
         const winnerAlbum = mappedAlbums.find((a) => a.status === 'GANADOR');
-        // Incluir ACTIVOS, GANADORES e INDIVIDUALES
         const activeAlbums = mappedAlbums.filter(
           (a) =>
             a.status === 'ACTIVO' ||
             a.status === 'GANADOR' ||
-            a.status === 'INDIVIDUAL'
+            a.status === 'INDIVIDUAL' ||
+            a.status === 'INACTIVO' // 👈 INCLUIR INACTIVOS PARA RANKINGS
         );
 
         setAlbums(activeAlbums);
         setWinner(winnerAlbum || null);
         setError(null);
       } else {
-        // Usar fallbacks
         setAlbums(FALLBACK_ALBUMS);
         setWinner(null);
         setError('Usando álbumes de ejemplo (sin datos)');

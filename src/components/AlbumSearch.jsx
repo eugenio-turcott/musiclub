@@ -5,7 +5,6 @@ import { supabaseService } from '../services/supabaseClient';
 import { ReviewSystem } from './ReviewSystem';
 
 export function AlbumSearch({ onAlbumCreated, user }) {
-  // 👈 AGREGAR user como prop
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -14,6 +13,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
   const [creating, setCreating] = useState(false);
   const [savedAlbum, setSavedAlbum] = useState(null);
   const [existingAlbum, setExistingAlbum] = useState(null);
+  const [showTrackReviews, setShowTrackReviews] = useState(false); // 👈 NUEVO ESTADO LOCAL
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -83,7 +83,6 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setError(null);
 
     try {
-      // Preparar tracks con el formato correcto
       const tracks = (albumDetails.tracks || []).map((track) => ({
         id: track.id,
         name: track.name,
@@ -99,7 +98,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         addedBy: user?.name || 'Sistema',
         addedByEmail: user?.email || 'sistema@maquinamusical.com',
         status: 'INDIVIDUAL',
-        tracks: tracks, // 👈 GUARDAR TRACKS
+        tracks: tracks,
+        reviews_enabled: true, // 👈 POR DEFECTO TRUE PARA INDIVIDUALES
       };
 
       const newAlbum = await supabaseService.createAlbum(albumData);
@@ -110,15 +110,19 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         artista: newAlbum.artist_name,
         imagen: newAlbum.image_url,
         spotifyLink: newAlbum.spotify_link,
-        tracks: tracks, // 👈 PASAR TRACKS
+        tracks: tracks,
         status: 'INDIVIDUAL',
         spotify_verified: true,
+        reviews_enabled: true, // 👈 AGREGAR
       });
 
       setAlbumDetails(null);
       setSearchResults([]);
       setSearchQuery('');
       if (onAlbumCreated) onAlbumCreated();
+
+      // 👈 AUTOMÁTICAMENTE MOSTRAR LAS CANCIONES
+      setShowTrackReviews(true);
     } catch (error) {
       setError(error.message || 'Error al crear el álbum');
     }
@@ -359,14 +363,18 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             </p>
           </div>
 
-          {/* 👈 REVIEW SYSTEM CON USER */}
+          {/* 👈 REVIEW SYSTEM CON showTrackReviews SIEMPRE TRUE PARA INDIVIDUALES */}
           <div className="mt-4">
             <ReviewSystem
               album={savedAlbum}
               isFromSpotify={true}
               isIndividual={true}
               tracks={savedAlbum.tracks || []}
-              user={user} // 👈 PASAR EL USER
+              user={user}
+              showTrackReviews={true} // 👈 SIEMPRE TRUE PARA INDIVIDUALES
+              onToggleTrackReviews={() =>
+                setShowTrackReviews(!showTrackReviews)
+              }
               onReviewSubmitted={() => {}}
             />
           </div>
