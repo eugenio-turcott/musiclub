@@ -13,6 +13,7 @@ import { Footer } from './components/Footer';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { AdminPage } from './pages/AdminPage';
+import { ReviewsPage } from './pages/ReviewsPage';
 // 👈 ELIMINAR: import { AdminPanel } from './components/AdminPanel';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
@@ -134,6 +135,7 @@ export function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/admin" element={<AdminPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
       </Routes>
     </Router>
   );
