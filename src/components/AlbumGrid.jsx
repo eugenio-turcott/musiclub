@@ -563,59 +563,59 @@ export function AlbumGrid({
 
       {/* 👈 MODAL PARA REVIEW - INCLUYE INDIVIDUALES E INACTIVOS */}
       {selectedIndividual && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-xl z-[99999] overflow-y-auto p-4">
-          <div className="max-w-4xl mx-auto mt-6 mb-16">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] overflow-y-auto p-4 sm:p-6">
+          <div className="max-w-4xl mx-auto my-6 sm:my-10">
             <div className="relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 via-cyan-500/30 to-blue-500/30 rounded-3xl blur-2xl opacity-50"></div>
+              {/* Luces cibernéticas traseras */}
+              <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/30 via-cyan-500/30 to-blue-600/30 rounded-[2.5rem] blur-3xl opacity-70"></div>
 
-              <div className="relative bg-gradient-to-br from-black/90 via-[#0a0a1a] to-black/90 border border-blue-500/30 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl shadow-blue-500/10">
+              <div className="relative bg-gradient-to-br from-[#0c1322] via-[#0f1b33] to-[#070d1a] border border-blue-500/40 rounded-[2rem] p-6 sm:p-8 backdrop-blur-2xl shadow-[0_0_60px_rgba(59,130,246,0.2)] overflow-hidden">
                 {/* Header del modal */}
-                <div className="flex justify-between items-start gap-4 mb-8">
+                <div className="flex justify-between items-start gap-4 mb-8 relative z-10 border-b border-blue-500/20 pb-5">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
-                      <span className="text-4xl">
-                        {selectedIndividual.status === 'INACTIVO' ? '📊' : '📌'}
-                      </span>
-                      <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight">
-                        {selectedIndividual.album}
-                      </h2>
-                      <span
-                        className={`text-xs font-medium px-3 py-1 rounded-full border ${
-                          selectedIndividual.status === 'INACTIVO'
-                            ? 'text-gray-400 bg-gray-500/20 border-gray-500/30'
-                            : 'text-blue-400 bg-blue-500/20 border-blue-500/30'
-                        }`}
-                      >
-                        {selectedIndividual.status === 'INACTIVO'
-                          ? 'Inactivo'
-                          : 'Individual'}
-                      </span>
-                      <span className="text-xs font-medium text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">
-                        🎵 Álbum
-                      </span>
+                      <span className="text-3xl sm:text-4xl">📌</span>
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                            {selectedIndividual.album}
+                          </h2>
+                          <span
+                            className={`text-xs font-semibold px-3 py-1 rounded-full border shadow-md ${
+                              selectedIndividual.status === 'INACTIVO'
+                                ? 'text-gray-400 bg-gray-500/20 border-gray-500/30'
+                                : 'text-cyan-300 bg-cyan-500/20 border-cyan-400/30 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
+                            }`}
+                          >
+                            {selectedIndividual.status === 'INACTIVO'
+                              ? 'Inactivo'
+                              : 'Álbum Individual'}
+                          </span>
+                        </div>
+                        <p className="text-blue-200/70 text-base sm:text-lg font-medium mt-1">
+                          {selectedIndividual.artista}
+                        </p>
+                      </div>
                     </div>
-                    <p className="text-white/50 text-base sm:text-lg mt-1 ml-1">
-                      {selectedIndividual.artista}
-                    </p>
                   </div>
                   <button
                     onClick={() => setSelectedIndividual(null)}
-                    className="text-white/30 hover:text-white/70 transition-all duration-300 text-2xl hover:rotate-90 hover:scale-110"
+                    className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 text-lg hover:scale-110 border border-white/10"
+                    title="Cerrar"
                   >
                     ✕
                   </button>
                 </div>
 
                 {/* Info del álbum */}
-                <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8">
+                <div className="flex flex-col md:flex-row gap-6 md:gap-8 mb-8 relative z-10">
                   <div className="flex-shrink-0 mx-auto md:mx-0">
                     <div className="relative group">
-                      <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur-2xl opacity-50 group-hover:opacity-75 transition-opacity duration-500"></div>
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/30 to-cyan-500/30 rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
+                      <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/30 to-cyan-500/30 rounded-3xl blur-2xl opacity-60 group-hover:opacity-90 transition-opacity duration-500"></div>
                       <img
                         src={selectedIndividual.imagen}
                         alt={selectedIndividual.album}
-                        className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 object-cover rounded-2xl shadow-2xl shadow-blue-500/20 border-2 border-blue-500/20 group-hover:scale-105 transition-transform duration-500"
+                        className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-60 md:h-64 object-cover rounded-2xl shadow-2xl border-2 border-blue-400/30 group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
                           e.target.src =
                             'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
@@ -624,50 +624,37 @@ export function AlbumGrid({
                     </div>
                   </div>
 
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                        <p className="text-white/30 text-[10px] uppercase tracking-wider">
-                          Estado
+                      <div className="bg-black/40 rounded-2xl p-3.5 border border-blue-500/20 backdrop-blur-md">
+                        <p className="text-blue-300/50 text-[10px] uppercase tracking-wider font-semibold">
+                          Colección
                         </p>
-                        <p
-                          className={`font-medium text-sm flex items-center gap-2 ${
-                            selectedIndividual.status === 'INACTIVO'
-                              ? 'text-gray-400'
-                              : 'text-blue-400'
-                          }`}
-                        >
-                          <span
-                            className={`w-2 h-2 rounded-full ${
-                              selectedIndividual.status === 'INACTIVO'
-                                ? 'bg-gray-400'
-                                : 'bg-blue-400'
-                            } animate-pulse`}
-                          ></span>
-                          {selectedIndividual.status === 'INACTIVO'
-                            ? 'Inactivo'
-                            : 'Individual'}
+                        <p className="font-semibold text-sm text-cyan-300 flex items-center gap-2 mt-0.5">
+                          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                          Álbum Individual
                         </p>
                       </div>
-                      <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-                        <p className="text-white/30 text-[10px] uppercase tracking-wider">
+                      <div className="bg-black/40 rounded-2xl p-3.5 border border-blue-500/20 backdrop-blur-md">
+                        <p className="text-blue-300/50 text-[10px] uppercase tracking-wider font-semibold">
                           Agregado por
                         </p>
-                        <p className="text-white/70 font-medium text-sm truncate">
-                          {selectedIndividual.added_by || 'Sistema'}
+                        <p className="text-white font-medium text-sm truncate mt-0.5">
+                          {selectedIndividual.added_by || 'Usuario de Musiclub'}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    {/* Botones de Streaming de Marcas Oficiales */}
+                    <div className="flex flex-wrap gap-2 pt-1">
                       {selectedIndividual.spotifyLink && (
                         <a
                           href={selectedIndividual.spotifyLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-all duration-300 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/5 hover:border-blue-500/30"
+                          className="inline-flex items-center gap-2 text-xs text-black font-bold bg-[#1DB954] hover:bg-[#1ed760] px-4 py-2 rounded-xl transition-all duration-300 shadow-lg shadow-[#1DB954]/20 hover:scale-105"
                         >
-                          <span className="text-base">🎵</span>
+                          <span className="text-sm">🎵</span>
                           Escuchar en Spotify
                         </a>
                       )}
@@ -676,62 +663,54 @@ export function AlbumGrid({
                           href={selectedIndividual.youtubeLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-xs text-white/40 hover:text-white/70 transition-all duration-300 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/5 hover:border-red-500/30"
+                          className="inline-flex items-center gap-2 text-xs text-white font-bold bg-[#FF0000] hover:bg-[#cc0000] px-4 py-2 rounded-xl transition-all duration-300 shadow-lg shadow-[#FF0000]/20 hover:scale-105"
                         >
-                          <span className="text-base">▶️</span>
+                          <span className="text-sm">▶️</span>
                           YouTube
                         </a>
                       )}
                     </div>
 
+                    {/* Vista previa de Pistas */}
                     {selectedIndividual.spotify_verified &&
                       selectedIndividual.tracks &&
                       selectedIndividual.tracks.length > 0 && (
-                        <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-xl p-3 border border-blue-500/20">
-                          <p className="text-white/40 text-xs flex items-center gap-2">
-                            <span className="text-blue-400">🎵</span>
-                            <span className="text-white/60 font-medium">
-                              {selectedIndividual.tracks.length}
-                            </span>
-                            <span className="text-white/30">
-                              canciones disponibles para review
+                        <div className="bg-black/40 rounded-2xl p-3.5 border border-blue-500/20">
+                          <p className="text-cyan-300/80 text-xs flex items-center gap-2 font-medium">
+                            <span>🎵</span>
+                            <span>
+                              {selectedIndividual.tracks.length} canciones en este álbum
                             </span>
                           </p>
-                          <div className="mt-2 flex flex-wrap gap-1 max-h-20 overflow-y-auto custom-scrollbar">
-                            {selectedIndividual.tracks
-                              .slice(0, 8)
-                              .map((track, idx) => (
-                                <span
-                                  key={idx}
-                                  className="text-[10px] text-white/20 bg-white/5 px-2 py-0.5 rounded-full border border-white/5"
-                                >
-                                  {track.name}
-                                </span>
-                              ))}
-                            {selectedIndividual.tracks.length > 8 && (
-                              <span className="text-[10px] text-white/20 bg-white/5 px-2 py-0.5 rounded-full border border-white/5">
-                                +{selectedIndividual.tracks.length - 8} más
+                          <div className="mt-2.5 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                            {selectedIndividual.tracks.map((track, idx) => (
+                              <span
+                                key={idx}
+                                className="text-[10px] text-blue-200/80 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20 font-mono"
+                              >
+                                #{idx + 1} {track.name}
                               </span>
-                            )}
+                            ))}
                           </div>
                         </div>
                       )}
                   </div>
                 </div>
 
+                {/* Separador */}
                 <div className="relative mb-6">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/5"></div>
+                    <div className="w-full border-t border-blue-500/20"></div>
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-black/90 px-4 text-white/20 text-xs">
-                      ✦
+                    <span className="bg-[#0c1322] px-4 text-blue-400/40 text-xs font-mono">
+                      ✦ REVIEWS ✦
                     </span>
                   </div>
                 </div>
 
-                {/* 👈 REVIEW SYSTEM - showTrackReviews SIEMPRE TRUE */}
-                <div className="bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/5">
+                {/* SISTEMA DE REVIEWS PARA INDIVIDUAL */}
+                <div className="bg-black/40 rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-inner relative z-10">
                   <ReviewSystem
                     album={selectedIndividual}
                     isFromSpotify={true}
@@ -749,8 +728,8 @@ export function AlbumGrid({
                 </div>
 
                 <div className="mt-6 text-center">
-                  <p className="text-white/10 text-[10px] tracking-wider">
-                    🎵 Comparte tu opinión sobre este álbum
+                  <p className="text-blue-300/30 text-xs tracking-wider font-mono">
+                    🎧 Las reviews individuales forman parte de tu colección personal
                   </p>
                 </div>
               </div>

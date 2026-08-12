@@ -170,27 +170,25 @@ export function WinnerDisplay({
               )}
             </div>
 
-            {/* Badge de estado */}
-            <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/20 rounded-full">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5576c] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f5576c]"></span>
-              </span>
-              <span className="text-[10px] text-white/60 tracking-wider">
-                ÁLBUM DEL CLUB · SELECCIÓN ALEATORIA
-              </span>
-            </div>
-          </div>
-          {/* 👈 BOTÓN DE REVIEW - SOLO ADMIN PUEDE HABILITAR */}
-          <div className="absolute bottom-0 right-0 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-3">
+            {/* Badge de estado y Acciones de Review */}
+            <div className="mt-5 flex flex-wrap items-center gap-3 justify-center md:justify-start">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5576c] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f5576c]"></span>
+                </span>
+                <span className="text-[10px] text-white/80 tracking-wider font-semibold">
+                  ÁLBUM DEL CLUB · SELECCIÓN ALEATORIA
+                </span>
+              </div>
+
               {isAdmin && (
                 <button
                   onClick={toggleReviews}
                   disabled={toggling}
-                  className={`text-xs px-3 py-1.5 rounded-full transition-all ${
+                  className={`text-xs px-3.5 py-1.5 rounded-full font-medium transition-all ${
                     reviewsEnabled
-                      ? 'bg-green-500/20 text-green-400 border border-green-500/20 hover:bg-green-500/30'
+                      ? 'bg-green-500/20 text-green-300 border border-green-500/30 hover:bg-green-500/30 shadow-md shadow-green-500/10'
                       : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
                   }`}
                 >
@@ -201,21 +199,22 @@ export function WinnerDisplay({
                       : '🔒 Habilitar reviews'}
                 </button>
               )}
+
               {reviewsEnabled && (
-                <span className="text-[10px] text-green-400/60 bg-green-500/10 px-2 py-0.5 rounded-full">
+                <span className="text-xs text-green-300 bg-green-500/15 border border-green-500/30 px-3 py-1.5 rounded-full font-medium">
                   📝 Reviews abiertos
                 </span>
               )}
-            </div>
 
-            {reviewsEnabled && (
-              <button
-                onClick={() => setShowReview(!showReview)}
-                className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/20"
-              >
-                {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
-              </button>
-            )}
+              {reviewsEnabled && (
+                <button
+                  onClick={() => setShowReview(!showReview)}
+                  className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/25 border border-white/10"
+                >
+                  {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 

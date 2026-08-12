@@ -1,5 +1,5 @@
-// src/services/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
+import { getWeightedReviewScore } from '../utils/ratingUtils';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -315,11 +315,10 @@ export const supabaseService = {
 
   getTopReviewers: async () => {
     try {
-      // 👈 INCLUIR INDIVIDUAL también
       const { data: albumsWithReviews } = await supabase
         .from('albums')
         .select('id')
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']); // 👈 AQUÍ el cambio
+        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
 
       if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
 
@@ -327,7 +326,7 @@ export const supabaseService = {
 
       const { data, error } = await supabase
         .from('reviews')
-        .select('reviewer_name, rating_general, album_id')
+        .select('*')
         .in('album_id', albumIds);
 
       if (error || !data || data.length === 0) {
@@ -342,11 +341,9 @@ export const supabaseService = {
             albums: new Set(),
           };
         }
-        if (
-          review.rating_general !== null &&
-          review.rating_general !== undefined
-        ) {
-          reviewerMap[review.reviewer_name].ratings.push(review.rating_general);
+        const score = getWeightedReviewScore(review) ?? review.rating_general;
+        if (score !== null && score !== undefined && !isNaN(score)) {
+          reviewerMap[review.reviewer_name].ratings.push(score);
         }
         reviewerMap[review.reviewer_name].albums.add(review.album_id);
       });
@@ -380,7 +377,6 @@ export const supabaseService = {
 
   getTopAlbums: async () => {
     try {
-      // CAMBIAR: Incluir tanto INACTIVO como GANADOR
       const { data: albums, error } = await supabase
         .from('albums')
         .select(
@@ -389,10 +385,19 @@ export const supabaseService = {
           album_name,
           artist_name,
           image_url,
-          reviews(rating_general)
+          reviews(
+            track_ratings,
+            rating_produccion,
+            rating_composicion,
+            rating_letras,
+            rating_originalidad,
+            rating_cohesion,
+            rating_replay,
+            rating_general
+          )
         `
         )
-        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ está el cambio
+        .in('status', ['INACTIVO', 'GANADOR']);
 
       if (error || !albums || albums.length === 0) return [];
 
@@ -400,20 +405,20 @@ export const supabaseService = {
 
       albums.forEach((album) => {
         const reviews = album.reviews || [];
-        const ratings = reviews
-          .map((r) => r.rating_general)
-          .filter((v) => v !== null && v !== undefined);
+        const scores = reviews
+          .map((r) => getWeightedReviewScore(r))
+          .filter((s) => s !== null && !isNaN(s));
 
-        if (ratings.length === 0) return;
+        if (scores.length === 0) return;
 
-        const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+        const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
 
         result.push({
           id: album.id,
           album_name: album.album_name,
           artist_name: album.artist_name,
           image_url: album.image_url,
-          review_count: ratings.length,
+          review_count: scores.length,
           avg_rating: parseFloat(avg.toFixed(1)),
         });
       });
@@ -421,18 +426,18 @@ export const supabaseService = {
       return result.sort((a, b) => b.avg_rating - a.avg_rating).slice(0, 10);
     } catch (error) {
       console.error('Error en getTopAlbums:', error);
-      // Fallback con la misma lógica
+      // Fallback
       const { data: albums } = await supabase
         .from('albums')
         .select('id, album_name, artist_name, image_url')
-        .in('status', ['INACTIVO', 'GANADOR']); // 👈 También aquí
+        .in('status', ['INACTIVO', 'GANADOR']);
 
       if (!albums || albums.length === 0) return [];
 
       const albumIds = albums.map((a) => a.id);
       const { data: reviews } = await supabase
         .from('reviews')
-        .select('album_id, rating_general')
+        .select('*')
         .in('album_id', albumIds);
 
       if (!reviews || reviews.length === 0) return [];
@@ -440,8 +445,9 @@ export const supabaseService = {
       const albumRatings = {};
       reviews.forEach((r) => {
         if (!albumRatings[r.album_id]) albumRatings[r.album_id] = [];
-        if (r.rating_general !== null && r.rating_general !== undefined) {
-          albumRatings[r.album_id].push(r.rating_general);
+        const score = getWeightedReviewScore(r) ?? r.rating_general;
+        if (score !== null && score !== undefined && !isNaN(score)) {
+          albumRatings[r.album_id].push(score);
         }
       });
 
@@ -489,6 +495,7 @@ export const supabaseService = {
           artist_name,
           image_url,
           reviews(
+            track_ratings,
             rating_produccion,
             rating_composicion,
             rating_letras,
@@ -499,7 +506,7 @@ export const supabaseService = {
           )
         `
         )
-        .in('status', ['INACTIVO', 'GANADOR']); // 👈 AQUÍ el cambio
+        .in('status', ['INACTIVO', 'GANADOR']);
 
       if (error || !albums || albums.length === 0) return result;
 
@@ -510,8 +517,13 @@ export const supabaseService = {
         albums.forEach((album) => {
           const reviews = album.reviews || [];
           const values = reviews
-            .map((r) => r[key])
-            .filter((v) => v !== null && v !== undefined);
+            .map((r) => {
+              if (cat === 'general') {
+                return getWeightedReviewScore(r) ?? r.rating_general;
+              }
+              return r[key];
+            })
+            .filter((v) => v !== null && v !== undefined && !isNaN(v));
 
           if (values.length === 0) return;
 
