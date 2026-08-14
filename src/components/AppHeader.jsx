@@ -26,7 +26,7 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
             to="/reviews"
             className="text-white/40 hover:text-white/70 transition-colors text-sm"
           >
-            📝 Reviews
+            Reviews
           </Link>
         </div>
 
@@ -38,7 +38,6 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
             className="md:hidden text-xs text-white/80 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 transition-all flex items-center gap-1.5 font-medium"
           >
             <span>📝</span>
-            <span>Reviews</span>
           </Link>
 
           {isAdmin && (

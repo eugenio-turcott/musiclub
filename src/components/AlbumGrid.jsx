@@ -279,7 +279,9 @@ export function AlbumGrid({
 
                   {isAdmin && (
                     <div className="absolute top-1 left-1 z-10">
-                      {album.spotify_verified ? (
+                      {album.spotify_verified &&
+                      album.tracks &&
+                      album.tracks.length > 0 ? (
                         <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/20">
                           ✓
                         </span>
@@ -385,7 +387,9 @@ export function AlbumGrid({
 
                 {isAdmin && (
                   <div className="absolute top-1 left-1 z-10">
-                    {album.spotify_verified ? (
+                    {album.spotify_verified &&
+                    album.tracks &&
+                    album.tracks.length > 0 ? (
                       <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/20">
                         ✓
                       </span>
@@ -492,7 +496,9 @@ export function AlbumGrid({
 
                 {isAdmin && (
                   <div className="absolute top-1 left-1 z-10">
-                    {album.spotify_verified ? (
+                    {album.spotify_verified &&
+                    album.tracks &&
+                    album.tracks.length > 0 ? (
                       <span className="text-[8px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded-full border border-green-500/20">
                         ✓
                       </span>

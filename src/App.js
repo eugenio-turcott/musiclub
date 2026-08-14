@@ -118,8 +118,8 @@ function AppContent() {
           onAlbumUpdated={refetch}
         />
 
-        {/* Búsqueda de álbumes en Spotify (solo admin) */}
-        <AlbumSearch onAlbumCreated={refetch} user={user} />
+        {/* Búsqueda de álbumes en Spotify (solo usuarios con sesión iniciada) */}
+        {user && <AlbumSearch onAlbumCreated={refetch} user={user} />}
         {/* Footer */}
         <Footer />
       </div>

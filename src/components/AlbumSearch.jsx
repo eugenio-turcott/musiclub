@@ -15,6 +15,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
   const [existingAlbum, setExistingAlbum] = useState(null);
   const [showTrackReviews, setShowTrackReviews] = useState(false); // 👈 NUEVO ESTADO LOCAL
 
+  if (!user) return null;
+
   const handleSearch = async (e) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
