@@ -463,7 +463,7 @@ export function AlbumGrid({
         <div className="mt-8 pt-6 border-t border-white/5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
             <h3 className="text-xl sm:text-2xl md:text-3xl text-gray-400/80 uppercase tracking-normal flex items-center gap-2">
-              <span className="text-2xl">📊</span>
+              <span className="text-2xl">💤</span>
               Álbumes Inactivos
               <span className="text-xs font-normal text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                 Disponibles para reviews
@@ -685,7 +685,8 @@ export function AlbumGrid({
                           <p className="text-cyan-300/80 text-xs flex items-center gap-2 font-medium">
                             <span>🎵</span>
                             <span>
-                              {selectedIndividual.tracks.length} canciones en este álbum
+                              {selectedIndividual.tracks.length} canciones en
+                              este álbum
                             </span>
                           </p>
                           <div className="mt-2.5 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
@@ -735,7 +736,8 @@ export function AlbumGrid({
 
                 <div className="mt-6 text-center">
                   <p className="text-blue-300/30 text-xs tracking-wider font-mono">
-                    🎧 Las reviews individuales forman parte de tu colección personal
+                    🎧 Las reviews individuales forman parte de tu colección
+                    personal
                   </p>
                 </div>
               </div>
