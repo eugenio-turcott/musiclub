@@ -11,12 +11,34 @@ export function AlbumGrid({
   winner,
   user,
   isAdmin = false,
+  reviewedAlbumIds = new Set(),
   onAlbumUpdated,
 }) {
   const [selectedIndividual, setSelectedIndividual] = useState(null);
   const [syncingAlbum, setSyncingAlbum] = useState(null);
   const [syncMessage, setSyncMessage] = useState(null);
   const [showTrackReviews, setShowTrackReviews] = useState(true);
+
+  const isAlbumReviewed = (albumId) => {
+    if (!albumId || !reviewedAlbumIds) return false;
+    return reviewedAlbumIds instanceof Set
+      ? reviewedAlbumIds.has(albumId)
+      : Array.isArray(reviewedAlbumIds)
+        ? reviewedAlbumIds.includes(albumId)
+        : false;
+  };
+
+  const isUserAlbum = (album) => {
+    if (!user || !album) return false;
+    const userEmail = (user.email || '').toLowerCase().trim();
+    const albumEmail = (album.added_by_email || '').toLowerCase().trim();
+    if (albumEmail && userEmail && albumEmail === userEmail) return true;
+    if (album.user_id && user.id && String(album.user_id) === String(user.id)) return true;
+    const userName = (user.name || '').toLowerCase().trim();
+    const albumAuthor = (album.added_by || '').toLowerCase().trim();
+    if (albumAuthor && userName && albumAuthor === userName) return true;
+    return false;
+  };
 
   // Separar álbumes por categoría
   const activeAlbums = albums.filter(
@@ -258,8 +280,12 @@ export function AlbumGrid({
                   key={idx}
                   className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group ${
                     album.status === 'GANADOR'
-                      ? 'border-[#f5576c] shadow-[0_0_30px_rgba(245,87,108,0.2)]'
-                      : 'border-white/5 hover:border-white/10 hover:scale-105'
+                      ? isUserAlbum(album)
+                        ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_25px_rgba(250,204,21,0.4)]'
+                        : 'border-[#f5576c] shadow-[0_0_30px_rgba(245,87,108,0.2)]'
+                      : isUserAlbum(album)
+                        ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'
+                        : 'border-white/5 hover:border-white/10 hover:scale-105'
                   }`}
                 >
                   <img
@@ -271,6 +297,27 @@ export function AlbumGrid({
                         'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
                     }}
                   />
+                  {/* Palomita si el usuario ya dio review */}
+                  {isAlbumReviewed(album.id) && (
+                    <div
+                      className="absolute bottom-1.5 right-1.5 z-20 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.9)] border-2 border-emerald-200 backdrop-blur-md transform transition-all duration-300 hover:scale-110"
+                      title="Ya diste tu review a este álbum ✓"
+                    >
+                      <svg
+                        className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    </div>
+                  )}
+
                   {album.status === 'GANADOR' && (
                     <div className="absolute top-1 right-1 text-sm sm:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
                       🏆
@@ -369,7 +416,12 @@ export function AlbumGrid({
             {individualAlbums.map((album, idx) => (
               <div
                 key={idx}
-                className="relative aspect-square rounded-xl overflow-hidden border-2 border-blue-500/20 hover:border-blue-500/40 transition-all duration-300 group cursor-pointer"
+                onClick={() => setSelectedIndividual(album)}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer ${
+                  isUserAlbum(album)
+                    ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'
+                    : 'border-blue-500/20 hover:border-blue-500/40'
+                }`}
               >
                 <img
                   src={album.imagen}
@@ -381,9 +433,26 @@ export function AlbumGrid({
                   }}
                 />
 
-                <div className="absolute top-1 right-1 text-xs bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20">
-                  📌
-                </div>
+                {/* Palomita si el usuario ya dio review */}
+                {isAlbumReviewed(album.id) && (
+                  <div
+                    className="absolute bottom-1.5 right-1.5 z-20 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.9)] border-2 border-emerald-200 backdrop-blur-md transform transition-all duration-300 hover:scale-110"
+                    title="Ya diste tu review a este álbum ✓"
+                  >
+                    <svg
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                )}
 
                 {isAdmin && (
                   <div className="absolute top-1 left-1 z-10">
@@ -446,9 +515,15 @@ export function AlbumGrid({
                         e.stopPropagation();
                         setSelectedIndividual(album);
                       }}
-                      className="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
+                      className={`px-4 py-2 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
+                        isAlbumReviewed(album.id)
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/20'
+                          : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-blue-500/20'
+                      }`}
                     >
-                      📝 Review
+                      {isAlbumReviewed(album.id)
+                        ? '✓ Ver mi Review'
+                        : '📝 Review'}
                     </button>
                   </div>
                 </div>
@@ -478,7 +553,12 @@ export function AlbumGrid({
             {inactiveAlbums.map((album, idx) => (
               <div
                 key={idx}
-                className="relative aspect-square rounded-xl overflow-hidden border-2 border-gray-500/20 hover:border-gray-500/40 transition-all duration-300 group cursor-pointer"
+                onClick={() => setSelectedIndividual(album)}
+                className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer ${
+                  isUserAlbum(album)
+                    ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'
+                    : 'border-gray-500/20 hover:border-gray-500/40'
+                }`}
               >
                 <img
                   src={album.imagen}
@@ -490,9 +570,26 @@ export function AlbumGrid({
                   }}
                 />
 
-                <div className="absolute top-1 right-1 text-xs bg-gray-500/20 text-gray-400 px-1.5 py-0.5 rounded-full border border-gray-500/20">
-                  📊
-                </div>
+                {/* Palomita si el usuario ya dio review */}
+                {isAlbumReviewed(album.id) && (
+                  <div
+                    className="absolute bottom-1.5 right-1.5 z-20 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-500 text-white shadow-[0_0_12px_rgba(16,185,129,0.9)] border-2 border-emerald-200 backdrop-blur-md transform transition-all duration-300 hover:scale-110"
+                    title="Ya diste tu review a este álbum ✓"
+                  >
+                    <svg
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                )}
 
                 {isAdmin && (
                   <div className="absolute top-1 left-1 z-10">
@@ -555,9 +652,15 @@ export function AlbumGrid({
                         e.stopPropagation();
                         setSelectedIndividual(album);
                       }}
-                      className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-gray-500/20"
+                      className={`px-4 py-2 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
+                        isAlbumReviewed(album.id)
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/20'
+                          : 'bg-gradient-to-r from-gray-500 to-gray-600 shadow-gray-500/20'
+                      }`}
                     >
-                      📝 Review
+                      {isAlbumReviewed(album.id)
+                        ? '✓ Ver mi Review'
+                        : '📝 Review'}
                     </button>
                   </div>
                 </div>

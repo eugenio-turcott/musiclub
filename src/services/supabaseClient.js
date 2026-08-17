@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { getWeightedReviewScore } from '../utils/ratingUtils';
+import { getWeightedReviewScore, calculateReviewBonus } from '../utils/ratingUtils';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -311,6 +311,31 @@ export const supabaseService = {
   },
 
   submitReview: async (reviewData) => {
+    // Validar si el usuario ya calificó este álbum para prevenir duplicados
+    if (reviewData.albumId && (reviewData.reviewerEmail || reviewData.reviewerName)) {
+      try {
+        let checkQuery = supabase
+          .from('reviews')
+          .select('id')
+          .eq('album_id', reviewData.albumId);
+
+        if (reviewData.reviewerEmail) {
+          checkQuery = checkQuery.eq('reviewer_email', reviewData.reviewerEmail);
+        } else {
+          checkQuery = checkQuery.eq('reviewer_name', reviewData.reviewerName);
+        }
+
+        const { data: existing } = await checkQuery;
+        if (existing && existing.length > 0) {
+          throw new Error('Ya has enviado una reseña para este álbum previamente.');
+        }
+      } catch (checkErr) {
+        if (checkErr.message?.includes('Ya has enviado')) {
+          throw checkErr;
+        }
+      }
+    }
+
     const { data, error } = await supabase
       .from('reviews')
       .insert([
@@ -333,6 +358,121 @@ export const supabaseService = {
 
     if (error) throw new Error(error.message);
     return data[0];
+  },
+
+  getUserReviews: async (email, name) => {
+    try {
+      if (!email && !name) return [];
+
+      let query = supabase
+        .from('reviews')
+        .select(
+          `
+          *,
+          albums:album_id (
+            id,
+            album_name,
+            artist_name,
+            image_url,
+            status,
+            tracks,
+            spotify_link,
+            youtube_link
+          )
+        `
+        )
+        .order('created_at', { ascending: false });
+
+      if (email && name) {
+        query = query.or(`reviewer_email.eq.${email},reviewer_name.eq.${name}`);
+      } else if (email) {
+        query = query.eq('reviewer_email', email);
+      } else {
+        query = query.eq('reviewer_name', name);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Error en getUserReviews:', err);
+      return [];
+    }
+  },
+
+  getUserReviewedAlbumIds: async (email, name) => {
+    try {
+      if (!email && !name) return [];
+      let query = supabase.from('reviews').select('album_id');
+
+      if (email && name) {
+        query = query.or(`reviewer_email.eq.${email},reviewer_name.eq.${name}`);
+      } else if (email) {
+        query = query.eq('reviewer_email', email);
+      } else {
+        query = query.eq('reviewer_name', name);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return (data || []).map((r) => r.album_id).filter(Boolean);
+    } catch (err) {
+      console.error('Error en getUserReviewedAlbumIds:', err);
+      return [];
+    }
+  },
+
+  updateUserProfile: async (userId, profileData) => {
+    try {
+      // 1. Metadata de auth
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: profileData.name,
+            name: profileData.name,
+            avatar_url: profileData.avatar_url,
+            bio: profileData.bio,
+            favorite_artist: profileData.favorite_artist,
+            favorite_album: profileData.favorite_album,
+            favorite_genres: profileData.favorite_genres,
+            spotify_url: profileData.spotify_url,
+            instagram_url: profileData.instagram_url,
+          },
+        });
+      } catch (authErr) {
+        console.warn('Advertencia en auth.updateUser:', authErr);
+      }
+
+      // 2. Tabla profiles
+      const upsertPayload = {
+        id: userId,
+        updated_at: new Date().toISOString(),
+      };
+      if (profileData.name !== undefined) upsertPayload.name = profileData.name;
+      if (profileData.email !== undefined) upsertPayload.email = profileData.email;
+      if (profileData.avatar_url !== undefined) upsertPayload.avatar_url = profileData.avatar_url;
+      if (profileData.role !== undefined) upsertPayload.role = profileData.role;
+      if (profileData.bio !== undefined) upsertPayload.bio = profileData.bio;
+      if (profileData.favorite_artist !== undefined) upsertPayload.favorite_artist = profileData.favorite_artist;
+      if (profileData.favorite_album !== undefined) upsertPayload.favorite_album = profileData.favorite_album;
+      if (profileData.favorite_genres !== undefined) upsertPayload.favorite_genres = profileData.favorite_genres;
+      if (profileData.spotify_url !== undefined) upsertPayload.spotify_url = profileData.spotify_url;
+      if (profileData.instagram_url !== undefined) upsertPayload.instagram_url = profileData.instagram_url;
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .upsert([upsertPayload], { onConflict: 'id' })
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Advertencia en upsert profiles:', error);
+      }
+      return { success: true, data: data || profileData };
+    } catch (err) {
+      console.error('Error en updateUserProfile:', err);
+      return { success: false, error: err.message };
+    }
   },
 
   // ==========================================
@@ -461,8 +601,7 @@ export const supabaseService = {
 
         const baseAvg = scores.reduce((a, b) => a + b, 0) / scores.length;
         const reviewCount = scores.length;
-        const extraReviews = Math.max(0, reviewCount - 5);
-        const bonus = extraReviews * 0.05;
+        const bonus = calculateReviewBonus(reviewCount);
         const finalRating = Math.min(10, baseAvg + bonus);
 
         result.push({
@@ -478,15 +617,15 @@ export const supabaseService = {
         });
       });
 
-      return result
-        .sort((a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count)
-        .slice(0, 10);
+      return result.sort(
+        (a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count
+      );
     } catch (error) {
       console.error('Error en getTopAlbums:', error);
       // Fallback
       const { data: albums } = await supabase
         .from('albums')
-        .select('id, album_name, artist_name, image_url')
+        .select('id, album_name, artist_name, image_url, status')
         .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
 
       if (!albums || albums.length === 0) return [];
@@ -514,8 +653,7 @@ export const supabaseService = {
           if (ratings.length === 0) return null;
           const baseAvg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
           const reviewCount = ratings.length;
-          const extraReviews = Math.max(0, reviewCount - 5);
-          const bonus = extraReviews * 0.05;
+          const bonus = calculateReviewBonus(reviewCount);
           const finalRating = Math.min(10, baseAvg + bonus);
 
           return {
@@ -523,6 +661,7 @@ export const supabaseService = {
             album_name: album.album_name,
             artist_name: album.artist_name,
             image_url: album.image_url,
+            status: album.status,
             review_count: reviewCount,
             base_rating: parseFloat(baseAvg.toFixed(2)),
             bonus: parseFloat(bonus.toFixed(2)),
@@ -530,8 +669,7 @@ export const supabaseService = {
           };
         })
         .filter((a) => a !== null)
-        .sort((a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count)
-        .slice(0, 10);
+        .sort((a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count);
 
       return result;
     }
@@ -595,8 +733,7 @@ export const supabaseService = {
 
           const baseAvg = values.reduce((a, b) => a + b, 0) / values.length;
           const reviewCount = values.length;
-          const extraReviews = Math.max(0, reviewCount - 5);
-          const bonus = extraReviews * 0.05;
+          const bonus = calculateReviewBonus(reviewCount);
           const finalRating = Math.min(maxScale, baseAvg + bonus);
 
           categoryResults.push({
@@ -612,9 +749,9 @@ export const supabaseService = {
           });
         });
 
-        result[cat] = categoryResults
-          .sort((a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count)
-          .slice(0, 5);
+        result[cat] = categoryResults.sort(
+          (a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count
+        );
       });
 
       return result;
@@ -814,5 +951,650 @@ export const supabaseService = {
 
     if (error) throw new Error(error.message);
     return true;
+  },
+
+  // ============================================
+  // LEADERBOARD & ÁLBUMES COMPLETOS
+  // ============================================
+
+  getAllProfiles: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data || [];
+    } catch (err) {
+      console.error('Error in getAllProfiles:', err);
+      return [];
+    }
+  },
+
+  getDetailedLeaderboard: async () => {
+    try {
+      const [profilesRes, reviewsRes, albumsRes] = await Promise.all([
+        supabase.from('profiles').select('*'),
+        supabase
+          .from('reviews')
+          .select('*, albums(id, album_name, artist_name, image_url, status)'),
+        supabase.from('albums').select('*'),
+      ]);
+
+      const profiles = profilesRes.data || [];
+      const reviews = reviewsRes.data || [];
+      const albums = albumsRes.data || [];
+
+      const profileByEmail = new Map();
+      const profileByName = new Map();
+      profiles.forEach((p) => {
+        if (p.email) profileByEmail.set(p.email.toLowerCase().trim(), p);
+        if (p.name) profileByName.set(p.name.toLowerCase().trim(), p);
+      });
+
+      const userMap = new Map();
+
+      // 1. Inicializar con perfiles registrados
+      profiles.forEach((p) => {
+        const key = (p.email || p.name || p.id).toLowerCase().trim();
+        userMap.set(key, {
+          id: p.id,
+          name: p.name || p.email?.split('@')[0] || 'Usuario',
+          email: p.email || '',
+          avatar_url: p.avatar_url || null,
+          bio: p.bio || null,
+          role: p.role || 'user',
+          favorite_artist: p.favorite_artist || null,
+          favorite_album: p.favorite_album || null,
+          favorite_genres: p.favorite_genres || [],
+          spotify_url: p.spotify_url || null,
+          instagram_url: p.instagram_url || null,
+          created_at: p.created_at,
+          reviews: [],
+          albums_added: [],
+        });
+      });
+
+      // 2. Asociar álbumes añadidos
+      albums.forEach((alb) => {
+        const userEmail = (alb.added_by_email || '').toLowerCase().trim();
+        const userName = (alb.added_by || '').toLowerCase().trim();
+
+        let foundKey = null;
+        if (userEmail && userMap.has(userEmail)) {
+          foundKey = userEmail;
+        } else if (userName && userMap.has(userName)) {
+          foundKey = userName;
+        } else if (userEmail) {
+          for (const [k, u] of userMap.entries()) {
+            if (u.email && u.email.toLowerCase().trim() === userEmail) {
+              foundKey = k;
+              break;
+            }
+          }
+        }
+
+        if (!foundKey) {
+          const key = (alb.added_by_email || alb.added_by || alb.id).toLowerCase().trim();
+          userMap.set(key, {
+            id: alb.user_id || key,
+            name: alb.added_by || alb.added_by_email?.split('@')[0] || 'Miembro',
+            email: alb.added_by_email || '',
+            avatar_url: null,
+            bio: null,
+            role: 'user',
+            favorite_artist: null,
+            favorite_album: null,
+            favorite_genres: [],
+            spotify_url: null,
+            instagram_url: null,
+            created_at: alb.created_at,
+            reviews: [],
+            albums_added: [],
+          });
+          foundKey = key;
+        }
+
+        userMap.get(foundKey).albums_added.push(alb);
+      });
+
+      // 3. Asociar reviews
+      reviews.forEach((rev) => {
+        const revEmail = (rev.reviewer_email || '').toLowerCase().trim();
+        const revName = (rev.reviewer_name || '').toLowerCase().trim();
+
+        let foundKey = null;
+        if (revEmail && userMap.has(revEmail)) {
+          foundKey = revEmail;
+        } else if (revName && userMap.has(revName)) {
+          foundKey = revName;
+        } else {
+          for (const [k, u] of userMap.entries()) {
+            if (revEmail && u.email && u.email.toLowerCase().trim() === revEmail) {
+              foundKey = k;
+              break;
+            }
+            if (revName && u.name && u.name.toLowerCase().trim() === revName) {
+              foundKey = k;
+              break;
+            }
+          }
+        }
+
+        if (!foundKey) {
+          const key = (rev.reviewer_email || rev.reviewer_name || rev.id).toLowerCase().trim();
+          const prof =
+            (revEmail && profileByEmail.get(revEmail)) ||
+            (revName && profileByName.get(revName)) ||
+            null;
+          userMap.set(key, {
+            id: prof?.id || key,
+            name: rev.reviewer_name || prof?.name || 'Miembro',
+            email: rev.reviewer_email || prof?.email || '',
+            avatar_url: prof?.avatar_url || null,
+            bio: prof?.bio || null,
+            role: prof?.role || 'user',
+            favorite_artist: prof?.favorite_artist || null,
+            favorite_album: prof?.favorite_album || null,
+            favorite_genres: prof?.favorite_genres || [],
+            spotify_url: prof?.spotify_url || null,
+            instagram_url: prof?.instagram_url || null,
+            created_at: rev.created_at,
+            reviews: [],
+            albums_added: [],
+          });
+          foundKey = key;
+        }
+
+        userMap.get(foundKey).reviews.push(rev);
+      });
+
+      // 4. Computar métricas por usuario
+      const leaderboardList = Array.from(userMap.values()).map((userData) => {
+        const userReviews = userData.reviews;
+        let weightedSum = 0;
+        let generalSum = 0;
+        let validScoresCount = 0;
+        let totalTracksRated = 0;
+
+        const critKeys = [
+          'rating_produccion',
+          'rating_composicion',
+          'rating_letras',
+          'rating_originalidad',
+          'rating_cohesion',
+          'rating_replay',
+        ];
+        const criteriaSums = {
+          rating_produccion: 0,
+          rating_composicion: 0,
+          rating_letras: 0,
+          rating_originalidad: 0,
+          rating_cohesion: 0,
+          rating_replay: 0,
+        };
+        const criteriaCounts = {
+          rating_produccion: 0,
+          rating_composicion: 0,
+          rating_letras: 0,
+          rating_originalidad: 0,
+          rating_cohesion: 0,
+          rating_replay: 0,
+        };
+
+        let highestReview = null;
+        let lowestReview = null;
+
+        userReviews.forEach((rev) => {
+          const weightedScore = getWeightedReviewScore(rev) ?? rev.rating_general;
+          if (weightedScore !== null && weightedScore !== undefined && !isNaN(weightedScore)) {
+            weightedSum += weightedScore;
+            validScoresCount += 1;
+
+            if (
+              !highestReview ||
+              weightedScore > (getWeightedReviewScore(highestReview) ?? highestReview.rating_general ?? 0)
+            ) {
+              highestReview = rev;
+            }
+            if (
+              !lowestReview ||
+              weightedScore < (getWeightedReviewScore(lowestReview) ?? lowestReview.rating_general ?? 10)
+            ) {
+              lowestReview = rev;
+            }
+          }
+
+          if (rev.rating_general !== null && rev.rating_general !== undefined && !isNaN(rev.rating_general)) {
+            generalSum += Number(rev.rating_general);
+          }
+
+          critKeys.forEach((ck) => {
+            if (rev[ck] !== null && rev[ck] !== undefined && !isNaN(rev[ck])) {
+              criteriaSums[ck] += Number(rev[ck]);
+              criteriaCounts[ck] += 1;
+            }
+          });
+
+          if (rev.track_ratings && typeof rev.track_ratings === 'object') {
+            totalTracksRated += Object.keys(rev.track_ratings).length;
+          }
+        });
+
+        const avgScore = validScoresCount > 0 ? parseFloat((weightedSum / validScoresCount).toFixed(2)) : 0;
+        const avgGeneral = validScoresCount > 0 ? parseFloat((generalSum / validScoresCount).toFixed(1)) : 0;
+
+        const criteriaAverages = {};
+        critKeys.forEach((ck) => {
+          criteriaAverages[ck] =
+            criteriaCounts[ck] > 0 ? parseFloat((criteriaSums[ck] / criteriaCounts[ck]).toFixed(1)) : 0;
+        });
+
+        return {
+          ...userData,
+          review_count: userReviews.length,
+          albums_added_count: userData.albums_added.length,
+          avg_score: avgScore,
+          avg_general: avgGeneral,
+          criteria_averages: criteriaAverages,
+          total_tracks_rated: totalTracksRated,
+          highest_review: highestReview
+            ? {
+                album: highestReview.albums?.album_name || 'Álbum',
+                artist: highestReview.albums?.artist_name || 'Artista',
+                image_url: highestReview.albums?.image_url || null,
+                score: getWeightedReviewScore(highestReview) ?? highestReview.rating_general,
+              }
+            : null,
+          lowest_review: lowestReview
+            ? {
+                album: lowestReview.albums?.album_name || 'Álbum',
+                artist: lowestReview.albums?.artist_name || 'Artista',
+                image_url: lowestReview.albums?.image_url || null,
+                score: getWeightedReviewScore(lowestReview) ?? lowestReview.rating_general,
+              }
+            : null,
+        };
+      });
+
+      // Calcular insignias multinivel
+      const maxReviews = Math.max(...leaderboardList.map((u) => u.review_count), 0);
+      const maxAlbumsAdded = Math.max(...leaderboardList.map((u) => u.albums_added_count), 0);
+
+      leaderboardList.forEach((u) => {
+        const badges = [];
+        const reviews = u.reviews || [];
+        const reviewCount = u.review_count || 0;
+        const avgScore = u.avg_score || 0;
+        const albumsCount = u.albums_added_count || 0;
+        const tracksCount = u.total_tracks_rated || 0;
+
+        const hasCommentsCount = reviews.filter(
+          (r) => r.comment && r.comment.trim().length > 0
+        ).length;
+        const hasTen = reviews.some(
+          (r) =>
+            Number(r.rating_general) === 10 ||
+            (r.track_ratings &&
+              Object.values(r.track_ratings).some((v) => Number(v) === 10))
+        );
+        const hasVeryLow = reviews.some(
+          (r) =>
+            (r.rating_general !== null && Number(r.rating_general) <= 4) ||
+            (r.track_ratings &&
+              Object.values(r.track_ratings).some((v) => Number(v) <= 4))
+        );
+
+        // 1. NIVEL DE ACTIVIDAD / EXPERIENCIA (Reviews)
+        if (reviewCount > 0 && reviewCount === maxReviews) {
+          badges.push({
+            id: 'top_reviewer',
+            label: '👑 Máster Reviewer',
+            color: 'from-amber-400 via-yellow-300 to-amber-500',
+            textColor: 'text-black',
+            desc: 'Líder #1 en cantidad de reseñas de todo el club',
+          });
+        } else if (reviewCount >= 5) {
+          badges.push({
+            id: 'veteran_reviewer',
+            label: '🔥 Reviewer Experto',
+            color: 'from-orange-400 to-amber-500',
+            textColor: 'text-black',
+            desc: 'Ha publicado 5 o más reseñas completas',
+          });
+        } else if (reviewCount >= 3) {
+          badges.push({
+            id: 'active_listener',
+            label: '🎧 Melómano Activo',
+            color: 'from-blue-400 to-cyan-400',
+            textColor: 'text-black',
+            desc: 'Participante activo con 3 o más reseñas',
+          });
+        } else if (reviewCount >= 1) {
+          badges.push({
+            id: 'debut_listener',
+            label: '🌱 Oído Debutante',
+            color: 'from-lime-300 to-emerald-400',
+            textColor: 'text-black',
+            desc: 'Primeras reseñas compartidas con el club',
+          });
+        } else {
+          badges.push({
+            id: 'newbie',
+            label: '✨ Nuevo Integrante',
+            color: 'from-slate-200 to-slate-400',
+            textColor: 'text-slate-900',
+            desc: 'Recién llegado a la comunidad',
+          });
+        }
+
+        // 2. NIVEL DE CRITERIO / DUREZA DE CALIFICACIÓN
+        if (reviewCount >= 1 && avgScore > 0) {
+          if (avgScore <= 5.0) {
+            badges.push({
+              id: 'executioner',
+              label: '💀 El Verdugo (Cero Piedad)',
+              color: 'from-red-600 via-rose-700 to-red-800',
+              textColor: 'text-white',
+              desc: 'Promedio ≤ 5.0: Califica sin compasión',
+            });
+          } else if (avgScore <= 6.5) {
+            badges.push({
+              id: 'implacable',
+              label: '🎯 Crítico Implacable',
+              color: 'from-red-500 via-orange-500 to-amber-500',
+              textColor: 'text-black',
+              desc: 'Promedio 5.1 - 6.5: Estándares muy altos y rigurosos',
+            });
+          } else if (avgScore <= 7.3) {
+            badges.push({
+              id: 'tough_critic',
+              label: '🧐 Paladar Exigente',
+              color: 'from-amber-400 to-orange-400',
+              textColor: 'text-black',
+              desc: 'Promedio 6.6 - 7.3: Análisis minucioso y selectivo',
+            });
+          } else if (avgScore <= 8.3) {
+            badges.push({
+              id: 'balanced',
+              label: '⚖️ Oído Equilibrado',
+              color: 'from-sky-300 via-blue-400 to-indigo-400',
+              textColor: 'text-black',
+              desc: 'Promedio 7.4 - 8.3: Criterio balanceado y justo',
+            });
+          } else if (avgScore < 9.0) {
+            badges.push({
+              id: 'generous',
+              label: '💖 Crítico Generoso',
+              color: 'from-emerald-300 via-teal-400 to-cyan-400',
+              textColor: 'text-black',
+              desc: 'Promedio 8.4 - 8.9: Disfruta y valora casi todo',
+            });
+          } else {
+            badges.push({
+              id: 'pure_love',
+              label: '✨ Amor Puro (Todo es Obra de Arte)',
+              color: 'from-fuchsia-300 via-pink-400 to-rose-400',
+              textColor: 'text-black',
+              desc: 'Promedio ≥ 9.0: Pasión total por cada álbum',
+            });
+          }
+        }
+
+        // 3. APORTE Y CURADURÍA DE ÁLBUMES
+        if (albumsCount > 0 && albumsCount === maxAlbumsAdded) {
+          badges.push({
+            id: 'top_curator',
+            label: '🌟 Gran Curador',
+            color: 'from-purple-400 via-fuchsia-400 to-pink-500',
+            textColor: 'text-black',
+            desc: 'Mayor aportador de álbumes a la colección',
+          });
+        } else if (albumsCount >= 3) {
+          badges.push({
+            id: 'collector',
+            label: '📦 Coleccionista',
+            color: 'from-indigo-300 to-purple-400',
+            textColor: 'text-black',
+            desc: 'Ha aportado 3 o más álbumes',
+          });
+        } else if (albumsCount >= 1) {
+          badges.push({
+            id: 'initiator',
+            label: '💿 Aportador Musical',
+            color: 'from-teal-300 to-cyan-300',
+            textColor: 'text-black',
+            desc: 'Ha compartido álbumes en la colección',
+          });
+        }
+
+        // 4. DETALLE EN PISTAS Y ESPECIALIDADES
+        if (tracksCount >= 80) {
+          badges.push({
+            id: 'track_legend',
+            label: '👑 Máster de Tracks',
+            color: 'from-amber-300 via-yellow-400 to-orange-400',
+            textColor: 'text-black',
+            desc: 'Ha calificado más de 80 canciones individualmente pista por pista',
+          });
+        } else if (tracksCount >= 40) {
+          badges.push({
+            id: 'track_master',
+            label: '⚡ Detallista de Pistas',
+            color: 'from-yellow-300 to-amber-400',
+            textColor: 'text-black',
+            desc: 'Ha calificado entre 40 y 79 canciones individualmente',
+          });
+        } else if (tracksCount >= 15) {
+          badges.push({
+            id: 'track_explorer',
+            label: '🔍 Explorador de Tracks',
+            color: 'from-cyan-300 to-sky-400',
+            textColor: 'text-black',
+            desc: 'Se toma el tiempo de evaluar canción por canción (15 a 39 pistas)',
+          });
+        }
+
+        if (hasCommentsCount >= 1) {
+          badges.push({
+            id: 'writer',
+            label: '✍️ Pluma Crítica',
+            color: 'from-violet-300 to-purple-400',
+            textColor: 'text-black',
+            desc: 'Escribe reseñas detalladas con comentarios',
+          });
+        }
+
+        if (hasTen) {
+          badges.push({
+            id: 'perfectionist',
+            label: '💯 Cazador del 10',
+            color: 'from-amber-300 to-yellow-400',
+            textColor: 'text-black',
+            desc: 'Ha otorgado al menos una calificación perfecta de 10',
+          });
+        }
+
+        if (hasVeryLow) {
+          badges.push({
+            id: 'heartbreaker',
+            label: '🔨 Martillo de Juez',
+            color: 'from-rose-500 to-red-700',
+            textColor: 'text-white',
+            desc: 'No duda en dar notas bajas cuando no le convence',
+          });
+        }
+
+        u.badges = badges;
+      });
+
+      return leaderboardList.sort(
+        (a, b) => b.review_count - a.review_count || b.avg_score - a.avg_score
+      );
+    } catch (err) {
+      console.error('Error in getDetailedLeaderboard:', err);
+      return [];
+    }
+  },
+
+  getAllAlbumsWithFullStats: async () => {
+    try {
+      const [albumsRes, reviewsRes, profilesRes] = await Promise.all([
+        supabase
+          .from('albums')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase.from('reviews').select('*'),
+        supabase.from('profiles').select('email, name, avatar_url'),
+      ]);
+
+      const albums = albumsRes.data || [];
+      const reviews = reviewsRes.data || [];
+      const profiles = profilesRes.data || [];
+
+      const profileMapByEmail = new Map();
+      const profileMapByName = new Map();
+      profiles.forEach((p) => {
+        if (p.email) profileMapByEmail.set(p.email.toLowerCase().trim(), p);
+        if (p.name) profileMapByName.set(p.name.toLowerCase().trim(), p);
+      });
+
+      const reviewsByAlbum = new Map();
+      reviews.forEach((r) => {
+        if (!reviewsByAlbum.has(r.album_id)) {
+          reviewsByAlbum.set(r.album_id, []);
+        }
+        const prof =
+          (r.reviewer_email &&
+            profileMapByEmail.get(r.reviewer_email.toLowerCase().trim())) ||
+          (r.reviewer_name &&
+            profileMapByName.get(r.reviewer_name.toLowerCase().trim())) ||
+          null;
+
+        const weightedScore = getWeightedReviewScore(r) ?? r.rating_general;
+
+        reviewsByAlbum.get(r.album_id).push({
+          ...r,
+          avatar_url: prof?.avatar_url || null,
+          weighted_score:
+            weightedScore !== null && weightedScore !== undefined && !isNaN(weightedScore)
+              ? parseFloat(weightedScore.toFixed(2))
+              : null,
+        });
+      });
+
+      const result = albums.map((alb) => {
+        const albumReviews = reviewsByAlbum.get(alb.id) || [];
+        const validScores = albumReviews
+          .map((r) => r.weighted_score ?? r.rating_general)
+          .filter((s) => s !== null && s !== undefined && !isNaN(s));
+
+        const reviewCount = albumReviews.length;
+        const baseAvg =
+          validScores.length > 0
+            ? validScores.reduce((a, b) => a + b, 0) / validScores.length
+            : 0;
+        const bonus = calculateReviewBonus(reviewCount);
+        const finalScore = validScores.length > 0 ? Math.min(10, baseAvg + bonus) : null;
+
+        const critKeys = [
+          'rating_produccion',
+          'rating_composicion',
+          'rating_letras',
+          'rating_originalidad',
+          'rating_cohesion',
+          'rating_replay',
+          'rating_general',
+        ];
+        const criteriaAverages = {};
+        critKeys.forEach((ck) => {
+          const vals = albumReviews
+            .map((r) => r[ck])
+            .filter((v) => v !== null && v !== undefined && !isNaN(v));
+          criteriaAverages[ck] =
+            vals.length > 0
+              ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
+              : null;
+        });
+
+        // Estadísticas por canción
+        const trackStatsMap = {};
+        const tracksList = alb.tracks || [];
+        tracksList.forEach((t) => {
+          const tName = typeof t === 'string' ? t : t.name;
+          trackStatsMap[tName] = {
+            name: tName,
+            scores: [],
+            track_number: t.track_number,
+            duration_ms: t.duration_ms,
+          };
+        });
+
+        albumReviews.forEach((rev) => {
+          if (rev.track_ratings && typeof rev.track_ratings === 'object') {
+            Object.entries(rev.track_ratings).forEach(([tName, score]) => {
+              if (score !== null && score !== undefined && !isNaN(score)) {
+                if (!trackStatsMap[tName]) {
+                  trackStatsMap[tName] = { name: tName, scores: [] };
+                }
+                trackStatsMap[tName].scores.push(Number(score));
+              }
+            });
+          }
+        });
+
+        const computedTrackStats = Object.values(trackStatsMap).map((ts) => {
+          const avg =
+            ts.scores.length > 0
+              ? ts.scores.reduce((a, b) => a + b, 0) / ts.scores.length
+              : null;
+          return {
+            name: ts.name,
+            track_number: ts.track_number,
+            duration_ms: ts.duration_ms,
+            rating_count: ts.scores.length,
+            avg_rating: avg ? parseFloat(avg.toFixed(1)) : null,
+          };
+        });
+
+        const tracksWithAvg = computedTrackStats.filter((t) => t.avg_rating !== null);
+        let bestTrack = null;
+        let worstTrack = null;
+        if (tracksWithAvg.length > 0) {
+          bestTrack = [...tracksWithAvg].sort((a, b) => b.avg_rating - a.avg_rating)[0];
+          worstTrack = [...tracksWithAvg].sort((a, b) => a.avg_rating - b.avg_rating)[0];
+        }
+
+        return {
+          id: alb.id,
+          album_name: alb.album_name,
+          artist_name: alb.artist_name,
+          image_url: alb.image_url,
+          status: alb.status,
+          added_by: alb.added_by,
+          added_by_email: alb.added_by_email,
+          user_id: alb.user_id,
+          spotify_link: alb.spotify_link,
+          youtube_link: alb.youtube_link,
+          apple_music_link: alb.apple_music_link,
+          tracks: alb.tracks || [],
+          created_at: alb.created_at,
+          review_count: reviewCount,
+          base_rating: parseFloat(baseAvg.toFixed(2)),
+          bonus: parseFloat(bonus.toFixed(2)),
+          final_rating: finalScore !== null ? parseFloat(finalScore.toFixed(2)) : null,
+          criteria_averages: criteriaAverages,
+          track_stats: computedTrackStats,
+          best_track: bestTrack,
+          worst_track: worstTrack,
+          reviews: albumReviews,
+        };
+      });
+
+      return result;
+    } catch (err) {
+      console.error('Error in getAllAlbumsWithFullStats:', err);
+      return [];
+    }
   },
 };

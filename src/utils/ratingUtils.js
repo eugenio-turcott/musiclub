@@ -79,3 +79,18 @@ export function getAlbumWeightedAverage(reviews) {
   const avg = total / validScores.length;
   return avg.toFixed(1);
 }
+
+/**
+ * Cálculo del bonus extra de calificación por cantidad de reviews:
+ * - Hasta 5 reviews: 0 bonus
+ * - De 6 a 10 reviews (más de 5): +0.25 por cada review adicional
+ * - Más de 10 reviews: +0.10 por cada review adicional después de la 10 (con los primeros 5 a +0.25 = +1.25)
+ */
+export function calculateReviewBonus(reviewCount) {
+  if (!reviewCount || reviewCount <= 5) return 0;
+  if (reviewCount > 10) {
+    return 5 * 0.25 + (reviewCount - 10) * 0.10;
+  }
+  return (reviewCount - 5) * 0.25;
+}
+

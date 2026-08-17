@@ -443,7 +443,7 @@ export function SlotMachine({
                 onClick={spinSequence}
                 disabled={isSpinningLocal || isSpinning}
                 className={`
-                  relative px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg transition-all duration-300
+                  relative px-4 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-xs sm:text-lg transition-all duration-300 max-w-full
                   ${
                     isSpinningLocal || isSpinning
                       ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
@@ -454,11 +454,13 @@ export function SlotMachine({
                 {!isSpinningLocal && !isSpinning && (
                   <span className="absolute -inset-0.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full blur opacity-50 animate-pulse"></span>
                 )}
-                <span className="relative flex items-center gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl">🎰</span>
-                  {isSpinningLocal || isSpinning
-                    ? 'GIRANDO...'
-                    : '¡TIRAR PALANCA!'}
+                <span className="relative flex items-center justify-center gap-1.5 sm:gap-3">
+                  <span className="text-lg sm:text-2xl">🎰</span>
+                  <span className="truncate">
+                    {isSpinningLocal || isSpinning
+                      ? 'GIRANDO...'
+                      : '¡TIRAR PALANCA!'}
+                  </span>
                   <span className="text-[10px] sm:text-xs tracking-wider opacity-50">
                     {!isSpinningLocal && !isSpinning && '▶'}
                   </span>
@@ -467,13 +469,12 @@ export function SlotMachine({
             ) : (
               <button
                 onClick={() => {}}
-                className="relative px-6 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-sm sm:text-lg transition-all duration-300 bg-gray-800/50 text-white/30 cursor-not-allowed border border-white/5"
+                className="relative px-4 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-xs sm:text-base transition-all duration-300 bg-gray-800/50 text-white/30 cursor-not-allowed border border-white/5 max-w-full"
               >
-                <span className="relative flex items-center gap-2 sm:gap-3">
-                  <span className="text-xl sm:text-2xl">🔒</span>
-                  {user ? 'Solo Admin puede girar' : 'Inicia sesión para girar'}
-                  <span className="text-[10px] sm:text-xs tracking-wider opacity-30">
-                    🔐
+                <span className="relative flex items-center justify-center gap-1.5 sm:gap-3">
+                  <span className="text-lg sm:text-2xl">🔒</span>
+                  <span className="truncate">
+                    {user ? 'Solo Admin puede girar' : 'Inicia sesión para girar'}
                   </span>
                 </span>
               </button>

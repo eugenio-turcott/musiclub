@@ -38,6 +38,12 @@ export function useAuth() {
             name: userData.name,
             avatar_url: userData.avatar_url,
             role: userData.role || 'user',
+            bio: userData.bio || null,
+            favorite_artist: userData.favorite_artist || null,
+            favorite_album: userData.favorite_album || null,
+            favorite_genres: userData.favorite_genres || [],
+            spotify_url: userData.spotify_url || null,
+            instagram_url: userData.instagram_url || null,
             updated_at: new Date().toISOString(),
           }],
           { onConflict: 'id' }
@@ -91,7 +97,15 @@ export function useAuth() {
               email: result.data.email,
               name: result.data.name,
               avatar: result.data.avatar_url,
+              avatar_url: result.data.avatar_url,
               role: result.data.role || 'user',
+              bio: result.data.bio || session.user.user_metadata?.bio || '',
+              favorite_artist: result.data.favorite_artist || session.user.user_metadata?.favorite_artist || '',
+              favorite_album: result.data.favorite_album || session.user.user_metadata?.favorite_album || '',
+              favorite_genres: result.data.favorite_genres || session.user.user_metadata?.favorite_genres || [],
+              spotify_url: result.data.spotify_url || session.user.user_metadata?.spotify_url || '',
+              instagram_url: result.data.instagram_url || session.user.user_metadata?.instagram_url || '',
+              created_at: session.user.created_at || result.data.created_at,
               isRegistered: true,
             };
           } else {
@@ -101,7 +115,15 @@ export function useAuth() {
               email: session.user.email,
               name: newUserData.name,
               avatar: newUserData.avatar_url,
+              avatar_url: newUserData.avatar_url,
               role: 'user',
+              bio: session.user.user_metadata?.bio || '',
+              favorite_artist: session.user.user_metadata?.favorite_artist || '',
+              favorite_album: session.user.user_metadata?.favorite_album || '',
+              favorite_genres: session.user.user_metadata?.favorite_genres || [],
+              spotify_url: session.user.user_metadata?.spotify_url || '',
+              instagram_url: session.user.user_metadata?.instagram_url || '',
+              created_at: session.user.created_at,
               isRegistered: false,
             };
           }
@@ -111,7 +133,15 @@ export function useAuth() {
             email: profile.email,
             name: profile.name,
             avatar: profile.avatar_url,
+            avatar_url: profile.avatar_url,
             role: profile.role || 'user',
+            bio: profile.bio || session.user.user_metadata?.bio || '',
+            favorite_artist: profile.favorite_artist || session.user.user_metadata?.favorite_artist || '',
+            favorite_album: profile.favorite_album || session.user.user_metadata?.favorite_album || '',
+            favorite_genres: profile.favorite_genres || session.user.user_metadata?.favorite_genres || [],
+            spotify_url: profile.spotify_url || session.user.user_metadata?.spotify_url || '',
+            instagram_url: profile.instagram_url || session.user.user_metadata?.instagram_url || '',
+            created_at: profile.created_at || session.user.created_at,
             isRegistered: true,
           };
         }
@@ -304,6 +334,117 @@ export function useAuth() {
     }
   }, [upsertProfile, checkIsAdmin]);
 
+  // Actualizar perfil del usuario
+  const updateProfile = useCallback(
+    async (profileData) => {
+      if (!user) return { success: false, error: 'No hay usuario autenticado' };
+      try {
+        setLoading(true);
+
+        const avatarVal =
+          profileData.avatar_url !== undefined
+            ? profileData.avatar_url
+            : profileData.avatar !== undefined
+            ? profileData.avatar
+            : user.avatar || user.avatar_url;
+
+        const updatedFields = {
+          name: profileData.name !== undefined ? profileData.name : user.name,
+          avatar_url: avatarVal || null,
+          bio: profileData.bio !== undefined ? profileData.bio : user.bio || null,
+          favorite_artist:
+            profileData.favorite_artist !== undefined
+              ? profileData.favorite_artist
+              : user.favorite_artist || null,
+          favorite_album:
+            profileData.favorite_album !== undefined
+              ? profileData.favorite_album
+              : user.favorite_album || null,
+          favorite_genres:
+            profileData.favorite_genres !== undefined
+              ? profileData.favorite_genres
+              : user.favorite_genres || [],
+          spotify_url:
+            profileData.spotify_url !== undefined
+              ? profileData.spotify_url
+              : user.spotify_url || null,
+          instagram_url:
+            profileData.instagram_url !== undefined
+              ? profileData.instagram_url
+              : user.instagram_url || null,
+          updated_at: new Date().toISOString(),
+        };
+
+        // 1. Actualizar metadata en auth de Supabase (opcional para mantener sincronía)
+        try {
+          await supabase.auth.updateUser({
+            data: {
+              full_name: updatedFields.name,
+              name: updatedFields.name,
+              avatar_url: updatedFields.avatar_url,
+              bio: updatedFields.bio,
+              favorite_artist: updatedFields.favorite_artist,
+              favorite_album: updatedFields.favorite_album,
+              favorite_genres: updatedFields.favorite_genres,
+              spotify_url: updatedFields.spotify_url,
+              instagram_url: updatedFields.instagram_url,
+            },
+          });
+        } catch (authErr) {
+          console.warn('Advertencia en supabase.auth.updateUser:', authErr);
+        }
+
+        // 2. Actualizar en tabla profiles de Supabase
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update(updatedFields)
+          .eq('id', user.id);
+
+        if (profileError) {
+          console.error('Error al actualizar en profiles:', profileError);
+          // Si falló por falta de columnas en la BD, intentamos un fallback básico
+          const { error: basicError } = await supabase
+            .from('profiles')
+            .update({
+              name: updatedFields.name,
+              avatar_url: updatedFields.avatar_url,
+              updated_at: updatedFields.updated_at,
+            })
+            .eq('id', user.id);
+          if (basicError) throw profileError;
+        }
+
+        // 3. Si cambió el nombre, sincronizar en la tabla reviews
+        if (profileData.name && profileData.name !== user.name && user.email) {
+          try {
+            await supabase
+              .from('reviews')
+              .update({ reviewer_name: profileData.name })
+              .eq('reviewer_email', user.email);
+          } catch (rErr) {
+            console.warn('No se pudo sincronizar reviewer_name en reviews:', rErr);
+          }
+        }
+
+        const updatedUser = {
+          ...user,
+          ...updatedFields,
+          avatar: updatedFields.avatar_url,
+        };
+
+        setUser(updatedUser);
+        localStorage.setItem('maquina_musical_user', JSON.stringify(updatedUser));
+        return { success: true, user: updatedUser };
+      } catch (error) {
+        console.error('Error en updateProfile:', error);
+        return { success: false, error: error.message };
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user]
+  );
+
   return {
     user,
     loading,
@@ -313,6 +454,7 @@ export function useAuth() {
     loginWithGoogle,
     loginWithEmail,
     logout,
+    updateProfile,
     isAuthenticated: !!user,
     checkIsAdmin,
   };

@@ -247,7 +247,7 @@ export function Reviews({ onClose, isPage = false }) {
             <select
               value={filterAlbum}
               onChange={(e) => setFilterAlbum(e.target.value)}
-              className="bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer max-w-xs"
+              className="w-full sm:max-w-xs bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer truncate"
             >
               <option value="todos" className="bg-slate-900">
                 Todos los álbumes
@@ -261,7 +261,7 @@ export function Reviews({ onClose, isPage = false }) {
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer"
+              className="w-full sm:w-auto bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer"
             >
               <option value="todos" className="bg-slate-900">
                 Todas las notas

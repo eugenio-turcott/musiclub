@@ -14,9 +14,13 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { AdminPage } from './pages/AdminPage';
 import { ReviewsPage } from './pages/ReviewsPage';
-// 👈 ELIMINAR: import { AdminPanel } from './components/AdminPanel';
+import { ProfilePage } from './pages/ProfilePage';
+import { SettingsPage } from './pages/SettingsPage';
+import { LeaderboardPage } from './pages/LeaderboardPage';
+import { AlbumsPage } from './pages/AlbumsPage';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
+import { useUserReviews } from './hooks/useUserReviews';
 
 function AppContent() {
   const { albums, winner, loading, error, refetch, markAlbumAsInactive } =
@@ -30,9 +34,16 @@ function AppContent() {
     logout,
   } = useAuth();
 
+  const { reviewedAlbumIds, refetchUserReviews } = useUserReviews(user);
+
   const [isSpinning, setIsSpinning] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
+
+  const handleAlbumUpdated = () => {
+    refetch();
+    if (refetchUserReviews) refetchUserReviews();
+  };
 
   const handleLogin = () => setShowLoginModal(true);
 
@@ -59,8 +70,8 @@ function AppContent() {
   };
 
   return (
-    <div className="min-h-screen cyber-grid p-4 sm:p-6">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Header con logo y login */}
         <AppHeader
           user={user}
@@ -88,7 +99,8 @@ function AppContent() {
           winner={winner}
           isAdmin={isAdmin}
           user={user}
-          onAlbumUpdated={refetch}
+          reviewedAlbumIds={reviewedAlbumIds}
+          onAlbumUpdated={handleAlbumUpdated}
         />
 
         {/* Slot Machine - Solo visible si hay álbumes */}
@@ -114,12 +126,13 @@ function AppContent() {
           error={error}
           winner={winner}
           user={user}
-          isAdmin={isAdmin} // 👈 Esto ya debería estar
-          onAlbumUpdated={refetch}
+          isAdmin={isAdmin}
+          reviewedAlbumIds={reviewedAlbumIds}
+          onAlbumUpdated={handleAlbumUpdated}
         />
 
         {/* Búsqueda de álbumes en Spotify (solo usuarios con sesión iniciada) */}
-        {user && <AlbumSearch onAlbumCreated={refetch} user={user} />}
+        {user && <AlbumSearch onAlbumCreated={handleAlbumUpdated} user={user} />}
         {/* Footer */}
         <Footer />
       </div>
@@ -136,6 +149,14 @@ export function App() {
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/reviews" element={<ReviewsPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/configuracion" element={<SettingsPage />} />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+        <Route path="/ranking" element={<LeaderboardPage />} />
+        <Route path="/albumes" element={<AlbumsPage />} />
+        <Route path="/albums" element={<AlbumsPage />} />
       </Routes>
     </Router>
   );

@@ -7,6 +7,7 @@ export function WinnerDisplay({
   winner,
   isAdmin = false,
   user = null,
+  reviewedAlbumIds = new Set(),
   onAlbumUpdated,
 }) {
   const [showReview, setShowReview] = useState(false);
@@ -14,6 +15,10 @@ export function WinnerDisplay({
     winner?.reviews_enabled || false // 👈 CARGAR DESDE PROPS
   );
   const [toggling, setToggling] = useState(false);
+
+  const isReviewed = winner?.id && reviewedAlbumIds && (
+    reviewedAlbumIds instanceof Set ? reviewedAlbumIds.has(winner.id) : Array.isArray(reviewedAlbumIds) && reviewedAlbumIds.includes(winner.id)
+  );
 
   // 👈 ACTUALIZAR CUANDO CAMBIE EL WINNER
   useEffect(() => {
@@ -100,6 +105,27 @@ export function WinnerDisplay({
               alt={winner.album}
               className="relative w-48 h-48 sm:w-56 sm:h-56 md:w-72 md:h-72 object-cover rounded-xl border-4 border-[#f5576c]/40 shadow-2xl shadow-[#f5576c]/30 group-hover:scale-105 transition-transform duration-500"
             />
+
+            {/* Palomita si el usuario ya dio review */}
+            {isReviewed && (
+              <div
+                className="absolute bottom-2 right-2 z-20 flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-emerald-500 text-white shadow-[0_0_16px_rgba(16,185,129,0.9)] border-2 border-emerald-200 backdrop-blur-md transform transition-all duration-300 hover:scale-110"
+                title="Ya diste tu review a este álbum ✓"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5 stroke-[3]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+              </div>
+            )}
 
             {/* Badge de ganador superpuesto */}
             <div className="absolute -top-4 -right-4 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-[#f5576c]/30 animate-bounce border-2 border-white/20">
@@ -201,18 +227,31 @@ export function WinnerDisplay({
               )}
 
               {reviewsEnabled && (
-                <span className="text-xs text-green-300 bg-green-500/15 border border-green-500/30 px-3 py-1.5 rounded-full font-medium">
-                  📝 Reviews abiertos
-                </span>
-              )}
-
-              {reviewsEnabled && (
-                <button
-                  onClick={() => setShowReview(!showReview)}
-                  className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/25 border border-white/10"
-                >
-                  {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
-                </button>
+                isReviewed ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                      <span>✓</span> Ya calificaste este álbum
+                    </span>
+                    <button
+                      onClick={() => setShowReview(!showReview)}
+                      className="px-3.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 hover:text-white text-xs font-semibold rounded-full transition-all border border-emerald-400/30"
+                    >
+                      {showReview ? '✕ Cerrar' : '👁️ Ver mi review'}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-green-300 bg-green-500/15 border border-green-500/30 px-3 py-1.5 rounded-full font-medium">
+                      📝 Reviews abiertos
+                    </span>
+                    <button
+                      onClick={() => setShowReview(!showReview)}
+                      className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/25 border border-white/10"
+                    >
+                      {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
+                    </button>
+                  </div>
+                )
               )}
             </div>
           </div>

@@ -88,10 +88,11 @@ export function useAlbums() {
         status: album.status,
         added_by: album.added_by,
         added_by_email: album.added_by_email,
+        user_id: album.user_id,
         created_at: album.created_at,
         tracks: album.tracks || [],
         spotify_verified: album.spotify_verified || false,
-        reviews_enabled: album.reviews_enabled || false, // 👈 AGREGAR
+        reviews_enabled: album.reviews_enabled || false,
       }));
 
       if (mappedAlbums.length > 0) {

@@ -54,7 +54,7 @@ const albumsData = [
         link: 'https://music.apple.com/mx/album/what-have-we-done/1831215497?l=en-GB',
         status: 'ACTIVO',
         added_by: 'Sora',
-        added_by_email: 'carcar.welsh@gmail.com',
+        added_by_email: 'sora.welsh@gmail.com',
         created_at: '2026-07-13T23:13:46'
     },
     {
@@ -74,7 +74,7 @@ const albumsData = [
         link: 'https://open.spotify.com/album/2G5QtcVV7taTm2QQ5X494h?si=T-YVeJouRhSG-PHKrYUY0A&utm_source=copy-link',
         status: 'ACTIVO',
         added_by: 'Abel',
-        added_by_email: 'abel.leiva@hotmail.com',
+        added_by_email: 'abelaleiva@gmail.com',
         created_at: '2026-07-13T23:18:11'
     },
     {
@@ -163,19 +163,19 @@ const albumsData = [
         image_url: 'https://cdn-images.dzcdn.net/images/cover/a41167cfcc7e840821fad5f5f5f91da2/1900x1900-000000-80-0-0.jpg',
         link: 'https://music.youtube.com/playlist?list=OLAK5uy_nY8rMT2-JM5ftt_M8I6uoTcDrsASzjV7w&si=SZTzGYR1woVoAIHo',
         status: 'ACTIVO',
-        added_by: 'Daniela Kings',
+        added_by: 'Daniela',
         added_by_email: 'danielarimq@gmail.com',
         created_at: '2026-08-01T21:50:24'
     },
     {
-        album_name: '#CONTRACUERPOS',
-        artist_name: 'Lucas Gael',
-        image_url: 'https://cdn-images.dzcdn.net/images/cover/dbd1d76e565a54f8cf88c24e36755b46/0x1900-000000-80-0-0.jpg',
-        link: 'https://open.spotify.com/album/61DSTLiwVb9BcoA6T151jj?si=6KtUcDpHSMWIArSIlMBdaw&utm_source=copy-link',
+        album_name: 'PO2054AZ (Vol.II)',
+        artist_name: 'Sen Senra',
+        image_url: 'https://cdn-images.dzcdn.net/images/cover/99372c3e684669dfd38d4969e537174f/1200x1200.jpg',
+        link: 'https://open.spotify.com/album/7G8LEEo2yjciNr77XSYiWA?si=An5SNxXFTGCeGUwM26rMqA&utm_source=copy-link',
         status: 'ACTIVO',
         added_by: 'Rolis',
         added_by_email: 'ronaldoplay4pro@gmail.com',
-        created_at: '2026-07-15T10:57:32'
+        created_at: '2026-08-14T09:20:19'
     },
     {
         album_name: 'Tango Astral',

@@ -90,11 +90,29 @@ export function ReviewSystem({
     }
   }, [user, userName, userEmail, shouldShowTracks, tracks]);
 
+  const currentUserEmail = (user?.email || userEmail || '').trim().toLowerCase();
+  const currentUserName = (user?.name || userName || '').trim().toLowerCase();
+
+  const existingUserReview = reviews.find((r) => {
+    const revEmail = (r.reviewer_email || '').trim().toLowerCase();
+    const revName = (r.reviewer_name || '').trim().toLowerCase();
+    if (currentUserEmail && revEmail && revEmail === currentUserEmail) return true;
+    if (currentUserName && revName && revName === currentUserName) return true;
+    return false;
+  });
+  const hasAlreadyReviewed = !!existingUserReview;
+
   const handleSubmitReview = async (e) => {
     if (e) e.preventDefault();
     setError(null);
     setSuccess(false);
     setIsSubmitting(true);
+
+    if (hasAlreadyReviewed) {
+      setError('Ya has enviado una reseña para este álbum previamente.');
+      setIsSubmitting(false);
+      return;
+    }
 
     const missingCriterios = CRITERIOS.filter((c) => !ratings[c.id]);
     if (missingCriterios.length > 0) {
@@ -407,16 +425,161 @@ export function ReviewSystem({
 
       {/* Botón de Abrir Formulario - Solo para no individuales */}
       {!isIndividual && !showReviewForm && (
-        <button
-          onClick={() => setShowReviewForm(true)}
-          className="mt-2 w-full py-3 bg-gradient-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 border border-[#f5576c]/30 rounded-xl text-white hover:border-[#f5576c]/60 hover:shadow-lg hover:shadow-[#f5576c]/10 transition-all text-sm font-semibold flex items-center justify-center gap-2"
-        >
-          <span>✍️</span> Dejar tu Review
-        </button>
+        hasAlreadyReviewed ? (
+          <div className="mt-2 w-full py-2.5 px-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-emerald-300 text-sm font-semibold flex items-center justify-between gap-2 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <div className="flex items-center gap-2">
+              <span className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-xs font-bold">
+                ✓
+              </span>
+              <span className="text-xs sm:text-sm">Ya diste tu review a este álbum</span>
+            </div>
+            <button
+              onClick={() => setShowReviewForm(true)}
+              className="text-xs text-emerald-200 hover:text-white bg-emerald-500/20 hover:bg-emerald-500/30 px-3 py-1 rounded-lg border border-emerald-400/30 transition-all font-medium"
+            >
+              Ver mi review
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowReviewForm(true)}
+            className="mt-2 w-full py-3 bg-gradient-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 border border-[#f5576c]/30 rounded-xl text-white hover:border-[#f5576c]/60 hover:shadow-lg hover:shadow-[#f5576c]/10 transition-all text-sm font-semibold flex items-center justify-center gap-2"
+          >
+            <span>✍️</span> Dejar tu Review
+          </button>
+        )
       )}
 
-      {/* FORMULARIO WIZARD STEP-BY-STEP */}
+      {/* FORMULARIO WIZARD STEP-BY-STEP O VISTA DE YA CALIFICADO */}
       {(showReviewForm || isIndividual) && (
+        hasAlreadyReviewed ? (
+          <div
+            className={`mt-4 rounded-3xl p-5 sm:p-6 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
+              isIndividual
+                ? 'bg-gradient-to-br from-[#0b172a] via-[#0d1d36] to-[#081120] border-emerald-500/40 shadow-[0_0_40px_rgba(16,185,129,0.15)]'
+                : 'bg-gradient-to-br from-[#0e1b2b] to-[#09111c] border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.12)]'
+            }`}
+          >
+            <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-sm shadow-[0_0_10px_rgba(16,185,129,0.3)]">
+                  ✓
+                </div>
+                <div>
+                  <h5 className="text-white font-bold text-sm sm:text-base">Tu Review Registrada</h5>
+                  <p className="text-emerald-400/80 text-xs">
+                    Ya calificaste este álbum. No se permite enviar una segunda review.
+                  </p>
+                </div>
+              </div>
+              {!isIndividual && (
+                <button
+                  type="button"
+                  onClick={() => setShowReviewForm(false)}
+                  className="text-white/40 hover:text-white text-sm bg-white/5 hover:bg-white/10 w-7 h-7 rounded-full flex items-center justify-center transition-all"
+                  title="Cerrar"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between bg-black/40 p-4 rounded-2xl border border-white/10">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-base">
+                    {(existingUserReview.reviewer_name || 'U')[0].toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="text-white font-bold text-sm">
+                      {existingUserReview.reviewer_name || 'Tu Usuario'}
+                    </div>
+                    <div className="text-white/40 text-xs">
+                      {existingUserReview.created_at
+                        ? new Date(existingUserReview.created_at).toLocaleDateString('es-ES', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })
+                        : 'Evaluado'}
+                    </div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-black text-emerald-300">
+                    ★ {getWeightedReviewScore(existingUserReview)?.toFixed(1) ?? existingUserReview.rating_general ?? '10'}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-emerald-400/70 font-semibold">
+                    Calificación Ponderada
+                  </div>
+                </div>
+              </div>
+
+              {existingUserReview.comment && (
+                <div className="bg-black/30 p-3.5 rounded-xl border border-white/5">
+                  <div className="text-white/40 text-xs mb-1 font-semibold uppercase tracking-wider">
+                    Tu Comentario:
+                  </div>
+                  <p className="text-white/90 text-sm italic">"{existingUserReview.comment}"</p>
+                </div>
+              )}
+
+              {/* Desglose de Criterios */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {[
+                  { key: 'rating_produccion', label: '🎛️ Prod.', max: 5 },
+                  { key: 'rating_composicion', label: '🎵 Comp.', max: 5 },
+                  { key: 'rating_letras', label: '📝 Letras', max: 5 },
+                  { key: 'rating_originalidad', label: '💡 Orig.', max: 5 },
+                  { key: 'rating_cohesion', label: '🔗 Cohes.', max: 5 },
+                  { key: 'rating_replay', label: '🔄 Replay', max: 5 },
+                  { key: 'rating_general', label: '⭐ Gral.', max: 10 },
+                ].map(({ key, label, max }) => {
+                  const val = existingUserReview[key];
+                  if (val === undefined || val === null) return null;
+                  return (
+                    <div
+                      key={key}
+                      className="bg-black/40 p-2.5 rounded-xl border border-white/5 flex items-center justify-between"
+                    >
+                      <span className="text-white/60 text-xs truncate mr-1">{label}</span>
+                      <span className="text-emerald-300 font-bold text-xs px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20">
+                        {val}/{max}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Canciones calificadas */}
+              {existingUserReview.track_ratings &&
+                Object.keys(existingUserReview.track_ratings).length > 0 && (
+                  <div className="bg-black/30 p-3.5 rounded-xl border border-white/5">
+                    <div className="text-white/40 text-xs mb-2 font-semibold uppercase tracking-wider flex items-center gap-1.5">
+                      <span>🎵</span> Canciones Calificadas:
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-1">
+                      {Object.entries(existingUserReview.track_ratings).map(([tId, rating]) => {
+                        const track = tracks.find((t) => t.id === tId || String(t.id) === tId);
+                        return (
+                          <span
+                            key={tId}
+                            className="text-xs px-2.5 py-1 rounded-lg bg-black/50 border border-white/10 text-white/80 flex items-center gap-1.5"
+                          >
+                            <span className="text-cyan-400">🎵</span>
+                            <span className="max-w-[130px] truncate">
+                              {track ? track.name : tId}
+                            </span>
+                            <span className="font-bold text-emerald-300 ml-1">★ {rating}</span>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+            </div>
+          </div>
+        ) : (
         <div
           className={`mt-4 rounded-3xl p-5 sm:p-6 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
             isIndividual
@@ -466,11 +629,11 @@ export function ReviewSystem({
           </div>
 
           {/* Nav Tab Bar del Wizard */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-1.5 mb-5 bg-black/50 p-1.5 rounded-2xl border border-white/10 relative z-10">
+          <div className="flex items-center gap-1.5 mb-5 bg-black/50 p-1.5 rounded-2xl border border-white/10 relative z-10 overflow-x-auto scrollbar-none">
             <button
               type="button"
               onClick={() => setWizardStep('user')}
-              className={`py-2 px-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 truncate ${
+              className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap flex-shrink-0 flex-1 ${
                 wizardStep === 'user'
                   ? isIndividual
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
@@ -491,7 +654,7 @@ export function ReviewSystem({
                     setError('Por favor completa tus datos de usuario primero.');
                   }
                 }}
-                className={`py-2 px-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 truncate ${
+                className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap flex-shrink-0 flex-1 ${
                   wizardStep === 'tracks'
                     ? isIndividual
                       ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
@@ -500,7 +663,7 @@ export function ReviewSystem({
                 }`}
               >
                 <span>🎵</span>{' '}
-                <span className="truncate">
+                <span>
                   2. Canciones ({trackProgress}/{tracks.length})
                 </span>
               </button>
@@ -515,7 +678,7 @@ export function ReviewSystem({
                   setError('Por favor completa tus datos de usuario primero.');
                 }
               }}
-              className={`py-2 px-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 truncate ${
+              className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap flex-shrink-0 flex-1 ${
                 wizardStep === 'criteria'
                   ? isIndividual
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
@@ -524,7 +687,7 @@ export function ReviewSystem({
               }`}
             >
               <span>📊</span>{' '}
-              <span className="truncate">
+              <span>
                 {shouldShowTracks && tracks.length > 0 ? '3. Criterios' : '2. Criterios'}
               </span>
             </button>
@@ -538,7 +701,7 @@ export function ReviewSystem({
                   setError('Por favor completa tus datos de usuario primero.');
                 }
               }}
-              className={`py-2 px-2.5 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 truncate ${
+              className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap flex-shrink-0 flex-1 ${
                 wizardStep === 'summary'
                   ? isIndividual
                     ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
@@ -546,7 +709,7 @@ export function ReviewSystem({
                   : 'text-white/40 hover:text-white/80 hover:bg-white/5'
               }`}
             >
-              <span>📝</span> <span className="truncate">Resumen</span>
+              <span>📝</span> <span>Resumen</span>
             </button>
           </div>
 
@@ -1186,6 +1349,7 @@ export function ReviewSystem({
             </div>
           )}
         </div>
+        )
       )}
     </div>
   );

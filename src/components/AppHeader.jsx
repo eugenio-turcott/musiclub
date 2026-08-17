@@ -20,30 +20,50 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
           </span>
         </Link>
 
-        {/* Enlaces centrales - NUEVO */}
-        <div className="hidden md:flex items-center gap-4">
+        {/* Enlaces centrales */}
+        <div className="hidden md:flex items-center gap-5">
+          <Link
+            to="/leaderboard"
+            className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
+          >
+            <span>🏆</span> Leaderboard
+          </Link>
+          <Link
+            to="/albumes"
+            className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
+          >
+            <span>💿</span> Álbumes
+          </Link>
           <Link
             to="/reviews"
-            className="text-white/40 hover:text-white/70 transition-colors text-sm"
+            className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
           >
-            Reviews
+            <span>📝</span> Reviews
           </Link>
+          {user && (
+            <Link
+              to="/profile"
+              className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
+            >
+              <span>👤</span> Mi Perfil
+            </Link>
+          )}
+          {user && (
+            <Link
+              to="/settings"
+              className="text-white/60 hover:text-white transition-colors text-sm font-medium flex items-center gap-1.5"
+            >
+              <span>⚙️</span> Configuración
+            </Link>
+          )}
         </div>
 
         {/* Login / User a la derecha */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          {/* Enlace a Reviews en móvil */}
-          <Link
-            to="/reviews"
-            className="md:hidden text-xs text-white/80 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full border border-white/10 transition-all flex items-center gap-1.5 font-medium"
-          >
-            <span>📝</span>
-          </Link>
-
+        <div className="flex items-center gap-2 sm:gap-3">
           {isAdmin && (
             <Link
               to="/admin"
-              className="text-xs text-[#f5576c] font-semibold bg-[#f5576c]/15 px-3 py-1.5 rounded-full border border-[#f5576c]/30 hover:bg-[#f5576c]/25 transition-all flex items-center gap-1 shadow-sm"
+              className="text-xs text-[#f5576c] font-semibold bg-[#f5576c]/15 px-2.5 sm:px-3 py-1.5 rounded-full border border-[#f5576c]/30 hover:bg-[#f5576c]/25 transition-all flex items-center gap-1 shadow-sm"
             >
               <span>🔧</span>
               <span className="hidden sm:inline">Admin</span>
@@ -51,20 +71,44 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
           )}
 
           {user ? (
-            <div className="flex items-center gap-2.5 bg-black/30 border border-white/10 px-2.5 py-1 rounded-full">
-              {user.avatar && (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-7 h-7 rounded-full border border-white/20 object-cover"
-                />
-              )}
-              <span className="text-white/80 text-xs sm:text-sm font-medium hidden sm:block max-w-[120px] truncate">
-                {user.name || 'Usuario'}
-              </span>
+            <div className="flex items-center gap-1.5 sm:gap-2 bg-black/40 border border-white/15 pl-1.5 pr-2 sm:pr-2.5 py-1 rounded-full shadow-lg backdrop-blur-md">
+              <Link
+                to="/profile"
+                className="flex items-center gap-1.5 sm:gap-2 hover:opacity-80 transition-opacity"
+                title="Ver mi perfil"
+              >
+                {user.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.name}
+                    className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-white/20 object-cover"
+                    onError={(e) => {
+                      e.target.src = 'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                    }}
+                  />
+                ) : (
+                  <div className="w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center">
+                    {(user.name || 'U')[0].toUpperCase()}
+                  </div>
+                )}
+                <span className="text-white/90 text-xs sm:text-sm font-semibold hidden sm:block max-w-[110px] truncate">
+                  {user.name || 'Usuario'}
+                </span>
+              </Link>
+
+              <div className="w-[1px] h-3.5 bg-white/20 mx-0.5"></div>
+
+              <Link
+                to="/settings"
+                className="text-white/50 hover:text-cyan-300 text-xs p-1 rounded-full transition-colors"
+                title="Configuración"
+              >
+                ⚙️
+              </Link>
+
               <button
                 onClick={onLogout}
-                className="text-white/40 hover:text-white text-xs font-semibold px-2 py-0.5 rounded-full hover:bg-white/10 transition-all"
+                className="text-white/50 hover:text-rose-400 text-xs font-semibold px-1.5 py-0.5 rounded-full hover:bg-white/10 transition-all"
                 title="Cerrar sesión"
               >
                 Salir
@@ -74,10 +118,50 @@ export function AppHeader({ user, isAdmin, onLogin, onLogout, loading }) {
             <button
               onClick={onLogin}
               disabled={loading}
-              className="px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20"
+              className="px-3 sm:px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20"
             >
               {loading ? '...' : 'Iniciar sesión'}
             </button>
+          )}
+        </div>
+      </div>
+
+      {/* Navegación móvil horizontal secundaria */}
+      <div className="md:hidden border-t border-white/5 bg-black/20 px-3 py-2 overflow-x-auto scrollbar-none">
+        <div className="flex items-center gap-1.5 min-w-max justify-center xs:justify-start">
+          <Link
+            to="/leaderboard"
+            className="text-xs text-white/80 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-full border border-white/10 transition-all flex items-center gap-1 font-medium whitespace-nowrap"
+          >
+            <span>🏆</span> Leaderboard
+          </Link>
+          <Link
+            to="/albumes"
+            className="text-xs text-white/80 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-full border border-white/10 transition-all flex items-center gap-1 font-medium whitespace-nowrap"
+          >
+            <span>💿</span> Álbumes
+          </Link>
+          <Link
+            to="/reviews"
+            className="text-xs text-white/80 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-full border border-white/10 transition-all flex items-center gap-1 font-medium whitespace-nowrap"
+          >
+            <span>📝</span> Reviews
+          </Link>
+          {user && (
+            <Link
+              to="/profile"
+              className="text-xs text-white/80 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-full border border-white/10 transition-all flex items-center gap-1 font-medium whitespace-nowrap"
+            >
+              <span>👤</span> Perfil
+            </Link>
+          )}
+          {user && (
+            <Link
+              to="/settings"
+              className="text-xs text-white/80 bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded-full border border-white/10 transition-all flex items-center gap-1 font-medium whitespace-nowrap"
+            >
+              <span>⚙️</span> Ajustes
+            </Link>
           )}
         </div>
       </div>

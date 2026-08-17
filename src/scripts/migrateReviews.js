@@ -79,7 +79,7 @@ const titanicRisingReviews = [
 const bodhiriaReviews = [
     {
         timestamp: '2026-07-11T16:54:43',
-        email: 'abel.leiva@hotmail.com',
+        email: 'abelaleiva@gmail.com',
         name: 'Abel',
         track_ratings: {
             "bodhitale": 7, "INRI": 9, "angelA": 7, "mangata": 8,
@@ -319,7 +319,7 @@ const grasareviews = [
     },
     {
         timestamp: '2026-07-20T21:09:57',
-        email: 'abel.leiva@hotmail.com',
+        email: 'abelaleiva@gmail.com',
         name: 'Abel',
         track_ratings: {
             "La Grasa de las Capitales": 10,

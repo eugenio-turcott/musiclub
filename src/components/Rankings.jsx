@@ -67,6 +67,7 @@ export function Rankings({ albums, isAdmin = false }) {
 
   const [activeTab, setActiveTab] = useState('general');
   const [activeView, setActiveView] = useState('albums');
+  const [albumType, setAlbumType] = useState('pool'); // 'pool' | 'individual' | 'all'
   const [expandedStats, setExpandedStats] = useState(false);
   const [animate, setAnimate] = useState(false);
 
@@ -171,12 +172,31 @@ export function Rankings({ albums, isAdmin = false }) {
 
   const { stats, topReviewers, topAlbums, topByCategory } = rankings;
 
-  const getActiveAlbums = () => {
+  const getRawAlbumsForTab = () => {
     if (activeTab === 'general') {
       return topAlbums;
     }
     return topByCategory[activeTab] || [];
   };
+
+  const getActiveAlbums = () => {
+    const rawList = getRawAlbumsForTab();
+    if (albumType === 'pool') {
+      return rawList.filter((a) => a.status !== 'INDIVIDUAL');
+    }
+    if (albumType === 'individual') {
+      return rawList.filter((a) => a.status === 'INDIVIDUAL');
+    }
+    return rawList;
+  };
+
+  const allCurrentTabAlbums = getRawAlbumsForTab();
+  const poolCount = allCurrentTabAlbums.filter(
+    (a) => a.status !== 'INDIVIDUAL'
+  ).length;
+  const individualCount = allCurrentTabAlbums.filter(
+    (a) => a.status === 'INDIVIDUAL'
+  ).length;
 
   const activeAlbums = getActiveAlbums();
   const podiumAlbums = activeAlbums.slice(0, 3);
@@ -195,7 +215,7 @@ export function Rankings({ albums, isAdmin = false }) {
         <img
           src={reviewer.avatar_url}
           alt={reviewer.reviewer_name}
-          className={`${size} rounded-full object-cover border-2 ${borderClass} shadow-md shrink-0`}
+          className={`${size} rounded-full object-cover border-2 ${borderClass} shadow-md shrink-0 bg-white`}
           onError={(e) => {
             e.target.onerror = null;
             e.target.style.display = 'none';
@@ -321,13 +341,13 @@ export function Rankings({ albums, isAdmin = false }) {
         </div>
       )}
 
-      {/* ===== TABS ===== */}
+      {/* ===== TABS PRINCIPALES ===== */}
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => setActiveView('albums')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeView === 'albums'
-              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
               : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
@@ -337,13 +357,74 @@ export function Rankings({ albums, isAdmin = false }) {
           onClick={() => setActiveView('reviewers')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeView === 'reviewers'
-              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
               : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
           👤 Reviewers
         </button>
       </div>
+
+      {/* ===== FILTRO POOL vs INDIVIDUAL (SEPARACIÓN DE PODIO) ===== */}
+      {activeView === 'albums' && (
+        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-black/40 p-2 sm:p-2.5 rounded-2xl border border-white/10">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <span className="text-white/40 text-[11px] font-bold uppercase tracking-wider px-2 hidden md:inline">
+              Podio:
+            </span>
+            <button
+              onClick={() => setAlbumType('pool')}
+              className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                albumType === 'pool'
+                  ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
+                  : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <span>🎰</span>
+              <span>Álbumes del Pool</span>
+              <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-mono font-semibold">
+                {poolCount}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setAlbumType('individual')}
+              className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+                albumType === 'individual'
+                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-[1.02]'
+                  : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <span>📌</span>
+              <span>Álbumes Individuales</span>
+              <span className="text-[10px] bg-black/30 px-2 py-0.5 rounded-full font-mono font-semibold">
+                {individualCount}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setAlbumType('all')}
+              className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-medium transition-all flex items-center gap-1.5 ${
+                albumType === 'all'
+                  ? 'bg-white/20 text-white shadow font-bold'
+                  : 'bg-transparent text-white/40 hover:text-white/70 hover:bg-white/5'
+              }`}
+            >
+              <span>🌐</span>
+              <span>Todos ({allCurrentTabAlbums.length})</span>
+            </button>
+          </div>
+
+          <div className="text-right px-2">
+            <span className="text-white/30 text-[11px]">
+              {albumType === 'pool' && 'Mostrando podio de selección del club'}
+              {albumType === 'individual' &&
+                'Mostrando podio de reseñas individuales'}
+              {albumType === 'all' && 'Mostrando podio general unificado'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* ===== CATEGORÍAS ===== */}
       {activeView === 'albums' && (
@@ -372,33 +453,73 @@ export function Rankings({ albums, isAdmin = false }) {
           <div>
             <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
               <div className="flex justify-between items-center mb-4">
-                <h4 className="text-white/60 text-xs tracking-[0.2em] uppercase flex items-center gap-2">
+                <h4 className="text-white/70 text-xs sm:text-sm tracking-[0.15em] uppercase font-bold flex flex-wrap items-center gap-2">
                   <span>
                     {CATEGORIES.find((c) => c.id === activeTab)?.emoji}
                   </span>
-                  TOP Álbumes por{' '}
-                  {CATEGORIES.find((c) => c.id === activeTab)?.label}
-                  <span className="text-white/20 font-normal text-[10px] ml-2">
-                    {activeAlbums.length} resultados
+                  <span>
+                    TOP{' '}
+                    {albumType === 'pool'
+                      ? 'ÁLBUMES DEL POOL (CLUB)'
+                      : albumType === 'individual'
+                        ? 'ÁLBUMES INDIVIDUALES'
+                        : 'TODOS LOS ÁLBUMES'}{' '}
+                    POR {CATEGORIES.find((c) => c.id === activeTab)?.label}
+                  </span>
+                  <span className="text-white/30 font-normal text-xs ml-1">
+                    ({activeAlbums.length}{' '}
+                    {activeAlbums.length === 1 ? 'álbum' : 'álbumes'})
                   </span>
                 </h4>
               </div>
 
               {activeAlbums.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-white/20 text-sm">
-                    Sin suficientes reviews para esta categoría
+                <div className="text-center py-12 px-4">
+                  <div className="text-4xl mb-2">
+                    {albumType === 'pool'
+                      ? '🎰'
+                      : albumType === 'individual'
+                        ? '📌'
+                        : '🎵'}
+                  </div>
+                  <p className="text-white/70 text-sm font-semibold">
+                    {albumType === 'pool'
+                      ? 'No hay álbumes del Pool con reviews en esta categoría'
+                      : albumType === 'individual'
+                        ? 'No hay álbumes individuales con reviews en esta categoría'
+                        : 'Sin suficientes reviews para esta categoría'}
                   </p>
+                  <p className="text-white/30 text-xs mt-1">
+                    Prueba cambiando de categoría o explorando los otros podios
+                  </p>
+                  <div className="flex flex-wrap justify-center gap-2 mt-4">
+                    {albumType !== 'pool' && (
+                      <button
+                        onClick={() => setAlbumType('pool')}
+                        className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-semibold hover:bg-amber-500/30 transition-all"
+                      >
+                        🎰 Ver Podio del Pool ({poolCount})
+                      </button>
+                    )}
+                    {albumType !== 'individual' && (
+                      <button
+                        onClick={() => setAlbumType('individual')}
+                        className="px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 text-xs font-semibold hover:bg-cyan-500/30 transition-all"
+                      >
+                        📌 Ver Podio Individuales ({individualCount})
+                      </button>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <>
                   {/* ===== PODIO - TOP 3 ===== */}
                   {podiumAlbums.length > 0 && (
                     <div className="mb-10 pt-2">
-                      <div className="flex flex-col md:flex-row justify-center gap-6 md:gap-4 lg:gap-6 items-end">
+                      <div className="flex flex-col md:flex-row justify-center items-center md:items-end gap-6 md:gap-4 lg:gap-6">
                         {/* 2do Lugar - Izquierda en desktop, 2do en mobile */}
                         {podiumAlbums[1] && (
-                          <div className="w-full md:w-1/3 max-w-[300px] order-2 md:order-1 transition-all duration-300 hover:-translate-y-2">
+                          <div className="w-full max-w-[300px] md:w-1/3 order-2 md:order-1 transition-all duration-300 hover:-translate-y-2">
                             <div className="relative bg-gradient-to-b from-slate-300/20 via-slate-400/10 to-black/80 border border-slate-300/40 rounded-2xl p-5 text-center shadow-[0_0_25px_rgba(203,213,225,0.15)] flex flex-col items-center">
                               {/* Medal badge */}
                               <div className="absolute -top-4 bg-slate-300 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg border border-white/40 flex items-center gap-1 z-10">
@@ -420,24 +541,47 @@ export function Rankings({ albums, isAdmin = false }) {
                               </div>
 
                               <div className="mt-3 w-full">
-                                <h4 className="text-white font-bold text-sm sm:text-base truncate" title={podiumAlbums[1].album_name}>
+                                <div className="mb-1">
+                                  <span
+                                    className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                      podiumAlbums[1].status === 'INDIVIDUAL'
+                                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                    }`}
+                                  >
+                                    {podiumAlbums[1].status === 'INDIVIDUAL'
+                                      ? '📌 Individual'
+                                      : '🎰 Pool Club'}
+                                  </span>
+                                </div>
+                                <h4
+                                  className="text-white font-bold text-sm sm:text-base truncate"
+                                  title={podiumAlbums[1].album_name}
+                                >
                                   {podiumAlbums[1].album_name}
                                 </h4>
-                                <p className="text-white/50 text-xs truncate" title={podiumAlbums[1].artist_name}>
+                                <p
+                                  className="text-white/50 text-xs truncate"
+                                  title={podiumAlbums[1].artist_name}
+                                >
                                   {podiumAlbums[1].artist_name}
                                 </p>
                               </div>
 
                               <div className="mt-2 flex items-center gap-2">
                                 <span className="text-slate-200 text-xl font-black">
-                                  ★ {formatRating(podiumAlbums[1].avg_rating || 0)}
+                                  ★{' '}
+                                  {formatRating(
+                                    podiumAlbums[1].avg_rating || 0
+                                  )}
                                 </span>
                               </div>
 
                               {/* Bonus badge */}
                               {podiumAlbums[1].bonus > 0 && (
                                 <span className="mt-1 text-[10px] bg-slate-400/20 text-slate-200 px-2.5 py-0.5 rounded-full border border-slate-300/30 font-medium">
-                                  ⚡ +{podiumAlbums[1].bonus.toFixed(2)} bonus ({podiumAlbums[1].review_count} reviews)
+                                  ⚡ +{podiumAlbums[1].bonus.toFixed(2)} bonus (
+                                  {podiumAlbums[1].review_count} reviews)
                                 </span>
                               )}
 
@@ -450,7 +594,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                 )}
                               </div>
                               <div className="text-white/30 text-[10px] mt-1.5 font-medium">
-                                {podiumAlbums[1].review_count} {podiumAlbums[1].review_count === 1 ? 'review' : 'reviews'}
+                                {podiumAlbums[1].review_count}{' '}
+                                {podiumAlbums[1].review_count === 1
+                                  ? 'review'
+                                  : 'reviews'}
                               </div>
 
                               {/* Pedestal Base */}
@@ -463,8 +610,8 @@ export function Rankings({ albums, isAdmin = false }) {
 
                         {/* 1er Lugar - Centro en desktop (más alto / elevado), 1ro en mobile */}
                         {podiumAlbums[0] && (
-                          <div className="w-full md:w-2/5 max-w-[340px] order-1 md:order-2 md:-translate-y-4 transition-all duration-300 hover:-translate-y-6">
-                            <div className="relative bg-gradient-to-b from-amber-500/25 via-yellow-500/10 to-black/90 border-2 border-yellow-400/60 rounded-3xl p-6 text-center shadow-[0_0_40px_rgba(234,179,8,0.3)] flex flex-col items-center">
+                          <div className="w-full max-w-[340px] md:w-2/5 order-1 md:order-2 md:-translate-y-4 transition-all duration-300 hover:-translate-y-6">
+                            <div className="relative bg-gradient-to-b from-amber-500/25 via-yellow-500/10 to-black/90 border-2 border-yellow-400/60 rounded-3xl p-5 sm:p-6 text-center shadow-[0_0_40px_rgba(234,179,8,0.3)] flex flex-col items-center">
                               {/* Crown & Winner Badge */}
                               <div className="absolute -top-5 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black text-xs sm:text-sm px-4 py-1.5 rounded-full shadow-2xl border-2 border-yellow-200 flex items-center gap-1.5 z-10 animate-bounce">
                                 👑 🥇 #1 CAMPEÓN
@@ -485,24 +632,47 @@ export function Rankings({ albums, isAdmin = false }) {
                               </div>
 
                               <div className="mt-4 w-full">
-                                <h4 className="text-white font-black text-base sm:text-lg lg:text-xl truncate" title={podiumAlbums[0].album_name}>
+                                <div className="mb-1">
+                                  <span
+                                    className={`text-[10px] px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider ${
+                                      podiumAlbums[0].status === 'INDIVIDUAL'
+                                        ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/40 shadow-sm'
+                                        : 'bg-amber-500/25 text-amber-300 border border-amber-400/40 shadow-sm'
+                                    }`}
+                                  >
+                                    {podiumAlbums[0].status === 'INDIVIDUAL'
+                                      ? '📌 Individual'
+                                      : '🎰 Pool Club'}
+                                  </span>
+                                </div>
+                                <h4
+                                  className="text-white font-black text-base sm:text-lg lg:text-xl truncate"
+                                  title={podiumAlbums[0].album_name}
+                                >
                                   {podiumAlbums[0].album_name}
                                 </h4>
-                                <p className="text-amber-200/70 text-xs sm:text-sm font-medium truncate" title={podiumAlbums[0].artist_name}>
+                                <p
+                                  className="text-amber-200/70 text-xs sm:text-sm font-medium truncate"
+                                  title={podiumAlbums[0].artist_name}
+                                >
                                   {podiumAlbums[0].artist_name}
                                 </p>
                               </div>
 
                               <div className="mt-2.5 flex items-center gap-2">
                                 <span className="text-yellow-400 text-2xl sm:text-3xl font-black tracking-tight">
-                                  ★ {formatRating(podiumAlbums[0].avg_rating || 0)}
+                                  ★{' '}
+                                  {formatRating(
+                                    podiumAlbums[0].avg_rating || 0
+                                  )}
                                 </span>
                               </div>
 
                               {/* Bonus badge */}
                               {podiumAlbums[0].bonus > 0 && (
                                 <span className="mt-1.5 text-xs bg-yellow-400/20 text-yellow-300 px-3 py-0.5 rounded-full border border-yellow-400/40 font-semibold shadow-sm">
-                                  ⚡ +{podiumAlbums[0].bonus.toFixed(2)} bonus ({podiumAlbums[0].review_count} reviews)
+                                  ⚡ +{podiumAlbums[0].bonus.toFixed(2)} bonus (
+                                  {podiumAlbums[0].review_count} reviews)
                                 </span>
                               )}
 
@@ -515,7 +685,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                 )}
                               </div>
                               <div className="text-yellow-200/40 text-xs mt-1.5 font-semibold">
-                                {podiumAlbums[0].review_count} {podiumAlbums[0].review_count === 1 ? 'review' : 'reviews'}
+                                {podiumAlbums[0].review_count}{' '}
+                                {podiumAlbums[0].review_count === 1
+                                  ? 'review'
+                                  : 'reviews'}
                               </div>
 
                               {/* Pedestal Base */}
@@ -550,24 +723,47 @@ export function Rankings({ albums, isAdmin = false }) {
                               </div>
 
                               <div className="mt-3 w-full">
-                                <h4 className="text-white font-bold text-xs sm:text-sm truncate" title={podiumAlbums[2].album_name}>
+                                <div className="mb-1">
+                                  <span
+                                    className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                                      podiumAlbums[2].status === 'INDIVIDUAL'
+                                        ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                        : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                    }`}
+                                  >
+                                    {podiumAlbums[2].status === 'INDIVIDUAL'
+                                      ? '📌 Individual'
+                                      : '🎰 Pool Club'}
+                                  </span>
+                                </div>
+                                <h4
+                                  className="text-white font-bold text-xs sm:text-sm truncate"
+                                  title={podiumAlbums[2].album_name}
+                                >
                                   {podiumAlbums[2].album_name}
                                 </h4>
-                                <p className="text-white/40 text-[11px] truncate" title={podiumAlbums[2].artist_name}>
+                                <p
+                                  className="text-white/40 text-[11px] truncate"
+                                  title={podiumAlbums[2].artist_name}
+                                >
                                   {podiumAlbums[2].artist_name}
                                 </p>
                               </div>
 
                               <div className="mt-2 flex items-center gap-1.5">
                                 <span className="text-amber-400 text-lg font-black">
-                                  ★ {formatRating(podiumAlbums[2].avg_rating || 0)}
+                                  ★{' '}
+                                  {formatRating(
+                                    podiumAlbums[2].avg_rating || 0
+                                  )}
                                 </span>
                               </div>
 
                               {/* Bonus badge */}
                               {podiumAlbums[2].bonus > 0 && (
                                 <span className="mt-1 text-[10px] bg-amber-600/20 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-500/30 font-medium">
-                                  ⚡ +{podiumAlbums[2].bonus.toFixed(2)} bonus ({podiumAlbums[2].review_count} reviews)
+                                  ⚡ +{podiumAlbums[2].bonus.toFixed(2)} bonus (
+                                  {podiumAlbums[2].review_count} reviews)
                                 </span>
                               )}
 
@@ -580,7 +776,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                 )}
                               </div>
                               <div className="text-white/30 text-[10px] mt-1.5 font-medium">
-                                {podiumAlbums[2].review_count} {podiumAlbums[2].review_count === 1 ? 'review' : 'reviews'}
+                                {podiumAlbums[2].review_count}{' '}
+                                {podiumAlbums[2].review_count === 1
+                                  ? 'review'
+                                  : 'reviews'}
                               </div>
 
                               {/* Pedestal Base */}
@@ -598,7 +797,12 @@ export function Rankings({ albums, isAdmin = false }) {
                   {restAlbums.length > 0 && (
                     <div className="border-t border-white/10 pt-5">
                       <p className="text-white/40 text-xs uppercase tracking-wider mb-4 font-semibold flex items-center gap-2">
-                        <span>🎵</span> Otros álbumes destacados en el Ranking
+                        <span>🎵</span> Otros álbumes destacados en el Ranking{' '}
+                        {albumType === 'pool'
+                          ? '(Pool Club)'
+                          : albumType === 'individual'
+                            ? '(Individuales)'
+                            : ''}
                       </p>
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                         {restAlbums.map((album, idx) => {
@@ -611,8 +815,21 @@ export function Rankings({ albums, isAdmin = false }) {
                               className="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 hover:border-white/20 hover:scale-[1.03] transition-all duration-300 text-center flex flex-col justify-between"
                             >
                               <div>
-                                <div className="text-white/50 text-[11px] font-extrabold mb-1.5">
-                                  #{position}
+                                <div className="flex items-center justify-between mb-1.5">
+                                  <span className="text-white/50 text-[11px] font-extrabold">
+                                    #{position}
+                                  </span>
+                                  <span
+                                    className={`text-[8px] px-1.5 py-0.5 rounded font-bold ${
+                                      album.status === 'INDIVIDUAL'
+                                        ? 'bg-cyan-500/20 text-cyan-300'
+                                        : 'bg-amber-500/20 text-amber-300'
+                                    }`}
+                                  >
+                                    {album.status === 'INDIVIDUAL'
+                                      ? '📌 Ind.'
+                                      : '🎰 Pool'}
+                                  </span>
                                 </div>
                                 <div className="relative w-20 h-20 sm:w-28 sm:h-28 mx-auto">
                                   <img
@@ -625,10 +842,16 @@ export function Rankings({ albums, isAdmin = false }) {
                                     }}
                                   />
                                 </div>
-                                <h5 className="text-white/90 text-xs truncate mt-2 font-semibold" title={album.album_name}>
+                                <h5
+                                  className="text-white/90 text-xs truncate mt-2 font-semibold"
+                                  title={album.album_name}
+                                >
                                   {album.album_name}
                                 </h5>
-                                <p className="text-white/40 text-[10px] truncate" title={album.artist_name}>
+                                <p
+                                  className="text-white/40 text-[10px] truncate"
+                                  title={album.artist_name}
+                                >
                                   {album.artist_name}
                                 </p>
                               </div>
@@ -645,7 +868,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                   </span>
                                 )}
                                 <div className="text-white/30 text-[9px] mt-0.5">
-                                  {album.review_count} {album.review_count === 1 ? 'review' : 'reviews'}
+                                  {album.review_count}{' '}
+                                  {album.review_count === 1
+                                    ? 'review'
+                                    : 'reviews'}
                                 </div>
                               </div>
                             </div>
@@ -758,7 +984,8 @@ export function Rankings({ albums, isAdmin = false }) {
                                     {reviewer.reviewer_name}
                                   </h5>
                                   <p className="text-white/40 text-xs truncate">
-                                    {reviewer.reviewer_email || 'Crítico activo'}
+                                    {reviewer.reviewer_email ||
+                                      'Crítico activo'}
                                   </p>
                                 </div>
                               </div>
@@ -838,7 +1065,9 @@ export function Rankings({ albums, isAdmin = false }) {
                                   {reviewer.reviewer_name}
                                 </p>
                                 <div className="flex gap-2 text-[11px] text-white/40">
-                                  <span>📝 {reviewer.review_count} reviews</span>
+                                  <span>
+                                    📝 {reviewer.review_count} reviews
+                                  </span>
                                   <span>·</span>
                                   <span>💿 {reviewer.album_count} álbumes</span>
                                 </div>
