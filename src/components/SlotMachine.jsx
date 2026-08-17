@@ -22,11 +22,61 @@ export function SlotMachine({
   const carruselTimeoutRef = useRef(null);
 
   const machineAlbums = albums.filter((album) => album.status === 'ACTIVO');
+  const activePool = machineAlbums.length > 0 ? machineAlbums : albums;
+
+  /**
+   * Helper para obtener timestamp numérico seguro de un álbum.
+   */
+  const getAlbumTimestamp = (album) => {
+    if (!album || !album.created_at) return Date.now();
+    const parsed = new Date(album.created_at).getTime();
+    return isNaN(parsed) ? Date.now() : parsed;
+  };
+
+  /**
+   * Selecciona un índice ponderado según la antigüedad del álbum.
+   * Entre más antiguo (fecha created_at menor), mayor probabilidad de ganar.
+   * El porcentaje extra es bajo/moderado (~35-40% más peso para el más antiguo vs el más reciente).
+   */
+  const getWeightedWinnerIndex = (pool) => {
+    if (!pool || pool.length === 0) return 0;
+    if (pool.length === 1) return 0;
+
+    const timestamps = pool.map(getAlbumTimestamp);
+    const minTime = Math.min(...timestamps);
+    const maxTime = Math.max(...timestamps);
+    const timeSpan = maxTime - minTime;
+
+    // Si todos tienen la misma fecha o el rango es 0, selección uniforme
+    if (timeSpan <= 0) {
+      return Math.floor(Math.random() * pool.length);
+    }
+
+    // Base 1.0 + (factor de antigüedad 0.0 a 1.0) * 0.4
+    // Más antiguo => factor 1.0 => peso 1.4
+    // Más reciente => factor 0.0 => peso 1.0
+    const weights = timestamps.map((t) => {
+      const ageFactor = (maxTime - t) / timeSpan;
+      return 1.0 + ageFactor * 0.4;
+    });
+
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    let randomVal = Math.random() * totalWeight;
+
+    for (let i = 0; i < pool.length; i++) {
+      randomVal -= weights[i];
+      if (randomVal <= 0) {
+        return i;
+      }
+    }
+
+    return pool.length - 1;
+  };
 
   const getAlbumForReel = (index) => {
-    if (!machineAlbums.length)
+    if (!activePool.length)
       return { album: '???', artista: '???', imagen: '' };
-    return machineAlbums[index % machineAlbums.length];
+    return activePool[index % activePool.length];
   };
 
   const launchConfetti = () => {
@@ -67,22 +117,25 @@ export function SlotMachine({
     let result;
 
     if (random < 50) {
-      const winnerIndex = Math.floor(Math.random() * albums.length);
+      const winnerIndex = getWeightedWinnerIndex(activePool);
       result = [winnerIndex, winnerIndex, winnerIndex];
     } else if (random < 70) {
-      const winnerIndex = Math.floor(Math.random() * albums.length);
+      const winnerIndex = getWeightedWinnerIndex(activePool);
       let differentIndex;
       do {
-        differentIndex = Math.floor(Math.random() * albums.length);
-      } while (differentIndex === winnerIndex);
+        differentIndex = Math.floor(Math.random() * activePool.length);
+      } while (differentIndex === winnerIndex && activePool.length > 1);
       const differentColumn = Math.floor(Math.random() * 3);
       result = [winnerIndex, winnerIndex, winnerIndex];
       result[differentColumn] = differentIndex;
     } else {
       const indices = [];
-      while (indices.length < 3) {
-        const idx = Math.floor(Math.random() * albums.length);
+      while (indices.length < 3 && indices.length < activePool.length) {
+        const idx = Math.floor(Math.random() * activePool.length);
         if (!indices.includes(idx)) indices.push(idx);
+      }
+      while (indices.length < 3) {
+        indices.push(Math.floor(Math.random() * activePool.length));
       }
       result = indices.sort(() => Math.random() - 0.5);
     }
@@ -103,24 +156,25 @@ export function SlotMachine({
 
         if (progress < 0.8) {
           current =
-            (current + 1 + Math.floor(Math.random() * 2)) % albums.length;
+            (current + 1 + Math.floor(Math.random() * 2)) % activePool.length;
         } else {
           const steps = Math.floor((1 - easeOut) * 15);
           const remaining =
-            (targetIndex - current + albums.length) % albums.length;
+            (targetIndex - current + activePool.length) % activePool.length;
           if (steps > 0 && remaining > 0) {
             const stepSize = Math.max(1, Math.ceil(remaining / (steps + 1)));
-            current = (current + Math.min(stepSize, remaining)) % albums.length;
+            current =
+              (current + Math.min(stepSize, remaining)) % activePool.length;
           } else if (remaining === 0) {
           } else {
-            current = (current + 1) % albums.length;
+            current = (current + 1) % activePool.length;
           }
         }
 
         if (isMounted.current) {
           setReels((prev) => {
             const newReels = [...prev];
-            newReels[reelIndex] = current % albums.length;
+            newReels[reelIndex] = current % activePool.length;
             return newReels;
           });
         }
@@ -130,7 +184,7 @@ export function SlotMachine({
           if (isMounted.current) {
             setReels((prev) => {
               const newReels = [...prev];
-              newReels[reelIndex] = targetIndex % albums.length;
+              newReels[reelIndex] = targetIndex % activePool.length;
               return newReels;
             });
           }
@@ -146,12 +200,12 @@ export function SlotMachine({
       carruselIntervalRef.current = null;
     }
 
-    if (!albums.length) return;
+    if (!activePool.length) return;
 
     setReels([
-      Math.floor(Math.random() * albums.length),
-      Math.floor(Math.random() * albums.length),
-      Math.floor(Math.random() * albums.length),
+      Math.floor(Math.random() * activePool.length),
+      Math.floor(Math.random() * activePool.length),
+      Math.floor(Math.random() * activePool.length),
     ]);
 
     carruselIntervalRef.current = setInterval(() => {
@@ -159,13 +213,13 @@ export function SlotMachine({
 
       setReels((prev) => {
         return [
-          (prev[0] + 1 + Math.floor(Math.random() * 2)) % albums.length,
-          (prev[1] + 1 + Math.floor(Math.random() * 1)) % albums.length,
-          (prev[2] + 1) % albums.length,
+          (prev[0] + 1 + Math.floor(Math.random() * 2)) % activePool.length,
+          (prev[1] + 1 + Math.floor(Math.random() * 1)) % activePool.length,
+          (prev[2] + 1) % activePool.length,
         ];
       });
     }, 80);
-  }, [albums.length]);
+  }, [activePool.length]);
 
   const stopCarrusel = useCallback(() => {
     if (carruselIntervalRef.current) {
@@ -175,7 +229,12 @@ export function SlotMachine({
   }, []);
 
   const spinSequence = async () => {
-    if (isSpinningLocal || isSpinning || !albums.length || !isMounted.current)
+    if (
+      isSpinningLocal ||
+      isSpinning ||
+      !activePool.length ||
+      !isMounted.current
+    )
       return;
 
     stopCarrusel();
@@ -218,7 +277,7 @@ export function SlotMachine({
       const allEqual = r1 === r2 && r2 === r3;
 
       if (allEqual) {
-        winner = albums[r1];
+        winner = activePool[r1];
         setFinalWinner(winner);
         setShowWin(true);
         setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
@@ -256,10 +315,10 @@ export function SlotMachine({
           await attemptSpin();
         } else {
           setMessage('🎯 ÚLTIMO INTENTO...');
-          const winnerIndex = Math.floor(Math.random() * albums.length);
+          const winnerIndex = getWeightedWinnerIndex(activePool);
           const forcedResult = [winnerIndex, winnerIndex, winnerIndex];
           setReels(forcedResult);
-          winner = albums[winnerIndex];
+          winner = activePool[winnerIndex];
           setFinalWinner(winner);
           setShowWin(true);
           setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
