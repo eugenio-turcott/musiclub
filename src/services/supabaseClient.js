@@ -1238,190 +1238,81 @@ export const supabaseService = {
             (r.track_ratings &&
               Object.values(r.track_ratings).some((v) => Number(v) === 10))
         );
-        const hasVeryLow = reviews.some(
-          (r) =>
-            (r.rating_general !== null && Number(r.rating_general) <= 4) ||
-            (r.track_ratings &&
-              Object.values(r.track_ratings).some((v) => Number(v) <= 4))
-        );
 
-        // 1. NIVEL DE ACTIVIDAD / EXPERIENCIA (Reviews)
+        // 1. 👑 MÁSTER REVIEWER (Dorado / Amarillo) - Líder de Reseñas
         if (reviewCount > 0 && reviewCount === maxReviews) {
           badges.push({
             id: 'top_reviewer',
             label: '👑 Máster Reviewer',
-            color: 'from-amber-400 via-yellow-300 to-amber-500',
-            textColor: 'text-black',
-            desc: 'Líder #1 en cantidad de reseñas de todo el club',
-          });
-        } else if (reviewCount >= 5) {
-          badges.push({
-            id: 'veteran_reviewer',
-            label: '🔥 Reviewer Experto',
-            color: 'from-orange-400 to-amber-500',
-            textColor: 'text-black',
-            desc: 'Ha publicado 5 o más reseñas completas',
-          });
-        } else if (reviewCount >= 3) {
-          badges.push({
-            id: 'active_listener',
-            label: '🎧 Melómano Activo',
-            color: 'from-blue-400 to-cyan-400',
-            textColor: 'text-black',
-            desc: 'Participante activo con 3 o más reseñas',
-          });
-        } else if (reviewCount >= 1) {
-          badges.push({
-            id: 'debut_listener',
-            label: '🌱 Oído Debutante',
-            color: 'from-lime-300 to-emerald-400',
-            textColor: 'text-black',
-            desc: 'Primeras reseñas compartidas con el club',
-          });
-        } else {
-          badges.push({
-            id: 'newbie',
-            label: '✨ Nuevo Integrante',
-            color: 'from-slate-200 to-slate-400',
-            textColor: 'text-slate-900',
-            desc: 'Recién llegado a la comunidad',
+            color: 'from-amber-400 via-yellow-400 to-amber-500',
+            textColor: 'text-amber-950',
+            desc: 'Líder del club con el mayor número de reseñas publicadas',
           });
         }
 
-        // 2. NIVEL DE CRITERIO / DUREZA DE CALIFICACIÓN
-        if (reviewCount >= 1 && avgScore > 0) {
-          if (avgScore <= 5.0) {
-            badges.push({
-              id: 'executioner',
-              label: '💀 El Verdugo (Cero Piedad)',
-              color: 'from-red-600 via-rose-700 to-red-800',
-              textColor: 'text-white',
-              desc: 'Promedio ≤ 5.0: Califica sin compasión',
-            });
-          } else if (avgScore <= 6.5) {
-            badges.push({
-              id: 'implacable',
-              label: '🎯 Crítico Implacable',
-              color: 'from-red-500 via-orange-500 to-amber-500',
-              textColor: 'text-black',
-              desc: 'Promedio 5.1 - 6.5: Estándares muy altos y rigurosos',
-            });
-          } else if (avgScore <= 7.3) {
-            badges.push({
-              id: 'tough_critic',
-              label: '🧐 Paladar Exigente',
-              color: 'from-amber-400 to-orange-400',
-              textColor: 'text-black',
-              desc: 'Promedio 6.6 - 7.3: Análisis minucioso y selectivo',
-            });
-          } else if (avgScore <= 8.3) {
-            badges.push({
-              id: 'balanced',
-              label: '⚖️ Oído Equilibrado',
-              color: 'from-sky-300 via-blue-400 to-indigo-400',
-              textColor: 'text-black',
-              desc: 'Promedio 7.4 - 8.3: Criterio balanceado y justo',
-            });
-          } else if (avgScore < 9.0) {
-            badges.push({
-              id: 'generous',
-              label: '💖 Crítico Generoso',
-              color: 'from-emerald-300 via-teal-400 to-cyan-400',
-              textColor: 'text-black',
-              desc: 'Promedio 8.4 - 8.9: Disfruta y valora casi todo',
-            });
-          } else {
-            badges.push({
-              id: 'pure_love',
-              label: '✨ Amor Puro (Todo es Obra de Arte)',
-              color: 'from-fuchsia-300 via-pink-400 to-rose-400',
-              textColor: 'text-black',
-              desc: 'Promedio ≥ 9.0: Pasión total por cada álbum',
-            });
-          }
-        }
-
-        // 3. APORTE Y CURADURÍA DE ÁLBUMES
+        // 2. 🌟 GRAN CURADOR (Púrpura / Violeta) - Líder de Álbumes Aportados
         if (albumsCount > 0 && albumsCount === maxAlbumsAdded) {
           badges.push({
             id: 'top_curator',
             label: '🌟 Gran Curador',
-            color: 'from-purple-400 via-fuchsia-400 to-pink-500',
-            textColor: 'text-black',
-            desc: 'Mayor aportador de álbumes a la colección',
-          });
-        } else if (albumsCount >= 3) {
-          badges.push({
-            id: 'collector',
-            label: '📦 Coleccionista',
-            color: 'from-indigo-300 to-purple-400',
-            textColor: 'text-black',
-            desc: 'Ha aportado 3 o más álbumes',
-          });
-        } else if (albumsCount >= 1) {
-          badges.push({
-            id: 'initiator',
-            label: '💿 Aportador Musical',
-            color: 'from-teal-300 to-cyan-300',
-            textColor: 'text-black',
-            desc: 'Ha compartido álbumes en la colección',
+            color: 'from-purple-500 via-fuchsia-500 to-violet-600',
+            textColor: 'text-white',
+            desc: 'Mayor aportador de álbumes compartidos en la colección',
           });
         }
 
-        // 4. DETALLE EN PISTAS Y ESPECIALIDADES
-        if (tracksCount >= 80) {
-          badges.push({
-            id: 'track_legend',
-            label: '👑 Máster de Tracks',
-            color: 'from-amber-300 via-yellow-400 to-orange-400',
-            textColor: 'text-black',
-            desc: 'Ha calificado más de 80 canciones individualmente pista por pista',
-          });
-        } else if (tracksCount >= 40) {
+        // 3. ⚡ PISTAS AL DETALLE (Cian / Turquesa Eléctrico) - Calificador de Tracks
+        if (tracksCount >= 25) {
           badges.push({
             id: 'track_master',
-            label: '⚡ Detallista de Pistas',
-            color: 'from-yellow-300 to-amber-400',
-            textColor: 'text-black',
-            desc: 'Ha calificado entre 40 y 79 canciones individualmente',
-          });
-        } else if (tracksCount >= 15) {
-          badges.push({
-            id: 'track_explorer',
-            label: '🔍 Explorador de Tracks',
-            color: 'from-cyan-300 to-sky-400',
-            textColor: 'text-black',
-            desc: 'Se toma el tiempo de evaluar canción por canción (15 a 39 pistas)',
+            label: '⚡ Pistas al Detalle',
+            color: 'from-cyan-400 via-teal-400 to-cyan-500',
+            textColor: 'text-cyan-950',
+            desc: 'Se toma el tiempo de calificar minuciosamente canción por canción (≥ 25 tracks)',
           });
         }
 
-        if (hasCommentsCount >= 1) {
+        // 4. 🎯 CRÍTICO EXIGENTE (Rojo / Carmesí) - Rigor de Calificación
+        if (reviewCount >= 2 && avgScore > 0 && avgScore <= 7.2) {
+          badges.push({
+            id: 'tough_critic',
+            label: '🎯 Crítico Exigente',
+            color: 'from-rose-500 via-red-500 to-rose-600',
+            textColor: 'text-white',
+            desc: 'Estándares rigurosos y análisis estricto (Promedio ≤ 7.2 ⭐)',
+          });
+        }
+
+        // 5. 💖 CRÍTICO GENEROSO (Verde / Esmeralda) - Gran Aprecio
+        if (reviewCount >= 2 && avgScore >= 8.6) {
+          badges.push({
+            id: 'generous',
+            label: '💖 Crítico Generoso',
+            color: 'from-emerald-400 via-green-400 to-teal-500',
+            textColor: 'text-emerald-950',
+            desc: 'Gran aprecio por la música y valoraciones entusiastas (Promedio ≥ 8.6 ⭐)',
+          });
+        }
+
+        // 6. ✍️ PLUMA CRÍTICA (Azul / Índigo Real) - Redacción de Comentarios
+        if (hasCommentsCount >= 2) {
           badges.push({
             id: 'writer',
             label: '✍️ Pluma Crítica',
-            color: 'from-violet-300 to-purple-400',
-            textColor: 'text-black',
-            desc: 'Escribe reseñas detalladas con comentarios',
+            color: 'from-blue-500 via-indigo-500 to-blue-600',
+            textColor: 'text-white',
+            desc: 'Escribe reseñas detalladas con opiniones y análisis en texto',
           });
         }
 
+        // 7. 💯 CAZADOR DEL 10 (Rosa / Fucsia) - Calificación Perfecta
         if (hasTen) {
           badges.push({
             id: 'perfectionist',
             label: '💯 Cazador del 10',
-            color: 'from-amber-300 to-yellow-400',
-            textColor: 'text-black',
-            desc: 'Ha otorgado al menos una calificación perfecta de 10',
-          });
-        }
-
-        if (hasVeryLow) {
-          badges.push({
-            id: 'heartbreaker',
-            label: '🔨 Martillo de Juez',
-            color: 'from-rose-500 to-red-700',
+            color: 'from-pink-500 via-rose-400 to-pink-600',
             textColor: 'text-white',
-            desc: 'No duda en dar notas bajas cuando no le convence',
+            desc: 'Ha encontrado y otorgado al menos un 10 perfecto a un álbum o canción',
           });
         }
 
