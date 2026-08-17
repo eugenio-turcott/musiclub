@@ -18,6 +18,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AlbumsPage } from './pages/AlbumsPage';
+import { FAQPage } from './pages/FAQPage';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
 import { useUserReviews } from './hooks/useUserReviews';
@@ -157,6 +158,9 @@ export function App() {
         <Route path="/ranking" element={<LeaderboardPage />} />
         <Route path="/albumes" element={<AlbumsPage />} />
         <Route path="/albums" element={<AlbumsPage />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/preguntas-frecuentes" element={<FAQPage />} />
+        <Route path="/ayuda" element={<FAQPage />} />
       </Routes>
     </Router>
   );

@@ -5,217 +5,122 @@ import { Link } from 'react-router-dom';
 export function TermsOfService() {
   return (
     <div className="min-h-screen cyber-grid p-4 sm:p-6 md:p-8">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto ">
         {/* Botón para volver */}
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-white/40 hover:text-white/70 transition-colors mb-6 text-sm"
-        >
-          ← Volver a la Máquina Musical
-        </Link>
+        
+        <div className="mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 shadow-sm"
+          >
+            <span>←</span> Volver a la Máquina Musical
+          </Link>
+        </div>
 
-        <div className="bg-black/80 border border-[#f5576c]/20 rounded-3xl p-6 sm:p-8">
+        <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
-                <span className="text-3xl">📋</span>
-                Términos de Servicio
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5576c]/15 border border-[#f5576c]/30 text-[#f5576c] text-xs font-bold uppercase tracking-wider mb-2">
+                <span>📋</span> Normas y Convivencia
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white title-albumes">
+                TÉRMINOS DE SERVICIO
               </h1>
-              <p className="text-white/30 text-sm mt-1">
-                Última actualización: Agosto 2026
+              <p className="text-white/40 text-xs sm:text-sm mt-1">
+                Última actualización: Versión 4.2 · Agosto 2026
               </p>
             </div>
-            <div className="text-3xl">🎵</div>
+            <div className="text-4xl hidden sm:block">🎰</div>
           </div>
 
-          <div className="space-y-6 text-white/70 text-sm leading-relaxed">
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                1. Aceptación de los Términos
+          <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">1.</span> Aceptación y Naturaleza del Club
               </h2>
               <p>
-                Al usar{' '}
-                <span className="text-[#f5576c] font-medium">Musiclub</span>{' '}
-                ("la aplicación"), aceptas cumplir con estos Términos de
-                Servicio. Si no estás de acuerdo, por favor no uses la
-                aplicación.
+                Bienvenido a <strong className="text-[#f5576c]">Musiclub</strong>. Al acceder o utilizar nuestra plataforma web, aceptas regirte por los presentes Términos de Servicio. Musiclub es un proyecto recreativo y colaborativo sin fines de lucro, diseñado para fomentar la apreciación artística, la escucha colectiva de álbumes y el debate musical constructivo.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                2. Descripción del Servicio
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">2.</span> Funcionalidades de la Plataforma
               </h2>
-              <p>
-                Musiclub es una plataforma comunitaria donde los usuarios
-                pueden:
+              <ul className="list-disc list-inside space-y-1.5 text-white/70 ml-2">
+                <li><strong className="text-white">Ruleta Cyberpunk (Slot Machine):</strong> Mecanismo aleatorio con probabilidad ponderada por antigüedad para elegir el álbum semanal del club.</li>
+                <li><strong className="text-white">Catálogo y Escuchas Individuales:</strong> Exploración y propuesta de álbumes desde Spotify, tanto para la ruleta comunitaria como para escuchas libres.</li>
+                <li><strong className="text-white">Sistema de Reseñas:</strong> Calificación analítica en 6 criterios técnicos, evaluación canción por canción (tracklist) y publicación de opiniones.</li>
+                <li><strong className="text-white">Leaderboard e Insignias:</strong> Reconocimiento a los críticos más constantes y activos de la comunidad.</li>
+                <li><strong className="text-white">Perfiles de Usuario:</strong> Panel de personalización y estadísticas críticas individuales.</li>
+              </ul>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">3.</span> Reglas de Conducta y Respeto
+              </h2>
+              <p className="mb-2">Para garantizar un ambiente sano de enriquecimiento musical, todos los usuarios se comprometen a:</p>
+              <ul className="list-disc list-inside space-y-1 text-white/70 ml-2">
+                <li>Expresar opiniones críticas con respeto mutuo, sin caer en ataques personales, acoso o discriminación.</li>
+                <li>No publicar contenido ofensivo, ilegal, difamatorio o spam comercial en las reseñas y biografías.</li>
+                <li>Emitir calificaciones genuinas basadas en la escucha real de los álbumes propuestos.</li>
+                <li>No crear cuentas falsas o utilizar scripts automatizados para alterar los puntajes de las canciones o el Leaderboard.</li>
+              </ul>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">4.</span> Propiedad Intelectual y Enlaces a Terceros
+              </h2>
+              <p className="mb-2">
+                • <strong>Música, Nombres y Carátulas:</strong> Todos los derechos sobre las canciones, nombres artísticos, grabaciones y portadas pertenecen exclusivamente a sus respectivos autores, intérpretes y sellos discográficos. Musiclub no almacena archivos de audio ni comercializa música.
               </p>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4 mt-2">
-                <li>
-                  Sugerir álbumes musicales para el pool de la máquina musical.
-                </li>
-                <li>Participar en sorteos aleatorios de álbumes.</li>
-                <li>Calificar y reseñar álbumes.</li>
-                <li>Ver rankings y estadísticas de la comunidad.</li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                3. Cuentas de Usuario
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>Debes tener al menos 13 años para usar la aplicación.</li>
-                <li>
-                  Eres responsable de mantener la confidencialidad de tu cuenta.
-                </li>
-                <li>No debes compartir tu cuenta con otros usuarios.</li>
-                <li>
-                  Nos reservamos el derecho de suspender cuentas que violen
-                  estos términos.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                4. Conducta del Usuario
-              </h2>
-              <p className="mb-2">Al usar la aplicación, aceptas:</p>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>No publicar contenido ofensivo, difamatorio o ilegal.</li>
-                <li>No hacer spam o promocionar productos no autorizados.</li>
-                <li>No intentar hackear o dañar la aplicación.</li>
-                <li>No suplantar a otros usuarios.</li>
-                <li>
-                  Respetar las decisiones del administrador sobre los álbumes
-                  ganadores.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                5. Propiedad Intelectual
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>
-                  Los álbumes sugeridos son propiedad de sus respectivos
-                  artistas.
-                </li>
-                <li>
-                  Las reseñas y calificaciones son propiedad de los usuarios que
-                  las crean.
-                </li>
-                <li>
-                  El código y diseño de Musiclub son propiedad de los
-                  desarrolladores.
-                </li>
-                <li>
-                  No puedes copiar o distribuir el contenido sin autorización.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                6. Sistema de la Máquina Musical
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>
-                  El sistema de selección de álbumes es completamente aleatorio.
-                </li>
-                <li>
-                  El administrador puede gestionar el estado de los álbumes
-                  (ACTIVO, INACTIVO, GANADOR).
-                </li>
-                <li>
-                  Los álbumes ganadores se muestran públicamente en la
-                  aplicación.
-                </li>
-                <li>
-                  Las calificaciones y reviews son públicas y forman parte de la
-                  comunidad.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                7. Limitación de Responsabilidad
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>
-                  Musiclub se proporciona "tal cual" sin garantías de ningún
-                  tipo.
-                </li>
-                <li>
-                  No somos responsables por la disponibilidad de los álbumes en
-                  plataformas externas.
-                </li>
-                <li>
-                  Los enlaces a Spotify, YouTube, etc., son proporcionados por
-                  los usuarios.
-                </li>
-                <li>
-                  No garantizamos que la aplicación esté libre de errores o
-                  interrupciones.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                8. Moderación
-              </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>
-                  El administrador tiene el derecho de moderar el contenido.
-                </li>
-                <li>
-                  Los álbumes pueden ser eliminados si no cumplen con los
-                  criterios de la comunidad.
-                </li>
-                <li>Las reseñas inapropiadas pueden ser eliminadas.</li>
-                <li>
-                  Los usuarios que violen estos términos pueden ser suspendidos.
-                </li>
-              </ul>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                9. Cambios a los Términos
-              </h2>
-              <p>
-                Podemos actualizar estos términos ocasionalmente. Te
-                notificaremos de cambios significativos a través de la
-                aplicación o por correo electrónico.
+              <p className="text-white/70">
+                • <strong>Contenido de los Usuarios:</strong> Conservas la autoría de tus reseñas, análisis y comentarios, otorgando a Musiclub una licencia no exclusiva para mostrarlos dentro del catálogo y rankings de la plataforma.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                10. Contacto
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">5.</span> Moderación y Administración
               </h2>
               <p>
-                Si tienes preguntas sobre estos términos, contáctanos en:{' '}
-                <a
-                  href="mailto:musiclub@maquinamusical.com"
-                  className="text-[#f5576c] hover:underline"
-                >
-                  musiclub@maquinamusical.com
-                </a>
+                El equipo de administración se reserva el derecho de supervisar el correcto uso de la plataforma, cambiar el estado de los álbumes (Activo, Inactivo, Individual), editar propuestas duplicadas o eliminar reseñas y cuentas que violen reiteradamente las reglas de convivencia.
+              </p>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">6.</span> Disponibilidad y Limitación de Responsabilidad
+              </h2>
+              <p>
+                Musiclub se proporciona "tal cual" y "según disponibilidad". Aunque procuramos ofrecer una experiencia continua y sin interrupciones, no nos responsabilizamos por fallos técnicos de proveedores externos (Spotify API, Supabase) o indisponibilidad temporal de ciertos álbumes en plataformas de streaming.
+              </p>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">7.</span> Consultas y Soporte
+              </h2>
+              <p>
+                Para cualquier consulta sobre la logística del club, el sistema de puntuaciones o estos términos, consulta la sección de{' '}
+                <Link to="/faq" className="text-[#f5576c] hover:underline font-semibold">
+                  Preguntas Frecuentes (FAQ)
+                </Link>{' '}
+                o contacta a la administración.
               </p>
             </section>
           </div>
 
           {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-white/5">
-            <p className="text-white/20 text-xs text-center">
-              © 2026 Musiclub. Todos los derechos reservados.
-            </p>
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+            <span>© 2026 Musiclub. Todos los derechos reservados.</span>
+            <div className="flex gap-4">
+              <Link to="/faq" className="hover:text-white transition-colors">FAQ</Link>
+              <Link to="/privacy" className="hover:text-white transition-colors">Política de Privacidad</Link>
+            </div>
           </div>
         </div>
       </div>

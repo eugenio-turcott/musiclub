@@ -303,7 +303,7 @@ export const supabaseService = {
 
     const { data, error } = await supabase
       .from('reviews')
-      .select('*, albums!inner(album_name, artist_name, image_url)')
+      .select('*, albums!inner(album_name, artist_name, image_url, tracks)')
       .in('album_id', albumIds);
 
     if (error) throw new Error(error.message);
@@ -1409,37 +1409,81 @@ export const supabaseService = {
         });
 
         // Estadísticas por canción
-        const trackStatsMap = {};
-        const tracksList = alb.tracks || [];
-        tracksList.forEach((t) => {
-          const tName = typeof t === 'string' ? t : t.name;
-          trackStatsMap[tName] = {
+        const tracksList = Array.isArray(alb.tracks) ? alb.tracks : [];
+        const canonicalTracks = [];
+        const idToCanonicalIndex = new Map();
+        const nameToCanonicalIndex = new Map();
+
+        tracksList.forEach((t, idx) => {
+          const tName = typeof t === 'string' ? t : (t.name || `Pista ${idx + 1}`);
+          const tId = typeof t === 'object' && t.id ? String(t.id) : null;
+          const trackObj = {
+            id: tId,
             name: tName,
             scores: [],
-            track_number: t.track_number,
-            duration_ms: t.duration_ms,
+            track_number: typeof t === 'object' && t.track_number ? t.track_number : idx + 1,
+            duration_ms: typeof t === 'object' ? t.duration_ms : undefined,
           };
+          canonicalTracks.push(trackObj);
+          if (tId) {
+            idToCanonicalIndex.set(tId, idx);
+          }
+          nameToCanonicalIndex.set(tName.toLowerCase().trim(), idx);
         });
 
         albumReviews.forEach((rev) => {
           if (rev.track_ratings && typeof rev.track_ratings === 'object') {
-            Object.entries(rev.track_ratings).forEach(([tName, score]) => {
+            Object.entries(rev.track_ratings).forEach(([rawKey, score]) => {
               if (score !== null && score !== undefined && !isNaN(score)) {
-                if (!trackStatsMap[tName]) {
-                  trackStatsMap[tName] = { name: tName, scores: [] };
+                const numScore = Number(score);
+                const strKey = String(rawKey).trim();
+                const lowerKey = strKey.toLowerCase();
+
+                let targetTrack = null;
+
+                // 1. Coincidencia por ID de Spotify / base de datos
+                if (idToCanonicalIndex.has(strKey)) {
+                  targetTrack = canonicalTracks[idToCanonicalIndex.get(strKey)];
                 }
-                trackStatsMap[tName].scores.push(Number(score));
+                // 2. Coincidencia por nombre de pista
+                else if (nameToCanonicalIndex.has(lowerKey)) {
+                  targetTrack = canonicalTracks[nameToCanonicalIndex.get(lowerKey)];
+                }
+                // 3. Coincidencia por índice numérico
+                else if (!isNaN(Number(strKey)) && Number(strKey) > 0 && canonicalTracks[Number(strKey) - 1]) {
+                  targetTrack = canonicalTracks[Number(strKey) - 1];
+                }
+
+                if (targetTrack) {
+                  targetTrack.scores.push(numScore);
+                } else {
+                  // Fallback: Si la pista no está en alb.tracks, agregarla asegurando nombre limpio
+                  let extraTrack = canonicalTracks.find(
+                    (ct) => ct.name.toLowerCase() === lowerKey || ct.id === strKey
+                  );
+                  if (!extraTrack) {
+                    extraTrack = {
+                      id: strKey,
+                      name: strKey,
+                      scores: [],
+                      track_number: canonicalTracks.length + 1,
+                    };
+                    canonicalTracks.push(extraTrack);
+                  }
+                  extraTrack.scores.push(numScore);
+                }
               }
             });
           }
         });
 
-        const computedTrackStats = Object.values(trackStatsMap).map((ts) => {
+        const computedTrackStats = canonicalTracks.map((ts) => {
           const avg =
             ts.scores.length > 0
               ? ts.scores.reduce((a, b) => a + b, 0) / ts.scores.length
               : null;
           return {
+            id: ts.id,
             name: ts.name,
             track_number: ts.track_number,
             duration_ms: ts.duration_ms,

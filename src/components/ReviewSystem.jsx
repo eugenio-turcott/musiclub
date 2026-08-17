@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
-import { getWeightedReviewScore, getAlbumWeightedAverage } from '../utils/ratingUtils';
+import { getWeightedReviewScore, getAlbumWeightedAverage, getTrackDisplayName } from '../utils/ratingUtils';
 
 const CRITERIOS = [
   { id: 'produccion', label: '🎛️ Producción', desc: 'Evalúa la calidad de producción, mezcla y diseño de sonido.', max: 5 },
@@ -384,8 +384,9 @@ export function ReviewSystem({
                     <div className="flex flex-wrap gap-1">
                       {Object.entries(trackRatingsData).map(
                         ([trackId, rating]) => {
-                          const track = tracks.find(
-                            (t) => t.id === trackId || String(t.id) === trackId
+                          const trackName = getTrackDisplayName(
+                            trackId,
+                            tracks || album?.tracks
                           );
                           return (
                             <span
@@ -397,9 +398,9 @@ export function ReviewSystem({
                               }`}
                             >
                               <span className="text-cyan-400/60">🎵</span>
-                              {track
-                                ? track.name.substring(0, 15)
-                                : trackId.substring(0, 10)}
+                              <span className="max-w-[120px] truncate" title={trackName}>
+                                {trackName}
+                              </span>
                               : <span className="font-bold">{rating}</span>
                             </span>
                           );
@@ -560,15 +561,18 @@ export function ReviewSystem({
                     </div>
                     <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto custom-scrollbar pr-1">
                       {Object.entries(existingUserReview.track_ratings).map(([tId, rating]) => {
-                        const track = tracks.find((t) => t.id === tId || String(t.id) === tId);
+                        const trackName = getTrackDisplayName(
+                          tId,
+                          tracks || album?.tracks
+                        );
                         return (
                           <span
                             key={tId}
                             className="text-xs px-2.5 py-1 rounded-lg bg-black/50 border border-white/10 text-white/80 flex items-center gap-1.5"
                           >
                             <span className="text-cyan-400">🎵</span>
-                            <span className="max-w-[130px] truncate">
-                              {track ? track.name : tId}
+                            <span className="max-w-[150px] truncate" title={trackName}>
+                              {trackName}
                             </span>
                             <span className="font-bold text-emerald-300 ml-1">★ {rating}</span>
                           </span>

@@ -1,7 +1,7 @@
 // src/components/Reviews.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
-import { getWeightedReviewScore, getAlbumWeightedAverage } from '../utils/ratingUtils';
+import { getWeightedReviewScore, getAlbumWeightedAverage, getTrackDisplayName } from '../utils/ratingUtils';
 
 export function Reviews({ onClose, isPage = false }) {
   const [reviews, setReviews] = useState([]);
@@ -456,21 +456,19 @@ export function Reviews({ onClose, isPage = false }) {
                             <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto custom-scrollbar">
                               {Object.entries(trackRatings).map(
                                 ([trackId, score]) => {
-                                  const trackName =
-                                    album?.tracks?.find(
-                                      (t) =>
-                                        t.id === trackId ||
-                                        String(t.id) === trackId
-                                    )?.name || trackId.substring(0, 12);
+                                  const trackName = getTrackDisplayName(
+                                    trackId,
+                                    album?.tracks
+                                  );
                                   return (
                                     <span
                                       key={trackId}
                                       className="text-[10px] text-cyan-200/80 bg-black/50 px-2.5 py-0.5 rounded-lg border border-cyan-500/20 flex items-center gap-1"
                                     >
                                       <span className="text-cyan-400/50">🎵</span>
-                                      {trackName.length > 18
-                                        ? trackName.substring(0, 18) + '…'
-                                        : trackName}
+                                      <span className="max-w-[150px] truncate" title={trackName}>
+                                        {trackName}
+                                      </span>
                                       : <span className="font-bold text-white">{score}</span>
                                     </span>
                                   );

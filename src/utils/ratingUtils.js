@@ -94,3 +94,47 @@ export function calculateReviewBonus(reviewCount) {
   return (reviewCount - 5) * 0.25;
 }
 
+/**
+ * Obtiene el nombre legible de una pista dado su identificador (id, spotifyId, o nombre)
+ * y la lista de canciones del álbum.
+ */
+export function getTrackDisplayName(trackKey, tracks = []) {
+  if (!trackKey) return 'Pista';
+  const strKey = String(trackKey).trim();
+  if (Array.isArray(tracks) && tracks.length > 0) {
+    // 1. Buscar coincidencia exacta por ID de Spotify o ID de base de datos
+    const foundById = tracks.find(
+      (t) =>
+        t &&
+        typeof t === 'object' &&
+        (t.id === strKey || String(t.id) === strKey || t.spotify_id === strKey)
+    );
+    if (foundById && foundById.name) return foundById.name;
+
+    // 2. Buscar coincidencia por nombre insensible a mayúsculas
+    const foundByName = tracks.find(
+      (t) =>
+        t &&
+        ((typeof t === 'string' && t.toLowerCase().trim() === strKey.toLowerCase()) ||
+          (typeof t === 'object' &&
+            t.name &&
+            t.name.toLowerCase().trim() === strKey.toLowerCase()))
+    );
+    if (foundByName) {
+      return typeof foundByName === 'string' ? foundByName : foundByName.name;
+    }
+
+    // 3. Si el key es un índice numérico (1-based o 0-based)
+    if (!isNaN(Number(strKey)) && Number(strKey) > 0) {
+      const idx = Number(strKey);
+      if (tracks[idx - 1]) {
+        const item = tracks[idx - 1];
+        return typeof item === 'string' ? item : item.name || `Pista ${idx}`;
+      }
+    }
+  }
+
+  return strKey;
+}
+
+

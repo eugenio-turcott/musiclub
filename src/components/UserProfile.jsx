@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
-import { getWeightedReviewScore } from '../utils/ratingUtils';
+import { getWeightedReviewScore, getTrackDisplayName } from '../utils/ratingUtils';
 
 const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
@@ -557,25 +557,33 @@ export function UserProfile({ isPage = false }) {
 
                         {isExpanded && (
                           <div className="mt-2 p-2 sm:p-3 rounded-xl bg-black/50 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 animate-fadeIn">
-                            {Object.entries(item.track_ratings).map(([trackName, score], tIdx) => (
-                              <div
-                                key={tIdx}
-                                className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white/5 border border-white/5"
-                              >
-                                <span className="text-white/80 truncate pr-2 text-[11px] sm:text-xs">{trackName}</span>
-                                <span
-                                  className={`font-black text-[11px] sm:text-xs flex-shrink-0 ${
-                                    score >= 8
-                                      ? 'text-emerald-400'
-                                      : score >= 6
-                                      ? 'text-cyan-400'
-                                      : 'text-amber-400'
-                                  }`}
+                            {Object.entries(item.track_ratings).map(([trackKey, score], tIdx) => {
+                              const trackName = getTrackDisplayName(
+                                trackKey,
+                                item.albums?.tracks || albumMap.get(item.album_id)?.tracks
+                              );
+                              return (
+                                <div
+                                  key={tIdx}
+                                  className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white/5 border border-white/5"
                                 >
-                                  {score}/10
-                                </span>
-                              </div>
-                            ))}
+                                  <span className="text-white/80 truncate pr-2 text-[11px] sm:text-xs" title={trackName}>
+                                    {trackName}
+                                  </span>
+                                  <span
+                                    className={`font-black text-[11px] sm:text-xs flex-shrink-0 ${
+                                      score >= 8
+                                        ? 'text-emerald-400'
+                                        : score >= 6
+                                        ? 'text-cyan-400'
+                                        : 'text-amber-400'
+                                    }`}
+                                  >
+                                    {score}/10
+                                  </span>
+                                </div>
+                              );
+                            })}
                           </div>
                         )}
                       </div>

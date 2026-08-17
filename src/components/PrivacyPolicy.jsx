@@ -1,167 +1,141 @@
 // src/components/PrivacyPolicy.jsx
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export function PrivacyPolicy({ onClose }) {
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-xl z-[99999] overflow-y-auto p-4">
-      <div className="max-w-3xl mx-auto mt-8 mb-16">
-        <div className="bg-black/80 border border-[#f5576c]/20 rounded-3xl p-6 sm:p-8">
+      <div className="max-w-4xl mx-auto mt-8 mb-16">
+        {/* Botón para volver */}
+        
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={onClose}
+            className="text-white/60 hover:text-white bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-full text-sm font-semibold transition-all"
+          >
+            ✕ Cerrar
+          </button>
+        </div>
+
+        <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
           {/* Header */}
-          <div className="flex justify-between items-center mb-6">
+          <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-8">
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-3">
-                <span className="text-3xl">🔒</span>
-                Política de Privacidad
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5576c]/15 border border-[#f5576c]/30 text-[#f5576c] text-xs font-bold uppercase tracking-wider mb-2">
+                <span>🔒</span> Transparencia y Protección
+              </div>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white title-albumes">
+                POLÍTICA DE PRIVACIDAD
               </h1>
-              <p className="text-white/30 text-sm mt-1">
-                Última actualización: Agosto 2026
+              <p className="text-white/40 text-xs sm:text-sm mt-1">
+                Última actualización: Versión 4.2 · Agosto 2026
               </p>
             </div>
-            <button
-              onClick={onClose}
-              className="text-white/40 hover:text-white/70 transition-colors text-2xl"
-            >
-              ✕
-            </button>
+            <div className="text-4xl hidden sm:block">🎧</div>
           </div>
 
-          <div className="space-y-6 text-white/70 text-sm leading-relaxed">
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                1. Introducción
+          <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">1.</span> Introducción y Compromiso
               </h2>
               <p>
-                En <span className="text-[#f5576c] font-medium">Musiclub</span>{' '}
-                ("nosotros", "nuestro" o "la aplicación"), valoramos tu
-                privacidad y nos comprometemos a proteger tus datos personales.
-                Esta política de privacidad explica cómo recopilamos, usamos y
-                protegemos tu información cuando utilizas nuestra aplicación.
+                En <strong className="text-[#f5576c]">Musiclub</strong> ("nosotros", "la plataforma" o "el club"), valoramos la confianza de nuestra comunidad de escucha musical. Esta Política de Privacidad describe de manera transparente qué datos recopilamos, cómo los utilizamos dentro de las funciones de la aplicación (como el sistema de reseñas, la ruleta y el leaderboard) y cómo protegemos tu información personal.
               </p>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                2. Información que Recopilamos
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">2.</span> Información que Recopilamos
               </h2>
-              <p className="mb-2">Recopilamos la siguiente información:</p>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
+              <ul className="list-disc list-inside space-y-2 text-white/70 ml-2">
                 <li>
-                  <strong>Información de autenticación:</strong> Nombre, correo
-                  electrónico y foto de perfil (a través de Google).
+                  <strong className="text-white">Datos de Cuenta y Autenticación:</strong> Al iniciar sesión con Google OAuth o enlace de correo seguro (gestionado vía Supabase Auth), recopilamos tu nombre público, dirección de correo electrónico y foto de perfil/avatar.
                 </li>
                 <li>
-                  <strong>Preferencias musicales:</strong> Álbumes que sugieres
-                  y tus calificaciones/reviews.
+                  <strong className="text-white">Datos de Perfil Musical:</strong> Información voluntaria que añades a tu perfil, como biografía, artista favorito, álbum predilecto, géneros preferidos y enlaces públicos a tus cuentas de Spotify o Instagram.
                 </li>
                 <li>
-                  <strong>Datos de uso:</strong> Interacciones con la máquina
-                  musical y participación en sorteos.
+                  <strong className="text-white">Aportaciones de Álbumes:</strong> Álbumes propuestos mediante la integración con la API de Spotify (título, artista, año, pistas y portada).
+                </li>
+                <li>
+                  <strong className="text-white">Reseñas y Calificaciones:</strong> Puntuaciones pista por pista, evaluaciones de los 6 criterios técnicos, calificación general y textos de análisis o comentarios que publicas en la comunidad.
+                </li>
+                <li>
+                  <strong className="text-white">Datos de Interacción:</strong> Registro de participación en la ruleta, desbloqueo automático de insignias y estadísticas de actividad en el Leaderboard.
                 </li>
               </ul>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                3. Cómo Usamos tu Información
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">3.</span> Finalidad del Uso de los Datos
               </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>Para autenticarte y gestionar tu cuenta.</li>
-                <li>Para mostrar tus sugerencias de álbumes.</li>
-                <li>Para generar rankings y estadísticas de la comunidad.</li>
-                <li>Para mejorar la experiencia de la máquina musical.</li>
-                <li>Para comunicarnos contigo sobre actualizaciones.</li>
+              <p className="mb-2">Toda la información recopilada se utiliza exclusivamente para la logística y entretenimiento de la comunidad:</p>
+              <ul className="list-disc list-inside space-y-1.5 text-white/70 ml-2">
+                <li>Gestionar tu sesión e identificar tus aportaciones y críticas en el club.</li>
+                <li>Calcular los promedios ponderados de los álbumes y los rankings de la comunidad.</li>
+                <li>Alimentar el podio y las insignias de reconocimiento en el Leaderboard.</li>
+                <li>Personalizar tu panel de estadísticas críticas en "Mi Perfil".</li>
+                <li>Asegurar el correcto funcionamiento técnico de la Ruleta y del catálogo.</li>
               </ul>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                4. Almacenamiento de Datos
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">4.</span> Almacenamiento, Seguridad e Integraciones
               </h2>
-              <p>
-                Tus datos se almacenan de forma segura en{' '}
-                <strong>Supabase</strong>, una plataforma de base de datos en la
-                nube con altos estándares de seguridad. No compartimos tus datos
-                con terceros sin tu consentimiento explícito.
+              <p className="mb-2">
+                Tus datos se almacenan de manera segura en la nube mediante <strong className="text-white">Supabase</strong>, aprovechando bases de datos PostgreSQL con políticas de seguridad de acceso a nivel de fila (Row Level Security - RLS) y protocolos de cifrado SSL/TLS.
+              </p>
+              <p className="text-white/70">
+                • <strong>Spotify Web API:</strong> Solo consultamos metadata pública de álbumes y pistas; no tenemos acceso a tus credenciales privadas ni datos bancarios de Spotify.<br />
+                • <strong>Terceros:</strong> <span className="text-[#f5576c] font-semibold">Nunca vendemos, alquilamos ni comercializamos tu información personal con empresas de publicidad de terceros.</span>
               </p>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                5. Tus Derechos
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">5.</span> Naturaleza Pública de las Reseñas
               </h2>
-              <ul className="list-disc list-inside space-y-1 text-white/60 ml-4">
-                <li>
-                  <strong>Acceso:</strong> Puedes ver tus datos en cualquier
-                  momento.
-                </li>
-                <li>
-                  <strong>Corrección:</strong> Puedes solicitar correcciones a
-                  tus datos.
-                </li>
-                <li>
-                  <strong>Eliminación:</strong> Puedes solicitar la eliminación
-                  de tu cuenta.
-                </li>
-                <li>
-                  <strong>Retiro de consentimiento:</strong> Puedes retirar tu
-                  consentimiento en cualquier momento.
-                </li>
+              <p>
+                Musiclub es una plataforma social para compartir apreciación musical. Por tanto, tu nombre público, avatar, biografía, calificaciones de canciones, reseñas de texto y álbumes propuestos son visibles para los demás miembros de la comunidad y visitantes del club.
+              </p>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">6.</span> Tus Derechos sobre tus Datos
+              </h2>
+              <p className="mb-2">Tienes control absoluto sobre tus aportaciones y datos:</p>
+              <ul className="list-disc list-inside space-y-1 text-white/70 ml-2">
+                <li><strong>Editar tu Perfil:</strong> Modifica tu avatar, biografía y preferencias en cualquier momento desde <Link to="/settings" className="text-[#f5576c] hover:underline font-semibold">Configuración</Link>.</li>
+                <li><strong>Modificar Reseñas:</strong> Puedes actualizar tus puntuaciones y comentarios de cualquier disco volviendo a abrir su formulario de reseña.</li>
+                <li><strong>Eliminación de Cuenta y Datos:</strong> Puedes solicitar la eliminación definitiva de tu usuario y registros asociados contactando al administrador.</li>
               </ul>
             </section>
 
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                6. Cookies y Tecnologías Similares
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
+                <span className="text-[#f5576c]">7.</span> Contacto y Dudas
               </h2>
               <p>
-                Usamos cookies para mantener tu sesión activa y recordar tus
-                preferencias. No usamos cookies de seguimiento de terceros.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                7. Seguridad
-              </h2>
-              <p>
-                Implementamos medidas de seguridad técnicas y organizativas para
-                proteger tus datos contra acceso no autorizado, pérdida o
-                destrucción.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                8. Cambios a esta Política
-              </h2>
-              <p>
-                Podemos actualizar esta política ocasionalmente. Te
-                notificaremos de cambios significativos a través de la
-                aplicación o por correo electrónico.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-white/90 text-base font-semibold mb-2">
-                9. Contacto
-              </h2>
-              <p>
-                Si tienes preguntas sobre esta política, contáctanos en:{' '}
-                <a
-                  href="mailto:musiclub@maquinamusical.com"
-                  className="text-[#f5576c] hover:underline"
-                >
-                  musiclub@maquinamusical.com
-                </a>
+                Si tienes alguna pregunta o inquietud sobre el manejo de tus datos, puedes consultar nuestra sección de{' '}
+                <Link to="/faq" className="text-[#f5576c] hover:underline font-semibold">
+                  Preguntas Frecuentes (FAQ)
+                </Link>{' '}
+                o comunicarte directamente con el administrador del club.
               </p>
             </section>
           </div>
 
           {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-white/5">
-            <p className="text-white/20 text-xs text-center">
-              © 2026 Musiclub. Todos los derechos reservados.
-            </p>
+          <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/40">
+            <span>© 2026 Musiclub. Todos los derechos reservados.</span>
+            <div className="flex gap-4">
+              <Link to="/faq" className="hover:text-white transition-colors">FAQ</Link>
+              <Link to="/terms" className="hover:text-white transition-colors">Términos de Servicio</Link>
+            </div>
           </div>
         </div>
       </div>

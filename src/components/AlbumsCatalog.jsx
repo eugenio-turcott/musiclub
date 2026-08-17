@@ -1,8 +1,8 @@
-// src/components/AlbumsCatalog.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
+import { getTrackDisplayName } from '../utils/ratingUtils';
 
 const CRITERIA_CONFIG = [
   { key: 'rating_produccion', label: 'Producción', emoji: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
@@ -773,15 +773,20 @@ export function AlbumsCatalog({ isPage = false }) {
 
                             {showTracks && (
                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mt-2 bg-black/40 p-2.5 rounded-xl border border-white/5">
-                                {Object.entries(rev.track_ratings).map(([trackName, tScore]) => (
-                                  <div
-                                    key={trackName}
-                                    className="text-[10px] flex items-center justify-between bg-white/5 px-2 py-1 rounded-md"
-                                  >
-                                    <span className="text-slate-300 truncate pr-1">{trackName}</span>
-                                    <span className="text-amber-400 font-bold">{tScore}</span>
-                                  </div>
-                                ))}
+                                {Object.entries(rev.track_ratings).map(([trackKey, tScore]) => {
+                                  const trackName = getTrackDisplayName(trackKey, selectedAlbum.tracks);
+                                  return (
+                                    <div
+                                      key={trackKey}
+                                      className="text-[10px] flex items-center justify-between bg-white/5 px-2 py-1 rounded-md"
+                                    >
+                                      <span className="text-slate-300 truncate pr-1" title={trackName}>
+                                        {trackName}
+                                      </span>
+                                      <span className="text-amber-400 font-bold">{tScore}</span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
