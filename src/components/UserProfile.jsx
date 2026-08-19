@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
 import { getWeightedReviewScore, getTrackDisplayName } from '../utils/ratingUtils';
+import { calculateUserGamification } from '../utils/badgeSystem';
 
 const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
@@ -22,7 +23,7 @@ export function UserProfile({ isPage = false }) {
   const { userReviews, loading: reviewsLoading } = useUserReviews(user);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('reviews'); // 'reviews' | 'stats' | 'pending'
+  const [activeTab, setActiveTab] = useState('reviews'); // 'reviews' | 'badges' | 'stats' | 'pending'
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [expandedReviewId, setExpandedReviewId] = useState(null);
@@ -37,6 +38,24 @@ export function UserProfile({ isPage = false }) {
     });
     return map;
   }, [albums]);
+
+  // User albums added
+  const userAlbumsAdded = useMemo(() => {
+    if (!user || !albums) return [];
+    const uEmail = (user.email || '').toLowerCase().trim();
+    const uName = (user.name || '').toLowerCase().trim();
+    const uId = user.id ? String(user.id) : null;
+    return albums.filter((alb) => {
+      const albEmail = (alb.added_by_email || '').toLowerCase().trim();
+      const albName = (alb.added_by || '').toLowerCase().trim();
+      const albUid = alb.user_id ? String(alb.user_id) : null;
+      return (
+        (uEmail && albEmail === uEmail) ||
+        (uId && albUid === uId) ||
+        (uName && albName === uName)
+      );
+    });
+  }, [user, albums]);
 
   // Calculate user statistics
   const stats = useMemo(() => {
@@ -117,6 +136,18 @@ export function UserProfile({ isPage = false }) {
       completionPercentage,
     };
   }, [userReviews, albums]);
+
+  // Gamification & Badges
+  const userGamification = useMemo(() => {
+    const userObj = {
+      review_count: stats.totalReviews,
+      avg_score: stats.averageScore,
+      total_tracks_rated: stats.totalTracksRated,
+      albums_added_count: userAlbumsAdded.length,
+      reviews: userReviews,
+    };
+    return calculateUserGamification(userObj);
+  }, [stats, userAlbumsAdded, userReviews]);
 
   // List of reviewed albums combined with review data
   const enrichedReviews = useMemo(() => {
@@ -208,6 +239,12 @@ export function UserProfile({ isPage = false }) {
         </Link>
         <div className="flex items-center gap-2">
           <Link
+            to="/leaderboard"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-amber-500/30 transition-all shadow-[0_0_15px_rgba(251,191,36,0.15)] active:scale-95"
+          >
+            <span>🏆</span> Leaderboard
+          </Link>
+          <Link
             to="/settings"
             className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-cyan-300 hover:text-white bg-cyan-500/10 hover:bg-cyan-500/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-cyan-500/30 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95"
           >
@@ -294,6 +331,23 @@ export function UserProfile({ isPage = false }) {
               </p>
             )}
 
+            {/* Badges & XP Header Pill */}
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
+              <span className="text-xs bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
+                <span>✨</span> {(userGamification.totalXp || 0).toLocaleString()} XP de Club
+              </span>
+
+              {userGamification.badges?.slice(0, 3).map((b) => (
+                <span
+                  key={b.id}
+                  title={b.tooltip || b.desc || b.label}
+                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                >
+                  {b.label}
+                </span>
+              ))}
+            </div>
+
             {/* Tags / Artista / Álbum / Géneros */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
               {user.favorite_artist && (
@@ -344,8 +398,17 @@ export function UserProfile({ isPage = false }) {
           </div>
         </div>
 
-        {/* MÉTRICAS RÁPIDAS EN CABECERA (2x2 en móvil, 4x1 en escritorio) */}
+        {/* MÉTRICAS RÁPIDAS EN CABECERA */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 pt-4 sm:mt-6 sm:pt-6 border-t border-white/10">
+          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
+            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
+              Score XP
+            </span>
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300">
+              ✨ {(userGamification.totalXp || 0).toLocaleString()}
+            </span>
+          </div>
+
           <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
             <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
               Reviews Totales
@@ -357,7 +420,7 @@ export function UserProfile({ isPage = false }) {
 
           <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
             <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Promedio Otorgado
+              Promedio Dado
             </span>
             <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400">
               ★ {stats.averageScore.toFixed(1)}
@@ -370,15 +433,6 @@ export function UserProfile({ isPage = false }) {
             </span>
             <span className="text-xl sm:text-2xl md:text-3xl font-black text-cyan-400">
               {stats.totalTracksRated}
-            </span>
-          </div>
-
-          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
-            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Cobertura Club
-            </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-purple-400">
-              {stats.completionPercentage}%
             </span>
           </div>
         </div>
@@ -395,6 +449,17 @@ export function UserProfile({ isPage = false }) {
           }`}
         >
           <span>🎧</span> Mis Reviews ({stats.totalReviews})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('badges')}
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+            activeTab === 'badges'
+              ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20 font-black'
+              : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
+          }`}
+        >
+          <span>🎖️</span> Insignias & Niveles ({userGamification.badges?.length || 0})
         </button>
 
         <button
@@ -487,7 +552,6 @@ export function UserProfile({ isPage = false }) {
                             e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
                           }}
                         />
-                        {/* Palomita */}
                         <div className="absolute bottom-1 right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-md">
                           ✓
                         </div>
@@ -611,6 +675,173 @@ export function UserProfile({ isPage = false }) {
               </Link>
             </div>
           )}
+        </div>
+      )}
+
+      {/* CONTENIDO DE PESTAÑA: INSIGNIAS Y NIVELES */}
+      {activeTab === 'badges' && (
+        <div className="space-y-6">
+          {/* Tarjeta de Resumen XP */}
+          <div className="bg-gradient-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div>
+                <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <span>🏆</span> Progreso en el Leaderboard
+                </span>
+                <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                  Puntuación de Club (Score XP)
+                </h3>
+              </div>
+              <div className="text-center sm:text-right px-4 py-2 bg-amber-400/10 border border-amber-400/40 rounded-2xl">
+                <p className="text-[10px] text-amber-200/80 font-bold uppercase tracking-wider">Total Acumulado</p>
+                <p className="text-2xl sm:text-3xl font-black text-amber-300">
+                  ✨ {(userGamification.totalXp || 0).toLocaleString()} XP
+                </p>
+              </div>
+            </div>
+
+            {/* Desglose de Fuentes de XP */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
+                <span className="text-base">🎧</span>
+                <p className="text-xs text-slate-400 mt-1 font-medium">Actividad Base</p>
+                <p className="text-lg font-black text-white mt-0.5">
+                  +{userGamification.activityXp || 0} XP
+                </p>
+                <p className="text-[10px] text-slate-500 mt-1">Reviews, comentarios, tracks y álbumes</p>
+              </div>
+
+              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
+                <span className="text-base">⚡</span>
+                <p className="text-xs text-slate-400 mt-1 font-medium">Insignias y Tiers</p>
+                <p className="text-lg font-black text-amber-300 mt-0.5">
+                  +{userGamification.badgesXp || 0} XP
+                </p>
+                <p className="text-[10px] text-slate-500 mt-1">Tiers desbloqueados alcanzados</p>
+              </div>
+
+              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
+                <span className="text-base">👑</span>
+                <p className="text-xs text-slate-400 mt-1 font-medium">Récords #1</p>
+                <p className="text-lg font-black text-cyan-300 mt-0.5">
+                  +{userGamification.recordXp || 0} XP
+                </p>
+                <p className="text-[10px] text-slate-500 mt-1">Coronas dinámicas de liderazgo</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Insignias Desbloqueadas Actualmente */}
+          <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
+              <div>
+                <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
+                  <span>🎖️</span> Tus Insignias Activas ({userGamification.badges?.length || 0})
+                </h3>
+                <p className="text-white/40 text-xs mt-0.5">
+                  Las insignias multinivel evolucionan visualmente al nivel más alto que hayas desbloqueado.
+                </p>
+              </div>
+              <Link
+                to="/leaderboard"
+                className="text-xs font-bold text-amber-300 hover:text-white bg-amber-400/10 hover:bg-amber-400/20 px-3 py-1.5 rounded-xl border border-amber-400/30 transition-all"
+              >
+                Ver Leaderboard ➜
+              </Link>
+            </div>
+
+            {userGamification.badges && userGamification.badges.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {userGamification.badges.map((b) => (
+                  <div
+                    key={b.id}
+                    className="bg-black/40 border border-white/5 rounded-2xl p-3.5 space-y-2 hover:border-white/15 transition-all flex flex-col justify-between"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span
+                        className={`text-xs font-black px-2.5 py-1 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
+                      >
+                        {b.label}
+                      </span>
+                      <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
+                        +{b.xp} XP
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 leading-snug">
+                      {b.desc}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 bg-black/20 rounded-2xl border border-dashed border-white/10 p-4">
+                <p className="text-xs text-slate-400">
+                  Aún no tienes insignias desbloqueadas. ¡Comienza a calificar álbumes y tracks para subir de nivel!
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Barras de Progreso hacia los Siguientes Tiers */}
+          <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+            <div>
+              <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
+                <span>📈</span> Progreso y Próximos Desbloqueos
+              </h3>
+              <p className="text-white/40 text-xs mt-0.5">
+                Sigue tu avance para desbloquear el siguiente rango y sumar más puntos XP a tu perfil.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {userGamification.allBadgesProgress?.map((bp) => {
+                const hasNext = Boolean(bp.nextTier);
+                return (
+                  <div
+                    key={bp.badgeId}
+                    className="bg-black/40 border border-white/5 rounded-2xl p-4 space-y-2.5"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-white flex items-center gap-1.5">
+                        <span>{bp.icon}</span>
+                        <span>{bp.categoryName}</span>
+                      </span>
+                      <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
+                        {bp.unlockedTier ? bp.unlockedTier.name : 'Nivel Inicial'}
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-snug">
+                      {bp.description}
+                    </p>
+
+                    {hasNext ? (
+                      <div className="space-y-1.5 pt-1">
+                        <div className="flex items-center justify-between text-[11px] text-slate-300">
+                          <span>
+                            Próximo: <strong className="text-amber-300">{bp.nextTier.name}</strong> (+{bp.nextTier.xp} XP)
+                          </span>
+                          <span className="font-semibold text-white">
+                            {bp.currentValue} / {bp.nextTier.req} ({bp.progressPercent}%)
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                          <div
+                            className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
+                            style={{ width: `${bp.progressPercent}%` }}
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
+                        <span>👑</span> ¡Has alcanzado el Tier Máximo en esta categoría!
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       )}
 

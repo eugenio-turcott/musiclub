@@ -5,12 +5,48 @@ import { useAuth } from '../hooks/useAuth';
 import { getTrackDisplayName } from '../utils/ratingUtils';
 
 const CRITERIA_CONFIG = [
-  { key: 'rating_produccion', label: 'Producción', emoji: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
-  { key: 'rating_composicion', label: 'Composición', emoji: '🎵', max: 5, color: 'from-emerald-500 to-teal-400' },
-  { key: 'rating_letras', label: 'Letras', emoji: '📝', max: 5, color: 'from-amber-500 to-yellow-400' },
-  { key: 'rating_originalidad', label: 'Originalidad', emoji: '💡', max: 5, color: 'from-purple-500 to-indigo-400' },
-  { key: 'rating_cohesion', label: 'Cohesión', emoji: '🔗', max: 5, color: 'from-rose-500 to-red-400' },
-  { key: 'rating_replay', label: 'Replay Value', emoji: '🔄', max: 5, color: 'from-teal-500 to-cyan-400' },
+  {
+    key: 'rating_produccion',
+    label: 'Producción',
+    emoji: '🎛️',
+    max: 5,
+    color: 'from-blue-500 to-cyan-400',
+  },
+  {
+    key: 'rating_composicion',
+    label: 'Composición',
+    emoji: '🎵',
+    max: 5,
+    color: 'from-emerald-500 to-teal-400',
+  },
+  {
+    key: 'rating_letras',
+    label: 'Letras',
+    emoji: '📝',
+    max: 5,
+    color: 'from-amber-500 to-yellow-400',
+  },
+  {
+    key: 'rating_originalidad',
+    label: 'Originalidad',
+    emoji: '💡',
+    max: 5,
+    color: 'from-purple-500 to-indigo-400',
+  },
+  {
+    key: 'rating_cohesion',
+    label: 'Cohesión',
+    emoji: '🔗',
+    max: 5,
+    color: 'from-rose-500 to-red-400',
+  },
+  {
+    key: 'rating_replay',
+    label: 'Replay Value',
+    emoji: '🔄',
+    max: 5,
+    color: 'from-teal-500 to-cyan-400',
+  },
 ];
 
 export function AlbumsCatalog({ isPage = false }) {
@@ -47,7 +83,8 @@ export function AlbumsCatalog({ isPage = false }) {
     const userEmail = (user.email || '').toLowerCase().trim();
     const albumEmail = (album.added_by_email || '').toLowerCase().trim();
     if (albumEmail && userEmail && albumEmail === userEmail) return true;
-    if (album.user_id && user.id && String(album.user_id) === String(user.id)) return true;
+    if (album.user_id && user.id && String(album.user_id) === String(user.id))
+      return true;
     const userName = (user.name || '').toLowerCase().trim();
     const albumAuthor = (album.added_by || '').toLowerCase().trim();
     if (albumAuthor && userName && albumAuthor === userName) return true;
@@ -57,22 +94,41 @@ export function AlbumsCatalog({ isPage = false }) {
   // Global Statistics
   const globalStats = useMemo(() => {
     if (!albums || albums.length === 0) {
-      return { totalAlbums: 0, totalReviews: 0, topRatedAlbum: null, mostReviewedAlbum: null, avgClubScore: '0.0' };
+      return {
+        totalAlbums: 0,
+        totalReviews: 0,
+        topRatedAlbum: null,
+        mostReviewedAlbum: null,
+        avgClubScore: '0.0',
+      };
     }
     const totalAlbums = albums.length;
-    const totalReviews = albums.reduce((sum, a) => sum + (a.review_count || 0), 0);
+    const totalReviews = albums.reduce(
+      (sum, a) => sum + (a.review_count || 0),
+      0
+    );
 
-    const albumsWithRatings = albums.filter((a) => a.final_rating !== null && a.review_count > 0);
-    const topRatedAlbum = albumsWithRatings.length > 0
-      ? [...albumsWithRatings].sort((a, b) => b.final_rating - a.final_rating)[0]
-      : null;
+    const albumsWithRatings = albums.filter(
+      (a) => a.final_rating !== null && a.review_count > 0
+    );
+    const topRatedAlbum =
+      albumsWithRatings.length > 0
+        ? [...albumsWithRatings].sort(
+            (a, b) => b.final_rating - a.final_rating
+          )[0]
+        : null;
 
-    const mostReviewedAlbum = [...albums].sort((a, b) => b.review_count - a.review_count)[0] || null;
+    const mostReviewedAlbum =
+      [...albums].sort((a, b) => b.review_count - a.review_count)[0] || null;
 
-    const scoreSum = albumsWithRatings.reduce((sum, a) => sum + (a.final_rating || 0), 0);
-    const avgClubScore = albumsWithRatings.length > 0
-      ? (scoreSum / albumsWithRatings.length).toFixed(1)
-      : '0.0';
+    const scoreSum = albumsWithRatings.reduce(
+      (sum, a) => sum + (a.final_rating || 0),
+      0
+    );
+    const avgClubScore =
+      albumsWithRatings.length > 0
+        ? (scoreSum / albumsWithRatings.length).toFixed(1)
+        : '0.0';
 
     return {
       totalAlbums,
@@ -109,15 +165,24 @@ export function AlbumsCatalog({ isPage = false }) {
       if (sortBy === 'rating_desc') {
         if (a.final_rating === null && b.final_rating !== null) return 1;
         if (b.final_rating === null && a.final_rating !== null) return -1;
-        return (b.final_rating || 0) - (a.final_rating || 0) || b.review_count - a.review_count;
+        return (
+          (b.final_rating || 0) - (a.final_rating || 0) ||
+          b.review_count - a.review_count
+        );
       }
       if (sortBy === 'rating_asc') {
         if (a.final_rating === null && b.final_rating !== null) return 1;
         if (b.final_rating === null && a.final_rating !== null) return -1;
-        return (a.final_rating || 0) - (b.final_rating || 0) || a.review_count - b.review_count;
+        return (
+          (a.final_rating || 0) - (b.final_rating || 0) ||
+          a.review_count - b.review_count
+        );
       }
       if (sortBy === 'reviews_desc') {
-        return b.review_count - a.review_count || (b.final_rating || 0) - (a.final_rating || 0);
+        return (
+          b.review_count - a.review_count ||
+          (b.final_rating || 0) - (a.final_rating || 0)
+        );
       }
       if (sortBy === 'newest') {
         return new Date(b.created_at || 0) - new Date(a.created_at || 0);
@@ -187,8 +252,8 @@ export function AlbumsCatalog({ isPage = false }) {
             Todos los Álbumes
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Consulta las calificaciones detalladas, desglose por canciones, criterios ponderados, bonus
-            y todas las reseñas de la comunidad.
+            Consulta las calificaciones detalladas, desglose por canciones,
+            criterios ponderados, bonus y todas las reseñas de la comunidad.
           </p>
         </div>
 
@@ -200,8 +265,12 @@ export function AlbumsCatalog({ isPage = false }) {
                 💿
               </span>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Total Álbumes</p>
-                <p className="text-xl sm:text-2xl font-black text-white">{globalStats.totalAlbums}</p>
+                <p className="text-xs text-slate-400 font-medium">
+                  Total Álbumes
+                </p>
+                <p className="text-xl sm:text-2xl font-black text-white">
+                  {globalStats.totalAlbums}
+                </p>
               </div>
             </div>
           </div>
@@ -212,7 +281,9 @@ export function AlbumsCatalog({ isPage = false }) {
                 📝
               </span>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Total Reseñas</p>
+                <p className="text-xs text-slate-400 font-medium">
+                  Total Reseñas
+                </p>
                 <p className="text-xl sm:text-2xl font-black text-amber-400">
                   {globalStats.totalReviews}
                 </p>
@@ -226,9 +297,13 @@ export function AlbumsCatalog({ isPage = false }) {
                 👑
               </span>
               <div className="min-w-0">
-                <p className="text-xs text-slate-400 font-medium">Mejor Calificado</p>
+                <p className="text-xs text-slate-400 font-medium">
+                  Mejor Calificado
+                </p>
                 <p className="text-sm sm:text-base font-black text-yellow-300 truncate">
-                  {globalStats.topRatedAlbum ? globalStats.topRatedAlbum.album_name : '—'}
+                  {globalStats.topRatedAlbum
+                    ? globalStats.topRatedAlbum.album_name
+                    : '—'}
                 </p>
                 {globalStats.topRatedAlbum && (
                   <p className="text-[10px] text-yellow-200/70 font-semibold">
@@ -245,7 +320,9 @@ export function AlbumsCatalog({ isPage = false }) {
                 ⭐
               </span>
               <div>
-                <p className="text-xs text-slate-400 font-medium">Promedio Global</p>
+                <p className="text-xs text-slate-400 font-medium">
+                  Promedio Global
+                </p>
                 <p className="text-xl sm:text-2xl font-black text-emerald-400">
                   {globalStats.avgClubScore} / 10
                 </p>
@@ -295,7 +372,9 @@ export function AlbumsCatalog({ isPage = false }) {
 
           {/* Sorting */}
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            <label className="text-xs text-slate-400 whitespace-nowrap">Ordenar por:</label>
+            <label className="text-xs text-slate-400 whitespace-nowrap">
+              Ordenar por:
+            </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
@@ -315,7 +394,9 @@ export function AlbumsCatalog({ isPage = false }) {
         {loading ? (
           <div className="py-20 text-center space-y-4">
             <div className="inline-block w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">Cargando catálogo de álbumes y estadísticas...</p>
+            <p className="text-slate-400 text-sm">
+              Cargando catálogo de álbumes y estadísticas...
+            </p>
           </div>
         ) : error ? (
           <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400">
@@ -324,8 +405,12 @@ export function AlbumsCatalog({ isPage = false }) {
         ) : filteredAlbums.length === 0 ? (
           <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-2">
             <span className="text-4xl">🎵</span>
-            <h3 className="text-lg font-bold text-white">No se encontraron álbumes</h3>
-            <p className="text-slate-400 text-xs">Intenta cambiar los filtros o el término de búsqueda.</p>
+            <h3 className="text-lg font-bold text-white">
+              No se encontraron álbumes
+            </h3>
+            <p className="text-slate-400 text-xs">
+              Intenta cambiar los filtros o el término de búsqueda.
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -355,7 +440,8 @@ export function AlbumsCatalog({ isPage = false }) {
                       alt={album.album_name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
+                        e.target.src =
+                          'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
                       }}
                     />
 
@@ -395,7 +481,9 @@ export function AlbumsCatalog({ isPage = false }) {
                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex items-end justify-between">
                       {score !== null ? (
                         <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-xl">
-                          <span className="text-amber-400 text-sm font-black">{score.toFixed(1)}</span>
+                          <span className="text-amber-400 text-sm font-black">
+                            {score.toFixed(2)}
+                          </span>
                           <span className="text-xs">⭐</span>
                           {album.bonus > 0 && (
                             <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1.5 py-0.2 rounded-md">
@@ -410,7 +498,8 @@ export function AlbumsCatalog({ isPage = false }) {
                       )}
 
                       <div className="text-[11px] text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded-xl font-medium">
-                        📝 {album.review_count} {album.review_count === 1 ? 'review' : 'reviews'}
+                        📝 {album.review_count}{' '}
+                        {album.review_count === 1 ? 'review' : 'reviews'}
                       </div>
                     </div>
                   </div>
@@ -421,10 +510,18 @@ export function AlbumsCatalog({ isPage = false }) {
                       <h3 className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors line-clamp-1">
                         {album.album_name}
                       </h3>
-                      <p className="text-slate-400 text-xs font-medium line-clamp-1">{album.artist_name}</p>
+                      <p className="text-slate-400 text-xs font-medium line-clamp-1">
+                        {album.artist_name}
+                      </p>
                       <p className="text-slate-500 text-[11px] mt-1 line-clamp-1">
                         Añadido por:{' '}
-                        <span className={isMine ? 'text-yellow-400 font-bold' : 'text-slate-300'}>
+                        <span
+                          className={
+                            isMine
+                              ? 'text-yellow-400 font-bold'
+                              : 'text-slate-300'
+                          }
+                        >
                           {album.added_by || 'Miembro'}
                         </span>
                       </p>
@@ -512,10 +609,18 @@ export function AlbumsCatalog({ isPage = false }) {
                     </span>
                   )}
                 </div>
-                <p className="text-lg text-slate-300 font-semibold">{selectedAlbum.artist_name}</p>
+                <p className="text-lg text-slate-300 font-semibold">
+                  {selectedAlbum.artist_name}
+                </p>
                 <p className="text-xs text-slate-400">
                   Añadido por:{' '}
-                  <strong className={isUserAlbum(selectedAlbum) ? 'text-yellow-400' : 'text-slate-200'}>
+                  <strong
+                    className={
+                      isUserAlbum(selectedAlbum)
+                        ? 'text-yellow-400'
+                        : 'text-slate-200'
+                    }
+                  >
                     {selectedAlbum.added_by || 'Miembro'}
                   </strong>
                 </p>
@@ -561,10 +666,13 @@ export function AlbumsCatalog({ isPage = false }) {
                   Calificación Final
                 </p>
                 <p className="text-3xl sm:text-4xl font-black text-amber-400 my-1">
-                  {selectedAlbum.final_rating !== null ? selectedAlbum.final_rating.toFixed(1) : '—'}
+                  {selectedAlbum.final_rating !== null
+                    ? selectedAlbum.final_rating.toFixed(1)
+                    : '—'}
                 </p>
                 <p className="text-[10px] text-slate-400">
-                  {selectedAlbum.review_count} {selectedAlbum.review_count === 1 ? 'reseña' : 'reseñas'}
+                  {selectedAlbum.review_count}{' '}
+                  {selectedAlbum.review_count === 1 ? 'reseña' : 'reseñas'}
                 </p>
                 {selectedAlbum.bonus > 0 && (
                   <p className="text-[10px] text-cyan-300 font-bold mt-1 bg-cyan-500/10 rounded-md py-0.5">
@@ -584,21 +692,38 @@ export function AlbumsCatalog({ isPage = false }) {
                   <div className="bg-white/5 p-2.5 rounded-xl">
                     <p className="text-[11px] text-slate-400">Promedio Base</p>
                     <p className="text-base font-black text-white">
-                      {selectedAlbum.base_rating ? selectedAlbum.base_rating.toFixed(2) : '—'} ⭐
+                      {selectedAlbum.base_rating
+                        ? selectedAlbum.base_rating.toFixed(2)
+                        : '—'}{' '}
+                      ⭐
                     </p>
-                    <p className="text-[9px] text-slate-500">50% Tracks · 30% Criterios · 20% General</p>
+                    <p className="text-[9px] text-slate-500">
+                      50% Tracks · 30% Criterios · 20% General
+                    </p>
                   </div>
                   <div className="bg-white/5 p-2.5 rounded-xl">
-                    <p className="text-[11px] text-slate-400">Bonus por Reviews</p>
-                    <p className="text-base font-black text-cyan-400">
-                      +{selectedAlbum.bonus ? selectedAlbum.bonus.toFixed(2) : '0.00'}
+                    <p className="text-[11px] text-slate-400">
+                      Bonus por Reviews
                     </p>
-                    <p className="text-[9px] text-slate-500">+0.25 ({'>'}5 reviews) · +0.10 ({'>'}10)</p>
+                    <p className="text-base font-black text-cyan-400">
+                      +
+                      {selectedAlbum.bonus
+                        ? selectedAlbum.bonus.toFixed(2)
+                        : '0.00'}
+                    </p>
+                    <p className="text-[9px] text-slate-500">
+                      +0.25 ({'>'}5 reviews) · +0.10 ({'>'}10)
+                    </p>
                   </div>
                   <div className="bg-cyan-500/10 border border-cyan-500/30 p-2.5 rounded-xl">
-                    <p className="text-[11px] text-cyan-300 font-bold">Puntuación Final</p>
+                    <p className="text-[11px] text-cyan-300 font-bold">
+                      Puntuación Final
+                    </p>
                     <p className="text-base font-black text-amber-400">
-                      {selectedAlbum.final_rating ? selectedAlbum.final_rating.toFixed(2) : '—'} / 10
+                      {selectedAlbum.final_rating
+                        ? selectedAlbum.final_rating.toFixed(2)
+                        : '—'}{' '}
+                      / 10
                     </p>
                     <p className="text-[9px] text-cyan-200/60">Máximo 10.0</p>
                   </div>
@@ -617,7 +742,10 @@ export function AlbumsCatalog({ isPage = false }) {
                     const avg = selectedAlbum.criteria_averages?.[crit.key];
                     const percent = avg ? (avg / crit.max) * 100 : 0;
                     return (
-                      <div key={crit.key} className="bg-white/5 p-3 rounded-xl border border-white/5 space-y-1.5">
+                      <div
+                        key={crit.key}
+                        className="bg-white/5 p-3 rounded-xl border border-white/5 space-y-1.5"
+                      >
                         <div className="flex items-center justify-between text-xs">
                           <span className="text-slate-300 flex items-center gap-1">
                             <span>{crit.emoji}</span>
@@ -641,68 +769,89 @@ export function AlbumsCatalog({ isPage = false }) {
             )}
 
             {/* Tracklist Ratings */}
-            {selectedAlbum.track_stats && selectedAlbum.track_stats.length > 0 && (
-              <div className="bg-black/30 border border-white/5 rounded-2xl p-4 space-y-3">
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    🎵 Calificación por Canciones ({selectedAlbum.track_stats.length})
-                  </h4>
-                  {selectedAlbum.best_track && (
-                    <span className="text-xs text-amber-300 bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-semibold">
-                      👑 Mejor: {selectedAlbum.best_track.name} ({selectedAlbum.best_track.avg_rating} ⭐)
-                    </span>
-                  )}
-                </div>
+            {selectedAlbum.track_stats &&
+              selectedAlbum.track_stats.length > 0 && (
+                <div className="bg-black/30 border border-white/5 rounded-2xl p-4 space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                      🎵 Calificación por Canciones (
+                      {selectedAlbum.track_stats.length})
+                    </h4>
+                    {selectedAlbum.best_track && (
+                      <span className="text-xs text-amber-300 bg-amber-400/10 border border-amber-400/30 px-2.5 py-0.5 rounded-full font-semibold">
+                        👑 Mejor: {selectedAlbum.best_track.name} (
+                        {selectedAlbum.best_track.avg_rating} ⭐)
+                      </span>
+                    )}
+                  </div>
 
-                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
-                  {selectedAlbum.track_stats.map((t, idx) => {
-                    const isBest = selectedAlbum.best_track && selectedAlbum.best_track.name === t.name;
-                    const isWorst = selectedAlbum.worst_track && selectedAlbum.worst_track.name === t.name && selectedAlbum.track_stats.length > 2;
+                  <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                    {selectedAlbum.track_stats.map((t, idx) => {
+                      const isBest =
+                        selectedAlbum.best_track &&
+                        selectedAlbum.best_track.name === t.name;
+                      const isWorst =
+                        selectedAlbum.worst_track &&
+                        selectedAlbum.worst_track.name === t.name &&
+                        selectedAlbum.track_stats.length > 2;
 
-                    return (
-                      <div
-                        key={idx}
-                        className={`flex items-center justify-between p-2 rounded-xl text-xs transition-colors ${
-                          isBest
-                            ? 'bg-amber-400/10 border border-amber-400/30'
-                            : 'bg-white/5 border border-white/5 hover:bg-white/10'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 min-w-0 pr-2">
-                          <span className="text-slate-500 font-mono text-[10px] w-5 text-right flex-shrink-0">
-                            {t.track_number || idx + 1}
-                          </span>
-                          <span className="text-slate-200 truncate font-medium">{t.name}</span>
-                          {isBest && <span className="text-amber-400 text-xs">👑</span>}
-                          {isWorst && <span className="text-red-400 text-[10px]">📉</span>}
-                        </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {t.rating_count > 0 ? (
-                            <span className="font-bold text-amber-400 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5">
-                              {t.avg_rating} ⭐
+                      return (
+                        <div
+                          key={idx}
+                          className={`flex items-center justify-between p-2 rounded-xl text-xs transition-colors ${
+                            isBest
+                              ? 'bg-amber-400/10 border border-amber-400/30'
+                              : 'bg-white/5 border border-white/5 hover:bg-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 pr-2">
+                            <span className="text-slate-500 font-mono text-[10px] w-5 text-right flex-shrink-0">
+                              {t.track_number || idx + 1}
                             </span>
-                          ) : (
-                            <span className="text-slate-500 text-[10px]">Sin votos</span>
-                          )}
+                            <span className="text-slate-200 truncate font-medium">
+                              {t.name}
+                            </span>
+                            {isBest && (
+                              <span className="text-amber-400 text-xs">👑</span>
+                            )}
+                            {isWorst && (
+                              <span className="text-red-400 text-[10px]">
+                                📉
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {t.rating_count > 0 ? (
+                              <span className="font-bold text-amber-400 bg-black/40 px-2 py-0.5 rounded-lg border border-white/5">
+                                {t.avg_rating} ⭐
+                              </span>
+                            ) : (
+                              <span className="text-slate-500 text-[10px]">
+                                Sin votos
+                              </span>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Community Reviews List */}
             <div className="space-y-3">
               <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                📝 Reseñas de la Comunidad ({selectedAlbum.reviews?.length || 0})
+                📝 Reseñas de la Comunidad ({selectedAlbum.reviews?.length || 0}
+                )
               </h4>
 
               {selectedAlbum.reviews && selectedAlbum.reviews.length > 0 ? (
                 <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
                   {selectedAlbum.reviews.map((rev) => {
                     const showTracks = expandedReviewTracklist[rev.id];
-                    const hasTracks = rev.track_ratings && Object.keys(rev.track_ratings).length > 0;
+                    const hasTracks =
+                      rev.track_ratings &&
+                      Object.keys(rev.track_ratings).length > 0;
 
                     return (
                       <div
@@ -720,11 +869,14 @@ export function AlbumsCatalog({ isPage = false }) {
                               alt={rev.reviewer_name}
                               className="w-8 h-8 rounded-full object-cover border border-white/10"
                               onError={(e) => {
-                                e.target.src = 'https://via.placeholder.com/100/1e293b/ffffff?text=👤';
+                                e.target.src =
+                                  'https://via.placeholder.com/100/1e293b/ffffff?text=👤';
                               }}
                             />
                             <div>
-                              <p className="text-sm font-bold text-white">{rev.reviewer_name}</p>
+                              <p className="text-sm font-bold text-white">
+                                {rev.reviewer_name}
+                              </p>
                               <p className="text-[10px] text-slate-500">
                                 {new Date(rev.created_at).toLocaleDateString()}
                               </p>
@@ -733,7 +885,9 @@ export function AlbumsCatalog({ isPage = false }) {
 
                           <div className="flex items-center gap-2">
                             <span className="bg-amber-400/10 text-amber-300 font-black text-xs px-2.5 py-1 rounded-xl border border-amber-400/30">
-                              {rev.rating_general ? `${rev.rating_general} ⭐ General` : '—'}
+                              {rev.rating_general
+                                ? `${rev.rating_general} ⭐ General`
+                                : '—'}
                             </span>
                           </div>
                         </div>
@@ -755,7 +909,8 @@ export function AlbumsCatalog({ isPage = false }) {
                                 key={crit.key}
                                 className="text-[10px] bg-white/5 text-slate-300 px-2 py-0.5 rounded-lg border border-white/5"
                               >
-                                {crit.emoji} {crit.label}: <strong>{val}/5</strong>
+                                {crit.emoji} {crit.label}:{' '}
+                                <strong>{val}/5</strong>
                               </span>
                             );
                           })}
@@ -768,25 +923,37 @@ export function AlbumsCatalog({ isPage = false }) {
                               onClick={() => toggleTracklistExpansion(rev.id)}
                               className="text-[11px] text-cyan-400 hover:text-cyan-300 underline font-medium mt-1"
                             >
-                              {showTracks ? 'Ocultar notas por canción ▲' : 'Ver notas por canción ▼'}
+                              {showTracks
+                                ? 'Ocultar notas por canción ▲'
+                                : 'Ver notas por canción ▼'}
                             </button>
 
                             {showTracks && (
                               <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 mt-2 bg-black/40 p-2.5 rounded-xl border border-white/5">
-                                {Object.entries(rev.track_ratings).map(([trackKey, tScore]) => {
-                                  const trackName = getTrackDisplayName(trackKey, selectedAlbum.tracks);
-                                  return (
-                                    <div
-                                      key={trackKey}
-                                      className="text-[10px] flex items-center justify-between bg-white/5 px-2 py-1 rounded-md"
-                                    >
-                                      <span className="text-slate-300 truncate pr-1" title={trackName}>
-                                        {trackName}
-                                      </span>
-                                      <span className="text-amber-400 font-bold">{tScore}</span>
-                                    </div>
-                                  );
-                                })}
+                                {Object.entries(rev.track_ratings).map(
+                                  ([trackKey, tScore]) => {
+                                    const trackName = getTrackDisplayName(
+                                      trackKey,
+                                      selectedAlbum.tracks
+                                    );
+                                    return (
+                                      <div
+                                        key={trackKey}
+                                        className="text-[10px] flex items-center justify-between bg-white/5 px-2 py-1 rounded-md"
+                                      >
+                                        <span
+                                          className="text-slate-300 truncate pr-1"
+                                          title={trackName}
+                                        >
+                                          {trackName}
+                                        </span>
+                                        <span className="text-amber-400 font-bold">
+                                          {tScore}
+                                        </span>
+                                      </div>
+                                    );
+                                  }
+                                )}
                               </div>
                             )}
                           </div>

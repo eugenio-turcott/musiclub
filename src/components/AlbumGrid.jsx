@@ -363,23 +363,23 @@ export function AlbumGrid({
                     </div>
                   )}
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2">
-                    <div className="w-full">
-                      <p className="text-white text-xs font-bold truncate">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
+                    <div className="w-full min-w-0">
+                      <p className="text-white text-xs font-bold leading-tight break-words line-clamp-2" title={album.album}>
                         {album.album}
                       </p>
-                      <p className="text-white/50 text-[10px] truncate">
+                      <p className="text-white/60 text-[10px] leading-tight break-words line-clamp-1 mt-0.5" title={album.artista}>
                         {album.artista}
                       </p>
                       {album.status === 'GANADOR' && (
-                        <span className="text-[8px] text-[#f5576c] font-bold">
+                        <span className="text-[8px] text-[#f5576c] font-bold block mt-0.5">
                           🏆 GANADOR
                         </span>
                       )}
                       {album.spotify_verified &&
                         album.tracks &&
                         album.tracks.length > 0 && (
-                          <span className="text-[8px] text-white/30">
+                          <span className="text-[8px] text-white/40 block mt-0.5">
                             🎵 {album.tracks.length} canciones
                           </span>
                         )}
@@ -398,17 +398,14 @@ export function AlbumGrid({
 
       {/* ÁLBUMES INDIVIDUALES CON BOTÓN REVIEW */}
       {individualAlbums.length > 0 && (
-        <div className="mt-8 pt-6 border-t border-white/5">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-            <h3 className="text-xl sm:text-2xl md:text-3xl text-blue-400/80 uppercase tracking-normal flex items-center gap-2">
-              <span className="text-2xl">📌</span>
-              Álbumes Individuales
-              <span className="text-xs font-normal text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
-                No participan en la máquina
-              </span>
+        <>
+          <div className="flex items-center gap-2 mb-3 mt-6">
+            <h3 className="text-sm uppercase tracking-wider text-white/40 font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+              Álbumes Individuales ({individualAlbums.length})
             </h3>
-            <span className="text-xs sm:text-sm text-white/70 bg-white/10 px-3 py-1 rounded-full border border-white/5 whitespace-nowrap">
-              {individualAlbums.length} individuales
+            <span className="text-xs text-white/20">
+              · Califica y guarda tus reviews
             </span>
           </div>
 
@@ -493,19 +490,19 @@ export function AlbumGrid({
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-                  <div className="text-center">
-                    <p className="text-white font-bold text-sm truncate mb-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
+                  <div className="w-full max-w-full min-w-0 flex flex-col items-center">
+                    <p className="text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1" title={album.album}>
                       {album.album}
                     </p>
-                    <p className="text-white/50 text-xs truncate mb-3">
+                    <p className="text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-2" title={album.artista}>
                       {album.artista}
                     </p>
 
                     {album.spotify_verified &&
                       album.tracks &&
                       album.tracks.length > 0 && (
-                        <p className="text-white/30 text-[10px] mb-2">
+                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
                           🎵 {album.tracks.length} canciones
                         </p>
                       )}
@@ -515,7 +512,7 @@ export function AlbumGrid({
                         e.stopPropagation();
                         setSelectedIndividual(album);
                       }}
-                      className={`px-4 py-2 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-white text-[11px] sm:text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
                         isAlbumReviewed(album.id)
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/20'
                           : 'bg-gradient-to-r from-blue-500 to-cyan-500 shadow-blue-500/20'
@@ -523,17 +520,17 @@ export function AlbumGrid({
                     >
                       {isAlbumReviewed(album.id)
                         ? '✓ Ver mi Review'
-                        : '📝 Review'}
+                        : '✍️ Dar Review'}
                     </button>
                   </div>
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </>
       )}
 
-      {/* 👈 ÁLBUMES INACTIVOS (para rankings) */}
+      {/* ÁLBUMES INACTIVOS (para rankings) */}
       {inactiveAlbums.length > 0 && (
         <div className="mt-8 pt-6 border-t border-white/5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
@@ -630,19 +627,19 @@ export function AlbumGrid({
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
-                  <div className="text-center">
-                    <p className="text-white font-bold text-sm truncate mb-1">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
+                  <div className="w-full max-w-full min-w-0 flex flex-col items-center">
+                    <p className="text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1" title={album.album}>
                       {album.album}
                     </p>
-                    <p className="text-white/50 text-xs truncate mb-3">
+                    <p className="text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-2" title={album.artista}>
                       {album.artista}
                     </p>
 
                     {album.spotify_verified &&
                       album.tracks &&
                       album.tracks.length > 0 && (
-                        <p className="text-white/30 text-[10px] mb-2">
+                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
                           🎵 {album.tracks.length} canciones
                         </p>
                       )}
@@ -652,7 +649,7 @@ export function AlbumGrid({
                         e.stopPropagation();
                         setSelectedIndividual(album);
                       }}
-                      className={`px-4 py-2 text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 text-white text-[11px] sm:text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg ${
                         isAlbumReviewed(album.id)
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-500 shadow-emerald-500/20'
                           : 'bg-gradient-to-r from-gray-500 to-gray-600 shadow-gray-500/20'
@@ -660,7 +657,7 @@ export function AlbumGrid({
                     >
                       {isAlbumReviewed(album.id)
                         ? '✓ Ver mi Review'
-                        : '📝 Review'}
+                        : '✍️ Dar Review'}
                     </button>
                   </div>
                 </div>

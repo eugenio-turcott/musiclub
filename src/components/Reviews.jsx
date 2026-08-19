@@ -1,9 +1,16 @@
 // src/components/Reviews.jsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { supabase } from '../services/supabaseClient';
-import { getWeightedReviewScore, getAlbumWeightedAverage, getTrackDisplayName } from '../utils/ratingUtils';
+import { useAuth } from '../hooks/useAuth';
+import {
+  getWeightedReviewScore,
+  getAlbumWeightedAverage,
+  getTrackDisplayName,
+} from '../utils/ratingUtils';
 
 export function Reviews({ onClose, isPage = false }) {
+  const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -101,12 +108,12 @@ export function Reviews({ onClose, isPage = false }) {
 
   const getRatingBadgeStyle = (rating) => {
     if (rating >= 8.5)
-      return 'text-emerald-300 bg-emerald-500/15 border-emerald-400/30 shadow-[0_0_12px_rgba(16,185,129,0.2)]';
+      return 'text-emerald-300 bg-emerald-500/15 border-emerald-400/40 shadow-[0_0_12px_rgba(16,185,129,0.2)]';
     if (rating >= 7.0)
-      return 'text-yellow-300 bg-yellow-500/15 border-yellow-400/30 shadow-[0_0_12px_rgba(234,179,8,0.2)]';
+      return 'text-yellow-300 bg-yellow-500/15 border-yellow-400/40 shadow-[0_0_12px_rgba(234,179,8,0.2)]';
     if (rating >= 5.0)
-      return 'text-orange-300 bg-orange-500/15 border-orange-400/30 shadow-[0_0_12px_rgba(249,115,22,0.2)]';
-    return 'text-rose-300 bg-rose-500/15 border-rose-400/30 shadow-[0_0_12px_rgba(244,63,94,0.2)]';
+      return 'text-orange-300 bg-orange-500/15 border-orange-400/40 shadow-[0_0_12px_rgba(249,115,22,0.2)]';
+    return 'text-rose-300 bg-rose-500/15 border-rose-400/40 shadow-[0_0_12px_rgba(244,63,94,0.2)]';
   };
 
   const filteredReviews = reviews.filter((review) => {
@@ -149,376 +156,421 @@ export function Reviews({ onClose, isPage = false }) {
     <div
       className={
         isPage
-          ? 'min-h-screen cyber-grid p-4 sm:p-6 md:p-8'
-          : 'fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] overflow-y-auto p-4 sm:p-6 md:p-8'
+          ? 'min-h-screen bg-[#0d0e15] text-white py-5 sm:py-8 px-3 sm:px-6 lg:px-8'
+          : 'fixed inset-0 bg-black/90 backdrop-blur-xl z-[99999] overflow-y-auto py-5 sm:py-8 px-3 sm:px-6 lg:px-8 text-white'
       }
     >
-      <div className="max-w-6xl mx-auto my-2 sm:my-4">
-        {/* Luces traseras decorativas */}
-        <div className="relative bg-gradient-to-br from-[#0c1322] via-[#0f1b33] to-[#070d1a] border border-pink-500/30 rounded-3xl p-5 sm:p-8 backdrop-blur-2xl shadow-[0_0_60px_rgba(245,87,108,0.15)] overflow-hidden">
-          <div className="absolute -top-32 -right-32 w-80 h-80 bg-pink-500/15 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -bottom-32 -left-32 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+        {/* Navigation Bar */}
+        <div className="flex items-center justify-between flex-wrap gap-2.5 pb-2 border-b border-white/5">
+          {isPage ? (
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-semibold active:scale-95"
+            >
+              <span>←</span> <span className="hidden xs:inline">Volver al</span> Inicio
+            </Link>
+          ) : (
+            <button
+              onClick={onClose}
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-semibold active:scale-95"
+            >
+              <span>←</span> <span className="hidden xs:inline">Volver al</span> Inicio
+            </button>
+          )}
 
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-5 border-b border-white/10 relative z-10">
-            <div>
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <span className="text-2xl sm:text-3xl">📝</span>
-                <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  Reviews de la Comunidad
-                </h1>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-400/30">
-                  {totalReviews} publicaciones
-                </span>
-              </div>
-              <p className="text-blue-200/60 text-xs sm:text-sm mt-1">
-                Explora todas las reseñas y calificaciones detalladas enviadas por el club
-              </p>
-            </div>
-
-            {isPage ? (
-              <a
-                href="/"
-                className="text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-semibold transition-all border border-white/10 flex items-center gap-2"
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              to="/albumes"
+              className="text-xs sm:text-sm text-slate-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
+            >
+              <span>💿</span> Álbumes
+            </Link>
+            <Link
+              to="/leaderboard"
+              className="text-xs sm:text-sm text-slate-400 hover:text-amber-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
+            >
+              <span>🏆</span> Leaderboard
+            </Link>
+            {user && (
+              <Link
+                to="/profile"
+                className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
               >
-                ← Volver al Club
-              </a>
-            ) : (
+                <span>👤</span> Perfil
+              </Link>
+            )}
+            {!isPage && onClose && (
               <button
                 onClick={onClose}
-                className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-9 h-9 rounded-full flex items-center justify-center transition-all border border-white/10 text-lg"
+                className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all border border-white/10 text-sm ml-1"
                 title="Cerrar"
               >
                 ✕
               </button>
             )}
           </div>
+        </div>
 
-          {/* Estadísticas rápidas */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 relative z-10">
-            <div className="bg-rose-950/20 rounded-2xl p-4 border border-rose-500/30 text-center backdrop-blur-md">
-              <div className="text-rose-300 text-2xl sm:text-3xl font-black">
-                {totalReviews}
-              </div>
-              <div className="text-rose-300/60 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">
-                Total Reviews
-              </div>
-            </div>
-            <div className="bg-cyan-950/20 rounded-2xl p-4 border border-cyan-500/30 text-center backdrop-blur-md">
-              <div className="text-cyan-300 text-2xl sm:text-3xl font-black">
-                ★ {avgRating}
-              </div>
-              <div className="text-cyan-300/60 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">
-                Promedio Ponderado
-              </div>
-            </div>
-            <div className="bg-emerald-950/20 rounded-2xl p-4 border border-emerald-500/30 text-center backdrop-blur-md">
-              <div className="text-emerald-300 text-2xl sm:text-3xl font-black">
-                {albumsList.length}
-              </div>
-              <div className="text-emerald-300/60 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">
-                Álbumes Evaluados
-              </div>
-            </div>
-            <div className="bg-purple-950/20 rounded-2xl p-4 border border-purple-500/30 text-center backdrop-blur-md">
-              <div className="text-purple-300 text-2xl sm:text-3xl font-black">
-                {new Set(reviews.map((r) => r.reviewer_name)).size}
-              </div>
-              <div className="text-purple-300/60 text-[10px] sm:text-xs font-semibold uppercase tracking-wider mt-0.5">
-                Reviewers Únicos
+        {/* Header Title */}
+        <div className="text-center space-y-2.5 sm:space-y-3">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/20 to-pink-500/10 border border-pink-500/30 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
+            <span>📝</span>
+            <span>Historial y Calificaciones de la Comunidad</span>
+          </div>
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
+            Reviews de Miembros
+          </h1>
+          <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
+            Explora todas las reseñas, análisis detallados y puntuaciones ponderadas publicadas por el club.
+          </p>
+        </div>
+
+        {/* Global Stats Summary Bar */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
+          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-pink-500/30 transition-all">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-xl group-hover:bg-pink-500/10 transition-all" />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20">
+                📝
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  Total Reviews
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-white">
+                  {totalReviews}
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Filtros y búsqueda */}
-          <div className="flex flex-col sm:flex-row gap-3 mb-6 relative z-10">
-            <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30 text-sm">
-                🔍
+          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                ⭐
               </span>
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Buscar por álbum, artista, reviewer o comentario..."
-                className="w-full bg-black/50 border border-white/10 rounded-2xl pl-10 pr-4 py-2.5 text-white text-xs sm:text-sm placeholder-white/30 focus:outline-none focus:border-pink-400/50 transition-all"
-              />
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  Promedio Ponderado
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-cyan-400">
+                  ★ {avgRating}
+                </p>
+              </div>
             </div>
+          </div>
+
+          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                💿
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  Álbumes Evaluados
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-white">
+                  {albumsList.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-purple-500/30 transition-all">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-all" />
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                👥
+              </span>
+              <div className="min-w-0">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                  Reviewers Únicos
+                </p>
+                <p className="text-lg sm:text-2xl font-black text-purple-400">
+                  {new Set(reviews.map((r) => r.reviewer_name)).size}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filter and Search Controls */}
+        <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
+          {/* Search Bar */}
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
+              🔍
+            </span>
+            <input
+              type="text"
+              placeholder="Buscar por álbum, artista, reviewer o comentario..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-pink-400/70 transition-colors"
+            />
+          </div>
+
+          {/* Filter Selects & Refresh */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <select
               value={filterAlbum}
               onChange={(e) => setFilterAlbum(e.target.value)}
-              className="w-full sm:max-w-xs bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer truncate"
+              className="bg-black/60 border border-white/10 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-pink-400 font-semibold cursor-pointer max-w-[200px] truncate"
             >
-              <option value="todos" className="bg-slate-900">
-                Todos los álbumes
-              </option>
+              <option value="todos">Todos los álbumes ({albumsList.length})</option>
               {albumsList.map((album) => (
-                <option key={album.id} value={album.id} className="bg-slate-900">
+                <option key={album.id} value={album.id}>
                   {album.album_name} - {album.artist_name}
                 </option>
               ))}
             </select>
+
             <select
               value={filterRating}
               onChange={(e) => setFilterRating(e.target.value)}
-              className="w-full sm:w-auto bg-black/50 border border-white/10 rounded-2xl px-4 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-400/50 transition-all cursor-pointer"
+              className="bg-black/60 border border-white/10 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-pink-400 font-semibold cursor-pointer"
             >
-              <option value="todos" className="bg-slate-900">
-                Todas las notas
-              </option>
-              <option value="alta" className="bg-slate-900">
-                ⭐ Alta (8-10)
-              </option>
-              <option value="media" className="bg-slate-900">
-                ⭐ Media (5-7)
-              </option>
-              <option value="baja" className="bg-slate-900">
-                ⭐ Baja (1-4)
-              </option>
+              <option value="todos">Todas las notas</option>
+              <option value="alta">⭐ Alta (8 - 10)</option>
+              <option value="media">⭐ Media (5 - 7.9)</option>
+              <option value="baja">⭐ Baja (&lt; 5)</option>
             </select>
+
             <button
               onClick={loadReviews}
-              className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-2xl text-white/70 hover:text-white hover:bg-white/10 transition-all text-xs font-semibold flex items-center justify-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 active:scale-95 flex-shrink-0"
+              title="Actualizar reviews"
             >
-              <span>🔄</span> Actualizar
+              <span>🔄</span> <span className="hidden sm:inline">Refrescar</span>
             </button>
           </div>
+        </div>
 
-          {error && (
-            <div className="text-rose-300 text-xs mb-4 bg-rose-500/10 border border-rose-500/20 px-4 py-3 rounded-2xl flex items-center gap-2">
-              <span>⚠️</span> {error}
-            </div>
-          )}
+        {error && (
+          <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-center text-rose-300 text-xs sm:text-sm flex items-center justify-center gap-2">
+            <span>⚠️</span> {error}
+          </div>
+        )}
 
-          {/* Resultados */}
-          {loading ? (
-            <div className="flex justify-center items-center py-16">
-              <div className="flex flex-col items-center gap-4">
-                <div className="flex gap-2">
-                  <span
-                    className="w-3 h-3 bg-pink-500 rounded-full animate-bounce"
-                    style={{ animationDelay: '0ms' }}
-                  ></span>
-                  <span
-                    className="w-3 h-3 bg-purple-400 rounded-full animate-bounce"
-                    style={{ animationDelay: '150ms' }}
-                  ></span>
-                  <span
-                    className="w-3 h-3 bg-pink-500 rounded-full animate-bounce"
-                    style={{ animationDelay: '300ms' }}
-                  ></span>
-                </div>
-                <span className="text-white/40 text-xs font-medium">
-                  Cargando reseñas de la comunidad...
+        {/* Reviews Feed */}
+        {loading ? (
+          <div className="py-20 text-center space-y-4">
+            <div className="inline-block w-10 h-10 border-4 border-pink-400 border-t-transparent rounded-full animate-spin" />
+            <p className="text-slate-400 text-sm">
+              Cargando reseñas de la comunidad...
+            </p>
+          </div>
+        ) : filteredReviews.length === 0 ? (
+          <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-2">
+            <span className="text-4xl">🔍</span>
+            <h3 className="text-lg font-bold text-white">
+              No se encontraron reseñas
+            </h3>
+            <p className="text-slate-400 text-xs">
+              {reviews.length > 0
+                ? 'Intenta ajustar los criterios de búsqueda o filtros.'
+                : 'Aún no hay reseñas registradas en la plataforma.'}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3.5">
+            <div className="text-slate-400 text-xs font-mono flex justify-between items-center px-1">
+              <span>
+                Mostrando {paginatedReviews.length} de {filteredReviews.length} reseñas
+              </span>
+              {filteredReviews.length !== reviews.length && (
+                <span className="text-pink-300/70 font-semibold">
+                  ({reviews.length} en total)
                 </span>
-              </div>
+              )}
             </div>
-          ) : filteredReviews.length === 0 ? (
-            <div className="text-center py-16 bg-black/30 rounded-2xl border border-white/5">
-              <p className="text-white/40 text-sm font-medium">
-                No hay reseñas que coincidan con los filtros
-              </p>
-              <p className="text-white/20 text-xs mt-1">
-                {reviews.length > 0
-                  ? 'Intenta ajustar los criterios de búsqueda'
-                  : 'Aún no hay reseñas registradas en el sistema'}
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4 relative z-10">
-              <div className="text-white/40 text-xs font-mono flex justify-between items-center px-1">
-                <span>
-                  Mostrando {paginatedReviews.length} de {filteredReviews.length} reseñas
-                </span>
-                {filteredReviews.length !== reviews.length && (
-                  <span className="text-pink-300/60">
-                    ({reviews.length} totales)
-                  </span>
-                )}
-              </div>
 
-              {paginatedReviews.map((review) => {
-                const album = review.albums;
-                const weightedScore = getWeightedReviewScore(review);
-                const rating =
-                  weightedScore !== null ? weightedScore : review.rating_general;
-                const trackRatings = review.track_ratings || {};
+            {paginatedReviews.map((review) => {
+              const album = review.albums;
+              const weightedScore = getWeightedReviewScore(review);
+              const rating =
+                weightedScore !== null ? weightedScore : review.rating_general;
+              const trackRatings = review.track_ratings || {};
 
-                return (
-                  <div
-                    key={review.id}
-                    className="bg-black/40 rounded-3xl p-4 sm:p-5 border border-white/10 hover:border-pink-500/30 hover:shadow-[0_0_30px_rgba(245,87,108,0.12)] transition-all duration-300"
-                  >
-                    <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 items-start">
-                      {/* Imagen del álbum */}
-                      {album?.image_url && (
-                        <div className="relative flex-shrink-0 mx-auto sm:mx-0">
-                          <img
-                            src={album.image_url}
-                            alt={album.album_name}
-                            className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-2xl border border-white/10 shadow-xl"
-                            onError={(e) => {
-                              e.target.src =
-                                'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
-                            }}
-                          />
+              return (
+                <div
+                  key={review.id}
+                  className="bg-[#141624]/90 border border-white/5 hover:border-white/20 transition-all duration-300 rounded-2xl p-4 sm:p-5 shadow-md hover:shadow-xl space-y-3.5 group"
+                >
+                  <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 items-start">
+                    {/* Imagen del álbum */}
+                    {album?.image_url && (
+                      <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+                        <img
+                          src={album.image_url}
+                          alt={album.album_name}
+                          className="w-18 h-18 sm:w-20 sm:h-20 min-w-[72px] min-h-[72px] sm:min-w-[80px] sm:min-h-[80px] object-cover rounded-xl border border-white/10 shadow-lg group-hover:border-pink-500/40 transition-colors"
+                          onError={(e) => {
+                            e.target.src =
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                          }}
+                        />
+                      </div>
+                    )}
+
+                    <div className="flex-1 min-w-0 w-full space-y-2">
+                      {/* Encabezado del álbum y score */}
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-2.5">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="text-white font-black text-base sm:text-lg truncate group-hover:text-pink-300 transition-colors">
+                              {album?.album_name || 'Álbum desconocido'}
+                            </h4>
+                            {album?.status && getStatusBadge(album.status)}
+                          </div>
+                          <p className="text-slate-400 text-xs sm:text-sm font-medium mt-0.5 truncate">
+                            {album?.artist_name || 'Artista desconocido'}
+                          </p>
+                        </div>
+
+                        <div
+                          className={`px-3 py-1 rounded-xl border text-sm sm:text-base font-black flex items-center gap-1 self-start sm:self-auto flex-shrink-0 ${getRatingBadgeStyle(
+                            rating
+                          )}`}
+                        >
+                          <span>★</span>
+                          <span>{rating ? rating.toFixed(1) : 'N/A'}</span>
+                          <span className="text-[10px] opacity-70 font-normal">
+                            / 10
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Reviewer e información de fecha */}
+                      <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white flex items-center justify-center font-bold text-[10px] shadow-sm">
+                          {(review.reviewer_name || 'A')[0].toUpperCase()}
+                        </div>
+                        <span className="text-slate-200 font-bold">
+                          {review.reviewer_name || 'Anónimo'}
+                        </span>
+                        <span className="text-white/20">•</span>
+                        <span className="text-[11px] font-mono">
+                          {review.created_at
+                            ? new Date(review.created_at).toLocaleDateString(
+                                'es-ES',
+                                {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                }
+                              )
+                            : ''}
+                        </span>
+                      </div>
+
+                      {/* Comentario destacado */}
+                      {review.comment && (
+                        <div className="bg-black/40 p-3 rounded-xl border border-white/5">
+                          <p className="text-slate-200 text-xs sm:text-sm italic leading-relaxed">
+                            "{review.comment}"
+                          </p>
                         </div>
                       )}
 
-                      <div className="flex-1 min-w-0 w-full">
-                        {/* Encabezado del álbum y score */}
-                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/10 pb-3 mb-3">
-                          <div>
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <h4 className="text-white font-extrabold text-base sm:text-lg">
-                                {album?.album_name || 'Álbum desconocido'}
-                              </h4>
-                              {album?.status && getStatusBadge(album.status)}
-                            </div>
-                            <p className="text-blue-200/70 text-xs sm:text-sm font-medium mt-0.5">
-                              {album?.artist_name || 'Artista desconocido'}
-                            </p>
-                          </div>
-
-                          <div
-                            className={`px-3 py-1 rounded-full border text-sm sm:text-base font-extrabold flex items-center gap-1 ${getRatingBadgeStyle(
-                              rating
-                            )}`}
-                          >
-                            <span>★</span>
-                            <span>{rating ? rating.toFixed(1) : 'N/A'}</span>
-                            <span className="text-[10px] opacity-60 font-normal">
-                              /10
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Reviewer e información de fecha */}
-                        <div className="flex items-center gap-2.5 flex-wrap mb-3 text-xs">
-                          <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white flex items-center justify-center font-bold text-[10px]">
-                            {(review.reviewer_name || 'A')[0].toUpperCase()}
-                          </div>
-                          <span className="text-white font-semibold">
-                            {review.reviewer_name || 'Anónimo'}
-                          </span>
-                          <span className="text-white/20">•</span>
-                          <span className="text-white/40 text-[11px]">
-                            {review.created_at
-                              ? new Date(review.created_at).toLocaleDateString(
-                                  'es-ES',
-                                  {
-                                    day: 'numeric',
-                                    month: 'short',
-                                    year: 'numeric',
-                                  }
-                                )
-                              : ''}
-                          </span>
-                        </div>
-
-                        {/* Comentario destacado */}
-                        {review.comment && (
-                          <div className="bg-black/30 p-3 rounded-2xl border border-white/5 mb-3">
-                            <p className="text-white/80 text-xs sm:text-sm italic leading-relaxed">
-                              "{review.comment}"
-                            </p>
-                          </div>
-                        )}
-
-                        {/* Categorías de calificación */}
-                        <div className="flex flex-wrap gap-1.5 mb-2">
-                          {[
-                            { key: 'rating_produccion', label: '🎛️ Prod.' },
-                            { key: 'rating_composicion', label: '🎵 Comp.' },
-                            { key: 'rating_letras', label: '📝 Letras' },
-                            { key: 'rating_originalidad', label: '💡 Orig.' },
-                            { key: 'rating_cohesion', label: '🔗 Cohes.' },
-                            { key: 'rating_replay', label: '🔄 Replay' },
-                          ].map(
-                            ({ key, label }) =>
-                              review[key] && (
-                                <span
-                                  key={key}
-                                  className="text-[10px] text-blue-200/80 bg-blue-500/10 px-2.5 py-0.5 rounded-full border border-blue-500/20"
-                                >
-                                  {label}: <span className="font-bold">{review[key]}</span>
-                                </span>
-                              )
-                          )}
-                        </div>
-
-                        {/* Ratings por canción */}
-                        {Object.keys(trackRatings).length > 0 && (
-                          <div className="mt-3 pt-2.5 border-t border-white/5">
-                            <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1.5 font-semibold">
-                              🎵 Calificaciones por canción
-                            </p>
-                            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto custom-scrollbar">
-                              {Object.entries(trackRatings).map(
-                                ([trackId, score]) => {
-                                  const trackName = getTrackDisplayName(
-                                    trackId,
-                                    album?.tracks
-                                  );
-                                  return (
-                                    <span
-                                      key={trackId}
-                                      className="text-[10px] text-cyan-200/80 bg-black/50 px-2.5 py-0.5 rounded-lg border border-cyan-500/20 flex items-center gap-1"
-                                    >
-                                      <span className="text-cyan-400/50">🎵</span>
-                                      <span className="max-w-[150px] truncate" title={trackName}>
-                                        {trackName}
-                                      </span>
-                                      : <span className="font-bold text-white">{score}</span>
-                                    </span>
-                                  );
-                                }
-                              )}
-                            </div>
-                          </div>
+                      {/* Categorías de calificación */}
+                      <div className="flex flex-wrap gap-1.5 pt-1">
+                        {[
+                          { key: 'rating_produccion', label: '🎛️ Prod.' },
+                          { key: 'rating_composicion', label: '🎵 Comp.' },
+                          { key: 'rating_letras', label: '📝 Letras' },
+                          { key: 'rating_originalidad', label: '💡 Orig.' },
+                          { key: 'rating_cohesion', label: '🔗 Cohes.' },
+                          { key: 'rating_replay', label: '🔄 Replay' },
+                        ].map(
+                          ({ key, label }) =>
+                            review[key] && (
+                              <span
+                                key={key}
+                                className="text-[10px] text-slate-300 bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/5 font-medium"
+                              >
+                                {label}: <strong className="text-pink-300">{review[key]}</strong>
+                              </span>
+                            )
                         )}
                       </div>
+
+                      {/* Ratings por canción */}
+                      {Object.keys(trackRatings).length > 0 && (
+                        <div className="mt-2.5 pt-2 border-t border-white/5">
+                          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1.5 font-bold">
+                            🎵 Calificaciones individuales por track:
+                          </p>
+                          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
+                            {Object.entries(trackRatings).map(
+                              ([trackId, score]) => {
+                                const trackName = getTrackDisplayName(
+                                  trackId,
+                                  album?.tracks
+                                );
+                                return (
+                                  <span
+                                    key={trackId}
+                                    className="text-[10px] text-slate-300 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 flex items-center gap-1"
+                                  >
+                                    <span className="text-cyan-400">🎵</span>
+                                    <span className="max-w-[150px] truncate" title={trackName}>
+                                      {trackName}
+                                    </span>
+                                    : <strong className="text-cyan-300 font-bold">{score}</strong>
+                                  </span>
+                                );
+                              }
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Paginación */}
-          {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-3 mt-8 relative z-10">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold"
-              >
-                ← Anterior
-              </button>
-              <span className="text-white/50 text-xs font-mono">
-                Página <span className="text-white font-bold">{currentPage}</span> de{' '}
-                <span className="text-white font-bold">{totalPages}</span>
-              </span>
-              <button
-                onClick={() =>
-                  setCurrentPage(Math.min(totalPages, currentPage + 1))
-                }
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold"
-              >
-                Siguiente →
-              </button>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="mt-8 pt-6 border-t border-white/10 relative z-10 text-center">
-            <p className="text-white/20 text-xs font-mono">
-              📝 {totalReviews} reseñas totales registradas en la comunidad
-            </p>
+                </div>
+              );
+            })}
           </div>
+        )}
+
+        {/* Paginación */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-3 pt-4">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold active:scale-95"
+            >
+              ← Anterior
+            </button>
+            <span className="text-slate-400 text-xs font-mono">
+              Página <strong className="text-white">{currentPage}</strong> de{' '}
+              <strong className="text-white">{totalPages}</strong>
+            </span>
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-slate-300 hover:bg-white/10 hover:text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed text-xs font-semibold active:scale-95"
+            >
+              Siguiente →
+            </button>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="pt-6 border-t border-white/5 text-center">
+          <p className="text-slate-500 text-xs font-mono">
+            📝 {totalReviews} reseñas registradas en la comunidad de Musiclub
+          </p>
         </div>
       </div>
     </div>
   );
 }
+
+export default Reviews;

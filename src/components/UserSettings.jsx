@@ -40,7 +40,93 @@ export function UserSettings() {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const draftKey = user?.id
+    ? `musiclub_settings_draft_${user.id}`
+    : user?.email
+    ? `musiclub_settings_draft_${user.email}`
+    : null;
+
+  const isInitializedRef = React.useRef(false);
+
+  // Initialize from draft or from user DB values
   useEffect(() => {
+    if (!user) return;
+    if (isInitializedRef.current) return;
+
+    let restored = false;
+    if (draftKey) {
+      try {
+        const saved = localStorage.getItem(draftKey);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.name !== undefined) setName(parsed.name);
+          if (parsed.avatar !== undefined) setAvatar(parsed.avatar);
+          if (parsed.bio !== undefined) setBio(parsed.bio);
+          if (parsed.favoriteArtist !== undefined) setFavoriteArtist(parsed.favoriteArtist);
+          if (parsed.favoriteAlbum !== undefined) setFavoriteAlbum(parsed.favoriteAlbum);
+          if (Array.isArray(parsed.selectedGenres)) setSelectedGenres(parsed.selectedGenres);
+          if (parsed.spotifyUrl !== undefined) setSpotifyUrl(parsed.spotifyUrl);
+          if (parsed.instagramUrl !== undefined) setInstagramUrl(parsed.instagramUrl);
+          restored = true;
+        }
+      } catch (e) {
+        console.warn('Error reading settings draft from localStorage', e);
+      }
+    }
+
+    if (!restored) {
+      setName(user.name || '');
+      setAvatar(user.avatar || user.avatar_url || '');
+      setBio(user.bio || '');
+      setFavoriteArtist(user.favorite_artist || '');
+      setFavoriteAlbum(user.favorite_album || '');
+      setSelectedGenres(Array.isArray(user.favorite_genres) ? user.favorite_genres : []);
+      setSpotifyUrl(user.spotify_url || '');
+      setInstagramUrl(user.instagram_url || '');
+    }
+
+    isInitializedRef.current = true;
+  }, [user, draftKey]);
+
+  // Auto-save changes to localStorage
+  useEffect(() => {
+    if (!draftKey || !isInitializedRef.current || saving) return;
+
+    try {
+      const draft = {
+        name,
+        avatar,
+        bio,
+        favoriteArtist,
+        favoriteAlbum,
+        selectedGenres,
+        spotifyUrl,
+        instagramUrl,
+        updatedAt: Date.now(),
+      };
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+    } catch (e) {
+      console.warn('Error saving settings draft to localStorage', e);
+    }
+  }, [
+    draftKey,
+    name,
+    avatar,
+    bio,
+    favoriteArtist,
+    favoriteAlbum,
+    selectedGenres,
+    spotifyUrl,
+    instagramUrl,
+    saving,
+  ]);
+
+  const handleResetToUser = () => {
+    if (draftKey) {
+      try {
+        localStorage.removeItem(draftKey);
+      } catch (e) {}
+    }
     if (user) {
       setName(user.name || '');
       setAvatar(user.avatar || user.avatar_url || '');
@@ -51,7 +137,10 @@ export function UserSettings() {
       setSpotifyUrl(user.spotify_url || '');
       setInstagramUrl(user.instagram_url || '');
     }
-  }, [user]);
+    setErrorMessage('');
+    setSuccessMessage('Se han restaurado los valores actuales de tu perfil.');
+    setTimeout(() => setSuccessMessage(''), 3000);
+  };
 
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
@@ -96,6 +185,11 @@ export function UserSettings() {
     setSaving(false);
 
     if (result.success) {
+      if (draftKey) {
+        try {
+          localStorage.removeItem(draftKey);
+        } catch (e) {}
+      }
       setSuccessMessage('¡Perfil y configuración actualizados con éxito!');
       setTimeout(() => {
         setSuccessMessage('');
@@ -145,18 +239,38 @@ export function UserSettings() {
 
       {/* HEADER DE LA SECCIÓN */}
       <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#121428] to-[#0a0d18] border border-white/10 shadow-2xl overflow-hidden">
-        <div className="flex items-center gap-4 relative z-10">
-          <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.2)]">
-            ⚙️
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.2)] flex-shrink-0">
+              ⚙️
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  Configuración de Perfil
+                </h1>
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
+                  <span>💾</span> Autoguardado
+                </span>
+              </div>
+              <p className="text-white/50 text-xs sm:text-sm mt-0.5">
+                Administra tus datos personales, avatar, gustos musicales y enlaces sociales.
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              Configuración de Perfil
-            </h1>
-            <p className="text-white/50 text-xs sm:text-sm mt-0.5">
-              Administra tus datos personales, avatar, gustos musicales y enlaces sociales.
-            </p>
-          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm('¿Quieres descartar los cambios no guardados y restaurar tu información actual?')) {
+                handleResetToUser();
+              }
+            }}
+            className="self-start sm:self-auto text-xs text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium active:scale-95"
+            title="Descartar cambios no guardados y restaurar desde la base de datos"
+          >
+            🔄 Revertir cambios
+          </button>
         </div>
       </div>
 
@@ -387,32 +501,46 @@ export function UserSettings() {
         )}
 
         {/* BOTÓN DE GUARDAR */}
-        <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
-          <Link
-            to="/profile"
-            className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs sm:text-sm font-semibold transition-all text-center border border-white/10"
-          >
-            Cancelar
-          </Link>
-
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
           <button
-            type="submit"
-            disabled={saving}
-            className={`w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 ${
-              saving ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'
-            }`}
+            type="button"
+            onClick={() => {
+              if (window.confirm('¿Quieres descartar el borrador y volver a los datos originales?')) {
+                handleResetToUser();
+              }
+            }}
+            className="w-full sm:w-auto text-xs text-white/40 hover:text-rose-300 transition-colors py-2 px-1 text-center font-medium inline-flex items-center justify-center gap-1"
           >
-            {saving ? (
-              <>
-                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                Guardando Cambios...
-              </>
-            ) : (
-              <>
-                <span>💾</span> Guardar Configuración
-              </>
-            )}
+            <span>🗑️</span> Descartar borrador
           </button>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <Link
+              to="/profile"
+              className="w-full sm:w-auto px-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs sm:text-sm font-semibold transition-all text-center border border-white/10"
+            >
+              Cancelar
+            </Link>
+
+            <button
+              type="submit"
+              disabled={saving}
+              className={`w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 ${
+                saving ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'
+              }`}
+            >
+              {saving ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  Guardando Cambios...
+                </>
+              ) : (
+                <>
+                  <span>💾</span> Guardar Configuración
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>

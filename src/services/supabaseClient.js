@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { getWeightedReviewScore, calculateReviewBonus } from '../utils/ratingUtils';
+import { calculateUserGamification } from '../utils/badgeSystem';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -357,7 +358,42 @@ export const supabaseService = {
       .select();
 
     if (error) throw new Error(error.message);
-    return data[0];
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  updateReview: async (reviewId, reviewData) => {
+    const updatePayload = {
+      reviewer_name: reviewData.reviewerName,
+      reviewer_email: reviewData.reviewerEmail,
+      track_ratings: reviewData.trackRatings || {},
+      rating_produccion: reviewData.ratingProduccion,
+      rating_composicion: reviewData.ratingComposicion,
+      rating_letras: reviewData.ratingLetras,
+      rating_originalidad: reviewData.ratingOriginalidad,
+      rating_cohesion: reviewData.ratingCohesion,
+      rating_replay: reviewData.ratingReplay,
+      rating_general: reviewData.ratingGeneral,
+      comment: reviewData.comment || '',
+    };
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .update(updatePayload)
+      .eq('id', reviewId)
+      .select();
+
+    if (error) throw new Error(error.message);
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  deleteReview: async (reviewId) => {
+    const { error } = await supabase
+      .from('reviews')
+      .delete()
+      .eq('id', reviewId);
+
+    if (error) throw new Error(error.message);
+    return true;
   },
 
   getUserReviews: async (email, name) => {
@@ -1217,110 +1253,51 @@ export const supabaseService = {
         };
       });
 
-      // Calcular insignias multinivel
-      const maxReviews = Math.max(...leaderboardList.map((u) => u.review_count), 0);
-      const maxAlbumsAdded = Math.max(...leaderboardList.map((u) => u.albums_added_count), 0);
-
+      // Calcular métricas previas y máximos comunitarios para Récords #1
       leaderboardList.forEach((u) => {
-        const badges = [];
         const reviews = u.reviews || [];
-        const reviewCount = u.review_count || 0;
-        const avgScore = u.avg_score || 0;
-        const albumsCount = u.albums_added_count || 0;
-        const tracksCount = u.total_tracks_rated || 0;
+        let commentsCount = 0;
+        let tensCount = 0;
 
-        const hasCommentsCount = reviews.filter(
-          (r) => r.comment && r.comment.trim().length > 0
-        ).length;
-        const hasTen = reviews.some(
-          (r) =>
-            Number(r.rating_general) === 10 ||
-            (r.track_ratings &&
-              Object.values(r.track_ratings).some((v) => Number(v) === 10))
-        );
+        reviews.forEach((r) => {
+          if (r.comment && typeof r.comment === 'string' && r.comment.trim().length > 0) {
+            commentsCount += 1;
+          }
+          const gen10 = Number(r.rating_general) === 10;
+          const track10 =
+            r.track_ratings &&
+            typeof r.track_ratings === 'object' &&
+            Object.values(r.track_ratings).some((v) => Number(v) === 10);
+          if (gen10 || track10) {
+            tensCount += 1;
+          }
+        });
 
-        // 1. 👑 MÁSTER REVIEWER (Dorado / Amarillo) - Líder de Reseñas
-        if (reviewCount > 0 && reviewCount === maxReviews) {
-          badges.push({
-            id: 'top_reviewer',
-            label: '👑 Máster Reviewer',
-            color: 'from-amber-400 via-yellow-400 to-amber-500',
-            textColor: 'text-amber-950',
-            desc: 'Líder del club con el mayor número de reseñas publicadas',
-          });
-        }
+        u.comments_count = commentsCount;
+        u.tens_count = tensCount;
+      });
 
-        // 2. 🌟 GRAN CURADOR (Púrpura / Violeta) - Líder de Álbumes Aportados
-        if (albumsCount > 0 && albumsCount === maxAlbumsAdded) {
-          badges.push({
-            id: 'top_curator',
-            label: '🌟 Gran Curador',
-            color: 'from-purple-500 via-fuchsia-500 to-violet-600',
-            textColor: 'text-white',
-            desc: 'Mayor aportador de álbumes compartidos en la colección',
-          });
-        }
+      const communityMaxes = {
+        review_count: Math.max(...leaderboardList.map((u) => u.review_count), 0),
+        albums_added_count: Math.max(...leaderboardList.map((u) => u.albums_added_count), 0),
+        total_tracks_rated: Math.max(...leaderboardList.map((u) => u.total_tracks_rated), 0),
+        comments_count: Math.max(...leaderboardList.map((u) => u.comments_count), 0),
+        tens_count: Math.max(...leaderboardList.map((u) => u.tens_count), 0),
+      };
 
-        // 3. ⚡ PISTAS AL DETALLE (Cian / Turquesa Eléctrico) - Calificador de Tracks
-        if (tracksCount >= 25) {
-          badges.push({
-            id: 'track_master',
-            label: '⚡ Pistas al Detalle',
-            color: 'from-cyan-400 via-teal-400 to-cyan-500',
-            textColor: 'text-cyan-950',
-            desc: 'Se toma el tiempo de calificar minuciosamente canción por canción (≥ 25 tracks)',
-          });
-        }
-
-        // 4. 🎯 CRÍTICO EXIGENTE (Rojo / Carmesí) - Rigor de Calificación
-        if (reviewCount >= 2 && avgScore > 0 && avgScore <= 7.2) {
-          badges.push({
-            id: 'tough_critic',
-            label: '🎯 Crítico Exigente',
-            color: 'from-rose-500 via-red-500 to-rose-600',
-            textColor: 'text-white',
-            desc: 'Estándares rigurosos y análisis estricto (Promedio ≤ 7.2 ⭐)',
-          });
-        }
-
-        // 5. 💖 CRÍTICO GENEROSO (Verde / Esmeralda) - Gran Aprecio
-        if (reviewCount >= 2 && avgScore >= 8.6) {
-          badges.push({
-            id: 'generous',
-            label: '💖 Crítico Generoso',
-            color: 'from-emerald-400 via-green-400 to-teal-500',
-            textColor: 'text-emerald-950',
-            desc: 'Gran aprecio por la música y valoraciones entusiastas (Promedio ≥ 8.6 ⭐)',
-          });
-        }
-
-        // 6. ✍️ PLUMA CRÍTICA (Azul / Índigo Real) - Redacción de Comentarios
-        if (hasCommentsCount >= 2) {
-          badges.push({
-            id: 'writer',
-            label: '✍️ Pluma Crítica',
-            color: 'from-blue-500 via-indigo-500 to-blue-600',
-            textColor: 'text-white',
-            desc: 'Escribe reseñas detalladas con opiniones y análisis en texto',
-          });
-        }
-
-        // 7. 💯 CAZADOR DEL 10 (Rosa / Fucsia) - Calificación Perfecta
-        if (hasTen) {
-          badges.push({
-            id: 'perfectionist',
-            label: '💯 Cazador del 10',
-            color: 'from-pink-500 via-rose-400 to-pink-600',
-            textColor: 'text-white',
-            desc: 'Ha encontrado y otorgado al menos un 10 perfecto a un álbum o canción',
-          });
-        }
-
-        u.badges = badges;
+      // Aplicar sistema de insignias multinivel y cálculo de XP
+      leaderboardList.forEach((u) => {
+        const gamification = calculateUserGamification(u, communityMaxes);
+        u.total_xp = gamification.totalXp;
+        u.activity_xp = gamification.activityXp;
+        u.badges_xp = gamification.badgesXp;
+        u.record_xp = gamification.recordXp;
+        u.badges = gamification.badges;
+        u.badges_progress = gamification.allBadgesProgress;
       });
 
       return leaderboardList.sort(
-        (a, b) => b.review_count - a.review_count || b.avg_score - a.avg_score
+        (a, b) => (b.total_xp || 0) - (a.total_xp || 0) || b.review_count - a.review_count
       );
     } catch (err) {
       console.error('Error in getDetailedLeaderboard:', err);
