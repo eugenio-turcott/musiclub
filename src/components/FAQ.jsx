@@ -1,6 +1,6 @@
-// src/components/FAQ.jsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
@@ -229,15 +229,10 @@ export function FAQ({ isPage = false }) {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 md:p-8 w-full max-w-full overflow-x-hidden">
       <div className="max-w-5xl mx-auto w-full">
-        {/* Botón para volver */}
+        {/* Universal Standard App Header */}
         {isPage && (
           <div className="mb-6">
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 shadow-sm"
-            >
-              <span>←</span> Volver a la Máquina Musical
-            </Link>
+            <AppHeader showTitle={false} />
           </div>
         )}
 
@@ -410,7 +405,7 @@ export function FAQ({ isPage = false }) {
           </p>
           <div className="flex justify-center gap-4 text-xs">
             <Link to="/" className="text-[#f5576c] hover:underline font-semibold">
-              🎰 Ir a la Máquina Musical
+              🎧 Ir al Inicio de Musiclub
             </Link>
             <span className="text-white/20">·</span>
             <Link to="/leaderboard" className="text-[#f5576c] hover:underline font-semibold">

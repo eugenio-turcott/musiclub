@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { getTrackDisplayName } from '../utils/ratingUtils';
+
+const ITEMS_PER_PAGE = 15;
 
 const CRITERIA_CONFIG = [
   {
@@ -60,6 +62,7 @@ export function AlbumsCatalog({ isPage = false }) {
   const [sortBy, setSortBy] = useState('rating_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [expandedReviewTracklist, setExpandedReviewTracklist] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
     async function loadAlbums() {
@@ -77,6 +80,11 @@ export function AlbumsCatalog({ isPage = false }) {
     }
     loadAlbums();
   }, []);
+
+  // Reset pagination on filter or sort change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, sortBy]);
 
   const isUserAlbum = (album) => {
     if (!user || !album) return false;
@@ -199,6 +207,14 @@ export function AlbumsCatalog({ isPage = false }) {
     return result;
   }, [albums, statusFilter, searchQuery, sortBy]);
 
+  const totalPages = Math.ceil(filteredAlbums.length / ITEMS_PER_PAGE) || 1;
+  const paginatedAlbums = useMemo(() => {
+    return filteredAlbums.slice(
+      (currentPage - 1) * ITEMS_PER_PAGE,
+      currentPage * ITEMS_PER_PAGE
+    );
+  }, [filteredAlbums, currentPage]);
+
   const toggleTracklistExpansion = (reviewId) => {
     setExpandedReviewTracklist((prev) => ({
       ...prev,
@@ -209,38 +225,8 @@ export function AlbumsCatalog({ isPage = false }) {
   return (
     <div className="min-h-screen bg-[#0d0e15] text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        {/* Navigation Bar */}
-        <div className="flex items-center justify-between flex-wrap gap-3 pb-2 border-b border-white/5">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-full border border-white/10 transition-all font-semibold"
-          >
-            <span>←</span> Volver al Inicio
-          </Link>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              to="/leaderboard"
-              className="text-xs sm:text-sm text-slate-400 hover:text-amber-300 transition-colors font-medium flex items-center gap-1.5"
-            >
-              <span>🏆</span> Leaderboard
-            </Link>
-            <Link
-              to="/reviews"
-              className="text-xs sm:text-sm text-slate-400 hover:text-amber-300 transition-colors font-medium flex items-center gap-1.5"
-            >
-              <span>📝</span> Reviews
-            </Link>
-            {user && (
-              <Link
-                to="/profile"
-                className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1.5"
-              >
-                <span>👤</span> Mi Perfil
-              </Link>
-            )}
-          </div>
-        </div>
+        {/* Universal Standard App Header */}
+        <AppHeader showTitle={false} />
 
         {/* Header Title */}
         <div className="text-center space-y-3">
@@ -413,151 +399,265 @@ export function AlbumsCatalog({ isPage = false }) {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
-            {filteredAlbums.map((album) => {
-              const isMine = isUserAlbum(album);
-              const score = album.final_rating;
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
+              {paginatedAlbums.map((album) => {
+                const isMine = isUserAlbum(album);
+                const score = album.final_rating;
 
-              return (
-                <div
-                  key={album.id}
-                  onClick={() => setSelectedAlbum(album)}
-                  className={`bg-[#141622]/90 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative ${
-                    isMine
-                      ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
-                      : album.status === 'GANADOR'
-                        ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
-                        : 'border-white/5 hover:border-white/20'
-                  }`}
-                >
-                  {/* Artwork Container */}
-                  <div className="relative aspect-square overflow-hidden bg-black/40">
-                    <img
-                      src={
-                        album.image_url ||
-                        'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
-                      }
-                      alt={album.album_name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src =
-                          'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
-                      }}
-                    />
+                return (
+                  <div
+                    key={album.id}
+                    onClick={() => setSelectedAlbum(album)}
+                    className={`bg-[#141622]/90 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative ${
+                      isMine
+                        ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
+                        : album.status === 'GANADOR'
+                          ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
+                          : 'border-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    {/* Artwork Container */}
+                    <div className="relative aspect-square overflow-hidden bg-black/40">
+                      <img
+                        src={
+                          album.image_url ||
+                          'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
+                        }
+                        alt={album.album_name}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.target.src =
+                            'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
+                        }}
+                      />
 
-                    {/* Badge: Added by current user */}
-                    {isMine && (
-                      <div
-                        className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg"
-                        title="Añadido por ti"
-                      >
-                        <span>★</span>
-                        <span>AÑADIDO POR TI</span>
-                      </div>
-                    )}
-
-                    {/* Status Badge */}
-                    <div className="absolute top-2 right-2 z-10">
-                      {album.status === 'GANADOR' ? (
-                        <span className="bg-[#f5576c] text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                          🏆 GANADOR
-                        </span>
-                      ) : album.status === 'INDIVIDUAL' ? (
-                        <span className="bg-blue-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                          📌 Individual
-                        </span>
-                      ) : album.status === 'INACTIVO' ? (
-                        <span className="bg-slate-700/80 backdrop-blur-md text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                          💤 Inactivo
-                        </span>
-                      ) : (
-                        <span className="bg-emerald-600/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                          🎵 Pool
-                        </span>
+                      {/* Badge: Added by current user */}
+                      {isMine && (
+                        <div
+                          className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg"
+                          title="Añadido por ti"
+                        >
+                          <span>★</span>
+                          <span>AÑADIDO POR TI</span>
+                        </div>
                       )}
+
+                      {/* Status Badge */}
+                      <div className="absolute top-2 right-2 z-10">
+                        {album.status === 'GANADOR' ? (
+                          <span className="bg-[#f5576c] text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
+                            🏆 GANADOR
+                          </span>
+                        ) : album.status === 'INDIVIDUAL' ? (
+                          <span className="bg-blue-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                            📌 Individual
+                          </span>
+                        ) : album.status === 'INACTIVO' ? (
+                          <span className="bg-slate-700/80 backdrop-blur-md text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                            💤 Inactivo
+                          </span>
+                        ) : (
+                          <span className="bg-emerald-600/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                            🎵 Pool
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Bottom overlay: Score and review count */}
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
+                        {score !== null ? (
+                          <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg">
+                            <span className="text-amber-400 text-xs sm:text-sm font-black">
+                              {score.toFixed(2)}
+                            </span>
+                            <span className="text-[10px] sm:text-xs">⭐</span>
+                            {album.bonus > 0 && (
+                              <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded">
+                                +{album.bonus.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-[9px] text-slate-400 bg-black/70 px-1.5 py-0.5 rounded">
+                            Sin calificar
+                          </div>
+                        )}
+
+                        <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
+                          📝 {album.review_count}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Bottom overlay: Score and review count */}
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-3 flex items-end justify-between">
-                      {score !== null ? (
-                        <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-md border border-white/10 px-2.5 py-1 rounded-xl">
-                          <span className="text-amber-400 text-sm font-black">
-                            {score.toFixed(2)}
+                    {/* Info Body */}
+                    <div className="p-3 sm:p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1">
+                          {album.album_name}
+                        </h3>
+                        <p className="text-slate-400 text-xs font-medium line-clamp-1">
+                          {album.artist_name}
+                        </p>
+                        <p className="text-slate-500 text-[10px] sm:text-[11px] mt-1 line-clamp-1">
+                          Añadido por:{' '}
+                          <span
+                            className={
+                              isMine
+                                ? 'text-yellow-400 font-bold'
+                                : 'text-slate-300'
+                            }
+                          >
+                            {album.added_by || 'Miembro'}
                           </span>
-                          <span className="text-xs">⭐</span>
-                          {album.bonus > 0 && (
-                            <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1.5 py-0.2 rounded-md">
-                              +{album.bonus.toFixed(2)}
+                        </p>
+                      </div>
+
+                      {/* Best Track Highlight if available */}
+                      {album.best_track && (
+                        <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-xs flex items-center justify-between">
+                          <div className="flex items-center gap-1 min-w-0 pr-1">
+                            <span className="text-amber-400 text-[10px]">
+                              👑
+                            </span>
+                            <span className="text-slate-300 truncate text-[10px] sm:text-[11px]">
+                              {album.best_track.name}
+                            </span>
+                          </div>
+                          <span className="text-amber-300 font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
+                            {album.best_track.avg_rating} ⭐
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Card Footer Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedAlbum(album);
+                        }}
+                        className="w-full py-1.5 sm:py-2 rounded-xl bg-white/5 hover:bg-cyan-500 hover:text-black text-slate-200 text-[11px] sm:text-xs font-bold border border-white/10 transition-all flex items-center justify-center gap-1 shadow-sm"
+                      >
+                        <span>📊</span>
+                        <span>Ver Estadísticas</span>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
+                <div className="text-xs text-slate-400">
+                  Mostrando{' '}
+                  <span className="text-white font-bold">
+                    {(currentPage - 1) * ITEMS_PER_PAGE + 1}
+                  </span>{' '}
+                  a{' '}
+                  <span className="text-white font-bold">
+                    {Math.min(
+                      currentPage * ITEMS_PER_PAGE,
+                      filteredAlbums.length
+                    )}
+                  </span>{' '}
+                  de{' '}
+                  <span className="text-cyan-400 font-bold">
+                    {filteredAlbums.length}
+                  </span>{' '}
+                  álbumes
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                  <button
+                    onClick={() => {
+                      setCurrentPage(1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                    title="Primera Página"
+                  >
+                    «
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setCurrentPage((p) => Math.max(1, p - 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                  >
+                    <span>←</span> Anterior
+                  </button>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      // Show first, last, and window around current
+                      return (
+                        page === 1 ||
+                        page === totalPages ||
+                        Math.abs(page - currentPage) <= 2
+                      );
+                    })
+                    .map((page, idx, arr) => {
+                      const prev = arr[idx - 1];
+                      const showEllipsis = prev && page - prev > 1;
+
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="text-slate-600 px-1 text-xs">
+                              ...
                             </span>
                           )}
-                        </div>
-                      ) : (
-                        <div className="text-[10px] text-slate-400 bg-black/60 px-2 py-1 rounded-xl">
-                          Sin calificaciones
-                        </div>
-                      )}
+                          <button
+                            onClick={() => {
+                              setCurrentPage(page);
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border ${
+                              currentPage === page
+                                ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20'
+                                : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
 
-                      <div className="text-[11px] text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-2 py-1 rounded-xl font-medium">
-                        📝 {album.review_count}{' '}
-                        {album.review_count === 1 ? 'review' : 'reviews'}
-                      </div>
-                    </div>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setCurrentPage((p) => Math.min(totalPages, p + 1));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                  >
+                    Siguiente <span>→</span>
+                  </button>
 
-                  {/* Info Body */}
-                  <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
-                    <div>
-                      <h3 className="font-bold text-white text-base group-hover:text-cyan-300 transition-colors line-clamp-1">
-                        {album.album_name}
-                      </h3>
-                      <p className="text-slate-400 text-xs font-medium line-clamp-1">
-                        {album.artist_name}
-                      </p>
-                      <p className="text-slate-500 text-[11px] mt-1 line-clamp-1">
-                        Añadido por:{' '}
-                        <span
-                          className={
-                            isMine
-                              ? 'text-yellow-400 font-bold'
-                              : 'text-slate-300'
-                          }
-                        >
-                          {album.added_by || 'Miembro'}
-                        </span>
-                      </p>
-                    </div>
-
-                    {/* Best Track Highlight if available */}
-                    {album.best_track && (
-                      <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-xs flex items-center justify-between">
-                        <div className="flex items-center gap-1 min-w-0 pr-1">
-                          <span className="text-amber-400">👑</span>
-                          <span className="text-slate-300 truncate text-[11px]">
-                            {album.best_track.name}
-                          </span>
-                        </div>
-                        <span className="text-amber-300 font-bold text-[11px] whitespace-nowrap">
-                          {album.best_track.avg_rating} ⭐
-                        </span>
-                      </div>
-                    )}
-
-                    {/* Card Footer Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedAlbum(album);
-                      }}
-                      className="w-full py-2 rounded-xl bg-white/5 hover:bg-cyan-500 hover:text-black text-slate-200 text-xs font-bold border border-white/10 transition-all flex items-center justify-center gap-1.5 shadow-sm"
-                    >
-                      <span>📊</span>
-                      <span>Ver Estadísticas y Reviews</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setCurrentPage(totalPages);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    disabled={currentPage === totalPages}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                    title="Última Página"
+                  >
+                    »
+                  </button>
                 </div>
-              );
-            })}
-          </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -594,6 +694,8 @@ export function AlbumsCatalog({ isPage = false }) {
                     'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
                   }
                   alt={selectedAlbum.album_name}
+                  loading="lazy"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>

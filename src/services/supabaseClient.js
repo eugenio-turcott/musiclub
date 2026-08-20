@@ -352,6 +352,7 @@ export const supabaseService = {
           rating_cohesion: reviewData.ratingCohesion,
           rating_replay: reviewData.ratingReplay,
           rating_general: reviewData.ratingGeneral,
+          feeling: reviewData.feeling || null,
           comment: reviewData.comment || '',
         },
       ])
@@ -373,6 +374,7 @@ export const supabaseService = {
       rating_cohesion: reviewData.ratingCohesion,
       rating_replay: reviewData.ratingReplay,
       rating_general: reviewData.ratingGeneral,
+      feeling: reviewData.feeling || null,
       comment: reviewData.comment || '',
     };
 
@@ -1509,4 +1511,160 @@ export const supabaseService = {
       return [];
     }
   },
+
+  // ==========================================================
+  // PLAYLISTS DE LA COMUNIDAD Y VOTACIÓN SÍ/NO (APPROVAL %)
+  // ==========================================================
+  getPlaylists: async (currentUserEmail = null) => {
+    try {
+      const normalizedEmail = currentUserEmail ? currentUserEmail.toLowerCase().trim() : null;
+
+      const [playlistsRes, reviewsRes] = await Promise.all([
+        supabase
+          .from('playlists')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('playlist_reviews')
+          .select('*')
+          .order('created_at', { ascending: false }),
+      ]);
+
+      if (playlistsRes.error) {
+        console.warn('Playlists table not yet migrated or empty:', playlistsRes.error.message);
+        return [];
+      }
+
+      const playlists = playlistsRes.data || [];
+      const reviews = reviewsRes.data || [];
+
+      // Mapear reviews por playlist_id
+      const reviewsByPlaylist = {};
+      reviews.forEach((rev) => {
+        if (!reviewsByPlaylist[rev.playlist_id]) {
+          reviewsByPlaylist[rev.playlist_id] = [];
+        }
+        reviewsByPlaylist[rev.playlist_id].push(rev);
+      });
+
+      return playlists.map((pl) => {
+        const plReviews = reviewsByPlaylist[pl.id] || [];
+        const likes = plReviews.filter((r) => r.liked === true).length;
+        const dislikes = plReviews.filter((r) => r.liked === false).length;
+        const totalVotes = likes + dislikes;
+        const approvalRate = totalVotes > 0 ? Math.round((likes / totalVotes) * 100) : null;
+
+        const userReview = normalizedEmail
+          ? plReviews.find(
+              (r) => r.reviewer_email && r.reviewer_email.toLowerCase().trim() === normalizedEmail
+            )
+          : null;
+
+        return {
+          ...pl,
+          reviews: plReviews,
+          likes_count: likes,
+          dislikes_count: dislikes,
+          total_votes: totalVotes,
+          approval_rate: approvalRate,
+          user_vote: userReview ? userReview.liked : null,
+          user_comment: userReview ? userReview.comment : null,
+          user_review_id: userReview ? userReview.id : null,
+        };
+      });
+    } catch (err) {
+      console.error('Error in getPlaylists:', err);
+      return [];
+    }
+  },
+
+  createPlaylist: async (playlistData) => {
+    const payload = {
+      title: playlistData.title.trim(),
+      curator_name: playlistData.curatorName ? playlistData.curatorName.trim() : null,
+      description: playlistData.description ? playlistData.description.trim() : null,
+      image_url: playlistData.imageUrl || null,
+      spotify_link: playlistData.spotifyLink || null,
+      apple_music_link: playlistData.appleMusicLink || null,
+      youtube_music_link: playlistData.youtubeMusicLink || null,
+      other_link: playlistData.otherLink || null,
+      genre_or_mood: playlistData.genreOrMood || 'General',
+      added_by: playlistData.addedBy,
+      added_by_email: playlistData.addedByEmail,
+      user_id: playlistData.userId || null,
+    };
+
+    const { data, error } = await supabase
+      .from('playlists')
+      .insert([payload])
+      .select();
+
+    if (error) throw new Error(error.message);
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  deletePlaylist: async (playlistId) => {
+    const { error } = await supabase
+      .from('playlists')
+      .delete()
+      .eq('id', playlistId);
+
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  votePlaylist: async ({ playlistId, reviewerName, reviewerEmail, liked, comment = '', userId = null }) => {
+    if (!playlistId || !reviewerEmail) {
+      throw new Error('Faltan datos obligatorios para registrar la votación.');
+    }
+
+    const normalizedEmail = reviewerEmail.toLowerCase().trim();
+
+    // 1. Comprobar si ya existe voto para este usuario
+    const { data: existingVotes, error: searchError } = await supabase
+      .from('playlist_reviews')
+      .select('id')
+      .eq('playlist_id', playlistId)
+      .eq('reviewer_email', normalizedEmail);
+
+    if (searchError) {
+      console.warn('Error checking existing vote:', searchError.message);
+    }
+
+    if (existingVotes && existingVotes.length > 0) {
+      // Actualizar voto existente
+      const voteId = existingVotes[0].id;
+      const { data, error } = await supabase
+        .from('playlist_reviews')
+        .update({
+          liked: Boolean(liked),
+          comment: comment ? comment.trim() : null,
+          reviewer_name: reviewerName.trim(),
+        })
+        .eq('id', voteId)
+        .select();
+
+      if (error) throw new Error(error.message);
+      return data && data.length > 0 ? data[0] : null;
+    } else {
+      // Insertar nuevo voto
+      const payload = {
+        playlist_id: playlistId,
+        reviewer_name: reviewerName.trim(),
+        reviewer_email: normalizedEmail,
+        liked: Boolean(liked),
+        comment: comment ? comment.trim() : null,
+        user_id: userId || null,
+      };
+
+      const { data, error } = await supabase
+        .from('playlist_reviews')
+        .insert([payload])
+        .select();
+
+      if (error) throw new Error(error.message);
+      return data && data.length > 0 ? data[0] : null;
+    }
+  },
 };
+

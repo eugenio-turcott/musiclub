@@ -1,5 +1,6 @@
-// src/components/AdminPanel.jsx
 import React, { useState, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
+import { AppHeader } from './AppHeader';
 import { supabase } from '../services/supabaseClient';
 
 export function AdminPanel({ onClose, isPage = false }) {
@@ -179,7 +180,10 @@ export function AdminPanel({ onClose, isPage = false }) {
           : 'fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] overflow-y-auto p-4 sm:p-6 md:p-8'
       }
     >
-      <div className="max-w-6xl mx-auto my-2 sm:my-4">
+      <div className="max-w-6xl mx-auto my-2 sm:my-4 space-y-4">
+        {/* Universal Standard App Header */}
+        {isPage && <AppHeader showTitle={false} />}
+
         {/* Luces decorativas de fondo */}
         <div className="relative bg-gradient-to-br from-[#0c1322] via-[#0f1b33] to-[#070d1a] border border-blue-500/30 rounded-3xl p-5 sm:p-8 backdrop-blur-2xl shadow-[0_0_50px_rgba(59,130,246,0.15)] overflow-hidden">
           <div className="absolute -top-32 -right-32 w-80 h-80 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -202,14 +206,7 @@ export function AdminPanel({ onClose, isPage = false }) {
               </p>
             </div>
 
-            {isPage ? (
-              <a
-                href="/"
-                className="text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl text-xs font-semibold transition-all border border-white/10 flex items-center gap-2"
-              >
-                ← Volver al Club
-              </a>
-            ) : (
+            {!isPage && onClose && (
               <button
                 onClick={onClose}
                 className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-9 h-9 rounded-full flex items-center justify-center transition-all border border-white/10 text-lg"
@@ -416,87 +413,134 @@ export function AdminPanel({ onClose, isPage = false }) {
             </div>
           )}
 
-          {/* Modal de confirmación para cambiar estado */}
-          {showStatusConfirm && selectedAlbum && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[99999] p-4">
-              <div className="bg-[#0e172a] border border-blue-500/30 rounded-3xl p-6 max-w-md w-full shadow-2xl">
-                <h3 className="text-white text-lg font-bold mb-2 flex items-center gap-2">
-                  <span>⚙️</span> Confirmar cambio de estado
-                </h3>
-                <p className="text-white/70 text-sm mb-5 leading-relaxed">
-                  ¿Estás seguro de cambiar el estado de "
-                  <span className="text-white font-bold">
-                    {selectedAlbum.album_name}
-                  </span>
-                  " a{' '}
-                  <span className="text-cyan-300 font-bold bg-cyan-500/20 px-2 py-0.5 rounded-md">
-                    {statusAction}
-                  </span>
-                  ?
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() =>
-                      handleStatusChange(selectedAlbum.id, statusAction)
-                    }
-                    className="flex-1 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-xs font-bold hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
-                  >
-                    Sí, cambiar
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowStatusConfirm(false);
-                      setSelectedAlbum(null);
-                      setStatusAction(null);
-                    }}
-                    className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white/60 rounded-xl text-xs font-semibold hover:bg-white/10 transition-all"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Modal de confirmación para cambiar estado VÍA CREATEPORTAL */}
+          {showStatusConfirm &&
+            selectedAlbum &&
+            createPortal(
+              <div
+                className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[99999] p-4 overflow-y-auto"
+                onClick={() => {
+                  setShowStatusConfirm(false);
+                  setSelectedAlbum(null);
+                  setStatusAction(null);
+                }}
+              >
+                <div
+                  className="bg-[#0e172a] border border-blue-500/30 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl my-auto animate-scaleUp"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-xl flex-shrink-0">
+                      ⚙️
+                    </div>
+                    <div>
+                      <h3 className="text-white text-lg font-bold leading-tight">
+                        Confirmar cambio de estado
+                      </h3>
+                      <p className="text-white/40 text-xs">Gestión de catálogo</p>
+                    </div>
+                  </div>
 
-          {/* Modal de confirmación para eliminar */}
-          {showDeleteConfirm && selectedAlbum && (
-            <div className="fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center z-[99999] p-4">
-              <div className="bg-[#0e172a] border border-rose-500/30 rounded-3xl p-6 max-w-md w-full shadow-2xl">
-                <h3 className="text-white text-lg font-bold mb-2 flex items-center gap-2">
-                  <span className="text-rose-400">⚠️</span>
-                  Eliminar álbum del sistema
-                </h3>
-                <p className="text-white/70 text-sm mb-5 leading-relaxed">
-                  ¿Estás seguro de eliminar "
-                  <span className="text-white font-bold">
-                    {selectedAlbum.album_name}
-                  </span>
-                  " de {selectedAlbum.artist_name}?
-                  <br />
-                  <span className="text-rose-400/80 text-xs font-mono mt-1 block">
-                    Esta acción no se puede deshacer.
-                  </span>
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => handleDeleteAlbum(selectedAlbum.id)}
-                    className="flex-1 px-4 py-2.5 bg-rose-500/20 border border-rose-500/40 text-rose-300 rounded-xl text-xs font-bold hover:bg-rose-500/30 transition-all"
-                  >
-                    🗑️ Eliminar
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowDeleteConfirm(false);
-                      setSelectedAlbum(null);
-                    }}
-                    className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 text-white/60 rounded-xl text-xs font-semibold hover:bg-white/10 transition-all"
-                  >
-                    Cancelar
-                  </button>
+                  <p className="text-white/80 text-sm mb-5 leading-relaxed">
+                    ¿Estás seguro de cambiar el estado de{' '}
+                    <span className="text-white font-bold">
+                      "{selectedAlbum.album_name}"
+                    </span>{' '}
+                    a{' '}
+                    <span className="text-cyan-300 font-bold bg-cyan-500/20 border border-cyan-500/30 px-2 py-0.5 rounded-md inline-block">
+                      {statusAction}
+                    </span>
+                    ?
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-2.5">
+                    <button
+                      onClick={() =>
+                        handleStatusChange(selectedAlbum.id, statusAction)
+                      }
+                      className="flex-1 py-3 px-4 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-blue-500/20"
+                    >
+                      Sí, cambiar estado
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowStatusConfirm(false);
+                        setSelectedAlbum(null);
+                        setStatusAction(null);
+                      }}
+                      className="py-3 px-4 bg-white/5 border border-white/10 text-white/70 rounded-xl text-xs font-semibold hover:bg-white/10 active:scale-95 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              </div>,
+              document.body
+            )}
+
+          {/* Modal de confirmación para eliminar VÍA CREATEPORTAL */}
+          {showDeleteConfirm &&
+            selectedAlbum &&
+            createPortal(
+              <div
+                className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-[99999] p-4 overflow-y-auto"
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setSelectedAlbum(null);
+                }}
+              >
+                <div
+                  className="bg-[#0e172a] border border-rose-500/30 rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl my-auto animate-scaleUp"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-xl flex-shrink-0">
+                      ⚠️
+                    </div>
+                    <div>
+                      <h3 className="text-white text-lg font-bold leading-tight">
+                        Eliminar del sistema
+                      </h3>
+                      <p className="text-rose-400/70 text-xs">Acción permanente</p>
+                    </div>
+                  </div>
+
+                  <p className="text-white/80 text-sm mb-5 leading-relaxed">
+                    ¿Estás seguro de eliminar el álbum{' '}
+                    <span className="text-white font-bold">
+                      "{selectedAlbum.album_name}"
+                    </span>{' '}
+                    de{' '}
+                    <span className="text-white font-semibold">
+                      {selectedAlbum.artist_name}
+                    </span>
+                    ?
+                    <span className="text-rose-400/90 text-xs font-medium mt-2 block bg-rose-500/10 border border-rose-500/20 p-2 rounded-xl">
+                      ⚠️ Esta acción no se puede deshacer y borrará el registro de la base de datos.
+                    </span>
+                  </p>
+
+                  <div className="flex flex-col sm:flex-row gap-2.5">
+                    <button
+                      onClick={() => handleDeleteAlbum(selectedAlbum.id)}
+                      className="flex-1 py-3 px-4 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-xl text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-lg shadow-rose-500/25"
+                    >
+                      🗑️ Eliminar Definitivamente
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowDeleteConfirm(false);
+                        setSelectedAlbum(null);
+                      }}
+                      className="py-3 px-4 bg-white/5 border border-white/10 text-white/70 rounded-xl text-xs font-semibold hover:bg-white/10 active:scale-95 transition-all"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </div>,
+              document.body
+            )}
         </div>
       </div>
     </div>

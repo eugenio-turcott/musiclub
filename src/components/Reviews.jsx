@@ -1,16 +1,14 @@
-// src/components/Reviews.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 import { supabase } from '../services/supabaseClient';
-import { useAuth } from '../hooks/useAuth';
 import {
   getWeightedReviewScore,
   getAlbumWeightedAverage,
   getTrackDisplayName,
+  getEmotionFromReview,
 } from '../utils/ratingUtils';
 
 export function Reviews({ onClose, isPage = false }) {
-  const { user } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -161,55 +159,18 @@ export function Reviews({ onClose, isPage = false }) {
       }
     >
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
-        {/* Navigation Bar */}
-        <div className="flex items-center justify-between flex-wrap gap-2.5 pb-2 border-b border-white/5">
-          {isPage ? (
-            <Link
-              to="/"
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-semibold active:scale-95"
-            >
-              <span>←</span> <span className="hidden xs:inline">Volver al</span> Inicio
-            </Link>
-          ) : (
+        {/* Universal Standard App Header */}
+        <div className="relative">
+          <AppHeader showTitle={false} />
+          {!isPage && onClose && (
             <button
               onClick={onClose}
-              className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-semibold active:scale-95"
+              className="absolute top-3 right-3 text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all border border-white/10 text-sm z-10"
+              title="Cerrar"
             >
-              <span>←</span> <span className="hidden xs:inline">Volver al</span> Inicio
+              ✕
             </button>
           )}
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              to="/albumes"
-              className="text-xs sm:text-sm text-slate-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-            >
-              <span>💿</span> Álbumes
-            </Link>
-            <Link
-              to="/leaderboard"
-              className="text-xs sm:text-sm text-slate-400 hover:text-amber-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-            >
-              <span>🏆</span> Leaderboard
-            </Link>
-            {user && (
-              <Link
-                to="/profile"
-                className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-              >
-                <span>👤</span> Perfil
-              </Link>
-            )}
-            {!isPage && onClose && (
-              <button
-                onClick={onClose}
-                className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all border border-white/10 text-sm ml-1"
-                title="Cerrar"
-              >
-                ✕
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Header Title */}
@@ -444,7 +405,7 @@ export function Reviews({ onClose, isPage = false }) {
                         </div>
                       </div>
 
-                      {/* Reviewer e información de fecha */}
+                      {/* Reviewer e información de fecha y sentimiento */}
                       <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
                         <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white flex items-center justify-center font-bold text-[10px] shadow-sm">
                           {(review.reviewer_name || 'A')[0].toUpperCase()}
@@ -465,6 +426,18 @@ export function Reviews({ onClose, isPage = false }) {
                               )
                             : ''}
                         </span>
+                        {(() => {
+                          const emo = getEmotionFromReview(review);
+                          return emo ? (
+                            <span
+                              className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
+                              title={emo.description}
+                            >
+                              <span>{emo.emoji}</span>
+                              <span>{emo.label}</span>
+                            </span>
+                          ) : null;
+                        })()}
                       </div>
 
                       {/* Comentario destacado */}

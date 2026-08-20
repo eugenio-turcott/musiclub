@@ -1,6 +1,6 @@
-// src/components/UserSettings.jsx
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 import { useAuth } from '../hooks/useAuth';
 
 const AVAILABLE_GENRES = [
@@ -221,21 +221,8 @@ export function UserSettings() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8 pb-16 animate-fadeIn">
-      {/* NAVEGACIÓN */}
-      <div className="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
-        <Link
-          to="/profile"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white/60 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all"
-        >
-          <span>←</span> Volver a Mi Perfil
-        </Link>
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-white/60 hover:text-white bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all"
-        >
-          <span>🏠</span> Inicio
-        </Link>
-      </div>
+      {/* Universal Standard App Header */}
+      <AppHeader showTitle={false} />
 
       {/* HEADER DE LA SECCIÓN */}
       <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#121428] to-[#0a0d18] border border-white/10 shadow-2xl overflow-hidden">

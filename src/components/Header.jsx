@@ -11,11 +11,11 @@ export function Header() {
             '0 0 7px rgba(245,87,108,0.3), 0 0 10px rgba(245,87,108,0.2), 0 0 21px rgba(245,87,108,0.15), 0 0 42px rgba(245,87,108,0.1)',
         }}
       >
-        MÁQUINA MUSICAL
+        MUSICLUB
       </h1>
 
       <p className="text-white/60 tracking-[0.15em] sm:tracking-[0.2em] text-xs sm:text-sm md:text-base mt-1 sm:mt-2">
-        Sistema de selección de álbumes - AZAR
+        Propón, sortea, califica y descubre álbumes en comunidad
       </p>
     </div>
   );

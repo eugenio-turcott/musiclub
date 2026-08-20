@@ -1,6 +1,5 @@
-// src/components/Leaderboard.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
@@ -246,39 +245,8 @@ export function Leaderboard({ isPage = false }) {
   return (
     <div className="min-h-screen bg-[#0d0e15] text-white py-5 sm:py-8 px-3 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
-        {/* Navigation Bar */}
-        <div className="flex items-center justify-between flex-wrap gap-2.5 pb-2 border-b border-white/5">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-semibold active:scale-95"
-          >
-            <span>←</span> <span className="hidden xs:inline">Volver al</span>{' '}
-            Inicio
-          </Link>
-
-          <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              to="/albumes"
-              className="text-xs sm:text-sm text-slate-400 hover:text-cyan-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-            >
-              <span>💿</span> Álbumes
-            </Link>
-            <Link
-              to="/reviews"
-              className="text-xs sm:text-sm text-slate-400 hover:text-amber-300 transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-            >
-              <span>📝</span> Reviews
-            </Link>
-            {user && (
-              <Link
-                to="/profile"
-                className="text-xs sm:text-sm text-slate-400 hover:text-white transition-colors font-medium flex items-center gap-1 bg-white/5 sm:bg-transparent px-2.5 py-1 rounded-lg sm:p-0"
-              >
-                <span>👤</span> Perfil
-              </Link>
-            )}
-          </div>
-        </div>
+        {/* Universal Standard App Header */}
+        <AppHeader showTitle={false} />
 
         {/* Header Title */}
         <div className="text-center space-y-2.5 sm:space-y-3">

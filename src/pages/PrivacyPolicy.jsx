@@ -13,7 +13,7 @@ export function PrivacyPolicy() {
             to="/"
             className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 shadow-sm"
           >
-            <span>←</span> Volver a la Máquina Musical
+            <span>←</span> Volver a Musiclub
           </Link>
         </div>
 

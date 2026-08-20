@@ -135,10 +135,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     <div className="mt-8 pt-6 border-t border-white/5">
       <h3 className="text-white/60 text-xs tracking-[0.2em] uppercase mb-4 flex items-center gap-2">
         <span className="text-[#f5576c]">🔍</span>
-        Buscar Álbum en Spotify
-        <span className="text-white/20 text-[10px] font-normal">
-          (Álbumes individuales - no participan en la máquina)
-        </span>
+        Buscar y Proponer Álbum
       </h3>
 
       <form

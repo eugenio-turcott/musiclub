@@ -1,6 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
-import { getWeightedReviewScore, getAlbumWeightedAverage, getTrackDisplayName } from '../utils/ratingUtils';
+import {
+  getWeightedReviewScore,
+  getAlbumWeightedAverage,
+  getTrackDisplayName,
+  EMOTIONS,
+  getEmotionForScore,
+  getEmotionFromReview,
+} from '../utils/ratingUtils';
 
 const CRITERIOS = [
   { id: 'produccion', label: '🎛️ Producción', desc: 'Evalúa la calidad de producción, mezcla y diseño de sonido.', max: 5 },
@@ -38,6 +45,7 @@ export function ReviewSystem({
     general: 5,
   });
   const [trackRatings, setTrackRatings] = useState({});
+  const [selectedFeeling, setSelectedFeeling] = useState(null);
   const [comment, setComment] = useState('');
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
@@ -85,6 +93,7 @@ export function ReviewSystem({
         const parsed = JSON.parse(saved);
         if (parsed.ratings) setRatings(parsed.ratings);
         if (parsed.trackRatings) setTrackRatings(parsed.trackRatings);
+        if (parsed.selectedFeeling) setSelectedFeeling(parsed.selectedFeeling);
         if (parsed.comment !== undefined) setComment(parsed.comment);
         if (parsed.wizardStep) setWizardStep(parsed.wizardStep);
         if (typeof parsed.currentTrackIndex === 'number')
@@ -201,6 +210,7 @@ export function ReviewSystem({
         const draft = {
           ratings,
           trackRatings,
+          selectedFeeling,
           comment,
           wizardStep,
           currentTrackIndex,
@@ -218,6 +228,7 @@ export function ReviewSystem({
     draftKey,
     ratings,
     trackRatings,
+    selectedFeeling,
     comment,
     wizardStep,
     currentTrackIndex,
@@ -302,6 +313,8 @@ export function ReviewSystem({
     });
 
     setTrackRatings(normalized);
+    const emotionFromReview = getEmotionFromReview(existingUserReview);
+    setSelectedFeeling(existingUserReview.feeling || emotionFromReview?.text || null);
     setComment(existingUserReview.comment || '');
     setCurrentTrackIndex(0);
     setCurrentCriterionIndex(0);
@@ -373,6 +386,20 @@ export function ReviewSystem({
       Object.assign(finalTrackRatings, trackRatings);
     }
 
+    // Calcular sentimiento predeterminado si el usuario no eligió uno explícito
+    const currentScore = getWeightedReviewScore({
+      track_ratings: finalTrackRatings,
+      rating_produccion: ratings.produccion,
+      rating_composicion: ratings.composicion,
+      rating_letras: ratings.letras,
+      rating_originalidad: ratings.originalidad,
+      rating_cohesion: ratings.cohesion,
+      rating_replay: ratings.replay,
+      rating_general: ratings.general,
+    });
+    const defaultEmotion = getEmotionForScore(currentScore);
+    const finalFeeling = selectedFeeling || defaultEmotion?.text || 'Relajado / Conectado';
+
     const reviewData = {
       albumId: album.id,
       reviewerName: userName.trim(),
@@ -385,6 +412,7 @@ export function ReviewSystem({
       ratingCohesion: ratings.cohesion,
       ratingReplay: ratings.replay,
       ratingGeneral: ratings.general,
+      feeling: finalFeeling,
       comment: comment.trim(),
     };
 
@@ -526,14 +554,28 @@ export function ReviewSystem({
                     <div className="text-white font-bold text-sm">
                       {existingUserReview.reviewer_name || 'Tu Usuario'}
                     </div>
-                    <div className="text-white/40 text-xs">
-                      {existingUserReview.created_at
-                        ? new Date(existingUserReview.created_at).toLocaleDateString('es-ES', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric',
-                          })
-                        : 'Evaluado'}
+                    <div className="flex items-center gap-2 flex-wrap mt-0.5">
+                      <span className="text-white/40 text-xs">
+                        {existingUserReview.created_at
+                          ? new Date(existingUserReview.created_at).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'long',
+                              year: 'numeric',
+                            })
+                          : 'Evaluado'}
+                      </span>
+                      {(() => {
+                        const emotionObj = getEmotionFromReview(existingUserReview);
+                        return emotionObj ? (
+                          <span
+                            className={`text-[11px] px-2.5 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emotionObj.badgeClass}`}
+                            title={emotionObj.description}
+                          >
+                            <span>{emotionObj.emoji}</span>
+                            <span>{emotionObj.label}</span>
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -1375,6 +1417,83 @@ export function ReviewSystem({
                   </div>
                 </div>
 
+                {/* Pregunta: ¿Cómo te hizo sentir el álbum? (7 Emojis) */}
+                <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                    <div>
+                      <h6 className="text-white text-xs sm:text-sm font-bold flex items-center gap-2">
+                        <span>🎭</span> ¿Cómo te hizo sentir el álbum?
+                      </h6>
+                      <p className="text-white/40 text-[11px] mt-0.5">
+                        Selecciona el sentimiento o vibra principal que te provocó al escucharlo.
+                      </p>
+                    </div>
+                    {(() => {
+                      const currentScore = getWeightedReviewScore({
+                        track_ratings: trackRatings,
+                        rating_produccion: ratings.produccion,
+                        rating_composicion: ratings.composicion,
+                        rating_letras: ratings.letras,
+                        rating_originalidad: ratings.originalidad,
+                        rating_cohesion: ratings.cohesion,
+                        rating_replay: ratings.replay,
+                        rating_general: ratings.general,
+                      });
+                      const suggested = getEmotionForScore(currentScore);
+                      return (
+                        <span className="text-[10px] text-pink-300/90 bg-pink-500/10 px-2.5 py-1 rounded-lg border border-pink-500/20 self-start sm:self-auto font-mono flex items-center gap-1">
+                          <span>💡 Sugerido:</span> {suggested.emoji} {suggested.label}
+                        </span>
+                      );
+                    })()}
+                  </div>
+
+                  {/* Grid de los 7 Emojis */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
+                    {EMOTIONS.map((emo) => {
+                      const currentScore = getWeightedReviewScore({
+                        track_ratings: trackRatings,
+                        rating_produccion: ratings.produccion,
+                        rating_composicion: ratings.composicion,
+                        rating_letras: ratings.letras,
+                        rating_originalidad: ratings.originalidad,
+                        rating_cohesion: ratings.cohesion,
+                        rating_replay: ratings.replay,
+                        rating_general: ratings.general,
+                      });
+                      const suggested = getEmotionForScore(currentScore);
+                      const isSelected = selectedFeeling
+                        ? selectedFeeling.toLowerCase() === emo.text.toLowerCase() ||
+                          selectedFeeling.toLowerCase() === emo.label.toLowerCase()
+                        : suggested.id === emo.id;
+
+                      return (
+                        <button
+                          key={emo.id}
+                          type="button"
+                          onClick={() => setSelectedFeeling(emo.text)}
+                          className={`p-2.5 rounded-xl border flex flex-col items-center justify-center text-center transition-all duration-200 group relative ${
+                            isSelected
+                              ? `${emo.badgeClass} ring-2 ring-white/50 scale-[1.04] shadow-lg`
+                              : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20 text-white/70'
+                          }`}
+                          title={emo.description}
+                        >
+                          <span className="text-2xl sm:text-3xl transition-transform group-hover:scale-110">
+                            {emo.emoji}
+                          </span>
+                          <span className="text-[11px] font-bold mt-1.5 leading-tight line-clamp-2">
+                            {emo.label}
+                          </span>
+                          <span className="text-[9px] opacity-60 mt-1 line-clamp-2 hidden sm:block">
+                            {emo.description}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 {/* Campo de Comentario Adicional */}
                 <div>
                   <label className="text-white/60 text-xs block mb-1 font-medium">
@@ -1582,6 +1701,18 @@ export function ReviewSystem({
                             )
                           : ''}
                       </span>
+                      {(() => {
+                        const emo = getEmotionFromReview(review);
+                        return emo ? (
+                          <span
+                            className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
+                            title={emo.description}
+                          >
+                            <span>{emo.emoji}</span>
+                            <span>{emo.label}</span>
+                          </span>
+                        ) : null;
+                      })()}
                     </div>
                     <span
                       className={`text-sm font-bold px-2.5 py-0.5 rounded-full border ${

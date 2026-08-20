@@ -44,9 +44,11 @@ export function LoginModal({
       <div className="bg-black/90 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-8 max-w-md w-full">
         <div className="text-center mb-6">
           <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-            🎰 MÁQUINA MUSICAL
+            🎵 MUSICLUB
           </h3>
-          <p className="text-white/40 text-sm">Inicia sesión para participar</p>
+          <p className="text-white/50 text-xs sm:text-sm">
+            Inicia sesión para proponer, calificar y descubrir música
+          </p>
         </div>
 
         {/* Botón de Google */}

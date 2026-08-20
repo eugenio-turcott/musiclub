@@ -24,6 +24,18 @@ export function SlotMachine({
   const machineAlbums = albums.filter((album) => album.status === 'ACTIVO');
   const activePool = machineAlbums.length > 0 ? machineAlbums : albums;
 
+  // Pre-cargar todas las imágenes del pool activo en memoria del navegador para animación ultra rápida y fluida
+  useEffect(() => {
+    if (activePool && activePool.length > 0) {
+      activePool.forEach((alb) => {
+        if (alb?.imagen) {
+          const img = new Image();
+          img.src = alb.imagen;
+        }
+      });
+    }
+  }, [activePool]);
+
   /**
    * Helper para obtener timestamp numérico seguro de un álbum.
    */
@@ -208,17 +220,16 @@ export function SlotMachine({
       Math.floor(Math.random() * activePool.length),
     ]);
 
+    // Animación rápida y continua de imágenes cambiando entre ellas (85ms)
     carruselIntervalRef.current = setInterval(() => {
       if (!isMounted.current) return;
 
-      setReels((prev) => {
-        return [
-          (prev[0] + 1 + Math.floor(Math.random() * 2)) % activePool.length,
-          (prev[1] + 1 + Math.floor(Math.random() * 1)) % activePool.length,
-          (prev[2] + 1) % activePool.length,
-        ];
-      });
-    }, 80);
+      setReels((prev) => [
+        (prev[0] + 1 + Math.floor(Math.random() * 2)) % activePool.length,
+        (prev[1] + 1 + Math.floor(Math.random() * 1)) % activePool.length,
+        (prev[2] + 1) % activePool.length,
+      ]);
+    }, 85);
   }, [activePool.length]);
 
   const stopCarrusel = useCallback(() => {
@@ -442,7 +453,7 @@ export function SlotMachine({
                     <img
                       src={album.imagen}
                       alt={album.album}
-                      className="w-full h-full object-cover rounded-xl transition-all duration-150"
+                      className="w-full h-full object-cover rounded-xl"
                     />
 
                     {isWinnerReel && (

@@ -3,9 +3,38 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 export function useAuth() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('maquina_musical_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(() => {
+    try {
+      return !localStorage.getItem('maquina_musical_user');
+    } catch {
+      return true;
+    }
+  });
+  const [isAdmin, setIsAdmin] = useState(() => {
+    try {
+      const saved = localStorage.getItem('maquina_musical_user');
+      if (saved) {
+        const u = JSON.parse(saved);
+        return (
+          u?.role === 'admin' ||
+          ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'].includes(
+            u?.email?.toLowerCase()
+          )
+        );
+      }
+      return false;
+    } catch {
+      return false;
+    }
+  });
   const [session, setSession] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -149,7 +178,25 @@ export function useAuth() {
         const isAdminUser = userData.role === 'admin' || checkIsAdmin(userData.email);
         userData.role = isAdminUser ? 'admin' : userData.role;
 
-        setUser(userData);
+        setUser((prev) => {
+          if (
+            prev &&
+            prev.id === userData.id &&
+            prev.email === userData.email &&
+            prev.name === userData.name &&
+            prev.avatar_url === userData.avatar_url &&
+            prev.role === userData.role &&
+            prev.bio === userData.bio &&
+            prev.favorite_artist === userData.favorite_artist &&
+            prev.favorite_album === userData.favorite_album &&
+            JSON.stringify(prev.favorite_genres || []) ===
+              JSON.stringify(userData.favorite_genres || [])
+          ) {
+            return prev;
+          }
+          return userData;
+        });
+
         setIsAdmin(isAdminUser);
         localStorage.setItem('maquina_musical_user', JSON.stringify(userData));
 
@@ -167,8 +214,8 @@ export function useAuth() {
 
   // Cargar sesión al iniciar - SIN dependencias problemáticas
   useEffect(() => {
+    let isMounted = true;
     const loadSession = async () => {
-      setLoading(true);
       try {
         const {
           data: { session },
@@ -176,15 +223,15 @@ export function useAuth() {
         } = await supabase.auth.getSession();
         if (error) throw error;
 
-        if (session?.user) {
+        if (session?.user && isMounted) {
           setSession(session);
-          // 👈 Usar el ref en lugar de la función directa
           await handleUserSessionRef.current(session);
         }
       } catch (error) {
         console.error('Error loading session:', error);
+      } finally {
+        if (isMounted) setLoading(false);
       }
-      setLoading(false);
     };
 
     loadSession();
@@ -193,10 +240,9 @@ export function useAuth() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
         setIsRedirecting(false);
         setSession(session);
-        // 👈 Usar el ref en lugar de la función directa
         await handleUserSessionRef.current(session);
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
@@ -207,6 +253,7 @@ export function useAuth() {
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, []); // 👈 Array vacío - sin dependencias

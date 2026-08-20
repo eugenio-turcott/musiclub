@@ -1,11 +1,13 @@
-// src/components/UserProfile.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AppHeader } from './AppHeader';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
-import { getWeightedReviewScore, getTrackDisplayName } from '../utils/ratingUtils';
+import { getWeightedReviewScore, getTrackDisplayName, getEmotionFromReview } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
+import { Recommendations } from './Recommendations';
+import { supabaseService } from '../services/supabaseClient';
 
 const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
@@ -18,7 +20,7 @@ const CRITERIA_METRICS = [
 ];
 
 export function UserProfile({ isPage = false }) {
-  const { user, isAdmin, logout } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { albums } = useAlbums();
   const { userReviews, loading: reviewsLoading } = useUserReviews(user);
   const navigate = useNavigate();
@@ -27,6 +29,26 @@ export function UserProfile({ isPage = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [expandedReviewId, setExpandedReviewId] = useState(null);
+  const [leaderboardList, setLeaderboardList] = useState([]);
+
+  // Fetch detailed community leaderboard to sync global records & max XP
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchLeaderboardData() {
+      try {
+        const data = await supabaseService.getDetailedLeaderboard();
+        if (isMounted && data) {
+          setLeaderboardList(data);
+        }
+      } catch (err) {
+        console.error('Error fetching leaderboard in UserProfile:', err);
+      }
+    }
+    fetchLeaderboardData();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Map of album by ID for quick lookup
   const albumMap = useMemo(() => {
@@ -137,8 +159,47 @@ export function UserProfile({ isPage = false }) {
     };
   }, [userReviews, albums]);
 
-  // Gamification & Badges
+  // Global community max metrics to determine dynamic #1 record crowns
+  const communityMaxes = useMemo(() => {
+    if (!leaderboardList || leaderboardList.length === 0) return {};
+    return {
+      review_count: Math.max(...leaderboardList.map((u) => u.review_count || 0), 0),
+      albums_added_count: Math.max(...leaderboardList.map((u) => u.albums_added_count || 0), 0),
+      total_tracks_rated: Math.max(...leaderboardList.map((u) => u.total_tracks_rated || 0), 0),
+      comments_count: Math.max(...leaderboardList.map((u) => u.comments_count || 0), 0),
+      tens_count: Math.max(...leaderboardList.map((u) => u.tens_count || 0), 0),
+    };
+  }, [leaderboardList]);
+
+  // Gamification & Badges synchronized with Leaderboard records
   const userGamification = useMemo(() => {
+    // If leaderboard data is already loaded and contains the current user, use official synced score
+    if (user && leaderboardList && leaderboardList.length > 0) {
+      const uEmail = (user.email || '').toLowerCase().trim();
+      const uName = (user.name || '').toLowerCase().trim();
+      const matched = leaderboardList.find((lb) => {
+        const lbEmail = (lb.email || '').toLowerCase().trim();
+        const lbName = (lb.name || '').toLowerCase().trim();
+        return (
+          (uEmail && lbEmail === uEmail) ||
+          (uName && lbName === uName) ||
+          (user.id && lb.id && String(lb.id) === String(user.id))
+        );
+      });
+
+      if (matched) {
+        return {
+          totalXp: matched.total_xp || 0,
+          activityXp: matched.activity_xp || 0,
+          badgesXp: matched.badges_xp || 0,
+          recordXp: matched.record_xp || 0,
+          badges: matched.badges || [],
+          allBadgesProgress: matched.badges_progress || [],
+        };
+      }
+    }
+
+    // Dynamic real-time calculation with communityMaxes
     const userObj = {
       review_count: stats.totalReviews,
       avg_score: stats.averageScore,
@@ -146,8 +207,8 @@ export function UserProfile({ isPage = false }) {
       albums_added_count: userAlbumsAdded.length,
       reviews: userReviews,
     };
-    return calculateUserGamification(userObj);
-  }, [stats, userAlbumsAdded, userReviews]);
+    return calculateUserGamification(userObj, communityMaxes);
+  }, [user, leaderboardList, communityMaxes, stats, userAlbumsAdded, userReviews]);
 
   // List of reviewed albums combined with review data
   const enrichedReviews = useMemo(() => {
@@ -229,36 +290,8 @@ export function UserProfile({ isPage = false }) {
 
   return (
     <div className="w-full max-w-6xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
-      {/* HEADER DE NAVEGACIÓN SUPERIOR */}
-      <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-3 sm:pb-4">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium text-white/70 hover:text-white bg-white/5 hover:bg-white/10 px-2.5 sm:px-3.5 py-1.5 rounded-xl border border-white/10 transition-all active:scale-95"
-        >
-          <span>←</span> <span className="hidden xs:inline">Volver al</span> Inicio
-        </Link>
-        <div className="flex items-center gap-2">
-          <Link
-            to="/leaderboard"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-amber-500/30 transition-all shadow-[0_0_15px_rgba(251,191,36,0.15)] active:scale-95"
-          >
-            <span>🏆</span> Leaderboard
-          </Link>
-          <Link
-            to="/settings"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-cyan-300 hover:text-white bg-cyan-500/10 hover:bg-cyan-500/20 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl border border-cyan-500/30 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] active:scale-95"
-          >
-            <span>⚙️</span> <span className="hidden xs:inline">Configuración</span><span className="xs:hidden">Ajustes</span>
-          </Link>
-          <button
-            onClick={logout}
-            className="text-xs text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-500/20 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-rose-500/20 transition-all active:scale-95"
-            title="Cerrar sesión"
-          >
-            Salir
-          </button>
-        </div>
-      </div>
+      {/* Universal Standard App Header */}
+      <AppHeader showTitle={false} />
 
       {/* TARJETA DE PRESENTACIÓN DEL PERFIL */}
       <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-gradient-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
@@ -441,6 +474,17 @@ export function UserProfile({ isPage = false }) {
       {/* PESTAÑAS DE NAVEGACIÓN TOUCH-FRIENDLY */}
       <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
         <button
+          onClick={() => setActiveTab('recommendations')}
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+            activeTab === 'recommendations'
+              ? 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
+              : 'text-white/80 hover:text-white bg-gradient-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
+          }`}
+        >
+          <span>✨</span> Para Ti (Recomendaciones)
+        </button>
+
+        <button
           onClick={() => setActiveTab('reviews')}
           className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
             activeTab === 'reviews'
@@ -569,15 +613,29 @@ export function UserProfile({ isPage = false }) {
                         <p className="text-white/60 text-xs truncate mt-0.5" title={item.album.artista}>
                           {item.album.artista}
                         </p>
-                        <p className="text-white/30 text-[10px] font-mono mt-1.5 sm:mt-2">
-                          {item.created_at
-                            ? new Date(item.created_at).toLocaleDateString('es-ES', {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              })
-                            : 'Fecha no registrada'}
-                        </p>
+                        <div className="flex items-center gap-2 flex-wrap mt-1.5 sm:mt-2">
+                          <p className="text-white/30 text-[10px] font-mono">
+                            {item.created_at
+                              ? new Date(item.created_at).toLocaleDateString('es-ES', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : 'Fecha no registrada'}
+                          </p>
+                          {(() => {
+                            const emo = getEmotionFromReview(item);
+                            return emo ? (
+                              <span
+                                className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
+                                title={emo.description}
+                              >
+                                <span>{emo.emoji}</span>
+                                <span>{emo.label}</span>
+                              </span>
+                            ) : null;
+                          })()}
+                        </div>
                       </div>
                     </div>
 
@@ -1019,6 +1077,13 @@ export function UserProfile({ isPage = false }) {
               </p>
             </div>
           )}
+        </div>
+      )}
+
+      {/* CONTENIDO DE PESTAÑA: RECOMENDACIONES PERSONALIZADAS */}
+      {activeTab === 'recommendations' && (
+        <div className="pt-2 animate-fadeIn">
+          <Recommendations user={user} />
         </div>
       )}
     </div>

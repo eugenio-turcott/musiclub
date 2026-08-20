@@ -3,8 +3,8 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 export function SEO({
-  title = 'Musiclub - Máquina Musical',
-  description = 'Musiclub es una plataforma comunitaria para sugerir álbumes, participar en sorteos musicales aleatorios y compartir reseñas con la comunidad.',
+  title = 'Musiclub - Descubre, Califica y Sortea Álbumes',
+  description = 'Musiclub es una plataforma interactiva para descubrir, sortear, calificar y reseñar álbumes de música en comunidad.',
   image = '/og-image.png',
   url = 'https://musiclub-albums.vercel.app',
 }) {
