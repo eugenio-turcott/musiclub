@@ -3,6 +3,7 @@ import { AppHeader } from './AppHeader';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
+import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 
 const CRITERIA_INFO = [
   { key: 'rating_produccion', label: 'Producción', emoji: '🎛️' },
@@ -78,6 +79,8 @@ export function Leaderboard({ isPage = false }) {
   const [filterType, setFilterType] = useState('all'); // all | with_reviews | with_albums
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
   const [showBadgesGuide, setShowBadgesGuide] = useState(false);
+  const [isSendSongModalOpen, setIsSendSongModalOpen] = useState(false);
+  const [sendSongRecipient, setSendSongRecipient] = useState(null);
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -864,7 +867,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
                 )}
 
-                {/* Score Pill */}
+                {/* Score Pill & Action Buttons */}
                 <div className="pt-1.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-400/20 to-yellow-500/20 border border-amber-400/40 text-amber-300 text-xs font-black">
                     <span>✨</span>
@@ -873,6 +876,19 @@ export function Leaderboard({ isPage = false }) {
                       de Club
                     </span>
                   </span>
+
+                  {user && selectedUserDetail.email?.toLowerCase().trim() !== user.email?.toLowerCase().trim() && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSendSongRecipient(selectedUserDetail);
+                        setIsSendSongModalOpen(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/25 transition-all"
+                    >
+                      <span>💌</span> Recomendarle Canción
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -1340,6 +1356,17 @@ export function Leaderboard({ isPage = false }) {
           </div>
         </div>
       )}
+
+      {/* Modal para Recomendar Canción */}
+      <SendSongRecommendationModal
+        isOpen={isSendSongModalOpen}
+        onClose={() => {
+          setIsSendSongModalOpen(false);
+          setSendSongRecipient(null);
+        }}
+        currentUser={user}
+        defaultRecipient={sendSongRecipient}
+      />
     </div>
   );
 }

@@ -19,8 +19,11 @@ import { SettingsPage } from './pages/SettingsPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AlbumsPage } from './pages/AlbumsPage';
 import { RecommendationsPage } from './pages/RecommendationsPage';
+import { GashaponPage } from './pages/GashaponPage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
 import { FAQPage } from './pages/FAQPage';
+import { PatchNotesPage } from './pages/PatchNotesPage';
+import { ScrollToTop } from './components/ScrollToTop';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
 import { useUserReviews } from './hooks/useUserReviews';
@@ -182,6 +185,7 @@ function AppContent() {
 export function App() {
   return (
     <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<AppContent />} />
         <Route path="/recomendaciones" element={<RecommendationsPage />} />
@@ -193,6 +197,8 @@ export function App() {
         <Route path="/reviews" element={<ReviewsPage />} />
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/perfil" element={<ProfilePage />} />
+        <Route path="/gashapon" element={<GashaponPage />} />
+        <Route path="/gacha" element={<GashaponPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/configuracion" element={<SettingsPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
@@ -205,6 +211,9 @@ export function App() {
         <Route path="/faq" element={<FAQPage />} />
         <Route path="/preguntas-frecuentes" element={<FAQPage />} />
         <Route path="/ayuda" element={<FAQPage />} />
+        <Route path="/patch-notes" element={<PatchNotesPage />} />
+        <Route path="/changelog" element={<PatchNotesPage />} />
+        <Route path="/novedades" element={<PatchNotesPage />} />
       </Routes>
     </Router>
   );

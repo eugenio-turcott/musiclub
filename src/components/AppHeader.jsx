@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { LoginModal } from './LoginModal';
 import { HeroMusicCanvas } from './HeroMusicCanvas';
+import { HeaderAlbumSearch } from './HeaderAlbumSearch';
 
 export function AppHeader({
   user: propUser,
@@ -95,11 +96,17 @@ export function AppHeader({
 
   const navLinks = [
     {
+      to: '/gashapon',
+      label: 'Gashapon',
+      icon: '🎰',
+      paths: ['/gashapon', '/gacha'],
+      highlight: true,
+    },
+    {
       to: '/recomendaciones',
       label: 'Para Ti',
       icon: '✨',
       paths: ['/recomendaciones', '/para-ti'],
-      highlight: true,
     },
     {
       to: '/leaderboard',
@@ -129,11 +136,11 @@ export function AppHeader({
 
   return (
     <header className="w-full backdrop-blur-xl sticky top-0 z-50">
-      <div className="relative max-w-7xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
+      <div className="relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
         {/* Lado Izquierdo: Logo */}
-        <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden">
+        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden">
               <img
                 src="/5662059.png"
                 alt="Musiclub Logo"
@@ -143,16 +150,16 @@ export function AppHeader({
           </Link>
         </div>
 
-        {/* Centro: Enlaces de Navegación - Solo en pantallas medianas y grandes (Desktop/Tablet) */}
-        <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 items-center justify-center pointer-events-none">
-          <nav className="flex items-center gap-1 lg:gap-2 bg-white/5 border border-white/10 px-1.5 lg:px-2 py-1 lg:py-1.5 rounded-full backdrop-blur-md shadow-inner pointer-events-auto">
+        {/* Centro: Enlaces de Navegación - Pantallas grandes (lg y xl) */}
+        <div className="hidden lg:flex items-center justify-center flex-1 min-w-0 px-2">
+          <nav className="flex items-center gap-1 xl:gap-1.5 bg-white/5 border border-white/10 px-1.5 xl:px-2 py-1 rounded-full backdrop-blur-md shadow-inner">
             {navLinks.map((link) => {
               const active = isLinkActive(link.paths);
               return (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`text-xs lg:text-sm font-semibold flex items-center gap-1 lg:gap-1.5 px-2.5 lg:px-3 py-1 lg:py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
+                  className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
                     active
                       ? link.highlight
                         ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
@@ -170,8 +177,11 @@ export function AppHeader({
           </nav>
         </div>
 
-        {/* Lado Derecho: User Profile Dropdown & Mobile Hamburger */}
+        {/* Lado Derecho: Buscador Global Directo, User Profile Dropdown & Mobile Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
+          {/* Buscador de Álbumes del Club con Autocomplete y Calificación Directa */}
+          <HeaderAlbumSearch user={user} />
+
           {/* Si el usuario ha iniciado sesión: Extensible User Profile Dropdown */}
           {user ? (
             <div className="relative" ref={userMenuRef}>
@@ -287,6 +297,24 @@ export function AppHeader({
                     </Link>
 
                     <Link
+                      to="/gashapon"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
+                        pathname === '/gashapon' || pathname === '/gacha'
+                          ? 'bg-[#f5576c]/20 text-[#f093fb] font-semibold'
+                          : 'text-white/80 hover:text-white hover:bg-white/10'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-base">🎰</span>
+                        <span>Gashapon Musical</span>
+                      </div>
+                      <span className="text-[10px] bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 text-[#f093fb] px-1.5 py-0.5 rounded-full border border-[#f5576c]/30 font-black">
+                        🔮 Girar
+                      </span>
+                    </Link>
+
+                    <Link
                       to="/settings"
                       onClick={() => setIsUserMenuOpen(false)}
                       className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
@@ -371,12 +399,12 @@ export function AppHeader({
             </button>
           )}
 
-          {/* Botón Hamburguesa para Mobile / Tablets reducidas */}
+          {/* Botón Hamburguesa para Mobile / Tablets */}
           <button
             id="mobile-menu-btn"
             type="button"
             onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-            className={`md:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
+            className={`lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
               isMobileMenuOpen
                 ? 'bg-pink-500/20 border-pink-500/50 text-white'
                 : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/70 hover:text-white'
@@ -417,11 +445,11 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Menú Desplegable Hamburguesa para Mobile */}
+      {/* Menú Desplegable Hamburguesa para Mobile y Tablets */}
       {isMobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="md:hidden border-t border-white/10 bg-[#0c0e1a]/95 backdrop-blur-2xl px-4 py-3 space-y-2.5 animate-fadeIn shadow-2xl"
+          className="lg:hidden border-t border-white/10 bg-[#0c0e1a]/95 backdrop-blur-2xl px-4 py-3 space-y-2.5 animate-fadeIn shadow-2xl"
         >
           {/* Si el usuario ha iniciado sesión, mostramos tarjeta de usuario en el menú móvil también */}
           {user && (
@@ -458,8 +486,20 @@ export function AppHeader({
           )}
 
           <div className="text-[10px] uppercase font-bold text-white/30 tracking-wider px-1">
+            Buscador del Club
+          </div>
+
+          {/* Buscador Directo en Mobile Drawer */}
+          <HeaderAlbumSearch
+            isMobileMode={true}
+            user={user}
+            onAlbumReviewed={() => setIsMobileMenuOpen(false)}
+          />
+
+          <div className="text-[10px] uppercase font-bold text-white/30 tracking-wider px-1 pt-1">
             Navegación del Club
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
             {navLinks.map((link) => {
               const active = isLinkActive(link.paths);

@@ -1666,5 +1666,152 @@ export const supabaseService = {
       return data && data.length > 0 ? data[0] : null;
     }
   },
+
+  // ============================================
+  // BUZÓN DE CANCIONES (RECOMENDACIONES ENTRE PERFILES)
+  // ============================================
+
+  sendSongRecommendation: async ({
+    senderId = null,
+    senderName,
+    senderEmail,
+    recipientId = null,
+    recipientName = null,
+    recipientEmail,
+    songTitle,
+    artistName,
+    albumName = null,
+    imageUrl = null,
+    spotifyLink = null,
+    youtubeLink = null,
+    appleMusicLink = null,
+    message = null,
+  }) => {
+    if (!senderEmail || !recipientEmail || !songTitle || !artistName) {
+      throw new Error('Faltan campos obligatorios: correo del emisor, destinatario, título de la canción y artista.');
+    }
+
+    const payload = {
+      sender_id: senderId || null,
+      sender_name: (senderName || 'Miembro del Club').trim(),
+      sender_email: senderEmail.toLowerCase().trim(),
+      recipient_id: recipientId || null,
+      recipient_name: recipientName ? recipientName.trim() : null,
+      recipient_email: recipientEmail.toLowerCase().trim(),
+      song_title: songTitle.trim(),
+      artist_name: artistName.trim(),
+      album_name: albumName ? albumName.trim() : null,
+      image_url: imageUrl ? imageUrl.trim() : null,
+      spotify_link: spotifyLink ? spotifyLink.trim() : null,
+      youtube_link: youtubeLink ? youtubeLink.trim() : null,
+      apple_music_link: appleMusicLink ? appleMusicLink.trim() : null,
+      message: message ? message.trim() : null,
+      is_read: false,
+    };
+
+    const { data, error } = await supabase
+      .from('song_recommendations')
+      .insert([payload])
+      .select();
+
+    if (error) {
+      console.error('Error enviando recomendación de canción:', error);
+      throw new Error(error.message);
+    }
+
+    return data && data.length > 0 ? data[0] : null;
+  },
+
+  getReceivedSongRecommendations: async (userEmail, userId = null) => {
+    if (!userEmail && !userId) return [];
+    try {
+      let query = supabase
+        .from('song_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (userEmail && userId) {
+        query = query.or(`recipient_email.eq.${userEmail.toLowerCase().trim()},recipient_id.eq.${userId}`);
+      } else if (userEmail) {
+        query = query.eq('recipient_email', userEmail.toLowerCase().trim());
+      } else if (userId) {
+        query = query.eq('recipient_id', userId);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        // Fallback gracefully si la tabla aún no se ha creado en Supabase
+        console.warn('Advertencia al consultar song_recommendations:', error.message);
+        return [];
+      }
+
+      return data || [];
+    } catch (err) {
+      console.warn('Error en getReceivedSongRecommendations:', err);
+      return [];
+    }
+  },
+
+  getSentSongRecommendations: async (userEmail, userId = null) => {
+    if (!userEmail && !userId) return [];
+    try {
+      let query = supabase
+        .from('song_recommendations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (userEmail && userId) {
+        query = query.or(`sender_email.eq.${userEmail.toLowerCase().trim()},sender_id.eq.${userId}`);
+      } else if (userEmail) {
+        query = query.eq('sender_email', userEmail.toLowerCase().trim());
+      } else if (userId) {
+        query = query.eq('sender_id', userId);
+      }
+
+      const { data, error } = await query;
+      if (error) {
+        console.warn('Advertencia al consultar song_recommendations enviadas:', error.message);
+        return [];
+      }
+
+      return data || [];
+    } catch (err) {
+      console.warn('Error en getSentSongRecommendations:', err);
+      return [];
+    }
+  },
+
+  markSongRecommendationAsRead: async (recommendationId, isRead = true) => {
+    if (!recommendationId) return false;
+    try {
+      const { data, error } = await supabase
+        .from('song_recommendations')
+        .update({ is_read: Boolean(isRead) })
+        .eq('id', recommendationId)
+        .select();
+
+      if (error) throw error;
+      return data && data.length > 0 ? data[0] : null;
+    } catch (err) {
+      console.error('Error al marcar recomendación de canción:', err);
+      return null;
+    }
+  },
+
+  deleteSongRecommendation: async (recommendationId) => {
+    if (!recommendationId) return false;
+    try {
+      const { error } = await supabase
+        .from('song_recommendations')
+        .delete()
+        .eq('id', recommendationId);
+
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error('Error al eliminar recomendación de canción:', err);
+      return false;
+    }
+  },
 };
 

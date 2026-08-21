@@ -7,6 +7,8 @@ import { useUserReviews } from '../hooks/useUserReviews';
 import { getWeightedReviewScore, getTrackDisplayName, getEmotionFromReview } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 import { Recommendations } from './Recommendations';
+import { SongMailbox } from './SongMailbox';
+import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { supabaseService } from '../services/supabaseClient';
 
 const CRITERIA_METRICS = [
@@ -25,11 +27,16 @@ export function UserProfile({ isPage = false }) {
   const { userReviews, loading: reviewsLoading } = useUserReviews(user);
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState('reviews'); // 'reviews' | 'badges' | 'stats' | 'pending'
+  const [activeTab, setActiveTab] = useState('reviews'); // 'recommendations' | 'reviews' | 'badges' | 'stats' | 'pending' | 'mailbox'
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [expandedReviewId, setExpandedReviewId] = useState(null);
   const [leaderboardList, setLeaderboardList] = useState([]);
+
+  // Buzón de Canciones
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [sendModalRecipient, setSendModalRecipient] = useState(null);
+  const [unreadMailboxCount, setUnreadMailboxCount] = useState(0);
 
   // Fetch detailed community leaderboard to sync global records & max XP
   useEffect(() => {
@@ -49,6 +56,27 @@ export function UserProfile({ isPage = false }) {
       isMounted = false;
     };
   }, []);
+
+  // Fetch unread count for mailbox badge
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchUnreadCount() {
+      if (!user || (!user.email && !user.id)) return;
+      try {
+        const recs = await supabaseService.getReceivedSongRecommendations(user.email, user.id);
+        if (isMounted && recs) {
+          const unread = recs.filter((r) => !r.is_read).length;
+          setUnreadMailboxCount(unread);
+        }
+      } catch (err) {
+        console.warn('Error fetching unread mailbox count:', err);
+      }
+    }
+    fetchUnreadCount();
+    return () => {
+      isMounted = false;
+    };
+  }, [user, isSendModalOpen]);
 
   // Map of album by ID for quick lookup
   const albumMap = useMemo(() => {
@@ -474,11 +502,27 @@ export function UserProfile({ isPage = false }) {
       {/* PESTAÑAS DE NAVEGACIÓN TOUCH-FRIENDLY */}
       <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
         <button
+          onClick={() => setActiveTab('mailbox')}
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+            activeTab === 'mailbox'
+              ? 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
+              : 'text-white/80 hover:text-white bg-gradient-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
+          }`}
+        >
+          <span>💌</span> Buzón de Canciones
+          {unreadMailboxCount > 0 && (
+            <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">
+              {unreadMailboxCount}
+            </span>
+          )}
+        </button>
+
+        <button
           onClick={() => setActiveTab('recommendations')}
           className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
             activeTab === 'recommendations'
               ? 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
-              : 'text-white/80 hover:text-white bg-gradient-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
+              : 'text-white/80 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
           <span>✨</span> Para Ti (Recomendaciones)
@@ -1080,12 +1124,37 @@ export function UserProfile({ isPage = false }) {
         </div>
       )}
 
+      {/* CONTENIDO DE PESTAÑA: BUZÓN MUSICAL (CARTITAS) */}
+      {activeTab === 'mailbox' && (
+        <div className="pt-2 animate-fadeIn">
+          <SongMailbox
+            user={user}
+            onOpenSendModal={(targetRecipient) => {
+              setSendModalRecipient(targetRecipient || null);
+              setIsSendModalOpen(true);
+            }}
+          />
+        </div>
+      )}
+
       {/* CONTENIDO DE PESTAÑA: RECOMENDACIONES PERSONALIZADAS */}
       {activeTab === 'recommendations' && (
         <div className="pt-2 animate-fadeIn">
           <Recommendations user={user} />
         </div>
       )}
+
+      {/* MODAL PARA ENVIAR RECOMENDACIÓN DE CANCIÓN */}
+      <SendSongRecommendationModal
+        isOpen={isSendModalOpen}
+        onClose={() => setIsSendModalOpen(false)}
+        currentUser={user}
+        defaultRecipient={sendModalRecipient}
+        onSuccess={() => {
+          // Si estamos en el buzón, el componente se refrescará con los nuevos datos
+          setActiveTab('mailbox');
+        }}
+      />
     </div>
   );
 }

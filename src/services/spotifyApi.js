@@ -103,6 +103,53 @@ export const searchAlbum = async (query) => {
   }
 };
 
+/**
+ * Busca canciones (tracks) individuales en Spotify por título y/o artista
+ */
+export const searchTracks = async (query, limit = 10) => {
+  if (!query || !query.trim()) {
+    return { success: true, tracks: [] };
+  }
+
+  try {
+    const token = await getSpotifyToken();
+    const response = await fetch(
+      `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=track&limit=${limit}&market=MX`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error en búsqueda de canciones: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.tracks && data.tracks.items) {
+      return {
+        success: true,
+        tracks: data.tracks.items.map((track) => ({
+          id: track.id,
+          name: track.name,
+          artists: track.artists.map((a) => a.name),
+          artistName: track.artists.map((a) => a.name).join(', '),
+          albumName: track.album?.name || '',
+          imageUrl: track.album?.images?.[0]?.url || '',
+          spotifyUrl: track.external_urls?.spotify || `https://open.spotify.com/track/${track.id}`,
+          durationMs: track.duration_ms,
+        })),
+      };
+    }
+
+    return { success: true, tracks: [] };
+  } catch (error) {
+    console.warn('Error en searchTracks:', error);
+    return { success: false, error: error.message, tracks: [] };
+  }
+};
+
 export const getAlbumDetails = async (albumId) => {
   try {
     const token = await getSpotifyToken();
