@@ -26,18 +26,33 @@ async function getTopReviewersManual() {
 
     const albumIds = albumsWithReviews.map((a) => a.id);
 
-    const [reviewsRes, profilesRes] = await Promise.all([
+    const [reviewsRes, profilesRes, allAlbumsRes] = await Promise.all([
       supabase
         .from('reviews')
         .select('reviewer_name, reviewer_email, rating_general, album_id')
         .in('album_id', albumIds),
       supabase.from('profiles').select('email, name, avatar_url'),
+      supabase.from('albums').select('id, added_by, added_by_email'),
     ]);
 
     const reviews = reviewsRes.data;
     const profiles = profilesRes.data || [];
+    const allAlbums = allAlbumsRes.data || [];
 
     if (!reviews || reviews.length === 0) return [];
+
+    const albumsAddedByEmail = {};
+    const albumsAddedByName = {};
+    allAlbums.forEach((alb) => {
+      if (alb.added_by_email) {
+        const emailKey = alb.added_by_email.toLowerCase().trim();
+        albumsAddedByEmail[emailKey] = (albumsAddedByEmail[emailKey] || 0) + 1;
+      }
+      if (alb.added_by) {
+        const nameKey = alb.added_by.toLowerCase().trim();
+        albumsAddedByName[nameKey] = (albumsAddedByName[nameKey] || 0) + 1;
+      }
+    });
 
     const profileMapByEmail = {};
     const profileMapByName = {};
@@ -58,7 +73,6 @@ async function getTopReviewersManual() {
 
         reviewerMap[nameKey] = {
           ratings: [],
-          albums: new Set(),
           email: review.reviewer_email,
           avatar_url: prof?.avatar_url || null,
         };
@@ -69,7 +83,6 @@ async function getTopReviewersManual() {
       ) {
         reviewerMap[nameKey].ratings.push(review.rating_general);
       }
-      reviewerMap[nameKey].albums.add(review.album_id);
     });
 
     const result = Object.entries(reviewerMap).map(([name, data]) => {
@@ -78,12 +91,19 @@ async function getTopReviewersManual() {
           ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
           : 0;
 
+      const emailKey = data.email ? data.email.toLowerCase().trim() : '';
+      const nameKey = name ? name.toLowerCase().trim() : '';
+      const addedCount =
+        (emailKey && albumsAddedByEmail[emailKey]) ||
+        (nameKey && albumsAddedByName[nameKey]) ||
+        0;
+
       return {
         reviewer_name: name,
         reviewer_email: data.email,
         avatar_url: data.avatar_url,
         review_count: data.ratings.length,
-        album_count: data.albums.size,
+        album_count: addedCount,
         avg_rating: parseFloat(avg.toFixed(1)),
       };
     });
@@ -528,17 +548,32 @@ export const supabaseService = {
 
       const albumIds = albumsWithReviews.map((a) => a.id);
 
-      const [reviewsRes, profilesRes] = await Promise.all([
+      const [reviewsRes, profilesRes, allAlbumsRes] = await Promise.all([
         supabase.from('reviews').select('*').in('album_id', albumIds),
         supabase.from('profiles').select('email, name, avatar_url'),
+        supabase.from('albums').select('id, added_by, added_by_email'),
       ]);
 
       const data = reviewsRes.data;
       const profiles = profilesRes.data || [];
+      const allAlbums = allAlbumsRes.data || [];
 
       if (reviewsRes.error || !data || data.length === 0) {
         return await getTopReviewersManual();
       }
+
+      const albumsAddedByEmail = {};
+      const albumsAddedByName = {};
+      allAlbums.forEach((alb) => {
+        if (alb.added_by_email) {
+          const emailKey = alb.added_by_email.toLowerCase().trim();
+          albumsAddedByEmail[emailKey] = (albumsAddedByEmail[emailKey] || 0) + 1;
+        }
+        if (alb.added_by) {
+          const nameKey = alb.added_by.toLowerCase().trim();
+          albumsAddedByName[nameKey] = (albumsAddedByName[nameKey] || 0) + 1;
+        }
+      });
 
       const profileMapByEmail = {};
       const profileMapByName = {};
@@ -559,7 +594,6 @@ export const supabaseService = {
 
           reviewerMap[nameKey] = {
             ratings: [],
-            albums: new Set(),
             email: review.reviewer_email,
             avatar_url: prof?.avatar_url || null,
           };
@@ -568,7 +602,6 @@ export const supabaseService = {
         if (score !== null && score !== undefined && !isNaN(score)) {
           reviewerMap[nameKey].ratings.push(score);
         }
-        reviewerMap[nameKey].albums.add(review.album_id);
       });
 
       const result = Object.entries(reviewerMap).map(([name, data]) => {
@@ -577,12 +610,19 @@ export const supabaseService = {
             ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
             : 0;
 
+        const emailKey = data.email ? data.email.toLowerCase().trim() : '';
+        const nameKey = name ? name.toLowerCase().trim() : '';
+        const addedCount =
+          (emailKey && albumsAddedByEmail[emailKey]) ||
+          (nameKey && albumsAddedByName[nameKey]) ||
+          0;
+
         return {
           reviewer_name: name,
           reviewer_email: data.email,
           avatar_url: data.avatar_url,
           review_count: data.ratings.length,
-          album_count: data.albums.size,
+          album_count: addedCount,
           avg_rating: parseFloat(avg.toFixed(1)),
         };
       });

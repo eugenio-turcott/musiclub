@@ -7,21 +7,53 @@
 
 export const GITHUB_REPO_OWNER = 'eugenio-turcott';
 export const GITHUB_REPO_NAME = 'musiclub-albumes';
-export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?sha=main&per_page=100`;
+export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
   // ----------------------------------------------------
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
+    version: 'V.5.2',
+    title: 'Paginación en Patch Notes, Scroll Global Restaurado, Rebranding Musiclub y README Actualizado',
+    date: '2026-08-21',
+    sha: '3257b00',
+    tag: 'Mejora',
+    tagColor: 'from-blue-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary: 'Actualización con sistema de paginación de 6 versiones por página en notas de parche, restablecimiento global de scroll al inicio al navegar, estandarización de marca Musiclub y documentación técnica completa en README.md.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Paginación Interactiva en Patch Notes',
+        description: 'Paginación fluida de 6 versiones por página con botones anterior/siguiente, números de página con resplandor activo y filtros rápidos por versión (V5.x a V0.x).'
+      },
+      {
+        type: 'feature',
+        title: 'Restablecimiento Global de Scroll (ScrollToTop)',
+        description: 'Componente en la raíz del Router que restablece inmediatamente el scroll de la ventana al principio (top: 0, left: 0) al hacer clic en enlaces del footer o navegar entre páginas.'
+      },
+      {
+        type: 'improvement',
+        title: 'Actualización Integral de la Documentación (README.md)',
+        description: 'Documentación renovada a la versión v5.2.0 con árbol de archivos, tabla completa de 14 rutas, fórmulas matemáticas y guía de instalación.'
+      },
+      {
+        type: 'improvement',
+        title: 'Estandarización de Marca «Musiclub»',
+        description: 'Ajuste de todas las referencias de marca y texto en la aplicación con la c en minúscula.'
+      }
+    ]
+  },
+  {
     version: 'V.5.1',
     title: 'Gashapon Arcade 3D, Buzón Social de Canciones, Buscador Directo y Patch Notes',
     date: '2026-08-21',
-    sha: 'pending',
+    sha: '9c8e0cf',
     tag: 'Mayor',
     tagColor: 'from-pink-500 to-rose-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Gran actualización con máquina Gashapon interactiva independiente, buzón social de recomendaciones de canciones entre usuarios, buscador instantáneo en el header, corrección 3D en rankings y página de Patch Notes.',
+    summary: 'Gran actualización con máquina Gashapon interactiva independiente, buzón social de recomendaciones de canciones entre usuarios, buscador instantáneo en el header, corrección 3D en rankings y módulo de Patch Notes.',
     changes: [
       {
         type: 'feature',
@@ -41,7 +73,7 @@ export const CURATED_PATCH_NOTES = [
       {
         type: 'feature',
         title: 'Página de Patch Notes y Sincronización con GitHub',
-        description: 'Historial completo de versiones y commits sincronizado en tiempo real con la rama principal de GitHub, con paginación, filtros de versión y buscador de novedades.'
+        description: 'Historial completo de versiones y commits sincronizado en tiempo real con la rama principal de GitHub, con filtros de versión y buscador de novedades.'
       },
       {
         type: 'improvement',
@@ -745,13 +777,13 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     const authorAvatar = ghCommit.author?.avatar_url || null;
     const commitUrl = ghCommit.html_url || `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${fullSha}`;
 
-    // Buscar coincidencia de versión en mensaje ej "Slot Machine Álbumes - V.5.1" o "Slot Machine Álbumes - V.5.0"
+    // Buscar coincidencia de versión en mensaje ej "Slot Machine Álbumes - V.5.2" o "Slot Machine Álbumes - V.5.1"
     const versionMatch = message.match(/V\.?\s?(\d+\.\d+(\.\d+)?)/i);
     const versionKey = versionMatch ? `V.${versionMatch[1]}` : null;
 
     // Buscar en notas curadas por SHA corto o por versión
     const curated = CURATED_PATCH_NOTES.find(
-      (n) => (n.sha && n.sha !== 'pending' && (sha.startsWith(n.sha) || n.sha.startsWith(sha))) || 
+      (n) => (n.sha && (sha.startsWith(n.sha) || n.sha.startsWith(sha))) || 
              (versionKey && n.version.toLowerCase() === versionKey.toLowerCase())
     );
 
@@ -799,7 +831,7 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
             {
               type: 'feature',
               title: title,
-              description: 'Cambios sincronizados directamente desde el commit de GitHub main.'
+              description: 'Cambios sincronizados directamente desde el commit de GitHub.'
             }
           ];
 
@@ -822,14 +854,12 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     }
   });
 
-  // Agregar cualquier nota curada que aún no haya sido vinculada a un commit
+  // Agregar cualquier nota curada que aún no haya sido devuelta por la API
   CURATED_PATCH_NOTES.forEach((curated) => {
     if (!processedKeys.has(curated.version)) {
       enrichedList.push({
         ...curated,
-        commitUrl: curated.sha !== 'pending' 
-          ? `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha}`
-          : `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}`,
+        commitUrl: `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha}`,
         isFromGithub: false
       });
     }

@@ -140,26 +140,14 @@ export function PatchNotes({ isPage = false }) {
                 </div>
               </div>
 
-              <div className="px-3.5 py-2 rounded-2xl bg-pink-500/10 border border-pink-500/30 backdrop-blur-md flex items-center gap-2 shadow-xl">
-                <span className="w-2.5 h-2.5 rounded-full bg-pink-400 animate-pulse"></span>
-                <div className="text-left">
-                  <p className="text-[10px] text-pink-300 uppercase font-bold tracking-wider">
-                    Próxima (Hoy)
-                  </p>
-                  <p className="text-white font-black text-xs sm:text-sm leading-tight">
-                    V.5.1
-                  </p>
-                </div>
-              </div>
-
-              <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <div className="px-4 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-3 shadow-xl">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <div className="text-left">
                   <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
-                    En Producción
+                    Versión Actual
                   </p>
-                  <p className="text-white font-black text-xs sm:text-sm leading-tight">
-                    V.5.0
+                  <p className="text-white font-black text-base sm:text-lg leading-tight">
+                    V.5.2
                   </p>
                 </div>
               </div>
@@ -193,7 +181,7 @@ export function PatchNotes({ isPage = false }) {
               <span>{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}</span>
             </a>
             <span>•</span>
-            <span>Rama: <strong className="text-white/80">main</strong></span>
+            <span>Rama: <strong className="text-white/80">master</strong></span>
           </div>
 
           <div className="flex items-center gap-2">
