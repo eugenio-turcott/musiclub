@@ -112,6 +112,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         addedByEmail: user?.email || 'sistema@maquinamusical.com',
         status: 'INDIVIDUAL',
         tracks: tracks,
+        releaseDate: albumDetails.releaseDate || null,
         reviews_enabled: true, // 👈 POR DEFECTO TRUE PARA INDIVIDUALES
       };
 

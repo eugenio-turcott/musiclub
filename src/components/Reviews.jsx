@@ -6,6 +6,8 @@ import {
   getAlbumWeightedAverage,
   getTrackDisplayName,
   getEmotionFromReview,
+  getReviewFavoriteTrack,
+  isFavoriteTrackMatch,
 } from '../utils/ratingUtils';
 
 export function Reviews({ onClose, isPage = false }) {
@@ -129,7 +131,8 @@ export function Reviews({ onClose, isPage = false }) {
     const matchesAlbum =
       filterAlbum === 'todos' || review.album_id === filterAlbum;
 
-    const weightedScore = getWeightedReviewScore(review) ?? review.rating_general;
+    const weightedScore =
+      getWeightedReviewScore(review) ?? review.rating_general;
 
     const matchesRating =
       filterRating === 'todos' ||
@@ -183,7 +186,8 @@ export function Reviews({ onClose, isPage = false }) {
             Reviews de Miembros
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
-            Explora todas las reseñas, análisis detallados y puntuaciones ponderadas publicadas por el club.
+            Explora todas las reseñas, análisis detallados y puntuaciones
+            ponderadas publicadas por el club.
           </p>
         </div>
 
@@ -281,7 +285,9 @@ export function Reviews({ onClose, isPage = false }) {
               onChange={(e) => setFilterAlbum(e.target.value)}
               className="bg-black/60 border border-white/10 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-pink-400 font-semibold cursor-pointer max-w-[200px] truncate"
             >
-              <option value="todos">Todos los álbumes ({albumsList.length})</option>
+              <option value="todos">
+                Todos los álbumes ({albumsList.length})
+              </option>
               {albumsList.map((album) => (
                 <option key={album.id} value={album.id}>
                   {album.album_name} - {album.artist_name}
@@ -305,7 +311,8 @@ export function Reviews({ onClose, isPage = false }) {
               className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 active:scale-95 flex-shrink-0"
               title="Actualizar reviews"
             >
-              <span>🔄</span> <span className="hidden sm:inline">Refrescar</span>
+              <span>🔄</span>{' '}
+              <span className="hidden sm:inline">Refrescar</span>
             </button>
           </div>
         </div>
@@ -340,7 +347,8 @@ export function Reviews({ onClose, isPage = false }) {
           <div className="space-y-3.5">
             <div className="text-slate-400 text-xs font-mono flex justify-between items-center px-1">
               <span>
-                Mostrando {paginatedReviews.length} de {filteredReviews.length} reseñas
+                Mostrando {paginatedReviews.length} de {filteredReviews.length}{' '}
+                reseñas
               </span>
               {filteredReviews.length !== reviews.length && (
                 <span className="text-pink-300/70 font-semibold">
@@ -398,7 +406,7 @@ export function Reviews({ onClose, isPage = false }) {
                           )}`}
                         >
                           <span>★</span>
-                          <span>{rating ? rating.toFixed(1) : 'N/A'}</span>
+                          <span>{rating ? rating.toFixed(2) : 'N/A'}</span>
                           <span className="text-[10px] opacity-70 font-normal">
                             / 10
                           </span>
@@ -407,8 +415,26 @@ export function Reviews({ onClose, isPage = false }) {
 
                       {/* Reviewer e información de fecha y sentimiento */}
                       <div className="flex items-center gap-2 flex-wrap text-xs text-slate-400">
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white flex items-center justify-center font-bold text-[10px] shadow-sm">
-                          {(review.reviewer_name || 'A')[0].toUpperCase()}
+                        {review.reviewer_avatar ? (
+                          <img
+                            src={review.reviewer_avatar}
+                            alt={review.reviewer_name || 'Reviewer'}
+                            className="w-5 h-5 rounded-full object-cover border border-white/20 shadow-sm flex-shrink-0"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling)
+                                e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white items-center justify-center font-bold text-[10px] shadow-sm flex-shrink-0 ${
+                            review.reviewer_avatar ? 'hidden' : 'flex'
+                          }`}
+                        >
+                          {(review.reviewer_avatar ||
+                            review.reviewer_name ||
+                            'A')[0].toUpperCase()}
                         </div>
                         <span className="text-slate-200 font-bold">
                           {review.reviewer_name || 'Anónimo'}
@@ -430,7 +456,7 @@ export function Reviews({ onClose, isPage = false }) {
                           const emo = getEmotionFromReview(review);
                           return emo ? (
                             <span
-                              className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
+                              className={`text-[10px] px-2 py-0.5 mb-2 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                               title={emo.description}
                             >
                               <span>{emo.emoji}</span>
@@ -449,6 +475,32 @@ export function Reviews({ onClose, isPage = false }) {
                         </div>
                       )}
 
+                      {/* Canción Favorita */}
+                      {(() => {
+                        const favTrack = getReviewFavoriteTrack(review);
+                        if (!favTrack) return null;
+                        const favName = getTrackDisplayName(
+                          favTrack,
+                          album?.tracks
+                        );
+                        return (
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              <span className="text-xl">⭐</span>
+                              <span className="text-amber-400/80 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
+                                Canción Favorita:
+                              </span>
+                            </div>
+                            <span
+                              className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[240px]"
+                              title={favName}
+                            >
+                              {favName}
+                            </span>
+                          </div>
+                        );
+                      })()}
+
                       {/* Categorías de calificación */}
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {[
@@ -465,7 +517,10 @@ export function Reviews({ onClose, isPage = false }) {
                                 key={key}
                                 className="text-[10px] text-slate-300 bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/5 font-medium"
                               >
-                                {label}: <strong className="text-pink-300">{review[key]}</strong>
+                                {label}:{' '}
+                                <strong className="text-pink-300">
+                                  {review[key]}
+                                </strong>
                               </span>
                             )
                         )}
@@ -474,26 +529,45 @@ export function Reviews({ onClose, isPage = false }) {
                       {/* Ratings por canción */}
                       {Object.keys(trackRatings).length > 0 && (
                         <div className="mt-2.5 pt-2 border-t border-white/5">
-                          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1.5 font-bold">
-                            🎵 Calificaciones individuales por track:
+                          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1.5 font-bold flex items-center gap-1">
+                            <span>🎵</span> Calificaciones individuales por
+                            track:
                           </p>
                           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
                             {Object.entries(trackRatings).map(
-                              ([trackId, score]) => {
+                              ([trackId, score], trIdx) => {
                                 const trackName = getTrackDisplayName(
                                   trackId,
                                   album?.tracks
                                 );
+                                const isFav = isFavoriteTrackMatch(
+                                  trackId,
+                                  getReviewFavoriteTrack(review),
+                                  album?.tracks,
+                                  trIdx
+                                );
                                 return (
                                   <span
                                     key={trackId}
-                                    className="text-[10px] text-slate-300 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 flex items-center gap-1"
+                                    className={`text-[10px] px-2.5 py-0.5 rounded-lg border flex items-center gap-1 transition-all ${
+                                      isFav
+                                        ? 'text-amber-200 bg-amber-500/20 border-amber-400/40 font-bold shadow-sm'
+                                        : 'text-slate-300 bg-black/40 border-white/5'
+                                    }`}
                                   >
-                                    <span className="text-cyan-400">🎵</span>
-                                    <span className="max-w-[150px] truncate" title={trackName}>
+                                    <span>{isFav ? '⭐' : '🎵'}</span>
+                                    <span
+                                      className="max-w-[150px] truncate"
+                                      title={trackName}
+                                    >
                                       {trackName}
                                     </span>
-                                    : <strong className="text-cyan-300 font-bold">{score}</strong>
+                                    :{' '}
+                                    <strong
+                                      className={`font-bold ${isFav ? 'text-amber-300' : 'text-cyan-300'}`}
+                                    >
+                                      {score}
+                                    </strong>
                                   </span>
                                 );
                               }

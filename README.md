@@ -1,12 +1,12 @@
 # 🎰 Musiclub - Slot Machine, Gashapon Arcade & Comunidad de Álbumes Musicales
 
-[![Version](https://img.shields.io/badge/version-5.1.0-f5576c.svg)](https://github.com/eugenio-turcott/musiclub-albumes)
+[![Version](https://img.shields.io/badge/version-5.3.0-f5576c.svg)](https://github.com/eugenio-turcott/musiclub-albumes)
 [![React](https://img.shields.io/badge/React-19.2-61dafb.svg?logo=react)](https://reactjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg?logo=tailwindcss)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ecf8e.svg?logo=supabase)](https://supabase.com/)
 [![Spotify API](https://img.shields.io/badge/Spotify-Web%20API-1db954.svg?logo=spotify)](https://developer.spotify.com/)
 
-**Musiclub** es una plataforma web interactiva diseñada para clubes y comunidades de escucha musical. Combina una **Slot Machine estilo Cyberpunk** para la selección ponderada de álbumes semanales, una **Máquina Gashapon Arcade 3D** para álbumes individuales, un **Buzón Social de Recomendaciones de Canciones** entre miembros, un completo **sistema de reseñas técnicas multidimensionales**, un **motor de recomendaciones "Para Ti"**, **playlists dinámicas**, **catálogo en vivo integrado con Spotify**, **Leaderboard con insignias automáticas**, y una **página de Patch Notes sincronizada con GitHub**.
+**Musiclub** es una plataforma web interactiva diseñada para clubes y comunidades de escucha musical. Combina una **Slot Machine estilo Cyberpunk** para la selección ponderada de álbumes semanales, una **Máquina Gashapon Arcade 3D** para álbumes individuales, un **SF Tiers Tier List Maker automático con exportación a imagen PNG**, un **Filtro de Catálogo por Años/Décadas estilo AlbumOfTheYear.org**, un **Buzón Social de Recomendaciones de Canciones** entre miembros, un completo **sistema de reseñas técnicas multidimensionales**, un **motor de recomendaciones "Para Ti"**, **playlists dinámicas**, **catálogo en vivo integrado con Spotify**, **Leaderboard con insignias automáticas**, y una **página de Patch Notes sincronizada con GitHub**.
 
 ---
 
@@ -24,7 +24,7 @@
 |                  🔮 G A S H A P O N   A R C A D E  3 D 🔮                         |
 |                       [ CÚPULA CON CÁPSULAS MULTICOLOR ]                           |
 |                                                                                    |
-|  ✨ Para Ti  |  🎵 Playlists  |  ⭐ Top Rankings 3D  |  📬 Buzón de Canciones      |
+|  📊 SF Tier List  |  📅 AOTY Year Bar  |  ⭐ Top 3D  |  📬 Buzón de Canciones      |
 |____________________________________________________________________________________|
 ```
 
@@ -38,23 +38,39 @@
 - **Efectos Neón y Celebración**: Animaciones con luces cyberpunk y lluvia de confetti dinámico al coronar un álbum ganador.
 - **Persistencia en Tiempo Real**: El estado del ganador actual se almacena y sincroniza mediante Supabase.
 
-### 2. 🔮 Máquina Gashapon Arcade 3D (`/gashapon`)
+### 2. 📊 SF Tiers Tier List Maker Automático & Exportador PNG (`/perfil`)
+- **Clasificación Automática de Álbumes**: Agrupa instantáneamente todos los álbumes calificados por el usuario según sus notas ponderadas:
+  - 🟥 **S Tier**: *GOD TIER / OBRAS MAESTRAS* (9.5 - 10.0)
+  - 🟧 **A Tier**: *EXCELENTES* (8.5 - 9.4)
+  - 🟨 **B Tier**: *MUY BUENOS* (7.5 - 8.4)
+  - 🟩 **C Tier**: *BUENOS* (6.5 - 7.4)
+  - 🟦 **D Tier**: *REGULARES* (5.0 - 6.4)
+  - 🟪 **F Tier**: *DECEPCIONANTES* (< 4.9)
+- **Exportación en Alta Resolución (PNG)**: Motor `html2canvas` optimizado para renderizar y descargar una imagen de alta definición con branding oficial de Musiclub, tipografía `Stack Sans Notch`, logo y encabezado del usuario listo para compartir en redes.
+- **Modo Lista Celular**: Vista adaptativa con botón toggle para teléfonos y pantallas compactas.
+
+### 3. 📅 Filtro de Años y Décadas estilo AlbumOfTheYear.org (`/albumes`)
+- **Navegación por Décadas**: Flechas interactivas `‹` y `›` para navegar entre décadas (`2020s`, `2010s`, `2000s`, `1990s`, `1980s`, `1970s`, `1960s`, `1950s`).
+- **Carril Cronológico de Años**: Botones para cada año de la década (`2020` a `2026`) con filtrado instantáneo y conteo en tiempo real.
+- **Metadatos Oficiales de Lanzamiento**: Integración y almacenamiento permanente de `release_date` y `release_year` desde Spotify API en Supabase.
+
+### 4. 🔮 Máquina Gashapon Arcade 3D (`/gashapon`)
 - **Página y dinámica independiente** diseñada para la selección aleatoria de **Álbumes Individuales**.
 - **Cúpula de cristal 3D** con más de 18 cápsulas esféricas multicolor y física interactiva.
 - **Manivela interactiva y dispensador**: Al girar la manivela, se expulsa una cápsula con el color exacto seleccionado al azar, revelando el álbum premiado con animación de apertura.
 
-### 3. 📬 Buzón Social de Recomendaciones de Canciones
+### 5. 📬 Buzón Social de Recomendaciones de Canciones
 - **Intercambio privado de canciones** entre perfiles de usuario en tiempo real.
 - **Buscador de pistas de Spotify** con reproductor de audio de 30s de vista previa.
 - **Dedicatorias personalizadas**: Envío de mensajes y motivos de recomendación.
 - **Contadores y notificaciones en vivo**: Badge con insignias no leídas y gestión de estado (escuchada / pendiente).
 
-### 4. 🔍 Buscador Global en Header con Calificación Directa
+### 6. 🔍 Buscador Global en Header con Calificación Directa
 - **Barra de búsqueda en vivo** en la navegación de escritorio y menú móvil.
 - **Búsqueda instantánea en el catálogo del club**: Muestra resultados en tiempo real sin abrir modales previos.
 - **Calificación Directa**: Permite calificar de inmediato álbumes individuales e inactivos mediante un modal a pantalla completa renderizado vía React Portal.
 
-### 5. 📝 Sistema Avanzado de Reseñas Multidimensionales
+### 7. 📝 Sistema Avanzado de Reseñas Multidimensionales
 - **Evaluación Canción por Canción (Track-by-Track)**: Calificación individual de cada pista (escala del 1 al 10) obtenida directamente desde Spotify.
 - **6 Criterios Técnicos de Evaluación** (escala del 1 al 5 ⭐):
   - 🎛️ **Producción**: Calidad de mezcla, masterización y diseño sonoro.
@@ -66,26 +82,26 @@
 - **Calificación General Independiente** (escala del 1 al 10 ⭐).
 - **Selector de Emociones**: Reacciones de sentimiento (*Mindblown*, *Sad*, *Chill*, *Hype*, etc.).
 
-### 6. 🤖 Recomendaciones Inteligentes "Para Ti" (`/recomendaciones`)
+### 8. 🤖 Recomendaciones Inteligentes "Para Ti" (`/recomendaciones`)
 - Algoritmo que analiza los patrones de puntuación y afinidades del usuario para sugerir álbumes del catálogo que coincidan con sus gustos.
 
-### 7. 🎵 Playlists Comunitarias Dinámicas (`/playlists`)
+### 9. 🎵 Playlists Comunitarias Dinámicas (`/playlists`)
 - Generación automática de listas de reproducción temáticas con las mejores canciones votadas por la comunidad y exportación a Spotify.
 
-### 8. 📜 Patch Notes y Sincronización en Vivo con GitHub (`/patch-notes`)
+### 10. 📜 Patch Notes y Sincronización en Vivo con GitHub (`/patch-notes`)
 - Historial completo y detallado de **todas las versiones y commits** del proyecto.
 - **Sincronización en vivo** con la API de GitHub (`eugenio-turcott/musiclub-albumes`).
 - **Paginación inteligente** (6 versiones por página), buscador de cambios por palabra clave y filtros por versión (`V5.x`, `V4.x`, `V3.x`, `V2.x`, `V1.x`, `V0.x`).
 
-### 9. 🏆 Leaderboard Comunitario y Sistema de Insignias (Badges)
+### 11. 🏆 Leaderboard Comunitario y Sistema de Insignias (Badges)
 - **Podio Olímpico**: Reconocimiento a los 3 mejores miembros del club (Oro 🥇, Plata 🥈, Bronce 🥉).
 - **Insignias y Logros Automáticos**: *Máster Reviewer*, *Gran Curador*, *Pistas al Detalle*, *Crítico Exigente*, *Crítico Generoso*, *Pluma Crítica* y *Cazador del 10*.
 
-### 10. ⭐ Rankings con Tarjetas 3D Flip
+### 12. ⭐ Rankings con Tarjetas 3D Flip
 - Podio dorado, plateado y de bronce para el Top 3.
 - Carrusel de tarjetas 3D interactivas para los puestos 4 al 10 que muestran la carátula de inmediato y voltean para revelar la ficha técnica al hacer clic.
 
-### 11. ⬆️ Restablecimiento Global de Scroll (`ScrollToTop`)
+### 13. ⬆️ Restablecimiento Global de Scroll (`ScrollToTop`)
 - Navegación optimizada que regresa instantáneamente al inicio de la página al cambiar de ruta.
 
 ---

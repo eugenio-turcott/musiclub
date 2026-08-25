@@ -1,5 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
-import { getWeightedReviewScore, calculateReviewBonus } from '../utils/ratingUtils';
+import {
+  getWeightedReviewScore,
+  calculateReviewBonus,
+  calculateAlbumTopTrack,
+} from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
@@ -214,29 +218,61 @@ export const supabaseService = {
   },
 
   createAlbum: async (albumData) => {
-    const { data, error } = await supabase
-      .from('albums')
-      .insert([
-        {
-          album_name: albumData.albumName,
-          artist_name: albumData.artistName,
-          image_url: albumData.imageUrl,
-          spotify_link: albumData.spotifyLink || null,
-          youtube_link: albumData.youtubeLink || null,
-          apple_music_link: albumData.appleMusicLink || null,
-          status: albumData.status || 'ACTIVO',
-          added_by: albumData.addedBy || null,
-          added_by_email: albumData.addedByEmail || null,
-          tracks: albumData.tracks || [],
-          spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
-          reviews_enabled: albumData.reviews_enabled || false, // 👈 AGREGAR
-        },
-      ])
-      .select()
-      .single();
+    const payload = {
+      album_name: albumData.albumName,
+      artist_name: albumData.artistName,
+      image_url: albumData.imageUrl,
+      spotify_link: albumData.spotifyLink || null,
+      youtube_link: albumData.youtubeLink || null,
+      apple_music_link: albumData.appleMusicLink || null,
+      status: albumData.status || 'ACTIVO',
+      added_by: albumData.addedBy || null,
+      added_by_email: albumData.addedByEmail || null,
+      tracks: albumData.tracks || [],
+      spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
+      reviews_enabled: albumData.reviews_enabled || false,
+    };
 
-    if (error) throw new Error(error.message);
-    return data;
+    if (albumData.releaseDate || albumData.release_date) {
+      payload.release_date = albumData.releaseDate || albumData.release_date;
+      const year = parseInt(String(payload.release_date).substring(0, 4), 10);
+      if (!isNaN(year) && year >= 1900 && year <= 2100) {
+        payload.release_year = year;
+      }
+    } else if (albumData.releaseYear || albumData.release_year) {
+      payload.release_year = parseInt(albumData.releaseYear || albumData.release_year, 10);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) {
+        // Fallback si la columna release_date/release_year aún no existe en Supabase
+        if (
+          error.message &&
+          (error.message.includes('release_date') ||
+            error.message.includes('release_year'))
+        ) {
+          delete payload.release_date;
+          delete payload.release_year;
+          const retryRes = await supabase
+            .from('albums')
+            .insert([payload])
+            .select()
+            .single();
+          if (retryRes.error) throw new Error(retryRes.error.message);
+          return retryRes.data;
+        }
+        throw new Error(error.message);
+      }
+      return data;
+    } catch (err) {
+      throw err;
+    }
   },
 
   markAlbumInactive: async (albumName, artistName) => {
@@ -364,6 +400,7 @@ export const supabaseService = {
           album_id: reviewData.albumId,
           reviewer_name: reviewData.reviewerName,
           reviewer_email: reviewData.reviewerEmail,
+          reviewer_avatar: reviewData.reviewerAvatar || reviewData.reviewer_avatar || null,
           track_ratings: reviewData.trackRatings || {},
           rating_produccion: reviewData.ratingProduccion,
           rating_composicion: reviewData.ratingComposicion,
@@ -373,6 +410,7 @@ export const supabaseService = {
           rating_replay: reviewData.ratingReplay,
           rating_general: reviewData.ratingGeneral,
           feeling: reviewData.feeling || null,
+          favorite_track: reviewData.favoriteTrack ?? reviewData.favorite_track ?? null,
           comment: reviewData.comment || '',
         },
       ])
@@ -386,6 +424,9 @@ export const supabaseService = {
     const updatePayload = {
       reviewer_name: reviewData.reviewerName,
       reviewer_email: reviewData.reviewerEmail,
+      ...(reviewData.reviewerAvatar || reviewData.reviewer_avatar
+        ? { reviewer_avatar: reviewData.reviewerAvatar || reviewData.reviewer_avatar }
+        : {}),
       track_ratings: reviewData.trackRatings || {},
       rating_produccion: reviewData.ratingProduccion,
       rating_composicion: reviewData.ratingComposicion,
@@ -395,6 +436,7 @@ export const supabaseService = {
       rating_replay: reviewData.ratingReplay,
       rating_general: reviewData.ratingGeneral,
       feeling: reviewData.feeling || null,
+      favorite_track: reviewData.favoriteTrack ?? reviewData.favorite_track ?? null,
       comment: reviewData.comment || '',
     };
 
@@ -974,28 +1016,60 @@ export const supabaseService = {
 
   // Para crear álbum con tracks desde Spotify
   createAlbumWithTracks: async (albumData) => {
-    const { data, error } = await supabase
-      .from('albums')
-      .insert([
-        {
-          album_name: albumData.albumName,
-          artist_name: albumData.artistName,
-          image_url: albumData.imageUrl,
-          spotify_link: albumData.spotifyLink || null,
-          youtube_link: albumData.youtubeLink || null,
-          apple_music_link: albumData.appleMusicLink || null,
-          status: albumData.status || 'ACTIVO',
-          added_by: albumData.addedBy || null,
-          added_by_email: albumData.addedByEmail || null,
-          tracks: albumData.tracks || [],
-          spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
-        },
-      ])
-      .select()
-      .single();
+    const payload = {
+      album_name: albumData.albumName,
+      artist_name: albumData.artistName,
+      image_url: albumData.imageUrl,
+      spotify_link: albumData.spotifyLink || null,
+      youtube_link: albumData.youtubeLink || null,
+      apple_music_link: albumData.appleMusicLink || null,
+      status: albumData.status || 'ACTIVO',
+      added_by: albumData.addedBy || null,
+      added_by_email: albumData.addedByEmail || null,
+      tracks: albumData.tracks || [],
+      spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
+      reviews_enabled: albumData.reviews_enabled || false,
+    };
 
-    if (error) throw new Error(error.message);
-    return data;
+    if (albumData.releaseDate || albumData.release_date) {
+      payload.release_date = albumData.releaseDate || albumData.release_date;
+      const year = parseInt(String(payload.release_date).substring(0, 4), 10);
+      if (!isNaN(year) && year >= 1900 && year <= 2100) {
+        payload.release_year = year;
+      }
+    } else if (albumData.releaseYear || albumData.release_year) {
+      payload.release_year = parseInt(albumData.releaseYear || albumData.release_year, 10);
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) {
+        if (
+          error.message &&
+          (error.message.includes('release_date') ||
+            error.message.includes('release_year'))
+        ) {
+          delete payload.release_date;
+          delete payload.release_year;
+          const retryRes = await supabase
+            .from('albums')
+            .insert([payload])
+            .select()
+            .single();
+          if (retryRes.error) throw new Error(retryRes.error.message);
+          return retryRes.data;
+        }
+        throw new Error(error.message);
+      }
+      return data;
+    } catch (err) {
+      throw err;
+    }
   },
 
   // ============================================
@@ -1512,10 +1586,9 @@ export const supabaseService = {
         });
 
         const tracksWithAvg = computedTrackStats.filter((t) => t.avg_rating !== null);
-        let bestTrack = null;
+        let bestTrack = calculateAlbumTopTrack(alb, albumReviews, computedTrackStats);
         let worstTrack = null;
         if (tracksWithAvg.length > 0) {
-          bestTrack = [...tracksWithAvg].sort((a, b) => b.avg_rating - a.avg_rating)[0];
           worstTrack = [...tracksWithAvg].sort((a, b) => a.avg_rating - b.avg_rating)[0];
         }
 
@@ -1533,6 +1606,8 @@ export const supabaseService = {
           apple_music_link: alb.apple_music_link,
           tracks: alb.tracks || [],
           created_at: alb.created_at,
+          release_date: alb.release_date,
+          release_year: alb.release_year,
           review_count: reviewCount,
           base_rating: parseFloat(baseAvg.toFixed(2)),
           bonus: parseFloat(bonus.toFixed(2)),

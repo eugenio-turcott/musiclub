@@ -14,110 +14,186 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
+    version: 'V.5.4',
+    title:
+      'SF Tiers Tier List Maker, Filtro por Años/Décadas estilo AlbumOfTheYear, Reorganización de Notificaciones y Fechas Oficiales',
+    date: '2026-08-25',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Gran actualización con generador visual de Tier Lists automático (SF Tiers) con exportación a imagen PNG, barra de filtrado por años y décadas estilo AlbumOfTheYear en el catálogo, rediseño del panel de notificaciones, sincronización de fechas de lanzamiento de Spotify y optimización de portadas.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'SF Tiers Tier List Maker Automático en Mi Perfil',
+        description:
+          'Generador automático de Tier Lists basado en las calificaciones personales del usuario en 6 niveles: S (GOD TIER / OBRAS MAESTRAS, 9.5-10.0), A (EXCELENTES, 8.5-9.4), B (MUY BUENOS, 7.5-8.4), C (BUENOS, 6.5-7.4), D (REGULARES, 5.0-6.4) y F (DECEPCIONANTES, < 4.9 morada). Incluye modo lista vertical optimizado para móviles.',
+      },
+      {
+        type: 'feature',
+        title: 'Exportación de Tier List a Imagen HD (PNG)',
+        description:
+          'Botón para generar y descargar instantáneamente una imagen en alta resolución con tipografía Stack Sans Notch, branding oficial de Musiclub, avatar del usuario y formato listo para compartir en redes sociales.',
+      },
+      {
+        type: 'feature',
+        title: 'Filtro por Años y Décadas estilo AlbumOfTheYear.org',
+        description:
+          'Barra de navegación interactiva en la página de Álbumes con selector de décadas (2020s a 1950s), flechas de navegación ‹ y ›, carril cronológico de años (2020 a 2026), filtrado en tiempo real e insignias con conteo de álbumes por año.',
+      },
+      {
+        type: 'feature',
+        title: 'Metadatos Oficiales de Lanzamiento de Spotify',
+        description:
+          'Incorporación permanente de release_date y release_year en la base de datos de Supabase, backfill del 100% de los álbumes del catálogo y resolución automática para todos los nuevos álbumes agregados.',
+      },
+      {
+        type: 'improvement',
+        title: 'Reorganización del Panel de Notificaciones',
+        description:
+          'Rediseño del buzón en el Header con eliminación de filtros redundantes y reubicación ergonómica de los controles de marcar como leído, eliminar y cerrar justo debajo del título.',
+      },
+      {
+        type: 'improvement',
+        title: 'Actualización del Nivel de Melómano',
+        description:
+          'Ajuste y sincronización de los rangos de Melómano y estadísticas detalladas del perfil de usuario.',
+      },
+      {
+        type: 'fix',
+        title: 'Portadas Robustas con Fallback SVG Nativo',
+        description:
+          'Reemplazo de placeholders externos por un componente visual SVG nativo sin dependencias de red, garantizando carga inmediata de portadas en caso de fallos de enlace.',
+      },
+    ],
+  },
+  {
     version: 'V.5.2',
-    title: 'Paginación en Patch Notes, Scroll Global Restaurado, Rebranding Musiclub y README Actualizado',
+    title:
+      'Paginación en Patch Notes, Scroll Global Restaurado, Rebranding Musiclub y README Actualizado',
     date: '2026-08-21',
     sha: '3257b00',
     tag: 'Mejora',
     tagColor: 'from-blue-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Actualización con sistema de paginación de 6 versiones por página en notas de parche, restablecimiento global de scroll al inicio al navegar, estandarización de marca Musiclub y documentación técnica completa en README.md.',
+    summary:
+      'Actualización con sistema de paginación de 6 versiones por página en notas de parche, restablecimiento global de scroll al inicio al navegar, estandarización de marca Musiclub y documentación técnica completa en README.md.',
     changes: [
       {
         type: 'feature',
         title: 'Paginación Interactiva en Patch Notes',
-        description: 'Paginación fluida de 6 versiones por página con botones anterior/siguiente, números de página con resplandor activo y filtros rápidos por versión (V5.x a V0.x).'
+        description:
+          'Paginación fluida de 6 versiones por página con botones anterior/siguiente, números de página con resplandor activo y filtros rápidos por versión (V5.x a V0.x).',
       },
       {
         type: 'feature',
         title: 'Restablecimiento Global de Scroll (ScrollToTop)',
-        description: 'Componente en la raíz del Router que restablece inmediatamente el scroll de la ventana al principio (top: 0, left: 0) al hacer clic en enlaces del footer o navegar entre páginas.'
+        description:
+          'Componente en la raíz del Router que restablece inmediatamente el scroll de la ventana al principio (top: 0, left: 0) al hacer clic en enlaces del footer o navegar entre páginas.',
       },
       {
         type: 'improvement',
         title: 'Actualización Integral de la Documentación (README.md)',
-        description: 'Documentación renovada a la versión v5.2.0 con árbol de archivos, tabla completa de 14 rutas, fórmulas matemáticas y guía de instalación.'
+        description:
+          'Documentación renovada a la versión v5.2.0 con árbol de archivos, tabla completa de 14 rutas, fórmulas matemáticas y guía de instalación.',
       },
       {
         type: 'improvement',
         title: 'Estandarización de Marca «Musiclub»',
-        description: 'Ajuste de todas las referencias de marca y texto en la aplicación con la c en minúscula.'
-      }
-    ]
+        description:
+          'Ajuste de todas las referencias de marca y texto en la aplicación con la c en minúscula.',
+      },
+    ],
   },
   {
     version: 'V.5.1',
-    title: 'Gashapon Arcade 3D, Buzón Social de Canciones, Buscador Directo y Patch Notes',
+    title:
+      'Gashapon Arcade 3D, Buzón Social de Canciones, Buscador Directo y Patch Notes',
     date: '2026-08-21',
     sha: '9c8e0cf',
     tag: 'Mayor',
     tagColor: 'from-pink-500 to-rose-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Gran actualización con máquina Gashapon interactiva independiente, buzón social de recomendaciones de canciones entre usuarios, buscador instantáneo en el header, corrección 3D en rankings y módulo de Patch Notes.',
+    summary:
+      'Gran actualización con máquina Gashapon interactiva independiente, buzón social de recomendaciones de canciones entre usuarios, buscador instantáneo en el header, corrección 3D en rankings y módulo de Patch Notes.',
     changes: [
       {
         type: 'feature',
         title: 'Máquina Gashapon Arcade 3D Independiente',
-        description: 'Se separó el Gashapon a su propia página dedicada (/gashapon) con una cúpula de cristal con más de 18 cápsulas esféricas multicolor con física vibrante, manivela 3D y selección aleatoria de álbumes individuales.'
+        description:
+          'Se separó el Gashapon a su propia página dedicada (/gashapon) con una cúpula de cristal con más de 18 cápsulas esféricas multicolor con física vibrante, manivela 3D y selección aleatoria de álbumes individuales.',
       },
       {
         type: 'feature',
         title: 'Buzón Social de Recomendaciones de Canciones',
-        description: 'Buzón privado en el perfil de usuario para intercambiar y recomendar exclusivamente canciones entre miembros, con dedicatorias, vista previa de Spotify y notificaciones en tiempo real respaldadas en Supabase.'
+        description:
+          'Buzón privado en el perfil de usuario para intercambiar y recomendar exclusivamente canciones entre miembros, con dedicatorias, vista previa de Spotify y notificaciones en tiempo real respaldadas en Supabase.',
       },
       {
         type: 'feature',
         title: 'Buscador Global Directo en Header',
-        description: 'Campo de búsqueda directo integrado en la barra de navegación y en el menú móvil (sin necesidad de abrir popups para buscar). Muestra resultados en vivo mientras se escribe, soporte de teclado y calificación directa.'
+        description:
+          'Campo de búsqueda directo integrado en la barra de navegación y en el menú móvil (sin necesidad de abrir popups para buscar). Muestra resultados en vivo mientras se escribe, soporte de teclado y calificación directa.',
       },
       {
         type: 'feature',
         title: 'Página de Patch Notes y Sincronización con GitHub',
-        description: 'Historial completo de versiones y commits sincronizado en tiempo real con la rama principal de GitHub, con filtros de versión y buscador de novedades.'
+        description:
+          'Historial completo de versiones y commits sincronizado en tiempo real con la rama principal de GitHub, con filtros de versión y buscador de novedades.',
       },
       {
         type: 'improvement',
         title: 'Diseño 100% Responsivo en Header y Banner de Proponer',
-        description: 'Alineación de navegación fluida evitando solapamientos y banner "¿Tienes un álbum en mente? +50 XP" adaptado para pantallas móviles de 320px a 480px.'
+        description:
+          'Alineación de navegación fluida evitando solapamientos y banner "¿Tienes un álbum en mente? +50 XP" adaptado para pantallas móviles de 320px a 480px.',
       },
       {
         type: 'fix',
         title: 'Corrección de Tarjetas 3D Flip (Puestos 4 al 10 en Rankings)',
-        description: 'Se corrigió la rotación inicial de la cara frontal en CSS para que las portadas, insignias y puntuaciones se muestren de inmediato sin necesidad de hacer clic primero.'
-      }
-    ]
+        description:
+          'Se corrigió la rotación inicial de la cara frontal en CSS para que las portadas, insignias y puntuaciones se muestren de inmediato sin necesidad de hacer clic primero.',
+      },
+    ],
   },
   {
     version: 'V.5.0',
-    title: 'Motor de Recomendaciones "Para Ti", Playlists del Club y Deduplicación',
+    title:
+      'Motor de Recomendaciones "Para Ti", Playlists del Club y Deduplicación',
     date: '2026-08-20',
     sha: 'da68bc8',
     tag: 'Mayor',
     tagColor: 'from-purple-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Lanzamiento del algoritmo de afinidad musical "Para Ti", playlists dinámicas generadas con votos de la comunidad, deduplicación de catálogo y emociones en reseñas.',
+    summary:
+      'Lanzamiento del algoritmo de afinidad musical "Para Ti", playlists dinámicas generadas con votos de la comunidad, deduplicación de catálogo y emociones en reseñas.',
     changes: [
       {
         type: 'feature',
         title: 'Sección de Recomendaciones "Para Ti" (RecommendationsPage)',
-        description: 'Algoritmo inteligente de recomendación que analiza tus calificaciones y preferencias para sugerirte joyas del catálogo del club.'
+        description:
+          'Algoritmo inteligente de recomendación que analiza tus calificaciones y preferencias para sugerirte joyas del catálogo del club.',
       },
       {
         type: 'feature',
         title: 'Explorador y Generador de Playlists (PlaylistsPage)',
-        description: 'Creación de listas de reproducción temáticas con las mejores canciones votadas y exportación a Spotify.'
+        description:
+          'Creación de listas de reproducción temáticas con las mejores canciones votadas y exportación a Spotify.',
       },
       {
         type: 'feature',
         title: 'Emociones y Sentimientos en Reseñas',
-        description: 'Selector de sensaciones emocionales (Mindblown, Sad, Chill, Hype, etc.) respaldado en Supabase.'
+        description:
+          'Selector de sensaciones emocionales (Mindblown, Sad, Chill, Hype, etc.) respaldado en Supabase.',
       },
       {
         type: 'improvement',
         title: 'Motor de Deduplicación Robusta de Álbumes',
-        description: 'Algoritmo para prevenir discos duplicados validando Spotify Album IDs y similitud de títulos.'
-      }
-    ]
+        description:
+          'Algoritmo para prevenir discos duplicados validando Spotify Album IDs y similitud de títulos.',
+      },
+    ],
   },
 
   // ----------------------------------------------------
@@ -131,24 +207,28 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mejora',
     tagColor: 'from-purple-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Motor de medallas e insignias desbloqueables por actividad musical y balanceo en fórmulas de promedios ponderados.',
+    summary:
+      'Motor de medallas e insignias desbloqueables por actividad musical y balanceo en fórmulas de promedios ponderados.',
     changes: [
       {
         type: 'feature',
         title: 'Sistema de Insignias y Medallas (Badge System)',
-        description: 'Creación del motor de insignias por hitos: crítico prolífico, descubridor de joyas, géneros explorados y constancia semanal.'
+        description:
+          'Creación del motor de insignias por hitos: crítico prolífico, descubridor de joyas, géneros explorados y constancia semanal.',
       },
       {
         type: 'improvement',
         title: 'Balanceo de Fórmulas Ponderadas',
-        description: 'Ajuste en el algoritmo de cálculo general para equilibrar las notas de canciones individuales con los 6 criterios técnicos.'
+        description:
+          'Ajuste en el algoritmo de cálculo general para equilibrar las notas de canciones individuales con los 6 criterios técnicos.',
       },
       {
         type: 'improvement',
         title: 'Optimización de Carga en Catálogo y Perfiles',
-        description: 'Mejoras en el rendimiento de consultas a Supabase y estados reactivos en UserProfile y AlbumsCatalog.'
-      }
-    ]
+        description:
+          'Mejoras en el rendimiento de consultas a Supabase y estados reactivos en UserProfile y AlbumsCatalog.',
+      },
+    ],
   },
   {
     version: 'V.4.3',
@@ -158,24 +238,28 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-amber-500 to-orange-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Lanzamiento del centro interactivo de Preguntas Frecuentes (/faq), políticas de privacidad y términos de servicio.',
+    summary:
+      'Lanzamiento del centro interactivo de Preguntas Frecuentes (/faq), políticas de privacidad y términos de servicio.',
     changes: [
       {
         type: 'feature',
         title: 'Página de Preguntas Frecuentes (FAQ) con Buscador',
-        description: 'Guía completa con 8 categorías sobre dinámica del club, ruleta, puntuación técnica, insignias y catálogo de Spotify.'
+        description:
+          'Guía completa con 8 categorías sobre dinámica del club, ruleta, puntuación técnica, insignias y catálogo de Spotify.',
       },
       {
         type: 'feature',
         title: 'Páginas Legales y Footer Dinámico',
-        description: 'Integración de páginas dedicadas de Política de Privacidad y Términos de Servicio accesibles desde el pie de página.'
+        description:
+          'Integración de páginas dedicadas de Política de Privacidad y Términos de Servicio accesibles desde el pie de página.',
       },
       {
         type: 'improvement',
         title: 'Refactorización de Utilidades de Calificación (ratingUtils.js)',
-        description: 'Modularización y pruebas de utilidades para formateo de promedios y cálculo de bonificaciones.'
-      }
-    ]
+        description:
+          'Modularización y pruebas de utilidades para formateo de promedios y cálculo de bonificaciones.',
+      },
+    ],
   },
   {
     version: 'V.4.2',
@@ -185,19 +269,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mejora',
     tagColor: 'from-cyan-500 to-blue-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Perfeccionamiento de la desaceleración de los carretes y efectos visuales cinemáticos en la máquina musical.',
+    summary:
+      'Perfeccionamiento de la desaceleración de los carretes y efectos visuales cinemáticos en la máquina musical.',
     changes: [
       {
         type: 'improvement',
         title: 'Física Cinemática de Desaceleración',
-        description: 'Curvas de transición bezier personalizadas para detener los carretes secuencialmente con mayor realismo.'
+        description:
+          'Curvas de transición bezier personalizadas para detener los carretes secuencialmente con mayor realismo.',
       },
       {
         type: 'improvement',
         title: 'Sincronización de Probabilidad Ponderada por Antigüedad',
-        description: 'Ajuste fino del algoritmo para otorgar hasta +40% de probabilidad justa a discos antiguos en lista de espera.'
-      }
-    ]
+        description:
+          'Ajuste fino del algoritmo para otorgar hasta +40% de probabilidad justa a discos antiguos en lista de espera.',
+      },
+    ],
   },
   {
     version: 'V.4.1',
@@ -207,51 +294,60 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Optimización',
     tagColor: 'from-emerald-500 to-teal-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Mejoras de rendimiento en consultas agregadas de Supabase para calcular el ranking de usuarios en tiempo real.',
+    summary:
+      'Mejoras de rendimiento en consultas agregadas de Supabase para calcular el ranking de usuarios en tiempo real.',
     changes: [
       {
         type: 'improvement',
         title: 'Queries Agregadas de Alto Rendimiento',
-        description: 'Optimización de consultas SQL en Supabase para contabilizar reviews, propuestas y XP sin cuello de botella.'
+        description:
+          'Optimización de consultas SQL en Supabase para contabilizar reviews, propuestas y XP sin cuello de botella.',
       },
       {
         type: 'fix',
         title: 'Estabilidad de Carga en Leaderboard',
-        description: 'Manejo de estados de carga y skeletons para evitar parpadeos visuales al ordenar miembros por XP.'
-      }
-    ]
+        description:
+          'Manejo de estados de carga y skeletons para evitar parpadeos visuales al ordenar miembros por XP.',
+      },
+    ],
   },
   {
     version: 'V.4.0',
-    title: 'Reviews Multidimensionales en 6 Criterios y Calificación Track por Track',
+    title:
+      'Reviews Multidimensionales en 6 Criterios y Calificación Track por Track',
     date: '2026-08-17',
     sha: 'd0a8be3',
     tag: 'Mayor',
     tagColor: 'from-purple-500 to-pink-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Gran salto evolutivo con el sistema de reseñas técnicas en 6 dimensiones, puntuación individual pista por pista y nuevas páginas de navegación.',
+    summary:
+      'Gran salto evolutivo con el sistema de reseñas técnicas en 6 dimensiones, puntuación individual pista por pista y nuevas páginas de navegación.',
     changes: [
       {
         type: 'feature',
         title: 'Evaluación Técnica en 6 Dimensiones',
-        description: 'Sliders reactivos para Producción, Composición, Letras, Originalidad, Cohesión y Replay Value con escala visual.'
+        description:
+          'Sliders reactivos para Producción, Composición, Letras, Originalidad, Cohesión y Replay Value con escala visual.',
       },
       {
         type: 'feature',
         title: 'Calificación Pista por Pista (Track Ratings)',
-        description: 'Puntuación individual para cada canción del álbum sincronizada con el tracklist oficial de Spotify.'
+        description:
+          'Puntuación individual para cada canción del álbum sincronizada con el tracklist oficial de Spotify.',
       },
       {
         type: 'feature',
         title: 'Nuevas Páginas de Navegación',
-        description: 'Creación de rutas y componentes dedicados: LeaderboardPage, ProfilePage, SettingsPage y AlbumsPage.'
+        description:
+          'Creación de rutas y componentes dedicados: LeaderboardPage, ProfilePage, SettingsPage y AlbumsPage.',
       },
       {
         type: 'database',
         title: 'Migración SQL de Calificaciones por Pista',
-        description: 'Ejecución del script update_track_ratings.sql para almacenar ratings en formato JSONB estructurado.'
-      }
-    ]
+        description:
+          'Ejecución del script update_track_ratings.sql para almacenar ratings en formato JSONB estructurado.',
+      },
+    ],
   },
 
   // ----------------------------------------------------
@@ -265,19 +361,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mejora',
     tagColor: 'from-pink-500 to-rose-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Mejoras visuales y de rendimiento en la galería principal de álbumes y badges de estado.',
+    summary:
+      'Mejoras visuales y de rendimiento en la galería principal de álbumes y badges de estado.',
     changes: [
       {
         type: 'improvement',
         title: 'Renderizado de Portadas en AlbumGrid',
-        description: 'Optimización de carga diferida (lazy loading) y placeholders elegantes para portadas de Spotify.'
+        description:
+          'Optimización de carga diferida (lazy loading) y placeholders elegantes para portadas de Spotify.',
       },
       {
         type: 'improvement',
         title: 'Filtros Rápidos en Cuadrícula',
-        description: 'Selector visual entre álbumes del Pool activo, Álbumes Individuales y Ganadores anteriores.'
-      }
-    ]
+        description:
+          'Selector visual entre álbumes del Pool activo, Álbumes Individuales y Ganadores anteriores.',
+      },
+    ],
   },
   {
     version: 'V.3.4',
@@ -287,19 +386,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-amber-500 to-yellow-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Buscador integrado con la API de Spotify para añadir álbumes y efectos de podio dorado en Rankings.',
+    summary:
+      'Buscador integrado con la API de Spotify para añadir álbumes y efectos de podio dorado en Rankings.',
     changes: [
       {
         type: 'feature',
         title: 'Buscador de Álbumes con Spotify API (AlbumSearch)',
-        description: 'Búsqueda en tiempo real de álbumes, artistas y años de lanzamiento con autocompletado y carátulas HD.'
+        description:
+          'Búsqueda en tiempo real de álbumes, artistas y años de lanzamiento con autocompletado y carátulas HD.',
       },
       {
         type: 'feature',
         title: 'Podio Visual de Campeones (#1, #2 y #3)',
-        description: 'Efectos dorados, plateados y de bronce con animaciones de resplandor para los discos mejor evaluados.'
-      }
-    ]
+        description:
+          'Efectos dorados, plateados y de bronce con animaciones de resplandor para los discos mejor evaluados.',
+      },
+    ],
   },
   {
     version: 'V.3.3',
@@ -309,19 +411,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-blue-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Módulo de administración para control de estados de álbumes y visualización destacada del ganador semanal.',
+    summary:
+      'Módulo de administración para control de estados de álbumes y visualización destacada del ganador semanal.',
     changes: [
       {
         type: 'feature',
         title: 'Panel de Administración (AdminPanel)',
-        description: 'Herramientas de moderador para activar, desactivar o remover álbumes del catálogo.'
+        description:
+          'Herramientas de moderador para activar, desactivar o remover álbumes del catálogo.',
       },
       {
         type: 'feature',
         title: 'Modal de Ganador Integrado (WinnerDisplay)',
-        description: 'Presentación destacada con botón de reproducción en Spotify y acceso rápido a reseñas.'
-      }
-    ]
+        description:
+          'Presentación destacada con botón de reproducción en Spotify y acceso rápido a reseñas.',
+      },
+    ],
   },
   {
     version: 'V.3.2',
@@ -331,19 +436,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-purple-500 to-violet-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Página dedicada (/reviews) para consultar el feed completo de opiniones y calificaciones del club.',
+    summary:
+      'Página dedicada (/reviews) para consultar el feed completo de opiniones y calificaciones del club.',
     changes: [
       {
         type: 'feature',
         title: 'Feed de Reseñas en Vivo (ReviewsPage)',
-        description: 'Muro interactivo con las últimas reseñas enviadas por los miembros, comentarios y puntuaciones.'
+        description:
+          'Muro interactivo con las últimas reseñas enviadas por los miembros, comentarios y puntuaciones.',
       },
       {
         type: 'improvement',
         title: 'Navegación en AppHeader',
-        description: 'Acceso directo a la sección de Reviews desde la barra superior.'
-      }
-    ]
+        description:
+          'Acceso directo a la sección de Reviews desde la barra superior.',
+      },
+    ],
   },
   {
     version: 'V.3.1',
@@ -353,19 +461,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mejora',
     tagColor: 'from-teal-500 to-emerald-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Centralización de la lógica de datos en el custom hook useAlbums con soporte de mutaciones optimistas.',
+    summary:
+      'Centralización de la lógica de datos en el custom hook useAlbums con soporte de mutaciones optimistas.',
     changes: [
       {
         type: 'improvement',
         title: 'Custom Hook useAlbums',
-        description: 'Centralización de queries de Supabase, filtrado de estados y refresco automático tras calificar.'
+        description:
+          'Centralización de queries de Supabase, filtrado de estados y refresco automático tras calificar.',
       },
       {
         type: 'feature',
         title: 'Marcado de Álbumes Inactivos',
-        description: 'Función para archivar álbumes que ya concluyeron su ciclo de votación.'
-      }
-    ]
+        description:
+          'Función para archivar álbumes que ya concluyeron su ciclo de votación.',
+      },
+    ],
   },
   {
     version: 'V.3.0',
@@ -375,24 +486,28 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mayor',
     tagColor: 'from-yellow-500 to-amber-600',
     authorName: 'Eugenio Turcott',
-    summary: 'Reemplazo total del prototipo de ruleta plana por una Máquina Tragamonedas (Slot Machine) estilo arcade con animaciones de carretes independientes.',
+    summary:
+      'Reemplazo total del prototipo de ruleta plana por una Máquina Tragamonedas (Slot Machine) estilo arcade con animaciones de carretes independientes.',
     changes: [
       {
         type: 'feature',
         title: 'Slot Machine Cyberpunk con 3 Carretes',
-        description: 'Animación de giro secuencial de 3 carretes con blur de movimiento y efectos sonoros de neón.'
+        description:
+          'Animación de giro secuencial de 3 carretes con blur de movimiento y efectos sonoros de neón.',
       },
       {
         type: 'feature',
         title: 'Modal de Victoria con Lluvia de Confetti',
-        description: 'Celebración inmersiva en pantalla completa al revelarse el álbum ganador.'
+        description:
+          'Celebración inmersiva en pantalla completa al revelarse el álbum ganador.',
       },
       {
         type: 'improvement',
         title: 'Integración Directa con Spotify API',
-        description: 'Recuperación de enlaces oficiales de reproducción y arte de portada en alta definición.'
-      }
-    ]
+        description:
+          'Recuperación de enlaces oficiales de reproducción y arte de portada en alta definición.',
+      },
+    ],
   },
 
   // ----------------------------------------------------
@@ -406,14 +521,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Fix',
     tagColor: 'from-blue-500 to-cyan-500',
     authorName: 'eugenio-turcott',
-    summary: 'Ajustes de espaciado y estructura de contenedores en App.js para soporte de múltiples resoluciones.',
+    summary:
+      'Ajustes de espaciado y estructura de contenedores en App.js para soporte de múltiples resoluciones.',
     changes: [
       {
         type: 'fix',
         title: 'Alineación de Contenedores en App.js',
-        description: 'Corrección de márgenes y paddings en la vista general de la aplicación.'
-      }
-    ]
+        description:
+          'Corrección de márgenes y paddings en la vista general de la aplicación.',
+      },
+    ],
   },
   {
     version: 'V.2.3',
@@ -423,14 +540,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mejora',
     tagColor: 'from-indigo-500 to-purple-500',
     authorName: 'eugenio-turcott',
-    summary: 'Mejoras en el ciclo de vida de la sesión de Supabase Auth y recuperación de usuario.',
+    summary:
+      'Mejoras en el ciclo de vida de la sesión de Supabase Auth y recuperación de usuario.',
     changes: [
       {
         type: 'improvement',
         title: 'Gestión de Sesión en useAuth.js',
-        description: 'Sincronización del estado de autenticación con onAuthStateChange de Supabase.'
-      }
-    ]
+        description:
+          'Sincronización del estado de autenticación con onAuthStateChange de Supabase.',
+      },
+    ],
   },
   {
     version: 'V.2.2',
@@ -440,14 +559,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-pink-500 to-rose-500',
     authorName: 'eugenio-turcott',
-    summary: 'Visualización del avatar de Google, nombre de usuario y botón de cerrar sesión en AppHeader.',
+    summary:
+      'Visualización del avatar de Google, nombre de usuario y botón de cerrar sesión en AppHeader.',
     changes: [
       {
         type: 'feature',
         title: 'Perfil en AppHeader',
-        description: 'Visualización de la foto de perfil del usuario autenticado y menú desplegable de acciones.'
-      }
-    ]
+        description:
+          'Visualización de la foto de perfil del usuario autenticado y menú desplegable de acciones.',
+      },
+    ],
   },
   {
     version: 'V.2.1',
@@ -457,19 +578,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-purple-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Implementación del tema visual oscuro cyber-grid, gradientes neón y creación de AdminPage.',
+    summary:
+      'Implementación del tema visual oscuro cyber-grid, gradientes neón y creación de AdminPage.',
     changes: [
       {
         type: 'feature',
         title: 'Tema Visual Cyberpunk en global.css',
-        description: 'Fondo de cuadrícula cibernética, efectos de neón rosa/violeta y scrollbars personalizados.'
+        description:
+          'Fondo de cuadrícula cibernética, efectos de neón rosa/violeta y scrollbars personalizados.',
       },
       {
         type: 'feature',
         title: 'Ruta de Administración (/admin)',
-        description: 'Acceso protegido para moderación de álbumes y usuarios administradores.'
-      }
-    ]
+        description:
+          'Acceso protegido para moderación de álbumes y usuarios administradores.',
+      },
+    ],
   },
   {
     version: 'V.2.0',
@@ -479,19 +603,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Mayor',
     tagColor: 'from-blue-600 to-indigo-600',
     authorName: 'Eugenio Turcott',
-    summary: 'Reemplazo del sistema anónimo por autenticación real con cuentas de Google y base de datos Supabase.',
+    summary:
+      'Reemplazo del sistema anónimo por autenticación real con cuentas de Google y base de datos Supabase.',
     changes: [
       {
         type: 'feature',
         title: 'Google OAuth 2.0 con Supabase',
-        description: 'Inicio de sesión con un solo clic, almacenamiento de perfiles de usuario y roles de permisos.'
+        description:
+          'Inicio de sesión con un solo clic, almacenamiento de perfiles de usuario y roles de permisos.',
       },
       {
         type: 'feature',
         title: 'Protección de Reseñas y Propuestas',
-        description: 'Vinculación de cada reseña y propuesta musical a la cuenta autenticada del usuario.'
-      }
-    ]
+        description:
+          'Vinculación de cada reseña y propuesta musical a la cuenta autenticada del usuario.',
+      },
+    ],
   },
 
   // ----------------------------------------------------
@@ -505,14 +632,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'SEO',
     tagColor: 'from-emerald-500 to-teal-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Integración del archivo de verificación HTML para indexación oficial en los servicios de Google.',
+    summary:
+      'Integración del archivo de verificación HTML para indexación oficial en los servicios de Google.',
     changes: [
       {
         type: 'improvement',
         title: 'Google Search Console Verification',
-        description: 'Inclusión del archivo de validación pública para monitoreo de indexación web.'
-      }
-    ]
+        description:
+          'Inclusión del archivo de validación pública para monitoreo de indexación web.',
+      },
+    ],
   },
   {
     version: 'V.1.8',
@@ -522,14 +651,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Config',
     tagColor: 'from-blue-500 to-cyan-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Ajustes en la verificación de la pantalla de consentimiento de Google Cloud Console.',
+    summary:
+      'Ajustes en la verificación de la pantalla de consentimiento de Google Cloud Console.',
     changes: [
       {
         type: 'improvement',
         title: 'Consentimiento OAuth en Producción',
-        description: 'Configuración de credenciales seguras para el flujo de autorización OAuth.'
-      }
-    ]
+        description:
+          'Configuración de credenciales seguras para el flujo de autorización OAuth.',
+      },
+    ],
   },
   {
     version: 'V.1.7',
@@ -539,14 +670,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'SEO',
     tagColor: 'from-pink-500 to-purple-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Componente SEO para tarjetas de previsualización en WhatsApp, Discord y Twitter.',
+    summary:
+      'Componente SEO para tarjetas de previsualización en WhatsApp, Discord y Twitter.',
     changes: [
       {
         type: 'feature',
         title: 'Componente SEO (SEO.jsx)',
-        description: 'Generación dinámica de Open Graph meta tags, títulos y descripción del club musical.'
-      }
-    ]
+        description:
+          'Generación dinámica de Open Graph meta tags, títulos y descripción del club musical.',
+      },
+    ],
   },
   {
     version: 'V.1.6',
@@ -556,14 +689,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Fix',
     tagColor: 'from-amber-500 to-red-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Manejo de estados de error en intentos fallidos de autenticación y redirecciones.',
+    summary:
+      'Manejo de estados de error en intentos fallidos de autenticación y redirecciones.',
     changes: [
       {
         type: 'fix',
         title: 'Control de Errores de Inicio de Sesión',
-        description: 'Notificaciones amigables cuando se cancela el flujo de Google OAuth.'
-      }
-    ]
+        description:
+          'Notificaciones amigables cuando se cancela el flujo de Google OAuth.',
+      },
+    ],
   },
   {
     version: 'V.1.5',
@@ -573,19 +708,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-purple-500 to-pink-500',
     authorName: 'Eugenio Turcott',
-    summary: 'Creación de LoginModal con opción de Google y correo, y primeras páginas de términos y privacidad.',
+    summary:
+      'Creación de LoginModal con opción de Google y correo, y primeras páginas de términos y privacidad.',
     changes: [
       {
         type: 'feature',
         title: 'LoginModal con Diseño Cyberpunk',
-        description: 'Ventana emergente estilizada con botón directo de Google Login y soporte de email.'
+        description:
+          'Ventana emergente estilizada con botón directo de Google Login y soporte de email.',
       },
       {
         type: 'feature',
         title: 'Estructura Legal Inicial',
-        description: 'Primer borrador de PrivacyPolicy y TermsOfService en el pie de página.'
-      }
-    ]
+        description:
+          'Primer borrador de PrivacyPolicy y TermsOfService en el pie de página.',
+      },
+    ],
   },
   {
     version: 'V.1.4',
@@ -595,14 +733,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Optimización',
     tagColor: 'from-emerald-500 to-teal-500',
     authorName: 'eugenio-turcott',
-    summary: 'Mejora en la estructura de consultas para la obtención del catálogo completo de álbumes.',
+    summary:
+      'Mejora en la estructura de consultas para la obtención del catálogo completo de álbumes.',
     changes: [
       {
         type: 'improvement',
         title: 'Optimización de Cliente Supabase',
-        description: 'Uso de transacciones limpias y control de reconexiones en supabaseClient.js.'
-      }
-    ]
+        description:
+          'Uso de transacciones limpias y control de reconexiones en supabaseClient.js.',
+      },
+    ],
   },
   {
     version: 'V.1.3',
@@ -612,14 +752,16 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Feature',
     tagColor: 'from-amber-500 to-yellow-500',
     authorName: 'eugenio-turcott',
-    summary: 'Integración del motor de ordenamiento por calificación promedio histórica de álbumes.',
+    summary:
+      'Integración del motor de ordenamiento por calificación promedio histórica de álbumes.',
     changes: [
       {
         type: 'feature',
         title: 'Tabla de Rankings en Tiempo Real',
-        description: 'Ordenamiento reactivo por puntuación general y distinción entre pool e individuales.'
-      }
-    ]
+        description:
+          'Ordenamiento reactivo por puntuación general y distinción entre pool e individuales.',
+      },
+    ],
   },
   {
     version: 'V.1.2',
@@ -629,19 +771,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Database',
     tagColor: 'from-teal-500 to-cyan-500',
     authorName: 'eugenio-turcott',
-    summary: 'Scripts Node.js para migrar álbumes y reseñas históricas desde Google Sheets hacia PostgreSQL en Supabase.',
+    summary:
+      'Scripts Node.js para migrar álbumes y reseñas históricas desde Google Sheets hacia PostgreSQL en Supabase.',
     changes: [
       {
         type: 'database',
         title: 'Scripts de Migración (migrateAlbums / migrateReviews)',
-        description: 'Migración automatizada de registros históricos manteniendo la integridad de fechas y puntuaciones.'
+        description:
+          'Migración automatizada de registros históricos manteniendo la integridad de fechas y puntuaciones.',
       },
       {
         type: 'database',
         title: 'Esquema Relacional Inicial en Supabase',
-        description: 'Tablas relacionales albums y reviews con llaves foráneas y restricciones.'
-      }
-    ]
+        description:
+          'Tablas relacionales albums y reviews con llaves foráneas y restricciones.',
+      },
+    ],
   },
   {
     version: 'V.1.1',
@@ -651,14 +796,15 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Config',
     tagColor: 'from-gray-500 to-slate-600',
     authorName: 'Eugenio Turcott',
-    summary: 'Ajuste de paquetes de Node y optimización de configuraciones de React Scripts.',
+    summary:
+      'Ajuste de paquetes de Node y optimización de configuraciones de React Scripts.',
     changes: [
       {
         type: 'improvement',
         title: 'Optimización de Dependencias',
-        description: 'Limpieza de paquetes innecesarios en package.json.'
-      }
-    ]
+        description: 'Limpieza de paquetes innecesarios en package.json.',
+      },
+    ],
   },
   {
     version: 'V.1.0',
@@ -668,24 +814,28 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Lanzamiento',
     tagColor: 'from-emerald-500 to-green-600',
     authorName: 'eugenio-turcott',
-    summary: 'Nacimiento oficial de la plataforma Musiclub, migrando de Google Sheets a una arquitectura web moderna con base de datos en Supabase y metadatos de Spotify.',
+    summary:
+      'Nacimiento oficial de la plataforma Musiclub, migrando de Google Sheets a una arquitectura web moderna con base de datos en Supabase y metadatos de Spotify.',
     changes: [
       {
         type: 'feature',
         title: 'Conexión con Supabase y Spotify API',
-        description: 'Búsqueda en catálogo oficial de Spotify y persistencia de propuestas y votos en Supabase.'
+        description:
+          'Búsqueda en catálogo oficial de Spotify y persistencia de propuestas y votos en Supabase.',
       },
       {
         type: 'feature',
         title: 'Primer Sistema de Reseñas y Puntuación',
-        description: 'Formulario para calificar discos y almacenar comentarios de los miembros.'
+        description:
+          'Formulario para calificar discos y almacenar comentarios de los miembros.',
       },
       {
         type: 'feature',
         title: 'Slot Machine y Cuadrícula de Discos',
-        description: 'Interfaz gráfica inicial para sorteo de discos y visualización en tarjetas.'
-      }
-    ]
+        description:
+          'Interfaz gráfica inicial para sorteo de discos y visualización en tarjetas.',
+      },
+    ],
   },
 
   // ----------------------------------------------------
@@ -699,19 +849,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Prototipo',
     tagColor: 'from-amber-600 to-orange-600',
     authorName: 'Eugenio Turcott',
-    summary: 'Segundo prototipo experimental con ruleta circular SVG de segmentos y ventana emergente de ganador.',
+    summary:
+      'Segundo prototipo experimental con ruleta circular SVG de segmentos y ventana emergente de ganador.',
     changes: [
       {
         type: 'feature',
         title: 'Prototipo de Ruleta Circular SVG (Wheel.jsx)',
-        description: 'Rueda gráfica con segmentos divididos por álbum y animación de rotación.'
+        description:
+          'Rueda gráfica con segmentos divididos por álbum y animación de rotación.',
       },
       {
         type: 'feature',
         title: 'Modal Emergente de Ganador (WinnerPopup.jsx)',
-        description: 'Ventana básica para mostrar el disco resultante del giro.'
-      }
-    ]
+        description:
+          'Ventana básica para mostrar el disco resultante del giro.',
+      },
+    ],
   },
   {
     version: 'V.0.1',
@@ -721,19 +874,22 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Prototipo',
     tagColor: 'from-blue-600 to-indigo-600',
     authorName: 'Eugenio Turcott',
-    summary: 'Configuración inicial del entorno de diseño con Tailwind CSS y lectura de datos desde API externa.',
+    summary:
+      'Configuración inicial del entorno de diseño con Tailwind CSS y lectura de datos desde API externa.',
     changes: [
       {
         type: 'feature',
         title: 'Configuración de Tailwind CSS y Estilos Base',
-        description: 'Estructura de fuentes, colores oscuros y componentes iniciales de UI.'
+        description:
+          'Estructura de fuentes, colores oscuros y componentes iniciales de UI.',
       },
       {
         type: 'feature',
         title: 'Primer Boceto de la Ruleta Musical',
-        description: 'Maquetación de la ruleta de discos para las reuniones del club.'
-      }
-    ]
+        description:
+          'Maquetación de la ruleta de discos para las reuniones del club.',
+      },
+    ],
   },
   {
     version: 'V.0.0',
@@ -743,15 +899,17 @@ export const CURATED_PATCH_NOTES = [
     tag: 'Inicial',
     tagColor: 'from-gray-600 to-slate-700',
     authorName: 'Eugenio Turcott',
-    summary: 'Creación del repositorio y estructura de directorios inicial del proyecto con React 18.',
+    summary:
+      'Creación del repositorio y estructura de directorios inicial del proyecto con React 18.',
     changes: [
       {
         type: 'feature',
         title: 'Setup Inicial con React 18',
-        description: 'Configuración del entorno de desarrollo, gitignore, package.json y estructura base.'
-      }
-    ]
-  }
+        description:
+          'Configuración del entorno de desarrollo, gitignore, package.json y estructura base.',
+      },
+    ],
+  },
 ];
 
 /**
@@ -773,9 +931,14 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     const date = ghCommit.commit?.author?.date
       ? ghCommit.commit.author.date.substring(0, 10)
       : new Date().toISOString().substring(0, 10);
-    const authorName = ghCommit.commit?.author?.name || ghCommit.author?.login || 'Eugenio Turcott';
+    const authorName =
+      ghCommit.commit?.author?.name ||
+      ghCommit.author?.login ||
+      'Eugenio Turcott';
     const authorAvatar = ghCommit.author?.avatar_url || null;
-    const commitUrl = ghCommit.html_url || `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${fullSha}`;
+    const commitUrl =
+      ghCommit.html_url ||
+      `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${fullSha}`;
 
     // Buscar coincidencia de versión en mensaje ej "Slot Machine Álbumes - V.5.2" o "Slot Machine Álbumes - V.5.1"
     const versionMatch = message.match(/V\.?\s?(\d+\.\d+(\.\d+)?)/i);
@@ -783,8 +946,9 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
 
     // Buscar en notas curadas por SHA corto o por versión
     const curated = CURATED_PATCH_NOTES.find(
-      (n) => (n.sha && (sha.startsWith(n.sha) || n.sha.startsWith(sha))) || 
-             (versionKey && n.version.toLowerCase() === versionKey.toLowerCase())
+      (n) =>
+        (n.sha && (sha.startsWith(n.sha) || n.sha.startsWith(sha))) ||
+        (versionKey && n.version.toLowerCase() === versionKey.toLowerCase())
     );
 
     const matchKey = curated ? curated.version : sha;
@@ -799,12 +963,15 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
         authorAvatar: authorAvatar || curated.authorAvatar,
         commitUrl,
         rawMessage: message,
-        isFromGithub: true
+        isFromGithub: true,
       });
     } else if (!curated && !processedKeys.has(sha)) {
       processedKeys.add(sha);
       // Commit nuevo sin entrada curada previa: parsear automáticamente
-      const lines = message.split('\n').map((l) => l.trim()).filter(Boolean);
+      const lines = message
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
       const title = lines[0] || `Commit ${sha}`;
       const bodyLines = lines.slice(1);
 
@@ -821,19 +988,25 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
         tagColor = 'from-purple-500 to-indigo-500';
       }
 
-      const changes = bodyLines.length > 0
-        ? bodyLines.map((line) => ({
-            type: /fix|bug/i.test(line) ? 'fix' : /mejora|optim/i.test(line) ? 'improvement' : 'feature',
-            title: line.replace(/^[-*•]\s*/, ''),
-            description: 'Actualización registrada en el repositorio GitHub.'
-          }))
-        : [
-            {
-              type: 'feature',
-              title: title,
-              description: 'Cambios sincronizados directamente desde el commit de GitHub.'
-            }
-          ];
+      const changes =
+        bodyLines.length > 0
+          ? bodyLines.map((line) => ({
+              type: /fix|bug/i.test(line)
+                ? 'fix'
+                : /mejora|optim/i.test(line)
+                  ? 'improvement'
+                  : 'feature',
+              title: line.replace(/^[-*•]\s*/, ''),
+              description: 'Actualización registrada en el repositorio GitHub.',
+            }))
+          : [
+              {
+                type: 'feature',
+                title: title,
+                description:
+                  'Cambios sincronizados directamente desde el commit de GitHub.',
+              },
+            ];
 
       enrichedList.push({
         version: versionKey || `v${sha}`,
@@ -849,7 +1022,7 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
         authorAvatar,
         commitUrl,
         rawMessage: message,
-        isFromGithub: true
+        isFromGithub: true,
       });
     }
   });
@@ -860,7 +1033,7 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
       enrichedList.push({
         ...curated,
         commitUrl: `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha}`,
-        isFromGithub: false
+        isFromGithub: false,
       });
     }
   });

@@ -1,35 +1,10 @@
 // src/components/LoginModal.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-export function LoginModal({
-  isOpen,
-  onClose,
-  onLogin,
-  loading,
-  onGoogleLogin,
-  googleLoading,
-}) {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+export function LoginModal({ isOpen, onClose, onGoogleLogin, googleLoading }) {
   const [error, setError] = useState(null);
-  const [useEmail, setUseEmail] = useState(false);
 
   if (!isOpen) return null;
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!email.trim() || !email.includes('@')) {
-      setError('Por favor ingresa un email válido');
-      return;
-    }
-
-    const result = await onLogin(email.trim(), name.trim());
-    if (!result.success) {
-      setError(result.error || 'Error al iniciar sesión');
-    }
-  };
 
   const handleGoogleLogin = async () => {
     setError(null);
@@ -50,7 +25,11 @@ export function LoginModal({
             Inicia sesión para proponer, calificar y descubrir música
           </p>
         </div>
-
+        {error && (
+          <div className="bg-red-500/20 text-red-400 text-sm p-2 rounded mb-4">
+            {error}
+          </div>
+        )}
         {/* Botón de Google */}
         <button
           onClick={handleGoogleLogin}
@@ -85,81 +64,6 @@ export function LoginModal({
           </span>
         </button>
 
-        {/* Separador */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-white/10"></div>
-          </div>
-          <div className="relative flex justify-center text-xs">
-            <span className="bg-black/90 px-3 text-white/20">
-              O continuar con email
-            </span>
-          </div>
-        </div>
-
-        {/* Formulario de email (opcional) */}
-        {useEmail ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-white/40 text-xs block mb-1">
-                Tu Nombre (opcional)
-              </label>
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Ej: Juan Pérez"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#f5576c]/50 transition-colors"
-              />
-            </div>
-
-            <div>
-              <label className="text-white/40 text-xs block mb-1">
-                Email *
-              </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="tu@email.com"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-[#f5576c]/50 transition-colors"
-                required
-                autoFocus
-              />
-            </div>
-
-            {error && (
-              <div className="text-[#f5576c] text-xs bg-[#f5576c]/10 px-3 py-2 rounded-lg">
-                ⚠️ {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold py-3 rounded-xl hover:scale-[1.02] transition-all duration-300 disabled:opacity-50"
-            >
-              {loading ? '🔄 Verificando...' : '🎯 Ingresar'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setUseEmail(false)}
-              className="w-full text-white/30 text-sm hover:text-white/50 transition-colors"
-            >
-              ← Volver
-            </button>
-          </form>
-        ) : (
-          <button
-            type="button"
-            onClick={() => setUseEmail(true)}
-            className="w-full text-white/30 text-sm hover:text-white/50 transition-colors py-2"
-          >
-            Usar email en lugar de Google
-          </button>
-        )}
-
         <button
           type="button"
           onClick={onClose}
@@ -167,12 +71,6 @@ export function LoginModal({
         >
           Cancelar
         </button>
-
-        <div className="mt-4 text-center">
-          <p className="text-white/20 text-[10px]">
-            Los usuarios se registran automáticamente al sugerir un álbum
-          </p>
-        </div>
       </div>
     </div>
   );

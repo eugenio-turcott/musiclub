@@ -448,4 +448,72 @@ export const getSpotifyPlaylistDetails = async (playlistId) => {
   }
 };
 
+/**
+ * Extrae el ID del álbum desde un link de Spotify (e.g. https://open.spotify.com/album/4LH4d3cOWNNXdsqFd44wVn)
+ */
+export const extractSpotifyAlbumId = (url) => {
+  if (!url || typeof url !== 'string') return null;
+  const match = url.match(/album[/:]([a-zA-Z0-9]+)/);
+  return match ? match[1] : null;
+};
 
+/**
+ * Obtiene el año de lanzamiento oficial de un álbum desde Spotify mediante su link o buscando por nombre y artista
+ */
+export const fetchAlbumReleaseYear = async (
+  albumName,
+  artistName,
+  spotifyLink = null
+) => {
+  try {
+    // 1. Si tenemos link de Spotify con ID
+    const albumId = extractSpotifyAlbumId(spotifyLink);
+    if (albumId) {
+      const details = await getAlbumDetails(albumId);
+      if (details?.success && details.album?.releaseDate) {
+        const year = parseInt(
+          String(details.album.releaseDate).substring(0, 4),
+          10
+        );
+        if (!isNaN(year) && year >= 1900 && year <= 2100) {
+          return {
+            releaseDate: details.album.releaseDate,
+            releaseYear: year,
+          };
+        }
+      }
+    }
+
+    // 2. Si no hay ID o falló, buscar por nombre y artista
+    if (albumName) {
+      const query = artistName
+        ? `${albumName} artist:${artistName}`
+        : albumName;
+      const searchRes = await searchAlbum(query);
+      if (
+        searchRes?.success &&
+        searchRes.albums &&
+        searchRes.albums.length > 0
+      ) {
+        const bestMatch = searchRes.albums[0];
+        if (bestMatch?.releaseDate) {
+          const year = parseInt(
+            String(bestMatch.releaseDate).substring(0, 4),
+            10
+          );
+          if (!isNaN(year) && year >= 1900 && year <= 2100) {
+            return {
+              releaseDate: bestMatch.releaseDate,
+              releaseYear: year,
+            };
+          }
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.warn(`Error al obtener año de Spotify para ${albumName}:`, error);
+    return null;
+  }
+};

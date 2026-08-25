@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AppHeader } from './components/AppHeader';
 import { SlotMachine } from './components/SlotMachine';
 import { AlbumGrid } from './components/AlbumGrid';
-import { AlbumSearch } from './components/AlbumSearch';
 import { Rankings } from './components/Rankings';
 import { WinnerDisplay } from './components/WinnerDisplay';
 import { LoginModal } from './components/LoginModal';
@@ -18,6 +17,7 @@ import { ProfilePage } from './pages/ProfilePage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AlbumsPage } from './pages/AlbumsPage';
+import { AlbumDetailPage } from './pages/AlbumDetailPage';
 import { RecommendationsPage } from './pages/RecommendationsPage';
 import { GashaponPage } from './pages/GashaponPage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
@@ -100,13 +100,6 @@ function AppContent() {
           loading={loginLoading}
           googleLoading={loginLoading}
         />
-
-        {/* Buscador de Proponer Álbum en Spotify (en la parte superior) */}
-        {user && (
-          <div className="mb-6">
-            <AlbumSearch onAlbumCreated={handleAlbumUpdated} user={user} />
-          </div>
-        )}
 
         {/* Banner de Recomendaciones Personalizadas (Para ti) */}
         {user && (
@@ -204,7 +197,9 @@ export function App() {
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/ranking" element={<LeaderboardPage />} />
         <Route path="/albumes" element={<AlbumsPage />} />
+        <Route path="/albumes/:slug" element={<AlbumDetailPage />} />
         <Route path="/albums" element={<AlbumsPage />} />
+        <Route path="/albums/:slug" element={<AlbumDetailPage />} />
         <Route path="/playlists" element={<PlaylistsPage />} />
         <Route path="/playlist" element={<PlaylistsPage />} />
         <Route path="/listas" element={<PlaylistsPage />} />

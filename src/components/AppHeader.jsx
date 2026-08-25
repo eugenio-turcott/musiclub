@@ -2,9 +2,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
+import { useNotifications } from '../hooks/useNotifications';
 import { LoginModal } from './LoginModal';
 import { HeroMusicCanvas } from './HeroMusicCanvas';
 import { HeaderAlbumSearch } from './HeaderAlbumSearch';
+import { NotificationsDropdown } from './NotificationsDropdown';
 
 export function AppHeader({
   user: propUser,
@@ -23,9 +25,11 @@ export function AppHeader({
   const [loginLoading, setLoginLoading] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
   const userMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
+  const notificationsRef = useRef(null);
   const heroContainerRef = useRef(null);
 
   // Fallbacks using useAuth hook if props are not explicitly provided
@@ -33,10 +37,24 @@ export function AppHeader({
   const isAdmin = propIsAdmin !== undefined ? propIsAdmin : auth.isAdmin;
   const loading = propLoading !== undefined ? propLoading : auth.loading;
 
+  // Hook de Notificaciones
+  const {
+    notifications,
+    unreadCount,
+    loading: notificationsLoading,
+    isRead,
+    markAsRead,
+    markAllAsRead,
+    deleteNotification,
+    clearAllNotifications,
+    refreshNotifications,
+  } = useNotifications(user);
+
   // Cerrar menús al cambiar de ruta
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
+    setIsNotificationsOpen(false);
   }, [location.pathname]);
 
   // Cerrar menús al hacer click fuera
@@ -46,6 +64,12 @@ export function AppHeader({
         setIsUserMenuOpen(false);
       }
       if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        setIsNotificationsOpen(false);
+      }
+      if (
         mobileMenuRef.current &&
         !mobileMenuRef.current.contains(event.target) &&
         !event.target.closest('#mobile-menu-btn')
@@ -53,8 +77,12 @@ export function AppHeader({
         setIsMobileMenuOpen(false);
       }
     };
+    document.addEventListener('pointerdown', handleClickOutside);
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('pointerdown', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   const handleLoginClick = () => {
@@ -177,17 +205,81 @@ export function AppHeader({
           </nav>
         </div>
 
-        {/* Lado Derecho: Buscador Global Directo, User Profile Dropdown & Mobile Hamburger */}
+        {/* Lado Derecho: Buscador Global Directo, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
           {/* Buscador de Álbumes del Club con Autocomplete y Calificación Directa */}
           <HeaderAlbumSearch user={user} />
+
+          {/* Centro de Notificaciones (Buzón de Canciones, Reviews a tus Álbumes, Álbum Ganador) */}
+          <div className="relative" ref={notificationsRef}>
+            <button
+              type="button"
+              onClick={() => {
+                setIsNotificationsOpen((prev) => !prev);
+                setIsUserMenuOpen(false);
+                setIsMobileMenuOpen(false);
+              }}
+              className={`relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full border transition-all duration-200 cursor-pointer select-none ${
+                isNotificationsOpen
+                  ? 'bg-[#181a2f] border-pink-500/60 ring-2 ring-pink-500/30 text-white shadow-[0_0_15px_rgba(245,87,108,0.3)]'
+                  : 'bg-[#121324]/80 hover:bg-[#1a1b32] border-white/15 hover:border-white/30 text-white/80 hover:text-white shadow-md hover:scale-105 active:scale-95'
+              }`}
+              title={
+                unreadCount > 0
+                  ? `Tienes ${unreadCount} ${unreadCount === 1 ? 'notificación nueva' : 'notificaciones nuevas'}`
+                  : 'Notificaciones'
+              }
+              aria-label="Abrir centro de notificaciones"
+              aria-expanded={isNotificationsOpen}
+            >
+              <svg
+                className="w-4 h-4 sm:w-4.5 sm:h-4.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                />
+              </svg>
+
+              {/* Badge Contador de Notificaciones No Leídas */}
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse border border-[#0c0e1a]">
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </span>
+              )}
+            </button>
+
+            {/* Menú Desplegable / Popover de Notificaciones */}
+            {isNotificationsOpen && (
+              <NotificationsDropdown
+                notifications={notifications}
+                unreadCount={unreadCount}
+                loading={notificationsLoading}
+                isRead={isRead}
+                markAsRead={markAsRead}
+                markAllAsRead={markAllAsRead}
+                deleteNotification={deleteNotification}
+                clearAllNotifications={clearAllNotifications}
+                refreshNotifications={refreshNotifications}
+                onClose={() => setIsNotificationsOpen(false)}
+              />
+            )}
+          </div>
 
           {/* Si el usuario ha iniciado sesión: Extensible User Profile Dropdown */}
           {user ? (
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
-                onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                onClick={() => {
+                  setIsUserMenuOpen((prev) => !prev);
+                  setIsMobileMenuOpen(false);
+                }}
                 className={`flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer select-none ${
                   isUserMenuOpen
                     ? 'bg-[#181a2f] border-pink-500/60 ring-2 ring-pink-500/30 shadow-[0_0_20px_rgba(245,87,108,0.25)]'
@@ -214,7 +306,7 @@ export function AppHeader({
                 )}
 
                 {/* Nombre de usuario */}
-                <div className="flex flex-col text-left max-w-[70px] xs:max-w-[100px] sm:max-w-[130px]">
+                <div className="hidden sm:flex flex-col text-left max-w-[70px] xs:max-w-[100px] sm:max-w-[130px]">
                   <span className="text-white text-xs sm:text-sm font-semibold truncate leading-tight">
                     {user.name || 'Usuario'}
                   </span>
@@ -243,16 +335,36 @@ export function AppHeader({
                 </svg>
               </button>
 
-              {/* Menú Desplegable Extensible del Perfil */}
+              {/* Menú Desplegable Extensible del Perfil (En móvil debajo tipo barra, en desktop flotante) */}
               {isUserMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 sm:w-72 max-w-[calc(100vw-1.5rem)] bg-[#0d0f1c]/95 backdrop-blur-2xl border border-white/15 rounded-2xl shadow-[0_15px_40px_rgba(0,0,0,0.7)] p-2 z-50 text-left animate-fadeIn">
+                <div className="fixed left-2 right-2 top-[58px] z-[155] sm:fixed-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-72 bg-[#0d0f1c] backdrop-blur-2xl border border-pink-500/40 sm:border-white/15 rounded-2xl shadow-2xl p-3 sm:p-2.5 text-left animate-fadeIn space-y-2">
+                  {/* Cabecera para móvil con botón cerrar */}
+                  <div className="flex sm:hidden items-center justify-between pb-1.5 border-b border-white/10">
+                    <span className="text-[11px] font-bold text-pink-300 flex items-center gap-1.5">
+                      <span>👤</span>
+                      <span>Mi Cuenta & Perfil</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs cursor-pointer transition-all"
+                      title="Cerrar"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
                   {/* Tarjeta de Encabezado del Usuario */}
-                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5 mb-1.5">
+                  <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5">
                     {user.avatar ? (
                       <img
                         src={user.avatar}
                         alt={user.name || 'Usuario'}
                         className="w-10 h-10 rounded-full border border-pink-500/40 object-cover flex-shrink-0"
+                        onError={(e) => {
+                          e.target.src =
+                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                        }}
                       />
                     ) : (
                       <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
@@ -277,13 +389,13 @@ export function AppHeader({
                   <div className="h-[1px] bg-white/10 my-1"></div>
 
                   {/* Opciones del menú */}
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <Link
                       to="/profile"
                       onClick={() => setIsUserMenuOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
+                      className={`flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                         pathname === '/profile'
-                          ? 'bg-purple-500/20 text-purple-200 font-semibold'
+                          ? 'bg-purple-500/20 text-purple-200 font-semibold border border-purple-500/30'
                           : 'text-white/80 hover:text-white hover:bg-white/10'
                       }`}
                     >
@@ -297,29 +409,11 @@ export function AppHeader({
                     </Link>
 
                     <Link
-                      to="/gashapon"
-                      onClick={() => setIsUserMenuOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
-                        pathname === '/gashapon' || pathname === '/gacha'
-                          ? 'bg-[#f5576c]/20 text-[#f093fb] font-semibold'
-                          : 'text-white/80 hover:text-white hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-base">🎰</span>
-                        <span>Gashapon Musical</span>
-                      </div>
-                      <span className="text-[10px] bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 text-[#f093fb] px-1.5 py-0.5 rounded-full border border-[#f5576c]/30 font-black">
-                        🔮 Girar
-                      </span>
-                    </Link>
-
-                    <Link
                       to="/settings"
                       onClick={() => setIsUserMenuOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
+                      className={`flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                         pathname === '/settings'
-                          ? 'bg-cyan-500/20 text-cyan-200 font-semibold'
+                          ? 'bg-cyan-500/20 text-cyan-200 font-semibold border border-cyan-500/30'
                           : 'text-white/80 hover:text-white hover:bg-white/10'
                       }`}
                     >
@@ -335,9 +429,9 @@ export function AppHeader({
                       <Link
                         to="/admin"
                         onClick={() => setIsUserMenuOpen(false)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
+                        className={`flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                           pathname === '/admin'
-                            ? 'bg-rose-500/20 text-rose-200 font-semibold'
+                            ? 'bg-rose-500/20 text-rose-200 font-semibold border border-rose-500/30'
                             : 'text-rose-300 hover:text-rose-100 hover:bg-rose-500/10'
                         }`}
                       >
@@ -354,9 +448,9 @@ export function AppHeader({
                     <Link
                       to="/faq"
                       onClick={() => setIsUserMenuOpen(false)}
-                      className={`flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
+                      className={`flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors ${
                         pathname === '/faq'
-                          ? 'bg-amber-500/20 text-amber-200 font-semibold'
+                          ? 'bg-amber-500/20 text-amber-200 font-semibold border border-amber-500/30'
                           : 'text-white/80 hover:text-white hover:bg-white/10'
                       }`}
                     >
@@ -373,8 +467,11 @@ export function AppHeader({
                   {/* Cerrar Sesión */}
                   <button
                     type="button"
-                    onClick={handleLogoutClick}
-                    className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-400 hover:text-rose-200 hover:bg-rose-500/15 transition-all text-left group"
+                    onClick={() => {
+                      setIsUserMenuOpen(false);
+                      handleLogoutClick();
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-400 hover:text-rose-200 hover:bg-rose-500/15 transition-all text-left group cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
                       <span className="text-base group-hover:translate-x-0.5 transition-transform">
@@ -403,7 +500,10 @@ export function AppHeader({
           <button
             id="mobile-menu-btn"
             type="button"
-            onClick={() => setIsMobileMenuOpen((prev) => !prev)}
+            onClick={() => {
+              setIsMobileMenuOpen((prev) => !prev);
+              setIsUserMenuOpen(false);
+            }}
             className={`lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
               isMobileMenuOpen
                 ? 'bg-pink-500/20 border-pink-500/50 text-white'
@@ -445,62 +545,22 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Menú Desplegable Hamburguesa para Mobile y Tablets */}
+      {/* Menú Desplegable Hamburguesa para Mobile y Tablets (Solo Navegación del Club) */}
       {isMobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="lg:hidden border-t border-white/10 bg-[#0c0e1a]/95 backdrop-blur-2xl px-4 py-3 space-y-2.5 animate-fadeIn shadow-2xl"
+          className="lg:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3 animate-fadeIn shadow-2xl"
         >
-          {/* Si el usuario ha iniciado sesión, mostramos tarjeta de usuario en el menú móvil también */}
-          {user && (
-            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/10">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name || 'Usuario'}
-                  className="w-9 h-9 rounded-full border border-pink-500/40 object-cover flex-shrink-0"
-                  onError={(e) => {
-                    e.target.src =
-                      'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
-                  }}
-                />
-              ) : (
-                <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
-                  {(user.name || 'U')[0].toUpperCase()}
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="text-white font-bold text-xs truncate">
-                  {user.name || 'Usuario'}
-                </p>
-                <p className="text-white/40 text-[10px] truncate">
-                  {user.email || 'Miembro del Club'}
-                </p>
-              </div>
-              {isAdmin && (
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#f5576c]/20 text-[#f5576c] border border-[#f5576c]/30">
-                  Admin
-                </span>
-              )}
-            </div>
-          )}
-
-          <div className="text-[10px] uppercase font-bold text-white/30 tracking-wider px-1">
-            Buscador del Club
+          <div className="flex items-center justify-between px-1">
+            <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
+              Navegación del Club
+            </span>
+            <span className="text-[10px] text-pink-400/80 font-medium">
+              Musiclub
+            </span>
           </div>
 
-          {/* Buscador Directo en Mobile Drawer */}
-          <HeaderAlbumSearch
-            isMobileMode={true}
-            user={user}
-            onAlbumReviewed={() => setIsMobileMenuOpen(false)}
-          />
-
-          <div className="text-[10px] uppercase font-bold text-white/30 tracking-wider px-1 pt-1">
-            Navegación del Club
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+          <nav className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {navLinks.map((link) => {
               const active = isLinkActive(link.paths);
               return (
@@ -508,86 +568,44 @@ export function AppHeader({
                   key={link.to}
                   to={link.to}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all ${
                     active
                       ? link.highlight
                         ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-[#f5576c]/30'
                         : 'bg-white/15 text-white border border-white/20'
                       : link.highlight
                         ? 'bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20'
-                        : 'text-white/70 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5'
+                        : 'text-white/75 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5'
                   }`}
                 >
-                  <span className="text-base">{link.icon}</span>
-                  <span>{link.label}</span>
+                  <span className="text-lg">{link.icon}</span>
+                  <span className="flex-1">{link.label}</span>
+                  {active && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
+                  )}
                 </Link>
               );
             })}
-          </div>
-
-          {/* Opciones de usuario adicionales en móvil */}
-          {user ? (
-            <div className="pt-2 border-t border-white/10 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-white/30 tracking-wider px-1">
-                Mi Cuenta
-              </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                <Link
-                  to="/profile"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-white/5 text-white/80 hover:text-white border border-white/5"
-                >
-                  <span>👤</span>
-                  <span>Mi Perfil</span>
-                </Link>
-                <Link
-                  to="/settings"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-white/5 text-white/80 hover:text-white border border-white/5"
-                >
-                  <span>⚙️</span>
-                  <span>Ajustes</span>
-                </Link>
-                {isAdmin && (
-                  <Link
-                    to="/admin"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium bg-rose-500/15 text-rose-300 border border-rose-500/30 col-span-2"
-                  >
-                    <span>🔧</span>
-                    <span>Panel de Admin</span>
-                  </Link>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleLogoutClick();
-                }}
-                className="w-full mt-1.5 flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-400 bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 transition-all"
-              >
-                <span>🚪</span>
-                <span>Cerrar Sesión</span>
-              </button>
-            </div>
-          ) : (
-            <div className="pt-2 border-t border-white/10">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleLoginClick();
-                }}
-                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-[#f5576c]/20"
-              >
-                <span>👤</span>
-                <span>Iniciar sesión</span>
-              </button>
-            </div>
-          )}
+          </nav>
 
           <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40 px-1">
+            <button
+              type="button"
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setIsNotificationsOpen(true);
+              }}
+              className="hover:text-white transition-colors flex items-center gap-1.5 text-pink-300 font-semibold cursor-pointer"
+            >
+              <span>🔔</span>
+              <span>Notificaciones</span>
+              {unreadCount > 0 && (
+                <span className="px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
             <Link
               to="/faq"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -595,7 +613,6 @@ export function AppHeader({
             >
               <span>❓</span> Guía & FAQ
             </Link>
-            <span>Musiclub v5.0</span>
           </div>
         </div>
       )}

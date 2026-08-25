@@ -227,31 +227,25 @@ export function WinnerDisplay({
               )}
 
               {reviewsEnabled && (
-                isReviewed ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-3 py-1.5 rounded-full font-medium flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
+                <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
+                  {isReviewed && (
+                    <span className="text-xs text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 px-3.5 py-1.5 rounded-full font-medium flex items-center gap-1.5 shadow-[0_0_12px_rgba(16,185,129,0.2)]">
                       <span>✓</span> Ya calificaste este álbum
                     </span>
-                    <button
-                      onClick={() => setShowReview(!showReview)}
-                      className="px-3.5 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 hover:text-white text-xs font-semibold rounded-full transition-all border border-emerald-400/30"
-                    >
-                      {showReview ? '✕ Cerrar' : '👁️ Ver mi review'}
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-green-300 bg-green-500/15 border border-green-500/30 px-3 py-1.5 rounded-full font-medium">
-                      📝 Reviews abiertos
+                  )}
+                  <button
+                    onClick={() => setShowReview((prev) => !prev)}
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-white/20"
+                  >
+                    <span>
+                      {showReview
+                        ? '✕ Cerrar Reseña'
+                        : isReviewed
+                          ? '✏️ Modificar Mi Reseña'
+                          : '⭐ Calificar y Reseñar'}
                     </span>
-                    <button
-                      onClick={() => setShowReview(!showReview)}
-                      className="px-4 py-2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-full hover:scale-105 transition-all shadow-lg shadow-[#f5576c]/25 border border-white/10"
-                    >
-                      {showReview ? '✕ Cerrar Review' : '📝 Dejar Review'}
-                    </button>
-                  </div>
-                )
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -259,7 +253,23 @@ export function WinnerDisplay({
 
         {/* 👈 REVIEW SYSTEM - Solo visible si está habilitado */}
         {showReview && reviewsEnabled && (
-          <div className="mt-4">
+          <div className="mt-6 rounded-3xl bg-[#0e101d] border border-[#f5576c]/30 sm:border-[#f5576c]/40 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4 text-left">
+            <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <span className="text-xl sm:text-2xl">⭐</span>
+                <h3 className="text-base sm:text-xl font-black text-white truncate">
+                  {isReviewed ? 'Actualizar tu Reseña' : 'Escribir Reseña'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowReview(false)}
+                className="text-slate-400 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex items-center gap-1 flex-shrink-0"
+              >
+                <span>Cerrar</span>
+                <span>✕</span>
+              </button>
+            </div>
+
             <ReviewSystem
               album={winner}
               isFromSpotify={false}
@@ -267,6 +277,7 @@ export function WinnerDisplay({
               tracks={winner.tracks || []}
               user={user}
               onReviewSubmitted={() => {
+                setShowReview(false);
                 if (onAlbumUpdated) onAlbumUpdated();
               }}
             />

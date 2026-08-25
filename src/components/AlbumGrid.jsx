@@ -858,15 +858,24 @@ export function AlbumGrid({
               {/* Luces cibernéticas traseras */}
               <div className="absolute -inset-2 bg-gradient-to-r from-blue-600/30 via-cyan-500/30 to-blue-600/30 rounded-[2.5rem] blur-3xl opacity-70"></div>
 
-              <div className="relative bg-gradient-to-br from-[#0c1322] via-[#0f1b33] to-[#070d1a] border border-blue-500/40 rounded-[2rem] p-6 sm:p-8 backdrop-blur-2xl shadow-[0_0_60px_rgba(59,130,246,0.2)] overflow-hidden">
+              <div className="relative bg-gradient-to-br from-[#0c1322] via-[#0f1b33] to-[#070d1a] border border-blue-500/40 rounded-[2rem] p-4 sm:p-8 backdrop-blur-2xl shadow-[0_0_60px_rgba(59,130,246,0.2)] overflow-hidden">
+                {/* Botón Cerrar Absoluto */}
+                <button
+                  onClick={() => setSelectedIndividual(null)}
+                  className="absolute top-4 right-4 sm:top-6 sm:right-6 text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-300 text-lg hover:scale-110 border border-white/10 z-20"
+                  title="Cerrar"
+                >
+                  ✕
+                </button>
+
                 {/* Header del modal */}
-                <div className="flex justify-between items-start gap-4 mb-8 relative z-10 border-b border-blue-500/20 pb-5">
-                  <div className="flex-1">
+                <div className="flex justify-between items-start gap-4 mb-8 relative z-10 border-b border-blue-500/20 pb-5 pr-10 sm:pr-12">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 flex-wrap">
                       <span className="text-3xl sm:text-4xl">📌</span>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight break-words">
                             {selectedIndividual.album}
                           </h2>
                           <span
@@ -881,19 +890,12 @@ export function AlbumGrid({
                               : 'Álbum Individual'}
                           </span>
                         </div>
-                        <p className="text-blue-200/70 text-base sm:text-lg font-medium mt-1">
+                        <p className="text-blue-200/70 text-base sm:text-lg font-medium mt-1 truncate">
                           {selectedIndividual.artista}
                         </p>
                       </div>
                     </div>
                   </div>
-                  <button
-                    onClick={() => setSelectedIndividual(null)}
-                    className="text-white/40 hover:text-white bg-white/5 hover:bg-white/10 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 text-lg hover:scale-110 border border-white/10"
-                    title="Cerrar"
-                  >
-                    ✕
-                  </button>
                 </div>
 
                 {/* Info del álbum */}
@@ -1000,7 +1002,17 @@ export function AlbumGrid({
                 </div>
 
                 {/* SISTEMA DE REVIEWS PARA INDIVIDUAL */}
-                <div className="bg-black/40 rounded-2xl p-4 sm:p-6 border border-blue-500/20 shadow-inner relative z-10">
+                <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3.5 sm:p-5 md:p-7 shadow-2xl space-y-3 sm:space-y-4 relative z-10">
+                  <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
+                    <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                      <span className="text-xl sm:text-2xl">⭐</span>
+                      <h3 className="text-base sm:text-xl font-black text-white truncate">
+                        {isAlbumReviewed(selectedIndividual.id)
+                          ? 'Actualizar tu Reseña'
+                          : 'Escribir Reseña'}
+                      </h3>
+                    </div>
+                  </div>
                   <ReviewSystem
                     album={selectedIndividual}
                     isFromSpotify={true}

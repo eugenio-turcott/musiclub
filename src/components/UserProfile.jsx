@@ -1,15 +1,25 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
-import { getWeightedReviewScore, getTrackDisplayName, getEmotionFromReview } from '../utils/ratingUtils';
+import {
+  getWeightedReviewScore,
+  getTrackDisplayName,
+  getEmotionFromReview,
+  getReviewFavoriteTrack,
+  isFavoriteTrackMatch,
+} from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 import { Recommendations } from './Recommendations';
 import { SongMailbox } from './SongMailbox';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
+import { TierListMaker, PLACEHOLDER_COVER } from './TierListMaker';
 import { supabaseService } from '../services/supabaseClient';
+
+export const PLACEHOLDER_AVATAR =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' fill='%231e2238'/%3E%3Ccircle cx='50' cy='38' r='20' fill='%2364748b'/%3E%3Cpath d='M20,85 C20,62 35,62 50,62 C65,62 80,62 80,85 Z' fill='%2364748b'/%3E%3C/svg%3E";
 
 const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
@@ -21,13 +31,101 @@ const CRITERIA_METRICS = [
   { key: 'rating_general', label: 'General', icon: '⭐', max: 10, color: 'from-[#f5576c] to-[#f093fb]' },
 ];
 
+const MELOMANO_LEVELS = [
+  {
+    level: 1,
+    title: '🎧 Oyente Principiante',
+    minXp: 0,
+    maxXp: 249,
+    icon: '🎧',
+    color: 'from-slate-600 to-slate-800',
+    desc: 'Dando los primeros pasos auditivos en Musiclub.',
+  },
+  {
+    level: 2,
+    title: '🥉 Explorador Musical',
+    minXp: 250,
+    maxXp: 599,
+    icon: '🥉',
+    color: 'from-amber-700 to-amber-950',
+    desc: 'Descubriendo nuevos géneros y expandiendo tu radar musical.',
+  },
+  {
+    level: 3,
+    title: '🥈 Melómano Frecuente',
+    minXp: 600,
+    maxXp: 1199,
+    icon: '🥈',
+    color: 'from-slate-400 to-slate-600',
+    desc: 'Crítico activo con oído curioso y aportes constantes al club.',
+  },
+  {
+    level: 4,
+    title: '🥇 Oído Entrenado',
+    minXp: 1200,
+    maxXp: 2499,
+    icon: '🥇',
+    color: 'from-amber-500 to-yellow-600',
+    desc: 'Evaluador riguroso con criterio analítico y oído afinado.',
+  },
+  {
+    level: 5,
+    title: '💎 Melómano Consagrado',
+    minXp: 2500,
+    maxXp: 4499,
+    icon: '💎',
+    color: 'from-cyan-500 to-blue-600',
+    desc: 'Voz influyente con gran bagaje musical y criterio respetado.',
+  },
+  {
+    level: 6,
+    title: '👑 Maestro del Catálogo',
+    minXp: 4500,
+    maxXp: 7499,
+    icon: '👑',
+    color: 'from-purple-500 to-fuchsia-600',
+    desc: 'Pilar del club con decenas de álbumes y pistas analizadas.',
+  },
+  {
+    level: 7,
+    title: '🪐 Enciclopedia Sonora',
+    minXp: 7500,
+    maxXp: 11999,
+    icon: '🪐',
+    color: 'from-indigo-600 via-purple-600 to-pink-600',
+    desc: 'Erudición auditiva total con dominio de múltiples corrientes.',
+  },
+  {
+    level: 8,
+    title: '🌌 Leyenda Melómana Suprema',
+    minXp: 12000,
+    maxXp: 999999,
+    icon: '🌌',
+    color: 'from-rose-500 via-amber-400 to-yellow-300',
+    desc: 'Máximo nivel de sabiduría musical alcanzado en la historia de Musiclub.',
+  },
+];
+
 export function UserProfile({ isPage = false }) {
   const { user, isAdmin } = useAuth();
   const { albums } = useAlbums();
   const { userReviews, loading: reviewsLoading } = useUserReviews(user);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState('reviews'); // 'recommendations' | 'reviews' | 'badges' | 'stats' | 'pending' | 'mailbox'
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox'].includes(tabParam)) {
+        return tabParam;
+      }
+    } catch {
+      // fallback
+    }
+    return 'reviews';
+  }); // 'recommendations' | 'reviews' | 'badges' | 'stats' | 'pending' | 'mailbox'
+
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [expandedReviewId, setExpandedReviewId] = useState(null);
@@ -37,6 +135,15 @@ export function UserProfile({ isPage = false }) {
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
   const [sendModalRecipient, setSendModalRecipient] = useState(null);
   const [unreadMailboxCount, setUnreadMailboxCount] = useState(0);
+
+  // Escuchar cambios en query params (?tab=mailbox)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [location.search]);
 
   // Fetch detailed community leaderboard to sync global records & max XP
   useEffect(() => {
@@ -238,13 +345,45 @@ export function UserProfile({ isPage = false }) {
     return calculateUserGamification(userObj, communityMaxes);
   }, [user, leaderboardList, communityMaxes, stats, userAlbumsAdded, userReviews]);
 
+  // Nivel de Melómano Dinámico
+  const currentMelomanoLevel = useMemo(() => {
+    const currentXp = userGamification.totalXp || 0;
+    let current = MELOMANO_LEVELS[0];
+    let next = MELOMANO_LEVELS[1] || null;
+
+    for (let i = 0; i < MELOMANO_LEVELS.length; i++) {
+      if (currentXp >= MELOMANO_LEVELS[i].minXp) {
+        current = MELOMANO_LEVELS[i];
+        next = MELOMANO_LEVELS[i + 1] || null;
+      }
+    }
+
+    const xpInCurrent = currentXp - current.minXp;
+    const xpNeededForNext = next ? next.minXp - current.minXp : 0;
+    const progressPercent = next
+      ? Math.min(
+          100,
+          Math.max(0, Math.round((xpInCurrent / xpNeededForNext) * 100))
+        )
+      : 100;
+    const xpRemaining = next ? Math.max(0, next.minXp - currentXp) : 0;
+
+    return {
+      ...current,
+      currentXp,
+      next,
+      progressPercent,
+      xpRemaining,
+    };
+  }, [userGamification]);
+
   // List of reviewed albums combined with review data
   const enrichedReviews = useMemo(() => {
     return userReviews.map((review) => {
       const album = albumMap.get(review.album_id) || {
         album: review.album_title || 'Álbum',
         artista: review.album_artist || 'Artista',
-        imagen: review.album_image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵',
+        imagen: review.album_image || PLACEHOLDER_COVER,
         status: 'INDIVIDUAL',
       };
       const weightedScore = getWeightedReviewScore(review) ?? review.rating_general ?? 0;
@@ -337,7 +476,7 @@ export function UserProfile({ isPage = false }) {
                   alt={user.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {
-                    e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=👤';
+                    e.target.src = PLACEHOLDER_AVATAR;
                   }}
                 />
               ) : (
@@ -637,7 +776,7 @@ export function UserProfile({ isPage = false }) {
                           alt={item.album.album}
                           className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
+                            e.target.src = PLACEHOLDER_COVER;
                           }}
                         />
                         <div className="absolute bottom-1 right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[9px] sm:text-[10px] font-bold shadow-md">
@@ -690,6 +829,25 @@ export function UserProfile({ isPage = false }) {
                       </p>
                     )}
 
+                    {/* Canción Favorita */}
+                    {(() => {
+                      const favTrack = getReviewFavoriteTrack(item);
+                      if (!favTrack) return null;
+                      const tracksSource = item.albums?.tracks || albumMap.get(item.album_id)?.tracks;
+                      const favName = getTrackDisplayName(favTrack, tracksSource);
+                      return (
+                        <div className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
+                          <span className="text-sm">⭐</span>
+                          <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
+                            Canción Favorita:
+                          </span>
+                          <span className="font-extrabold text-amber-200 truncate max-w-[200px]" title={favName}>
+                            {favName}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
                     {/* Mini Desglose de Criterios (4 columnas responsivas) */}
                     <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-2 border-t border-white/5">
                       {[
@@ -724,21 +882,37 @@ export function UserProfile({ isPage = false }) {
                         {isExpanded && (
                           <div className="mt-2 p-2 sm:p-3 rounded-xl bg-black/50 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 animate-fadeIn">
                             {Object.entries(item.track_ratings).map(([trackKey, score], tIdx) => {
+                              const tracksSource = item.albums?.tracks || albumMap.get(item.album_id)?.tracks;
                               const trackName = getTrackDisplayName(
                                 trackKey,
-                                item.albums?.tracks || albumMap.get(item.album_id)?.tracks
+                                tracksSource
+                              );
+                              const isFav = isFavoriteTrackMatch(
+                                trackKey,
+                                getReviewFavoriteTrack(item),
+                                tracksSource,
+                                tIdx
                               );
                               return (
                                 <div
                                   key={tIdx}
-                                  className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-white/5 border border-white/5"
+                                  className={`flex items-center justify-between text-xs py-1 px-2 rounded-lg border transition-all ${
+                                    isFav
+                                      ? 'bg-amber-500/20 border-amber-400/40 text-amber-200 shadow-sm'
+                                      : 'bg-white/5 border-white/5'
+                                  }`}
                                 >
-                                  <span className="text-white/80 truncate pr-2 text-[11px] sm:text-xs" title={trackName}>
-                                    {trackName}
-                                  </span>
+                                  <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
+                                    <span>{isFav ? '⭐' : '🎵'}</span>
+                                    <span className={`truncate text-[11px] sm:text-xs ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`} title={trackName}>
+                                      {trackName}
+                                    </span>
+                                  </div>
                                   <span
                                     className={`font-black text-[11px] sm:text-xs flex-shrink-0 ${
-                                      score >= 8
+                                      isFav
+                                        ? 'text-amber-300'
+                                        : score >= 8
                                         ? 'text-emerald-400'
                                         : score >= 6
                                         ? 'text-cyan-400'
@@ -949,7 +1123,16 @@ export function UserProfile({ isPage = false }) {
 
       {/* CONTENIDO DE PESTAÑA: ESTADÍSTICAS DETALLADAS */}
       {activeTab === 'stats' && (
-        <div className="space-y-4 sm:space-y-6">
+        <div className="space-y-6">
+          {/* 1. TIER LIST MAKER (S-F TIERS) - Arriba de todo */}
+          <TierListMaker
+            userReviews={userReviews}
+            albums={albums}
+            albumMap={albumMap}
+            user={user}
+          />
+
+          {/* 2. ESTADÍSTICAS, CRITERIOS Y NIVEL */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Desglose por Criterios */}
             <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
@@ -986,7 +1169,7 @@ export function UserProfile({ isPage = false }) {
               </div>
             </div>
 
-            {/* Álbumes Destacados del Usuario */}
+            {/* Álbumes Destacados y Nivel de Melómano */}
             <div className="space-y-3 sm:space-y-4">
               {/* Más Alto */}
               <div className="bg-gradient-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
@@ -996,9 +1179,12 @@ export function UserProfile({ isPage = false }) {
                 {stats.highestRatedAlbum ? (
                   <div className="flex items-center gap-3 sm:gap-4">
                     <img
-                      src={albumMap.get(stats.highestRatedAlbum.album_id)?.imagen || 'https://via.placeholder.com/150'}
+                      src={albumMap.get(stats.highestRatedAlbum.album_id)?.imagen || PLACEHOLDER_COVER}
                       alt="Highest"
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
+                      onError={(e) => {
+                        e.target.src = PLACEHOLDER_COVER;
+                      }}
                     />
                     <div className="min-w-0 flex-1">
                       <h4 className="text-white font-bold text-xs sm:text-sm truncate">
@@ -1025,9 +1211,12 @@ export function UserProfile({ isPage = false }) {
                 {stats.lowestRatedAlbum ? (
                   <div className="flex items-center gap-3 sm:gap-4">
                     <img
-                      src={albumMap.get(stats.lowestRatedAlbum.album_id)?.imagen || 'https://via.placeholder.com/150'}
+                      src={albumMap.get(stats.lowestRatedAlbum.album_id)?.imagen || PLACEHOLDER_COVER}
                       alt="Lowest"
                       className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
+                      onError={(e) => {
+                        e.target.src = PLACEHOLDER_COVER;
+                      }}
                     />
                     <div className="min-w-0 flex-1">
                       <h4 className="text-white font-bold text-xs sm:text-sm truncate">
@@ -1046,22 +1235,77 @@ export function UserProfile({ isPage = false }) {
                 )}
               </div>
 
-              {/* Medalla de participación */}
-              <div className="bg-black/40 rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-white/10 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <h4 className="text-white font-bold text-xs sm:text-sm">Nivel de Melómano</h4>
-                  <p className="text-white/40 text-[11px] sm:text-xs leading-relaxed">
-                    {stats.totalReviews >= 20
-                      ? '🏅 Gran Crítico del Club (20+ reviews)'
-                      : stats.totalReviews >= 10
-                      ? '🥈 Evaluador Frecuente (10+ reviews)'
-                      : stats.totalReviews >= 5
-                      ? '🥉 Miembro Activo (5+ reviews)'
-                      : '🎧 Principiante en Musiclub'}
-                  </p>
+              {/* Nivel de Melómano Modernizado & Gamificado */}
+              <div className="bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b18] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-pink-500/30 shadow-2xl space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 shadow-lg`}
+                    >
+                      {currentMelomanoLevel.icon}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                          Nivel {currentMelomanoLevel.level}
+                        </span>
+                        <h4 className="text-white font-black text-xs sm:text-sm truncate">
+                          {currentMelomanoLevel.title}
+                        </h4>
+                      </div>
+                      <p className="text-white/50 text-[11px] sm:text-xs truncate mt-0.5">
+                        {currentMelomanoLevel.desc}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right flex-shrink-0">
+                    <span className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+                      {currentMelomanoLevel.currentXp.toLocaleString()} XP
+                    </span>
+                    <p className="text-[9px] text-white/40 uppercase tracking-wider font-bold">
+                      Puntos Totales
+                    </p>
+                  </div>
                 </div>
-                <div className="text-2xl sm:text-3xl flex-shrink-0">
-                  {stats.totalReviews >= 20 ? '👑' : stats.totalReviews >= 10 ? '🔥' : stats.totalReviews >= 5 ? '⭐' : '🎵'}
+
+                {/* Barra de progreso hacia el siguiente nivel */}
+                {currentMelomanoLevel.next ? (
+                  <div className="space-y-1.5 pt-1">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-white/60 truncate pr-2">
+                        Siguiente: <strong className="text-pink-300 font-bold">{currentMelomanoLevel.next.title}</strong>
+                      </span>
+                      <span className="text-white font-semibold flex-shrink-0">
+                        +{currentMelomanoLevel.xpRemaining} XP ({currentMelomanoLevel.progressPercent}%)
+                      </span>
+                    </div>
+                    <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden border border-white/10">
+                      <div
+                        className="h-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
+                        style={{ width: `${currentMelomanoLevel.progressPercent}%` }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-xs text-amber-300 font-bold flex items-center gap-1.5 pt-1">
+                    <span>👑</span> ¡Has alcanzado el Rango Melómano Supremo del Club!
+                  </div>
+                )}
+
+                {/* Mini Resumen de Aportes para subir de nivel */}
+                <div className="grid grid-cols-3 gap-2 pt-1 border-t border-white/5 text-center">
+                  <div className="bg-white/[0.02] p-1.5 rounded-xl border border-white/5">
+                    <span className="text-xs font-bold text-white">{stats.totalReviews}</span>
+                    <p className="text-[9px] text-white/40">Reviews</p>
+                  </div>
+                  <div className="bg-white/[0.02] p-1.5 rounded-xl border border-white/5">
+                    <span className="text-xs font-bold text-white">{stats.totalTracksRated}</span>
+                    <p className="text-[9px] text-white/40">Tracks</p>
+                  </div>
+                  <div className="bg-white/[0.02] p-1.5 rounded-xl border border-white/5">
+                    <span className="text-xs font-bold text-white">{userAlbumsAdded.length}</span>
+                    <p className="text-[9px] text-white/40">Aportes</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1091,7 +1335,7 @@ export function UserProfile({ isPage = false }) {
                       alt={alb.album}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
+                        e.target.src = PLACEHOLDER_COVER;
                       }}
                     />
                   </div>
