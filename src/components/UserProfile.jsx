@@ -1,15 +1,18 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
+import { ReviewSystem } from './ReviewSystem';
 import {
   getWeightedReviewScore,
   getTrackDisplayName,
   getEmotionFromReview,
   getReviewFavoriteTrack,
   isFavoriteTrackMatch,
+  slugifyAlbum,
 } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 import { Recommendations } from './Recommendations';
@@ -109,7 +112,7 @@ const MELOMANO_LEVELS = [
 export function UserProfile({ isPage = false }) {
   const { user, isAdmin } = useAuth();
   const { albums } = useAlbums();
-  const { userReviews, loading: reviewsLoading } = useUserReviews(user);
+  const { userReviews, loading: reviewsLoading, refetchUserReviews } = useUserReviews(user);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -129,6 +132,7 @@ export function UserProfile({ isPage = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [expandedReviewId, setExpandedReviewId] = useState(null);
+  const [editingReviewItem, setEditingReviewItem] = useState(null);
   const [leaderboardList, setLeaderboardList] = useState([]);
 
   // Buzón de Canciones
@@ -456,7 +460,7 @@ export function UserProfile({ isPage = false }) {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
+    <div className="w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
       {/* Universal Standard App Header */}
       <AppHeader showTitle={false} />
 
@@ -928,6 +932,27 @@ export function UserProfile({ isPage = false }) {
                         )}
                       </div>
                     )}
+                    {/* Acciones de la Review: Botón Editar y Ver Página del Álbum */}
+                    <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-white/10 mt-auto">
+                      <button
+                        type="button"
+                        onClick={() => setEditingReviewItem(item)}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                        title="Editar las calificaciones y comentario de esta review"
+                      >
+                        <span>✏️</span>
+                        <span>Editar Review</span>
+                      </button>
+
+                      <Link
+                        to={`/albumes/${slugifyAlbum(item.album.album || item.album.album_name)}`}
+                        className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
+                        title="Ir a la página del álbum"
+                      >
+                        <span>Ver Álbum</span>
+                        <span>➔</span>
+                      </Link>
+                    </div>
                   </div>
                 );
               })}
@@ -950,6 +975,68 @@ export function UserProfile({ isPage = false }) {
                 <span>🎵</span> Explorar Álbumes
               </Link>
             </div>
+          )}
+
+          {/* Modal para Editar Review */}
+          {editingReviewItem && typeof document !== 'undefined' && createPortal(
+            <div 
+              className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-xl overflow-y-auto"
+              onClick={() => setEditingReviewItem(null)}
+            >
+              <div 
+                className="relative w-full max-w-4xl max-h-[90vh] overflow-y-auto bg-[#0d0f1c] border border-pink-500/30 rounded-3xl p-4 sm:p-6 shadow-2xl space-y-4 text-left custom-scrollbar my-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header del modal */}
+                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                      ✏️
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base sm:text-lg font-bold text-white truncate">
+                        Editar Review: {editingReviewItem.album?.album || editingReviewItem.album?.album_name}
+                      </h3>
+                      <p className="text-xs text-white/50 truncate">
+                        {editingReviewItem.album?.artista || editingReviewItem.album?.artist_name}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setEditingReviewItem(null)}
+                    className="text-white/60 hover:text-white bg-white/5 hover:bg-white/15 p-2 rounded-xl transition-all border border-white/10 cursor-pointer"
+                    title="Cerrar modal de edición"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <ReviewSystem
+                  album={{
+                    id: editingReviewItem.album_id || editingReviewItem.album?.id,
+                    album: editingReviewItem.album?.album || editingReviewItem.album?.album_name,
+                    artista: editingReviewItem.album?.artista || editingReviewItem.album?.artist_name,
+                    imagen: editingReviewItem.album?.imagen || editingReviewItem.album?.image_url,
+                    tracks: editingReviewItem.album?.tracks || albumMap.get(editingReviewItem.album_id)?.tracks || [],
+                    status: editingReviewItem.album?.status || 'INDIVIDUAL',
+                  }}
+                  tracks={editingReviewItem.album?.tracks || albumMap.get(editingReviewItem.album_id)?.tracks || []}
+                  user={user}
+                  isIndividual={editingReviewItem.album?.status === 'INDIVIDUAL'}
+                  initialEditing={true}
+                  initialReview={editingReviewItem}
+                  isModal={true}
+                  hideOtherReviews={true}
+                  onCancelEdit={() => setEditingReviewItem(null)}
+                  onReviewSubmitted={() => {
+                    if (refetchUserReviews) refetchUserReviews();
+                    setEditingReviewItem(null);
+                  }}
+                />
+              </div>
+            </div>,
+            document.body
           )}
         </div>
       )}

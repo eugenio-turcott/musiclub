@@ -6,7 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -18,25 +18,31 @@ export function HeaderAlbumSearch({
   onAlbumReviewed,
 }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth();
   const user = propUser || auth.user;
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [clubAlbums, setClubAlbums] = useState([]);
   const [spotifyResults, setSpotifyResults] = useState([]);
   const [loadingClub, setLoadingClub] = useState(false);
   const [loadingSpotify, setLoadingSpotify] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [selectingAlbumId, setSelectingAlbumId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const containerRef = useRef(null);
-  const desktopInputRef = useRef(null);
-  const mobileInputRef = useRef(null);
-  const drawerInputRef = useRef(null);
+  const inputRef = useRef(null);
   const debounceTimerRef = useRef(null);
+
+  // Cerrar buscador al navegar entre rutas
+  useEffect(() => {
+    setIsOpen(false);
+    setQuery('');
+    setHighlightedIndex(-1);
+    setStatusMessage(null);
+  }, [location.pathname]);
 
   // Cargar álbumes del club de Supabase en memoria
   const loadClubAlbums = useCallback(async () => {
@@ -101,31 +107,28 @@ export function HeaderAlbumSearch({
     };
   }, [query]);
 
-  // Manejador robusto para clics fuera del contenedor
+  // Manejador para clics fuera del contenedor
   useEffect(() => {
-    if (!isExpanded) return;
+    if (!isOpen) return;
 
     const handlePointerDown = (e) => {
       if (containerRef.current && containerRef.current.contains(e.target)) {
         return;
-      }
-      if (!query.trim()) {
-        setIsExpanded(false);
       }
       setIsOpen(false);
     };
 
     const timer = setTimeout(() => {
       document.addEventListener('pointerdown', handlePointerDown);
-      document.addEventListener('touchstart', handlePointerDown);
-    }, 60);
+      document.addEventListener('mousedown', handlePointerDown);
+    }, 50);
 
     return () => {
       clearTimeout(timer);
       document.removeEventListener('pointerdown', handlePointerDown);
-      document.removeEventListener('touchstart', handlePointerDown);
+      document.removeEventListener('mousedown', handlePointerDown);
     };
-  }, [isExpanded, query]);
+  }, [isOpen]);
 
   // Lista unificada y enriquecida de resultados
   const combinedResults = useMemo(() => {
@@ -207,19 +210,12 @@ export function HeaderAlbumSearch({
       e.preventDefault();
       e.stopPropagation();
     }
-    setIsExpanded(true);
-    setIsOpen(Boolean(query.trim()));
+    setIsOpen(true);
     loadClubAlbums();
 
     setTimeout(() => {
-      if (isMobileMode) {
-        drawerInputRef.current?.focus();
-      } else if (window.innerWidth < 640) {
-        mobileInputRef.current?.focus();
-      } else {
-        desktopInputRef.current?.focus();
-      }
-    }, 80);
+      inputRef.current?.focus();
+    }, 60);
   };
 
   const handleCloseSearch = (e) => {
@@ -227,15 +223,14 @@ export function HeaderAlbumSearch({
       e.preventDefault();
       e.stopPropagation();
     }
-    setIsExpanded(false);
-    setQuery('');
     setIsOpen(false);
+    setQuery('');
     setHighlightedIndex(-1);
     setStatusMessage(null);
   };
 
   const handleToggleSearch = (e) => {
-    if (isExpanded) {
+    if (isOpen) {
       handleCloseSearch(e);
     } else {
       handleOpenSearch(e);
@@ -245,30 +240,15 @@ export function HeaderAlbumSearch({
   const handleInputChange = (e) => {
     const val = e.target.value;
     setQuery(val);
-    setIsOpen(Boolean(val.trim()));
     setHighlightedIndex(-1);
     loadClubAlbums();
-  };
-
-  const handleFocus = () => {
-    loadClubAlbums();
-    if (query.trim()) {
-      setIsOpen(true);
-    }
   };
 
   const handleClear = () => {
     setQuery('');
-    setIsOpen(false);
     setHighlightedIndex(-1);
     setStatusMessage(null);
-    if (isMobileMode) {
-      drawerInputRef.current?.focus();
-    } else if (window.innerWidth < 640) {
-      mobileInputRef.current?.focus();
-    } else {
-      desktopInputRef.current?.focus();
-    }
+    inputRef.current?.focus();
   };
 
   // Manejador al seleccionar un álbum
@@ -284,7 +264,6 @@ export function HeaderAlbumSearch({
         const albumName = target.album_name || target.album || item.name;
         const slug = slugifyAlbum(albumName);
 
-        setIsExpanded(false);
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
@@ -332,13 +311,15 @@ export function HeaderAlbumSearch({
             status: 'INDIVIDUAL',
             tracks: tracks,
             releaseDate: spotifyData.releaseDate || spotifyData.release_date || null,
+            releaseYear: spotifyData.releaseYear || null,
+            releaseType: spotifyData.release_type || 'ALBUM',
+            genres: spotifyData.genres || [],
             reviews_enabled: true,
           };
           finalAlbum = await supabaseService.createAlbum(albumData);
         }
 
         const slug = slugifyAlbum(finalAlbum?.album_name || spotifyData.name);
-        setIsExpanded(false);
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
@@ -357,7 +338,6 @@ export function HeaderAlbumSearch({
     if (e.key === 'Escape') {
       if (query.trim()) {
         setQuery('');
-        setIsOpen(false);
       } else {
         handleCloseSearch();
       }
@@ -386,49 +366,36 @@ export function HeaderAlbumSearch({
 
   const isSearching = loadingClub || loadingSpotify;
 
-  // Render para dentro del Mobile Navigation Drawer
+  // Render para dentro del Mobile Navigation Drawer (si se usa allí)
   if (isMobileMode) {
     return (
       <div ref={containerRef} className="w-full space-y-2">
-        {!isExpanded ? (
-          <button
-            type="button"
-            onClick={handleOpenSearch}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold transition-all group active:scale-[0.98] cursor-pointer"
-          >
-            <span className="flex items-center gap-2.5 text-white/80 group-hover:text-white">
-              <span className="text-pink-400 text-sm">🔍</span>
-              <span>Buscar álbum...</span>
-            </span>
-            <span className="text-[10px] text-pink-300 bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20 font-bold">
-              Expandir ▾
-            </span>
-          </button>
-        ) : (
-          <div className="space-y-2 animate-fadeIn bg-black/40 border border-white/15 p-2.5 rounded-2xl">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
-                Buscador Global
-              </span>
-              <button
-                type="button"
-                onClick={handleCloseSearch}
-                className="text-[10px] font-bold text-pink-400 hover:text-pink-300 px-2 py-0.5 rounded-lg bg-pink-500/10 border border-pink-500/20 transition-all cursor-pointer"
-              >
-                ▲ Ocultar
-              </button>
-            </div>
+        <button
+          type="button"
+          onClick={handleToggleSearch}
+          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold transition-all group active:scale-[0.98] cursor-pointer"
+        >
+          <span className="flex items-center gap-2.5 text-white/80 group-hover:text-white">
+            <span className="text-pink-400 text-sm">🔍</span>
+            <span>Buscar álbum...</span>
+          </span>
+          <span className="text-[10px] text-pink-300 bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20 font-bold">
+            {isOpen ? '▲ Ocultar' : '▾ Abrir'}
+          </span>
+        </button>
 
+        {isOpen && (
+          <div className="space-y-2 animate-fadeIn bg-black/40 border border-white/15 p-2.5 rounded-2xl">
             <div className="relative flex items-center">
               <input
-                ref={drawerInputRef}
+                ref={inputRef}
                 type="text"
                 value={query}
                 onChange={handleInputChange}
-                onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
-                placeholder="Escribe el nombre del álbum o artista..."
+                placeholder="Escribe el álbum o artista..."
                 className="w-full pl-8 pr-8 py-2 bg-[#0c0e1e] border border-white/15 focus:border-[#f5576c]/60 rounded-xl text-white text-xs placeholder-white/40 focus:outline-none shadow-inner"
+                autoFocus
               />
 
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
@@ -522,138 +489,146 @@ export function HeaderAlbumSearch({
     );
   }
 
-  // Render en el Header Superior (Desktop y Mobile Top Bar)
+  // Render en el Header Superior (Botón con Icono y Dropdown desplegable hacia abajo)
   return (
-    <div ref={containerRef} className="relative flex items-center">
-      {/* 1. Botón de búsqueda (visible en desktop cuando colapsado, y en móvil como botón toggle) */}
+    <div ref={containerRef} className="relative">
+      {/* Botón Lupa en el Header (estilo idéntico al botón de Notificaciones) */}
       <button
         type="button"
         onClick={handleToggleSearch}
-        className={`flex items-center gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-all duration-200 cursor-pointer select-none group shadow-md ${
-          isExpanded
-            ? 'bg-pink-500/20 border-pink-500/50 text-white ring-2 ring-pink-500/20 sm:hidden'
-            : 'bg-[#121324]/80 hover:bg-[#1a1b32] border-white/15 hover:border-pink-500/40 text-white/70 hover:text-white'
-        } ${isExpanded ? 'sm:hidden' : 'flex'}`}
-        title="Buscar álbum en el Club o Spotify"
+        className={`relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full border transition-all duration-200 cursor-pointer select-none ${
+          isOpen
+            ? 'bg-[#181a2f] border-pink-500/60 ring-2 ring-pink-500/30 text-white shadow-[0_0_15px_rgba(245,87,108,0.3)]'
+            : 'bg-[#121324]/80 hover:bg-[#1a1b32] border-white/15 hover:border-pink-500/40 text-white/80 hover:text-white shadow-md hover:scale-105 active:scale-95'
+        }`}
+        title="Buscar álbumes en el Club o Spotify"
         aria-label="Buscar álbum"
+        aria-expanded={isOpen}
       >
-        <span className="text-pink-400 group-hover:scale-110 transition-transform text-sm sm:text-xs">
-          🔍
-        </span>
-        <span className="hidden sm:inline text-white/60 group-hover:text-white text-xs font-medium">
-          Buscar álbum...
-        </span>
+        <svg
+          className="w-4 h-4 sm:w-4.5 sm:h-4.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2.2"
+            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+          />
+        </svg>
       </button>
 
-      {/* 2. Barra de búsqueda expandida para DESKTOP (pantallas sm en adelante) */}
-      {isExpanded && (
-        <div className="hidden sm:flex items-center gap-1.5 animate-fadeIn">
-          <div className="relative flex items-center w-56 sm:w-64 md:w-72 lg:w-80 transition-all duration-300">
-            <input
-              ref={desktopInputRef}
-              type="text"
-              value={query}
-              onChange={handleInputChange}
-              onFocus={handleFocus}
-              onKeyDown={handleKeyDown}
-              placeholder="Buscar álbum o artista..."
-              className="w-full pl-8 sm:pl-9 pr-7 sm:pr-8 py-1.5 bg-black/60 hover:bg-black/75 focus:bg-[#0c0e1e] border border-pink-500/50 focus:border-[#f5576c] rounded-full text-white text-xs sm:text-sm placeholder-white/40 focus:outline-none transition-all duration-200 shadow-lg shadow-pink-500/10"
-            />
+      {/* Popover / Menú Desplegable hacia abajo (al estilo de NotificationsDropdown) */}
+      {isOpen && (
+        <div
+          className="fixed left-2 right-2 top-[58px] z-[160] sm:fixed-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[460px] md:w-[500px] bg-[#0c0e1c]/95 backdrop-blur-2xl border border-pink-500/30 sm:border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left animate-fadeIn max-h-[85vh] sm:max-h-[580px]"
+          role="dialog"
+          aria-label="Buscador de Álbumes"
+        >
+          {/* Cabecera del Dropdown */}
+          <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm flex-shrink-0 shadow-inner">
+                🔍
+              </div>
+              <div className="min-w-0">
+                <h3 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
+                  Buscar Álbumes
+                </h3>
+                <p className="text-[11px] text-white/40 truncate">
+                  Catálogo del Club y millones de discos en Spotify
+                </p>
+              </div>
+            </div>
 
-            <span className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
-              {isSearching ? (
-                <span className="inline-block w-3.5 h-3.5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
-              ) : (
-                '🔍'
-              )}
-            </span>
-
-            {query && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white/10 hover:bg-white/25 text-white/60 hover:text-white flex items-center justify-center text-[10px] transition-all cursor-pointer"
-                title="Borrar búsqueda"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          <button
-            type="button"
-            onClick={handleCloseSearch}
-            className="w-7 h-7 rounded-full bg-white/5 hover:bg-white/15 text-white/60 hover:text-white flex items-center justify-center text-xs transition-all border border-white/10 cursor-pointer"
-            title="Cerrar buscador"
-          >
-            ✕
-          </button>
-        </div>
-      )}
-
-      {/* 3. MODO CELULAR: Barra desplegable hacia abajo (Pantallas < sm) */}
-      {isExpanded && (
-        <div className="sm:hidden fixed left-2 right-2 top-[58px] z-[160] p-3 bg-[#0d0f22] border border-pink-500/40 rounded-2xl shadow-2xl backdrop-blur-2xl animate-fadeIn space-y-2.5">
-          <div className="flex items-center justify-between pb-1.5 border-b border-white/10">
-            <span className="text-xs font-bold text-pink-300 flex items-center gap-1.5">
-              <span>🔍</span>
-              <span>Buscar en Musiclub</span>
-            </span>
             <button
               type="button"
               onClick={handleCloseSearch}
-              className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs cursor-pointer transition-all"
-              title="Cerrar"
+              className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white/15 text-white/70 hover:text-white flex items-center justify-center text-xs transition-all border border-white/10 cursor-pointer"
+              title="Cerrar buscador"
             >
               ✕
             </button>
           </div>
 
-          <div className="relative flex items-center">
-            <input
-              ref={mobileInputRef}
-              type="text"
-              value={query}
-              onChange={handleInputChange}
-              onFocus={handleFocus}
-              onKeyDown={handleKeyDown}
-              placeholder="Escribe el nombre del álbum o artista..."
-              className="w-full pl-8 pr-2 py-2 bg-black/60 border border-white/20 focus:border-[#f5576c] rounded-xl text-white text-[10px] placeholder-white/40 focus:outline-none shadow-inner"
-            />
+          {/* Campo de Texto de Búsqueda */}
+          <div className="p-3 border-b border-white/10 bg-black/40">
+            <div className="relative flex items-center">
+              <input
+                ref={inputRef}
+                type="text"
+                value={query}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Escribe el nombre del álbum o artista..."
+                className="w-full pl-9 pr-8 py-2.5 bg-[#121324] border border-white/15 focus:border-[#f5576c] focus:ring-1 focus:ring-[#f5576c]/40 rounded-xl text-white text-xs sm:text-sm placeholder-white/40 focus:outline-none transition-all shadow-inner"
+                autoFocus
+              />
 
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
-              {isSearching ? (
-                <span className="inline-block w-3.5 h-3.5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
-              ) : (
-                '🔍'
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
+                {isSearching ? (
+                  <span className="inline-block w-3.5 h-3.5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  '🔍'
+                )}
+              </span>
+
+              {query && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-white/60 hover:text-white flex items-center justify-center text-xs transition-all cursor-pointer"
+                  title="Limpiar búsqueda"
+                >
+                  ✕
+                </button>
               )}
-            </span>
-
-            {query && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] cursor-pointer"
-              >
-                ✕
-              </button>
-            )}
+            </div>
           </div>
 
-          {/* Resultados en modo celular desplegado hacia abajo */}
-          {query.trim() && (
-            <div className="max-h-[55vh] overflow-y-auto space-y-1 custom-scrollbar pt-1">
-              {isSearching && combinedResults.length === 0 ? (
-                <div className="p-3 text-center text-white/50 text-xs flex items-center justify-center gap-2">
-                  <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse"></span>
-                  <span>Buscando álbumes...</span>
+          {/* Notificación de acción / proceso de proposición */}
+          {statusMessage && (
+            <div className="mx-3 mt-2.5 bg-gradient-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/20">
+              <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+              <span>{statusMessage}</span>
+            </div>
+          )}
+
+          {/* Resultados de búsqueda */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 max-h-[360px]">
+            {!query.trim() ? (
+              <div className="py-8 px-4 text-center space-y-2">
+                <div className="text-3xl">🎧</div>
+                <p className="text-white font-bold text-xs">
+                  Empieza a escribir para buscar
+                </p>
+                <p className="text-white/40 text-[11px] max-w-xs mx-auto leading-relaxed">
+                  Busca cualquier álbum del club para ver sus reviews o encuentra cualquier disco en Spotify para proponerlo.
+                </p>
+              </div>
+            ) : isSearching && combinedResults.length === 0 ? (
+              <div className="py-10 text-center text-white/50 text-xs flex flex-col items-center justify-center gap-2">
+                <span className="w-5 h-5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
+                <span>Buscando en catálogo y Spotify...</span>
+              </div>
+            ) : combinedResults.length === 0 ? (
+              <div className="py-8 text-center text-white/40 text-xs">
+                <p className="font-semibold text-white/70">No se encontraron álbumes para "{query}"</p>
+                <p className="text-[11px] text-white/30 mt-1">
+                  Verifica que el título o artista estén bien escritos.
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 flex items-center justify-between border-b border-white/5">
+                  <span>Resultados ({combinedResults.length})</span>
+                  <span className="text-pink-300 font-normal">Click para abrir / calificar</span>
                 </div>
-              ) : combinedResults.length === 0 ? (
-                <div className="p-3 text-center text-white/40 text-xs">
-                  No se encontraron álbumes para "{query}"
-                </div>
-              ) : (
-                combinedResults.map((item, idx) => {
+
+                {combinedResults.map((item, idx) => {
+                  const isHighlighted = highlightedIndex === idx;
                   const isSelectingThis = selectingAlbumId === item.id;
                   const isClubAlbum = item.type === 'CLUB';
 
@@ -661,166 +636,83 @@ export function HeaderAlbumSearch({
                     <div
                       key={item.id || idx}
                       onClick={() => handleSelectAlbum(item)}
-                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all cursor-pointer ${
+                      onMouseEnter={() => setHighlightedIndex(idx)}
+                      className={`flex items-center gap-2.5 p-2 rounded-xl transition-all cursor-pointer group ${
                         isSelectingThis
                           ? 'bg-pink-500/20 border border-pink-500/50 opacity-80 pointer-events-none'
-                          : 'hover:bg-white/10 bg-white/[0.03] border border-white/5'
+                          : isHighlighted
+                            ? 'bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40'
+                            : 'hover:bg-white/5 border border-transparent'
                       }`}
                     >
-                      <img
-                        src={
-                          item.image ||
-                          'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
-                        }
-                        alt={item.name}
-                        className="w-10 h-10 rounded-lg object-cover flex-shrink-0 border border-white/10"
-                        onError={(e) => {
-                          e.target.src =
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
-                        }}
-                      />
+                      <div className="relative w-11 h-11 flex-shrink-0">
+                        <img
+                          src={
+                            item.image ||
+                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                          }
+                          alt={item.name}
+                          className="w-11 h-11 rounded-lg object-cover border border-white/10"
+                          onError={(e) => {
+                            e.target.src =
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                          }}
+                        />
+                        {isSelectingThis && (
+                          <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center">
+                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          </div>
+                        )}
+                      </div>
+
                       <div className="min-w-0 flex-1 text-left">
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <p className="text-white font-bold text-xs truncate">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="text-white font-bold text-xs truncate group-hover:text-pink-300 transition-colors">
                             {item.name}
                           </p>
                         </div>
-                        <p className="text-white/60 text-[10px] truncate">
+
+                        <p className="text-white/60 text-[11px] truncate">
                           {item.artist}
                         </p>
-                      </div>
-                      <div className="flex-shrink-0">
-                        <span
-                          className={`text-[9px] px-2 py-0.5 rounded-lg font-bold ${
-                            isClubAlbum
-                              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                              : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white'
-                          }`}
-                        >
-                          {isClubAlbum ? 'Ver ➔' : '+ Proponer ➔'}
-                        </span>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
-      {/* Notificación de acción / proceso de proposición */}
-      {statusMessage && (
-        <div className="fixed sm:absolute top-16 sm:top-full mt-1.5 left-4 right-4 sm:left-0 sm:right-0 z-[170] bg-gradient-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-xl flex items-center justify-center gap-2 animate-fadeIn backdrop-blur-md border border-white/20">
-          <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-          <span>{statusMessage}</span>
-        </div>
-      )}
-
-      {/* Dropdown flotante en DESKTOP con los resultados en vivo */}
-      {isExpanded && isOpen && query.trim() && (
-        <div className="hidden sm:block absolute right-0 sm:right-auto sm:left-0 w-80 sm:w-88 md:w-96 max-w-[95vw] top-full mt-2 bg-[#0c0e1e]/98 border border-white/15 rounded-2xl shadow-2xl backdrop-blur-2xl z-[150] overflow-hidden animate-fadeIn max-h-[440px] overflow-y-auto custom-scrollbar">
-          {isSearching && combinedResults.length === 0 ? (
-            <div className="p-4 text-center text-white/50 text-xs flex items-center justify-center gap-2">
-              <span className="w-2.5 h-2.5 bg-[#f5576c] rounded-full animate-pulse"></span>
-              <span>Buscando en catálogo y Spotify...</span>
-            </div>
-          ) : combinedResults.length === 0 ? (
-            <div className="p-4 text-center text-white/40 text-xs">
-              <p>No se encontraron álbumes para "{query}"</p>
-              <p className="text-[10px] text-white/30 mt-1">
-                Verifica el nombre del artista o álbum.
-              </p>
-            </div>
-          ) : (
-            <div className="p-1.5 space-y-1">
-              <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 flex items-between justify-between border-b border-white/5">
-                <span>Resultados ({combinedResults.length})</span>
-                <span className="text-pink-300">
-                  Click para ver / calificar
-                </span>
-              </div>
-
-              {combinedResults.map((item, idx) => {
-                const isHighlighted = highlightedIndex === idx;
-                const isSelectingThis = selectingAlbumId === item.id;
-                const isClubAlbum = item.type === 'CLUB';
-
-                return (
-                  <div
-                    key={item.id || idx}
-                    onClick={() => handleSelectAlbum(item)}
-                    onMouseEnter={() => setHighlightedIndex(idx)}
-                    className={`flex items-center gap-2.5 p-2 rounded-xl transition-all cursor-pointer group ${
-                      isSelectingThis
-                        ? 'bg-pink-500/20 border border-pink-500/50 opacity-80 pointer-events-none'
-                        : isHighlighted
-                          ? 'bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40'
-                          : 'hover:bg-white/5 border border-transparent'
-                    }`}
-                  >
-                    <div className="relative w-10 h-10 flex-shrink-0">
-                      <img
-                        src={
-                          item.image ||
-                          'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
-                        }
-                        alt={item.name}
-                        className="w-10 h-10 rounded-lg object-cover border border-white/10"
-                        onError={(e) => {
-                          e.target.src =
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
-                        }}
-                      />
-                      {isSelectingThis && (
-                        <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center">
-                          <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1 text-left">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <p className="text-white font-bold text-xs truncate group-hover:text-pink-300 transition-colors">
-                          {item.name}
+                        <p className="text-white/40 text-[9px] truncate">
+                          {isClubAlbum
+                            ? `En el Club • Añadido por: ${item.rawClubAlbum?.added_by || 'Club'}`
+                            : `Spotify • ${item.releaseDate ? item.releaseDate.split('-')[0] : 'Álbum'}`}
                         </p>
                       </div>
 
-                      <p className="text-white/60 text-[11px] truncate">
-                        {item.artist}
-                      </p>
-
-                      <p className="text-white/40 text-[9px] truncate">
-                        {isClubAlbum
-                          ? `En el Club • Añadido por: ${item.rawClubAlbum?.added_by || 'Club'}`
-                          : `Spotify • ${item.releaseDate ? item.releaseDate.split('-')[0] : 'Álbum'}`}
-                      </p>
-                    </div>
-
-                    <div className="flex-shrink-0 text-right">
-                      {isClubAlbum ? (
-                        <>
-                          <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
-                            Ver Álbum ➔
-                          </span>
-                          {item.rating !== null &&
-                            item.rating !== undefined && (
+                      <div className="flex-shrink-0 text-right">
+                        {isClubAlbum ? (
+                          <>
+                            <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
+                              Ver Álbum ➔
+                            </span>
+                            {item.rating !== null && item.rating !== undefined && (
                               <p className="text-[9px] text-amber-300 font-bold mt-0.5">
                                 ⭐ {Number(item.rating).toFixed(1)}
                               </p>
                             )}
-                        </>
-                      ) : (
-                        <span className="px-2 py-1 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
-                          + Proponer ➔
-                        </span>
-                      )}
+                          </>
+                        ) : (
+                          <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
+                            + Proponer ➔
+                          </span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+                  );
+                })}
+              </>
+            )}
+          </div>
+
+          {/* Pie de dropdown */}
+          <div className="p-2.5 px-4 bg-white/[0.02] border-t border-white/10 text-[10px] text-white/40 flex items-center justify-between">
+            <span>Presiona <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white/70 font-mono">Esc</kbd> para salir</span>
+            <span className="text-pink-400/80 font-medium">Musiclub Search</span>
+          </div>
         </div>
       )}
     </div>

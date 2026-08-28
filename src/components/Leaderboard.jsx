@@ -246,8 +246,8 @@ export function Leaderboard({ isPage = false }) {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d0e15] text-white py-5 sm:py-8 px-3 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full">
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 

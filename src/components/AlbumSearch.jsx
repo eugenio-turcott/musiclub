@@ -89,6 +89,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setLoading(false);
   };
 
+  const [selectedType, setSelectedType] = useState(null);
+
   const handleCreateAlbum = async () => {
     if (!albumDetails) return;
 
@@ -103,6 +105,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         track_number: track.track_number,
       }));
 
+      const finalType = selectedType || albumDetails.release_type || 'ALBUM';
+
       const albumData = {
         albumName: albumDetails.name,
         artistName: albumDetails.artists[0],
@@ -113,6 +117,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         status: 'INDIVIDUAL',
         tracks: tracks,
         releaseDate: albumDetails.releaseDate || null,
+        releaseYear: albumDetails.releaseYear || null,
+        releaseType: finalType,
+        genres: albumDetails.genres || [],
         reviews_enabled: true, // 👈 POR DEFECTO TRUE PARA INDIVIDUALES
       };
 
@@ -126,11 +133,14 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         spotifyLink: newAlbum.spotify_link,
         tracks: tracks,
         status: 'INDIVIDUAL',
+        release_type: finalType,
+        release_year: albumDetails.releaseYear,
         spotify_verified: true,
         reviews_enabled: true, // 👈 AGREGAR
       });
 
       setAlbumDetails(null);
+      setSelectedType(null);
       setSearchResults([]);
       setSearchQuery('');
       if (onAlbumCreated) onAlbumCreated();
@@ -250,25 +260,49 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {/* Resultados de búsqueda */}
         {searchResults.length > 0 && !albumDetails && !existingAlbum && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {searchResults.map((album) => (
-              <div
-                key={album.id}
-                onClick={() => handleSelectAlbum(album)}
-                className="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 hover:border-[#f5576c]/30 transition-all cursor-pointer group"
-              >
-                <img
-                  src={album.image}
-                  alt={album.name}
-                  className="w-full aspect-square object-cover rounded-lg mb-2 group-hover:scale-105 transition-transform duration-300"
-                />
-                <p className="text-white/80 text-sm truncate font-medium">
-                  {album.name}
-                </p>
-                <p className="text-white/30 text-xs truncate">
-                  {album.artists.join(', ')}
-                </p>
-              </div>
-            ))}
+            {searchResults.map((album) => {
+              const typeBadge =
+                album.release_type === 'EP'
+                  ? { label: 'EP', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' }
+                  : album.release_type === 'SENCILLO'
+                  ? { label: 'Sencillo', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30' }
+                  : album.release_type === 'COMPILACION'
+                  ? { label: 'Compilación', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' }
+                  : { label: 'Álbum', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+
+              return (
+                <div
+                  key={album.id}
+                  onClick={() => handleSelectAlbum(album)}
+                  className="bg-white/5 rounded-xl p-3 border border-white/5 hover:bg-white/10 hover:border-[#f5576c]/30 transition-all cursor-pointer group flex flex-col justify-between"
+                >
+                  <div className="relative w-full aspect-square rounded-lg mb-2 overflow-hidden bg-black/40">
+                    <img
+                      src={album.image}
+                      alt={album.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-1.5 right-1.5 flex flex-col gap-1 items-end">
+                      <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}>
+                        {typeBadge.label}
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-white/90 text-sm truncate font-semibold">
+                      {album.name}
+                    </p>
+                    <p className="text-white/40 text-xs truncate mt-0.5">
+                      {album.artists.join(', ')}
+                    </p>
+                    <div className="flex items-center justify-between text-[10px] text-white/30 mt-1">
+                      <span>{album.releaseYear || ''}</span>
+                      <span>{album.totalTracks} {album.totalTracks === 1 ? 'pista' : 'pistas'}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -324,63 +358,118 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
         {/* Detalles del álbum seleccionado */}
         {albumDetails && !savedAlbum && (
-          <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl p-4 border border-white/10">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <img
-                src={albumDetails.image}
-                alt={albumDetails.name}
-                className="w-full sm:w-48 aspect-square object-cover rounded-xl shadow-xl"
-              />
-              <div className="flex-1">
-                <h4 className="text-white text-xl font-bold">
+          <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl p-4 sm:p-5 border border-white/10">
+            <div className="flex flex-col sm:flex-row gap-5">
+              <div className="relative w-full sm:w-48 aspect-square flex-shrink-0">
+                <img
+                  src={albumDetails.image}
+                  alt={albumDetails.name}
+                  className="w-full h-full object-cover rounded-2xl shadow-xl border border-white/10"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                    Spotify Verificado
+                  </span>
+                  {albumDetails.releaseYear && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10">
+                      📅 {albumDetails.releaseYear}
+                    </span>
+                  )}
+                </div>
+
+                <h4 className="text-white text-xl font-black leading-tight">
                   {albumDetails.name}
                 </h4>
-                <p className="text-white/50 text-sm">
+                <p className="text-white/60 text-sm font-semibold mt-0.5">
                   {albumDetails.artists.join(', ')}
                 </p>
-                <p className="text-white/30 text-xs mt-1">
-                  {albumDetails.totalTracks} canciones ·{' '}
-                  {albumDetails.releaseDate}
+
+                {/* Selector de Tipo de Lanzamiento (Álbum / EP / Sencillo) */}
+                <div className="mt-3 p-3 bg-black/40 rounded-xl border border-white/10 space-y-2">
+                  <label className="text-[11px] font-bold text-white/70 block uppercase tracking-wider">
+                    Tipo de Lanzamiento:
+                  </label>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {[
+                      { id: 'ALBUM', label: '✨ Álbum', desc: 'LP / Disco completo' },
+                      { id: 'EP', label: '💿 EP', desc: 'Extended Play' },
+                      { id: 'SENCILLO', label: '🎵 Sencillo', desc: 'Single / Canción' },
+                      { id: 'COMPILACION', label: '📦 Compilación', desc: 'Grandes Éxitos / Varios' },
+                    ].map((t) => {
+                      const isCurrent = (selectedType || albumDetails.release_type) === t.id;
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setSelectedType(t.id)}
+                          className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
+                            isCurrent
+                              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-md scale-105'
+                              : 'bg-white/5 hover:bg-white/10 text-white/60 border-white/10'
+                          }`}
+                        >
+                          {t.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Géneros de Spotify */}
+                {albumDetails.genres && albumDetails.genres.length > 0 && (
+                  <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
+                      Géneros:
+                    </span>
+                    {albumDetails.genres.slice(0, 4).map((g) => (
+                      <span
+                        key={g}
+                        className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-cyan-300/80 capitalize"
+                      >
+                        #{g}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <p className="text-white/40 text-xs mt-2">
+                  {albumDetails.totalTracks} canciones · {albumDetails.releaseDate || ''}
                 </p>
 
-                <div className="mt-3 max-h-32 overflow-y-auto custom-scrollbar">
-                  <p className="text-white/40 text-xs mb-1 flex items-center gap-2">
-                    <span>🎵</span> Canciones:
+                <div className="mt-3 max-h-32 overflow-y-auto custom-scrollbar bg-black/20 p-2.5 rounded-xl border border-white/5">
+                  <p className="text-white/50 text-xs mb-1 font-semibold flex items-center gap-1.5">
+                    <span>🎵</span> Lista de Canciones:
                   </p>
-                  <ul className="text-white/20 text-xs space-y-0.5">
+                  <ul className="text-white/30 text-xs space-y-1">
                     {albumDetails.tracks.map((track) => (
                       <li key={track.id} className="flex items-center gap-2">
-                        <span className="text-white/10">
+                        <span className="text-white/20 font-mono text-[11px] w-5">
                           {track.track_number}.
                         </span>
-                        <span className="text-white/30">{track.name}</span>
+                        <span className="text-white/60 truncate">{track.name}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
 
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-4 flex flex-wrap gap-2.5">
                   <button
                     onClick={handleCreateAlbum}
                     disabled={creating}
-                    className="px-6 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 shadow-lg shadow-[#f5576c]/20"
+                    className="px-6 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-[#f5576c]/20 flex items-center gap-2"
                   >
-                    {creating ? '🔄 Creando...' : '✅ Agregar como Individual'}
+                    <span>{creating ? '🔄 Guardando...' : '✅ Confirmar y Proponer'}</span>
                   </button>
 
                   <button
                     onClick={() => {
                       setAlbumDetails(null);
+                      setSelectedType(null);
                       setSearchResults([]);
                     }}
-                    className="px-4 py-2.5 bg-white/5 border border-white/10 text-white/40 rounded-xl text-sm hover:bg-white/10 transition-all"
-                  >
-                    ✕ Cancelar
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+                    className="px-4 py-2.5 bg-white/5 border border-white/10 text-white/50 rounded-xl text-sm hover:bg-white/10 hover:text-white transition-all"
         )}
 
         {/* Álbum creado exitosamente */}

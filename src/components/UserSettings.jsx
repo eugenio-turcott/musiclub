@@ -220,7 +220,7 @@ export function UserSettings() {
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-8 pb-16 animate-fadeIn">
+    <div className="w-full max-w-7xl mx-auto space-y-8 pb-16 animate-fadeIn">
       {/* Universal Standard App Header */}
       <AppHeader showTitle={false} />
 

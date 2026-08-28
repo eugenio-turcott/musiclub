@@ -61,6 +61,58 @@ const getSpotifyToken = async () => {
   }
 };
 
+/**
+ * Clasifica de forma inteligente un lanzamiento de Spotify en:
+ * 'ALBUM' | 'EP' | 'SENCILLO' | 'COMPILACION'
+ */
+export const classifyAlbumType = (album) => {
+  if (!album) return 'ALBUM';
+  const type = (album.album_type || album.type || '').toLowerCase();
+  const name = (album.name || album.album_name || '').toLowerCase();
+  const totalTracks =
+    album.total_tracks ||
+    album.totalTracks ||
+    (Array.isArray(album.tracks) ? album.tracks.length : 0);
+
+  if (type === 'compilation') return 'COMPILACION';
+
+  // Si Spotify lo etiqueta como single
+  if (type === 'single') {
+    if (totalTracks >= 3 && totalTracks <= 7) return 'EP';
+    if (
+      name.includes(' - ep') ||
+      name.includes('(ep)') ||
+      name.includes(' ep') ||
+      name.endsWith(' ep')
+    ) {
+      return 'EP';
+    }
+    return 'SENCILLO';
+  }
+
+  // Si es un EP nombrado explícitamente en el título
+  if (
+    name.includes(' - ep') ||
+    name.includes('(ep)') ||
+    name.includes(' ep') ||
+    name.endsWith(' ep')
+  ) {
+    if (totalTracks > 0 && totalTracks <= 7) return 'EP';
+  }
+
+  if (totalTracks === 1 || totalTracks === 2) {
+    return 'SENCILLO';
+  }
+
+  return 'ALBUM';
+};
+
+export const extractReleaseYear = (releaseDate) => {
+  if (!releaseDate) return null;
+  const year = parseInt(String(releaseDate).substring(0, 4), 10);
+  return !isNaN(year) && year >= 1900 && year <= 2100 ? year : null;
+};
+
 export const searchAlbum = async (query) => {
   try {
     const token = await getSpotifyToken();
@@ -83,16 +135,24 @@ export const searchAlbum = async (query) => {
     if (data.albums && data.albums.items) {
       return {
         success: true,
-        albums: data.albums.items.map((album) => ({
-          id: album.id,
-          name: album.name,
-          artists: album.artists.map((a) => a.name),
-          image: album.images[0]?.url || '',
-          releaseDate: album.release_date,
-          totalTracks: album.total_tracks,
-          tracks: [],
-          external_urls: album.external_urls,
-        })),
+        albums: data.albums.items.map((album) => {
+          const releaseType = classifyAlbumType(album);
+          const releaseYear = extractReleaseYear(album.release_date);
+          return {
+            id: album.id,
+            name: album.name,
+            artists: album.artists.map((a) => a.name),
+            artist_id: album.artists[0]?.id || null,
+            image: album.images[0]?.url || '',
+            releaseDate: album.release_date,
+            releaseYear: releaseYear,
+            album_type: album.album_type,
+            release_type: releaseType,
+            totalTracks: album.total_tracks,
+            tracks: [],
+            external_urls: album.external_urls,
+          };
+        }),
       };
     }
 
@@ -167,14 +227,50 @@ export const getAlbumDetails = async (albumId) => {
     const album = await response.json();
 
     if (album.id) {
+      let genres = Array.isArray(album.genres) ? [...album.genres] : [];
+
+      // Si el álbum no trae géneros a nivel álbum, obtener géneros del artista principal
+      const primaryArtistId = album.artists?.[0]?.id;
+      if (genres.length === 0 && primaryArtistId) {
+        try {
+          const artistRes = await fetch(
+            `https://api.spotify.com/v1/artists/${primaryArtistId}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          if (artistRes.ok) {
+            const artistData = await artistRes.json();
+            if (Array.isArray(artistData.genres) && artistData.genres.length > 0) {
+              genres = artistData.genres;
+            }
+          }
+        } catch (genreErr) {
+          console.warn('No se pudieron obtener géneros del artista:', genreErr);
+        }
+      }
+
+      const releaseType = classifyAlbumType(album);
+      const releaseYear = extractReleaseYear(album.release_date);
+
       return {
         success: true,
         album: {
           id: album.id,
           name: album.name,
           artists: album.artists.map((a) => a.name),
+          artists_data: album.artists.map((a) => ({ id: a.id, name: a.name })),
+          primaryArtistId: primaryArtistId,
           image: album.images[0]?.url || '',
           releaseDate: album.release_date,
+          releaseYear: releaseYear,
+          album_type: album.album_type,
+          release_type: releaseType,
+          genres: genres,
+          label: album.label || '',
+          popularity: album.popularity || null,
           totalTracks: album.total_tracks,
           tracks: album.tracks.items.map((track) => ({
             id: track.id,
@@ -444,6 +540,460 @@ export const getSpotifyPlaylistDetails = async (playlistId) => {
     };
   } catch (error) {
     console.warn('Error en getSpotifyPlaylistDetails:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Busca artistas en Spotify por nombre
+ */
+export const searchArtist = async (query, limit = 5) => {
+  if (!query || !query.trim()) return { success: true, artists: [] };
+  try {
+    const token = await getSpotifyToken();
+    const response = await fetch(
+      `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=artist&limit=${limit}&market=MX`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Error buscando artista: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.artists && data.artists.items) {
+      return {
+        success: true,
+        artists: data.artists.items.map((artist) => ({
+          id: artist.id,
+          name: artist.name,
+          image: artist.images?.[0]?.url || artist.images?.[1]?.url || '',
+          genres: artist.genres || [],
+          followers: artist.followers?.total || 0,
+          popularity: artist.popularity || 0,
+          external_urls: artist.external_urls,
+        })),
+      };
+    }
+    return { success: true, artists: [] };
+  } catch (error) {
+    console.warn('Error en searchArtist:', error);
+    return { success: false, error: error.message, artists: [] };
+  }
+};
+
+/**
+ * Obtiene el perfil de un artista dado su ID de Spotify
+ */
+export const getArtistById = async (artistId) => {
+  if (!artistId) return { success: false, error: 'ID de artista no proporcionado' };
+  try {
+    const token = await getSpotifyToken();
+    const response = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error obteniendo artista: ${response.status}`);
+    }
+
+    const artist = await response.json();
+    return {
+      success: true,
+      artist: {
+        id: artist.id,
+        name: artist.name,
+        image: artist.images?.[0]?.url || artist.images?.[1]?.url || '',
+        images: artist.images || [],
+        genres: artist.genres || [],
+        followers: artist.followers?.total || 0,
+        popularity: artist.popularity || 0,
+        spotifyUrl: artist.external_urls?.spotify || `https://open.spotify.com/artist/${artist.id}`,
+        external_urls: artist.external_urls,
+      },
+    };
+  } catch (error) {
+    console.warn('Error en getArtistById:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Obtiene las canciones más populares (Top Tracks) de un artista
+ */
+export const getArtistTopTracks = async (artistId, artistName) => {
+  if (!artistId && !artistName) return { success: false, tracks: [] };
+  try {
+    const token = await getSpotifyToken();
+    let tracks = [];
+
+    // Intento 1: Endpoint oficial /artists/{id}/top-tracks
+    if (artistId) {
+      try {
+        const response = await fetch(
+          `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=MX`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.tracks && data.tracks.length > 0) {
+            tracks = data.tracks;
+          }
+        }
+      } catch (_) {}
+    }
+
+    // Intento 2: Búsqueda por artista en caso de 403/429
+    if (tracks.length === 0 && artistName) {
+      try {
+        const searchRes = await fetch(
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=track&limit=10`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        if (searchRes.ok) {
+          const data = await searchRes.json();
+          tracks = data.tracks?.items || [];
+        }
+      } catch (_) {}
+    }
+
+    const mappedTracks = tracks.map((track, idx) => ({
+      id: track.id,
+      index: idx + 1,
+      name: track.name,
+      albumId: track.album?.id,
+      albumName: track.album?.name || '',
+      albumImage: track.album?.images?.[0]?.url || '',
+      albumReleaseDate: track.album?.release_date,
+      durationMs: track.duration_ms,
+      popularity: track.popularity || 0,
+      previewUrl: track.preview_url || null,
+      spotifyUrl:
+        track.external_urls?.spotify ||
+        `https://open.spotify.com/track/${track.id}`,
+      artists: track.artists ? track.artists.map((a) => a.name) : [artistName],
+    }));
+
+    return { success: true, tracks: mappedTracks };
+  } catch (error) {
+    console.warn('Error en getArtistTopTracks:', error);
+    return { success: false, error: error.message, tracks: [] };
+  }
+};
+
+/**
+ * Obtiene la discografía completa de un artista organizada y deduplicada
+ * Utiliza paginación vía Search API (resistente a límites y cuotas) con fallback
+ */
+export const getArtistDiscography = async (artistId, artistName) => {
+  if (!artistId && !artistName) {
+    return {
+      success: false,
+      discography: [],
+      albums: [],
+      eps: [],
+      singles: [],
+      compilations: [],
+    };
+  }
+
+  try {
+    const token = await getSpotifyToken();
+    const rawItems = [];
+
+    // 1. Obtener lanzamientos mediante Spotify Search API con paginación
+    if (artistName) {
+      const offsets = [0, 10, 20, 30, 40];
+      const searchPromises = offsets.map((offset) =>
+        fetch(
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=album&limit=10&offset=${offset}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+      );
+
+      const searchResults = await Promise.all(searchPromises);
+      searchResults.forEach((res) => {
+        if (res?.albums?.items) {
+          rawItems.push(...res.albums.items);
+        }
+      });
+    }
+
+    // 2. Si no hubo resultados o no había nombre, intentar endpoint por ID
+    if (rawItems.length === 0 && artistId) {
+      const discoPromises = [0, 10, 20, 30].map((offset) =>
+        fetch(
+          `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=10&offset=${offset}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+          .then((res) => (res.ok ? res.json() : null))
+          .catch(() => null)
+      );
+
+      const pageResults = await Promise.all(discoPromises);
+      pageResults.forEach((pageData) => {
+        if (pageData && Array.isArray(pageData.items)) {
+          rawItems.push(...pageData.items);
+        }
+      });
+    }
+
+    // Deduplicar y clasificar lanzamientos
+    const seenMap = new Map();
+    const discography = [];
+
+    rawItems.forEach((item) => {
+      // Filtrar sólo si coincide con el artista objetivo
+      if (artistName && item.artists && item.artists.length > 0) {
+        const cleanTarget = artistName.toLowerCase().trim();
+        const matchesArtist = item.artists.some((a) => {
+          const aName = a.name.toLowerCase().trim();
+          return (
+            aName === cleanTarget ||
+            cleanTarget.includes(aName) ||
+            aName.includes(cleanTarget)
+          );
+        });
+        if (!matchesArtist) return;
+      }
+
+      const releaseType = classifyAlbumType(item);
+      const releaseYear = extractReleaseYear(item.release_date);
+      const cleanName = item.name
+        .toLowerCase()
+        .replace(/\s*\(deluxe|\s*\(re-issue|\s*\(remastered.*/i, '')
+        .trim();
+      const dedupeKey = `${cleanName}-${releaseYear || ''}-${releaseType}`;
+
+      if (!seenMap.has(dedupeKey)) {
+        seenMap.set(dedupeKey, true);
+        discography.push({
+          id: item.id,
+          name: item.name,
+          artists: item.artists ? item.artists.map((a) => a.name) : [],
+          image: item.images?.[0]?.url || item.images?.[1]?.url || '',
+          releaseDate: item.release_date,
+          releaseYear: releaseYear,
+          album_type: item.album_type,
+          release_type: releaseType,
+          totalTracks: item.total_tracks,
+          spotifyUrl:
+            item.external_urls?.spotify ||
+            `https://open.spotify.com/album/${item.id}`,
+          external_urls: item.external_urls,
+        });
+      }
+    });
+
+    // Ordenar cronológicamente descendente (lo más nuevo primero)
+    discography.sort((a, b) => {
+      const dateA = a.releaseDate ? new Date(a.releaseDate).getTime() : 0;
+      const dateB = b.releaseDate ? new Date(b.releaseDate).getTime() : 0;
+      return dateB - dateA;
+    });
+
+    const albums = discography.filter((d) => d.release_type === 'ALBUM');
+    const eps = discography.filter((d) => d.release_type === 'EP');
+    const singles = discography.filter((d) => d.release_type === 'SENCILLO');
+    const compilations = discography.filter(
+      (d) => d.release_type === 'COMPILACION'
+    );
+
+    return {
+      success: true,
+      discography,
+      albums,
+      eps,
+      singles,
+      compilations,
+    };
+  } catch (error) {
+    console.warn('Error en getArtistDiscography:', error);
+    return {
+      success: false,
+      error: error.message,
+      discography: [],
+      albums: [],
+      eps: [],
+      singles: [],
+      compilations: [],
+    };
+  }
+};
+
+/**
+ * Obtiene toda la información completa de un artista (perfil, top tracks, discografía completa)
+ * Buscando por nombre de artista o por su ID de Spotify
+ */
+export const getArtistCompleteProfile = async (artistNameOrId) => {
+  if (!artistNameOrId)
+    return { success: false, error: 'Identificador de artista inválido' };
+
+  try {
+    let artistId = null;
+    let initialArtistData = null;
+    let resolvedArtistName = artistNameOrId;
+
+    // 1. Si parece un Spotify ID (22 caracteres alfanuméricos)
+    if (/^[0-9A-Za-z]{22}$/.test(artistNameOrId.trim())) {
+      artistId = artistNameOrId.trim();
+    } else {
+      // Buscar por nombre
+      const searchRes = await searchArtist(artistNameOrId, 3);
+      if (searchRes.success && searchRes.artists.length > 0) {
+        // Encontrar la mejor coincidencia
+        const cleanTarget = artistNameOrId.toLowerCase().trim();
+        const exactMatch = searchRes.artists.find(
+          (a) => a.name.toLowerCase().trim() === cleanTarget
+        );
+        const best = exactMatch || searchRes.artists[0];
+        artistId = best.id;
+        initialArtistData = best;
+        resolvedArtistName = best.name || artistNameOrId;
+      }
+    }
+
+    if (!artistId && !resolvedArtistName) {
+      return {
+        success: false,
+        error: `No se encontró al artista "${artistNameOrId}" en Spotify`,
+      };
+    }
+
+    // Ejecutar en paralelo perfil, top tracks y discografía completa
+    const [artistRes, tracksRes, discoRes] = await Promise.all([
+      artistId ? getArtistById(artistId) : Promise.resolve({ success: false }),
+      getArtistTopTracks(artistId, resolvedArtistName),
+      getArtistDiscography(artistId, resolvedArtistName),
+    ]);
+
+    const artist = artistRes.success
+      ? artistRes.artist
+      : initialArtistData || {
+          name: resolvedArtistName,
+          id: artistId,
+          image: '',
+        };
+
+    return {
+      success: true,
+      artist: artist,
+      topTracks: tracksRes.success ? tracksRes.tracks : [],
+      discography: discoRes.success ? discoRes.discography : [],
+      albums: discoRes.success ? discoRes.albums : [],
+      eps: discoRes.success ? discoRes.eps : [],
+      singles: discoRes.success ? discoRes.singles : [],
+      compilations: discoRes.success ? discoRes.compilations : [],
+    };
+  } catch (error) {
+    console.error('Error en getArtistCompleteProfile:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Obtiene metadatos completos de un álbum desde Spotify (año, géneros, tipo de lanzamiento, pistas)
+ */
+export const fetchAlbumSpotifyMetadata = async (
+  albumName,
+  artistName,
+  spotifyLink = null
+) => {
+  try {
+    // 1. Si tenemos link de Spotify con ID
+    const albumId = extractSpotifyAlbumId(spotifyLink);
+    if (albumId) {
+      const details = await getAlbumDetails(albumId);
+      if (details?.success && details.album) {
+        return {
+          success: true,
+          releaseDate: details.album.releaseDate || null,
+          releaseYear: details.album.releaseYear || null,
+          releaseType: details.album.release_type || 'ALBUM',
+          genres: details.album.genres || [],
+          artists: details.album.artists || [],
+          artistId: details.album.primaryArtistId || null,
+          totalTracks: details.album.totalTracks || 0,
+          label: details.album.label || '',
+          popularity: details.album.popularity || null,
+          spotifyUrl: details.album.external_urls?.spotify || spotifyLink,
+        };
+      }
+    }
+
+    // 2. Si no hay ID o falló, buscar por nombre y artista
+    if (albumName) {
+      const query = artistName
+        ? `${albumName} artist:${artistName}`
+        : albumName;
+      const searchRes = await searchAlbum(query);
+      if (
+        searchRes?.success &&
+        searchRes.albums &&
+        searchRes.albums.length > 0
+      ) {
+        const bestMatch = searchRes.albums[0];
+        // Obtener detalles completos para traer géneros y pistas
+        if (bestMatch.id) {
+          const details = await getAlbumDetails(bestMatch.id);
+          if (details?.success && details.album) {
+            return {
+              success: true,
+              releaseDate: details.album.releaseDate || null,
+              releaseYear: details.album.releaseYear || null,
+              releaseType: details.album.release_type || 'ALBUM',
+              genres: details.album.genres || [],
+              artists: details.album.artists || [],
+              artistId: details.album.primaryArtistId || null,
+              totalTracks: details.album.totalTracks || 0,
+              label: details.album.label || '',
+              popularity: details.album.popularity || null,
+              spotifyUrl: details.album.external_urls?.spotify || null,
+            };
+          }
+        }
+
+        return {
+          success: true,
+          releaseDate: bestMatch.releaseDate || null,
+          releaseYear: bestMatch.releaseYear || null,
+          releaseType: bestMatch.release_type || 'ALBUM',
+          genres: [],
+          artists: bestMatch.artists || [],
+          artistId: bestMatch.artist_id || null,
+          totalTracks: bestMatch.totalTracks || 0,
+          spotifyUrl: bestMatch.external_urls?.spotify || null,
+        };
+      }
+    }
+
+    return { success: false, error: 'No se encontraron metadatos' };
+  } catch (error) {
+    console.warn(`Error al obtener metadatos de Spotify para ${albumName}:`, error);
     return { success: false, error: error.message };
   }
 };

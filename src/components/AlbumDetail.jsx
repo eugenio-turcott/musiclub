@@ -7,6 +7,7 @@ import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import {
   slugifyAlbum,
+  slugifyArtist,
   findAlbumBySlug,
   getTrackDisplayName,
   getEmotionFromReview,
@@ -14,6 +15,7 @@ import {
   isFavoriteTrackMatch,
   calculateAlbumTopTrack,
 } from '../utils/ratingUtils';
+import { fetchAlbumSpotifyMetadata } from '../services/spotifyApi';
 
 const CRITERIA_METRICS = [
   {
@@ -90,6 +92,7 @@ export function AlbumDetail() {
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
+  const [spotifyMeta, setSpotifyMeta] = useState(null);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -130,6 +133,36 @@ export function AlbumDetail() {
     loadData();
   }, [loadData]);
 
+  // Enriquecer automáticamente metadatos desde Spotify (año, géneros, tipo de lanzamiento)
+  useEffect(() => {
+    if (!album) return;
+
+    let isMounted = true;
+    const enrichFromSpotify = async () => {
+      try {
+        const meta = await fetchAlbumSpotifyMetadata(
+          album.album_name || album.album,
+          album.artist_name || album.artista,
+          album.spotify_link
+        );
+        if (isMounted && meta?.success) {
+          setSpotifyMeta(meta);
+        }
+      } catch (err) {
+        console.warn(
+          'No se pudieron obtener metadatos extendidos de Spotify:',
+          err
+        );
+      }
+    };
+
+    enrichFromSpotify();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [album]);
+
   // Recalcular el top track usando la lógica unificada
   const topTrack = useMemo(() => {
     if (!album) return null;
@@ -157,9 +190,17 @@ export function AlbumDetail() {
     }));
   };
 
-  // Structured JSON-LD Schema for Google Indexing
+  // Structured JSON-LD Schema for Google Rich Review Snippets (Metacritic / AOTY style)
   const schemaData = useMemo(() => {
     if (!album) return null;
+    const albumSlug = slugifyAlbum(album.album_name);
+    const artistSlug = slugifyArtist(album.artist_name);
+    const canonicalUrl = `https://musiclub-albums.vercel.app/albumes/${albumSlug}`;
+    const releaseYear =
+      album.release_year ||
+      (album.release_date ? album.release_date.substring(0, 4) : undefined);
+
+    // Track list structured data
     const tracksList = (album.track_stats || []).map((t, idx) => ({
       '@type': 'MusicRecording',
       name: t.name,
@@ -169,28 +210,78 @@ export function AlbumDetail() {
         : undefined,
     }));
 
-    return {
+    // Individual reviews structured data
+    const userReviewsSchema = (album.reviews || [])
+      .filter((r) => r.rating !== undefined && r.rating !== null)
+      .map((r) => ({
+        '@type': 'Review',
+        author: {
+          '@type': 'Person',
+          name: r.reviewer_name || 'Miembro de Musiclub',
+        },
+        datePublished: r.created_at
+          ? new Date(r.created_at).toISOString().split('T')[0]
+          : undefined,
+        reviewBody:
+          r.opinion && r.opinion.trim().length > 0
+            ? r.opinion.trim()
+            : `Reseña y calificación para ${album.album_name} de ${album.artist_name} en Musiclub.`,
+        reviewRating: {
+          '@type': 'Rating',
+          ratingValue: Number(r.rating).toFixed(1),
+          bestRating: '10',
+          worstRating: '1',
+        },
+      }));
+
+    const reviewCount =
+      album.reviews && album.reviews.length > 0
+        ? album.reviews.length
+        : album.review_count || 1;
+
+    const genres =
+      album.genres && album.genres.length > 0
+        ? album.genres
+        : spotifyMeta?.genres || [];
+
+    const schema = {
       '@context': 'https://schema.org',
       '@type': 'MusicAlbum',
+      '@id': `${canonicalUrl}#album`,
       name: album.album_name,
+      url: canonicalUrl,
+      image: album.image_url,
       byArtist: {
         '@type': 'MusicGroup',
         name: album.artist_name,
+        url: `https://musiclub-albums.vercel.app/artista/${artistSlug}`,
       },
-      image: album.image_url,
-      numTracks: album.tracks?.length || 0,
+      numTracks: album.tracks?.length || album.track_stats?.length || undefined,
+      genre: genres.length > 0 ? genres : undefined,
+      datePublished:
+        album.release_date ||
+        (releaseYear ? `${releaseYear}-01-01` : undefined),
+      description: `Reseñas, calificaciones de la comunidad y desglose pista por pista del álbum "${album.album_name}" de ${album.artist_name} en Musiclub.`,
       track: tracksList.length > 0 ? tracksList : undefined,
-      aggregateRating: album.final_rating
-        ? {
-            '@type': 'AggregateRating',
-            ratingValue: album.final_rating,
-            reviewCount: album.review_count || 1,
-            bestRating: '10',
-            worstRating: '1',
-          }
-        : undefined,
     };
-  }, [album]);
+
+    if (album.final_rating) {
+      schema.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: Number(album.final_rating).toFixed(2),
+        ratingCount: reviewCount,
+        reviewCount: reviewCount,
+        bestRating: '10',
+        worstRating: '1',
+      };
+    }
+
+    if (userReviewsSchema.length > 0) {
+      schema.review = userReviewsSchema;
+    }
+
+    return schema;
+  }, [album, spotifyMeta]);
 
   if (loading) {
     return (
@@ -239,16 +330,19 @@ export function AlbumDetail() {
 
   const score = album.final_rating;
   const canonicalUrl = `https://musiclub-albums.vercel.app/albumes/${slugifyAlbum(album.album_name)}`;
-  const metaDescription = `Calificaciones detalladas, desglose por canciones, opiniones de la comunidad y canción favorita del álbum "${album.album_name}" de ${album.artist_name} en Musiclub.`;
+  const reviewCountNum = album.reviews?.length || album.review_count || 0;
+  const metaDescription = score
+    ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${Number(score).toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
+    : `Descubre las reseñas, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub.`;
 
   return (
-    <div className="min-h-screen bg-[#090a10] text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 relative overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black">
       {/* Background ambient light */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute top-48 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <SEO
-        title={`${album.album_name} - ${album.artist_name} | Reseña y Calificaciones - Musiclub`}
+        title={`${album.artist_name} - ${album.album_name} - Reviews | Musiclub`}
         description={metaDescription}
         image={album.image_url}
         url={canonicalUrl}
@@ -256,7 +350,7 @@ export function AlbumDetail() {
         schemaData={schemaData}
       />
 
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8 w-full">
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
@@ -379,12 +473,64 @@ export function AlbumDetail() {
 
             {/* RIGHT / BOTTOM: Title, Artist, Ratings, Top Track, Actions */}
             <div className="flex-1 min-w-0 space-y-4 sm:space-y-5 text-center md:text-left w-full">
-              {/* Curator Info */}
-              <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-slate-400">
+              {/* Curator Info & Metadata Badges */}
+              <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-slate-400 flex-wrap">
+                {/* Release Type Badge */}
+                {(() => {
+                  const type =
+                    album.release_type || spotifyMeta?.releaseType || 'ALBUM';
+                  const badgeMap = {
+                    EP: {
+                      label: '💿 EP',
+                      cls: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+                    },
+                    SENCILLO: {
+                      label: '🎵 Sencillo',
+                      cls: 'bg-pink-500/20 text-pink-300 border-pink-500/30',
+                    },
+                    COMPILACION: {
+                      label: '📦 Compilación',
+                      cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+                    },
+                    ALBUM: {
+                      label: '✨ Álbum',
+                      cls: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
+                    },
+                  };
+                  const badge = badgeMap[type] || badgeMap.ALBUM;
+                  return (
+                    <span
+                      className={`font-black text-[11px] px-2.5 py-0.5 rounded-full border shadow-sm uppercase tracking-wider ${badge.cls}`}
+                    >
+                      {badge.label}
+                    </span>
+                  );
+                })()}
+
+                {/* Release Year */}
+                {(() => {
+                  const year =
+                    album.release_year ||
+                    spotifyMeta?.releaseYear ||
+                    (album.release_date
+                      ? album.release_date.substring(0, 4)
+                      : null);
+                  if (!year) return null;
+                  return (
+                    <span className="font-bold text-slate-300 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                      <span>📅</span>
+                      <span>{year}</span>
+                    </span>
+                  );
+                })()}
+
+                <span className="text-white/20">•</span>
+
                 <span>Curado por</span>
                 <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
                   {album.added_by || 'Miembro de Musiclub'}
                 </span>
+
                 {album.created_at && (
                   <>
                     <span className="text-white/20">•</span>
@@ -395,14 +541,46 @@ export function AlbumDetail() {
                 )}
               </div>
 
-              {/* Album Title & Artist */}
+              {/* Album Title & Artist Link */}
               <div className="space-y-1.5">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight">
                   {album.album_name}
                 </h1>
-                <p className="text-xl sm:text-2xl text-cyan-400 font-bold tracking-wide">
-                  {album.artist_name}
-                </p>
+                <div className="flex items-center justify-center md:justify-start gap-2 pt-1">
+                  <Link
+                    to={`/artista/${slugifyArtist(album.artist_name)}`}
+                    className="group/artist inline-flex items-center gap-2 text-xl sm:text-2xl text-cyan-400 hover:text-cyan-300 font-bold tracking-wide transition-all"
+                    title={`Ver página y discografía de ${album.artist_name}`}
+                  >
+                    <span className="underline decoration-cyan-500/30 group-hover/artist:decoration-cyan-400 underline-offset-4">
+                      {album.artist_name}
+                    </span>
+                  </Link>
+                </div>
+
+                {/* Genres Tags from Spotify */}
+                {(() => {
+                  const genres =
+                    album.genres && album.genres.length > 0
+                      ? album.genres
+                      : spotifyMeta?.genres || [];
+                  if (genres.length === 0) return null;
+                  return (
+                    <div className="flex items-center justify-center md:justify-start gap-1.5 flex-wrap pt-1.5">
+                      <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mr-1">
+                        Géneros:
+                      </span>
+                      {genres.slice(0, 5).map((g) => (
+                        <span
+                          key={g}
+                          className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-200/90 capitalize transition-colors"
+                        >
+                          #{g}
+                        </span>
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* Score Highlight Box */}
@@ -503,6 +681,14 @@ export function AlbumDetail() {
                       : '⭐ Calificar y Reseñar'}
                   </span>
                 </button>
+
+                <Link
+                  to={`/artista/${slugifyArtist(album.artist_name)}`}
+                  className="px-5 py-3 rounded-2xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 font-bold text-xs sm:text-sm border border-cyan-500/30 transition-all flex items-center gap-2"
+                >
+                  <span>🎤</span>
+                  <span>Discografía</span>
+                </Link>
 
                 <Link
                   to="/albumes"

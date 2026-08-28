@@ -824,6 +824,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                         'from-yellow-400 via-amber-400 to-yellow-500'
                                       )}
                                     </div>
+                                    <div className="text-yellow-200/80 text-[10px] sm:text-[11px] mt-1.5 font-bold flex items-center justify-center gap-1">
+                                      <span>🎧</span>
+                                      <span>
+                                        {podiumAlbums[0].review_count}{' '}
+                                        {podiumAlbums[0].review_count === 1
+                                          ? 'review'
+                                          : 'reviews'}
+                                      </span>
+                                    </div>
                                   </div>
 
                                   {/* Pie para Regresar */}
@@ -930,6 +939,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                         'from-slate-300 to-slate-400'
                                       )}
                                     </div>
+                                    <div className="text-slate-300/80 text-[10px] sm:text-[11px] mt-1.5 font-bold flex items-center justify-center gap-1">
+                                      <span>🎧</span>
+                                      <span>
+                                        {podiumAlbums[1].review_count}{' '}
+                                        {podiumAlbums[1].review_count === 1
+                                          ? 'review'
+                                          : 'reviews'}
+                                      </span>
+                                    </div>
                                   </div>
 
                                   <div className="text-white/50 text-[9px] sm:text-[10px] font-medium flex items-center justify-center gap-1">
@@ -1034,6 +1052,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                         200,
                                         'from-amber-600 to-amber-700'
                                       )}
+                                    </div>
+                                    <div className="text-amber-200/80 text-[10px] sm:text-[11px] mt-1.5 font-bold flex items-center justify-center gap-1">
+                                      <span>🎧</span>
+                                      <span>
+                                        {podiumAlbums[2].review_count}{' '}
+                                        {podiumAlbums[2].review_count === 1
+                                          ? 'review'
+                                          : 'reviews'}
+                                      </span>
                                     </div>
                                   </div>
 
@@ -1486,6 +1513,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                             0,
                                             'from-[#f5576c] to-[#f093fb]'
                                           )}
+                                        </div>
+                                        <div className="text-white/70 text-[9px] sm:text-[10px] mt-1 font-semibold flex items-center justify-center gap-1">
+                                          <span>🎧</span>
+                                          <span>
+                                            {album.review_count}{' '}
+                                            {album.review_count === 1
+                                              ? 'review'
+                                              : 'reviews'}
+                                          </span>
                                         </div>
                                       </div>
 

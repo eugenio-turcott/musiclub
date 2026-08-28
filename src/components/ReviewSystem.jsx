@@ -67,6 +67,11 @@ export function ReviewSystem({
   user: propUser = null,
   showTrackReviews = true,
   onToggleTrackReviews = null,
+  initialEditing = false,
+  initialReview = null,
+  hideOtherReviews = false,
+  isModal = false,
+  onCancelEdit = null,
 }) {
   const auth = useAuth();
   const user = propUser || auth.user;
@@ -324,8 +329,11 @@ export function ReviewSystem({
     .toLowerCase();
   const currentUserName = (user?.name || userName || '').trim().toLowerCase();
   const currentUserAvatar = user?.avatar_url || user?.avatar || null;
+  const currentUserId = user?.id || null;
 
-  const existingUserReview = reviews.find((r) => {
+  const foundReviewInList = reviews.find((r) => {
+    if (currentUserId && r.user_id && String(r.user_id) === String(currentUserId))
+      return true;
     const revEmail = (r.reviewer_email || '').trim().toLowerCase();
     const revName = (r.reviewer_name || '').trim().toLowerCase();
     const revAvatar = r.reviewer_avatar || r.avatar_url || null;
@@ -336,6 +344,8 @@ export function ReviewSystem({
       return true;
     return false;
   });
+
+  const existingUserReview = foundReviewInList || initialReview || null;
   const hasAlreadyReviewed = !!existingUserReview;
 
   const handleStartEditing = () => {
@@ -393,9 +403,22 @@ export function ReviewSystem({
     setError(null);
   };
 
+  // Auto-activar modo edición si viene initialEditing=true
+  const hasAutoStartedRef = React.useRef(false);
+  useEffect(() => {
+    if (initialEditing && existingUserReview && !isEditing && !hasAutoStartedRef.current) {
+      hasAutoStartedRef.current = true;
+      handleStartEditing();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialEditing, existingUserReview, isEditing]);
+
   const handleCancelEditing = () => {
     setIsEditing(false);
     setError(null);
+    if (onCancelEdit) {
+      onCancelEdit();
+    }
   };
 
   const handleSubmitReview = async (e) => {
@@ -588,7 +611,7 @@ export function ReviewSystem({
   if (!album) return null;
 
   return (
-    <div className="space-y-6">
+    <div className={isModal ? 'space-y-4' : 'space-y-6'}>
       {/* ======================================================== */}
       {/* SECCIÓN 1: MI REVIEW (CALIFICAR / VER / EDITAR)         */}
       {/* ======================================================== */}
@@ -726,20 +749,29 @@ export function ReviewSystem({
                     max: 5,
                   },
                   { key: 'rating_cohesion', label: '🔗 Cohesión', max: 5 },
-                  { key: 'rating_replay', label: '🔄 Replay Value', max: 5 },
-                  { key: 'rating_general', label: '⭐ General', max: 10 },
-                ].map(({ key, label, max }) => {
+                  { key: 'rating_replay', label: '🔄 Replay', max: 5 },
+                  {
+                    key: 'rating_general',
+                    label: '⭐ General',
+                    max: 10,
+                    fullWidth: true,
+                  },
+                ].map(({ key, label, max, fullWidth }) => {
                   const val = existingUserReview[key];
                   if (val === undefined || val === null) return null;
                   return (
                     <div
                       key={key}
-                      className="bg-black/40 p-3 rounded-xl border border-white/5 flex items-center justify-between gap-2"
+                      className={`bg-white/5 p-3 rounded-xl border border-white/5 flex items-center justify-between ${
+                        fullWidth
+                          ? 'xs:col-span-2 sm:col-span-3 md:col-span-4 bg-emerald-500/10 border-emerald-500/20'
+                          : ''
+                      }`}
                     >
-                      <span className="text-white/70 text-xs truncate mr-1 font-medium">
-                        {label}
-                      </span>
-                      <span className="text-emerald-300 font-bold text-xs px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 font-mono flex-shrink-0">
+                      <span className="text-xs text-white/70">{label}</span>
+                      <span
+                        className={`font-bold font-mono text-sm px-2 py-0.5 rounded-lg border ${getRatingBadgeColor(val, max)}`}
+                      >
                         {val}/{max}
                       </span>
                     </div>
@@ -749,35 +781,31 @@ export function ReviewSystem({
 
               {/* Canción Favorita */}
               {(() => {
-                const favTrackKey = getReviewFavoriteTrack(existingUserReview);
-                if (!favTrackKey) return null;
+                const favTrack = getReviewFavoriteTrack(existingUserReview);
+                if (!favTrack) return null;
                 const favName = getTrackDisplayName(
-                  favTrackKey,
+                  favTrack,
                   effectiveTracks.length > 0 ? effectiveTracks : album?.tracks
                 );
                 return (
-                  <div className="bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-amber-500/20 p-4 sm:p-5 rounded-2xl border border-amber-400/40 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-[0_0_20px_rgba(251,191,36,0.12)]">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="min-w-0">
-                        <div className="text-[10px] sm:text-xs uppercase font-bold text-amber-300/80 tracking-wider">
-                          Tu Canción Favorita del Álbum
-                        </div>
-                        <div
-                          className="text-sm sm:text-base font-extrabold text-amber-200 truncate"
-                          title={favName}
-                        >
-                          {favName}
-                        </div>
-                      </div>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-transparent border border-amber-400/40 p-3 rounded-xl text-amber-200 font-medium">
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-base">⭐</span>
+                      <span className="text-amber-400 font-bold uppercase tracking-wider text-[11px]">
+                        Canción Favorita:
+                      </span>
                     </div>
-                    <span className="text-xs bg-amber-400/20 text-amber-300 border border-amber-400/30 px-3.5 py-1.5 rounded-xl font-bold flex-shrink-0 shadow-sm self-start sm:self-auto">
-                      ⭐ Track Estrella
+                    <span
+                      className="font-bold text-amber-200 text-sm pl-6 sm:pl-0 truncate"
+                      title={favName}
+                    >
+                      {favName}
                     </span>
                   </div>
                 );
               })()}
 
-              {/* Canciones calificadas */}
+              {/* Canciones Calificadas */}
               {existingUserReview.track_ratings &&
                 Object.keys(existingUserReview.track_ratings).length > 0 && (
                   <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
@@ -838,16 +866,20 @@ export function ReviewSystem({
           </div>
         ) : showReviewForm || isIndividual || isEditing ? (
           <div
-            className={`rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 md:p-7 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
-              isEditing
-                ? 'bg-gradient-to-br from-[#16120b] via-[#1a150e] to-[#0d0a07] border-amber-500/40 shadow-[0_0_50px_rgba(245,158,11,0.18)]'
-                : isIndividual
-                  ? 'bg-gradient-to-br from-[#0b1324] via-[#0e1a30] to-[#070d1a] border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.18)]'
-                  : 'bg-gradient-to-br from-[#121225] to-[#0a0a14] border-[#f5576c]/30 shadow-2xl'
-            }`}
+            className={
+              isModal
+                ? 'relative overflow-hidden'
+                : `rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 md:p-7 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
+                    isEditing
+                      ? 'bg-gradient-to-br from-[#16120b] via-[#1a150e] to-[#0d0a07] border-amber-500/40 shadow-[0_0_50px_rgba(245,158,11,0.18)]'
+                      : isIndividual
+                        ? 'bg-gradient-to-br from-[#0b1324] via-[#0e1a30] to-[#070d1a] border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.18)]'
+                        : 'bg-gradient-to-br from-[#121225] to-[#0a0a14] border-[#f5576c]/30 shadow-2xl'
+                  }`
+            }
           >
-            {/* Luces traseras decorativas para Individual o Edición */}
-            {(isIndividual || isEditing) && (
+            {/* Luces traseras decorativas para Individual o Edición si no es modal */}
+            {!isModal && (isIndividual || isEditing) && (
               <>
                 <div
                   className={`absolute -top-24 -right-24 w-60 h-60 ${isEditing ? 'bg-amber-500/15' : 'bg-blue-500/15'} rounded-full blur-3xl pointer-events-none`}
@@ -858,69 +890,71 @@ export function ReviewSystem({
               </>
             )}
 
-            {/* Header del Formulario */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-white/10 relative z-10 gap-3">
-              <div className="flex items-center gap-2.5 flex-wrap">
-                <h5 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                  <span
-                    className={
-                      isEditing
-                        ? 'text-amber-400'
-                        : isIndividual
-                          ? 'text-blue-400'
-                          : 'text-[#f5576c]'
-                    }
-                  >
-                    {isEditing ? '✏️' : isIndividual ? '📌' : '✍️'}
-                  </span>
+            {/* Header del Formulario (oculto en modal ya que el modal provee su propio header) */}
+            {!isModal && (
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-5 pb-4 border-b border-white/10 relative z-10 gap-3">
+                <div className="flex items-center gap-2.5 flex-wrap">
+                  <h5 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
+                    <span
+                      className={
+                        isEditing
+                          ? 'text-amber-400'
+                          : isIndividual
+                            ? 'text-blue-400'
+                            : 'text-[#f5576c]'
+                      }
+                    >
+                      {isEditing ? '✏️' : isIndividual ? '📌' : '✍️'}
+                    </span>
+                    {isEditing ? (
+                      <span className="bg-gradient-to-r from-amber-300 via-orange-200 to-white bg-clip-text text-transparent font-bold">
+                        Editar Mi Review
+                      </span>
+                    ) : isIndividual ? (
+                      <span className="bg-gradient-to-r from-blue-300 via-cyan-200 to-white bg-clip-text text-transparent font-bold">
+                        Review de Álbum Individual
+                      </span>
+                    ) : isFromSpotify ? (
+                      <>Nueva Review · Álbum de Spotify</>
+                    ) : (
+                      <>Nueva Review · Álbum del Club</>
+                    )}
+                  </h5>
                   {isEditing ? (
-                    <span className="bg-gradient-to-r from-amber-300 via-orange-200 to-white bg-clip-text text-transparent font-bold">
-                      Editar Mi Review
+                    <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-mono">
+                      <span>✏️</span> Modo Edición
                     </span>
-                  ) : isIndividual ? (
-                    <span className="bg-gradient-to-r from-blue-300 via-cyan-200 to-white bg-clip-text text-transparent font-bold">
-                      Review de Álbum Individual
-                    </span>
-                  ) : isFromSpotify ? (
-                    <>Nueva Review · Álbum de Spotify</>
                   ) : (
-                    <>Nueva Review · Álbum del Club</>
+                    <span className="hidden xs:inline-flex items-center gap-1 text-[10px] text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
+                      <span>💾</span> Autoguardado
+                    </span>
                   )}
-                </h5>
+                </div>
                 {isEditing ? (
-                  <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-mono">
-                    <span>✏️</span> Modo Edición
-                  </span>
-                ) : (
-                  <span className="hidden xs:inline-flex items-center gap-1 text-[10px] text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
-                    <span>💾</span> Autoguardado
-                  </span>
-                )}
+                  <button
+                    type="button"
+                    onClick={handleCancelEditing}
+                    className="text-white/60 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex-shrink-0"
+                  >
+                    Cancelar Edición
+                  </button>
+                ) : !isIndividual ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowReviewForm(false);
+                      if (onToggleTrackReviews) {
+                        onToggleTrackReviews();
+                      }
+                    }}
+                    className="text-white/40 hover:text-white text-sm bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                    title="Cerrar"
+                  >
+                    ✕
+                  </button>
+                ) : null}
               </div>
-              {isEditing ? (
-                <button
-                  type="button"
-                  onClick={handleCancelEditing}
-                  className="text-white/60 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex-shrink-0"
-                >
-                  Cancelar Edición
-                </button>
-              ) : !isIndividual ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReviewForm(false);
-                    if (onToggleTrackReviews) {
-                      onToggleTrackReviews();
-                    }
-                  }}
-                  className="text-white/40 hover:text-white text-sm bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0"
-                  title="Cerrar"
-                >
-                  ✕
-                </button>
-              ) : null}
-            </div>
+            )}
 
             {!user ? (
               <div className="py-8 sm:py-10 px-4 text-center space-y-4 sm:space-y-5 relative z-10">
@@ -967,42 +1001,44 @@ export function ReviewSystem({
               </div>
             ) : (
               <>
-                {/* Banner de Usuario Autenticado con Google */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 sm:px-4 sm:py-3.5 mb-5 text-xs relative z-10 gap-3">
-                  <div className="flex items-center gap-3 min-w-0 flex-1 w-full sm:w-auto">
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.name || 'Usuario'}
-                        className="w-9 h-9 rounded-full object-cover border border-[#f5576c]/40 flex-shrink-0"
-                        onError={(e) => {
-                          e.target.src =
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
-                        {(
-                          (user.name || user.email || 'U')[0] || 'U'
-                        ).toUpperCase()}
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div
-                        className="text-white font-bold truncate text-xs sm:text-sm"
-                        title={user.name || user.email?.split('@')[0]}
-                      >
-                        {user.name || user.email?.split('@')[0]}
-                      </div>
-                      <div
-                        className="text-white/40 text-[10px] sm:text-[11px] truncate"
-                        title={user.email}
-                      >
-                        {user.email}
+                {/* Banner de Usuario Autenticado con Google (oculto si es modal) */}
+                {!isModal && (
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-white/5 border border-white/10 rounded-2xl p-3 sm:px-4 sm:py-3.5 mb-5 text-xs relative z-10 gap-3">
+                    <div className="flex items-center gap-3 min-w-0 flex-1 w-full sm:w-auto">
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.name || 'Usuario'}
+                          className="w-9 h-9 rounded-full object-cover border border-[#f5576c]/40 flex-shrink-0"
+                          onError={(e) => {
+                            e.target.src =
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                          }}
+                        />
+                      ) : (
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                          {(
+                            (user.name || user.email || 'U')[0] || 'U'
+                          ).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className="text-white font-bold truncate text-xs sm:text-sm"
+                          title={user.name || user.email?.split('@')[0]}
+                        >
+                          {user.name || user.email?.split('@')[0]}
+                        </div>
+                        <div
+                          className="text-white/40 text-[10px] sm:text-[11px] truncate"
+                          title={user.email}
+                        >
+                          {user.email}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Nav Tab Bar del Wizard */}
                 <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-1.5 sm:gap-2 mb-5 sm:mb-6 bg-black/50 p-1.5 sm:p-2 rounded-2xl border border-white/10 relative z-10">
@@ -2106,272 +2142,271 @@ export function ReviewSystem({
       {/* ======================================================== */}
       {/* SECCIÓN 2: REVIEWS GENERALES DEL ÁLBUM / COMUNIDAD     */}
       {/* ======================================================== */}
-      <div className="pt-6 border-t border-white/10">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
-          <div className="flex items-center gap-3">
-            <h4 className="text-white/90 text-sm font-bold tracking-wider uppercase flex items-center gap-2">
-              {isIndividual ? (
-                <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/10 px-3 py-1 rounded-full border border-blue-400/30 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                  <span className="animate-pulse">📌</span>
-                  <span className="font-semibold text-xs tracking-wider uppercase">
-                    Reviews de Álbum Individual
-                  </span>
-                </div>
-              ) : isFromSpotify ? (
-                <>
-                  <span className="text-[#f5576c]">🎵</span>
-                  <span className="text-white/80">Reviews de la Comunidad</span>
-                </>
-              ) : (
-                <>
-                  <span className="text-[#f5576c]">🎧</span>
-                  <span className="text-white/80">Reviews del Club</span>
-                </>
-              )}
-              <span className="text-white/60 text-xs font-normal bg-white/10 px-2.5 py-0.5 rounded-full border border-white/5">
-                {reviews.length}
-              </span>
-            </h4>
-          </div>
-          {average && (
-            <span
-              className={`text-sm font-bold px-3 py-1 rounded-full border flex items-center gap-1 shadow-lg ${
-                isIndividual
-                  ? 'text-cyan-300 bg-cyan-500/10 border-cyan-400/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
-                  : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
-              }`}
-            >
-              ★ {Number(average).toFixed(1)}/10 Promedio General
-            </span>
-          )}
-        </div>
-
-        {/* Lista de reviews existentes */}
-        {loading ? (
-          <div className="text-white/20 text-sm py-6 text-center">
-            <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse inline-block mr-2"></span>
-            Cargando reviews...
-          </div>
-        ) : reviews.length > 0 ? (
-          <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-            {reviews.map((review, idx) => {
-              const weightedScore = getWeightedReviewScore(review);
-              const avg =
-                weightedScore !== null && !isNaN(weightedScore)
-                  ? Number(weightedScore).toFixed(1)
-                  : review.rating_general !== null &&
-                      review.rating_general !== undefined &&
-                      !isNaN(review.rating_general)
-                    ? Number(review.rating_general).toFixed(1)
-                    : 'N/A';
-              const trackRatingsData = review.track_ratings || {};
-
-              return (
-                <div
-                  key={idx}
-                  className={`rounded-2xl p-4 border transition-all duration-300 ${
-                    isIndividual
-                      ? 'bg-gradient-to-r from-blue-950/30 via-slate-900/40 to-cyan-950/20 border-blue-500/20 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]'
-                      : 'bg-white/5 border-white/5 hover:bg-white/10'
-                  }`}
-                >
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
-                    <div className="flex items-center gap-2.5 flex-wrap min-w-0">
-                      {review?.reviewer_avatar ? (
-                        <img
-                          src={review.reviewer_avatar}
-                          alt={review.reviewer_name || 'Reviewer'}
-                          className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-sm flex-shrink-0"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            if (e.target.nextSibling)
-                              e.target.nextSibling.style.display = 'flex';
-                          }}
-                        />
-                      ) : null}
-                      <div
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
-                          review?.reviewer_avatar ? 'hidden' : 'flex'
-                        } ${
-                          isIndividual
-                            ? 'bg-gradient-to-tr from-blue-600 to-cyan-400 text-white shadow-md'
-                            : 'bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white'
-                        }`}
-                      >
-                        {(review?.reviewer_name || 'A')[0].toUpperCase()}
-                      </div>
-                      <span className="text-white font-medium text-sm">
-                        {review?.reviewer_name || 'Anónimo'}
-                      </span>
-                      <span className="text-white/30 text-xs">
-                        {review.created_at
-                          ? new Date(review.created_at).toLocaleDateString(
-                              'es-ES',
-                              {
-                                day: 'numeric',
-                                month: 'short',
-                                year: 'numeric',
-                              }
-                            )
-                          : ''}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto flex-shrink-0">
-                      {(() => {
-                        const emo = getEmotionFromReview(review);
-                        return emo ? (
-                          <span
-                            className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
-                            title={emo.description}
-                          >
-                            <span className="text-xl">{emo.emoji}</span>
-                            <span className="hidden sm:inline">
-                              {emo.label}
-                            </span>
-                          </span>
-                        ) : null;
-                      })()}
-                      <span
-                        className={`text-sm font-bold px-2.5 py-0.5 rounded-full border ${
-                          isIndividual
-                            ? 'text-cyan-300 bg-cyan-500/15 border-cyan-400/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
-                            : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
-                        }`}
-                      >
-                        ★ {avg}
-                      </span>
-                    </div>
+      {!hideOtherReviews && (
+        <div className="pt-6 border-t border-white/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+            <div className="flex items-center gap-3">
+              <h4 className="text-white/90 text-sm font-bold tracking-wider uppercase flex items-center gap-2">
+                {isIndividual ? (
+                  <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/10 px-3 py-1 rounded-full border border-blue-400/30 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                    <span className="animate-pulse">📌</span>
+                    <span className="font-semibold text-xs tracking-wider uppercase">
+                      Reviews de Álbum Individual
+                    </span>
                   </div>
+                ) : isFromSpotify ? (
+                  <>
+                    <span className="text-[#f5576c]">🎵</span>
+                    <span className="text-white/80">Reviews de la Comunidad</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-[#f5576c]">🎧</span>
+                    <span className="text-white/80">Reviews del Club</span>
+                  </>
+                )}
+                <span className="text-white/60 text-xs font-normal bg-white/10 px-2.5 py-0.5 rounded-full border border-white/5">
+                  {reviews.length}
+                </span>
+              </h4>
+            </div>
+            {average && (
+              <span
+                className={`text-sm font-bold px-3 py-1 rounded-full border flex items-center gap-1 shadow-lg ${
+                  isIndividual
+                    ? 'text-cyan-300 bg-cyan-500/10 border-cyan-400/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
+                    : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
+                }`}
+              >
+                ★ {Number(average).toFixed(1)}/10 Promedio General
+              </span>
+            )}
+          </div>
 
-                  {review.comment && (
-                    <p className="text-white/70 text-sm mt-2 italic bg-black/20 p-2.5 rounded-xl border border-white/5 leading-relaxed">
-                      "{review.comment}"
-                    </p>
-                  )}
+          {/* Lista de reviews existentes */}
+          {loading ? (
+            <div className="text-white/20 text-sm py-6 text-center">
+              <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse inline-block mr-2"></span>
+              Cargando reviews...
+            </div>
+          ) : reviews.length > 0 ? (
+            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
+              {reviews.map((review, idx) => {
+                const weightedScore = getWeightedReviewScore(review);
+                const avg =
+                  weightedScore !== null && !isNaN(weightedScore)
+                    ? Number(weightedScore).toFixed(1)
+                    : review.rating_general !== null &&
+                        review.rating_general !== undefined &&
+                        !isNaN(review.rating_general)
+                      ? Number(review.rating_general).toFixed(1)
+                      : 'N/A';
+                const trackRatingsData = review.track_ratings || {};
 
-                  {/* Canción Favorita */}
-                  {(() => {
-                    const favTrack = getReviewFavoriteTrack(review);
-                    if (!favTrack) return null;
-                    const favName = getTrackDisplayName(
-                      favTrack,
-                      effectiveTracks.length > 0
-                        ? effectiveTracks
-                        : album?.tracks
-                    );
-                    return (
-                      <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <span className="text-sm">⭐</span>
-                          <span className="text-amber-400/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
-                            Canción Favorita:
-                          </span>
-                        </div>
-                        <span
-                          className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[280px]"
-                          title={favName}
+                return (
+                  <div
+                    key={idx}
+                    className={`rounded-2xl p-4 border transition-all duration-300 ${
+                      isIndividual
+                        ? 'bg-gradient-to-r from-blue-950/30 via-slate-900/40 to-cyan-950/20 border-blue-500/20 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]'
+                        : 'bg-white/5 border-white/5 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 flex-wrap min-w-0">
+                        {review?.reviewer_avatar ? (
+                          <img
+                            src={review.reviewer_avatar}
+                            alt={review.reviewer_name || 'Reviewer'}
+                            className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-sm flex-shrink-0"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              if (e.target.nextSibling)
+                                e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                            review?.reviewer_avatar ? 'hidden' : 'flex'
+                          } ${
+                            isIndividual
+                              ? 'bg-gradient-to-tr from-blue-600 to-cyan-400 text-white shadow-md'
+                              : 'bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white'
+                          }`}
                         >
-                          {favName}
+                          {(review?.reviewer_name || 'A')[0].toUpperCase()}
+                        </div>
+                        <span className="text-white font-medium text-sm">
+                          {review?.reviewer_name || 'Anónimo'}
+                        </span>
+                        <span className="text-white/30 text-xs">
+                          {review.created_at
+                            ? new Date(review.created_at).toLocaleDateString(
+                                'es-ES',
+                                {
+                                  day: 'numeric',
+                                  month: 'short',
+                                  year: 'numeric',
+                                }
+                              )
+                            : ''}
                         </span>
                       </div>
-                    );
-                  })()}
 
-                  <div className="flex flex-wrap gap-1 mt-2.5">
-                    {[
-                      { key: 'rating_produccion', label: '🎛️ Prod.' },
-                      { key: 'rating_composicion', label: '🎵 Comp.' },
-                      { key: 'rating_letras', label: '📝 Letras' },
-                      { key: 'rating_originalidad', label: '💡 Orig.' },
-                      { key: 'rating_cohesion', label: '🔗 Cohes.' },
-                      { key: 'rating_replay', label: '🔄 Replay' },
-                      { key: 'rating_general', label: '⭐ Gral.' },
-                    ].map(
-                      ({ key, label }) =>
-                        review[key] && (
-                          <span
-                            key={key}
-                            className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                              isIndividual
-                                ? 'text-blue-200/80 bg-blue-500/10 border-blue-400/20'
-                                : 'text-white/30 bg-white/5 border-white/5'
-                            }`}
-                          >
-                            {label}: {review[key]}
-                          </span>
-                        )
-                    )}
-                  </div>
-
-                  {Object.keys(trackRatingsData).length > 0 && (
-                    <div className="mt-2.5 pt-2 border-t border-white/10">
-                      <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                        <span>🎵</span> Reviews por canción:
-                      </p>
-                      <div className="flex flex-wrap gap-1">
-                        {Object.entries(trackRatingsData).map(
-                          ([trackId, rating], trIdx) => {
-                            const trackName = getTrackDisplayName(
-                              trackId,
-                              effectiveTracks.length > 0
-                                ? effectiveTracks
-                                : album?.tracks
-                            );
-                            const isFav = isFavoriteTrackMatch(
-                              trackId,
-                              getReviewFavoriteTrack(review),
-                              effectiveTracks.length > 0
-                                ? effectiveTracks
-                                : album?.tracks,
-                              trIdx
-                            );
-                            return (
-                              <span
-                                key={trackId}
-                                className={`text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 border transition-all ${
-                                  isFav
-                                    ? 'text-amber-200 bg-amber-500/20 border-amber-400/40 font-bold shadow-sm'
-                                    : isIndividual
-                                      ? 'text-cyan-200/80 bg-black/40 border-cyan-500/20'
-                                      : 'text-white/40 bg-black/30 border-white/5'
-                                }`}
-                              >
-                                <span>{isFav ? '⭐' : '🎵'}</span>
-                                <span
-                                  className="max-w-[120px] truncate"
-                                  title={trackName}
-                                >
-                                  {trackName}
-                                </span>
-                                :{' '}
-                                <span
-                                  className={`font-bold ml-0.5 ${isFav ? 'text-amber-300' : 'text-emerald-300'}`}
-                                >
-                                  ★ {rating}
-                                </span>
+                      <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto flex-shrink-0">
+                        {(() => {
+                          const emo = getEmotionFromReview(review);
+                          return emo ? (
+                            <span
+                              className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
+                              title={emo.description}
+                            >
+                              <span className="text-xl">{emo.emoji}</span>
+                              <span className="hidden sm:inline">
+                                {emo.label}
                               </span>
-                            );
-                          }
-                        )}
+                            </span>
+                          ) : null;
+                        })()}
+                        <span
+                          className={`text-sm font-bold px-2.5 py-0.5 rounded-full border ${
+                            isIndividual
+                              ? 'text-cyan-300 bg-cyan-500/15 border-cyan-400/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
+                              : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
+                          }`}
+                        >
+                          ★ {avg}
+                        </span>
                       </div>
                     </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-white/20 text-sm py-6 text-center border border-dashed border-white/5 rounded-xl">
-            No hay reviews para este álbum todavía.
-            <br className="sm:hidden" />
-            <span className="hidden sm:inline"> </span>
-            <span className="text-white/10 text-xs">
-              ¡Sé el primero en dejar tu review!
-            </span>
-          </div>
-        )}
-      </div>
+
+                    {review.comment && (
+                      <p className="text-white/70 text-sm mt-2 italic bg-black/20 p-2.5 rounded-xl border border-white/5 leading-relaxed">
+                        "{review.comment}"
+                      </p>
+                    )}
+
+                    {/* Canción Favorita */}
+                    {(() => {
+                      const favTrack = getReviewFavoriteTrack(review);
+                      if (!favTrack) return null;
+                      const favName = getTrackDisplayName(
+                        favTrack,
+                        effectiveTracks.length > 0
+                          ? effectiveTracks
+                          : album?.tracks
+                      );
+                      return (
+                        <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <span className="text-sm">⭐</span>
+                            <span className="text-amber-400/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
+                              Canción Favorita:
+                            </span>
+                          </div>
+                          <span
+                            className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[280px]"
+                            title={favName}
+                          >
+                            {favName}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    <div className="flex flex-wrap gap-1 mt-2.5">
+                      {[
+                        { key: 'rating_produccion', label: '🎛️ Prod.' },
+                        { key: 'rating_composicion', label: '🎵 Comp.' },
+                        { key: 'rating_letras', label: '📝 Letras' },
+                        { key: 'rating_originalidad', label: '💡 Orig.' },
+                        { key: 'rating_cohesion', label: '🔗 Cohes.' },
+                        { key: 'rating_replay', label: '🔄 Replay' },
+                        { key: 'rating_general', label: '⭐ Gral.' },
+                      ].map(
+                        ({ key, label }) =>
+                          review[key] && (
+                            <span
+                              key={key}
+                              className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                                isIndividual
+                                  ? 'text-blue-200/80 bg-blue-500/10 border-blue-400/20'
+                                  : 'text-white/30 bg-white/5 border-white/5'
+                              }`}
+                            >
+                              {label}: {review[key]}
+                            </span>
+                          )
+                      )}
+                    </div>
+
+                    {Object.keys(trackRatingsData).length > 0 && (
+                      <div className="mt-2.5 pt-2 border-t border-white/10">
+                        <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1 flex items-center gap-1">
+                          <span>🎵</span> Reviews por canción:
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(trackRatingsData).map(
+                            ([trackId, rating], trIdx) => {
+                              const trackName = getTrackDisplayName(
+                                trackId,
+                                effectiveTracks.length > 0
+                                  ? effectiveTracks
+                                  : album?.tracks
+                              );
+                              const isFav = isFavoriteTrackMatch(
+                                trackId,
+                                getReviewFavoriteTrack(review),
+                                effectiveTracks.length > 0
+                                  ? effectiveTracks
+                                  : album?.tracks,
+                                trIdx
+                              );
+                              return (
+                                <span
+                                  key={trackId}
+                                  className={`text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 border transition-all ${
+                                    isFav
+                                      ? 'bg-amber-500/20 border-amber-400/40 text-amber-200 font-bold shadow-[0_0_10px_rgba(251,191,36,0.2)]'
+                                      : 'bg-black/40 border-white/10 text-white/70'
+                                  }`}
+                                >
+                                  <span>{isFav ? '⭐' : '🎵'}</span>
+                                  <span
+                                    className="max-w-[120px] truncate"
+                                    title={trackName}
+                                  >
+                                    {trackName}
+                                  </span>
+                                  <span
+                                    className={`font-mono font-bold ${isFav ? 'text-amber-300' : 'text-emerald-300'}`}
+                                  >
+                                    ★ {rating}
+                                  </span>
+                                </span>
+                              );
+                            }
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-white/20 text-sm py-6 text-center border border-dashed border-white/5 rounded-xl">
+              No hay reviews para este álbum todavía.
+              <br className="sm:hidden" />
+              <span className="hidden sm:inline"> </span>
+              <span className="text-white/10 text-xs">
+                ¡Sé el primero en dejar tu review!
+              </span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

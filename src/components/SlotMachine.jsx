@@ -1,6 +1,5 @@
 // src/components/SlotMachine.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { ReviewSystem } from './ReviewSystem';
 
 export function SlotMachine({
   albums,
@@ -16,7 +15,6 @@ export function SlotMachine({
   const [showWin, setShowWin] = useState(false);
   const [spinCount, setSpinCount] = useState(0);
   const [message, setMessage] = useState('🎰 ¡Tira la palanca!');
-  const [finalWinner, setFinalWinner] = useState(null);
   const carruselIntervalRef = useRef(null);
   const isMounted = useRef(true);
   const carruselTimeoutRef = useRef(null);
@@ -289,7 +287,6 @@ export function SlotMachine({
 
       if (allEqual) {
         winner = activePool[r1];
-        setFinalWinner(winner);
         setShowWin(true);
         setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
         launchConfetti();
@@ -330,7 +327,6 @@ export function SlotMachine({
           const forcedResult = [winnerIndex, winnerIndex, winnerIndex];
           setReels(forcedResult);
           winner = activePool[winnerIndex];
-          setFinalWinner(winner);
           setShowWin(true);
           setMessage('🏆 ¡JACKPOT! ¡ÁLBUM GANADOR!');
           launchConfetti();
@@ -550,26 +546,6 @@ export function SlotMachine({
               </button>
             )}
           </div>
-
-          {/* Sistema de Reviews */}
-          {showWin && finalWinner && (
-            <div className="mt-6 rounded-3xl bg-[#0e101d] border border-[#f5576c]/30 sm:border-[#f5576c]/40 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4 text-left">
-              <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
-                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                  <span className="text-xl sm:text-2xl">⭐</span>
-                  <h3 className="text-base sm:text-xl font-black text-white truncate">
-                    Escribir Reseña
-                  </h3>
-                </div>
-              </div>
-              <ReviewSystem
-                album={finalWinner}
-                isAdmin={isAdmin}
-                user={user}
-                onReviewSubmitted={() => {}}
-              />
-            </div>
-          )}
         </div>
       </div>
 

@@ -1,6 +1,6 @@
 # 🎰 Musiclub - Slot Machine, Gashapon Arcade & Comunidad de Álbumes Musicales
 
-[![Version](https://img.shields.io/badge/version-5.3.0-f5576c.svg)](https://github.com/eugenio-turcott/musiclub-albumes)
+[![Version](https://img.shields.io/badge/version-5.5.0-f5576c.svg)](https://github.com/eugenio-turcott/musiclub-albumes)
 [![React](https://img.shields.io/badge/React-19.2-61dafb.svg?logo=react)](https://reactjs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38bdf8.svg?logo=tailwindcss)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ecf8e.svg?logo=supabase)](https://supabase.com/)

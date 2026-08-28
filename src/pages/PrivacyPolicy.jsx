@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 export function PrivacyPolicy() {
   return (
-    <div className="min-h-screen cyber-grid p-4 sm:p-6 md:p-8">
-      <div className="max-w-4xl mx-auto ">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Botón para volver */}
         
         <div className="mb-6">

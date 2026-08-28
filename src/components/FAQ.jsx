@@ -150,11 +150,11 @@ const FAQ_DATA = [
       'Inicia sesión y ve a la sección **Buscar Álbum en Spotify** (disponible en la página principal o catálogo). Escribe el nombre del disco o artista, selecciona el resultado oficial con autocompletado y elige si deseas agregarlo como propuesta para la ruleta (**Activo**) o para escucha personal (**Individual**). El sistema descargará automáticamente la portada oficial en alta definición, año y todas las canciones.',
   },
   {
-    id: 'bonus-participacion',
+    id: 'calificacion-rankings',
     category: 'catalogo',
-    question: '¿Qué es el Bonus por Participación en los Rankings?',
+    question: '¿Cómo se calculan las calificaciones en los Rankings?',
     answer:
-      'Para evitar que un álbum con solo 1 reseña perfecta de 10.0 monopolice el primer lugar frente a discos con 15 reseñas y alto consenso, el ranking aplica un ligero multiplicador:\n\n• Hasta 5 reseñas: Sin bonus.\n• De 6 a 10 reseñas: +0.25 por cada reseña adicional.\n• Más de 10 reseñas: +1.25 base + 0.10 por cada reseña adicional.\nEsto premia a los álbumes que han generado mayor participación y debate en la comunidad.',
+      'Las calificaciones de cada álbum en los rankings se obtienen directamente del promedio ponderado de todas las reseñas de la comunidad (evaluando criterios técnicos como producción, composición, letras, originalidad, cohesión y replay value), de forma transparente y sin puntajes extra ni multiplicadores artificiales.',
   },
 
   // 6. Perfil & Ajustes
@@ -227,8 +227,8 @@ export function FAQ({ isPage = false }) {
   }, [selectedCategory, searchQuery]);
 
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 md:p-8 w-full max-w-full overflow-x-hidden">
-      <div className="max-w-5xl mx-auto w-full">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+      <div className="max-w-7xl mx-auto w-full">
         {/* Universal Standard App Header */}
         {isPage && (
           <div className="mb-6">

@@ -104,7 +104,7 @@ export function PatchNotes({ isPage = false }) {
   };
 
   return (
-    <div className="w-full max-w-5xl mx-auto space-y-6 sm:space-y-8 animate-fadeIn pb-12">
+    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fadeIn pb-12">
       {/* Hero Header de Patch Notes */}
       <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
         {/* Orbes decorativos */}
@@ -147,7 +147,7 @@ export function PatchNotes({ isPage = false }) {
                     Versión Actual
                   </p>
                   <p className="text-white font-black text-base sm:text-lg leading-tight">
-                    V.5.2
+                    {allPatchNotes[0]?.version || 'V.5.5'}
                   </p>
                 </div>
               </div>

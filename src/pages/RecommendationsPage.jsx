@@ -4,7 +4,7 @@ import { Recommendations } from '../components/Recommendations';
 
 export function RecommendationsPage() {
   return (
-    <div className="w-full min-h-screen px-2 py-3 sm:px-4 sm:py-6 max-w-7xl mx-auto">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <Recommendations isPage={true} />
     </div>
   );

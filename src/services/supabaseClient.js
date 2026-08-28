@@ -243,6 +243,13 @@ export const supabaseService = {
       payload.release_year = parseInt(albumData.releaseYear || albumData.release_year, 10);
     }
 
+    if (albumData.releaseType || albumData.release_type) {
+      payload.release_type = albumData.releaseType || albumData.release_type;
+    }
+    if (albumData.genres) {
+      payload.genres = Array.isArray(albumData.genres) ? albumData.genres : [albumData.genres];
+    }
+
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -251,23 +258,20 @@ export const supabaseService = {
         .single();
 
       if (error) {
-        // Fallback si la columna release_date/release_year aún no existe en Supabase
-        if (
-          error.message &&
-          (error.message.includes('release_date') ||
-            error.message.includes('release_year'))
-        ) {
-          delete payload.release_date;
-          delete payload.release_year;
-          const retryRes = await supabase
-            .from('albums')
-            .insert([payload])
-            .select()
-            .single();
-          if (retryRes.error) throw new Error(retryRes.error.message);
-          return retryRes.data;
-        }
-        throw new Error(error.message);
+        // Fallback si alguna columna extendida aún no existe en Supabase
+        const cleanedPayload = { ...payload };
+        delete cleanedPayload.release_type;
+        delete cleanedPayload.genres;
+        delete cleanedPayload.release_date;
+        delete cleanedPayload.release_year;
+
+        const retryRes = await supabase
+          .from('albums')
+          .insert([cleanedPayload])
+          .select()
+          .single();
+        if (retryRes.error) throw new Error(retryRes.error.message);
+        return retryRes.data;
       }
       return data;
     } catch (err) {

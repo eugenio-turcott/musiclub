@@ -1,10 +1,10 @@
 // src/components/AlbumsCatalog.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
-import { slugifyAlbum } from '../utils/ratingUtils';
+import { slugifyAlbum, slugifyArtist } from '../utils/ratingUtils';
 import { PLACEHOLDER_COVER } from './TierListMaker';
 import { fetchAlbumReleaseYear } from '../services/spotifyApi';
 
@@ -63,6 +63,7 @@ const DECADES = [
 ];
 
 export function AlbumsCatalog({ isPage = false }) {
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -367,7 +368,14 @@ export function AlbumsCatalog({ isPage = false }) {
     });
 
     return result;
-  }, [albums, statusFilter, selectedYearFilter, searchQuery, sortBy, spotifyYearsCache]);
+  }, [
+    albums,
+    statusFilter,
+    selectedYearFilter,
+    searchQuery,
+    sortBy,
+    spotifyYearsCache,
+  ]);
 
   const totalPages = Math.ceil(filteredAlbums.length / ITEMS_PER_PAGE) || 1;
   const paginatedAlbums = useMemo(() => {
@@ -378,8 +386,8 @@ export function AlbumsCatalog({ isPage = false }) {
   }, [filteredAlbums, currentPage]);
 
   return (
-    <div className="min-h-screen bg-[#0d0e15] text-white py-6 sm:py-8 px-4 sm:px-6 lg:px-8 font-['Stack_Sans_Notch',sans-serif]">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-['Stack_Sans_Notch',sans-serif]">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full">
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
@@ -394,7 +402,7 @@ export function AlbumsCatalog({ isPage = false }) {
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
             Consulta las calificaciones detalladas, desglose por canciones,
-            criterios ponderados, bonus y todas las reseñas de la comunidad.
+            criterios ponderados y todas las reseñas de la comunidad.
           </p>
         </div>
 
@@ -528,7 +536,9 @@ export function AlbumsCatalog({ isPage = false }) {
                   >
                     {dec}
                     {count > 0 && (
-                      <span className="ml-1 text-[9px] opacity-70">({count})</span>
+                      <span className="ml-1 text-[9px] opacity-70">
+                        ({count})
+                      </span>
                     )}
                   </button>
                 );
@@ -619,8 +629,8 @@ export function AlbumsCatalog({ isPage = false }) {
                     isSelected
                       ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105 border-pink-400'
                       : count > 0
-                      ? 'bg-black/50 text-slate-200 hover:bg-white/15 hover:text-white border-white/10'
-                      : 'bg-black/20 text-slate-500 hover:text-slate-300 border-white/5 opacity-60'
+                        ? 'bg-black/50 text-slate-200 hover:bg-white/15 hover:text-white border-white/10'
+                        : 'bg-black/20 text-slate-500 hover:text-slate-300 border-white/5 opacity-60'
                   }`}
                 >
                   <span>{yr}</span>
@@ -769,8 +779,8 @@ export function AlbumsCatalog({ isPage = false }) {
                       isMine
                         ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
                         : album.status === 'GANADOR'
-                        ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
-                        : 'border-white/5 hover:border-white/20'
+                          ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
+                          : 'border-white/5 hover:border-white/20'
                     }`}
                   >
                     {/* Artwork Container */}
@@ -780,7 +790,7 @@ export function AlbumsCatalog({ isPage = false }) {
                         alt={album.album_name}
                         loading="lazy"
                         decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.src = PLACEHOLDER_COVER;
                         }}
@@ -847,11 +857,32 @@ export function AlbumsCatalog({ isPage = false }) {
                     {/* Info Body */}
                     <div className="p-3 sm:p-4 space-y-2.5 flex-1 flex flex-col justify-between">
                       <div>
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {album.release_type &&
+                            album.release_type !== 'ALBUM' && (
+                              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                                {album.release_type}
+                              </span>
+                            )}
+                        </div>
                         <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1">
                           {album.album_name}
                         </h3>
                         <div className="flex items-center justify-between text-xs text-slate-400 font-medium mt-0.5">
-                          <p className="truncate flex-1">{album.artist_name}</p>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              navigate(
+                                `/artista/${slugifyArtist(album.artist_name)}`
+                              );
+                            }}
+                            className="truncate flex-1 text-left hover:text-cyan-400 hover:underline transition-colors"
+                            title={`Ver discografía de ${album.artist_name}`}
+                          >
+                            {album.artist_name}
+                          </button>
                           {albumYear && (
                             <span className="text-[10px] font-mono font-bold text-slate-400 bg-white/5 border border-white/5 px-1.5 py-0.2 rounded ml-1.5 flex-shrink-0">
                               {albumYear}

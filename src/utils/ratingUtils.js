@@ -82,16 +82,10 @@ export function getAlbumWeightedAverage(reviews) {
 
 /**
  * Cálculo del bonus extra de calificación por cantidad de reviews:
- * - Hasta 5 reviews: 0 bonus
- * - De 6 a 10 reviews (más de 5): +0.25 por cada review adicional
- * - Más de 10 reviews: +0.10 por cada review adicional después de la 10 (con los primeros 5 a +0.25 = +1.25)
+ * Desactivado / Eliminado (retorna siempre 0).
  */
-export function calculateReviewBonus(reviewCount) {
-  if (!reviewCount || reviewCount <= 5) return 0;
-  if (reviewCount > 10) {
-    return 5 * 0.25 + (reviewCount - 10) * 0.10;
-  }
-  return (reviewCount - 5) * 0.25;
+export function calculateReviewBonus() {
+  return 0;
 }
 
 /**
@@ -313,6 +307,37 @@ export function isFavoriteTrackMatch(trackOrKey, favoriteTrackKey, tracks = [], 
   }
 
   return false;
+}
+
+/**
+ * Convierte el nombre de un artista en un slug URL-friendly para rutas como /artista/Radiohead o /artistas/The-Weeknd
+ */
+export function slugifyArtist(artistName) {
+  if (!artistName) return '';
+  return String(artistName)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diacríticos
+    .replace(/['’]/g, '') // Remueve comillas/apóstrofes
+    .replace(/[^a-zA-Z0-9]+/g, '-') // Caracteres especiales y espacios se vuelven guiones
+    .replace(/^-+|-+$/g, ''); // Quita guiones iniciales y finales
+}
+
+/**
+ * Busca todos los álbumes de un artista en la colección local de Musiclub
+ */
+export function findAlbumsByArtist(albums = [], artistQuery = '') {
+  if (!artistQuery || !albums || albums.length === 0) return [];
+  const targetSlug = slugifyArtist(artistQuery).toLowerCase();
+  const cleanQuery = artistQuery.toLowerCase().trim();
+
+  return albums.filter((a) => {
+    const artistName = a.artist_name || a.artist || a.artista || '';
+    if (!artistName) return false;
+    if (slugifyArtist(artistName).toLowerCase() === targetSlug) return true;
+    if (artistName.toLowerCase().trim() === cleanQuery) return true;
+    if (artistName.toLowerCase().includes(cleanQuery)) return true;
+    return false;
+  });
 }
 
 /**

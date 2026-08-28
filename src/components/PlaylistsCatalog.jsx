@@ -409,11 +409,11 @@ export function PlaylistsCatalog({ isPage = true }) {
     <div
       className={
         isPage
-          ? 'min-h-screen bg-[#0d0e15] text-white py-5 sm:py-8 px-3 sm:px-6 lg:px-8'
+          ? 'min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white'
           : 'fixed inset-0 bg-black/90 backdrop-blur-xl z-[99999] overflow-y-auto py-5 sm:py-8 px-3 sm:px-6 lg:px-8 text-white'
       }
     >
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8">
+      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full">
         {/* Universal Standard App Header */}
         <AppHeader user={user} showTitle={false} />
 

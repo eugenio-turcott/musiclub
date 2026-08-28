@@ -4,7 +4,7 @@ import { UserProfile } from '../components/UserProfile';
 
 export function ProfilePage() {
   return (
-    <div className="w-full min-h-screen px-2 py-3 sm:px-4 sm:py-6 max-w-7xl mx-auto">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <UserProfile isPage={true} />
     </div>
   );

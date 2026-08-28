@@ -18,6 +18,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { LeaderboardPage } from './pages/LeaderboardPage';
 import { AlbumsPage } from './pages/AlbumsPage';
 import { AlbumDetailPage } from './pages/AlbumDetailPage';
+import { ArtistDetailPage } from './pages/ArtistDetailPage';
 import { RecommendationsPage } from './pages/RecommendationsPage';
 import { GashaponPage } from './pages/GashaponPage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
@@ -200,6 +201,10 @@ export function App() {
         <Route path="/albumes/:slug" element={<AlbumDetailPage />} />
         <Route path="/albums" element={<AlbumsPage />} />
         <Route path="/albums/:slug" element={<AlbumDetailPage />} />
+        <Route path="/artista/:slug" element={<ArtistDetailPage />} />
+        <Route path="/artistas/:slug" element={<ArtistDetailPage />} />
+        <Route path="/artist/:slug" element={<ArtistDetailPage />} />
+        <Route path="/artists/:slug" element={<ArtistDetailPage />} />
         <Route path="/playlists" element={<PlaylistsPage />} />
         <Route path="/playlist" element={<PlaylistsPage />} />
         <Route path="/listas" element={<PlaylistsPage />} />

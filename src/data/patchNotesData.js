@@ -14,11 +14,67 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
+    version: 'V.5.5',
+    title:
+      'Página de Artista & Discografía Spotify, Schema SEO de Reviews, Edición en Perfil, Ancho Global Unificado y Conteo de Reviews en Podio',
+    date: '2026-08-28',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-rose-500 to-amber-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Gran actualización con página de artista estilo Spotify y clasificación de discografía completa, Schema.org (JSON-LD) para indexación de reviews en Google Search, edición directa de reviews desde Mi Perfil, modales renderizados con React Portals, homogenización de ancho global y conteo de reviews en la cara trasera del podio.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Página de Perfil de Artista y Discografía Spotify Completa',
+        description:
+          'Nueva vista dedicada (/artista/:artistName) con navegación por pestañas (Todos, Álbumes, EPs, Sencillos y Compilaciones), contadores dinámicos, año de lanzamiento, géneros musicales oficiales y filtros rápidos de lanzamientos.',
+      },
+      {
+        type: 'feature',
+        title: 'Schema SEO de Reviews e Indexación para Google (JSON-LD)',
+        description:
+          'Implementación de datos estructurados Schema.org para MusicAlbum con aggregateRating, reviewCount, ratingValue y reviews detalladas de la comunidad para resultados enriquecidos (Rich Snippets) en Google Search estilo Album of the Year.',
+      },
+      {
+        type: 'feature',
+        title: 'Edición de Reviews Directa desde "Mi Perfil"',
+        description:
+          'Capacidad para editar calificaciones, reseñas y notas de canciones directamente desde la sección "Mis Reviews" en el perfil de usuario con una interfaz modal limpia y sin elementos distractores.',
+      },
+      {
+        type: 'improvement',
+        title: 'Contador de Reviews en Tarjetas Traseras del Podio y Carrusel',
+        description:
+          'En el podio de Rankings & Estadísticas de la pantalla principal, las tarjetas traseras (flip 3D) de los puestos #1, #2 y #3, así como las del carrusel (#4 al #10), ahora muestran el total de reseñas de la comunidad (🎧 X reviews).',
+      },
+      {
+        type: 'improvement',
+        title: 'Homogeneización del Ancho Global y Header',
+        description:
+          'Estandarización del ancho de contenedor (max-w-7xl) en todas las vistas (Configuración, Catálogo, Perfiles, etc.) para mantener un espaciado idéntico y evitar menús apeñuscados en el Header.',
+      },
+      {
+        type: 'fix',
+        title: 'Modales Globales con React Portals (Login y Editor de Reviews)',
+        description:
+          'Migración de los modales de Inicio de Sesión y Editor de Reviews a React Portals montados directamente en document.body (z-[99999]), eliminando problemas de desplazamiento causados por transforms CSS del contenedor padre.',
+      },
+      {
+        type: 'fix',
+        title: 'Depuración Visual en Encabezado de Artista',
+        description:
+          'Eliminación de caracteres numéricos residuales en el nombre del artista y limpieza del banner promocional en la vista de artista.',
+      },
+    ],
+  },
+  {
     version: 'V.5.4',
     title:
       'SF Tiers Tier List Maker, Filtro por Años/Décadas estilo AlbumOfTheYear, Reorganización de Notificaciones y Fechas Oficiales',
     date: '2026-08-25',
-    sha: 'HEAD',
+    sha: '8f410de',
     tag: 'Mayor',
     tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
