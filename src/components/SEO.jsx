@@ -6,7 +6,7 @@ export function SEO({
   title = 'Musiclub - Descubre, Califica y Sortea Álbumes',
   description = 'Musiclub es una plataforma interactiva para descubrir, sortear, calificar y reseñar álbumes de música en comunidad.',
   image = '/og-image.png',
-  url = 'https://musiclub-albums.vercel.app',
+  url = 'https://musiclub.org',
   type = 'website',
   keywords = 'musica, albumes, reviews, calificaciones, club de musica, reseñas musicales',
   schemaData = null,

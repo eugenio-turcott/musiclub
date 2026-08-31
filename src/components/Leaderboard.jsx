@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
@@ -1166,6 +1167,9 @@ export function Leaderboard({ isPage = false }) {
                 </div>
               )}
           </div>
+
+          {/* Footer */}
+          <Footer />
         </div>
       )}
 

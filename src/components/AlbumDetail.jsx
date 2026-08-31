@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { SEO } from './SEO';
 import { ReviewSystem } from './ReviewSystem';
 import { supabaseService } from '../services/supabaseClient';
@@ -195,7 +196,7 @@ export function AlbumDetail() {
     if (!album) return null;
     const albumSlug = slugifyAlbum(album.album_name);
     const artistSlug = slugifyArtist(album.artist_name);
-    const canonicalUrl = `https://musiclub-albums.vercel.app/albumes/${albumSlug}`;
+    const canonicalUrl = `https://musiclub.org/albumes/${albumSlug}`;
     const releaseYear =
       album.release_year ||
       (album.release_date ? album.release_date.substring(0, 4) : undefined);
@@ -208,6 +209,7 @@ export function AlbumDetail() {
       duration: t.duration_ms
         ? `PT${Math.floor(t.duration_ms / 60000)}M${Math.floor((t.duration_ms % 60000) / 1000)}S`
         : undefined,
+      url: `${canonicalUrl}#track-${idx + 1}`,
     }));
 
     // Individual reviews structured data
@@ -254,7 +256,7 @@ export function AlbumDetail() {
       byArtist: {
         '@type': 'MusicGroup',
         name: album.artist_name,
-        url: `https://musiclub-albums.vercel.app/artista/${artistSlug}`,
+        url: `https://musiclub.org/artista/${artistSlug}`,
       },
       numTracks: album.tracks?.length || album.track_stats?.length || undefined,
       genre: genres.length > 0 ? genres : undefined,
@@ -294,6 +296,7 @@ export function AlbumDetail() {
               Cargando detalles del álbum...
             </p>
           </div>
+          <Footer />
         </div>
       </div>
     );
@@ -323,13 +326,14 @@ export function AlbumDetail() {
               </Link>
             </div>
           </div>
+          <Footer />
         </div>
       </div>
     );
   }
 
   const score = album.final_rating;
-  const canonicalUrl = `https://musiclub-albums.vercel.app/albumes/${slugifyAlbum(album.album_name)}`;
+  const canonicalUrl = `https://musiclub.org/albumes/${slugifyAlbum(album.album_name)}`;
   const reviewCountNum = album.reviews?.length || album.review_count || 0;
   const metaDescription = score
     ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${Number(score).toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
@@ -1108,6 +1112,9 @@ export function AlbumDetail() {
               </p>
             </div>
           )}
+
+          {/* Footer */}
+          <Footer />
         </div>
       </div>
     </div>

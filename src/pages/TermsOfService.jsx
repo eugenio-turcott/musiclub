@@ -1,6 +1,7 @@
 // src/pages/TermsOfService.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Footer } from '../components/Footer';
 
 export function TermsOfService() {
   return (
@@ -123,6 +124,9 @@ export function TermsOfService() {
             </div>
           </div>
         </div>
+
+        {/* Global Footer */}
+        <Footer />
       </div>
     </div>
   );

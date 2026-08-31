@@ -633,28 +633,8 @@ export const getArtistTopTracks = async (artistId, artistName) => {
     const token = await getSpotifyToken();
     let tracks = [];
 
-    // Intento 1: Endpoint oficial /artists/{id}/top-tracks
-    if (artistId) {
-      try {
-        const response = await fetch(
-          `https://api.spotify.com/v1/artists/${artistId}/top-tracks?market=MX`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        if (response.ok) {
-          const data = await response.json();
-          if (data.tracks && data.tracks.length > 0) {
-            tracks = data.tracks;
-          }
-        }
-      } catch (_) {}
-    }
-
-    // Intento 2: Búsqueda por artista en caso de 403/429
-    if (tracks.length === 0 && artistName) {
+    // Búsqueda de canciones del artista por Search API (evita endpoint /top-tracks que devuelve 403 Forbidden)
+    if (artistName) {
       try {
         const searchRes = await fetch(
           `https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=track&limit=10`,
@@ -846,7 +826,7 @@ export const getArtistDiscography = async (artistId, artistName) => {
 };
 
 /**
- * Obtiene toda la información completa de un artista (perfil, top tracks, discografía completa)
+ * Obtiene toda la información completa de un artista (perfil y discografía completa)
  * Buscando por nombre de artista o por su ID de Spotify
  */
 export const getArtistCompleteProfile = async (artistNameOrId) => {
@@ -884,10 +864,9 @@ export const getArtistCompleteProfile = async (artistNameOrId) => {
       };
     }
 
-    // Ejecutar en paralelo perfil, top tracks y discografía completa
-    const [artistRes, tracksRes, discoRes] = await Promise.all([
+    // Ejecutar en paralelo perfil y discografía completa
+    const [artistRes, discoRes] = await Promise.all([
       artistId ? getArtistById(artistId) : Promise.resolve({ success: false }),
-      getArtistTopTracks(artistId, resolvedArtistName),
       getArtistDiscography(artistId, resolvedArtistName),
     ]);
 
@@ -902,7 +881,7 @@ export const getArtistCompleteProfile = async (artistNameOrId) => {
     return {
       success: true,
       artist: artist,
-      topTracks: tracksRes.success ? tracksRes.tracks : [],
+      topTracks: [],
       discography: discoRes.success ? discoRes.discography : [],
       albums: discoRes.success ? discoRes.albums : [],
       eps: discoRes.success ? discoRes.eps : [],

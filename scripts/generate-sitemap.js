@@ -6,7 +6,7 @@ require('dotenv').config();
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_8CYM-sB7DY1_cyw8Amyr9g_-JtuZEKO';
-const BASE_URL = 'https://musiclub-albums.vercel.app';
+const BASE_URL = 'https://musiclub.org';
 
 function slugify(text) {
   if (!text) return '';

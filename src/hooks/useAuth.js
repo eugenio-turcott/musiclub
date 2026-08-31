@@ -264,10 +264,7 @@ export function useAuth() {
       setIsRedirecting(true);
       setLoading(true);
 
-      const isProduction = window.location.hostname !== 'localhost';
-      const redirectTo = isProduction
-        ? 'https://musiclub-albums.vercel.app'
-        : window.location.origin;
+      const redirectTo = window.location.origin;
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

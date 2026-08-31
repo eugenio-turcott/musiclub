@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { useAuth } from '../hooks/useAuth';
 
 const AVAILABLE_GENRES = [
@@ -530,6 +531,9 @@ export function UserSettings() {
           </div>
         </div>
       </form>
+
+      {/* Global Footer */}
+      <Footer />
     </div>
   );
 }

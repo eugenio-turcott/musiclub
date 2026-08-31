@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import {
@@ -789,6 +790,9 @@ export function PlaylistsCatalog({ isPage = true }) {
             })}
           </div>
         )}
+
+        {/* Footer */}
+        <Footer />
 
         {/* Modal para Proponer Playlist vía createPortal (Viewport Completo) */}
         {showProposeModal &&

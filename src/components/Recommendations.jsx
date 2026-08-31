@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { useUserReviews } from '../hooks/useUserReviews';
@@ -63,7 +64,12 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
   const recommendationData = useMemo(() => {
     if (!user) {
       return {
-        tasteProfile: { hasHistory: false, totalReviews: 0, topRatedAlbums: [], topArtists: [] },
+        tasteProfile: {
+          hasHistory: false,
+          totalReviews: 0,
+          topRatedAlbums: [],
+          topArtists: [],
+        },
         tasteTwins: [],
         recommendations: [],
         highMatchPicks: [],
@@ -101,13 +107,22 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
   const displayedClubAlbums = useMemo(() => {
     if (filterCategory === 'top90') {
       // Mostrar prioritariamente sugerencias con >= 90% Match. Si hay menos de 3, mostrar las mejores puntuadas
-      return highMatchPicks.length > 0 ? highMatchPicks : recommendations.slice(0, 8);
+      return highMatchPicks.length > 0
+        ? highMatchPicks
+        : recommendations.slice(0, 8);
     }
     if (filterCategory === 'critics') return criticsTreasures;
     if (filterCategory === 'twins') return tasteTwinPicks;
     if (filterCategory === 'criteria') return criteriaPicks;
     return recommendations;
-  }, [filterCategory, highMatchPicks, recommendations, criticsTreasures, tasteTwinPicks, criteriaPicks]);
+  }, [
+    filterCategory,
+    highMatchPicks,
+    recommendations,
+    criticsTreasures,
+    tasteTwinPicks,
+    criteriaPicks,
+  ]);
 
   // Cargar nuevos descubrimientos musicales fuera del catálogo
   const loadMusicalDiscoveries = useCallback(
@@ -117,8 +132,15 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
       setLoadingDiscoveries(true);
       try {
-        const refreshSeed = isRefresh ? Date.now() + Math.random() * 1000 : Date.now();
-        const res = await getRecommendedAlbumsByTaste(tasteProfile, albumsWithStats, 8, refreshSeed);
+        const refreshSeed = isRefresh
+          ? Date.now() + Math.random() * 1000
+          : Date.now();
+        const res = await getRecommendedAlbumsByTaste(
+          tasteProfile,
+          albumsWithStats,
+          8,
+          refreshSeed
+        );
         if (res.success && res.albums) {
           setDiscoveries(res.albums);
         }
@@ -146,9 +168,13 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
     try {
       const newAlbumData = {
         albumName: discoveredAlbum.name,
-        artistName: discoveredAlbum.artists ? discoveredAlbum.artists.join(', ') : 'Artista',
+        artistName: discoveredAlbum.artists
+          ? discoveredAlbum.artists.join(', ')
+          : 'Artista',
         imageUrl: discoveredAlbum.image,
-        spotifyLink: discoveredAlbum.external_urls?.spotify || `https://open.spotify.com/album/${discoveredAlbum.id}`,
+        spotifyLink:
+          discoveredAlbum.external_urls?.spotify ||
+          `https://open.spotify.com/album/${discoveredAlbum.id}`,
         status: 'INDIVIDUAL',
         addedBy: user.name || user.email?.split('@')[0] || 'Miembro',
         addedByEmail: user.email,
@@ -157,7 +183,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
       };
 
       await supabaseService.createAlbum(newAlbumData);
-      setProposalSuccess(`¡"${discoveredAlbum.name}" añadido exitosamente a la lista de Escucha Individual!`);
+      setProposalSuccess(
+        `¡"${discoveredAlbum.name}" añadido exitosamente a la lista de Escucha Individual!`
+      );
 
       // Quitar de descubrimientos
       setDiscoveries((prev) => prev.filter((a) => a.id !== discoveredAlbum.id));
@@ -180,8 +208,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
   // Color de badge de compatibilidad
   const getCompatibilityColor = (score) => {
-    if (score >= 90) return 'from-emerald-400 via-teal-300 to-cyan-400 text-slate-950 font-black';
-    if (score >= 80) return 'from-cyan-400 via-blue-400 to-indigo-500 text-white font-black';
+    if (score >= 90)
+      return 'from-emerald-400 via-teal-300 to-cyan-400 text-slate-950 font-black';
+    if (score >= 80)
+      return 'from-cyan-400 via-blue-400 to-indigo-500 text-white font-black';
     if (score >= 70) return 'from-purple-400 to-pink-500 text-white font-bold';
     return 'from-amber-400 to-yellow-500 text-slate-950 font-bold';
   };
@@ -209,7 +239,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
             Descubre Álbumes Hechos a tu Medida
           </h2>
           <p className="text-white/60 text-sm leading-relaxed">
-            Inicia sesión para que el motor de recomendación analice tus mejores calificaciones, detecte tus criterios favoritos y te sugiera joyas del catálogo del club y nuevos hallazgos musicales.
+            Inicia sesión para que el motor de recomendación analice tus mejores
+            calificaciones, detecte tus criterios favoritos y te sugiera joyas
+            del catálogo del club y nuevos hallazgos musicales.
           </p>
         </div>
         <button
@@ -223,7 +255,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-16 animate-fadeIn">
+    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-16">
       {/* Universal Standard App Header */}
       {isPage && <AppHeader user={user} showTitle={false} />}
 
@@ -238,10 +270,15 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
               <span>🧠</span> Algoritmo de Afinidad Musical
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-              Para Ti, <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">{user.name || 'Melómano'}</span>
+              Para Ti,{' '}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+                {user.name || 'Melómano'}
+              </span>
             </h1>
             <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
-              Álbumes seleccionados analizando tus calificaciones más altas, criterios técnicos preferidos y afinidad con la comunidad de Musiclub.
+              Álbumes seleccionados analizando tus calificaciones más altas,
+              criterios técnicos preferidos y afinidad con la comunidad de
+              Musiclub.
             </p>
           </div>
 
@@ -252,7 +289,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 Tu ADN de Crítico
               </div>
               <div className="flex items-center justify-center md:justify-start gap-2.5 mb-1.5">
-                <span className="text-2xl sm:text-3xl">{tasteProfile.tasteArchetype.emoji}</span>
+                <span className="text-2xl sm:text-3xl">
+                  {tasteProfile.tasteArchetype.emoji}
+                </span>
                 <div>
                   <h3 className="text-white font-extrabold text-sm sm:text-base leading-tight">
                     {tasteProfile.tasteArchetype.title}
@@ -272,7 +311,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 <span>🌱</span> Historial Inicial
               </div>
               <p className="text-white/60 text-xs">
-                Has calificado {userReviews.length} álbumes. Califica más discos para calibrar tu perfil con mayor precisión.
+                Has calificado {userReviews.length} álbumes. Califica más discos
+                para calibrar tu perfil con mayor precisión.
               </p>
             </div>
           )}
@@ -404,7 +444,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
                 >
-                  {topCriterionDef.emoji} Joyas en {topCriterionDef.label} ({criteriaPicks.length})
+                  {topCriterionDef.emoji} Joyas en {topCriterionDef.label} (
+                  {criteriaPicks.length})
                 </button>
               )}
             </div>
@@ -447,10 +488,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                         {album.status === 'GANADOR'
                           ? '👑 Ganador'
                           : album.status === 'ACTIVO'
-                          ? '🎰 En Máquina'
-                          : album.status === 'INDIVIDUAL'
-                          ? '🎧 Escucha Libre'
-                          : '💿 Archivo'}
+                            ? '🎰 En Máquina'
+                            : album.status === 'INDIVIDUAL'
+                              ? '🎧 Escucha Libre'
+                              : '💿 Archivo'}
                       </span>
                     </div>
 
@@ -478,7 +519,12 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
                         <div className="flex items-center gap-2 pt-1">
                           <span className="text-amber-300 font-bold text-xs flex items-center gap-1">
-                            ⭐ {(album.final_rating || album.avg_rating || 0).toFixed(1)}
+                            ⭐{' '}
+                            {(
+                              album.final_rating ||
+                              album.avg_rating ||
+                              0
+                            ).toFixed(1)}
                           </span>
                           <span className="text-white/30 text-[11px]">•</span>
                           <span className="text-white/40 text-[11px]">
@@ -531,9 +577,13 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
           ) : (
             <div className="py-16 text-center space-y-4 bg-black/20 rounded-3xl border border-white/5 p-6">
               <div className="text-4xl">🎉</div>
-              <h3 className="text-lg font-bold text-white">¡Has calificado todo este segmento!</h3>
+              <h3 className="text-lg font-bold text-white">
+                ¡Has calificado todo este segmento!
+              </h3>
               <p className="text-white/50 text-xs sm:text-sm max-w-md mx-auto">
-                No quedan álbumes pendientes en esta categoría. Puedes explorar la pestaña de nuevos descubrimientos o calificar más discos del catálogo.
+                No quedan álbumes pendientes en esta categoría. Puedes explorar
+                la pestaña de nuevos descubrimientos o calificar más discos del
+                catálogo.
               </p>
               <button
                 onClick={() => setFilterCategory('all')}
@@ -557,7 +607,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                   <span>📊</span> Ponderación de Criterios Técnicos
                 </h3>
                 <p className="text-white/50 text-xs">
-                  Valores calculados analizando las notas técnicas de tus álbumes mejor calificados.
+                  Valores calculados analizando las notas técnicas de tus
+                  álbumes mejor calificados.
                 </p>
               </div>
 
@@ -635,7 +686,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                         <span className="w-6 h-6 rounded-full bg-white/10 text-white font-mono text-xs flex items-center justify-center font-bold">
                           {idx + 1}
                         </span>
-                        <span className="text-white font-bold text-sm">{art.name}</span>
+                        <span className="text-white font-bold text-sm">
+                          {art.name}
+                        </span>
                       </div>
                       <span className="text-amber-300 font-bold text-xs">
                         ★ {art.avgScore.toFixed(1)} prom.
@@ -645,7 +698,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 </div>
               ) : (
                 <p className="text-white/40 text-xs italic">
-                  Aún no registras suficientes reseñas para listar artistas destacados.
+                  Aún no registras suficientes reseñas para listar artistas
+                  destacados.
                 </p>
               )}
             </div>
@@ -656,7 +710,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 <span>🤝</span> Melómanos Afines de Musiclub
               </h3>
               <p className="text-white/50 text-xs">
-                Usuarios con quienes tienes la mayor correlación de calificaciones en discos compartidos.
+                Usuarios con quienes tienes la mayor correlación de
+                calificaciones en discos compartidos.
               </p>
 
               {tasteTwins.length > 0 ? (
@@ -679,7 +734,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                           </div>
                         )}
                         <div>
-                          <h4 className="text-white font-bold text-sm">@{twin.name}</h4>
+                          <h4 className="text-white font-bold text-sm">
+                            @{twin.name}
+                          </h4>
                           <span className="text-white/40 text-[11px]">
                             {twin.commonAlbumsCount} álbumes evaluados en común
                           </span>
@@ -694,7 +751,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 </div>
               ) : (
                 <div className="py-8 text-center text-white/40 text-xs space-y-2">
-                  <p>Califica más álbumes que otros miembros hayan calificado para desbloquear a tus gemelos de gusto musical.</p>
+                  <p>
+                    Califica más álbumes que otros miembros hayan calificado
+                    para desbloquear a tus gemelos de gusto musical.
+                  </p>
                 </div>
               )}
             </div>
@@ -711,7 +771,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 <span>🚀</span> Nuevos Descubrimientos Musicales
               </h3>
               <p className="text-white/50 text-xs">
-                Discos fuera del catálogo sugeridos según tu afinidad musical. Haz clic en "Escuchar Individual" para agregarlos a tu lista y comenzar a calificarlos.
+                Discos fuera del catálogo sugeridos según tu afinidad musical.
+                Haz clic en "Escuchar Individual" para agregarlos a tu lista y
+                comenzar a calificarlos.
               </p>
             </div>
 
@@ -745,7 +807,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     <div className="space-y-3">
                       <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
                         <img
-                          src={alb.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'}
+                          src={
+                            alb.image ||
+                            'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
+                          }
                           alt={alb.name}
                           className="w-full h-full object-cover"
                         />
@@ -792,7 +857,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
             </div>
           ) : (
             <div className="py-16 text-center text-white/40 space-y-2 bg-black/20 rounded-3xl border border-white/5 p-6">
-              <p>No se encontraron descubrimientos inmediatos. Pulsa en "Refrescar Sugerencias" para explorar nuevos horizontes sonoros.</p>
+              <p>
+                No se encontraron descubrimientos inmediatos. Pulsa en
+                "Refrescar Sugerencias" para explorar nuevos horizontes sonoros.
+              </p>
             </div>
           )}
         </div>
@@ -823,15 +891,20 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     selectedAlbumForReview.imagen ||
                     'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
                   }
-                  alt={selectedAlbumForReview.album_name || selectedAlbumForReview.album}
+                  alt={
+                    selectedAlbumForReview.album_name ||
+                    selectedAlbumForReview.album
+                  }
                   className="w-14 h-14 rounded-xl object-cover border border-white/15"
                 />
                 <div>
                   <h3 className="text-white font-extrabold text-base sm:text-lg">
-                    {selectedAlbumForReview.album_name || selectedAlbumForReview.album}
+                    {selectedAlbumForReview.album_name ||
+                      selectedAlbumForReview.album}
                   </h3>
                   <p className="text-white/60 text-xs">
-                    {selectedAlbumForReview.artist_name || selectedAlbumForReview.artista}
+                    {selectedAlbumForReview.artist_name ||
+                      selectedAlbumForReview.artista}
                   </p>
                 </div>
               </div>
@@ -872,7 +945,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     selectedAlbumForDetail.imagen ||
                     'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵'
                   }
-                  alt={selectedAlbumForDetail.album_name || selectedAlbumForDetail.album}
+                  alt={
+                    selectedAlbumForDetail.album_name ||
+                    selectedAlbumForDetail.album
+                  }
                   className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-2 border-white/15 shadow-2xl flex-shrink-0"
                 />
 
@@ -882,18 +958,27 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       selectedAlbumForDetail.compatibilityScore || 75
                     )} inline-block mb-1`}
                   >
-                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible Contigo
+                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible
+                    Contigo
                   </span>
                   <h3 className="text-xl sm:text-2xl font-black text-white">
-                    {selectedAlbumForDetail.album_name || selectedAlbumForDetail.album}
+                    {selectedAlbumForDetail.album_name ||
+                      selectedAlbumForDetail.album}
                   </h3>
                   <p className="text-white/70 text-sm font-semibold">
-                    {selectedAlbumForDetail.artist_name || selectedAlbumForDetail.artista}
+                    {selectedAlbumForDetail.artist_name ||
+                      selectedAlbumForDetail.artista}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
                     <span className="text-amber-300 font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-full">
-                      ⭐ {(selectedAlbumForDetail.final_rating || selectedAlbumForDetail.avg_rating || 0).toFixed(1)} Promedio
+                      ⭐{' '}
+                      {(
+                        selectedAlbumForDetail.final_rating ||
+                        selectedAlbumForDetail.avg_rating ||
+                        0
+                      ).toFixed(1)}{' '}
+                      Promedio
                     </span>
                     <span className="text-white/60 text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-full">
                       📝 {selectedAlbumForDetail.review_count || 0} Reviews
@@ -913,35 +998,41 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       key={idx}
                       className="p-3 rounded-xl bg-black/40 border border-white/5 text-xs text-white/80 flex items-center gap-2"
                     >
-                      <span className="text-cyan-400 font-bold">✓</span> {reason}
+                      <span className="text-cyan-400 font-bold">✓</span>{' '}
+                      {reason}
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Tracks del Álbum si están disponibles */}
-              {selectedAlbumForDetail.tracks && selectedAlbumForDetail.tracks.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-xs uppercase font-bold text-white/40 tracking-wider">
-                    Lista de Canciones ({selectedAlbumForDetail.tracks.length})
-                  </h4>
-                  <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
-                    {selectedAlbumForDetail.tracks.map((t, idx) => {
-                      const tName = typeof t === 'string' ? t : t.name || `Pista ${idx + 1}`;
-                      return (
-                        <div
-                          key={idx}
-                          className="flex items-center justify-between p-2 rounded-xl bg-black/30 border border-white/5 text-xs text-white/70"
-                        >
-                          <span className="truncate">
-                            {idx + 1}. {tName}
-                          </span>
-                        </div>
-                      );
-                    })}
+              {selectedAlbumForDetail.tracks &&
+                selectedAlbumForDetail.tracks.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs uppercase font-bold text-white/40 tracking-wider">
+                      Lista de Canciones ({selectedAlbumForDetail.tracks.length}
+                      )
+                    </h4>
+                    <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+                      {selectedAlbumForDetail.tracks.map((t, idx) => {
+                        const tName =
+                          typeof t === 'string'
+                            ? t
+                            : t.name || `Pista ${idx + 1}`;
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center justify-between p-2 rounded-xl bg-black/30 border border-white/5 text-xs text-white/70"
+                          >
+                            <span className="truncate">
+                              {idx + 1}. {tName}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               {/* Acciones */}
               <div className="flex items-center gap-3 pt-4 border-t border-white/10">
@@ -971,6 +1062,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
           </div>,
           document.body
         )}
+
+      {/* Global Footer when rendered as a Page */}
+      {isPage && <Footer />}
     </div>
   );
 }

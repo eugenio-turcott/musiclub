@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { slugifyAlbum, slugifyArtist } from '../utils/ratingUtils';
@@ -1034,6 +1035,9 @@ export function AlbumsCatalog({ isPage = false }) {
             )}
           </>
         )}
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   );

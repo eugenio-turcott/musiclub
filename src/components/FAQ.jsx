@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
@@ -417,6 +418,9 @@ export function FAQ({ isPage = false }) {
             </Link>
           </div>
         </div>
+
+        {/* Global Footer */}
+        <Footer />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 // src/pages/PrivacyPolicy.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Footer } from '../components/Footer';
 
 export function PrivacyPolicy() {
   return (
@@ -138,6 +139,9 @@ export function PrivacyPolicy() {
             </div>
           </div>
         </div>
+
+        {/* Global Footer */}
+        <Footer />
       </div>
     </div>
   );

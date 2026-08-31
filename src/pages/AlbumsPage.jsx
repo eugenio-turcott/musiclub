@@ -9,7 +9,7 @@ export function AlbumsPage() {
       <SEO
         title="Catálogo de Álbumes - Musiclub"
         description="Explora todos los álbumes calificados y por calificar por la comunidad de Musiclub. Descubre notas ponderadas, canciones favoritas y análisis de la comunidad."
-        url="https://musiclub-albums.vercel.app/albumes"
+        url="https://musiclub.org/albumes"
       />
       <AlbumsCatalog isPage={true} />
     </>

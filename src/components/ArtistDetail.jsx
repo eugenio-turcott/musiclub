@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { SEO } from './SEO';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseService } from '../services/supabaseClient';
@@ -9,17 +10,7 @@ import {
   getArtistCompleteProfile,
   getAlbumDetails,
 } from '../services/spotifyApi';
-import {
-  slugifyAlbum,
-  findAlbumsByArtist,
-} from '../utils/ratingUtils';
-
-function formatDuration(ms) {
-  if (!ms || isNaN(ms)) return null;
-  const minutes = Math.floor(ms / 60000);
-  const seconds = Math.floor((ms % 60000) / 1000);
-  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
+import { slugifyAlbum, findAlbumsByArtist } from '../utils/ratingUtils';
 
 export function ArtistDetail() {
   const { slug } = useParams();
@@ -44,13 +35,17 @@ export function ArtistDetail() {
       // 1. Obtener todos los álbumes de Musiclub para cruzar datos
       const allClubAlbums = await supabaseService.getAllAlbumsWithFullStats();
       const rawArtistName = slug ? slug.replace(/-/g, ' ') : '';
-      const matchedClub = findAlbumsByArtist(allClubAlbums || [], rawArtistName || slug);
+      const matchedClub = findAlbumsByArtist(
+        allClubAlbums || [],
+        rawArtistName || slug
+      );
       setClubAlbums(matchedClub);
 
       // Usar el nombre exacto de la base de datos si existe, o el slug decodificado
-      const targetQuery = matchedClub.length > 0
-        ? (matchedClub[0].artist_name || matchedClub[0].artista)
-        : decodeURIComponent(rawArtistName);
+      const targetQuery =
+        matchedClub.length > 0
+          ? matchedClub[0].artist_name || matchedClub[0].artista
+          : decodeURIComponent(rawArtistName);
 
       // 2. Obtener perfil completo desde Spotify API
       const spotifyRes = await getArtistCompleteProfile(targetQuery);
@@ -60,7 +55,10 @@ export function ArtistDetail() {
 
         // Si encontramos el nombre oficial del artista en Spotify, volvemos a filtrar los del club
         if (spotifyRes.artist?.name) {
-          const refinedMatches = findAlbumsByArtist(allClubAlbums || [], spotifyRes.artist.name);
+          const refinedMatches = findAlbumsByArtist(
+            allClubAlbums || [],
+            spotifyRes.artist.name
+          );
           setClubAlbums(refinedMatches);
         }
       } else {
@@ -90,13 +88,20 @@ export function ArtistDetail() {
               totalTracks: ca.tracks?.length || 0,
               spotifyUrl: ca.spotify_link,
             })),
-            albums: matchedClub.filter((ca) => (ca.release_type || 'ALBUM') === 'ALBUM'),
+            albums: matchedClub.filter(
+              (ca) => (ca.release_type || 'ALBUM') === 'ALBUM'
+            ),
             eps: matchedClub.filter((ca) => ca.release_type === 'EP'),
             singles: matchedClub.filter((ca) => ca.release_type === 'SENCILLO'),
-            compilations: matchedClub.filter((ca) => ca.release_type === 'COMPILACION'),
+            compilations: matchedClub.filter(
+              (ca) => ca.release_type === 'COMPILACION'
+            ),
           });
         } else {
-          setError(spotifyRes.error || `No se encontró información del artista "${targetQuery}"`);
+          setError(
+            spotifyRes.error ||
+              `No se encontró información del artista "${targetQuery}"`
+          );
         }
       }
     } catch (err) {
@@ -138,7 +143,8 @@ export function ArtistDetail() {
     let totalReviews = 0;
 
     clubAlbums.forEach((a) => {
-      const rCount = a.review_count || (Array.isArray(a.reviews) ? a.reviews.length : 0);
+      const rCount =
+        a.review_count || (Array.isArray(a.reviews) ? a.reviews.length : 0);
       totalReviews += rCount;
       if (a.final_rating && !isNaN(a.final_rating)) {
         totalScoreSum += Number(a.final_rating);
@@ -149,7 +155,8 @@ export function ArtistDetail() {
     return {
       total: clubAlbums.length,
       ratedCount,
-      avgRating: ratedCount > 0 ? (totalScoreSum / ratedCount).toFixed(2) : null,
+      avgRating:
+        ratedCount > 0 ? (totalScoreSum / ratedCount).toFixed(2) : null,
       totalReviews,
     };
   }, [clubAlbums]);
@@ -196,7 +203,8 @@ export function ArtistDetail() {
         track_number: t.track_number,
       }));
 
-      const artistName = profileData?.artist?.name || release.artists?.[0] || 'Artista';
+      const artistName =
+        profileData?.artist?.name || release.artists?.[0] || 'Artista';
 
       const albumPayload = {
         albumName: spotifyAlbum.name,
@@ -217,13 +225,17 @@ export function ArtistDetail() {
       const created = await supabaseService.createAlbum(albumPayload);
       const slugTarget = slugifyAlbum(created?.album_name || spotifyAlbum.name);
 
-      setProposeMessage(`¡"${release.name}" agregado con éxito! Redirigiendo...`);
+      setProposeMessage(
+        `¡"${release.name}" agregado con éxito! Redirigiendo...`
+      );
       setTimeout(() => {
         navigate(`/albumes/${slugTarget}`);
       }, 700);
     } catch (err) {
       console.error('Error al proponer álbum:', err);
-      setProposeMessage(`Error: ${err.message || 'No se pudo agregar el lanzamiento'}`);
+      setProposeMessage(
+        `Error: ${err.message || 'No se pudo agregar el lanzamiento'}`
+      );
       setTimeout(() => setProposeMessage(null), 3000);
     } finally {
       setProposingId(null);
@@ -235,7 +247,7 @@ export function ArtistDetail() {
   // Structured JSON-LD Schema for Artist
   const artistSchema = useMemo(() => {
     if (!artist) return null;
-    const canonicalUrl = `https://musiclub-albums.vercel.app/artista/${slug}`;
+    const canonicalUrl = `https://musiclub.org/artista/${slug}`;
     return {
       '@context': 'https://schema.org',
       '@type': 'MusicGroup',
@@ -252,15 +264,15 @@ export function ArtistDetail() {
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="max-w-7xl mx-auto w-full space-y-6 sm:space-y-8 animate-fadeIn">
-        <SEO
-          title={`${artist?.name || 'Artista'} - Discografía, Álbumes y Reviews | Musiclub`}
-          description={`Explora los álbumes, EPs, sencillos y calificaciones de la comunidad para ${artist?.name || 'este artista'} en Musiclub.`}
-          image={artist?.image}
-          url={`https://musiclub-albums.vercel.app/artista/${slug}`}
-          schemaData={artistSchema}
-        />
+      <SEO
+        title={`${artist?.name || 'Artista'} - Discografía, Álbumes y Reviews | Musiclub`}
+        description={`Explora los álbumes, EPs, sencillos y calificaciones de la comunidad para ${artist?.name || 'este artista'} en Musiclub.`}
+        image={artist?.image}
+        url={`https://musiclub.org/artista/${slug}`}
+        schemaData={artistSchema}
+      />
 
+      <div className="max-w-7xl mx-auto w-full space-y-6 sm:space-y-8">
         <AppHeader
           user={user}
           isAdmin={isAdmin}
@@ -298,7 +310,9 @@ export function ArtistDetail() {
         {!loading && error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 text-center max-w-2xl mx-auto space-y-4">
             <div className="text-4xl">⚠️</div>
-            <h2 className="text-2xl font-black text-white">No pudimos encontrar al artista</h2>
+            <h2 className="text-2xl font-black text-white">
+              No pudimos encontrar al artista
+            </h2>
             <p className="text-slate-400 text-sm">{error}</p>
             <div className="pt-2 flex items-center justify-center gap-3">
               <button
@@ -321,7 +335,9 @@ export function ArtistDetail() {
         {proposeMessage && (
           <div className="fixed bottom-6 right-6 z-50 bg-[#121428] border border-cyan-400/40 text-cyan-200 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce">
             <span className="text-lg">💿</span>
-            <span className="text-xs sm:text-sm font-bold">{proposeMessage}</span>
+            <span className="text-xs sm:text-sm font-bold">
+              {proposeMessage}
+            </span>
           </div>
         )}
 
@@ -343,7 +359,10 @@ export function ArtistDetail() {
                 <div className="relative flex-shrink-0 group">
                   <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl bg-black/60 relative">
                     <img
-                      src={artist.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎤'}
+                      src={
+                        artist.image ||
+                        'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎤'
+                      }
                       alt={artist.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                     />
@@ -358,13 +377,6 @@ export function ArtistDetail() {
                 {/* Artist Info & Header */}
                 <div className="flex-1 min-w-0 text-center md:text-left space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                    <span className="inline-flex items-center gap-1 text-[11px] font-black uppercase tracking-wider bg-[#1db954]/20 text-[#1db954] border border-[#1db954]/30 px-3 py-0.5 rounded-full shadow-sm">
-                      <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306c-.216.353-.674.468-1.027.252-2.81-1.718-6.347-2.107-10.514-1.155-.403.092-.807-.16-.899-.563-.092-.403.16-.807.563-.899 4.568-1.044 8.49-.607 11.625 1.338.353.216.468.674.252 1.027zm1.47-3.268c-.272.443-.853.585-1.296.313-3.218-1.978-8.123-2.55-11.928-1.395-.499.151-1.03-.134-1.181-.633-.151-.499.134-1.03.633-1.181 4.354-1.322 9.775-.684 13.459 1.58.443.272.585.853.313 1.296zm.126-3.41c-3.858-2.29-10.222-2.502-13.886-1.39-.59.179-1.217-.156-1.396-.746-.179-.59.156-1.217.746-1.396 4.218-1.28 11.248-1.036 15.688 1.597.531.315.704 1.002.389 1.533-.315.531-1.002.704-1.541.402z" />
-                      </svg>
-                      <span>Artista Verificado en Spotify</span>
-                    </span>
-
                     {clubStats.total > 0 && (
                       <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-0.5 rounded-full">
                         ✨ En Musiclub
@@ -378,18 +390,11 @@ export function ArtistDetail() {
 
                   {/* Monthly Followers / Popularity */}
                   <div className="flex items-center justify-center md:justify-start gap-4 text-xs sm:text-sm text-slate-300 flex-wrap font-medium">
-                    {artist.followers > 0 && (
-                      <span className="flex items-center gap-1.5">
-                        <span className="text-[#1db954]">👥</span>
-                        <strong>{Number(artist.followers).toLocaleString()}</strong> seguidores en Spotify
-                      </span>
-                    )}
-
                     {profileData.discography?.length > 0 && (
                       <>
-                        <span className="text-white/20">•</span>
                         <span>
-                          <strong>{profileData.discography.length}</strong> lanzamientos discográficos
+                          <strong>{profileData.discography.length}</strong>{' '}
+                          lanzamientos discográficos
                         </span>
                       </>
                     )}
@@ -425,7 +430,9 @@ export function ArtistDetail() {
                         Nota Promedio
                       </span>
                       <span className="text-xl sm:text-2xl font-black text-amber-400 mt-0.5 block">
-                        {clubStats.avgRating ? `${clubStats.avgRating} ⭐` : 'N/A'}
+                        {clubStats.avgRating
+                          ? `${clubStats.avgRating} ⭐`
+                          : 'N/A'}
                       </span>
                     </div>
 
@@ -448,7 +455,10 @@ export function ArtistDetail() {
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#1db954] hover:bg-[#1ed760] text-black font-black text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all"
                       >
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                        <svg
+                          className="w-4 h-4 fill-current"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306c-.216.353-.674.468-1.027.252-2.81-1.718-6.347-2.107-10.514-1.155-.403.092-.807-.16-.899-.563-.092-.403.16-.807.563-.899 4.568-1.044 8.49-.607 11.625 1.338.353.216.468.674.252 1.027zm1.47-3.268c-.272.443-.853.585-1.296.313-3.218-1.978-8.123-2.55-11.928-1.395-.499.151-1.03-.134-1.181-.633-.151-.499.134-1.03.633-1.181 4.354-1.322 9.775-.684 13.459 1.58.443.272.585.853.313 1.296zm.126-3.41c-3.858-2.29-10.222-2.502-13.886-1.39-.59.179-1.217-.156-1.396-.746-.179-.59.156-1.217.746-1.396 4.218-1.28 11.248-1.036 15.688 1.597.531.315.704 1.002.389 1.533-.315.531-1.002.704-1.541.402z" />
                         </svg>
                         <span>Abrir Perfil en Spotify</span>
@@ -459,77 +469,6 @@ export function ArtistDetail() {
               </div>
             </div>
 
-            {/* TOP POPULAR TRACKS SECTION (Spotify Top 10) */}
-            {profileData.topTracks && profileData.topTracks.length > 0 && (
-              <div className="bg-[#101222] border border-white/10 rounded-3xl p-5 sm:p-7 shadow-2xl space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-white/10">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🔥</span>
-                    <h3 className="text-white font-black text-lg sm:text-xl">
-                      Canciones Más Populares
-                    </h3>
-                  </div>
-                  <span className="text-xs text-slate-400 font-semibold">
-                    Top 10 en Spotify
-                  </span>
-                </div>
-
-                <div className="space-y-1.5">
-                  {profileData.topTracks.map((track) => (
-                    <div
-                      key={track.id}
-                      className="flex items-center justify-between p-2.5 sm:p-3 rounded-2xl bg-white/[0.02] hover:bg-white/[0.07] border border-transparent hover:border-white/10 transition-all group"
-                    >
-                      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                        <span className="text-xs sm:text-sm font-black text-slate-500 w-5 text-center flex-shrink-0 group-hover:text-cyan-400">
-                          {track.index}
-                        </span>
-
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-black/50 flex-shrink-0 border border-white/10">
-                          <img
-                            src={track.albumImage || 'https://via.placeholder.com/60'}
-                            alt={track.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <p className="text-white font-bold text-xs sm:text-sm truncate group-hover:text-cyan-300 transition-colors">
-                            {track.name}
-                          </p>
-                          <p className="text-slate-400 text-[11px] sm:text-xs truncate">
-                            {track.albumName}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 sm:gap-6 flex-shrink-0">
-                        {Boolean(track.durationMs) && (
-                          <span className="text-xs text-slate-400 font-mono hidden sm:inline">
-                            {formatDuration(track.durationMs)}
-                          </span>
-                        )}
-
-                        {track.spotifyUrl && (
-                          <a
-                            href={track.spotifyUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="w-8 h-8 rounded-full bg-[#1db954]/10 hover:bg-[#1db954] text-[#1db954] hover:text-black flex items-center justify-center transition-all shadow-sm"
-                            title="Escuchar en Spotify"
-                          >
-                            <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                              <path d="M8 5v14l11-7z" />
-                            </svg>
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
             {/* DISCOGRAPHY SECTION (Spotify Tabs: Álbumes, EPs, Sencillos, Compilaciones) */}
             <div className="space-y-5">
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
@@ -539,7 +478,8 @@ export function ArtistDetail() {
                     <span>Discografía Completa</span>
                   </h3>
                   <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-                    Álbumes, EPs y sencillos oficiales lanzados por {artist.name}.
+                    Álbumes, EPs y sencillos oficiales lanzados por{' '}
+                    {artist.name}.
                   </p>
                 </div>
 
@@ -558,11 +498,36 @@ export function ArtistDetail() {
               {/* Category Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
                 {[
-                  { id: 'ALL', label: 'Todos', count: profileData.discography?.length || 0, icon: '🌟' },
-                  { id: 'ALBUM', label: 'Álbumes', count: profileData.albums?.length || 0, icon: '✨' },
-                  { id: 'EP', label: 'EPs', count: profileData.eps?.length || 0, icon: '💿' },
-                  { id: 'SENCILLO', label: 'Sencillos', count: profileData.singles?.length || 0, icon: '🎵' },
-                  { id: 'COMPILACION', label: 'Compilaciones', count: profileData.compilations?.length || 0, icon: '📦' },
+                  {
+                    id: 'ALL',
+                    label: 'Todos',
+                    count: profileData.discography?.length || 0,
+                    icon: '🌟',
+                  },
+                  {
+                    id: 'ALBUM',
+                    label: 'Álbumes',
+                    count: profileData.albums?.length || 0,
+                    icon: '✨',
+                  },
+                  {
+                    id: 'EP',
+                    label: 'EPs',
+                    count: profileData.eps?.length || 0,
+                    icon: '💿',
+                  },
+                  {
+                    id: 'SENCILLO',
+                    label: 'Sencillos',
+                    count: profileData.singles?.length || 0,
+                    icon: '🎵',
+                  },
+                  {
+                    id: 'COMPILACION',
+                    label: 'Compilaciones',
+                    count: profileData.compilations?.length || 0,
+                    icon: '📦',
+                  },
                 ].map((tab) => {
                   const isActive = activeTab === tab.id;
                   return (
@@ -577,7 +542,9 @@ export function ArtistDetail() {
                     >
                       <span>{tab.icon}</span>
                       <span>{tab.label}</span>
-                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-300'}`}>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-300'}`}
+                      >
                         {tab.count}
                       </span>
                     </button>
@@ -606,12 +573,28 @@ export function ArtistDetail() {
 
                     const typeBadge =
                       release.release_type === 'EP'
-                        ? { label: 'EP', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' }
+                        ? {
+                            label: 'EP',
+                            color:
+                              'bg-cyan-300/80 text-cyan-800 border-cyan-700/50',
+                          }
                         : release.release_type === 'SENCILLO'
-                        ? { label: 'Sencillo', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30' }
-                        : release.release_type === 'COMPILACION'
-                        ? { label: 'Compilación', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' }
-                        : { label: 'Álbum', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+                          ? {
+                              label: 'Sencillo',
+                              color:
+                                'bg-pink-300/80 text-pink-800 border-pink-700/50',
+                            }
+                          : release.release_type === 'COMPILACION'
+                            ? {
+                                label: 'Compilación',
+                                color:
+                                  'bg-amber-300/80 text-amber-800 border-amber-700/50',
+                              }
+                            : {
+                                label: 'Álbum',
+                                color:
+                                  'bg-purple-300/80 text-purple-800 border-purple-700/50',
+                              };
 
                     return (
                       <div
@@ -622,7 +605,10 @@ export function ArtistDetail() {
                           {/* Cover Image Container */}
                           <div className="relative aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-black/60 mb-3 border border-white/10 shadow-lg">
                             <img
-                              src={release.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'}
+                              src={
+                                release.image ||
+                                'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
+                              }
                               alt={release.name}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               loading="lazy"
@@ -630,7 +616,9 @@ export function ArtistDetail() {
 
                             {/* Release Type Badge */}
                             <div className="absolute top-2 left-2 z-10">
-                              <span className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}>
+                              <span
+                                className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}
+                              >
                                 {typeBadge.label}
                               </span>
                             </div>
@@ -639,11 +627,14 @@ export function ArtistDetail() {
                             {existingInClub && (
                               <div className="absolute top-2 right-2 z-10">
                                 {existingInClub.final_rating ? (
-                                  <span className="bg-amber-500 text-black font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-400/30 flex items-center gap-0.5">
-                                    ⭐ {Number(existingInClub.final_rating).toFixed(1)}
+                                  <span className="bg-amber-300/80 text-amber-800 font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-700/50 flex items-center gap-0.5">
+                                    🎶{' '}
+                                    {Number(
+                                      existingInClub.final_rating
+                                    ).toFixed(1)}
                                   </span>
                                 ) : (
-                                  <span className="bg-cyan-500/90 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg">
+                                  <span className="bg-cyan-300/80 text-cyan-800 font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg border border-cyan-700/50">
                                     Musiclub
                                   </span>
                                 )}
@@ -671,7 +662,10 @@ export function ArtistDetail() {
                           <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
                             <span>{release.releaseYear || ''}</span>
                             {release.totalTracks > 0 && (
-                              <span>{release.totalTracks} {release.totalTracks === 1 ? 'pista' : 'pistas'}</span>
+                              <span>
+                                {release.totalTracks}{' '}
+                                {release.totalTracks === 1 ? 'pista' : 'pistas'}
+                              </span>
                             )}
                           </div>
                         </div>
@@ -694,19 +688,12 @@ export function ArtistDetail() {
                               className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30 font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
                             >
                               <span>➕</span>
-                              <span>{proposingId === release.id ? 'Agregando...' : 'Proponer al Club'}</span>
+                              <span>
+                                {proposingId === release.id
+                                  ? 'Agregando...'
+                                  : 'Proponer al Club'}
+                              </span>
                             </button>
-                          )}
-
-                          {release.spotifyUrl && (
-                            <a
-                              href={release.spotifyUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="w-full py-1 text-[10px] text-slate-400 hover:text-[#1db954] text-center flex items-center justify-center gap-1 transition-colors"
-                            >
-                              <span>Spotify ↗</span>
-                            </a>
                           )}
                         </div>
                       </div>
@@ -717,6 +704,8 @@ export function ArtistDetail() {
             </div>
           </div>
         )}
+
+        <Footer />
       </div>
     </div>
   );

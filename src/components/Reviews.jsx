@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
 import {
   getWeightedReviewScore,
@@ -609,12 +610,14 @@ export function Reviews({ onClose, isPage = false }) {
           </div>
         )}
 
-        {/* Footer */}
+        {/* Footer info & Navigation Footer */}
         <div className="pt-6 border-t border-white/5 text-center">
           <p className="text-slate-500 text-xs font-mono">
             📝 {totalReviews} reseñas registradas en la comunidad de Musiclub
           </p>
         </div>
+
+        <Footer />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
 
 export function AdminPanel({ onClose, isPage = false }) {
@@ -542,6 +543,9 @@ export function AdminPanel({ onClose, isPage = false }) {
               document.body
             )}
         </div>
+
+        {/* Global Footer */}
+        {isPage && <Footer />}
       </div>
     </div>
   );

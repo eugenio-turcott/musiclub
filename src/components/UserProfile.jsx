@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import { Footer } from './Footer';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
@@ -1486,6 +1487,9 @@ export function UserProfile({ isPage = false }) {
           setActiveTab('mailbox');
         }}
       />
+
+      {/* Global Footer */}
+      <Footer />
     </div>
   );
 }

@@ -14,11 +14,55 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
+    version: 'V.5.6',
+    title:
+      'Dominio Oficial musiclub.org, Footer Global Universal, Soporte Dinámico de Google OAuth y Optimización Spotify API',
+    date: '2026-08-31',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-rose-500 via-pink-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Lanzamiento oficial del nuevo dominio propio musiclub.org, integración del Footer global universal en el 100% de las páginas del sistema, redirección dinámica de Google OAuth, optimización de endpoints de Spotify API eliminando errores 403 y actualización integral de sitemap y metadatos SEO.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML',
+        description:
+          'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, incluyendo sitemap.xml regenerado con más de 250 rutas canónicas indexables, robots.txt actualizado y metaetiquetas OpenGraph/SEO oficiales.',
+      },
+      {
+        type: 'feature',
+        title: 'Footer Global Universal en Todas las Páginas',
+        description:
+          'Incorporación del componente Footer universal con enlaces rápidos, navegación por secciones, créditos, copyright y accesos legales en el 100% de las vistas (Inicio, Álbumes, Detalle de Álbum, Artistas, Leaderboard, Playlists, Reviews, Recomendaciones, Perfil, Configuración, Gashapon, Patch Notes, FAQ, Privacidad, Términos y Panel Admin).',
+      },
+      {
+        type: 'improvement',
+        title: 'Redirección Dinámica de Autenticación con Google (OAuth)',
+        description:
+          'Actualización del flujo de inicio de sesión en useAuth.js para resolver de forma automática y transparente la URL de retorno (window.location.origin) en el nuevo dominio musiclub.org, preservando al mismo tiempo la compatibilidad en entornos locales y de previsualización.',
+      },
+      {
+        type: 'fix',
+        title: 'Depuración y Optimización de Spotify API (Error 403)',
+        description:
+          'Eliminación de llamadas directas y obsoletas a top-tracks restringidas por los nuevos tokens de cliente de Spotify, optimizando la carga de discografía del artista de forma fluida y sin advertencias en consola.',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección de Margen Superior en Vista de Artista',
+        description:
+          'Reestructuración del componente SEO y Header en ArtistDetail.jsx, eliminando el espaciado superior no deseado generado por las utilidades de diseño para que coincida perfectamente con el resto de la aplicación.',
+      },
+    ],
+  },
+  {
     version: 'V.5.5',
     title:
       'Página de Artista & Discografía Spotify, Schema SEO de Reviews, Edición en Perfil, Ancho Global Unificado y Conteo de Reviews en Podio',
     date: '2026-08-28',
-    sha: 'HEAD',
+    sha: 'd19af4e',
     tag: 'Mayor',
     tagColor: 'from-pink-500 via-rose-500 to-amber-500',
     authorName: 'Eugenio Turcott',
