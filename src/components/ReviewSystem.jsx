@@ -108,8 +108,13 @@ export function ReviewSystem({
   const shouldShowTracks = isIndividual || showTrackReviews;
 
   const loadReviews = useCallback(async () => {
-    if (!album || !album.id) {
-      console.warn('No album id available');
+    if (
+      !album ||
+      !album.id ||
+      (typeof album.id === 'string' && album.id.startsWith('spotify_'))
+    ) {
+      setReviews([]);
+      setLoading(false);
       return;
     }
 
@@ -516,6 +521,90 @@ export function ReviewSystem({
     };
 
     try {
+      let targetAlbumId = album.id;
+
+      // Auto-creación On-Demand en Supabase si el álbum viene de Spotify o aún no existe en BD
+      if (
+        isFromSpotify ||
+        album.is_on_demand ||
+        (typeof album.id === 'string' && album.id.startsWith('spotify_')) ||
+        !album.id
+      ) {
+        try {
+          const allAlbums = await supabaseService.getAllAlbums();
+          const targetName = (
+            album.album_name ||
+            album.album ||
+            album.name ||
+            ''
+          )
+            .toLowerCase()
+            .trim();
+          const targetArtist = (
+            album.artist_name ||
+            album.artist ||
+            album.artista ||
+            ''
+          )
+            .toLowerCase()
+            .trim();
+
+          const existing = (allAlbums || []).find((a) => {
+            const aName = (a.album_name || a.album || '').toLowerCase().trim();
+            const aArtist = (
+              a.artist_name ||
+              a.artist ||
+              a.artista ||
+              ''
+            )
+              .toLowerCase()
+              .trim();
+            return aName === targetName && aArtist === targetArtist;
+          });
+
+          if (existing && existing.id) {
+            targetAlbumId = existing.id;
+          } else {
+            const trackList = (album.tracks || []).map((t) =>
+              typeof t === 'string' ? t : t.name || String(t)
+            );
+            const newAlbum = await supabaseService.createAlbumWithTracks({
+              albumName: album.album_name || album.album || album.name,
+              artistName: album.artist_name || album.artist || album.artista,
+              imageUrl:
+                album.image_url ||
+                album.imagen ||
+                album.image ||
+                album.cover_image,
+              spotifyLink:
+                album.spotify_link ||
+                album.spotifyUrl ||
+                (album.spotify_id
+                  ? `https://open.spotify.com/album/${album.spotify_id}`
+                  : null),
+              tracks: trackList,
+              releaseDate: album.release_date || album.releaseDate || null,
+              releaseYear: album.release_year || album.releaseYear || null,
+              status: 'INDIVIDUAL',
+              addedBy: finalReviewerName,
+              addedByEmail: finalReviewerEmail,
+              reviews_enabled: true,
+            });
+            targetAlbumId = newAlbum.id;
+          }
+        } catch (createErr) {
+          console.error(
+            'Error al registrar álbum on-demand en Supabase:',
+            createErr
+          );
+          throw new Error(
+            `No se pudo registrar el álbum en la base de datos: ${createErr.message}`
+          );
+        }
+      }
+
+      reviewData.albumId = targetAlbumId;
+
       if (isEditing && existingUserReview?.id) {
         await supabaseService.updateReview(existingUserReview.id, reviewData);
       } else {

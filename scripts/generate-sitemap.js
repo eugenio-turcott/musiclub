@@ -2,6 +2,7 @@
 const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const { POPULAR_ALBUMS } = require('./popularMusicData');
 require('dotenv').config();
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
@@ -35,19 +36,26 @@ async function generateSitemap() {
   const staticRoutes = [
     { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' },
     { loc: `${BASE_URL}/albumes`, priority: '0.9', changefreq: 'daily' },
+    { loc: `${BASE_URL}/leaderboard`, priority: '0.8', changefreq: 'daily' },
+    { loc: `${BASE_URL}/reviews`, priority: '0.8', changefreq: 'daily' },
+    { loc: `${BASE_URL}/recomendaciones`, priority: '0.7', changefreq: 'weekly' },
+    { loc: `${BASE_URL}/gashapon`, priority: '0.6', changefreq: 'weekly' },
     { loc: `${BASE_URL}/faq`, priority: '0.5', changefreq: 'monthly' },
     { loc: `${BASE_URL}/patch-notes`, priority: '0.4', changefreq: 'weekly' },
+    { loc: `${BASE_URL}/privacy`, priority: '0.3', changefreq: 'monthly' },
+    { loc: `${BASE_URL}/terms`, priority: '0.3', changefreq: 'monthly' },
   ];
 
-  const albumRoutes = [];
+  const albumMap = new Map();
   const artistSet = new Set();
 
+  // 1. Álbumes existentes en la Base de Datos de Supabase
   (albums || []).forEach((alb) => {
     const albumName = alb.album_name;
     const artistName = alb.artist_name;
     if (albumName) {
       const slug = slugify(albumName);
-      albumRoutes.push({
+      albumMap.set(slug, {
         loc: `${BASE_URL}/albumes/${slug}`,
         lastmod: alb.updated_at || alb.created_at || new Date().toISOString(),
         priority: '0.8',
@@ -59,6 +67,25 @@ async function generateSitemap() {
     }
   });
 
+  // 2. Curaduría de álbumes y artistas populares para Programmatic SEO On-Demand
+  (POPULAR_ALBUMS || []).forEach((item) => {
+    if (item.album) {
+      const slug = slugify(item.album);
+      if (!albumMap.has(slug)) {
+        albumMap.set(slug, {
+          loc: `${BASE_URL}/albumes/${slug}`,
+          lastmod: new Date().toISOString(),
+          priority: '0.75',
+          changefreq: 'weekly',
+        });
+      }
+    }
+    if (item.artist) {
+      artistSet.add(item.artist);
+    }
+  });
+
+  const albumRoutes = Array.from(albumMap.values());
   const artistRoutes = Array.from(artistSet).map((art) => ({
     loc: `${BASE_URL}/artista/${slugify(art)}`,
     lastmod: new Date().toISOString(),

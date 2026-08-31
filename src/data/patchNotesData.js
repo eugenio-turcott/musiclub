@@ -14,22 +14,28 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
-    version: 'V.5.6',
+    version: 'V.5.7',
     title:
-      'Dominio Oficial musiclub.org, Footer Global Universal, Soporte Dinámico de Google OAuth y Optimización Spotify API',
+      'Programmatic SEO, Resolución On-Demand con Spotify API, Dominio musiclub.org, Footer Global y OAuth Dinámico',
     date: '2026-08-31',
     sha: 'HEAD',
     tag: 'Mayor',
     tagColor: 'from-rose-500 via-pink-500 to-cyan-400',
     authorName: 'Eugenio Turcott',
     summary:
-      'Lanzamiento oficial del nuevo dominio propio musiclub.org, integración del Footer global universal en el 100% de las páginas del sistema, redirección dinámica de Google OAuth, optimización de endpoints de Spotify API eliminando errores 403 y actualización integral de sitemap y metadatos SEO.',
+      'Implementación de Programmatic SEO con resolución on-demand de álbumes desde Spotify API y auto-creación en base de datos al calificar, expansión del Sitemap XML a +540 URLs, lanzamiento del dominio oficial musiclub.org, Footer global en todas las vistas y autenticación dinámica.',
     changes: [
       {
         type: 'feature',
-        title: 'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML',
+        title: 'Resolución On-Demand de Álbumes con Spotify & Programmatic SEO',
         description:
-          'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, incluyendo sitemap.xml regenerado con más de 250 rutas canónicas indexables, robots.txt actualizado y metaetiquetas OpenGraph/SEO oficiales.',
+          'Capacidad para navegar y consultar cualquier álbum del mundo por su URL (e.g. /albumes/sour). Si el disco no existe en la base de datos de Musiclub, el sistema lo resuelve en milisegundos desde Spotify con su portada HD, tracklist oficial y metadatos, y lo registra automáticamente en Supabase en cuanto un usuario lo califica.',
+      },
+      {
+        type: 'feature',
+        title: 'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML Expandido',
+        description:
+          'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, con un sitemap.xml expandido a más de 540 URLs canónicas que combinan los álbumes de la comunidad con los discos y artistas más buscados de la historia musical.',
       },
       {
         type: 'feature',

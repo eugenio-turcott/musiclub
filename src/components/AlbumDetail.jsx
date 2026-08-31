@@ -16,7 +16,11 @@ import {
   isFavoriteTrackMatch,
   calculateAlbumTopTrack,
 } from '../utils/ratingUtils';
-import { fetchAlbumSpotifyMetadata } from '../services/spotifyApi';
+import {
+  fetchAlbumSpotifyMetadata,
+  searchAlbum,
+  getAlbumDetails,
+} from '../services/spotifyApi';
 
 const CRITERIA_METRICS = [
   {
@@ -102,7 +106,7 @@ export function AlbumDetail() {
       const data = await supabaseService.getAllAlbumsWithFullStats();
       let current = findAlbumBySlug(data || [], slug);
 
-      // Fallback: si el álbum fue recién insertado y la vista agregada no lo reflejó de inmediato
+      // Fallback 1: si el álbum fue recién insertado y la vista agregada no lo reflejó de inmediato
       if (!current) {
         const fallbackAlbums = await supabaseService.getAllAlbums();
         current = findAlbumBySlug(fallbackAlbums || [], slug);
@@ -114,6 +118,67 @@ export function AlbumDetail() {
             stats: { totalReviews: 0, averageRating: null },
             final_rating: null,
           };
+        }
+      }
+
+      // Fallback 2 (On-Demand Spotify): Si no existe en la base de datos de Musiclub, buscar en Spotify API
+      if (!current && slug) {
+        try {
+          const searchQuery = slug.replace(/-/g, ' ');
+          const searchRes = await searchAlbum(searchQuery);
+          if (
+            searchRes?.success &&
+            searchRes.albums &&
+            searchRes.albums.length > 0
+          ) {
+            const bestMatch = searchRes.albums[0];
+            const detailsRes = await getAlbumDetails(bestMatch.id);
+            if (detailsRes?.success && detailsRes.album) {
+              const spAlbum = detailsRes.album;
+              const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
+                name: t.name,
+                track_number: t.track_number || idx + 1,
+                duration_ms: t.duration_ms || null,
+                avg_rating: null,
+                votes_count: 0,
+              }));
+
+              current = {
+                id: `spotify_${spAlbum.id}`,
+                spotify_id: spAlbum.id,
+                album_name: spAlbum.name,
+                artist_name: spAlbum.artists.join(', '),
+                image_url: spAlbum.image,
+                spotify_link:
+                  spAlbum.external_urls?.spotify ||
+                  `https://open.spotify.com/album/${spAlbum.id}`,
+                release_date: spAlbum.releaseDate,
+                release_year: spAlbum.releaseYear,
+                release_type: spAlbum.release_type || 'ALBUM',
+                genres: spAlbum.genres || [],
+                label: spAlbum.label || '',
+                tracks: spAlbum.tracks.map((t) => t.name),
+                track_stats: spTracks,
+                reviews: [],
+                stats: { totalReviews: 0, averageRating: null },
+                final_rating: null,
+                is_on_demand: true,
+              };
+
+              setSpotifyMeta({
+                success: true,
+                releaseDate: spAlbum.releaseDate,
+                releaseYear: spAlbum.releaseYear,
+                releaseType: spAlbum.release_type,
+                genres: spAlbum.genres,
+                label: spAlbum.label,
+                totalTracks: spAlbum.totalTracks,
+                spotifyUrl: spAlbum.external_urls?.spotify,
+              });
+            }
+          }
+        } catch (spErr) {
+          console.warn('Error al resolver álbum on-demand desde Spotify:', spErr);
         }
       }
 
@@ -400,7 +465,11 @@ export function AlbumDetail() {
 
                 {/* Status Badge on artwork */}
                 <div className="absolute top-3 right-3 z-20">
-                  {album.status === 'GANADOR' ? (
+                  {album.is_on_demand ? (
+                    <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 border border-purple-400/30">
+                      ✨ Por Calificar
+                    </span>
+                  ) : album.status === 'GANADOR' ? (
                     <span className="bg-gradient-to-r from-rose-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 border border-rose-400/30">
                       🏆 GANADOR
                     </span>
@@ -706,6 +775,30 @@ export function AlbumDetail() {
           </div>
         </div>
 
+        {/* ON-DEMAND SPOTIFY ALBUM CTA BANNER */}
+        {album.is_on_demand && (
+          <div className="rounded-3xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
+            <div className="space-y-1 text-center sm:text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
+                <span>✨</span> Álbum Disponible On-Demand
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white">
+                ¡Sé el primer miembro de Musiclub en calificar este álbum!
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300">
+                Puntúa cada canción, califica los 6 pilares de producción y regístralo oficialmente en el club.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowReviewSystem(true)}
+              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-400 via-[#f5576c] to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2 flex-shrink-0"
+            >
+              <span>⭐</span>
+              <span>Calificar Álbum Ahora</span>
+            </button>
+          </div>
+        )}
+
         {/* REVIEW SYSTEM MODAL / SECTION (Interactive Rating Form) */}
         {showReviewSystem && (
           <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4">
@@ -729,13 +822,21 @@ export function AlbumDetail() {
               album={{
                 id: album.id,
                 album: album.album_name,
+                album_name: album.album_name,
                 artista: album.artist_name,
+                artist_name: album.artist_name,
                 imagen: album.image_url,
+                image_url: album.image_url,
                 tracks: album.tracks,
                 spotify_link: album.spotify_link,
-                status: album.status,
+                spotify_id: album.spotify_id,
+                release_date: album.release_date,
+                release_year: album.release_year,
+                status: album.status || 'INDIVIDUAL',
+                is_on_demand: album.is_on_demand,
               }}
               tracks={album.tracks}
+              isFromSpotify={!!album.is_on_demand}
               user={user}
               isAdmin={isAdmin}
               isIndividual={true}
