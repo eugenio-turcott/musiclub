@@ -1,6 +1,32 @@
 # https://www.robotstxt.org/robotstxt.html
+# Robots.txt for Musiclub (https://musiclub.org)
+
 User-agent: *
 Allow: /
+Allow: /albumes/
+Allow: /albums/
+Allow: /artista/
+Allow: /artistas/
+Allow: /leaderboard
+Allow: /ranking
+Allow: /reviews
+Allow: /recomendaciones
+Allow: /gashapon
+Allow: /playlists
+Allow: /faq
+Allow: /patch-notes
+Allow: /privacy
+Allow: /terms
 
+# Private & User Account Routes (No Index)
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /settings
+Disallow: /configuracion
+Disallow: /profile
+Disallow: /perfil
+Disallow: /404
+
+# Host & Official Sitemap
+Host: https://musiclub.org
 Sitemap: https://musiclub.org/sitemap.xml
-

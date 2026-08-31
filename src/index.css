@@ -19,7 +19,11 @@
 
   body {
     font-family: 'Stack Sans Notch', sans-serif;
-    background: radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, #0a0a12 100%);
+    background-color: #0a0a12;
+    background-image: radial-gradient(ellipse at 50% 30%, #1a1a3e 0%, #0a0a12 100%);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
     margin: 0;
     padding: 0;
     overflow-x: hidden;

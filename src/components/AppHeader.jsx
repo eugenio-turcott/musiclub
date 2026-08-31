@@ -7,6 +7,7 @@ import { LoginModal } from './LoginModal';
 import { HeroMusicCanvas } from './HeroMusicCanvas';
 import { HeaderAlbumSearch } from './HeaderAlbumSearch';
 import { NotificationsDropdown } from './NotificationsDropdown';
+import { LanguageSelector } from './LanguageSelector';
 
 export function AppHeader({
   user: propUser,
@@ -205,8 +206,11 @@ export function AppHeader({
           </nav>
         </div>
 
-        {/* Lado Derecho: Buscador Global Directo, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
+        {/* Lado Derecho: Buscador Global Directo, Selector de Idiomas, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
+          {/* Selector de Idiomas Global (10 Idiomas con Google Translate Engine) */}
+          <LanguageSelector variant="header" />
+
           {/* Buscador de Álbumes del Club con Autocomplete y Calificación Directa */}
           <HeaderAlbumSearch user={user} />
 

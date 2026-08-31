@@ -1,6 +1,7 @@
 // src/components/Footer.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { LanguageSelector } from './LanguageSelector';
 
 export function Footer() {
   return (
@@ -23,6 +24,8 @@ export function Footer() {
         <Link to="/patch-notes" className="hover:text-[#f5576c] transition-colors flex items-center gap-1">
           <span>📜</span> Patch Notes & Versiones
         </Link>
+        <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
+        <LanguageSelector variant="footer" />
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <span className="text-white/20">Hecho con 🎵 para el club</span>
       </div>

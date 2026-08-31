@@ -24,6 +24,7 @@ import { GashaponPage } from './pages/GashaponPage';
 import { PlaylistsPage } from './pages/PlaylistsPage';
 import { FAQPage } from './pages/FAQPage';
 import { PatchNotesPage } from './pages/PatchNotesPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { useAlbums } from './hooks/useAlbums';
 import { useAuth } from './hooks/useAuth';
@@ -214,6 +215,8 @@ export function App() {
         <Route path="/patch-notes" element={<PatchNotesPage />} />
         <Route path="/changelog" element={<PatchNotesPage />} />
         <Route path="/novedades" element={<PatchNotesPage />} />
+        <Route path="/404" element={<NotFoundPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Router>
   );

@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
+    version: 'V.5.8',
+    title:
+      'Traductor Multi-Idioma Global (10 Idiomas), Página 404 Inmersiva "Pista Fuera de Órbita" y Enrutamiento Catch-All',
+    date: '2026-08-31',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-purple-500 via-pink-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Internacionalización completa de Musiclub para audiencia mundial con selector de 10 idiomas en tiempo real (Español, English, Português, Français, Deutsch, Italiano, 日本語, 한국어, 中文, Русский) traduciendo interfaz y reviews de usuarios, más la nueva página 404 personalizada "Pista Fuera de Órbita" con vinilo holográfico y enrutamiento catch-all universal.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Traductor Multi-Idioma Global en Tiempo Real',
+        description:
+          'Integración de LanguageSelector en el Header y Footer con soporte para 10 idiomas. Traduce al instante el 100% de la plataforma (incluyendo reseñas, notas de usuarios, tracklists y FAQs) con diseño neón personalizado, detección de idioma y persistencia.',
+      },
+      {
+        type: 'feature',
+        title: 'Página 404 "Pista Fuera de Órbita"',
+        description:
+          'Diseño interactivo con estética visual cyberpunk/neón de Musiclub, animación de disco de vinilo en rotación holográfica, tag de error brillante y mensaje contextual orientando al usuario.',
+      },
+      {
+        type: 'feature',
+        title: 'Accesos Rápidos y Navegación de Respaldo',
+        description:
+          'Tarjetas interactivas con acceso directo a Inicio (/), Catálogo de Álbumes (/albumes), Leaderboard (/leaderboard) y Ruleta Gashapon (/gashapon), además de botón de retorno al historial previo.',
+      },
+      {
+        type: 'improvement',
+        title: 'Enrutamiento Catch-All Universal',
+        description:
+          'Configuración de rutas comodín (*) y /404 en React Router con preservación del AppHeader y Footer universal, garantizando una experiencia fluida sin pantallas en blanco ante rutas no encontradas.',
+      },
+    ],
+  },
+  {
     version: 'V.5.7',
     title:
       'Programmatic SEO, Resolución On-Demand con Spotify API, Dominio musiclub.org, Footer Global y OAuth Dinámico',
