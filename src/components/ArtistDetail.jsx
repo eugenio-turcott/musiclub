@@ -384,7 +384,10 @@ export function ArtistDetail() {
                     )}
                   </div>
 
-                  <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight">
+                  <h1
+                    translate="no"
+                    className="notranslate text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
+                  >
                     {artist.name}
                   </h1>
 
@@ -653,7 +656,8 @@ export function ArtistDetail() {
 
                           {/* Release Name & Details */}
                           <h4
-                            className="text-white font-extrabold text-xs sm:text-sm line-clamp-2 leading-tight group-hover:text-cyan-300 transition-colors"
+                            translate="no"
+                            className="notranslate text-white font-extrabold text-xs sm:text-sm line-clamp-2 leading-tight group-hover:text-cyan-300 transition-colors"
                             title={release.name}
                           >
                             {release.name}

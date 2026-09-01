@@ -391,12 +391,18 @@ export function Reviews({ onClose, isPage = false }) {
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-white/5 pb-2.5">
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-white font-black text-base sm:text-lg truncate group-hover:text-pink-300 transition-colors">
+                            <h4
+                              translate="no"
+                              className="notranslate music-title text-white font-black text-base sm:text-lg truncate group-hover:text-pink-300 transition-colors"
+                            >
                               {album?.album_name || 'Álbum desconocido'}
                             </h4>
                             {album?.status && getStatusBadge(album.status)}
                           </div>
-                          <p className="text-slate-400 text-xs sm:text-sm font-medium mt-0.5 truncate">
+                          <p
+                            translate="no"
+                            className="notranslate artist-name text-slate-400 text-xs sm:text-sm font-medium mt-0.5 truncate"
+                          >
                             {album?.artist_name || 'Artista desconocido'}
                           </p>
                         </div>
@@ -437,7 +443,10 @@ export function Reviews({ onClose, isPage = false }) {
                             review.reviewer_name ||
                             'A')[0].toUpperCase()}
                         </div>
-                        <span className="text-slate-200 font-bold">
+                        <span
+                          translate="no"
+                          className="notranslate username-tag text-slate-200 font-bold"
+                        >
                           {review.reviewer_name || 'Anónimo'}
                         </span>
                         <span className="text-white/20">•</span>
@@ -493,7 +502,8 @@ export function Reviews({ onClose, isPage = false }) {
                               </span>
                             </div>
                             <span
-                              className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[240px]"
+                              translate="no"
+                              className="notranslate track-name font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[240px]"
                               title={favName}
                             >
                               {favName}

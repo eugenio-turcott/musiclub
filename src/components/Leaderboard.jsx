@@ -373,13 +373,26 @@ export function Leaderboard({ isPage = false }) {
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-slate-400 to-slate-200 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[0]} size="podium_silver" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full">
+                  <h3
+                    translate="no"
+                    className="notranslate username-tag text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full"
+                  >
                     {podiumUsers[0].name}
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-400 mb-2 truncate max-w-full">
-                    {podiumUsers[0].favorite_artist
-                      ? `Fan de ${podiumUsers[0].favorite_artist}`
-                      : podiumUsers[0].email || 'Miembro'}
+                    {podiumUsers[0].favorite_artist ? (
+                      <span>
+                        <span>Fan de</span>{' '}
+                        <span
+                          translate="no"
+                          className="notranslate artist-name font-medium text-slate-300"
+                        >
+                          {podiumUsers[0].favorite_artist}
+                        </span>
+                      </span>
+                    ) : (
+                      podiumUsers[0].email || 'Miembro'
+                    )}
                   </p>
 
                   {/* XP Badge */}
@@ -426,13 +439,26 @@ export function Leaderboard({ isPage = false }) {
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 mb-2.5 sm:mb-3 mt-2 sm:mt-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[1]} size="podium_gold" />
                   </div>
-                  <h3 className="text-base sm:text-lg font-black text-amber-300 group-hover:text-amber-200 transition-colors truncate max-w-full">
+                  <h3
+                    translate="no"
+                    className="notranslate username-tag text-base sm:text-lg font-black text-amber-300 group-hover:text-amber-200 transition-colors truncate max-w-full"
+                  >
                     {podiumUsers[1].name}
                   </h3>
                   <p className="text-xs text-amber-200/70 mb-2 font-medium truncate max-w-full">
-                    {podiumUsers[1].favorite_artist
-                      ? `Fan de ${podiumUsers[1].favorite_artist}`
-                      : podiumUsers[1].email || 'Líder del Club'}
+                    {podiumUsers[1].favorite_artist ? (
+                      <span>
+                        <span>Fan de</span>{' '}
+                        <span
+                          translate="no"
+                          className="notranslate artist-name font-semibold text-amber-200"
+                        >
+                          {podiumUsers[1].favorite_artist}
+                        </span>
+                      </span>
+                    ) : (
+                      podiumUsers[1].email || 'Líder del Club'
+                    )}
                   </p>
 
                   {/* XP Badge */}
@@ -478,13 +504,26 @@ export function Leaderboard({ isPage = false }) {
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-amber-700 to-amber-500 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[2]} size="podium_bronze" />
                   </div>
-                  <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full">
+                  <h3
+                    translate="no"
+                    className="notranslate username-tag text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full"
+                  >
                     {podiumUsers[2].name}
                   </h3>
                   <p className="text-[11px] sm:text-xs text-slate-400 mb-2 truncate max-w-full">
-                    {podiumUsers[2].favorite_artist
-                      ? `Fan de ${podiumUsers[2].favorite_artist}`
-                      : podiumUsers[2].email || 'Miembro'}
+                    {podiumUsers[2].favorite_artist ? (
+                      <span>
+                        <span>Fan de</span>{' '}
+                        <span
+                          translate="no"
+                          className="notranslate artist-name font-medium text-slate-300"
+                        >
+                          {podiumUsers[2].favorite_artist}
+                        </span>
+                      </span>
+                    ) : (
+                      podiumUsers[2].email || 'Miembro'
+                    )}
                   </p>
 
                   {/* XP Badge */}
@@ -667,7 +706,10 @@ export function Leaderboard({ isPage = false }) {
                       {/* User Info & Badges */}
                       <div className="min-w-0 flex-1 space-y-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full">
+                          <h3
+                            translate="no"
+                            className="notranslate username-tag text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full"
+                          >
                             {itemUser.name}
                           </h3>
                           {itemUser.role === 'admin' && (
@@ -680,8 +722,11 @@ export function Leaderboard({ isPage = false }) {
                         <p className="text-[11px] sm:text-xs text-slate-400 truncate">
                           {itemUser.favorite_artist ? (
                             <span>
-                              Artista:{' '}
-                              <strong className="text-slate-300 font-medium">
+                              <span>Artista:</span>{' '}
+                              <strong
+                                translate="no"
+                                className="notranslate artist-name text-slate-300 font-medium"
+                              >
                                 {itemUser.favorite_artist}
                               </strong>
                             </span>
@@ -783,7 +828,10 @@ export function Leaderboard({ isPage = false }) {
                           <span className="text-slate-400 whitespace-nowrap">
                             Favorito:
                           </span>
-                          <span className="text-white font-medium truncate max-w-[150px] sm:max-w-xs">
+                          <span
+                            translate="no"
+                            className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
+                          >
                             {itemUser.highest_review.album}
                           </span>
                           <span className="text-amber-400 font-bold whitespace-nowrap">
@@ -801,7 +849,10 @@ export function Leaderboard({ isPage = false }) {
                           <span className="text-slate-400 whitespace-nowrap">
                             Más severo:
                           </span>
-                          <span className="text-white font-medium truncate max-w-[150px] sm:max-w-xs">
+                          <span
+                            translate="no"
+                            className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
+                          >
                             {itemUser.lowest_review.album}
                           </span>
                           <span className="text-red-400 font-bold whitespace-nowrap">
@@ -850,7 +901,10 @@ export function Leaderboard({ isPage = false }) {
               />
               <div className="space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
-                  <h2 className="text-xl sm:text-2xl font-black text-white truncate max-w-full">
+                  <h2
+                    translate="no"
+                    className="notranslate username-tag text-xl sm:text-2xl font-black text-white truncate max-w-full"
+                  >
                     {selectedUserDetail.name}
                   </h2>
                   {selectedUserDetail.role === 'admin' && (
@@ -1167,9 +1221,6 @@ export function Leaderboard({ isPage = false }) {
                 </div>
               )}
           </div>
-
-          {/* Footer */}
-          <Footer />
         </div>
       )}
 
@@ -1371,6 +1422,9 @@ export function Leaderboard({ isPage = false }) {
         currentUser={user}
         defaultRecipient={sendSongRecipient}
       />
+
+      {/* Footer para la vista de página */}
+      {isPage && <Footer />}
     </div>
   );
 }

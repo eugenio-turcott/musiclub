@@ -425,13 +425,15 @@ export function AlbumGrid({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
                       <div className="w-full min-w-0">
                         <p
-                          className="text-white text-xs font-bold leading-tight break-words line-clamp-2"
+                          translate="no"
+                          className="notranslate text-white text-xs font-bold leading-tight break-words line-clamp-2"
                           title={album.album}
                         >
                           {album.album}
                         </p>
                         <p
-                          className="text-white/60 text-[10px] leading-tight break-words line-clamp-1 mt-0.5"
+                          translate="no"
+                          className="notranslate text-white/60 text-[10px] leading-tight break-words line-clamp-1 mt-0.5"
                           title={album.artista}
                         >
                           {album.artista}
@@ -443,11 +445,11 @@ export function AlbumGrid({
                             </span>
                           ) : album.spotify_verified && album.tracks && album.tracks.length > 0 ? (
                             <span className="text-[8px] text-white/40">
-                              🎵 {album.tracks.length} tracks
+                              🎵 {album.tracks.length} <span>canciones</span>
                             </span>
                           ) : <span />}
                           <span className="text-[9px] text-pink-300 font-bold">
-                            Ver Álbum ➔
+                            <span>Ver Álbum</span> ➔
                           </span>
                         </div>
                       </div>
@@ -599,13 +601,15 @@ export function AlbumGrid({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
-                      className="text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
+                      translate="no"
+                      className="notranslate text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
                       title={album.album}
                     >
                       {album.album}
                     </p>
                     <p
-                      className="text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
+                      translate="no"
+                      className="notranslate text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
                       title={album.artista}
                     >
                       {album.artista}
@@ -615,7 +619,7 @@ export function AlbumGrid({
                       album.tracks &&
                       album.tracks.length > 0 && (
                         <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
-                          🎵 {album.tracks.length} canciones
+                          🎵 {album.tracks.length} <span>canciones</span>
                         </p>
                       )}
 
@@ -774,13 +778,15 @@ export function AlbumGrid({
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
-                      className="text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
+                      translate="no"
+                      className="notranslate text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
                       title={album.album}
                     >
                       {album.album}
                     </p>
                     <p
-                      className="text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
+                      translate="no"
+                      className="notranslate text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
                       title={album.artista}
                     >
                       {album.artista}
@@ -790,7 +796,7 @@ export function AlbumGrid({
                       album.tracks &&
                       album.tracks.length > 0 && (
                         <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
-                          🎵 {album.tracks.length} canciones
+                          🎵 {album.tracks.length} <span>canciones</span>
                         </p>
                       )}
 

@@ -14,40 +14,46 @@ export const CURATED_PATCH_NOTES = [
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {
-    version: 'V.5.8',
+    version: 'V.5.9',
     title:
-      'Traductor Multi-Idioma Global (10 Idiomas), Página 404 Inmersiva "Pista Fuera de Órbita" y Enrutamiento Catch-All',
+      'Traductor Multi-Idioma Global (10 Idiomas), Aislamiento de Metadatos Musicales, Página 404 Inmersiva y SEO robots.txt',
     date: '2026-08-31',
     sha: 'HEAD',
     tag: 'Mayor',
     tagColor: 'from-purple-500 via-pink-500 to-cyan-400',
     authorName: 'Eugenio Turcott',
     summary:
-      'Internacionalización completa de Musiclub para audiencia mundial con selector de 10 idiomas en tiempo real (Español, English, Português, Français, Deutsch, Italiano, 日本語, 한국어, 中文, Русский) traduciendo interfaz y reviews de usuarios, más la nueva página 404 personalizada "Pista Fuera de Órbita" con vinilo holográfico y enrutamiento catch-all universal.',
+      'Internacionalización completa de Musiclub para audiencia mundial con selector de 10 idiomas en tiempo real (Español, English, Português, Français, Deutsch, Italiano, 日本語, 한국어, 中文, Русский) con aislamiento inteligente que preserva nombres de discos, canciones, artistas y usuarios intactos mientras traduce el 100% de la interfaz y reseñas. Incluye además la nueva página 404 "Pista Fuera de Órbita", robots.txt canónico y corrección de fondo.',
     changes: [
       {
         type: 'feature',
         title: 'Traductor Multi-Idioma Global en Tiempo Real',
         description:
-          'Integración de LanguageSelector en el Header y Footer con soporte para 10 idiomas. Traduce al instante el 100% de la plataforma (incluyendo reseñas, notas de usuarios, tracklists y FAQs) con diseño neón personalizado, detección de idioma y persistencia.',
+          'Integración de LanguageSelector en el Header y Footer con soporte para 10 idiomas (Español, Inglés, Portugués, Francés, Alemán, Italiano, Japonés, Coreano, Chino y Ruso). Traduce al instante la plataforma completa con diseño neón personalizado, detección de idioma y persistencia.',
       },
       {
         type: 'feature',
-        title: 'Página 404 "Pista Fuera de Órbita"',
+        title: 'Aislamiento Inteligente de Metadatos Musicales y Usuarios',
         description:
-          'Diseño interactivo con estética visual cyberpunk/neón de Musiclub, animación de disco de vinilo en rotación holográfica, tag de error brillante y mensaje contextual orientando al usuario.',
+          'Implementación de protecciones granulares (translate="no" y .notranslate) en títulos de álbumes (e.g. Marchita, Mon Laferte Vol. 1), artistas, nombres de canciones y nombres de usuarios en podios, cuadrículas, catálogo y reseñas, permitiendo traducir las etiquetas de interfaz ("Añadido por:", "canciones", "Ganador", "reviews") sin alterar los nombres propios originales.',
       },
       {
         type: 'feature',
-        title: 'Accesos Rápidos y Navegación de Respaldo',
+        title: 'Página 404 "Pista Fuera de Órbita" & Enrutamiento Universal',
         description:
-          'Tarjetas interactivas con acceso directo a Inicio (/), Catálogo de Álbumes (/albumes), Leaderboard (/leaderboard) y Ruleta Gashapon (/gashapon), además de botón de retorno al historial previo.',
+          'Diseño interactivo con estética visual cyberpunk/neón de Musiclub, animación de disco de vinilo en rotación holográfica, accesos rápidos (Inicio, Álbumes, Leaderboard, Gashapon) y enrutamiento catch-all universal (* y /404).',
       },
       {
         type: 'improvement',
-        title: 'Enrutamiento Catch-All Universal',
+        title: 'Archivo robots.txt Estandarizado para musiclub.org',
         description:
-          'Configuración de rutas comodín (*) y /404 en React Router con preservación del AppHeader y Footer universal, garantizando una experiencia fluida sin pantallas en blanco ante rutas no encontradas.',
+          'Generación del archivo robots.txt en public/ configurando rastreo universal para Googlebot y buscadores internacionales, protección de rutas privadas y referencia al sitemap.xml canónico.',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección de Repetición Visual del Fondo',
+        description:
+          'Ajuste en la capa del fondo de la aplicación (fixed inset-0 con background-repeat: no-repeat y cover) eliminando el efecto de mosaico y corte en scrolls largos y pantallas de alta resolución.',
       },
     ],
   },

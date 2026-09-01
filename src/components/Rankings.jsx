@@ -788,13 +788,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                     </div>
 
                                     <h4
-                                      className="text-white font-black text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
+                                      translate="no"
+                                      className="notranslate music-title text-white font-black text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
                                       title={podiumAlbums[0].album_name}
                                     >
                                       {podiumAlbums[0].album_name}
                                     </h4>
                                     <p
-                                      className="text-amber-200/90 text-[11px] sm:text-xs font-semibold truncate mt-0.5"
+                                      translate="no"
+                                      className="notranslate artist-name text-amber-200/90 text-[11px] sm:text-xs font-semibold truncate mt-0.5"
                                       title={podiumAlbums[0].artist_name}
                                     >
                                       {podiumAlbums[0].artist_name}
@@ -904,13 +906,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                     </div>
 
                                     <h4
-                                      className="text-white font-bold text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
+                                      translate="no"
+                                      className="notranslate music-title text-white font-bold text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
                                       title={podiumAlbums[1].album_name}
                                     >
                                       {podiumAlbums[1].album_name}
                                     </h4>
                                     <p
-                                      className="text-white/70 text-[11px] sm:text-xs font-medium truncate mt-0.5"
+                                      translate="no"
+                                      className="notranslate artist-name text-white/70 text-[11px] sm:text-xs font-medium truncate mt-0.5"
                                       title={podiumAlbums[1].artist_name}
                                     >
                                       {podiumAlbums[1].artist_name}
@@ -1018,13 +1022,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                     </div>
 
                                     <h4
-                                      className="text-white font-bold text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
+                                      translate="no"
+                                      className="notranslate music-title text-white font-bold text-xs sm:text-sm line-clamp-1 mt-1 leading-tight"
                                       title={podiumAlbums[2].album_name}
                                     >
                                       {podiumAlbums[2].album_name}
                                     </h4>
                                     <p
-                                      className="text-white/70 text-[11px] sm:text-xs font-medium truncate mt-0.5"
+                                      translate="no"
+                                      className="notranslate artist-name text-white/70 text-[11px] sm:text-xs font-medium truncate mt-0.5"
                                       title={podiumAlbums[2].artist_name}
                                     >
                                       {podiumAlbums[2].artist_name}
@@ -1112,13 +1118,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                   </span>
                                 </div>
                                 <h4
-                                  className="text-white font-bold text-base xl:text-lg truncate"
+                                  translate="no"
+                                  className="notranslate music-title text-white font-bold text-base xl:text-lg truncate"
                                   title={podiumAlbums[1].album_name}
                                 >
                                   {podiumAlbums[1].album_name}
                                 </h4>
                                 <p
-                                  className="text-white/60 text-xs xl:text-sm truncate"
+                                  translate="no"
+                                  className="notranslate artist-name text-white/60 text-xs xl:text-sm truncate"
                                   title={podiumAlbums[1].artist_name}
                                 >
                                   {podiumAlbums[1].artist_name}
@@ -1195,13 +1203,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                   </span>
                                 </div>
                                 <h4
-                                  className="text-white font-black text-lg xl:text-xl truncate"
+                                  translate="no"
+                                  className="notranslate music-title text-white font-black text-lg xl:text-xl truncate"
                                   title={podiumAlbums[0].album_name}
                                 >
                                   {podiumAlbums[0].album_name}
                                 </h4>
                                 <p
-                                  className="text-amber-200/80 text-sm xl:text-base font-medium truncate mt-0.5"
+                                  translate="no"
+                                  className="notranslate artist-name text-amber-200/80 text-sm xl:text-base font-medium truncate mt-0.5"
                                   title={podiumAlbums[0].artist_name}
                                 >
                                   {podiumAlbums[0].artist_name}
@@ -1278,13 +1288,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                   </span>
                                 </div>
                                 <h4
-                                  className="text-white font-bold text-base xl:text-lg truncate"
+                                  translate="no"
+                                  className="notranslate music-title text-white font-bold text-base xl:text-lg truncate"
                                   title={podiumAlbums[2].album_name}
                                 >
                                   {podiumAlbums[2].album_name}
                                 </h4>
                                 <p
-                                  className="text-white/60 text-xs xl:text-sm truncate"
+                                  translate="no"
+                                  className="notranslate artist-name text-white/60 text-xs xl:text-sm truncate"
                                   title={podiumAlbums[2].artist_name}
                                 >
                                   {podiumAlbums[2].artist_name}
@@ -1481,13 +1493,15 @@ export function Rankings({ albums, isAdmin = false }) {
                                           </span>
                                         </div>
                                         <h5
-                                          className="text-white font-bold text-[11px] sm:text-xs leading-tight line-clamp-1 mt-0.5"
+                                          translate="no"
+                                          className="notranslate music-title text-white font-bold text-[11px] sm:text-xs leading-tight line-clamp-1 mt-0.5"
                                           title={album.album_name}
                                         >
                                           {album.album_name}
                                         </h5>
                                         <p
-                                          className="text-white/60 text-[10px] truncate mt-0.5"
+                                          translate="no"
+                                          className="notranslate artist-name text-white/60 text-[10px] truncate mt-0.5"
                                           title={album.artist_name}
                                         >
                                           {album.artist_name}
@@ -1649,7 +1663,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                   podiumTheme.avatarBorder
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <h5 className="text-white font-bold text-lg truncate">
+                                  <h5
+                                    translate="no"
+                                    className="notranslate username-tag text-white font-bold text-lg truncate"
+                                  >
                                     {reviewer.reviewer_name}
                                   </h5>
                                 </div>
@@ -1790,7 +1807,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                       'border-white/20'
                                     )}
                                     <div className="flex-1 min-w-0">
-                                      <h5 className="text-white font-bold text-lg truncate">
+                                      <h5
+                                        translate="no"
+                                        className="notranslate text-white font-bold text-lg truncate"
+                                      >
                                         {reviewer.reviewer_name}
                                       </h5>
                                     </div>

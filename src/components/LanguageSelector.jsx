@@ -59,7 +59,7 @@ export function LanguageSelector({ variant = 'header' }) {
     }
     setCurrentLang(active);
 
-    // Inyectar estilos para limpiar cualquier artefacto visual de Google Translate
+    // Inyectar estilos para limpiar artefactos y proteger nombres musicales
     if (!document.getElementById('google-translate-clean-styles')) {
       const style = document.createElement('style');
       style.id = 'google-translate-clean-styles';
@@ -70,9 +70,39 @@ export function LanguageSelector({ variant = 'header' }) {
         .goog-text-highlight { background: none !important; box-shadow: none !important; }
         .skiptranslate { display: none !important; }
         #google_translate_element { display: none !important; }
+        .notranslate, [translate="no"], [translate="no"] * {
+          -webkit-user-modify: read-only;
+        }
       `;
       document.head.appendChild(style);
     }
+
+    // Proteger únicamente los títulos musicales, nombres de artistas y usuarios específicos sin bloquear etiquetas de UI
+    const protectMusicElements = () => {
+      // 1. Proteger elementos marcados expresamente como música, artista o usuario
+      document
+        .querySelectorAll(
+          '.music-title, .album-name, .artist-name, .track-name, .song-title, .title-albumes, .text-albumes, .username-tag, [data-album], [data-artist], [data-track], [data-user], [data-notranslate]'
+        )
+        .forEach((el) => {
+          el.setAttribute('translate', 'no');
+          el.classList.add('notranslate');
+        });
+
+      // 2. Proteger marca Musiclub
+      document
+        .querySelectorAll('.musiclub-brand')
+        .forEach((el) => {
+          el.setAttribute('translate', 'no');
+          el.classList.add('notranslate');
+        });
+    };
+
+    protectMusicElements();
+    const observer = new MutationObserver(() => {
+      protectMusicElements();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
 
     // Inicializar callback global de Google Translate
     window.googleTranslateElementInit = () => {
@@ -97,6 +127,10 @@ export function LanguageSelector({ variant = 'header' }) {
       script.async = true;
       document.body.appendChild(script);
     }
+
+    return () => {
+      observer.disconnect();
+    };
   }, []);
 
   // Cerrar al hacer click fuera

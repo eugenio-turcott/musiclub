@@ -153,11 +153,17 @@ export function WinnerDisplay({
               </span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight">
+            <h2
+              translate="no"
+              className="notranslate text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white leading-tight tracking-tight"
+            >
               {winner.album}
             </h2>
 
-            <p className="text-xl sm:text-2xl md:text-3xl text-white/60 mt-1 font-light">
+            <p
+              translate="no"
+              className="notranslate text-xl sm:text-2xl md:text-3xl text-white/60 mt-1 font-light"
+            >
               {winner.artista}
             </p>
 
@@ -168,8 +174,11 @@ export function WinnerDisplay({
               {winner.added_by && (
                 <span className="text-white/40 text-xs flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
                   <span className="text-[#f5576c]">💡</span>
-                  Sugerido por:{' '}
-                  <span className="text-white/70 font-medium">
+                  <span>Sugerido por:</span>{' '}
+                  <span
+                    translate="no"
+                    className="notranslate username-tag text-white/70 font-medium"
+                  >
                     {winner.added_by}
                   </span>
                 </span>

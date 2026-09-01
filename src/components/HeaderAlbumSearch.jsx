@@ -667,12 +667,18 @@ export function HeaderAlbumSearch({
 
                       <div className="min-w-0 flex-1 text-left">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-white font-bold text-xs truncate group-hover:text-pink-300 transition-colors">
+                          <p
+                            translate="no"
+                            className="notranslate text-white font-bold text-xs truncate group-hover:text-pink-300 transition-colors"
+                          >
                             {item.name}
                           </p>
                         </div>
 
-                        <p className="text-white/60 text-[11px] truncate">
+                        <p
+                          translate="no"
+                          className="notranslate text-white/60 text-[11px] truncate"
+                        >
                           {item.artist}
                         </p>
 

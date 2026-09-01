@@ -616,16 +616,23 @@ export function AlbumDetail() {
 
               {/* Album Title & Artist Link */}
               <div className="space-y-1.5">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight">
+                <h1
+                  translate="no"
+                  className="notranslate text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
+                >
                   {album.album_name}
                 </h1>
                 <div className="flex items-center justify-center md:justify-start gap-2 pt-1">
                   <Link
                     to={`/artista/${slugifyArtist(album.artist_name)}`}
-                    className="group/artist inline-flex items-center gap-2 text-xl sm:text-2xl text-cyan-400 hover:text-cyan-300 font-bold tracking-wide transition-all"
+                    translate="no"
+                    className="notranslate group/artist inline-flex items-center gap-2 text-xl sm:text-2xl text-cyan-400 hover:text-cyan-300 font-bold tracking-wide transition-all"
                     title={`Ver página y discografía de ${album.artist_name}`}
                   >
-                    <span className="underline decoration-cyan-500/30 group-hover/artist:decoration-cyan-400 underline-offset-4">
+                    <span
+                      translate="no"
+                      className="notranslate underline decoration-cyan-500/30 group-hover/artist:decoration-cyan-400 underline-offset-4"
+                    >
                       {album.artist_name}
                     </span>
                   </Link>
@@ -700,7 +707,8 @@ export function AlbumDetail() {
                     {topTrack ? (
                       <div>
                         <p
-                          className="text-sm sm:text-base font-black text-amber-200 truncate"
+                          translate="no"
+                          className="notranslate text-sm sm:text-base font-black text-amber-200 truncate"
                           title={topTrack.name}
                         >
                           {topTrack.name}
@@ -950,7 +958,8 @@ export function AlbumDetail() {
                         </span>
                         <div className="min-w-0">
                           <p
-                            className={`text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
+                            translate="no"
+                            className={`notranslate text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
                             title={t.name}
                           >
                             {t.name}

@@ -866,12 +866,16 @@ export function AlbumsCatalog({ isPage = false }) {
                               </span>
                             )}
                         </div>
-                        <h3 className="font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1">
+                        <h3
+                          translate="no"
+                          className="notranslate font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1"
+                        >
                           {album.album_name}
                         </h3>
                         <div className="flex items-center justify-between text-xs text-slate-400 font-medium mt-0.5">
                           <button
                             type="button"
+                            translate="no"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -879,7 +883,7 @@ export function AlbumsCatalog({ isPage = false }) {
                                 `/artista/${slugifyArtist(album.artist_name)}`
                               );
                             }}
-                            className="truncate flex-1 text-left hover:text-cyan-400 hover:underline transition-colors"
+                            className="notranslate truncate flex-1 text-left hover:text-cyan-400 hover:underline transition-colors"
                             title={`Ver discografía de ${album.artist_name}`}
                           >
                             {album.artist_name}
@@ -891,13 +895,14 @@ export function AlbumsCatalog({ isPage = false }) {
                           )}
                         </div>
                         <p className="text-slate-500 text-[10px] sm:text-[11px] mt-1 line-clamp-1">
-                          Añadido por:{' '}
+                          <span>Añadido por:</span>{' '}
                           <span
-                            className={
+                            translate="no"
+                            className={`notranslate username-tag ${
                               isMine
                                 ? 'text-yellow-400 font-bold'
                                 : 'text-slate-300'
-                            }
+                            }`}
                           >
                             {album.added_by || 'Miembro'}
                           </span>
@@ -911,7 +916,10 @@ export function AlbumsCatalog({ isPage = false }) {
                             <span className="text-amber-400 text-[10px]">
                               👑
                             </span>
-                            <span className="text-slate-300 truncate text-[10px] sm:text-[11px]">
+                            <span
+                              translate="no"
+                              className="notranslate track-name text-slate-300 truncate text-[10px] sm:text-[11px]"
+                            >
                               {album.best_track.name}
                             </span>
                           </div>
