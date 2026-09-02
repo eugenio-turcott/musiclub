@@ -21,42 +21,17 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 async function getTopReviewersManual() {
   try {
-    const { data: albumsWithReviews } = await supabase
-      .from('albums')
-      .select('id')
-      .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
-
-    if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
-
-    const albumIds = albumsWithReviews.map((a) => a.id);
-
-    const [reviewsRes, profilesRes, allAlbumsRes] = await Promise.all([
+    const [reviewsRes, profilesRes] = await Promise.all([
       supabase
         .from('reviews')
-        .select('reviewer_name, reviewer_email, rating_general, album_id')
-        .in('album_id', albumIds),
+        .select('reviewer_name, reviewer_email, rating_general, album_id'),
       supabase.from('profiles').select('email, name, avatar_url'),
-      supabase.from('albums').select('id, added_by, added_by_email'),
     ]);
 
     const reviews = reviewsRes.data;
     const profiles = profilesRes.data || [];
-    const allAlbums = allAlbumsRes.data || [];
 
     if (!reviews || reviews.length === 0) return [];
-
-    const albumsAddedByEmail = {};
-    const albumsAddedByName = {};
-    allAlbums.forEach((alb) => {
-      if (alb.added_by_email) {
-        const emailKey = alb.added_by_email.toLowerCase().trim();
-        albumsAddedByEmail[emailKey] = (albumsAddedByEmail[emailKey] || 0) + 1;
-      }
-      if (alb.added_by) {
-        const nameKey = alb.added_by.toLowerCase().trim();
-        albumsAddedByName[nameKey] = (albumsAddedByName[nameKey] || 0) + 1;
-      }
-    });
 
     const profileMapByEmail = {};
     const profileMapByName = {};
@@ -95,19 +70,12 @@ async function getTopReviewersManual() {
           ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
           : 0;
 
-      const emailKey = data.email ? data.email.toLowerCase().trim() : '';
-      const nameKey = name ? name.toLowerCase().trim() : '';
-      const addedCount =
-        (emailKey && albumsAddedByEmail[emailKey]) ||
-        (nameKey && albumsAddedByName[nameKey]) ||
-        0;
-
       return {
         reviewer_name: name,
         reviewer_email: data.email,
         avatar_url: data.avatar_url,
         review_count: data.ratings.length,
-        album_count: addedCount,
+        album_count: 0,
         avg_rating: parseFloat(avg.toFixed(1)),
       };
     });
@@ -130,7 +98,7 @@ async function getTopReviewersManual() {
 
 export const supabaseService = {
   // ==========================================
-  // USUARIOS
+  // USUARIOS & PERFILES
   // ==========================================
 
   getUserByEmail: async (email) => {
@@ -187,7 +155,6 @@ export const supabaseService = {
     const { data, error } = await supabase
       .from('albums')
       .select('*')
-      .in('status', ['ACTIVO', 'GANADOR'])
       .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
@@ -219,19 +186,33 @@ export const supabaseService = {
 
   createAlbum: async (albumData) => {
     const payload = {
-      album_name: albumData.albumName,
-      artist_name: albumData.artistName,
-      image_url: albumData.imageUrl,
-      spotify_link: albumData.spotifyLink || null,
-      youtube_link: albumData.youtubeLink || null,
-      apple_music_link: albumData.appleMusicLink || null,
-      status: albumData.status || 'ACTIVO',
-      added_by: albumData.addedBy || null,
-      added_by_email: albumData.addedByEmail || null,
+      album_name: albumData.albumName || albumData.album_name,
+      artist_name: albumData.artistName || albumData.artist_name,
+      image_url: albumData.imageUrl || albumData.image_url,
+      spotify_link: albumData.spotifyLink || albumData.spotify_link || null,
+      youtube_link: albumData.youtubeLink || albumData.youtube_link || null,
+      apple_music_link: albumData.appleMusicLink || albumData.apple_music_link || null,
+      other_link: albumData.otherLink || albumData.other_link || null,
       tracks: albumData.tracks || [],
-      spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
-      reviews_enabled: albumData.reviews_enabled || false,
+      spotify_verified: true,
+      reviews_enabled: albumData.reviews_enabled ?? true,
     };
+
+    if (albumData.mbid) {
+      payload.mbid = albumData.mbid;
+    }
+    if (albumData.label) {
+      payload.label = albumData.label;
+    }
+    if (albumData.country) {
+      payload.country = albumData.country;
+    }
+    if (albumData.barcode) {
+      payload.barcode = albumData.barcode;
+    }
+    if (albumData.total_tracks || albumData.totalTracks) {
+      payload.total_tracks = albumData.total_tracks || albumData.totalTracks;
+    }
 
     if (albumData.releaseDate || albumData.release_date) {
       payload.release_date = albumData.releaseDate || albumData.release_date;
@@ -258,12 +239,18 @@ export const supabaseService = {
         .single();
 
       if (error) {
-        // Fallback si alguna columna extendida aún no existe en Supabase
+        // Fallback si alguna columna extendida aún no existe en la BD
         const cleanedPayload = { ...payload };
+        delete cleanedPayload.mbid;
+        delete cleanedPayload.label;
+        delete cleanedPayload.country;
+        delete cleanedPayload.barcode;
+        delete cleanedPayload.total_tracks;
         delete cleanedPayload.release_type;
         delete cleanedPayload.genres;
         delete cleanedPayload.release_date;
         delete cleanedPayload.release_year;
+        delete cleanedPayload.other_link;
 
         const retryRes = await supabase
           .from('albums')
@@ -282,32 +269,25 @@ export const supabaseService = {
   markAlbumInactive: async (albumName, artistName) => {
     const { data, error } = await supabase
       .from('albums')
-      .update({ status: 'INACTIVO' })
+      .update({ reviews_enabled: false })
       .eq('album_name', albumName)
       .eq('artist_name', artistName)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
     return data;
   },
 
-  // Marcar álbum como GANADOR
+  // Marcar álbum como GANADOR / ACTIVO PARA REVIEWS
   markAlbumAsWinner: async (albumName, artistName) => {
-    // Primero, resetear cualquier ganador anterior
-    await supabase
-      .from('albums')
-      .update({ status: 'ACTIVO' })
-      .eq('status', 'GANADOR');
-
-    // Luego marcar el nuevo ganador
     const { data, error } = await supabase
       .from('albums')
-      .update({ status: 'GANADOR' })
+      .update({ reviews_enabled: true })
       .eq('album_name', albumName)
       .eq('artist_name', artistName)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
     return data;
@@ -315,25 +295,35 @@ export const supabaseService = {
 
   // Obtener álbum ganador actual
   getCurrentWinner: async () => {
-    const { data, error } = await supabase
-      .from('albums')
-      .select('*')
-      .eq('status', 'GANADOR')
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('albums')
+        .select('*')
+        .eq('reviews_enabled', true)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
-    if (error) throw new Error(error.message);
-    return data;
+      if (error) return null;
+      return data;
+    } catch {
+      return null;
+    }
   },
 
-  // Resetear ganador (volver a ACTIVO)
+  // Resetear ganador
   resetWinner: async () => {
-    const { error } = await supabase
-      .from('albums')
-      .update({ status: 'ACTIVO' })
-      .eq('status', 'GANADOR');
+    try {
+      const { error } = await supabase
+        .from('albums')
+        .update({ reviews_enabled: false })
+        .eq('reviews_enabled', true);
 
-    if (error) throw new Error(error.message);
-    return true;
+      if (error) throw new Error(error.message);
+      return true;
+    } catch {
+      return false;
+    }
   },
 
   // ==========================================
@@ -352,20 +342,10 @@ export const supabaseService = {
   },
 
   getAllReviews: async () => {
-    // 👈 INCLUIR INDIVIDUAL también
-    const { data: albumsWithReviews } = await supabase
-      .from('albums')
-      .select('id')
-      .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
-
-    if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
-
-    const albumIds = albumsWithReviews.map((a) => a.id);
-
     const { data, error } = await supabase
       .from('reviews')
-      .select('*, albums!inner(album_name, artist_name, image_url, tracks)')
-      .in('album_id', albumIds);
+      .select('*, albums:album_id(id, album_name, artist_name, image_url, tracks, release_type, release_year, release_date)')
+      .order('created_at', { ascending: false });
 
     if (error) throw new Error(error.message);
     return data || [];
@@ -478,10 +458,12 @@ export const supabaseService = {
             album_name,
             artist_name,
             image_url,
-            status,
+            release_type,
+            release_year,
             tracks,
             spotify_link,
-            youtube_link
+            youtube_link,
+            apple_music_link
           )
         `
         )
@@ -585,41 +567,17 @@ export const supabaseService = {
 
   getTopReviewers: async () => {
     try {
-      const { data: albumsWithReviews } = await supabase
-        .from('albums')
-        .select('id')
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
-
-      if (!albumsWithReviews || albumsWithReviews.length === 0) return [];
-
-      const albumIds = albumsWithReviews.map((a) => a.id);
-
-      const [reviewsRes, profilesRes, allAlbumsRes] = await Promise.all([
-        supabase.from('reviews').select('*').in('album_id', albumIds),
+      const [reviewsRes, profilesRes] = await Promise.all([
+        supabase.from('reviews').select('*'),
         supabase.from('profiles').select('email, name, avatar_url'),
-        supabase.from('albums').select('id, added_by, added_by_email'),
       ]);
 
       const data = reviewsRes.data;
       const profiles = profilesRes.data || [];
-      const allAlbums = allAlbumsRes.data || [];
 
       if (reviewsRes.error || !data || data.length === 0) {
         return await getTopReviewersManual();
       }
-
-      const albumsAddedByEmail = {};
-      const albumsAddedByName = {};
-      allAlbums.forEach((alb) => {
-        if (alb.added_by_email) {
-          const emailKey = alb.added_by_email.toLowerCase().trim();
-          albumsAddedByEmail[emailKey] = (albumsAddedByEmail[emailKey] || 0) + 1;
-        }
-        if (alb.added_by) {
-          const nameKey = alb.added_by.toLowerCase().trim();
-          albumsAddedByName[nameKey] = (albumsAddedByName[nameKey] || 0) + 1;
-        }
-      });
 
       const profileMapByEmail = {};
       const profileMapByName = {};
@@ -656,19 +614,12 @@ export const supabaseService = {
             ? data.ratings.reduce((a, b) => a + b, 0) / data.ratings.length
             : 0;
 
-        const emailKey = data.email ? data.email.toLowerCase().trim() : '';
-        const nameKey = name ? name.toLowerCase().trim() : '';
-        const addedCount =
-          (emailKey && albumsAddedByEmail[emailKey]) ||
-          (nameKey && albumsAddedByName[nameKey]) ||
-          0;
-
         return {
           reviewer_name: name,
           reviewer_email: data.email,
           avatar_url: data.avatar_url,
           review_count: data.ratings.length,
-          album_count: addedCount,
+          album_count: 0,
           avg_rating: parseFloat(avg.toFixed(1)),
         };
       });
@@ -696,7 +647,8 @@ export const supabaseService = {
           album_name,
           artist_name,
           image_url,
-          status,
+          release_type,
+          release_year,
           reviews(
             track_ratings,
             rating_produccion,
@@ -708,8 +660,7 @@ export const supabaseService = {
             rating_general
           )
         `
-        )
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
+        );
 
       if (error || !albums || albums.length === 0) return [];
 
@@ -733,7 +684,8 @@ export const supabaseService = {
           album_name: album.album_name,
           artist_name: album.artist_name,
           image_url: album.image_url,
-          status: album.status,
+          release_type: album.release_type || 'ALBUM',
+          release_year: album.release_year,
           review_count: reviewCount,
           base_rating: parseFloat(baseAvg.toFixed(2)),
           bonus: parseFloat(bonus.toFixed(2)),
@@ -746,56 +698,7 @@ export const supabaseService = {
       );
     } catch (error) {
       console.error('Error en getTopAlbums:', error);
-      // Fallback
-      const { data: albums } = await supabase
-        .from('albums')
-        .select('id, album_name, artist_name, image_url, status')
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
-
-      if (!albums || albums.length === 0) return [];
-
-      const albumIds = albums.map((a) => a.id);
-      const { data: reviews } = await supabase
-        .from('reviews')
-        .select('*')
-        .in('album_id', albumIds);
-
-      if (!reviews || reviews.length === 0) return [];
-
-      const albumRatings = {};
-      reviews.forEach((r) => {
-        if (!albumRatings[r.album_id]) albumRatings[r.album_id] = [];
-        const score = getWeightedReviewScore(r) ?? r.rating_general;
-        if (score !== null && score !== undefined && !isNaN(score)) {
-          albumRatings[r.album_id].push(score);
-        }
-      });
-
-      const result = albums
-        .map((album) => {
-          const ratings = albumRatings[album.id] || [];
-          if (ratings.length === 0) return null;
-          const baseAvg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-          const reviewCount = ratings.length;
-          const bonus = calculateReviewBonus(reviewCount);
-          const finalRating = Math.min(10, baseAvg + bonus);
-
-          return {
-            id: album.id,
-            album_name: album.album_name,
-            artist_name: album.artist_name,
-            image_url: album.image_url,
-            status: album.status,
-            review_count: reviewCount,
-            base_rating: parseFloat(baseAvg.toFixed(2)),
-            bonus: parseFloat(bonus.toFixed(2)),
-            avg_rating: parseFloat(finalRating.toFixed(2)),
-          };
-        })
-        .filter((a) => a !== null)
-        .sort((a, b) => b.avg_rating - a.avg_rating || b.review_count - a.review_count);
-
-      return result;
+      return [];
     }
   },
 
@@ -820,7 +723,8 @@ export const supabaseService = {
           album_name,
           artist_name,
           image_url,
-          status,
+          release_type,
+          release_year,
           reviews(
             track_ratings,
             rating_produccion,
@@ -832,8 +736,7 @@ export const supabaseService = {
             rating_general
           )
         `
-        )
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
+        );
 
       if (error || !albums || albums.length === 0) return result;
 
@@ -865,7 +768,8 @@ export const supabaseService = {
             album_name: album.album_name,
             artist_name: album.artist_name,
             image_url: album.image_url,
-            status: album.status,
+            release_type: album.release_type || 'ALBUM',
+            release_year: album.release_year,
             review_count: reviewCount,
             base_rating: parseFloat(baseAvg.toFixed(2)),
             bonus: parseFloat(bonus.toFixed(2)),
@@ -887,13 +791,24 @@ export const supabaseService = {
 
   getGlobalStats: async () => {
     try {
-      // Obtener álbumes INACTIVOS y GANADORES (los que tienen reviews)
-      const { data: albumsWithReviews } = await supabase
-        .from('albums')
-        .select('id')
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL']);
+      const [reviewsRes, albumsRes, profilesRes, topAlbums] = await Promise.all([
+        supabase
+          .from('reviews')
+          .select(
+            'rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
+          ),
+        supabase.from('albums').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabaseService.getTopAlbums().catch(() => []),
+      ]);
 
-      if (!albumsWithReviews || albumsWithReviews.length === 0) {
+      const reviews = reviewsRes.data || [];
+      const topScore =
+        topAlbums && topAlbums.length > 0 && topAlbums[0].avg_rating
+          ? topAlbums[0].avg_rating
+          : 9.8;
+
+      if (!reviews || reviews.length === 0) {
         return {
           avg_produccion: 0,
           avg_composicion: 0,
@@ -904,34 +819,12 @@ export const supabaseService = {
           avg_general: 0,
           distribution: {},
           total_reviews: 0,
+          total_albums: albumsRes?.count || 0,
+          total_users: profilesRes?.count || 0,
+          top_score: topScore,
         };
       }
 
-      const albumIds = albumsWithReviews.map((a) => a.id);
-
-      // Obtener todas las reviews de esos álbumes
-      const { data: reviews, error } = await supabase
-        .from('reviews')
-        .select(
-          'rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
-        )
-        .in('album_id', albumIds);
-
-      if (error || !reviews || reviews.length === 0) {
-        return {
-          avg_produccion: 0,
-          avg_composicion: 0,
-          avg_letras: 0,
-          avg_originalidad: 0,
-          avg_cohesion: 0,
-          avg_replay: 0,
-          avg_general: 0,
-          distribution: {},
-          total_reviews: 0,
-        };
-      }
-
-      // Calcular promedios por categoría
       const categories = [
         'produccion',
         'composicion',
@@ -949,7 +842,7 @@ export const supabaseService = {
         const key = `rating_${cat}`;
         const values = reviews
           .map((r) => r[key])
-          .filter((v) => v !== null && v !== undefined);
+          .filter((v) => v !== null && v !== undefined && !isNaN(v));
 
         const avg =
           values.length > 0
@@ -958,7 +851,6 @@ export const supabaseService = {
 
         result[`avg_${cat}`] = parseFloat(avg.toFixed(1));
 
-        // Distribución para rating_general
         if (cat === 'general') {
           values.forEach((v) => {
             const rounded = Math.round(v);
@@ -971,6 +863,9 @@ export const supabaseService = {
         ...result,
         distribution,
         total_reviews: reviews.length,
+        total_albums: albumsRes?.count || 0,
+        total_users: profilesRes?.count || 0,
+        top_score: topScore,
       };
     } catch (error) {
       console.error('Error en getGlobalStats:', error);
@@ -984,6 +879,9 @@ export const supabaseService = {
         avg_general: 0,
         distribution: {},
         total_reviews: 0,
+        total_albums: 0,
+        total_users: 0,
+        top_score: 9.8,
       };
     }
   },
@@ -1020,60 +918,7 @@ export const supabaseService = {
 
   // Para crear álbum con tracks desde Spotify
   createAlbumWithTracks: async (albumData) => {
-    const payload = {
-      album_name: albumData.albumName,
-      artist_name: albumData.artistName,
-      image_url: albumData.imageUrl,
-      spotify_link: albumData.spotifyLink || null,
-      youtube_link: albumData.youtubeLink || null,
-      apple_music_link: albumData.appleMusicLink || null,
-      status: albumData.status || 'ACTIVO',
-      added_by: albumData.addedBy || null,
-      added_by_email: albumData.addedByEmail || null,
-      tracks: albumData.tracks || [],
-      spotify_verified: albumData.status === 'INDIVIDUAL' ? true : false,
-      reviews_enabled: albumData.reviews_enabled || false,
-    };
-
-    if (albumData.releaseDate || albumData.release_date) {
-      payload.release_date = albumData.releaseDate || albumData.release_date;
-      const year = parseInt(String(payload.release_date).substring(0, 4), 10);
-      if (!isNaN(year) && year >= 1900 && year <= 2100) {
-        payload.release_year = year;
-      }
-    } else if (albumData.releaseYear || albumData.release_year) {
-      payload.release_year = parseInt(albumData.releaseYear || albumData.release_year, 10);
-    }
-
-    try {
-      const { data, error } = await supabase
-        .from('albums')
-        .insert([payload])
-        .select()
-        .single();
-
-      if (error) {
-        if (
-          error.message &&
-          (error.message.includes('release_date') ||
-            error.message.includes('release_year'))
-        ) {
-          delete payload.release_date;
-          delete payload.release_year;
-          const retryRes = await supabase
-            .from('albums')
-            .insert([payload])
-            .select()
-            .single();
-          if (retryRes.error) throw new Error(retryRes.error.message);
-          return retryRes.data;
-        }
-        throw new Error(error.message);
-      }
-      return data;
-    } catch (err) {
-      throw err;
-    }
+    return supabaseService.createAlbum(albumData);
   },
 
   // ============================================
@@ -1091,12 +936,13 @@ export const supabaseService = {
   },
 
   updateAlbumStatus: async (albumId, newStatus) => {
+    const isReviews = newStatus === 'GANADOR' || newStatus === 'ACTIVO';
     const { data, error } = await supabase
       .from('albums')
-      .update({ status: newStatus })
+      .update({ reviews_enabled: isReviews })
       .eq('id', albumId)
       .select()
-      .single();
+      .maybeSingle();
 
     if (error) throw new Error(error.message);
     return data;
@@ -1129,31 +975,21 @@ export const supabaseService = {
 
   getDetailedLeaderboard: async () => {
     try {
-      const [profilesRes, reviewsRes, albumsRes] = await Promise.all([
+      const [profilesRes, reviewsRes] = await Promise.all([
         supabase.from('profiles').select('*'),
         supabase
           .from('reviews')
-          .select('*, albums(id, album_name, artist_name, image_url, status)'),
-        supabase.from('albums').select('*'),
+          .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year)'),
       ]);
 
       const profiles = profilesRes.data || [];
       const reviews = reviewsRes.data || [];
-      const albums = albumsRes.data || [];
-
-      const profileByEmail = new Map();
-      const profileByName = new Map();
-      profiles.forEach((p) => {
-        if (p.email) profileByEmail.set(p.email.toLowerCase().trim(), p);
-        if (p.name) profileByName.set(p.name.toLowerCase().trim(), p);
-      });
 
       const userMap = new Map();
 
-      // 1. Inicializar con perfiles registrados
+      // 1. Inicializar exclusivamente con perfiles registrados
       profiles.forEach((p) => {
-        const key = (p.email || p.name || p.id).toLowerCase().trim();
-        userMap.set(key, {
+        userMap.set(p.id, {
           id: p.id,
           name: p.name || p.email?.split('@')[0] || 'Usuario',
           email: p.email || '',
@@ -1167,102 +1003,50 @@ export const supabaseService = {
           instagram_url: p.instagram_url || null,
           created_at: p.created_at,
           reviews: [],
-          albums_added: [],
         });
       });
 
-      // 2. Asociar álbumes añadidos
-      albums.forEach((alb) => {
-        const userEmail = (alb.added_by_email || '').toLowerCase().trim();
-        const userName = (alb.added_by || '').toLowerCase().trim();
-
-        let foundKey = null;
-        if (userEmail && userMap.has(userEmail)) {
-          foundKey = userEmail;
-        } else if (userName && userMap.has(userName)) {
-          foundKey = userName;
-        } else if (userEmail) {
-          for (const [k, u] of userMap.entries()) {
-            if (u.email && u.email.toLowerCase().trim() === userEmail) {
-              foundKey = k;
-              break;
-            }
-          }
-        }
-
-        if (!foundKey) {
-          const key = (alb.added_by_email || alb.added_by || alb.id).toLowerCase().trim();
-          userMap.set(key, {
-            id: alb.user_id || key,
-            name: alb.added_by || alb.added_by_email?.split('@')[0] || 'Miembro',
-            email: alb.added_by_email || '',
-            avatar_url: null,
-            bio: null,
-            role: 'user',
-            favorite_artist: null,
-            favorite_album: null,
-            favorite_genres: [],
-            spotify_url: null,
-            instagram_url: null,
-            created_at: alb.created_at,
-            reviews: [],
-            albums_added: [],
-          });
-          foundKey = key;
-        }
-
-        userMap.get(foundKey).albums_added.push(alb);
-      });
-
-      // 3. Asociar reviews
+      // 2. Asociar reviews a sus usuarios correspondientes
       reviews.forEach((rev) => {
-        const revEmail = (rev.reviewer_email || '').toLowerCase().trim();
-        const revName = (rev.reviewer_name || '').toLowerCase().trim();
+        let matchedUser = null;
+        if (rev.user_id && userMap.has(rev.user_id)) {
+          matchedUser = userMap.get(rev.user_id);
+        } else if (rev.reviewer_email) {
+          const emailLower = rev.reviewer_email.toLowerCase().trim();
+          matchedUser = Array.from(userMap.values()).find(
+            (u) => u.email && u.email.toLowerCase().trim() === emailLower
+          );
+        } else if (rev.reviewer_name) {
+          const nameLower = rev.reviewer_name.toLowerCase().trim();
+          matchedUser = Array.from(userMap.values()).find(
+            (u) => u.name && u.name.toLowerCase().trim() === nameLower
+          );
+        }
 
-        let foundKey = null;
-        if (revEmail && userMap.has(revEmail)) {
-          foundKey = revEmail;
-        } else if (revName && userMap.has(revName)) {
-          foundKey = revName;
-        } else {
-          for (const [k, u] of userMap.entries()) {
-            if (revEmail && u.email && u.email.toLowerCase().trim() === revEmail) {
-              foundKey = k;
-              break;
-            }
-            if (revName && u.name && u.name.toLowerCase().trim() === revName) {
-              foundKey = k;
-              break;
-            }
+        if (matchedUser) {
+          matchedUser.reviews.push(rev);
+        } else if (rev.reviewer_name || rev.reviewer_email) {
+          // Si es una review previa sin perfil creado aún
+          const key = (rev.reviewer_email || rev.reviewer_name).toLowerCase().trim();
+          if (!userMap.has(key)) {
+            userMap.set(key, {
+              id: rev.user_id || `reviewer_${key}`,
+              name: rev.reviewer_name || rev.reviewer_email?.split('@')[0] || 'Miembro',
+              email: rev.reviewer_email || '',
+              avatar_url: rev.reviewer_avatar || null,
+              bio: null,
+              role: 'user',
+              favorite_artist: null,
+              favorite_album: null,
+              favorite_genres: [],
+              spotify_url: null,
+              instagram_url: null,
+              created_at: rev.created_at,
+              reviews: [],
+            });
           }
+          userMap.get(key).reviews.push(rev);
         }
-
-        if (!foundKey) {
-          const key = (rev.reviewer_email || rev.reviewer_name || rev.id).toLowerCase().trim();
-          const prof =
-            (revEmail && profileByEmail.get(revEmail)) ||
-            (revName && profileByName.get(revName)) ||
-            null;
-          userMap.set(key, {
-            id: prof?.id || key,
-            name: rev.reviewer_name || prof?.name || 'Miembro',
-            email: rev.reviewer_email || prof?.email || '',
-            avatar_url: prof?.avatar_url || null,
-            bio: prof?.bio || null,
-            role: prof?.role || 'user',
-            favorite_artist: prof?.favorite_artist || null,
-            favorite_album: prof?.favorite_album || null,
-            favorite_genres: prof?.favorite_genres || [],
-            spotify_url: prof?.spotify_url || null,
-            instagram_url: prof?.instagram_url || null,
-            created_at: rev.created_at,
-            reviews: [],
-            albums_added: [],
-          });
-          foundKey = key;
-        }
-
-        userMap.get(foundKey).reviews.push(rev);
       });
 
       // 4. Computar métricas por usuario
@@ -1349,7 +1133,6 @@ export const supabaseService = {
         return {
           ...userData,
           review_count: userReviews.length,
-          albums_added_count: userData.albums_added.length,
           avg_score: avgScore,
           avg_general: avgGeneral,
           criteria_averages: criteriaAverages,
@@ -1399,7 +1182,6 @@ export const supabaseService = {
 
       const communityMaxes = {
         review_count: Math.max(...leaderboardList.map((u) => u.review_count), 0),
-        albums_added_count: Math.max(...leaderboardList.map((u) => u.albums_added_count), 0),
         total_tracks_rated: Math.max(...leaderboardList.map((u) => u.total_tracks_rated), 0),
         comments_count: Math.max(...leaderboardList.map((u) => u.comments_count), 0),
         tens_count: Math.max(...leaderboardList.map((u) => u.tens_count), 0),
@@ -1601,13 +1383,18 @@ export const supabaseService = {
           album_name: alb.album_name,
           artist_name: alb.artist_name,
           image_url: alb.image_url,
-          status: alb.status,
-          added_by: alb.added_by,
-          added_by_email: alb.added_by_email,
           user_id: alb.user_id,
+          mbid: alb.mbid,
+          label: alb.label,
+          country: alb.country,
+          barcode: alb.barcode,
+          total_tracks: alb.total_tracks,
+          release_type: alb.release_type || 'ALBUM',
+          genres: alb.genres || [],
           spotify_link: alb.spotify_link,
           youtube_link: alb.youtube_link,
           apple_music_link: alb.apple_music_link,
+          other_link: alb.other_link,
           tracks: alb.tracks || [],
           created_at: alb.created_at,
           release_date: alb.release_date,

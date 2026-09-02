@@ -11,6 +11,57 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   // ----------------------------------------------------
+  // V6.x (Septiembre 2026)
+  // ----------------------------------------------------
+  {
+    version: 'V.6.0',
+    title:
+      'Enrutamiento Semántico por Tipo de Release, Portadas HD vía Spotify CDN, Vinilo Interactivo Invertido, Blindaje Lingüístico Universal y Sitemap 554+',
+    date: '2026-09-01',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-purple-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Lanzamiento mayor V.6.0 de Musiclub con arquitectura de URLs semánticas categorizadas por formato de lanzamiento (/catalogo, /eps/:slug, /sencillos/:slug, /remixes/:slug, /compilaciones/:slug, /albumes/:slug), migración y optimización de portadas en alta velocidad vía CDN oficial de Spotify, microinteracción de vinilo con hover invertido, blindaje estricto contra traducción automática en nombres propios de música y miembros, y regeneración del sitemap canónico.',
+    changes: [
+      {
+        type: 'feature',
+        title:
+          'Enrutamiento Semántico y Breadcrumbs por Formato de Release (/catalogo, /eps, /sencillos, /remixes, /compilaciones, /albumes)',
+        description:
+          'Migración de la ruta general a /catalogo y diferenciación de URLs dinámicas para cada tipo de lanzamiento según su formato: /eps/:slug (e.g. /eps/FIRE-ON-MARZZ), /sencillos/:slug, /remixes/:slug, /compilaciones/:slug y /albumes/:slug. Las fichas técnicas ahora muestran breadcrumbs dinámicos contextualizados con el formato exacto del disco (ej. Inicio / EPs / FIRE ON MARZZ).',
+      },
+      {
+        type: 'feature',
+        title:
+          'Portadas de Alta Definición y Renderizado Ultrarrápido vía Spotify CDN',
+        description:
+          'Integración directa con el CDN oficial de Spotify (i.scdn.co) para todas las portadas de la discografía, pool semanal, catálogo y perfiles, logrando tiempos de carga inmediatos y consistencia visual uniforme en todas las resoluciones.',
+      },
+      {
+        type: 'improvement',
+        title: 'Vinilo Interactivo en Hero con Microinteracción Invertida',
+        description:
+          'Alineación y centrado del disco de vinilo sobre la portada en el Hero interactivo. Se perfeccionó el comportamiento de animación para responder exclusivamente al cursor sobre el vinilo, permitiendo que el hover deslice e inserte el vinilo suavemente dentro de su funda.',
+      },
+      {
+        type: 'feature',
+        title:
+          'Blindaje Estricto de Traducción Lingüística en Entidades Musicales y Miembros',
+        description:
+          'Protección universal con translate="no" y clases semánticas (.notranslate, .music-title, .artist-name, .username-tag, .track-name) respaldada por un MutationObserver en tiempo real. Garantiza que los nombres de lanzamientos, artistas, canciones evaluadas y miembros nunca sean alterados por Google Translate ni traductores de navegador, mientras que el resto de la interfaz y reseñas se traducen fluidamente.',
+      },
+      {
+        type: 'improvement',
+        title:
+          'Sitemap Dinámico con 554 URLs Canónicas y Pipeline Automatizado',
+        description:
+          'Actualización del generador scripts/generate-sitemap.js para clasificar automáticamente las 554 rutas de lanzamientos de la plataforma de acuerdo con su tipo de formato (/eps/..., /sencillos/..., etc.) y regeneración automática antes de cada compilación de producción.',
+      },
+    ],
+  },
+  // ----------------------------------------------------
   // V5.x (Agosto 2026)
   // ----------------------------------------------------
   {

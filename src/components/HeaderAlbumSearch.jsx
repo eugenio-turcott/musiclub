@@ -9,25 +9,18 @@ import React, {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { supabaseService } from '../services/supabaseClient';
-import { useAuth } from '../hooks/useAuth';
-import { slugifyAlbum } from '../utils/ratingUtils';
+import { getReleaseUrl } from '../utils/ratingUtils';
 
-export function HeaderAlbumSearch({
-  user: propUser,
-  isMobileMode = false,
-  onAlbumReviewed,
-}) {
+export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const auth = useAuth();
-  const user = propUser || auth.user;
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [clubAlbums, setClubAlbums] = useState([]);
   const [spotifyResults, setSpotifyResults] = useState([]);
   const [loadingClub, setLoadingClub] = useState(false);
-  const [loadingSpotify, setLoadingSpotify] = useState(false);
+  const [loadingRemote, setLoadingRemote] = useState(false);
   const [selectingAlbumId, setSelectingAlbumId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -70,16 +63,16 @@ export function HeaderAlbumSearch({
     });
   }, [clubAlbums, query]);
 
-  // Búsqueda en vivo en la API de Spotify con Debounce
+  // Búsqueda en vivo en Spotify con Debounce
   useEffect(() => {
     const cleanQ = query.trim();
     if (!cleanQ || cleanQ.length < 2) {
       setSpotifyResults([]);
-      setLoadingSpotify(false);
+      setLoadingRemote(false);
       return;
     }
 
-    setLoadingSpotify(true);
+    setLoadingRemote(true);
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
@@ -87,18 +80,18 @@ export function HeaderAlbumSearch({
     debounceTimerRef.current = setTimeout(async () => {
       try {
         const res = await searchAlbum(cleanQ);
-        if (res && res.success && Array.isArray(res.albums)) {
+        if (res?.success && Array.isArray(res.albums)) {
           setSpotifyResults(res.albums);
         } else {
           setSpotifyResults([]);
         }
       } catch (err) {
-        console.warn('Error buscando en Spotify:', err);
+        console.warn('Error en búsqueda:', err);
         setSpotifyResults([]);
       } finally {
-        setLoadingSpotify(false);
+        setLoadingRemote(false);
       }
-    }, 260);
+    }, 280);
 
     return () => {
       if (debounceTimerRef.current) {
@@ -130,12 +123,12 @@ export function HeaderAlbumSearch({
     };
   }, [isOpen]);
 
-  // Lista unificada y enriquecida de resultados
+  // Lista unificada y enriquecida de resultados (Club + Spotify)
   const combinedResults = useMemo(() => {
     const results = [];
     const seenKeys = new Set();
 
-    // 1. Coincidencias del club
+    // 1. Coincidencias existentes en el Club (Máxima Prioridad - Ya tienen reviews/historial)
     clubMatches.forEach((ca) => {
       const normName = (ca.album_name || ca.album || '').trim().toLowerCase();
       const normArtist = (ca.artist_name || ca.artista || '')
@@ -152,15 +145,18 @@ export function HeaderAlbumSearch({
         image: ca.image_url || ca.imagen,
         status: ca.status,
         rating: ca.final_rating,
+        reviewCount: ca.review_count || ca.total_reviews || 0,
         rawClubAlbum: ca,
       });
     });
 
-    // 2. Resultados de Spotify
-    spotifyResults.forEach((sa) => {
-      const normName = (sa.name || '').trim().toLowerCase();
-      const artistName = sa.artists && sa.artists[0] ? sa.artists[0] : '';
-      const normArtist = artistName.trim().toLowerCase();
+    // 2. Resultados de Spotify (Catálogo Oficial y Carátulas CDN de Alta Velocidad)
+    spotifyResults.forEach((sp) => {
+      const normName = (sp.name || '').trim().toLowerCase();
+      const artistDisplay = Array.isArray(sp.artists)
+        ? sp.artists.join(', ')
+        : sp.artist || '';
+      const normArtist = artistDisplay.trim().toLowerCase();
       const key = `${normName}:::${normArtist}`;
 
       if (seenKeys.has(key)) return;
@@ -183,26 +179,30 @@ export function HeaderAlbumSearch({
           id: existingClub.id,
           name: existingClub.album_name || existingClub.album,
           artist: existingClub.artist_name || existingClub.artista,
-          image: existingClub.image_url || existingClub.imagen || sa.image,
+          image: existingClub.image_url || existingClub.imagen || sp.image,
           status: existingClub.status,
           rating: existingClub.final_rating,
+          reviewCount:
+            existingClub.review_count || existingClub.total_reviews || 0,
           rawClubAlbum: existingClub,
         });
       } else {
         seenKeys.add(key);
         results.push({
           type: 'SPOTIFY',
-          id: sa.id,
-          name: sa.name,
-          artist: artistName,
-          image: sa.image,
-          releaseDate: sa.releaseDate,
-          rawSpotifyAlbum: sa,
+          id: sp.id,
+          name: sp.name,
+          artist: artistDisplay,
+          image: sp.image,
+          releaseDate: sp.releaseDate,
+          releaseYear: sp.releaseYear,
+          releaseType: sp.release_type || sp.releaseType || 'ALBUM',
+          rawSpotifyAlbum: sp,
         });
       }
     });
 
-    return results.slice(0, 15);
+    return results.slice(0, 16);
   }, [clubMatches, spotifyResults, clubAlbums]);
 
   const handleOpenSearch = (e) => {
@@ -259,74 +259,88 @@ export function HeaderAlbumSearch({
     setStatusMessage('Cargando álbum...');
 
     try {
+      // 1. Caso Álbum ya registrado en el Club
       if (item.type === 'CLUB' && item.rawClubAlbum) {
         const target = item.rawClubAlbum;
-        const albumName = target.album_name || target.album || item.name;
-        const slug = slugifyAlbum(albumName);
+        const targetUrl = getReleaseUrl(
+          target.album_name || target.album || item.name,
+          target.release_type || target.releaseType
+        );
 
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
-        navigate(`/albumes/${slug}`);
+        navigate(targetUrl);
         return;
       }
 
+      // 2. Caso Álbum desde Spotify
       if (item.type === 'SPOTIFY' && item.rawSpotifyAlbum) {
-        setStatusMessage('Proponiendo como álbum individual...');
+        setStatusMessage('Obteniendo información...');
 
-        const details = await getAlbumDetails(item.rawSpotifyAlbum.id);
-        const spotifyData = details?.success
-          ? details.album
-          : item.rawSpotifyAlbum;
+        const spDetailsRes = await getAlbumDetails(item.id);
+        const finalDetails = spDetailsRes?.album || item.rawSpotifyAlbum;
 
-        const tracks = (spotifyData.tracks || []).map((t) => ({
-          id: t.id,
-          name: t.name,
-          duration_ms: t.duration_ms,
-          track_number: t.track_number,
-        }));
+        const albumName = finalDetails.name || item.name;
+        const artistName = Array.isArray(finalDetails.artists)
+          ? finalDetails.artists.join(', ')
+          : finalDetails.artist || item.artist || 'Artista';
 
-        const artistName =
-          spotifyData.artists && spotifyData.artists[0]
-            ? spotifyData.artists[0]
-            : item.artist || 'Artista';
-
-        const existing = await supabaseService.findAlbum(
-          spotifyData.name,
-          artistName
-        );
+        // Comprobar si ya existe en Supabase
+        const existing = await supabaseService.findAlbum(albumName, artistName);
         let finalAlbum = existing;
 
         if (!finalAlbum) {
-          const albumData = {
-            albumName: spotifyData.name,
+          setStatusMessage('Registrando en el catálogo de Musiclub...');
+          const tracks = (finalDetails.tracks || []).map((track, idx) => ({
+            id: track.id || `track-${idx + 1}`,
+            name: track.name,
+            duration_ms: track.duration_ms || 0,
+            track_number: track.track_number || idx + 1,
+          }));
+
+          const albumPayload = {
+            albumName: albumName,
             artistName: artistName,
-            imageUrl: spotifyData.image,
+            imageUrl: finalDetails.image || item.image,
             spotifyLink:
-              spotifyData.external_urls?.spotify ||
-              `https://open.spotify.com/album/${spotifyData.id}`,
-            addedBy:
-              user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub',
-            addedByEmail: user?.email || '',
-            status: 'INDIVIDUAL',
+              finalDetails.external_urls?.spotify ||
+              `https://open.spotify.com/album/${item.id}`,
+            youtubeLink: null,
+            appleMusicLink: null,
+            label: finalDetails.label || null,
+            country: null,
+            barcode: null,
+            totalTracks: finalDetails.totalTracks || tracks.length || null,
             tracks: tracks,
-            releaseDate: spotifyData.releaseDate || spotifyData.release_date || null,
-            releaseYear: spotifyData.releaseYear || null,
-            releaseType: spotifyData.release_type || 'ALBUM',
-            genres: spotifyData.genres || [],
+            releaseDate: finalDetails.releaseDate || null,
+            releaseYear: finalDetails.releaseYear || null,
+            releaseType:
+              finalDetails.release_type || finalDetails.releaseType || 'ALBUM',
+            genres: finalDetails.genres || [],
             reviews_enabled: true,
           };
-          finalAlbum = await supabaseService.createAlbum(albumData);
+          finalAlbum = await supabaseService.createAlbum(albumPayload);
         }
 
-        const slug = slugifyAlbum(finalAlbum?.album_name || spotifyData.name);
+        const relType =
+          finalAlbum?.release_type ||
+          finalAlbum?.releaseType ||
+          finalDetails.release_type ||
+          finalDetails.releaseType;
+        const targetUrl = getReleaseUrl(
+          finalAlbum?.album_name || albumName,
+          relType
+        );
+
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
-        navigate(`/albumes/${slug}`);
+        navigate(targetUrl);
+        return;
       }
     } catch (err) {
-      console.error('Error al seleccionar y proponer álbum:', err);
+      console.error('Error al seleccionar y abrir álbum:', err);
       setStatusMessage('Error al abrir el álbum. Intenta de nuevo.');
       setTimeout(() => setStatusMessage(null), 3000);
     } finally {
@@ -364,19 +378,21 @@ export function HeaderAlbumSearch({
     }
   };
 
-  const isSearching = loadingClub || loadingSpotify;
+  const isSearching = loadingClub || loadingRemote;
 
-  // Render para dentro del Mobile Navigation Drawer (si se usa allí)
+  // =========================================================================
+  // MOBILE INLINE MODE
+  // =========================================================================
   if (isMobileMode) {
     return (
-      <div ref={containerRef} className="w-full space-y-2">
+      <div className="w-full space-y-2">
         <button
           type="button"
           onClick={handleToggleSearch}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold transition-all group active:scale-[0.98] cursor-pointer"
+          className="w-full flex items-center justify-between px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-xs font-semibold transition-all"
         >
-          <span className="flex items-center gap-2.5 text-white/80 group-hover:text-white">
-            <span className="text-pink-400 text-sm">🔍</span>
+          <span className="flex items-center gap-2">
+            <span>🔍</span>
             <span>Buscar álbum...</span>
           </span>
           <span className="text-[10px] text-pink-300 bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20 font-bold">
@@ -429,7 +445,7 @@ export function HeaderAlbumSearch({
                 {isSearching && combinedResults.length === 0 ? (
                   <div className="p-3 text-center text-white/50 text-xs flex items-center justify-center gap-2">
                     <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse"></span>
-                    <span>Buscando álbumes...</span>
+                    <span>Buscando...</span>
                   </div>
                 ) : combinedResults.length === 0 ? (
                   <div className="p-3 text-center text-white/40 text-xs">
@@ -457,6 +473,10 @@ export function HeaderAlbumSearch({
                           }
                           alt={item.name}
                           className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-white/10"
+                          onError={(e) => {
+                            e.target.src =
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                          }}
                         />
                         <div className="min-w-0 flex-1 text-left">
                           <p className="text-white font-bold text-xs truncate">
@@ -464,6 +484,7 @@ export function HeaderAlbumSearch({
                           </p>
                           <p className="text-white/60 text-[10px] truncate">
                             {item.artist}
+                            {item.releaseYear ? ` • ${item.releaseYear}` : ''}
                           </p>
                         </div>
                         <div className="flex-shrink-0">
@@ -471,10 +492,10 @@ export function HeaderAlbumSearch({
                             className={`text-[9px] px-2 py-0.5 rounded-lg font-bold ${
                               isClubAlbum
                                 ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                                : 'bg-gradient-to-r from-purple-600 to-pink-500 text-white'
+                                : 'bg-[#1DB954]/90 text-white'
                             }`}
                           >
-                            {isClubAlbum ? 'Ver ➔' : '+ Proponer ➔'}
+                            {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}
                           </span>
                         </div>
                       </div>
@@ -489,10 +510,12 @@ export function HeaderAlbumSearch({
     );
   }
 
-  // Render en el Header Superior (Botón con Icono y Dropdown desplegable hacia abajo)
+  // =========================================================================
+  // HEADER SEARCH POPOVER
+  // =========================================================================
   return (
     <div ref={containerRef} className="relative">
-      {/* Botón Lupa en el Header (estilo idéntico al botón de Notificaciones) */}
+      {/* Botón Lupa en el Header */}
       <button
         type="button"
         onClick={handleToggleSearch}
@@ -501,7 +524,7 @@ export function HeaderAlbumSearch({
             ? 'bg-[#181a2f] border-pink-500/60 ring-2 ring-pink-500/30 text-white shadow-[0_0_15px_rgba(245,87,108,0.3)]'
             : 'bg-[#121324]/80 hover:bg-[#1a1b32] border-white/15 hover:border-pink-500/40 text-white/80 hover:text-white shadow-md hover:scale-105 active:scale-95'
         }`}
-        title="Buscar álbumes en el Club o Spotify"
+        title="Buscar cualquier álbum"
         aria-label="Buscar álbum"
         aria-expanded={isOpen}
       >
@@ -520,12 +543,12 @@ export function HeaderAlbumSearch({
         </svg>
       </button>
 
-      {/* Popover / Menú Desplegable hacia abajo (al estilo de NotificationsDropdown) */}
+      {/* Popover / Menú Desplegable */}
       {isOpen && (
         <div
-          className="fixed left-2 right-2 top-[58px] z-[160] sm:fixed-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[460px] md:w-[500px] bg-[#0c0e1c]/95 backdrop-blur-2xl border border-pink-500/30 sm:border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left animate-fadeIn max-h-[85vh] sm:max-h-[580px]"
+          className="fixed left-2 right-2 top-[58px] z-[160] sm:fixed-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2.5 sm:w-[480px] md:w-[520px] bg-[#0c0e1c]/95 backdrop-blur-2xl border border-pink-500/30 sm:border-white/15 rounded-2xl shadow-2xl overflow-hidden flex flex-col text-left animate-fadeIn max-h-[85vh] sm:max-h-[580px]"
           role="dialog"
-          aria-label="Buscador de Álbumes"
+          aria-label="Buscador Universal de Álbumes"
         >
           {/* Cabecera del Dropdown */}
           <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between gap-3">
@@ -535,10 +558,10 @@ export function HeaderAlbumSearch({
               </div>
               <div className="min-w-0">
                 <h3 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
-                  Buscar Álbumes
+                  Buscar Álbumes & Releases
                 </h3>
                 <p className="text-[11px] text-white/40 truncate">
-                  Catálogo del Club y millones de discos en Spotify
+                  Catálogo Musical & Lanzamientos del Club
                 </p>
               </div>
             </div>
@@ -588,7 +611,7 @@ export function HeaderAlbumSearch({
             </div>
           </div>
 
-          {/* Notificación de acción / proceso de proposición */}
+          {/* Notificación de acción / proceso */}
           {statusMessage && (
             <div className="mx-3 mt-2.5 bg-gradient-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/20">
               <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
@@ -600,22 +623,25 @@ export function HeaderAlbumSearch({
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 max-h-[360px]">
             {!query.trim() ? (
               <div className="py-8 px-4 text-center space-y-2">
-                <div className="text-3xl">🎧</div>
+                <div className="text-3xl">🟢</div>
                 <p className="text-white font-bold text-xs">
-                  Empieza a escribir para buscar
+                  Explora el catálogo universal de música
                 </p>
                 <p className="text-white/40 text-[11px] max-w-xs mx-auto leading-relaxed">
-                  Busca cualquier álbum del club para ver sus reviews o encuentra cualquier disco en Spotify para proponerlo.
+                  Busca cualquier álbum para leer reseñas comunitarias o
+                  calificarlo y puntuar sus pistas.
                 </p>
               </div>
             ) : isSearching && combinedResults.length === 0 ? (
               <div className="py-10 text-center text-white/50 text-xs flex flex-col items-center justify-center gap-2">
                 <span className="w-5 h-5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
-                <span>Buscando en catálogo y Spotify...</span>
+                <span>Buscando...</span>
               </div>
             ) : combinedResults.length === 0 ? (
               <div className="py-8 text-center text-white/40 text-xs">
-                <p className="font-semibold text-white/70">No se encontraron álbumes para "{query}"</p>
+                <p className="font-semibold text-white/70">
+                  No se encontraron álbumes para "{query}"
+                </p>
                 <p className="text-[11px] text-white/30 mt-1">
                   Verifica que el título o artista estén bien escritos.
                 </p>
@@ -624,13 +650,16 @@ export function HeaderAlbumSearch({
               <>
                 <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white/40 flex items-center justify-between border-b border-white/5">
                   <span>Resultados ({combinedResults.length})</span>
-                  <span className="text-pink-300 font-normal">Click para abrir / calificar</span>
+                  <span className="text-pink-300 font-normal">
+                    Click para abrir / calificar
+                  </span>
                 </div>
 
                 {combinedResults.map((item, idx) => {
                   const isHighlighted = highlightedIndex === idx;
                   const isSelectingThis = selectingAlbumId === item.id;
                   const isClubAlbum = item.type === 'CLUB';
+                  const isSpotifyAlbum = item.type === 'SPOTIFY';
 
                   return (
                     <div
@@ -652,58 +681,54 @@ export function HeaderAlbumSearch({
                             'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
                           }
                           alt={item.name}
-                          className="w-11 h-11 rounded-lg object-cover border border-white/10"
+                          className="w-full h-full rounded-lg object-cover border border-white/10 shadow-sm"
                           onError={(e) => {
                             e.target.src =
                               'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
                           }}
                         />
-                        {isSelectingThis && (
-                          <div className="absolute inset-0 bg-black/60 rounded-lg flex items-center justify-center">
-                            <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                          </div>
-                        )}
                       </div>
 
                       <div className="min-w-0 flex-1 text-left">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p
-                            translate="no"
-                            className="notranslate text-white font-bold text-xs truncate group-hover:text-pink-300 transition-colors"
-                          >
+                          <p className="text-white font-bold text-xs sm:text-sm truncate">
                             {item.name}
                           </p>
+                          {isClubAlbum ? (
+                            <span className="text-[9px] bg-pink-500/20 text-pink-300 px-1.5 py-0.2 rounded border border-pink-500/30 font-bold flex-shrink-0">
+                              Musiclub ({item.reviewCount || 0} reviews)
+                            </span>
+                          ) : isSpotifyAlbum ? (
+                            <span className="text-[9px] bg-[#1DB954]/20 text-[#1ed760] px-1.5 py-0.2 rounded border border-[#1DB954]/30 font-bold flex-shrink-0">
+                              Disponible
+                            </span>
+                          ) : null}
                         </div>
 
-                        <p
-                          translate="no"
-                          className="notranslate text-white/60 text-[11px] truncate"
-                        >
+                        <p className="text-white/60 text-xs truncate mt-0.5">
                           {item.artist}
-                        </p>
-
-                        <p className="text-white/40 text-[9px] truncate">
-                          {isClubAlbum
-                            ? `En el Club • Añadido por: ${item.rawClubAlbum?.added_by || 'Club'}`
-                            : `Spotify • ${item.releaseDate ? item.releaseDate.split('-')[0] : 'Álbum'}`}
+                          {item.releaseYear ? ` • ${item.releaseYear}` : ''}
+                          {item.releaseType ? ` • ${item.releaseType}` : ''}
                         </p>
                       </div>
 
-                      <div className="flex-shrink-0 text-right">
-                        {isClubAlbum ? (
-                          <>
-                            <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
-                              Ver Álbum ➔
-                            </span>
-                            {item.rating !== null && item.rating !== undefined && (
-                              <p className="text-[9px] text-amber-300 font-bold mt-0.5">
-                                ⭐ {Number(item.rating).toFixed(1)}
-                              </p>
-                            )}
-                          </>
+                      <div className="flex-shrink-0">
+                        {isClubAlbum &&
+                        item.rating !== null &&
+                        item.rating !== undefined ? (
+                          <div className="flex items-center gap-1 bg-amber-500/15 border border-amber-500/30 px-2 py-1 rounded-lg text-amber-300 text-xs font-black">
+                            <span>⭐</span>
+                            <span>{Number(item.rating).toFixed(1)}</span>
+                          </div>
                         ) : (
-                          <span className="px-2.5 py-1 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 text-white text-[10px] font-bold shadow-sm inline-block group-hover:scale-105 transition-transform">
-                            + Proponer ➔
+                          <span
+                            className={`text-[10px] sm:text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm transition-transform group-hover:scale-105 inline-block ${
+                              isClubAlbum
+                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
+                                : 'bg-[#1DB954] hover:bg-[#1ed760] text-black font-extrabold'
+                            }`}
+                          >
+                            {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}
                           </span>
                         )}
                       </div>
@@ -713,14 +738,10 @@ export function HeaderAlbumSearch({
               </>
             )}
           </div>
-
-          {/* Pie de dropdown */}
-          <div className="p-2.5 px-4 bg-white/[0.02] border-t border-white/10 text-[10px] text-white/40 flex items-center justify-between">
-            <span>Presiona <kbd className="bg-white/10 px-1.5 py-0.5 rounded text-white/70 font-mono">Esc</kbd> para salir</span>
-            <span className="text-pink-400/80 font-medium">Musiclub Search</span>
-          </div>
         </div>
       )}
     </div>
   );
 }
+
+export default HeaderAlbumSearch;

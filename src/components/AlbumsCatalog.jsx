@@ -1,11 +1,10 @@
-// src/components/AlbumsCatalog.jsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
-import { slugifyAlbum, slugifyArtist } from '../utils/ratingUtils';
+import { slugifyArtist, getReleaseUrl } from '../utils/ratingUtils';
 import { PLACEHOLDER_COVER } from './TierListMaker';
 import { fetchAlbumReleaseYear } from '../services/spotifyApi';
 
@@ -65,6 +64,7 @@ const DECADES = [
 
 export function AlbumsCatalog({ isPage = false }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -74,11 +74,23 @@ export function AlbumsCatalog({ isPage = false }) {
   );
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL'); // ALL | ACTIVO | INDIVIDUAL | INACTIVO | GANADOR
+  const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
   const [sortBy, setSortBy] = useState('rating_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Sync with URL query param ?tipo=...
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tipo = params.get('tipo') || params.get('type') || params.get('formato');
+    if (tipo) {
+      const upper = tipo.toUpperCase();
+      if (['EP', 'SENCILLO', 'COMPILACION', 'EN_VIVO', 'SOUNDTRACK', 'REMIX', 'ALBUM', 'ALL'].includes(upper)) {
+        setReleaseTypeFilter(upper);
+      }
+    }
+  }, [location.search]);
 
   useEffect(() => {
     async function loadAlbums() {
@@ -171,7 +183,7 @@ export function AlbumsCatalog({ isPage = false }) {
   // Reset pagination on filter or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, selectedYearFilter, sortBy]);
+  }, [searchQuery, releaseTypeFilter, selectedYearFilter, sortBy]);
 
   const isUserAlbum = (album) => {
     if (!user || !album) return false;
@@ -185,6 +197,46 @@ export function AlbumsCatalog({ isPage = false }) {
     if (albumAuthor && userName && albumAuthor === userName) return true;
     return false;
   };
+
+  // Conteo de lanzamientos por tipo de formato (Álbum, EP, Sencillo, Compilación, En Vivo, Soundtrack, Remix)
+  const releaseTypeCounts = useMemo(() => {
+    const counts = {
+      ALL: albums.length,
+      ALBUM: 0,
+      EP: 0,
+      SENCILLO: 0,
+      COMPILACION: 0,
+      EN_VIVO: 0,
+      SOUNDTRACK: 0,
+      REMIX: 0,
+    };
+    albums.forEach((alb) => {
+      const raw = (alb.release_type || alb.releaseType || 'ALBUM').toUpperCase();
+      if (raw === 'EP' || raw === 'SINGLE_EP') {
+        counts.EP++;
+      } else if (
+        raw === 'SENCILLO' ||
+        raw === 'SINGLE' ||
+        raw === 'TRACK' ||
+        raw === 'CANCIÓN' ||
+        raw === 'CANCION'
+      ) {
+        counts.SENCILLO++;
+      } else if (raw === 'COMPILACION' || raw === 'COMPILATION') {
+        counts.COMPILACION++;
+      } else if (raw === 'EN VIVO' || raw === 'LIVE') {
+        counts.EN_VIVO++;
+      } else if (raw === 'SOUNDTRACK' || raw === 'BSO') {
+        counts.SOUNDTRACK++;
+      } else if (raw === 'REMIX') {
+        counts.REMIX++;
+      } else {
+        counts.ALBUM++;
+      }
+    });
+    return counts;
+  }, [albums]);
+
 
   // Conteo de álbumes por año y década
   const yearCounts = useMemo(() => {
@@ -294,9 +346,43 @@ export function AlbumsCatalog({ isPage = false }) {
   const filteredAlbums = useMemo(() => {
     let result = [...albums];
 
-    // Status Filter
-    if (statusFilter !== 'ALL') {
-      result = result.filter((a) => a.status === statusFilter);
+    // Release Type Filter (Álbumes, EPs, Sencillos/Canciones, Compilaciones, En Vivo, Bandas Sonoras, Remixes)
+    if (releaseTypeFilter !== 'ALL') {
+      result = result.filter((a) => {
+        const raw = (
+          a.release_type ||
+          a.releaseType ||
+          'ALBUM'
+        ).toUpperCase();
+        if (releaseTypeFilter === 'ALBUM') {
+          return raw === 'ALBUM' || (!a.release_type && !a.releaseType);
+        }
+        if (releaseTypeFilter === 'EP') {
+          return raw === 'EP' || raw === 'SINGLE_EP';
+        }
+        if (releaseTypeFilter === 'SENCILLO') {
+          return (
+            raw === 'SENCILLO' ||
+            raw === 'SINGLE' ||
+            raw === 'TRACK' ||
+            raw === 'CANCIÓN' ||
+            raw === 'CANCION'
+          );
+        }
+        if (releaseTypeFilter === 'COMPILACION') {
+          return raw === 'COMPILACION' || raw === 'COMPILATION';
+        }
+        if (releaseTypeFilter === 'EN_VIVO') {
+          return raw === 'EN VIVO' || raw === 'LIVE';
+        }
+        if (releaseTypeFilter === 'SOUNDTRACK') {
+          return raw === 'SOUNDTRACK' || raw === 'BSO';
+        }
+        if (releaseTypeFilter === 'REMIX') {
+          return raw === 'REMIX';
+        }
+        return true;
+      });
     }
 
     // Year Filter (Año o Década)
@@ -371,7 +457,7 @@ export function AlbumsCatalog({ isPage = false }) {
     return result;
   }, [
     albums,
-    statusFilter,
+    releaseTypeFilter,
     selectedYearFilter,
     searchQuery,
     sortBy,
@@ -399,11 +485,12 @@ export function AlbumsCatalog({ isPage = false }) {
             <span>Catálogo Completo y Estadísticas</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
-            Todos los Álbumes
+            Catálogo Musical
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
             Consulta las calificaciones detalladas, desglose por canciones,
-            criterios ponderados y todas las reseñas de la comunidad.
+            criterios ponderados y todas las reseñas de la comunidad en álbumes,
+            EPs, sencillos y compilaciones.
           </p>
         </div>
 
@@ -416,7 +503,7 @@ export function AlbumsCatalog({ isPage = false }) {
               </span>
               <div>
                 <p className="text-xs text-slate-400 font-medium">
-                  Total Álbumes
+                  Total Lanzamientos
                 </p>
                 <p className="text-xl sm:text-2xl font-black text-white">
                   {globalStats.totalAlbums}
@@ -450,7 +537,10 @@ export function AlbumsCatalog({ isPage = false }) {
                 <p className="text-xs text-slate-400 font-medium">
                   Mejor Calificado
                 </p>
-                <p className="text-sm sm:text-base font-black text-yellow-300 truncate">
+                <p
+                  translate="no"
+                  className="notranslate music-title text-sm sm:text-base font-black text-yellow-300 truncate"
+                >
                   {globalStats.topRatedAlbum
                     ? globalStats.topRatedAlbum.album_name
                     : '—'}
@@ -671,7 +761,55 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
         </div>
 
-        {/* Filters and Search Bar */}
+        {/* Format / Tipo de Lanzamiento Bar */}
+        <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm">💽</span>
+            <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
+              Formato
+            </span>
+          </div>
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+            {[
+              { id: 'ALL', label: 'Todos', icon: '🎧', count: releaseTypeCounts.ALL },
+              { id: 'ALBUM', label: 'Álbumes', icon: '💿', count: releaseTypeCounts.ALBUM },
+              { id: 'EP', label: 'EPs', icon: '💽', count: releaseTypeCounts.EP },
+              { id: 'SENCILLO', label: 'Sencillos', icon: '🎵', count: releaseTypeCounts.SENCILLO },
+              { id: 'COMPILACION', label: 'Compilaciones', icon: '📦', count: releaseTypeCounts.COMPILACION },
+              ...(releaseTypeCounts.EN_VIVO > 0 ? [{ id: 'EN_VIVO', label: 'En Vivo', icon: '🎤', count: releaseTypeCounts.EN_VIVO }] : []),
+              ...(releaseTypeCounts.SOUNDTRACK > 0 ? [{ id: 'SOUNDTRACK', label: 'Soundtracks', icon: '🎬', count: releaseTypeCounts.SOUNDTRACK }] : []),
+              ...(releaseTypeCounts.REMIX > 0 ? [{ id: 'REMIX', label: 'Remixes', icon: '🎛️', count: releaseTypeCounts.REMIX }] : []),
+            ].map((fmt) => {
+              const isSelected = releaseTypeFilter === fmt.id;
+              return (
+                <button
+                  key={fmt.id}
+                  type="button"
+                  onClick={() => setReleaseTypeFilter(fmt.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
+                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
+                  }`}
+                >
+                  <span>{fmt.icon}</span>
+                  <span>{fmt.label}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                      isSelected
+                        ? 'bg-black/30 text-black font-black'
+                        : 'bg-white/10 text-slate-400'
+                    }`}
+                  >
+                    {fmt.count || 0}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Search and Sort Bar */}
         <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3.5 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
@@ -680,35 +818,21 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <input
               type="text"
-              placeholder="Buscar álbum, artista o curador..."
+              placeholder="Buscar álbum, EP, sencillo, artista o curador..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
             />
           </div>
 
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-            {[
-              { id: 'ALL', label: 'Todos' },
-              { id: 'ACTIVO', label: '🎵 Pool Activo' },
-              { id: 'INDIVIDUAL', label: '📌 Individuales' },
-              { id: 'INACTIVO', label: '💤 Inactivos' },
-              { id: 'GANADOR', label: '🏆 Ganadores' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setStatusFilter(tab.id)}
-                className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                  statusFilter === tab.id
-                    ? 'bg-cyan-500 text-black shadow-md font-bold'
-                    : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          {/* Quick Pool Shortcut */}
+          <Link
+            to="/pool"
+            className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
+          >
+            <span>🗳️</span>
+            <span>Ver Pool Musical (Temporada 1)</span>
+          </Link>
 
           {/* Sorting */}
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
@@ -769,13 +893,12 @@ export function AlbumsCatalog({ isPage = false }) {
               {paginatedAlbums.map((album) => {
                 const isMine = isUserAlbum(album);
                 const score = album.final_rating;
-                const albumSlug = slugifyAlbum(album.album_name);
                 const albumYear = getAlbumYear(album, spotifyYearsCache);
 
                 return (
                   <Link
                     key={album.id}
-                    to={`/albumes/${albumSlug}`}
+                    to={getReleaseUrl(album)}
                     className={`bg-[#141622]/90 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative ${
                       isMine
                         ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
@@ -808,23 +931,35 @@ export function AlbumsCatalog({ isPage = false }) {
                         </div>
                       )}
 
-                      {/* Status Badge */}
+                      {/* Status / Format Badge */}
                       <div className="absolute top-2 right-2 z-10">
                         {album.status === 'GANADOR' ? (
-                          <span className="bg-[#f5576c] text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
+                          <span className="bg-[#f5576c] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1">
                             🏆 GANADOR
                           </span>
-                        ) : album.status === 'INDIVIDUAL' ? (
-                          <span className="bg-blue-500/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                            📌 Individual
-                          </span>
-                        ) : album.status === 'INACTIVO' ? (
-                          <span className="bg-slate-700/80 backdrop-blur-md text-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                            💤 Inactivo
+                        ) : album.status === 'ACTIVO' ? (
+                          <span className="bg-pink-500/90 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow flex items-center gap-1">
+                            🗳️ EN POOL
                           </span>
                         ) : (
-                          <span className="bg-emerald-600/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                            🎵 Pool
+                          <span className="bg-black/70 backdrop-blur-md text-white/90 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10 shadow">
+                            {album.release_type === 'EP'
+                              ? '💽 EP'
+                              : album.release_type === 'SENCILLO' ||
+                                  album.release_type === 'SINGLE' ||
+                                  album.release_type === 'TRACK'
+                                ? '🎵 Sencillo'
+                                : album.release_type === 'COMPILACION' ||
+                                    album.release_type === 'COMPILATION'
+                                  ? '📦 Compilación'
+                                  : album.release_type === 'EN VIVO' ||
+                                      album.release_type === 'LIVE'
+                                    ? '🎤 En Vivo'
+                                    : album.release_type === 'SOUNDTRACK'
+                                      ? '🎬 Soundtrack'
+                                      : album.release_type === 'REMIX'
+                                        ? '🎛️ Remix'
+                                        : '💿 Álbum'}
                           </span>
                         )}
                       </div>
@@ -894,19 +1029,21 @@ export function AlbumsCatalog({ isPage = false }) {
                             </span>
                           )}
                         </div>
-                        <p className="text-slate-500 text-[10px] sm:text-[11px] mt-1 line-clamp-1">
-                          <span>Añadido por:</span>{' '}
-                          <span
-                            translate="no"
-                            className={`notranslate username-tag ${
-                              isMine
-                                ? 'text-yellow-400 font-bold'
-                                : 'text-slate-300'
-                            }`}
-                          >
-                            {album.added_by || 'Miembro'}
-                          </span>
-                        </p>
+                        {album.added_by && (
+                          <p className="text-slate-500 text-[10px] sm:text-[11px] mt-1 line-clamp-1">
+                            <span>Añadido por:</span>{' '}
+                            <span
+                              translate="no"
+                              className={`notranslate username-tag ${
+                                isMine
+                                  ? 'text-yellow-400 font-bold'
+                                  : 'text-slate-300'
+                              }`}
+                            >
+                              {album.added_by}
+                            </span>
+                          </p>
+                        )}
                       </div>
 
                       {/* Best Track Highlight if available */}

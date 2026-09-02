@@ -589,12 +589,18 @@ export function PlaylistsCatalog({ isPage = true }) {
 
                     <div className="p-4 sm:p-5 space-y-3">
                       <div>
-                        <h3 className="text-white font-black text-base sm:text-lg leading-snug group-hover:text-pink-300 transition-colors line-clamp-2">
+                        <h3
+                          translate="no"
+                          className="notranslate music-title text-white font-black text-base sm:text-lg leading-snug group-hover:text-pink-300 transition-colors line-clamp-2"
+                        >
                           {playlist.title}
                         </h3>
                         <p className="text-slate-400 text-xs mt-1">
                           Sugerida por:{' '}
-                          <strong className="text-slate-200">
+                          <strong
+                            translate="no"
+                            className="notranslate username-tag text-slate-200"
+                          >
                             {playlist.added_by || playlist.curator_name || 'Miembro del Club'}
                           </strong>
                         </p>
@@ -774,7 +780,10 @@ export function PlaylistsCatalog({ isPage = true }) {
                               className="bg-black/40 p-2 rounded-lg border border-white/5 text-[11px]"
                             >
                               <div className="flex justify-between items-center text-slate-400 text-[10px]">
-                                <span className="font-bold text-slate-200">
+                                <span
+                                  translate="no"
+                                  className="notranslate username-tag font-bold text-slate-200"
+                                >
                                   {c.liked ? '👍' : '👎'} {c.reviewer_name || 'Miembro'}
                                 </span>
                               </div>

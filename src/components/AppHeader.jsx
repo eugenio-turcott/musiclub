@@ -28,10 +28,15 @@ export function AppHeader({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
+  // Dropdown para navegación agrupada en desktop ('discover' | 'games' | null)
+  const [openNavDropdown, setOpenNavDropdown] = useState(null);
+
   const userMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
   const heroContainerRef = useRef(null);
+  const discoverDropdownRef = useRef(null);
+  const gamesDropdownRef = useRef(null);
 
   // Fallbacks using useAuth hook if props are not explicitly provided
   const user = propUser !== undefined ? propUser : auth.user;
@@ -56,6 +61,7 @@ export function AppHeader({
     setIsMobileMenuOpen(false);
     setIsUserMenuOpen(false);
     setIsNotificationsOpen(false);
+    setOpenNavDropdown(null);
   }, [location.pathname]);
 
   // Cerrar menús al hacer click fuera
@@ -77,12 +83,32 @@ export function AppHeader({
       ) {
         setIsMobileMenuOpen(false);
       }
+      if (
+        discoverDropdownRef.current &&
+        !discoverDropdownRef.current.contains(event.target) &&
+        gamesDropdownRef.current &&
+        !gamesDropdownRef.current.contains(event.target)
+      ) {
+        setOpenNavDropdown(null);
+      }
     };
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsUserMenuOpen(false);
+        setIsNotificationsOpen(false);
+        setIsMobileMenuOpen(false);
+        setOpenNavDropdown(null);
+      }
+    };
+
     document.addEventListener('pointerdown', handleClickOutside);
     document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
       document.removeEventListener('pointerdown', handleClickOutside);
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 
@@ -115,7 +141,7 @@ export function AppHeader({
 
   const pathname = location.pathname;
 
-  const isLinkActive = (paths) => {
+  const isPathActive = (paths) => {
     return paths.some((path) => {
       if (path === '/' && pathname === '/') return true;
       if (path !== '/' && pathname.startsWith(path)) return true;
@@ -123,45 +149,12 @@ export function AppHeader({
     });
   };
 
-  const navLinks = [
-    {
-      to: '/gashapon',
-      label: 'Gashapon',
-      icon: '🎰',
-      paths: ['/gashapon', '/gacha'],
-      highlight: true,
-    },
-    {
-      to: '/recomendaciones',
-      label: 'Para Ti',
-      icon: '✨',
-      paths: ['/recomendaciones', '/para-ti'],
-    },
-    {
-      to: '/leaderboard',
-      label: 'Leaderboard',
-      icon: '🏆',
-      paths: ['/leaderboard', '/ranking'],
-    },
-    {
-      to: '/albumes',
-      label: 'Álbumes',
-      icon: '💿',
-      paths: ['/albumes', '/albums'],
-    },
-    {
-      to: '/playlists',
-      label: 'Playlists',
-      icon: '🎵',
-      paths: ['/playlists', '/playlist'],
-    },
-    {
-      to: '/reviews',
-      label: 'Reviews',
-      icon: '📝',
-      paths: ['/reviews'],
-    },
-  ];
+  // Rutas para los grupos
+  const discoverPaths = ['/recomendaciones', '/para-ti', '/playlists', '/playlist', '/reviews'];
+  const gamesPaths = ['/gashapon', '/gacha', '/leaderboard', '/ranking'];
+
+  const isDiscoverActive = isPathActive(discoverPaths);
+  const isGamesActive = isPathActive(gamesPaths);
 
   return (
     <header className="w-full backdrop-blur-xl sticky top-0 z-50">
@@ -173,43 +166,198 @@ export function AppHeader({
               <img
                 src="/5662059.png"
                 alt="Musiclub Logo"
-                className="w-full h-full object-contain"
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
               />
             </div>
           </Link>
         </div>
 
-        {/* Centro: Enlaces de Navegación - Pantallas grandes (lg y xl) */}
-        <div className="hidden lg:flex items-center justify-center flex-1 min-w-0 px-2">
-          <nav className="flex items-center gap-1 xl:gap-1.5 bg-white/5 border border-white/10 px-1.5 xl:px-2 py-1 rounded-full backdrop-blur-md shadow-inner">
-            {navLinks.map((link) => {
-              const active = isLinkActive(link.paths);
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
-                    active
-                      ? link.highlight
-                        ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
-                        : 'bg-white/15 text-white border border-white/20 shadow-sm'
-                      : link.highlight
-                        ? 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20'
-                        : 'text-white/60 hover:text-white hover:bg-white/10'
+        {/* Centro: Menú de Navegación Agrupado & Compacto - Pantallas medianas/grandes (md/lg/xl) */}
+        <div className="hidden md:flex items-center justify-center flex-1 min-w-0 px-2">
+          <nav className="flex items-center gap-1 xl:gap-1.5 bg-white/5 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-md shadow-inner">
+            {/* 1. Catálogo Directo */}
+            <Link
+              to="/catalogo"
+              className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
+                isPathActive(['/catalogo', '/catalog', '/albumes', '/albums'])
+                  ? 'bg-white/15 text-white border border-white/20 shadow-sm'
+                  : 'text-white/70 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              <span>💿</span>
+              <span>Catálogo</span>
+            </Link>
+
+            {/* 2. Pool Musical (Pill Destacado) */}
+            <Link
+              to="/pool"
+              className={`text-xs font-bold flex items-center gap-1.5 px-3.5 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
+                isPathActive(['/pool', '/pool-musical', '/temporadas', '/season'])
+                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
+                  : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20'
+              }`}
+            >
+              <span>🗳️</span>
+              <span>Pool Musical</span>
+            </Link>
+
+            {/* 3. Dropdown Agrupado: Descubrir (Para Ti, Playlists, Reviews) */}
+            <div className="relative" ref={discoverDropdownRef}>
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenNavDropdown((prev) => (prev === 'discover' ? null : 'discover'))
+                }
+                className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
+                  openNavDropdown === 'discover' || isDiscoverActive
+                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/35 shadow-sm'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <span>✨</span>
+                <span>Descubrir</span>
+                <svg
+                  className={`w-3 h-3 transition-transform duration-200 ${
+                    openNavDropdown === 'discover' ? 'rotate-180 text-purple-300' : 'text-white/40'
                   }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  <span>{link.icon}</span>
-                  <span>{link.label}</span>
-                </Link>
-              );
-            })}
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Submenú Flotante Descubrir */}
+              {openNavDropdown === 'discover' && (
+                <div className="absolute top-full mt-2 left-0 w-60 bg-[#0c0e1c]/95 border border-purple-500/30 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-fadeIn space-y-0.5">
+                  <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-purple-300/70 border-b border-white/5 mb-1">
+                    Exploración Musical
+                  </div>
+                  <Link
+                    to="/recomendaciones"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/recomendaciones', '/para-ti'])
+                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">✨</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Para Ti</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Recomendaciones personalizadas</span>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/playlists"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/playlists', '/playlist'])
+                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">🎵</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Playlists</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Colecciones y selecciones del club</span>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/reviews"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/reviews'])
+                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">📝</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Reviews</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Feed de opiniones y notas</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* 4. Dropdown Agrupado: Dinámicas (Gashapon, Leaderboard) */}
+            <div className="relative" ref={gamesDropdownRef}>
+              <button
+                type="button"
+                onClick={() =>
+                  setOpenNavDropdown((prev) => (prev === 'games' ? null : 'games'))
+                }
+                className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
+                  openNavDropdown === 'games' || isGamesActive
+                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/35 shadow-sm'
+                    : 'text-white/70 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                <span>🎮</span>
+                <span>Dinámicas</span>
+                <svg
+                  className={`w-3 h-3 transition-transform duration-200 ${
+                    openNavDropdown === 'games' ? 'rotate-180 text-amber-300' : 'text-white/40'
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {/* Submenú Flotante Dinámicas */}
+              {openNavDropdown === 'games' && (
+                <div className="absolute top-full mt-2 left-0 w-60 bg-[#0c0e1c]/95 border border-amber-500/30 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-fadeIn space-y-0.5">
+                  <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-amber-300/70 border-b border-white/5 mb-1">
+                    Arcade & Ranking
+                  </div>
+                  <Link
+                    to="/gashapon"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/gashapon', '/gacha'])
+                        ? 'bg-amber-500/20 text-amber-200 font-bold border border-amber-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">🎰</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Gashapon</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Sorteo arcade de cápsulas</span>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/leaderboard"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/leaderboard', '/ranking'])
+                        ? 'bg-amber-500/20 text-amber-200 font-bold border border-amber-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">🏆</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Leaderboard</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Ranking de críticos del club</span>
+                    </div>
+                  </Link>
+                </div>
+              )}
+            </div>
           </nav>
         </div>
 
         {/* Lado Derecho: Buscador Global Directo, Selector de Idiomas, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
-          {/* Selector de Idiomas Global (10 Idiomas con Google Translate Engine) */}
-          <LanguageSelector variant="header" />
+          {/* Selector de Idiomas Global (Oculto en celular, visible en sm y superior) */}
+          <div className="hidden sm:inline-block">
+            <LanguageSelector variant="header" />
+          </div>
 
           {/* Buscador de Álbumes del Club con Autocomplete y Calificación Directa */}
           <HeaderAlbumSearch user={user} />
@@ -222,6 +370,7 @@ export function AppHeader({
                 setIsNotificationsOpen((prev) => !prev);
                 setIsUserMenuOpen(false);
                 setIsMobileMenuOpen(false);
+                setOpenNavDropdown(null);
               }}
               className={`relative w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center rounded-full border transition-all duration-200 cursor-pointer select-none ${
                 isNotificationsOpen
@@ -283,6 +432,7 @@ export function AppHeader({
                 onClick={() => {
                   setIsUserMenuOpen((prev) => !prev);
                   setIsMobileMenuOpen(false);
+                  setOpenNavDropdown(null);
                 }}
                 className={`flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-full border transition-all duration-200 cursor-pointer select-none ${
                   isUserMenuOpen
@@ -339,7 +489,7 @@ export function AppHeader({
                 </svg>
               </button>
 
-              {/* Menú Desplegable Extensible del Perfil (En móvil debajo tipo barra, en desktop flotante) */}
+              {/* Menú Desplegable Extensible del Perfil */}
               {isUserMenuOpen && (
                 <div className="fixed left-2 right-2 top-[58px] z-[155] sm:fixed-none sm:absolute sm:left-auto sm:right-0 sm:top-full sm:mt-2 sm:w-72 bg-[#0d0f1c] backdrop-blur-2xl border border-pink-500/40 sm:border-white/15 rounded-2xl shadow-2xl p-3 sm:p-2.5 text-left animate-fadeIn space-y-2">
                   {/* Cabecera para móvil con botón cerrar */}
@@ -428,7 +578,7 @@ export function AppHeader({
                       <span className="text-[10px] text-white/40">Ajustes</span>
                     </Link>
 
-                    {/* Opción Admin Panel (Solo si es Administrador) */}
+                    {/* Opción Admin Panel */}
                     {isAdmin && (
                       <Link
                         to="/admin"
@@ -493,7 +643,7 @@ export function AppHeader({
             <button
               onClick={handleLoginClick}
               disabled={loading}
-              className="px-3.5 sm:px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5"
+              className="px-3.5 sm:px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
             >
               <span>👤</span>
               <span>{loading ? '...' : 'Iniciar sesión'}</span>
@@ -507,8 +657,9 @@ export function AppHeader({
             onClick={() => {
               setIsMobileMenuOpen((prev) => !prev);
               setIsUserMenuOpen(false);
+              setOpenNavDropdown(null);
             }}
-            className={`lg:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 ${
+            className={`md:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 cursor-pointer ${
               isMobileMenuOpen
                 ? 'bg-pink-500/20 border-pink-500/50 text-white'
                 : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/70 hover:text-white'
@@ -540,7 +691,7 @@ export function AppHeader({
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  strokeWidth="2"
+                  strokeWidth="2.5"
                   d="M4 6h16M4 12h16M4 18h16"
                 />
               </svg>
@@ -549,88 +700,170 @@ export function AppHeader({
         </div>
       </div>
 
-      {/* Menú Desplegable Hamburguesa para Mobile y Tablets (Solo Navegación del Club) */}
+      {/* Menú Desplegable Hamburguesa para Mobile y Tablets (Estructurado por Categorías) */}
       {isMobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="lg:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3 animate-fadeIn shadow-2xl"
+          className="md:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3.5 animate-fadeIn shadow-2xl"
         >
-          <div className="flex items-center justify-between px-1">
-            <span className="text-[10px] uppercase font-bold text-white/40 tracking-wider">
-              Navegación del Club
+          {/* SECCIÓN 1: MÚSICA & POOL */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider px-1">
+              Música & Club
             </span>
-            <span className="text-[10px] text-pink-400/80 font-medium">
-              Musiclub
-            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                to="/catalogo"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/catalogo', '/catalog', '/albumes', '/albums'])
+                    ? 'bg-white/15 text-white border border-white/20'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">💿</span>
+                <span>Catálogo</span>
+              </Link>
+              <Link
+                to="/pool"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isPathActive(['/pool', '/pool-musical', '/temporadas', '/season'])
+                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                    : 'bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20'
+                }`}
+              >
+                <span className="text-base">🗳️</span>
+                <span>Pool Musical</span>
+              </Link>
+            </div>
           </div>
 
-          <nav className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {navLinks.map((link) => {
-              const active = isLinkActive(link.paths);
-              return (
-                <Link
-                  key={link.to}
-                  to={link.to}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-xs sm:text-sm font-semibold transition-all ${
-                    active
-                      ? link.highlight
-                        ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-[#f5576c]/30'
-                        : 'bg-white/15 text-white border border-white/20'
-                      : link.highlight
-                        ? 'bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20'
-                        : 'text-white/75 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5'
-                  }`}
-                >
-                  <span className="text-lg">{link.icon}</span>
-                  <span className="flex-1">{link.label}</span>
-                  {active && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
-                  )}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* SECCIÓN 2: DESCUBRIMIENTO */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase font-bold text-purple-300/70 tracking-wider px-1">
+              Descubrimiento
+            </span>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Link
+                to="/recomendaciones"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/recomendaciones', '/para-ti'])
+                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">✨</span>
+                <span>Para Ti</span>
+              </Link>
+              <Link
+                to="/playlists"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/playlists', '/playlist'])
+                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">🎵</span>
+                <span>Playlists</span>
+              </Link>
+              <Link
+                to="/reviews"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/reviews'])
+                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">📝</span>
+                <span>Reviews</span>
+              </Link>
+            </div>
+          </div>
 
-          <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40 px-1">
-            <button
-              type="button"
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                setIsNotificationsOpen(true);
-              }}
-              className="hover:text-white transition-colors flex items-center gap-1.5 text-pink-300 font-semibold cursor-pointer"
-            >
-              <span>🔔</span>
-              <span>Notificaciones</span>
-              {unreadCount > 0 && (
-                <span className="px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
+          {/* SECCIÓN 3: DINÁMICAS & RANKING */}
+          <div className="space-y-1.5">
+            <span className="text-[10px] uppercase font-bold text-amber-300/70 tracking-wider px-1">
+              Dinámicas & Ranking
+            </span>
+            <div className="grid grid-cols-2 gap-2">
+              <Link
+                to="/gashapon"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/gashapon', '/gacha'])
+                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">🎰</span>
+                <span>Gashapon</span>
+              </Link>
+              <Link
+                to="/leaderboard"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/leaderboard', '/ranking'])
+                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
+                }`}
+              >
+                <span className="text-base">🏆</span>
+                <span>Leaderboard</span>
+              </Link>
+            </div>
+          </div>
 
-            <Link
-              to="/faq"
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="hover:text-white transition-colors flex items-center gap-1"
-            >
-              <span>❓</span> Guía & FAQ
-            </Link>
+          {/* Pie de navegación móvil */}
+          <div className="pt-2.5 border-t border-white/10 flex flex-col gap-2.5 px-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                Idioma / Language
+              </span>
+              <LanguageSelector variant="footer" />
+            </div>
+
+            <div className="flex items-center justify-between text-[11px] text-white/50 pt-1 border-t border-white/5">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsNotificationsOpen(true);
+                }}
+                className="hover:text-white transition-colors flex items-center gap-1.5 text-pink-300 font-semibold cursor-pointer"
+              >
+                <span>🔔</span>
+                <span>Notificaciones</span>
+                {unreadCount > 0 && (
+                  <span className="px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              <Link
+                to="/faq"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="hover:text-white transition-colors flex items-center gap-1 text-slate-300 hover:text-white"
+              >
+                <span>❓</span> Guía & FAQ
+              </Link>
+            </div>
           </div>
         </div>
       )}
 
-      {/* Título opcional centrado debajo (ej. para pantalla principal) con Fondo Animado e Interactivo */}
+      {/* Título opcional centrado debajo con Fondo Animado e Interactivo */}
       {showTitle && (
         <div
           ref={heroContainerRef}
           className="relative overflow-hidden my-3 mx-2 sm:mx-4 rounded-3xl border border-white/10 bg-gradient-to-b from-[#151730] via-[#0d0e1c] to-[#070810] shadow-[0_15px_50px_rgba(0,0,0,0.7)] text-center py-6 sm:py-8 px-4 sm:px-6 cursor-default select-none"
         >
-          {/* Canvas interactivo de partículas musicales al mover el mouse */}
           <HeroMusicCanvas containerRef={heroContainerRef} />
 
-          {/* Orbes de luz de fondo con aceleración GPU */}
           <div
             className="absolute -top-16 -left-16 w-56 sm:w-72 h-56 sm:h-72 bg-gradient-to-tr from-[#f5576c]/25 to-[#f093fb]/15 rounded-full blur-2xl pointer-events-none animate-aura-pulse"
             style={{
@@ -651,7 +884,6 @@ export function AppHeader({
             style={{ transform: 'translate3d(-50%, -50%, 0)' }}
           ></div>
 
-          {/* Elementos flotantes decorativos */}
           <div className="hidden sm:flex absolute left-6 top-8 text-2xl opacity-60 animate-float-slow select-none pointer-events-none">
             🎵
           </div>
@@ -666,7 +898,6 @@ export function AppHeader({
           </div>
 
           <div className="relative z-10 flex flex-col items-center">
-            {/* Pill superior con ecualizador animado */}
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm mb-2 hover:border-[#f5576c]/40 hover:bg-white/10 transition-all duration-300">
               <div className="flex items-end gap-0.5 h-3.5">
                 <span
@@ -692,7 +923,6 @@ export function AppHeader({
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             </div>
 
-            {/* Título Principal con Gradiente Animado */}
             <h1
               className="title-albumes text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] animate-gradient-text my-0 leading-none"
               style={{
@@ -703,7 +933,6 @@ export function AppHeader({
               {customTitle || 'MUSICLUB'}
             </h1>
 
-            {/* Subtítulo Descriptivo */}
             <p className="text-white/75 text-xs sm:text-sm md:text-base font-medium max-w-2xl mx-auto leading-relaxed mt-2 tracking-wide">
               {customSubtitle ||
                 'Recomienda, vota, califica y descubre música con la comunidad'}
@@ -726,3 +955,5 @@ export function AppHeader({
     </header>
   );
 }
+
+export default AppHeader;

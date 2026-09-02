@@ -10,7 +10,7 @@ import {
   getArtistCompleteProfile,
   getAlbumDetails,
 } from '../services/spotifyApi';
-import { slugifyAlbum, findAlbumsByArtist } from '../utils/ratingUtils';
+import { findAlbumsByArtist, getReleaseUrl } from '../utils/ratingUtils';
 
 export function ArtistDetail() {
   const { slug } = useParams();
@@ -223,13 +223,16 @@ export function ArtistDetail() {
       };
 
       const created = await supabaseService.createAlbum(albumPayload);
-      const slugTarget = slugifyAlbum(created?.album_name || spotifyAlbum.name);
+      const targetUrl = getReleaseUrl(
+        created?.album_name || spotifyAlbum.name,
+        release.release_type || 'ALBUM'
+      );
 
       setProposeMessage(
         `¡"${release.name}" agregado con éxito! Redirigiendo...`
       );
       setTimeout(() => {
-        navigate(`/albumes/${slugTarget}`);
+        navigate(targetUrl);
       }, 700);
     } catch (err) {
       console.error('Error al proponer álbum:', err);
@@ -287,7 +290,7 @@ export function ArtistDetail() {
             Inicio
           </Link>
           <span>/</span>
-          <Link to="/albumes" className="hover:text-white transition-colors">
+          <Link to="/catalogo" className="hover:text-white transition-colors">
             Catálogo
           </Link>
           <span>/</span>
@@ -322,7 +325,7 @@ export function ArtistDetail() {
                 Reintentar
               </button>
               <Link
-                to="/albumes"
+                to="/catalogo"
                 className="px-5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-all"
               >
                 Volver al Catálogo
@@ -572,7 +575,6 @@ export function ArtistDetail() {
                       .replace(/[^a-z0-9]/g, '');
 
                     const existingInClub = clubAlbumMap.get(normReleaseName);
-                    const releaseSlug = slugifyAlbum(release.name);
 
                     const typeBadge =
                       release.release_type === 'EP'
@@ -593,11 +595,29 @@ export function ArtistDetail() {
                                 color:
                                   'bg-amber-300/80 text-amber-800 border-amber-700/50',
                               }
-                            : {
-                                label: 'Álbum',
-                                color:
-                                  'bg-purple-300/80 text-purple-800 border-purple-700/50',
-                              };
+                            : release.release_type === 'EN VIVO'
+                              ? {
+                                  label: 'En Vivo',
+                                  color:
+                                    'bg-emerald-300/80 text-emerald-800 border-emerald-700/50',
+                                }
+                              : release.release_type === 'SOUNDTRACK'
+                                ? {
+                                    label: 'Soundtrack',
+                                    color:
+                                      'bg-indigo-300/80 text-indigo-800 border-indigo-700/50',
+                                  }
+                                : release.release_type === 'REMIX'
+                                  ? {
+                                      label: 'Remix',
+                                      color:
+                                        'bg-fuchsia-300/80 text-fuchsia-800 border-fuchsia-700/50',
+                                    }
+                                  : {
+                                      label: 'Álbum',
+                                      color:
+                                        'bg-purple-300/80 text-purple-800 border-purple-700/50',
+                                    };
 
                     return (
                       <div
@@ -678,7 +698,7 @@ export function ArtistDetail() {
                         <div className="pt-3 mt-2 border-t border-white/5 space-y-1.5">
                           {existingInClub ? (
                             <Link
-                              to={`/albumes/${releaseSlug}`}
+                              to={getReleaseUrl(release.name, release.release_type || 'ALBUM')}
                               className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
                             >
                               <span>🎧</span>

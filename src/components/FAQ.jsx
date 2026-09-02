@@ -118,21 +118,21 @@ const FAQ_DATA = [
     category: 'leaderboard',
     question: '¿Cómo funciona el Leaderboard y el Sistema de Puntuación XP?',
     answer:
-      'El Leaderboard clasifica a los miembros por su **Score XP de Club**, un puntaje integral que premia la constancia y los logros históricos:\n\n• **Puntos por Actividad**:\n  - 🎧 **+50 XP** por cada álbum reseñado.\n  - ✍️ **+25 XP extra** por reseñas con comentarios detallados.\n  - ⚡ **+2 XP** por cada pista individual calificada.\n  - 💿 **+30 XP** por cada álbum aportado al catálogo.\n\n• **Puntos por Insignias & Tiers**:\n  - Cada nivel desbloqueado otorga entre **+50 XP (Tier I)** hasta **+1,300 XP (Tier VII)**.\n  - Las Coronas de Récords #1 otorgan un bonus permanente de **+300 XP** mientras se conserve el récord.\n\nEn la parte superior se exhibe el **Podio de Honor** con medallas de Oro 🥇, Plata 🥈 y Bronce 🥉 para los 3 líderes de puntuación.',
+      'El Leaderboard clasifica a los miembros por su **Score XP de Club**, un puntaje integral que premia la constancia y los logros históricos:\n\n• **Puntos por Actividad**:\n  - 🎧 **+50 XP** por cada álbum reseñado.\n  - ✍️ **+25 XP extra** por reseñas con comentarios detallados.\n  - ⚡ **+2 XP** por cada pista individual calificada.\n\n• **Puntos por Insignias & Tiers**:\n  - Cada nivel desbloqueado otorga entre **+50 XP (Tier I)** hasta **+1,300 XP (Tier VII)**.\n  - Las Coronas de Récords #1 otorgan un bonus permanente de **+300 XP** mientras se conserve el récord.\n\nEn la parte superior se exhibe el **Podio de Honor** con medallas de Oro 🥇, Plata 🥈 y Bronce 🥉 para los 3 líderes de puntuación.',
   },
   {
     id: 'que-insignias-existen',
     category: 'leaderboard',
     question: '¿Qué insignias (Badges) existen y cómo se dividen en Tiers?',
     answer:
-      'Las insignias se organizan en 3 pilares clave:\n\n1. 👑 **Récords #1 Dinámicos (Coronas)**: Títulos exclusivos para los líderes de la comunidad (#1 en reseñas: 👑 *Máster Reviewer*, #1 en aportes: 🏆 *Gran Curador*, #1 en pistas: ⚡ *Cirujano del Tracklist*, #1 en comentarios: ✒️ *Crítico Letrado*, #1 en dieces: 🌟 *Cazador Absoluto del 10*).\n\n2. 📈 **Progresión Multinivel (Tiers I al VII)**:\n  - 🎚️ *Pistas al Detalle*: Desde 🔬 Oyente Detallista (25 tracks) hasta 🪐 Enciclopedia Sonora (1,000 tracks).\n  - 🎧 *Explorador Musical*: Desde 🎧 Oyente Inicial (5 álbumes) hasta 🌌 Leyenda Melómana (500 álbumes).\n  - ✍️ *Pluma Crítica*: Desde ✍️ Primeros Apuntes (2 comentarios) hasta 🏛️ Reseñista Consagrado (250 comentarios).\n  - 💯 *Cazador del 10*: Desde 💯 Descubridor de Joyas (1 diez) hasta 🔮 Coleccionista Supremo (100 dieces).\n  - 💿 *Curaduría & Aportes*: Desde 💿 Melómano Colaborador (5 álbumes) hasta 🗿 Archivero Maestro (250 álbumes).\n\n3. ⚖️ **Personalidad & Rigor Crítico**:\n  - 🎯 *Crítico Exigente*: Tiers I a IV para promedios rigurosos (🎯 Oído Exigente hasta 💀 Inquisidor Sonoro con 5+ reviews).\n  - 💖 *Crítico Generoso*: Tiers I a V para promedios entusiastas (💖 Oído Optimista hasta 🪽 Apóstol del Aprecio con 5+ reviews).',
+      'Las insignias se organizan en 3 pilares clave:\n\n1. 👑 **Récords #1 Dinámicos (Coronas)**: Títulos exclusivos para los líderes de la comunidad (#1 en reseñas: 👑 *Máster Reviewer*, #1 en pistas: ⚡ *Cirujano del Tracklist*, #1 en comentarios: ✒️ *Crítico Letrado*, #1 en dieces: 🌟 *Cazador Absoluto del 10*).\n\n2. 📈 **Progresión Multinivel (Tiers I al VII)**:\n  - 🎚️ *Pistas al Detalle*: Desde 🔬 Oyente Detallista (25 tracks) hasta 🪐 Enciclopedia Sonora (1,000 tracks).\n  - 🎧 *Explorador Musical*: Desde 🎧 Oyente Inicial (5 álbumes) hasta 🌌 Leyenda Melómana (500 álbumes).\n  - ✍️ *Pluma Crítica*: Desde ✍️ Primeros Apuntes (2 comentarios) hasta 🏛️ Reseñista Consagrado (250 comentarios).\n  - 💯 *Cazador del 10*: Desde 💯 Descubridor de Joyas (1 diez) hasta 🔮 Coleccionista Supremo (100 dieces).\n\n3. ⚖️ **Personalidad & Rigor Crítico**:\n  - 🎯 *Crítico Exigente*: Tiers I a IV para promedios rigurosos (🎯 Oído Exigente hasta 💀 Inquisidor Sonoro con 5+ reviews).\n  - 💖 *Crítico Generoso*: Tiers I a V para promedios entusiastas (💖 Oído Optimista hasta 🪽 Apóstol del Aprecio con 5+ reviews).',
   },
   {
     id: 'perfil-otros-miembros',
     category: 'leaderboard',
     question: '¿Puedo consultar las estadísticas, XP y gustos de otros miembros?',
     answer:
-      '¡Sí! En el Leaderboard puedes hacer clic en cualquier miembro para abrir una tarjeta con su biografía musical, su artista y álbum favoritos, su desglose de puntuación XP, progreso hacia sus siguientes tiers, y el listado de todos sus álbumes aportados y promedios por criterio.',
+      '¡Sí! En el Leaderboard puedes hacer clic en cualquier miembro para abrir una tarjeta con su biografía musical, su artista y álbum favoritos, su desglose de puntuación XP, progreso hacia sus siguientes tiers, y el listado de todas sus reseñas y promedios por criterio.',
   },
 
   // 5. Catálogo & Spotify
@@ -413,7 +413,7 @@ export function FAQ({ isPage = false }) {
               🏆 Ver Leaderboard
             </Link>
             <span className="text-white/20">·</span>
-            <Link to="/albumes" className="text-[#f5576c] hover:underline font-semibold">
+            <Link to="/catalogo" className="text-[#f5576c] hover:underline font-semibold">
               💿 Explorar Catálogo
             </Link>
           </div>

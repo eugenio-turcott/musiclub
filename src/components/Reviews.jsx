@@ -41,7 +41,8 @@ export function Reviews({ onClose, isPage = false }) {
             album_name,
             artist_name,
             image_url,
-            status,
+            release_type,
+            release_year,
             tracks
           )
         `
@@ -52,8 +53,7 @@ export function Reviews({ onClose, isPage = false }) {
 
       const { data: albumsData, error: albumsError } = await supabase
         .from('albums')
-        .select('id, album_name, artist_name, status')
-        .in('status', ['INACTIVO', 'GANADOR', 'INDIVIDUAL'])
+        .select('id, album_name, artist_name, release_type, release_year')
         .order('album_name');
 
       if (albumsError) throw new Error(albumsError.message);
@@ -76,35 +76,55 @@ export function Reviews({ onClose, isPage = false }) {
     loadReviews();
   }, [loadReviews]);
 
-  const getStatusBadge = (status) => {
-    switch (status) {
-      case 'ACTIVO':
-        return (
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/15 border border-emerald-400/30">
-            Activo
-          </span>
-        );
-      case 'INACTIVO':
-        return (
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-slate-300 bg-slate-500/15 border border-slate-400/30">
-            Inactivo
-          </span>
-        );
-      case 'GANADOR':
-        return (
-          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-rose-300 bg-rose-500/20 border border-rose-400/30">
-            🏆 Ganador
-          </span>
-        );
-      case 'INDIVIDUAL':
-        return (
-          <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30">
-            📌 Individual
-          </span>
-        );
-      default:
-        return null;
+  const getReleaseTypeBadge = (type) => {
+    const raw = (type || 'ALBUM').toUpperCase();
+    if (raw === 'EP') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-indigo-300 bg-indigo-500/15 border border-indigo-400/30">
+          💽 EP
+        </span>
+      );
     }
+    if (raw === 'SENCILLO' || raw === 'SINGLE') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-pink-300 bg-pink-500/15 border border-pink-400/30">
+          🎵 Sencillo
+        </span>
+      );
+    }
+    if (raw === 'COMPILACION' || raw === 'COMPILATION') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-amber-300 bg-amber-500/15 border border-amber-400/30">
+          📦 Compilación
+        </span>
+      );
+    }
+    if (raw === 'EN VIVO' || raw === 'LIVE') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/15 border border-emerald-400/30">
+          🎤 En Vivo
+        </span>
+      );
+    }
+    if (raw === 'SOUNDTRACK') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-purple-300 bg-purple-500/15 border border-purple-400/30">
+          🎬 Soundtrack
+        </span>
+      );
+    }
+    if (raw === 'REMIX') {
+      return (
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30">
+          🎛️ Remix
+        </span>
+      );
+    }
+    return (
+      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30">
+        💿 Álbum
+      </span>
+    );
   };
 
   const getRatingBadgeStyle = (rating) => {
@@ -397,7 +417,7 @@ export function Reviews({ onClose, isPage = false }) {
                             >
                               {album?.album_name || 'Álbum desconocido'}
                             </h4>
-                            {album?.status && getStatusBadge(album.status)}
+                            {album?.release_type && getReleaseTypeBadge(album.release_type)}
                           </div>
                           <p
                             translate="no"

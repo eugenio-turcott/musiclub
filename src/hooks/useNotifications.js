@@ -143,22 +143,11 @@ export function useNotifications(user) {
 
         // B. RESEÑAS A TUS ÁLBUMES PROPUESTOS
         try {
-          // Consultar álbumes donde el usuario es el proponente
-          let userAlbumsQuery = supabase
-            .from('albums')
-            .select('id, album_name, artist_name, image_url, added_by, added_by_email, user_id');
-
-          if (uEmail && uName) {
-            userAlbumsQuery = userAlbumsQuery.or(
-              `added_by_email.eq.${uEmail},added_by.eq.${uName}`
-            );
-          } else if (uEmail) {
-            userAlbumsQuery = userAlbumsQuery.eq('added_by_email', uEmail);
-          } else if (uName) {
-            userAlbumsQuery = userAlbumsQuery.eq('added_by', uName);
-          }
-
-          const { data: userAlbums, error: albErr } = await userAlbumsQuery;
+          if (user.id) {
+            const { data: userAlbums, error: albErr } = await supabase
+              .from('albums')
+              .select('id, album_name, artist_name, image_url, user_id')
+              .eq('user_id', user.id);
 
           if (!albErr && Array.isArray(userAlbums) && userAlbums.length > 0) {
             const userAlbumIds = userAlbums.map((a) => a.id).filter(Boolean);
@@ -211,10 +200,11 @@ export function useNotifications(user) {
               }
             }
           }
-        } catch (revQueryErr) {
-          console.warn('Error fetching review notifications:', revQueryErr);
         }
+      } catch (revQueryErr) {
+        console.warn('Error fetching review notifications:', revQueryErr);
       }
+    }
 
       // Ordenar cronológicamente descendente (más recientes primero)
       notifs.sort((a, b) => b.timestamp - a.timestamp);

@@ -7,9 +7,10 @@ import { ReviewSystem } from './ReviewSystem';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import {
-  slugifyAlbum,
   slugifyArtist,
   findAlbumBySlug,
+  getReleaseTypeCategory,
+  getReleaseUrl,
   getTrackDisplayName,
   getEmotionFromReview,
   getReviewFavoriteTrack,
@@ -259,9 +260,10 @@ export function AlbumDetail() {
   // Structured JSON-LD Schema for Google Rich Review Snippets (Metacritic / AOTY style)
   const schemaData = useMemo(() => {
     if (!album) return null;
-    const albumSlug = slugifyAlbum(album.album_name);
+    const releaseFormat = album.release_type || spotifyMeta?.releaseType;
+    const canonicalPath = getReleaseUrl(album, releaseFormat);
     const artistSlug = slugifyArtist(album.artist_name);
-    const canonicalUrl = `https://musiclub.org/albumes/${albumSlug}`;
+    const canonicalUrl = `https://musiclub.org${canonicalPath}`;
     const releaseYear =
       album.release_year ||
       (album.release_date ? album.release_date.substring(0, 4) : undefined);
@@ -350,6 +352,10 @@ export function AlbumDetail() {
     return schema;
   }, [album, spotifyMeta]);
 
+  const releaseTypeCategory = useMemo(() => {
+    return getReleaseTypeCategory(album?.release_type || spotifyMeta?.releaseType);
+  }, [album?.release_type, spotifyMeta?.releaseType]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0b12] text-white py-8 px-4 sm:px-6 lg:px-8">
@@ -375,19 +381,19 @@ export function AlbumDetail() {
           <div className="p-10 bg-white/5 border border-white/10 rounded-3xl text-center space-y-4 max-w-lg mx-auto mt-12 shadow-2xl">
             <span className="text-5xl">💿</span>
             <h2 className="text-2xl font-black text-white">
-              Álbum no encontrado
+              Lanzamiento no encontrado
             </h2>
             <p className="text-slate-400 text-sm">
-              No pudimos encontrar el álbum solicitado en nuestro catálogo o fue
+              No pudimos encontrar el lanzamiento solicitado en nuestro catálogo o fue
               modificado.
             </p>
             <div className="pt-2">
               <Link
-                to="/albumes"
+                to="/catalogo"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold text-sm shadow-lg hover:brightness-110 transition-all"
               >
                 <span>←</span>
-                <span>Explorar Todos los Álbumes</span>
+                <span>Explorar Catálogo</span>
               </Link>
             </div>
           </div>
@@ -398,7 +404,8 @@ export function AlbumDetail() {
   }
 
   const score = album.final_rating;
-  const canonicalUrl = `https://musiclub.org/albumes/${slugifyAlbum(album.album_name)}`;
+  const canonicalPath = getReleaseUrl(album, album.release_type || spotifyMeta?.releaseType);
+  const canonicalUrl = `https://musiclub.org${canonicalPath}`;
   const reviewCountNum = album.reviews?.length || album.review_count || 0;
   const metaDescription = score
     ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${Number(score).toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
@@ -424,13 +431,20 @@ export function AlbumDetail() {
         <AppHeader showTitle={false} />
 
         {/* Breadcrumb Navigation */}
-        <nav className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+        <nav className="flex items-center gap-2 text-xs text-slate-400 font-medium flex-wrap">
           <Link to="/" className="hover:text-cyan-400 transition-colors">
             Inicio
           </Link>
           <span>/</span>
-          <Link to="/albumes" className="hover:text-cyan-400 transition-colors">
-            Álbumes
+          <Link
+            to={
+              releaseTypeCategory.routePrefix === 'albumes'
+                ? '/catalogo'
+                : `/catalogo?tipo=${releaseTypeCategory.catalogFilter || releaseTypeCategory.routePrefix}`
+            }
+            className="hover:text-cyan-400 transition-colors font-medium"
+          >
+            {releaseTypeCategory.label}
           </Link>
           <span>/</span>
           <span
@@ -554,7 +568,7 @@ export function AlbumDetail() {
                     album.release_type || spotifyMeta?.releaseType || 'ALBUM';
                   const badgeMap = {
                     EP: {
-                      label: '💿 EP',
+                      label: '💽 EP',
                       cls: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
                     },
                     SENCILLO: {
@@ -565,8 +579,24 @@ export function AlbumDetail() {
                       label: '📦 Compilación',
                       cls: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
                     },
+                    EN_VIVO: {
+                      label: '🎤 En Vivo',
+                      cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                    },
+                    'EN VIVO': {
+                      label: '🎤 En Vivo',
+                      cls: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+                    },
+                    SOUNDTRACK: {
+                      label: '🎬 Soundtrack',
+                      cls: 'bg-indigo-500/20 text-indigo-300 border-indigo-500/30',
+                    },
+                    REMIX: {
+                      label: '🎛️ Remix',
+                      cls: 'bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/30',
+                    },
                     ALBUM: {
-                      label: '✨ Álbum',
+                      label: '💿 Álbum',
                       cls: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
                     },
                   };
@@ -599,10 +629,12 @@ export function AlbumDetail() {
 
                 <span className="text-white/20">•</span>
 
-                <span>Curado por</span>
-                <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">
-                  {album.added_by || 'Miembro de Musiclub'}
-                </span>
+                {album.tracks && album.tracks.length > 0 && (
+    <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+      <span>🎵</span>
+      <span>{album.tracks.length} {album.tracks.length === 1 ? 'Canción' : 'Canciones'}</span>
+    </span>
+  )}
 
                 {album.created_at && (
                   <>
@@ -772,7 +804,7 @@ export function AlbumDetail() {
                 </Link>
 
                 <Link
-                  to="/albumes"
+                  to="/catalogo"
                   className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-xs sm:text-sm border border-white/10 transition-all flex items-center gap-2"
                 >
                   <span>←</span>

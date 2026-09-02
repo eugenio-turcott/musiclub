@@ -1554,7 +1554,7 @@ export function Rankings({ albums, isAdmin = false }) {
 
                       <div className="mt-6 text-center">
                         <Link
-                          to="/albumes"
+                          to="/catalogo"
                           className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-yellow-500/25 text-amber-300 font-bold text-xs sm:text-sm rounded-full border border-amber-500/35 hover:border-amber-500/60 transition-all hover:scale-105 shadow-md shadow-black/30 active:scale-95"
                         >
                           <span>💿</span> Ver Catálogo Completo<span>→</span>

@@ -2326,7 +2326,10 @@ export function ReviewSystem({
                         >
                           {(review?.reviewer_name || 'A')[0].toUpperCase()}
                         </div>
-                        <span className="text-white font-medium text-sm">
+                        <span
+                          translate="no"
+                          className="notranslate username-tag text-white font-medium text-sm"
+                        >
                           {review?.reviewer_name || 'Anónimo'}
                         </span>
                         <span className="text-white/30 text-xs">
@@ -2395,7 +2398,8 @@ export function ReviewSystem({
                             </span>
                           </div>
                           <span
-                            className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[280px]"
+                            translate="no"
+                            className="notranslate track-name font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[280px]"
                             title={favName}
                           >
                             {favName}
@@ -2463,7 +2467,8 @@ export function ReviewSystem({
                                 >
                                   <span>{isFav ? '⭐' : '🎵'}</span>
                                   <span
-                                    className="max-w-[120px] truncate"
+                                    translate="no"
+                                    className="notranslate track-name max-w-[120px] truncate"
                                     title={trackName}
                                   >
                                     {trackName}

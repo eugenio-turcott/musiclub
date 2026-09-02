@@ -13,7 +13,7 @@ import {
   getEmotionFromReview,
   getReviewFavoriteTrack,
   isFavoriteTrackMatch,
-  slugifyAlbum,
+  getReleaseUrl,
 } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 import { Recommendations } from './Recommendations';
@@ -304,7 +304,6 @@ export function UserProfile({ isPage = false }) {
     if (!leaderboardList || leaderboardList.length === 0) return {};
     return {
       review_count: Math.max(...leaderboardList.map((u) => u.review_count || 0), 0),
-      albums_added_count: Math.max(...leaderboardList.map((u) => u.albums_added_count || 0), 0),
       total_tracks_rated: Math.max(...leaderboardList.map((u) => u.total_tracks_rated || 0), 0),
       comments_count: Math.max(...leaderboardList.map((u) => u.comments_count || 0), 0),
       tens_count: Math.max(...leaderboardList.map((u) => u.tens_count || 0), 0),
@@ -344,11 +343,10 @@ export function UserProfile({ isPage = false }) {
       review_count: stats.totalReviews,
       avg_score: stats.averageScore,
       total_tracks_rated: stats.totalTracksRated,
-      albums_added_count: userAlbumsAdded.length,
       reviews: userReviews,
     };
     return calculateUserGamification(userObj, communityMaxes);
-  }, [user, leaderboardList, communityMaxes, stats, userAlbumsAdded, userReviews]);
+  }, [user, leaderboardList, communityMaxes, stats, userReviews]);
 
   // Nivel de Melómano Dinámico
   const currentMelomanoLevel = useMemo(() => {
@@ -505,7 +503,10 @@ export function UserProfile({ isPage = false }) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
               <div className="min-w-0">
                 <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                  <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight truncate max-w-full">
+                  <h1
+                    translate="no"
+                    className="notranslate username-tag text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight truncate max-w-full"
+                  >
                     {user.name || 'Melómano de Musiclub'}
                   </h1>
                   <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 whitespace-nowrap">
@@ -557,13 +558,25 @@ export function UserProfile({ isPage = false }) {
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
               {user.favorite_artist && (
                 <span className="text-[11px] sm:text-xs bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span>👑</span> Artista: <strong className="truncate max-w-[150px]">{user.favorite_artist}</strong>
+                  <span>👑</span> Artista:{' '}
+                  <strong
+                    translate="no"
+                    className="notranslate artist-name truncate max-w-[150px]"
+                  >
+                    {user.favorite_artist}
+                  </strong>
                 </span>
               )}
 
               {user.favorite_album && (
                 <span className="text-[11px] sm:text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span>💿</span> Álbum: <strong className="truncate max-w-[150px]">{user.favorite_album}</strong>
+                  <span>💿</span> Álbum:{' '}
+                  <strong
+                    translate="no"
+                    className="notranslate music-title truncate max-w-[150px]"
+                  >
+                    {user.favorite_album}
+                  </strong>
                 </span>
               )}
 
@@ -791,14 +804,22 @@ export function UserProfile({ isPage = false }) {
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-1.5">
-                          <h3 className="text-white font-bold text-sm sm:text-base truncate leading-snug" title={item.album.album}>
+                          <h3
+                            translate="no"
+                            className="notranslate music-title text-white font-bold text-sm sm:text-base truncate leading-snug"
+                            title={item.album.album}
+                          >
                             {item.album.album}
                           </h3>
                           <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex-shrink-0">
                             ★ {item.weightedScore.toFixed(1)}
                           </span>
                         </div>
-                        <p className="text-white/60 text-xs truncate mt-0.5" title={item.album.artista}>
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/60 text-xs truncate mt-0.5"
+                          title={item.album.artista}
+                        >
                           {item.album.artista}
                         </p>
                         <div className="flex items-center gap-2 flex-wrap mt-1.5 sm:mt-2">
@@ -846,7 +867,11 @@ export function UserProfile({ isPage = false }) {
                           <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                             Canción Favorita:
                           </span>
-                          <span className="font-extrabold text-amber-200 truncate max-w-[200px]" title={favName}>
+                          <span
+                            translate="no"
+                            className="notranslate track-name font-extrabold text-amber-200 truncate max-w-[200px]"
+                            title={favName}
+                          >
                             {favName}
                           </span>
                         </div>
@@ -909,7 +934,11 @@ export function UserProfile({ isPage = false }) {
                                 >
                                   <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
                                     <span>{isFav ? '⭐' : '🎵'}</span>
-                                    <span className={`truncate text-[11px] sm:text-xs ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`} title={trackName}>
+                                    <span
+                                      translate="no"
+                                      className={`notranslate track-name truncate text-[11px] sm:text-xs ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`}
+                                      title={trackName}
+                                    >
                                       {trackName}
                                     </span>
                                   </div>
@@ -946,11 +975,14 @@ export function UserProfile({ isPage = false }) {
                       </button>
 
                       <Link
-                        to={`/albumes/${slugifyAlbum(item.album.album || item.album.album_name)}`}
+                        to={getReleaseUrl(
+                          item.album.album || item.album.album_name,
+                          item.album.release_type || item.album.releaseType
+                        )}
                         className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
-                        title="Ir a la página del álbum"
+                        title="Ir a la página del lanzamiento"
                       >
-                        <span>Ver Álbum</span>
+                        <span>Ver Más</span>
                         <span>➔</span>
                       </Link>
                     </div>
@@ -1307,10 +1339,16 @@ export function UserProfile({ isPage = false }) {
                       }}
                     />
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-white font-bold text-xs sm:text-sm truncate">
+                      <h4
+                        translate="no"
+                        className="notranslate music-title text-white font-bold text-xs sm:text-sm truncate"
+                      >
                         {albumMap.get(stats.lowestRatedAlbum.album_id)?.album || 'Álbum'}
                       </h4>
-                      <p className="text-white/60 text-[11px] sm:text-xs truncate">
+                      <p
+                        translate="no"
+                        className="notranslate artist-name text-white/60 text-[11px] sm:text-xs truncate"
+                      >
                         {albumMap.get(stats.lowestRatedAlbum.album_id)?.artista || 'Artista'}
                       </p>
                       <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm">
@@ -1428,10 +1466,18 @@ export function UserProfile({ isPage = false }) {
                     />
                   </div>
                   <div className="min-w-0">
-                    <h4 className="text-white font-bold text-xs truncate leading-snug" title={alb.album}>
+                    <h4
+                      translate="no"
+                      className="notranslate music-title text-white font-bold text-xs truncate leading-snug"
+                      title={alb.album}
+                    >
                       {alb.album}
                     </h4>
-                    <p className="text-white/50 text-[10px] truncate mb-2" title={alb.artista}>
+                    <p
+                      translate="no"
+                      className="notranslate artist-name text-white/50 text-[10px] truncate mb-2"
+                      title={alb.artista}
+                    >
                       {alb.artista}
                     </p>
                     <Link

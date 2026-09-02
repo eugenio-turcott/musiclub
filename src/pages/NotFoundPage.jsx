@@ -80,7 +80,7 @@ export function NotFoundPage() {
             </Link>
 
             <Link
-              to="/albumes"
+              to="/catalogo"
               className="p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-purple-500/20 hover:to-pink-500/10 border border-white/10 hover:border-purple-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>

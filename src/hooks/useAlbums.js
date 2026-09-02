@@ -85,9 +85,17 @@ export function useAlbums() {
         spotifyLink: album.spotify_link,
         youtubeLink: album.youtube_link,
         appleMusicLink: album.apple_music_link,
-        status: album.status,
-        added_by: album.added_by,
-        added_by_email: album.added_by_email,
+        otherLink: album.other_link,
+        mbid: album.mbid,
+        release_type: album.release_type || 'ALBUM',
+        release_date: album.release_date,
+        release_year: album.release_year,
+        genres: album.genres || [],
+        label: album.label,
+        country: album.country,
+        barcode: album.barcode,
+        total_tracks: album.total_tracks,
+        status: album.status || 'INDIVIDUAL',
         user_id: album.user_id,
         created_at: album.created_at,
         tracks: album.tracks || [],
@@ -97,15 +105,7 @@ export function useAlbums() {
 
       if (mappedAlbums.length > 0) {
         const winnerAlbum = mappedAlbums.find((a) => a.status === 'GANADOR');
-        const activeAlbums = mappedAlbums.filter(
-          (a) =>
-            a.status === 'ACTIVO' ||
-            a.status === 'GANADOR' ||
-            a.status === 'INDIVIDUAL' ||
-            a.status === 'INACTIVO' // 👈 INCLUIR INACTIVOS PARA RANKINGS
-        );
-
-        setAlbums(activeAlbums);
+        setAlbums(mappedAlbums);
         setWinner(winnerAlbum || null);
         setError(null);
       } else {
@@ -125,23 +125,11 @@ export function useAlbums() {
   const markAlbumAsInactive = useCallback(
     async (albumName, artistName) => {
       try {
-        // Primero marcar como INACTIVO
-        const { error: inactiveError } = await supabase
+        await supabase
           .from('albums')
-          .update({ status: 'INACTIVO' })
+          .update({ reviews_enabled: true })
           .eq('album_name', albumName)
           .eq('artist_name', artistName);
-
-        if (inactiveError) throw new Error(inactiveError.message);
-
-        // Luego marcar como GANADOR
-        const { error: winnerError } = await supabase
-          .from('albums')
-          .update({ status: 'GANADOR' })
-          .eq('album_name', albumName)
-          .eq('artist_name', artistName);
-
-        if (winnerError) throw new Error(winnerError.message);
 
         // Refrescar lista
         await fetchAlbums();
@@ -156,12 +144,11 @@ export function useAlbums() {
 
   const resetWinner = useCallback(async () => {
     try {
-      const { error } = await supabase
+      await supabase
         .from('albums')
-        .update({ status: 'ACTIVO' })
-        .eq('status', 'GANADOR');
+        .update({ reviews_enabled: false })
+        .eq('reviews_enabled', true);
 
-      if (error) throw new Error(error.message);
       await fetchAlbums();
       return true;
     } catch (error) {

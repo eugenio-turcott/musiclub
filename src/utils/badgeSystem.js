@@ -7,7 +7,6 @@ export const XP_CONFIG = {
   REVIEW_BASE: 50, // XP por cada álbum reseñado
   REVIEW_COMMENT_BONUS: 25, // XP adicional si la reseña incluye comentario en texto
   TRACK_RATED: 2, // XP por cada canción/track calificado individualmente
-  ALBUM_ADDED: 30, // XP por cada álbum aportado al catálogo del club
   RECORD_CROWN_BONUS: 300, // XP bono activo por ostentar un récord #1
 };
 
@@ -298,59 +297,6 @@ export const PROGRESSION_BADGES = {
       },
     ],
   },
-  albums: {
-    id: 'albums',
-    categoryName: 'Curaduría & Aportes',
-    icon: '💿',
-    description: 'Álbumes agregados o propuestos al catálogo comunitario.',
-    metricKey: 'albums_added_count',
-    tiers: [
-      {
-        tier: 1,
-        name: '💿 Melómano Colaborador',
-        req: 5,
-        xp: 50,
-        color: 'from-purple-600 to-violet-700 text-purple-100',
-      },
-      {
-        tier: 2,
-        name: '📀 Aportador Activo',
-        req: 15,
-        xp: 100,
-        color: 'from-violet-500 to-purple-600 text-white',
-      },
-      {
-        tier: 3,
-        name: '📦 Curador del Club',
-        req: 30,
-        xp: 200,
-        color: 'from-fuchsia-500 to-purple-600 text-white',
-      },
-      {
-        tier: 4,
-        name: '🗂️ Arquitecto de la Biblioteca',
-        req: 50,
-        xp: 350,
-        color: 'from-purple-400 to-pink-500 text-white font-bold',
-      },
-      {
-        tier: 5,
-        name: '🪩 Patrono del Catálogo',
-        req: 100,
-        xp: 550,
-        color:
-          'from-purple-300 via-fuchsia-300 to-pink-400 text-slate-950 font-black',
-      },
-      {
-        tier: 6,
-        name: '🗿 Archivero Maestro',
-        req: 250,
-        xp: 850,
-        color:
-          'from-amber-300 via-purple-400 to-indigo-600 text-slate-950 font-black',
-      },
-    ],
-  },
 };
 
 /**
@@ -462,16 +408,6 @@ export const RECORD_BADGES_CONFIG = [
     xp: XP_CONFIG.RECORD_CROWN_BONUS,
   },
   {
-    id: 'top_curator',
-    metricKey: 'albums_added_count',
-    label: '🏆 Gran Curador',
-    icon: '🏆',
-    color:
-      'from-purple-500 via-fuchsia-400 to-violet-600 text-white font-black shadow-lg shadow-purple-500/20 ring-1 ring-fuchsia-300',
-    desc: 'Récord #1 en álbumes aportados y compartidos en la comunidad.',
-    xp: XP_CONFIG.RECORD_CROWN_BONUS,
-  },
-  {
     id: 'top_tracks',
     metricKey: 'total_tracks_rated',
     label: '⚡ Cirujano del Tracklist',
@@ -513,7 +449,6 @@ export const RECORD_BADGES_CONFIG = [
 export function calculateUserGamification(u, communityMaxes = {}) {
   const reviews = u.reviews || [];
   const reviewCount = u.review_count || 0;
-  const albumsAddedCount = u.albums_added_count || 0;
   const tracksRatedCount = u.total_tracks_rated || 0;
   const avgScore = u.avg_score || 0;
 
@@ -548,8 +483,7 @@ export function calculateUserGamification(u, communityMaxes = {}) {
   const activityXp =
     reviewCount * XP_CONFIG.REVIEW_BASE +
     commentsCount * XP_CONFIG.REVIEW_COMMENT_BONUS +
-    tracksRatedCount * XP_CONFIG.TRACK_RATED +
-    albumsAddedCount * XP_CONFIG.ALBUM_ADDED;
+    tracksRatedCount * XP_CONFIG.TRACK_RATED;
 
   let badgesXp = 0;
   let recordXp = 0;
@@ -772,7 +706,7 @@ export const BADGES_GUIDE_DATA = [
         tierRoman: TIER_STYLES[`tier_${t.tier}`]?.tierRoman || `T${t.tier}`,
         tierName: TIER_STYLES[`tier_${t.tier}`]?.tierName || '',
         name: t.name,
-        req: `${t.req} ${b.id === 'tracks' ? 'canciones' : b.id === 'reviews' ? 'álbumes' : b.id === 'comments' ? 'comentarios' : b.id === 'tens' ? 'dieces' : 'álbumes aportados'}`,
+        req: `${t.req} ${b.id === 'tracks' ? 'canciones' : b.id === 'reviews' ? 'álbumes' : b.id === 'comments' ? 'comentarios' : 'dieces'}`,
         xp: `+${t.xp} XP`,
         color: t.color,
       })),

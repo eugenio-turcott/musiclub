@@ -14,7 +14,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
   const [creating, setCreating] = useState(false);
   const [savedAlbum, setSavedAlbum] = useState(null);
   const [existingAlbum, setExistingAlbum] = useState(null);
-  const [showTrackReviews, setShowTrackReviews] = useState(false); // 👈 NUEVO ESTADO LOCAL
+  const [showTrackReviews, setShowTrackReviews] = useState(false);
+  const [selectedType, setSelectedType] = useState(null);
 
   if (!user) return null;
 
@@ -30,16 +31,17 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setExistingAlbum(null);
 
     try {
-      const result = await searchAlbum(searchQuery);
-      if (result.success) {
-        setSearchResults(result.albums);
+      const res = await searchAlbum(searchQuery);
+      if (res?.success && Array.isArray(res.albums) && res.albums.length > 0) {
+        setSearchResults(res.albums);
       } else {
-        setError(result.error || 'Error al buscar');
+        setError('No se encontraron álbumes en Spotify para esta búsqueda.');
       }
-    } catch (error) {
-      setError('Error de conexión. Intenta de nuevo.');
+    } catch (err) {
+      setError('Error de conexión con Spotify. Intenta de nuevo.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const handleClose = () => {
@@ -58,7 +60,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setExistingAlbum(null);
 
     try {
-      const artistName = album.artists[0];
+      const artistName = Array.isArray(album.artists)
+        ? album.artists.join(', ')
+        : album.artists?.[0] || album.artist || 'Artista';
       const existing = await supabaseService.findAlbum(album.name, artistName);
 
       if (existing) {
@@ -76,20 +80,20 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         return;
       }
 
-      const details = await getAlbumDetails(album.id);
-      if (details.success) {
-        setAlbumDetails(details.album);
+      const detailsRes = await getAlbumDetails(album.id);
+      if (detailsRes?.success && detailsRes.album) {
+        setAlbumDetails(detailsRes.album);
         setSearchResults([]);
       } else {
-        setError(details.error || 'Error al obtener detalles');
+        setAlbumDetails(album);
+        setSearchResults([]);
       }
-    } catch (error) {
-      setError('Error al obtener detalles del álbum');
+    } catch (err) {
+      setError('Error al obtener los detalles del álbum desde Spotify.');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
-
-  const [selectedType, setSelectedType] = useState(null);
 
   const handleCreateAlbum = async () => {
     if (!albumDetails) return;
@@ -98,29 +102,42 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setError(null);
 
     try {
-      const tracks = (albumDetails.tracks || []).map((track) => ({
-        id: track.id,
+      const tracks = (albumDetails.tracks || []).map((track, idx) => ({
+        id: track.id || `track-${idx + 1}`,
         name: track.name,
-        duration_ms: track.duration_ms,
-        track_number: track.track_number,
+        duration_ms: track.duration_ms || 0,
+        track_number: track.track_number || idx + 1,
       }));
 
-      const finalType = selectedType || albumDetails.release_type || 'ALBUM';
+      const finalType =
+        selectedType ||
+        albumDetails.release_type ||
+        albumDetails.releaseType ||
+        'ALBUM';
+
+      const artistName = Array.isArray(albumDetails.artists)
+        ? albumDetails.artists.join(', ')
+        : albumDetails.artist || 'Artista';
 
       const albumData = {
         albumName: albumDetails.name,
-        artistName: albumDetails.artists[0],
+        artistName: artistName,
         imageUrl: albumDetails.image,
-        spotifyLink: albumDetails.external_urls?.spotify || null,
-        addedBy: user?.name || 'Sistema',
-        addedByEmail: user?.email || 'sistema@maquinamusical.com',
-        status: 'INDIVIDUAL',
+        spotifyLink:
+          albumDetails.external_urls?.spotify ||
+          `https://open.spotify.com/album/${albumDetails.id}`,
+        youtubeLink: null,
+        appleMusicLink: null,
+        label: albumDetails.label || null,
+        country: null,
+        barcode: null,
+        totalTracks: albumDetails.totalTracks || tracks.length || null,
         tracks: tracks,
         releaseDate: albumDetails.releaseDate || null,
         releaseYear: albumDetails.releaseYear || null,
         releaseType: finalType,
         genres: albumDetails.genres || [],
-        reviews_enabled: true, // 👈 POR DEFECTO TRUE PARA INDIVIDUALES
+        reviews_enabled: true,
       };
 
       const newAlbum = await supabaseService.createAlbum(albumData);
@@ -131,12 +148,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         artista: newAlbum.artist_name,
         imagen: newAlbum.image_url,
         spotifyLink: newAlbum.spotify_link,
+        youtubeLink: newAlbum.youtube_link,
+        appleMusicLink: newAlbum.apple_music_link,
         tracks: tracks,
-        status: 'INDIVIDUAL',
         release_type: finalType,
         release_year: albumDetails.releaseYear,
-        spotify_verified: true,
-        reviews_enabled: true, // 👈 AGREGAR
+        reviews_enabled: true,
       });
 
       setAlbumDetails(null);
@@ -145,12 +162,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
       setSearchQuery('');
       if (onAlbumCreated) onAlbumCreated();
 
-      // 👈 AUTOMÁTICAMENTE MOSTRAR LAS CANCIONES
       setShowTrackReviews(true);
-    } catch (error) {
-      setError(error.message || 'Error al crear el álbum');
+    } catch (err) {
+      setError(err.message || 'Error al crear el álbum');
+    } finally {
+      setCreating(false);
     }
-    setCreating(false);
   };
 
   // Si no está expandido, mostramos el botón estético "Proponer Álbum"
@@ -172,8 +189,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 </span>
               </div>
               <p className="text-white/60 text-xs mt-1 leading-relaxed">
-                Búscalo directamente en Spotify y agrégalo como álbum individual
-                al club.
+                Búscalo en Spotify y agrégalo para reseñar en el club.
               </p>
             </div>
           </div>
@@ -197,16 +213,15 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {/* Cabecera cuando está expandido */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-sm shadow-md flex-shrink-0">
-              🔍
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1DB954] to-[#1ed760] flex items-center justify-center text-sm shadow-md flex-shrink-0">
+              🎵
             </div>
             <div className="min-w-0">
               <h3 className="text-white font-black text-sm sm:text-base truncate">
-                Proponer Álbum en Spotify
+                Proponer Álbum desde Spotify
               </h3>
               <p className="text-white/40 text-xs truncate">
-                Busca en el catálogo de Spotify para agregar tu álbum
-                individual.
+                Busca en el catálogo oficial de Spotify.
               </p>
             </div>
           </div>
@@ -252,8 +267,8 @@ export function AlbumSearch({ onAlbumCreated, user }) {
           <div className="text-white/20 text-sm py-4 text-center">
             <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse inline-block mr-2"></span>
             {searchResults.length === 0
-              ? 'Buscando...'
-              : 'Verificando en el pool...'}
+              ? 'Consultando catálogo oficial de Spotify...'
+              : 'Verificando en el club...'}
           </div>
         )}
 
@@ -261,14 +276,19 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {searchResults.length > 0 && !albumDetails && !existingAlbum && (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {searchResults.map((album) => {
+              const relType = album.release_type || album.releaseType || 'ALBUM';
               const typeBadge =
-                album.release_type === 'EP'
+                relType === 'EP'
                   ? { label: 'EP', color: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30' }
-                  : album.release_type === 'SENCILLO'
+                  : relType === 'SENCILLO'
                   ? { label: 'Sencillo', color: 'bg-pink-500/20 text-pink-300 border-pink-500/30' }
-                  : album.release_type === 'COMPILACION'
+                  : relType === 'COMPILACION'
                   ? { label: 'Compilación', color: 'bg-amber-500/20 text-amber-300 border-amber-500/30' }
                   : { label: 'Álbum', color: 'bg-purple-500/20 text-purple-300 border-purple-500/30' };
+
+              const artistDisplay = Array.isArray(album.artists)
+                ? album.artists.join(', ')
+                : album.artists?.[0] || album.artist || '';
 
               return (
                 <div
@@ -278,9 +298,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 >
                   <div className="relative w-full aspect-square rounded-lg mb-2 overflow-hidden bg-black/40">
                     <img
-                      src={album.image}
+                      src={album.image || 'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵'}
                       alt={album.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
+                      }}
                     />
                     <div className="absolute top-1.5 right-1.5 flex flex-col gap-1 items-end">
                       <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}>
@@ -293,11 +316,11 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                       {album.name}
                     </p>
                     <p className="text-white/40 text-xs truncate mt-0.5">
-                      {album.artists.join(', ')}
+                      {artistDisplay}
                     </p>
                     <div className="flex items-center justify-between text-[10px] text-white/30 mt-1">
                       <span>{album.releaseYear || ''}</span>
-                      <span>{album.totalTracks} {album.totalTracks === 1 ? 'pista' : 'pistas'}</span>
+                      <span>🟢 Spotify</span>
                     </div>
                   </div>
                 </div>
@@ -362,15 +385,15 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             <div className="flex flex-col sm:flex-row gap-5">
               <div className="relative w-full sm:w-48 aspect-square flex-shrink-0">
                 <img
-                  src={albumDetails.image}
+                  src={albumDetails.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'}
                   alt={albumDetails.name}
                   className="w-full h-full object-cover rounded-2xl shadow-xl border border-white/10"
                 />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                    Spotify Verificado
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#1DB954]/20 text-[#1ed760] border border-[#1DB954]/30">
+                    🟢 Spotify
                   </span>
                   {albumDetails.releaseYear && (
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10">
@@ -383,7 +406,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   {albumDetails.name}
                 </h4>
                 <p className="text-white/60 text-sm font-semibold mt-0.5">
-                  {albumDetails.artists.join(', ')}
+                  {Array.isArray(albumDetails.artists)
+                    ? albumDetails.artists.join(', ')
+                    : albumDetails.artist || ''}
                 </p>
 
                 {/* Selector de Tipo de Lanzamiento (Álbum / EP / Sencillo) */}
@@ -398,7 +423,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                       { id: 'SENCILLO', label: '🎵 Sencillo', desc: 'Single / Canción' },
                       { id: 'COMPILACION', label: '📦 Compilación', desc: 'Grandes Éxitos / Varios' },
                     ].map((t) => {
-                      const isCurrent = (selectedType || albumDetails.release_type) === t.id;
+                      const isCurrent = (selectedType || albumDetails.releaseType) === t.id;
                       return (
                         <button
                           key={t.id}
@@ -417,7 +442,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   </div>
                 </div>
 
-                {/* Géneros de Spotify */}
+                {/* Géneros */}
                 {albumDetails.genres && albumDetails.genres.length > 0 && (
                   <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
                     <span className="text-[10px] text-white/40 font-bold uppercase tracking-wider">
@@ -435,24 +460,26 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 )}
 
                 <p className="text-white/40 text-xs mt-2">
-                  {albumDetails.totalTracks} canciones · {albumDetails.releaseDate || ''}
+                  {albumDetails.tracks?.length || albumDetails.totalTracks || 0} canciones · {albumDetails.releaseDate || ''}
                 </p>
 
-                <div className="mt-3 max-h-32 overflow-y-auto custom-scrollbar bg-black/20 p-2.5 rounded-xl border border-white/5">
-                  <p className="text-white/50 text-xs mb-1 font-semibold flex items-center gap-1.5">
-                    <span>🎵</span> Lista de Canciones:
-                  </p>
-                  <ul className="text-white/30 text-xs space-y-1">
-                    {albumDetails.tracks.map((track) => (
-                      <li key={track.id} className="flex items-center gap-2">
-                        <span className="text-white/20 font-mono text-[11px] w-5">
-                          {track.track_number}.
-                        </span>
-                        <span className="text-white/60 truncate">{track.name}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                {albumDetails.tracks && albumDetails.tracks.length > 0 && (
+                  <div className="mt-3 max-h-32 overflow-y-auto custom-scrollbar bg-black/20 p-2.5 rounded-xl border border-white/5">
+                    <p className="text-white/50 text-xs mb-1 font-semibold flex items-center gap-1.5">
+                      <span>🎵</span> Lista de Canciones:
+                    </p>
+                    <ul className="text-white/30 text-xs space-y-1">
+                      {albumDetails.tracks.map((track, idx) => (
+                        <li key={track.id || idx} className="flex items-center gap-2">
+                          <span className="text-white/20 font-mono text-[11px] w-5">
+                            {track.track_number || idx + 1}.
+                          </span>
+                          <span className="text-white/60 truncate">{track.name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
 
                 <div className="mt-4 flex flex-wrap gap-2.5">
                   <button
@@ -470,6 +497,13 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                       setSearchResults([]);
                     }}
                     className="px-4 py-2.5 bg-white/5 border border-white/10 text-white/50 rounded-xl text-sm hover:bg-white/10 hover:text-white transition-all"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
 
         {/* Álbum creado exitosamente */}
@@ -489,16 +523,6 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   </span>
                 </h4>
                 <p className="text-white/50 text-sm">{savedAlbum.artista}</p>
-                {savedAlbum.spotifyLink && (
-                  <a
-                    href={savedAlbum.spotifyLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/30 hover:text-white/60 text-xs flex items-center gap-1 mt-1 transition-colors"
-                  >
-                    🎵 Escuchar en Spotify
-                  </a>
-                )}
               </div>
               <button
                 onClick={() => {
@@ -518,26 +542,24 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 Este álbum es <span className="text-white/60">
                   Individual
                 </span>{' '}
-                y no participa en la máquina musical. Puedes dejar tu review
-                aquí.
+                y está listo en el catálogo universal. Puedes dejar tu review aquí.
                 {savedAlbum.tracks && savedAlbum.tracks.length > 0 && (
                   <span className="text-white/30">
-                    · {savedAlbum.tracks.length} canciones disponibles para
-                    review
+                    · {savedAlbum.tracks.length} canciones disponibles para review
                   </span>
                 )}
               </p>
             </div>
 
-            {/* 👈 REVIEW SYSTEM CON showTrackReviews SIEMPRE TRUE PARA INDIVIDUALES */}
+            {/* REVIEW SYSTEM */}
             <div className="mt-4">
               <ReviewSystem
                 album={savedAlbum}
-                isFromSpotify={true}
+                isFromSpotify={false}
                 isIndividual={true}
                 tracks={savedAlbum.tracks || []}
                 user={user}
-                showTrackReviews={true} // 👈 SIEMPRE TRUE PARA INDIVIDUALES
+                showTrackReviews={true}
                 onToggleTrackReviews={() =>
                   setShowTrackReviews(!showTrackReviews)
                 }

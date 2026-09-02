@@ -106,7 +106,7 @@ export function Leaderboard({ isPage = false }) {
       return {
         totalReviews: 0,
         totalUsers: 0,
-        totalAlbums: 0,
+        totalTracksRated: 0,
         totalXp: 0,
         avgClubRating: 0,
       };
@@ -115,8 +115,8 @@ export function Leaderboard({ isPage = false }) {
       (sum, u) => sum + (u.review_count || 0),
       0
     );
-    const totalAlbums = users.reduce(
-      (sum, u) => sum + (u.albums_added_count || 0),
+    const totalTracksRated = users.reduce(
+      (sum, u) => sum + (u.total_tracks_rated || 0),
       0
     );
     const totalXp = users.reduce((sum, u) => sum + (u.total_xp || 0), 0);
@@ -133,7 +133,7 @@ export function Leaderboard({ isPage = false }) {
     return {
       totalReviews,
       totalUsers: users.length,
-      totalAlbums,
+      totalTracksRated,
       totalXp,
       avgClubRating,
     };
@@ -146,8 +146,6 @@ export function Leaderboard({ isPage = false }) {
     // Filter by type
     if (filterType === 'with_reviews') {
       result = result.filter((u) => u.review_count > 0);
-    } else if (filterType === 'with_albums') {
-      result = result.filter((u) => u.albums_added_count > 0);
     }
 
     // Filter by search query
@@ -197,12 +195,6 @@ export function Leaderboard({ isPage = false }) {
         if (b.review_count === 0 && a.review_count > 0) return -1;
         return (
           a.avg_score - b.avg_score || (b.total_xp || 0) - (a.total_xp || 0)
-        );
-      }
-      if (sortBy === 'albums_desc') {
-        return (
-          b.albums_added_count - a.albums_added_count ||
-          (b.total_xp || 0) - (a.total_xp || 0)
         );
       }
       if (sortBy === 'name_asc') {
@@ -262,9 +254,7 @@ export function Leaderboard({ isPage = false }) {
             Leaderboard de Miembros
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
-            Gana puntos XP por cada review, comentario, track calificado y álbum
-            aportado. Desbloquea insignias evolutivas y compite por los récords
-            del club.
+            Gana puntos XP por cada reseña, análisis con comentarios y calificación pista por pista. ¡Desbloquea insignias y compite por los récords del club!
           </p>
           <div className="pt-1">
             <button
@@ -313,18 +303,18 @@ export function Leaderboard({ isPage = false }) {
             </div>
           </div>
 
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-rose-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-rose-500/5 rounded-full blur-xl group-hover:bg-rose-500/10 transition-all" />
+          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
+            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/20">
-                💿
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
+                🎚️
               </span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
-                  Álbumes Añadidos
+                  Pistas Calificadas
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-white">
-                  {globalMetrics.totalAlbums}
+                <p className="text-lg sm:text-2xl font-black text-cyan-400">
+                  {globalMetrics.totalTracksRated}
                 </p>
               </div>
             </div>
@@ -598,17 +588,6 @@ export function Leaderboard({ isPage = false }) {
             >
               Con Reviews ({users.filter((u) => u.review_count > 0).length})
             </button>
-            <button
-              onClick={() => setFilterType('with_albums')}
-              className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                filterType === 'with_albums'
-                  ? 'bg-amber-400 text-black shadow-md font-bold'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
-              }`}
-            >
-              Con Álbumes (
-              {users.filter((u) => u.albums_added_count > 0).length})
-            </button>
           </div>
 
           {/* Sort Selector */}
@@ -624,7 +603,6 @@ export function Leaderboard({ isPage = false }) {
               <option value="xp_desc">👑 Mayor Puntuación (XP)</option>
               <option value="reviews_desc">📝 Más Reviews</option>
               <option value="tracks_desc">🎚️ Más Pistas Calificadas</option>
-              <option value="albums_desc">💿 Más Álbumes Añadidos</option>
               <option value="rating_desc">⭐ Mayor Promedio Otorgado</option>
               <option value="rating_asc">
                 🎯 Más Exigente (Menor Promedio)
@@ -786,10 +764,10 @@ export function Leaderboard({ isPage = false }) {
                         <span className="text-white/10">•</span>
                         <div>
                           <p className="text-[9px] text-slate-400 font-medium">
-                            Álbumes
+                            Comentarios
                           </p>
                           <p className="text-xs sm:text-sm font-black text-purple-400">
-                            {itemUser.albums_added_count}
+                            {itemUser.comments_count || 0}
                           </p>
                         </div>
                         <span className="text-white/10">•</span>
@@ -1100,10 +1078,10 @@ export function Leaderboard({ isPage = false }) {
               </div>
               <div className="bg-black/30 border border-white/5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl text-center">
                 <p className="text-[10px] sm:text-[11px] text-slate-400">
-                  Álbumes
+                  Comentarios
                 </p>
                 <p className="text-lg sm:text-xl font-black text-purple-400 mt-0.5">
-                  {selectedUserDetail.albums_added_count}
+                  {selectedUserDetail.comments_count || 0}
                 </p>
               </div>
               <div className="bg-black/30 border border-white/5 p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl text-center">
@@ -1187,34 +1165,56 @@ export function Leaderboard({ isPage = false }) {
               </div>
             )}
 
-            {/* Albums Added by User */}
-            {selectedUserDetail.albums_added &&
-              selectedUserDetail.albums_added.length > 0 && (
+            {/* Reviews Published by User */}
+            {selectedUserDetail.reviews &&
+              selectedUserDetail.reviews.length > 0 && (
                 <div className="space-y-2.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                    💿 Álbumes Añadidos (
-                    {selectedUserDetail.albums_added.length})
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                    <span>
+                      🎧 Reseñas Publicadas (
+                      {selectedUserDetail.reviews.length})
+                    </span>
                   </h4>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-2.5 max-h-48 overflow-y-auto pr-1">
-                    {selectedUserDetail.albums_added.map((alb, i) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                    {selectedUserDetail.reviews.map((rev, i) => (
                       <div
-                        key={i}
-                        className="bg-black/30 border border-yellow-400/50 rounded-xl p-2 text-center group"
+                        key={rev.id || i}
+                        className="bg-black/40 border border-white/5 hover:border-amber-400/30 rounded-xl p-2.5 flex items-center gap-2.5 group transition-all"
                       >
                         <img
                           src={
-                            alb.image_url ||
+                            rev.albums?.image_url ||
                             'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
                           }
-                          alt={alb.album_name}
-                          className="w-full aspect-square rounded-lg object-cover mb-1.5"
+                          alt={rev.albums?.album_name || 'Álbum'}
+                          className="w-11 h-11 rounded-lg object-cover flex-shrink-0"
                         />
-                        <p className="text-[11px] font-bold text-white truncate">
-                          {alb.album_name}
-                        </p>
-                        <p className="text-[9px] text-slate-400 truncate">
-                          {alb.artist_name}
-                        </p>
+                        <div className="min-w-0 flex-1">
+                          <p
+                            translate="no"
+                            className="notranslate music-title text-xs font-bold text-white truncate"
+                          >
+                            {rev.albums?.album_name || 'Álbum'}
+                          </p>
+                          <p
+                            translate="no"
+                            className="notranslate artist-name text-[10px] text-slate-400 truncate"
+                          >
+                            {rev.albums?.artist_name || 'Artista'}
+                          </p>
+                          {rev.comment && (
+                            <p className="text-[10px] text-slate-300 italic truncate mt-0.5">
+                              "{rev.comment}"
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <span className="text-xs font-black text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded-md border border-amber-400/20">
+                            {rev.rating_general
+                              ? `${rev.rating_general} ⭐`
+                              : '—'}
+                          </span>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1293,12 +1293,12 @@ export function Leaderboard({ isPage = false }) {
                   </p>
                 </div>
                 <div className="bg-black/40 border border-white/5 p-2.5 sm:p-3 rounded-xl text-center">
-                  <span className="text-base sm:text-lg">💿</span>
+                  <span className="text-base sm:text-lg">👑</span>
                   <p className="text-[11px] sm:text-xs font-bold text-white mt-1">
-                    Álbum Aportado
+                    Récord #1 del Club
                   </p>
                   <p className="text-xs sm:text-sm font-black text-amber-400">
-                    +{XP_CONFIG.ALBUM_ADDED} XP
+                    +{XP_CONFIG.RECORD_CROWN_BONUS} XP
                   </p>
                 </div>
               </div>

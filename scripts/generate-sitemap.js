@@ -11,14 +11,59 @@ const BASE_URL = 'https://musiclub.org';
 
 function slugify(text) {
   if (!text) return '';
-  return text
-    .toString()
-    .toLowerCase()
+  return String(text)
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/['’]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
+}
+
+function getReleaseTypePrefix(rawType) {
+  if (!rawType) return 'albumes';
+  const normalized = rawType.toString().trim().toUpperCase();
+
+  if (
+    normalized === 'EP' ||
+    normalized.includes('EP') ||
+    normalized.includes('MINI')
+  ) {
+    return 'eps';
+  }
+
+  if (
+    normalized === 'SINGLE' ||
+    normalized === 'SENCILLO' ||
+    normalized.includes('SINGLE') ||
+    normalized.includes('SENCILLO') ||
+    normalized.includes('CANCIÓN') ||
+    normalized.includes('CANCION') ||
+    normalized.includes('TRACK')
+  ) {
+    return 'sencillos';
+  }
+
+  if (
+    normalized === 'COMPILATION' ||
+    normalized === 'COMPILACION' ||
+    normalized.includes('COMPILATION') ||
+    normalized.includes('COMPILACION') ||
+    normalized.includes('GREATEST') ||
+    normalized.includes('HITS') ||
+    normalized.includes('RECOPILATORIO')
+  ) {
+    return 'compilaciones';
+  }
+
+  if (
+    normalized === 'REMIX' ||
+    normalized.includes('REMIX') ||
+    normalized.includes('REMIXES')
+  ) {
+    return 'remixes';
+  }
+
+  return 'albumes';
 }
 
 async function generateSitemap() {
@@ -27,7 +72,7 @@ async function generateSitemap() {
 
   const { data: albums, error } = await supabase
     .from('albums')
-    .select('album_name, artist_name, created_at');
+    .select('album_name, artist_name, release_type, created_at');
 
   if (error) {
     console.warn('Error fetching albums for sitemap:', error.message);
@@ -35,7 +80,8 @@ async function generateSitemap() {
 
   const staticRoutes = [
     { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' },
-    { loc: `${BASE_URL}/albumes`, priority: '0.9', changefreq: 'daily' },
+    { loc: `${BASE_URL}/catalogo`, priority: '0.9', changefreq: 'daily' },
+    { loc: `${BASE_URL}/pool`, priority: '0.85', changefreq: 'daily' },
     { loc: `${BASE_URL}/leaderboard`, priority: '0.8', changefreq: 'daily' },
     { loc: `${BASE_URL}/reviews`, priority: '0.8', changefreq: 'daily' },
     { loc: `${BASE_URL}/recomendaciones`, priority: '0.7', changefreq: 'weekly' },
@@ -46,17 +92,19 @@ async function generateSitemap() {
     { loc: `${BASE_URL}/terms`, priority: '0.3', changefreq: 'monthly' },
   ];
 
-  const albumMap = new Map();
+  const releaseMap = new Map();
   const artistSet = new Set();
 
-  // 1. Álbumes existentes en la Base de Datos de Supabase
+  // 1. Álbumes y releases existentes en la Base de Datos de Supabase
   (albums || []).forEach((alb) => {
     const albumName = alb.album_name;
     const artistName = alb.artist_name;
+    const prefix = getReleaseTypePrefix(alb.release_type);
+
     if (albumName) {
       const slug = slugify(albumName);
-      albumMap.set(slug, {
-        loc: `${BASE_URL}/albumes/${slug}`,
+      releaseMap.set(slug, {
+        loc: `${BASE_URL}/${prefix}/${slug}`,
         lastmod: alb.updated_at || alb.created_at || new Date().toISOString(),
         priority: '0.8',
         changefreq: 'weekly',
@@ -71,9 +119,10 @@ async function generateSitemap() {
   (POPULAR_ALBUMS || []).forEach((item) => {
     if (item.album) {
       const slug = slugify(item.album);
-      if (!albumMap.has(slug)) {
-        albumMap.set(slug, {
-          loc: `${BASE_URL}/albumes/${slug}`,
+      if (!releaseMap.has(slug)) {
+        const prefix = getReleaseTypePrefix(item.release_type);
+        releaseMap.set(slug, {
+          loc: `${BASE_URL}/${prefix}/${slug}`,
           lastmod: new Date().toISOString(),
           priority: '0.75',
           changefreq: 'weekly',
@@ -85,7 +134,7 @@ async function generateSitemap() {
     }
   });
 
-  const albumRoutes = Array.from(albumMap.values());
+  const releaseRoutes = Array.from(releaseMap.values());
   const artistRoutes = Array.from(artistSet).map((art) => ({
     loc: `${BASE_URL}/artista/${slugify(art)}`,
     lastmod: new Date().toISOString(),
@@ -93,7 +142,7 @@ async function generateSitemap() {
     changefreq: 'weekly',
   }));
 
-  const allUrls = [...staticRoutes, ...albumRoutes, ...artistRoutes];
+  const allUrls = [...staticRoutes, ...releaseRoutes, ...artistRoutes];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

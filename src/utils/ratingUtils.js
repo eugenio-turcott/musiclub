@@ -357,6 +357,111 @@ export function slugifyAlbum(albumName) {
 }
 
 /**
+ * Clasifica y normaliza el tipo de formato/release para rutas y etiquetas.
+ * Tipos soportados:
+ * - EP -> ruta /eps/:slug, etiqueta 'EPs'
+ * - SENCILLO / SINGLE / TRACK -> ruta /sencillos/:slug, etiqueta 'Sencillos'
+ * - COMPILACION / COMPILATION -> ruta /compilaciones/:slug, etiqueta 'Compilaciones'
+ * - REMIX / REMIXES -> ruta /remixes/:slug, etiqueta 'Remixes'
+ * - ALBUM / EN VIVO / SOUNDTRACK / Default -> ruta /albumes/:slug, etiqueta 'Álbumes'
+ */
+export function getReleaseTypeCategory(rawType = '') {
+  const t = String(rawType || '').trim().toUpperCase();
+
+  if (t === 'EP' || t === 'SINGLE_EP' || t === 'EPS') {
+    return {
+      type: 'EP',
+      routePrefix: 'eps',
+      label: 'EPs',
+      singularLabel: 'EP',
+      catalogFilter: 'EP',
+    };
+  }
+
+  if (
+    t === 'SENCILLO' ||
+    t === 'SENCILLOS' ||
+    t === 'SINGLE' ||
+    t === 'SINGLES' ||
+    t === 'TRACK' ||
+    t === 'CANCIÓN' ||
+    t === 'CANCION'
+  ) {
+    return {
+      type: 'SENCILLO',
+      routePrefix: 'sencillos',
+      label: 'Sencillos',
+      singularLabel: 'Sencillo',
+      catalogFilter: 'SENCILLO',
+    };
+  }
+
+  if (
+    t === 'COMPILACION' ||
+    t === 'COMPILACIÓN' ||
+    t === 'COMPILACIONES' ||
+    t === 'COMPILATION' ||
+    t === 'COMPILATIONS' ||
+    t === 'ANTHOLOGY' ||
+    t === 'BOXSET'
+  ) {
+    return {
+      type: 'COMPILACION',
+      routePrefix: 'compilaciones',
+      label: 'Compilaciones',
+      singularLabel: 'Compilación',
+      catalogFilter: 'COMPILACION',
+    };
+  }
+
+  if (t === 'REMIX' || t === 'REMIXES' || t === 'REMIXED') {
+    return {
+      type: 'REMIX',
+      routePrefix: 'remixes',
+      label: 'Remixes',
+      singularLabel: 'Remix',
+      catalogFilter: 'REMIX',
+    };
+  }
+
+  return {
+    type: 'ALBUM',
+    routePrefix: 'albumes',
+    label: 'Álbumes',
+    singularLabel: 'Álbum',
+    catalogFilter: 'ALBUM',
+  };
+}
+
+/**
+ * Genera la URL canónica e idiomática para un lanzamiento en Musiclub
+ * según su formato (EP, Sencillo, Compilación, Remix, Álbum).
+ * Ejemplo:
+ * - FIRE ON MARZZ (EP) -> /eps/FIRE-ON-MARZZ
+ * - Sour (Álbum) -> /albumes/Sour
+ * - Espresso (Sencillo) -> /sencillos/Espresso
+ */
+export function getReleaseUrl(albumOrName, releaseType) {
+  if (!albumOrName) return '/catalogo';
+
+  let name = '';
+  let type = releaseType || '';
+
+  if (typeof albumOrName === 'object') {
+    name = albumOrName.album_name || albumOrName.album || albumOrName.name || '';
+    type = albumOrName.release_type || albumOrName.releaseType || releaseType || '';
+  } else {
+    name = String(albumOrName);
+  }
+
+  const slug = slugifyAlbum(name);
+  if (!slug) return '/catalogo';
+
+  const category = getReleaseTypeCategory(type);
+  return `/${category.routePrefix}/${slug}`;
+}
+
+/**
  * Busca un álbum en una lista por su slug o por su ID.
  */
 export function findAlbumBySlug(albums = [], slug = '') {

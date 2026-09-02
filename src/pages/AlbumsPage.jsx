@@ -7,9 +7,9 @@ export function AlbumsPage() {
   return (
     <>
       <SEO
-        title="Catálogo de Álbumes - Musiclub"
-        description="Explora todos los álbumes calificados y por calificar por la comunidad de Musiclub. Descubre notas ponderadas, canciones favoritas y análisis de la comunidad."
-        url="https://musiclub.org/albumes"
+        title="Catálogo de Lanzamientos & Álbumes - Musiclub"
+        description="Explora todos los álbumes, EPs y sencillos calificados por la comunidad de Musiclub. Descubre notas ponderadas, canciones favoritas y análisis de la comunidad."
+        url="https://musiclub.org/catalogo"
       />
       <AlbumsCatalog isPage={true} />
     </>
