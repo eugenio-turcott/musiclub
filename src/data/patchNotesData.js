@@ -14,6 +14,25 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.1',
+    title: 'Tag de Anuncios de Google AdSense',
+    date: '2026-09-03',
+    sha: 'HEAD',
+    tag: 'Menor',
+    tagColor: 'from-pink-500 via-purple-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Integración del tag de anuncios de Google AdSense en el index.html para monetización de la plataforma.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Tag de Anuncios de Google AdSense',
+        description:
+          'Incorporación del tag de anuncios de Google AdSense en el archivo index.html para permitir la monetización de la plataforma a través de publicidad.',
+      },
+    ],
+  },
+  {
     version: 'V.6.0',
     title:
       'Enrutamiento Semántico por Tipo de Release, Portadas HD vía Spotify CDN, Vinilo Interactivo Invertido, Blindaje Lingüístico Universal y Sitemap 554+',
@@ -109,6 +128,26 @@ export const CURATED_PATCH_NOTES = [
     ],
   },
   {
+    version: 'V.5.8',
+    title:
+      'Modificaciones mínimas en archivos de control de la aplicación para compatibilidad con el nuevo dominio musiclub.org',
+    date: '2026-08-31',
+    sha: 'HEAD',
+    tag: 'Menor',
+    tagColor: 'from-purple-500 via-pink-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Ajustes menores en archivos de control de la aplicación para garantizar compatibilidad con el nuevo dominio musiclub.org y la resolución de rutas dinámicas en entornos locales y de previsualización.',
+    changes: [
+      {
+        type: 'improvement',
+        title: 'Ajustes de Compatibilidad con musiclub.org',
+        description:
+          'Modificaciones en los archivos de configuración y rutas de la aplicación para asegurar la compatibilidad total con el nuevo dominio musiclub.org y la resolución correcta de URLs en entornos locales y de previsualización.',
+      },
+    ],
+  },
+  {
     version: 'V.5.7',
     title:
       'Programmatic SEO, Resolución On-Demand con Spotify API, Dominio musiclub.org, Footer Global y OAuth Dinámico',
@@ -128,7 +167,8 @@ export const CURATED_PATCH_NOTES = [
       },
       {
         type: 'feature',
-        title: 'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML Expandido',
+        title:
+          'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML Expandido',
         description:
           'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, con un sitemap.xml expandido a más de 540 URLs canónicas que combinan los álbumes de la comunidad con los discos y artistas más buscados de la historia musical.',
       },

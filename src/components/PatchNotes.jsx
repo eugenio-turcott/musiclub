@@ -61,12 +61,48 @@ export function PatchNotes({ isPage = false }) {
 
     return allPatchNotes.filter((note) => {
       // Filtro de tag
-      if (selectedTag === 'V5' && !note.version.startsWith('V.5') && !note.version.startsWith('v.5')) return false;
-      if (selectedTag === 'V4' && !note.version.startsWith('V.4') && !note.version.startsWith('v.4')) return false;
-      if (selectedTag === 'V3' && !note.version.startsWith('V.3') && !note.version.startsWith('v.3')) return false;
-      if (selectedTag === 'V2' && !note.version.startsWith('V.2') && !note.version.startsWith('v.2')) return false;
-      if (selectedTag === 'V1' && !note.version.startsWith('V.1') && !note.version.startsWith('v.1')) return false;
-      if (selectedTag === 'V0' && !note.version.startsWith('V.0') && !note.version.startsWith('v.0')) return false;
+      if (
+        selectedTag === 'V6' &&
+        !note.version.startsWith('V.6') &&
+        !note.version.startsWith('v.6')
+      )
+        return false;
+      if (
+        selectedTag === 'V5' &&
+        !note.version.startsWith('V.5') &&
+        !note.version.startsWith('v.5')
+      )
+        return false;
+      if (
+        selectedTag === 'V4' &&
+        !note.version.startsWith('V.4') &&
+        !note.version.startsWith('v.4')
+      )
+        return false;
+      if (
+        selectedTag === 'V3' &&
+        !note.version.startsWith('V.3') &&
+        !note.version.startsWith('v.3')
+      )
+        return false;
+      if (
+        selectedTag === 'V2' &&
+        !note.version.startsWith('V.2') &&
+        !note.version.startsWith('v.2')
+      )
+        return false;
+      if (
+        selectedTag === 'V1' &&
+        !note.version.startsWith('V.1') &&
+        !note.version.startsWith('v.1')
+      )
+        return false;
+      if (
+        selectedTag === 'V0' &&
+        !note.version.startsWith('V.0') &&
+        !note.version.startsWith('v.0')
+      )
+        return false;
 
       if (!q) return true;
 
@@ -90,7 +126,10 @@ export function PatchNotes({ isPage = false }) {
   }, [searchQuery, selectedTag]);
 
   // Paginación
-  const totalPages = Math.max(1, Math.ceil(filteredNotes.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredNotes.length / ITEMS_PER_PAGE)
+  );
   const paginatedNotes = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     return filteredNotes.slice(startIndex, startIndex + ITEMS_PER_PAGE);
@@ -121,7 +160,9 @@ export function PatchNotes({ isPage = false }) {
               Patch Notes Musiclub
             </h1>
             <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
-              Consulta en tiempo real cada mejora, nueva función y corrección implementada en la plataforma, sincronizado directamente con la rama principal de GitHub.
+              Consulta en tiempo real cada mejora, nueva función y corrección
+              implementada en la plataforma, sincronizado directamente con la
+              rama principal de GitHub.
             </p>
           </div>
 
@@ -178,16 +219,24 @@ export function PatchNotes({ isPage = false }) {
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
                 <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
               </svg>
-              <span>{GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}</span>
+              <span>
+                {GITHUB_REPO_OWNER}/{GITHUB_REPO_NAME}
+              </span>
             </a>
             <span>•</span>
-            <span>Rama: <strong className="text-white/80">master</strong></span>
+            <span>
+              Rama: <strong className="text-white/80">master</strong>
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
             {lastSyncTime ? (
               <span>
-                Última sincronización: {lastSyncTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                Última sincronización:{' '}
+                {lastSyncTime.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
               </span>
             ) : syncError ? (
               <span className="text-amber-300">{syncError}</span>
@@ -226,6 +275,7 @@ export function PatchNotes({ isPage = false }) {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {[
             { id: 'ALL', label: `Todas (${allPatchNotes.length})` },
+            { id: 'V6', label: 'V6.x' },
             { id: 'V5', label: 'V5.x' },
             { id: 'V4', label: 'V4.x' },
             { id: 'V3', label: 'V3.x' },
@@ -264,8 +314,13 @@ export function PatchNotes({ isPage = false }) {
         {paginatedNotes.length === 0 ? (
           <div className="text-center py-12 p-6 rounded-3xl bg-white/5 border border-white/10 text-white/50 space-y-2">
             <span className="text-4xl block">🔍</span>
-            <p className="text-base font-bold text-white">No se encontraron notas de versión</p>
-            <p className="text-xs">Prueba ajustando el término de búsqueda o seleccionando otra versión.</p>
+            <p className="text-base font-bold text-white">
+              No se encontraron notas de versión
+            </p>
+            <p className="text-xs">
+              Prueba ajustando el término de búsqueda o seleccionando otra
+              versión.
+            </p>
           </div>
         ) : (
           paginatedNotes.map((release, idx) => {
@@ -275,7 +330,9 @@ export function PatchNotes({ isPage = false }) {
               <div
                 key={release.version + '-' + (release.sha || idx)}
                 className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f1122] via-[#15172e] to-[#0a0c1a] border ${
-                  isPending ? 'border-pink-500/40 shadow-pink-500/10' : 'border-white/15'
+                  isPending
+                    ? 'border-pink-500/40 shadow-pink-500/10'
+                    : 'border-white/15'
                 } p-5 sm:p-7 shadow-xl space-y-5 hover:border-pink-500/30 transition-all group`}
               >
                 {/* Header de la Tarjeta de Versión */}
@@ -311,7 +368,9 @@ export function PatchNotes({ isPage = false }) {
                         className="w-5 h-5 rounded-full border border-white/20"
                       />
                     )}
-                    <span className="truncate max-w-[120px]">{release.authorName || 'Eugenio Turcott'}</span>
+                    <span className="truncate max-w-[120px]">
+                      {release.authorName || 'Eugenio Turcott'}
+                    </span>
                     {release.sha && release.sha !== 'pending' ? (
                       <a
                         href={release.commitUrl}
@@ -357,15 +416,31 @@ export function PatchNotes({ isPage = false }) {
                         const isImprovement = change.type === 'improvement';
                         const isDatabase = change.type === 'database';
 
-                        const badgeIcon = isFeature ? '✨' : isFix ? '🐛' : isImprovement ? '⚡' : isDatabase ? '🗄️' : '🛠️';
-                        const badgeLabel = isFeature ? 'Novedad' : isFix ? 'Corrección' : isImprovement ? 'Optimización' : isDatabase ? 'Base de Datos' : 'Mejora';
+                        const badgeIcon = isFeature
+                          ? '✨'
+                          : isFix
+                            ? '🐛'
+                            : isImprovement
+                              ? '⚡'
+                              : isDatabase
+                                ? '🗄️'
+                                : '🛠️';
+                        const badgeLabel = isFeature
+                          ? 'Novedad'
+                          : isFix
+                            ? 'Corrección'
+                            : isImprovement
+                              ? 'Optimización'
+                              : isDatabase
+                                ? 'Base de Datos'
+                                : 'Mejora';
                         const badgeStyle = isFeature
                           ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
                           : isFix
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                          : isDatabase
-                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                          : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                            : isDatabase
+                              ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                              : 'bg-purple-500/20 text-purple-300 border-purple-500/30';
 
                         return (
                           <div
@@ -404,7 +479,9 @@ export function PatchNotes({ isPage = false }) {
       {totalPages > 1 && (
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-white/10">
           <p className="text-xs text-white/50">
-            Página <strong className="text-white">{currentPage}</strong> de <strong className="text-white">{totalPages}</strong> ({filteredNotes.length} versiones en total)
+            Página <strong className="text-white">{currentPage}</strong> de{' '}
+            <strong className="text-white">{totalPages}</strong> (
+            {filteredNotes.length} versiones en total)
           </p>
 
           <div className="flex items-center gap-1.5 flex-wrap justify-center">
