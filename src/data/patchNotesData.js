@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.4',
+    title:
+      'Corrección de Notificaciones de Ganador en Pool, Sincronización de 21 Álbumes Graduados y Buscador Resiliente Multi-Tier',
+    date: '2026-09-03',
+    sha: 'HEAD',
+    tag: 'Menor',
+    tagColor: 'from-emerald-500 via-teal-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.6.4 enfocada en la precisión del sistema de notificaciones del club, sincronización integral de los 21 lanzamientos históricos del Pool con asignación de perfiles y estados de graduación, y optimización de resiliencia del buscador musical con arquitectura multi-tier (Spotify, Apple Music / iTunes y Deezer) ante límites de tasa (429).',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Corrección de Notificaciones Globales de Álbum Ganador',
+        description:
+          'Ajuste en supabaseService.getCurrentWinner() para consultar exclusivamente la tabla pool_entries por status = "GANADOR" en lugar de basarse en reviews_enabled de la tabla albums. Esto elimina las notificaciones erróneas generadas tras la ingesta masiva de álbumes externos y garantiza que solo se anuncie el disco ganador oficial de la semana del club.',
+      },
+      {
+        type: 'feature',
+        title: 'Sincronización y Graduación de 21 Álbumes Históricos en pool_entries',
+        description:
+          'Comprobación, normalización y registro completo en pool_entries de los 21 álbumes históricos del club (incluyendo Weyes Blood, Judeline, Madonna, Little Jesus, Knocked Loose, Todos mueren en abril, Ashe, Serú Girán, Sampha, DANNA, Silvana Estrada, Tango Astral, Sade y Jane Remover). Los álbumes que no figuraban en el pool fueron integrados como GRADUADOS con sus respectivos campos de autor (nominated_by, user_id, email) y temporada activa.',
+      },
+      {
+        type: 'improvement',
+        title: 'Buscador y Crawler Musical Resiliente con Fallback Multi-Tier',
+        description:
+          'Incorporación de un Circuit Breaker inteligente en spotifyApi.js que conmuta fluidamente a iTunes Search API y Deezer cuando la API de Spotify devuelve 429 (Rate Limit). Resolución de portadas HD de hasta 1000x1000, soporte de tracks completo, validación de cabeceras HEAD en Cover Art Archive para evitar imágenes rotas (404) y concatenación precisa de artistas colaboradores con join phrases en la ingesta de MusicBrainz.',
+      },
+      {
+        type: 'improvement',
+        title: 'Eliminación Integral de LoadingOverlay y Rediseño Hero Institucional',
+        description:
+          'Limpieza y desacoplamiento de componentes de carga invasivos (LoadingOverlay) en todas las vistas de la aplicación, sustituyéndolos por transiciones fluidas de skeleton y adaptando las páginas de FAQ, Privacidad y Términos a la estética visual moderna y metadatos SEO implementados en Patch Notes.',
+      },
+    ],
+  },
+  {
     version: 'V.6.3',
     title:
       'Meta Description Global SEO en index.html, Blindaje WebSocket en CLI y Actualización de Runner a Node.js 22',

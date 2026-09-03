@@ -339,31 +339,46 @@ export const supabaseService = {
     return data;
   },
 
-  // Obtener álbum ganador actual
+  // Obtener álbum ganador actual (Únicamente de pool_entries donde status = 'GANADOR')
   getCurrentWinner: async () => {
     try {
-      const { data, error } = await supabase
-        .from('albums')
-        .select('*')
-        .eq('reviews_enabled', true)
+      const { data: poolWinner, error } = await supabase
+        .from('pool_entries')
+        .select(`
+          id,
+          status,
+          created_at,
+          nominated_by,
+          user_id,
+          album:album_id (*)
+        `)
+        .eq('status', 'GANADOR')
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();
 
-      if (error) return null;
-      return data;
+      if (error || !poolWinner || !poolWinner.album) return null;
+
+      const album = poolWinner.album;
+      return {
+        ...album,
+        pool_entry_id: poolWinner.id,
+        nominated_by: poolWinner.nominated_by,
+        user_id: poolWinner.user_id || album.user_id,
+        status: 'GANADOR',
+      };
     } catch {
       return null;
     }
   },
 
-  // Resetear ganador
+  // Resetear ganador en pool_entries
   resetWinner: async () => {
     try {
       const { error } = await supabase
-        .from('albums')
-        .update({ reviews_enabled: false })
-        .eq('reviews_enabled', true);
+        .from('pool_entries')
+        .update({ status: 'GRADUADO' })
+        .eq('status', 'GANADOR');
 
       if (error) throw new Error(error.message);
       return true;

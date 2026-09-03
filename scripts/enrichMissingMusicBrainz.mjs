@@ -67,24 +67,63 @@ async function getSpotifyAccessToken() {
 async function getSpotifyCoverAndLink(artistName, albumName) {
   try {
     const token = await getSpotifyAccessToken();
-    if (!token) return null;
+    if (token) {
+      const query = `album:${albumName.replace(/[+]/g, '').trim()} artist:${artistName.trim()}`;
+      const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=1`;
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: AbortSignal.timeout(4000),
+      });
 
-    const query = `album:${albumName.replace(/[+]/g, '').trim()} artist:${artistName.trim()}`;
-    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=1`;
-    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-    if (!res.ok) return null;
-
-    const data = await res.json();
-    const item = data.albums?.items?.[0];
-    if (item && item.images && item.images.length > 0) {
-      return {
-        imageUrl: item.images[0].url,
-        spotifyLink: item.external_urls?.spotify || null,
-      };
+      if (res.ok) {
+        const data = await res.json();
+        const item = data.albums?.items?.[0];
+        if (item && item.images && item.images.length > 0) {
+          return {
+            imageUrl: item.images[0].url,
+            spotifyLink: item.external_urls?.spotify || null,
+          };
+        }
+      }
     }
-  } catch {
-    // Silently continue
-  }
+  } catch {}
+
+  const fallbackSpotifyLink = `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
+
+  // Fallback 1: Deezer (1000x1000 HD, sin API key)
+  try {
+    const q = encodeURIComponent(`artist:"${artistName.trim()}" album:"${albumName.trim()}"`);
+    const res = await fetch(`https://api.deezer.com/search/album?q=${q}`, { signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.data && data.data.length > 0) {
+        const item = data.data[0];
+        const imageUrl = item.cover_xl || item.cover_big;
+        if (imageUrl) {
+          return { imageUrl, spotifyLink: fallbackSpotifyLink };
+        }
+      }
+    }
+  } catch {}
+
+  // Fallback 2: iTunes (1000x1000 HD, sin API key)
+  try {
+    const term = encodeURIComponent(`${artistName} ${albumName}`);
+    const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=album&limit=1`, { signal: AbortSignal.timeout(4000) });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        const item = data.results[0];
+        if (item.artworkUrl100) {
+          return {
+            imageUrl: item.artworkUrl100.replace('100x100bb', '1000x1000bb'),
+            spotifyLink: fallbackSpotifyLink,
+          };
+        }
+      }
+    }
+  } catch {}
+
   return null;
 }
 

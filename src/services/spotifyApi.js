@@ -113,219 +113,390 @@ export const extractReleaseYear = (releaseDate) => {
   return !isNaN(year) && year >= 1900 && year <= 2100 ? year : null;
 };
 
+let spotifyCooldownUntil = 0;
+
 export const searchAlbum = async (query) => {
-  try {
-    const token = await getSpotifyToken();
-
-    const response = await fetch(
-      `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=album&limit=10&market=MX`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error en búsqueda: ${response.status}`);
-    }
-
-    const data = await response.json();
-
-    if (data.albums && data.albums.items) {
-      return {
-        success: true,
-        albums: data.albums.items.map((album) => {
-          const releaseType = classifyAlbumType(album);
-          const releaseYear = extractReleaseYear(album.release_date);
-          return {
-            id: album.id,
-            name: album.name,
-            artists: album.artists.map((a) => a.name),
-            artist_id: album.artists[0]?.id || null,
-            image: album.images[0]?.url || '',
-            releaseDate: album.release_date,
-            releaseYear: releaseYear,
-            album_type: album.album_type,
-            release_type: releaseType,
-            totalTracks: album.total_tracks,
-            tracks: [],
-            external_urls: album.external_urls,
-          };
-        }),
-      };
-    }
-
-    return { success: false, error: 'No se encontraron álbumes' };
-  } catch (error) {
-    console.error('Error en searchAlbum:', error);
-    return { success: false, error: error.message };
+  if (!query || !query.trim()) {
+    return { success: true, albums: [] };
   }
+
+  // 1. Intentar Spotify primero si no está en cooldown por rate limit / cuota
+  if (Date.now() > spotifyCooldownUntil) {
+    try {
+      const token = await getSpotifyToken();
+      if (token) {
+        const response = await fetch(
+          `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=album&limit=10&market=MX`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 429) {
+          console.warn('⚠️ Spotify Search 429 (Cuota excedida/Rate limit). Activando fallback inmediato.');
+          spotifyCooldownUntil = Date.now() + 60 * 1000;
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.albums && data.albums.items) {
+            return {
+              success: true,
+              albums: data.albums.items.map((album) => {
+                const releaseType = classifyAlbumType(album);
+                const releaseYear = extractReleaseYear(album.release_date);
+                const artistList = album.artists.map((a) => a.name);
+                return {
+                  id: album.id,
+                  name: album.name,
+                  artists: artistList,
+                  artist: artistList.join(', '),
+                  artist_id: album.artists[0]?.id || null,
+                  image: album.images[0]?.url || '',
+                  releaseDate: album.release_date,
+                  releaseYear: releaseYear,
+                  album_type: album.album_type,
+                  release_type: releaseType,
+                  totalTracks: album.total_tracks,
+                  tracks: [],
+                  external_urls: album.external_urls || {
+                    spotify: `https://open.spotify.com/album/${album.id}`,
+                  },
+                };
+              }),
+            };
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('Spotify searchAlbum no disponible, usando fallback:', error.message);
+    }
+  }
+
+  // 2. FALLBACK RESILIENTE: Apple Music / iTunes Search API (CORS habilitado, portadas HD 1000x1000)
+  try {
+    const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=10`;
+    const res = await fetch(itunesUrl);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return {
+          success: true,
+          albums: data.results.map((item) => {
+            const rawYear = item.releaseDate ? parseInt(item.releaseDate.substring(0, 4), 10) : null;
+            const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
+            const totalTracks = item.trackCount || 0;
+            let releaseType = 'ALBUM';
+            if (totalTracks <= 2) releaseType = 'SENCILLO';
+            else if (totalTracks <= 7) releaseType = 'EP';
+
+            const cleanName = item.collectionName;
+            const cleanArtist = item.artistName;
+            const hdImage = item.artworkUrl100
+              ? item.artworkUrl100.replace('100x100bb', '1000x1000bb')
+              : '';
+
+            return {
+              id: `itunes_${item.collectionId}`,
+              name: cleanName,
+              artists: [cleanArtist],
+              artist: cleanArtist,
+              artist_id: null,
+              image: hdImage,
+              releaseDate: item.releaseDate ? item.releaseDate.split('T')[0] : null,
+              releaseYear: releaseYear,
+              album_type: 'album',
+              release_type: releaseType,
+              totalTracks: totalTracks,
+              tracks: [],
+              external_urls: {
+                spotify: `https://open.spotify.com/search/${encodeURIComponent(cleanArtist + ' ' + cleanName)}`,
+                itunes: item.collectionViewUrl,
+              },
+            };
+          }),
+        };
+      }
+    }
+  } catch (itunesErr) {
+    console.warn('Error en fallback iTunes search:', itunesErr);
+  }
+
+  return { success: false, error: 'No se encontraron álbumes', albums: [] };
 };
 
 /**
- * Busca canciones (tracks) individuales en Spotify por título y/o artista
+ * Busca canciones (tracks) individuales en Spotify por título y/o artista (con fallback de Apple Music)
  */
 export const searchTracks = async (query, limit = 10) => {
   if (!query || !query.trim()) {
     return { success: true, tracks: [] };
   }
 
-  try {
-    const token = await getSpotifyToken();
-    const response = await fetch(
-      `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=track&limit=${limit}&market=MX`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+  // 1. Intentar Spotify primero si no está en cooldown
+  if (Date.now() > spotifyCooldownUntil) {
+    try {
+      const token = await getSpotifyToken();
+      if (token) {
+        const response = await fetch(
+          `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=track&limit=${limit}&market=MX`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.status === 429) {
+          spotifyCooldownUntil = Date.now() + 60 * 1000;
+        } else if (response.ok) {
+          const data = await response.json();
+          if (data.tracks && data.tracks.items) {
+            return {
+              success: true,
+              tracks: data.tracks.items.map((track) => ({
+                id: track.id,
+                name: track.name,
+                artists: track.artists.map((a) => a.name),
+                artistName: track.artists.map((a) => a.name).join(', '),
+                albumName: track.album?.name || '',
+                imageUrl: track.album?.images?.[0]?.url || '',
+                spotifyUrl: track.external_urls?.spotify || `https://open.spotify.com/track/${track.id}`,
+                durationMs: track.duration_ms,
+              })),
+            };
+          }
+        }
       }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error en búsqueda de canciones: ${response.status}`);
+    } catch (error) {
+      console.warn('Spotify searchTracks no disponible, usando fallback:', error.message);
     }
-
-    const data = await response.json();
-    if (data.tracks && data.tracks.items) {
-      return {
-        success: true,
-        tracks: data.tracks.items.map((track) => ({
-          id: track.id,
-          name: track.name,
-          artists: track.artists.map((a) => a.name),
-          artistName: track.artists.map((a) => a.name).join(', '),
-          albumName: track.album?.name || '',
-          imageUrl: track.album?.images?.[0]?.url || '',
-          spotifyUrl: track.external_urls?.spotify || `https://open.spotify.com/track/${track.id}`,
-          durationMs: track.duration_ms,
-        })),
-      };
-    }
-
-    return { success: true, tracks: [] };
-  } catch (error) {
-    console.warn('Error en searchTracks:', error);
-    return { success: false, error: error.message, tracks: [] };
   }
+
+  // 2. Fallback de canciones vía Apple Music / iTunes
+  try {
+    const res = await fetch(
+      `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=song&limit=${limit}`
+    );
+    if (res.ok) {
+      const data = await res.json();
+      if (data.results && data.results.length > 0) {
+        return {
+          success: true,
+          tracks: data.results.map((track) => ({
+            id: `itunes_${track.trackId}`,
+            name: track.trackName,
+            artists: [track.artistName],
+            artistName: track.artistName,
+            albumName: track.collectionName || '',
+            imageUrl: track.artworkUrl100 ? track.artworkUrl100.replace('100x100bb', '600x600bb') : '',
+            spotifyUrl: `https://open.spotify.com/search/${encodeURIComponent(track.artistName + ' ' + track.trackName)}`,
+            durationMs: track.trackTimeMillis,
+          })),
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Error en fallback searchTracks iTunes:', err);
+  }
+
+  return { success: true, tracks: [] };
 };
 
 export const getAlbumDetails = async (albumId) => {
-  try {
-    const token = await getSpotifyToken();
+  // 1. Si es un ID de iTunes generado por el fallback
+  if (albumId && String(albumId).startsWith('itunes_')) {
+    const rawId = String(albumId).replace('itunes_', '');
+    try {
+      const res = await fetch(`https://itunes.apple.com/lookup?id=${rawId}&entity=song`);
+      if (res.ok) {
+        const data = await res.json();
+        const albumItem = data.results.find((r) => r.wrapperType === 'collection');
+        const songItems = data.results.filter((r) => r.wrapperType === 'track');
+        if (albumItem) {
+          const rawYear = albumItem.releaseDate ? parseInt(albumItem.releaseDate.substring(0, 4), 10) : null;
+          const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
+          const totalTracks = albumItem.trackCount || songItems.length;
+          let releaseType = 'ALBUM';
+          if (totalTracks <= 2) releaseType = 'SENCILLO';
+          else if (totalTracks <= 7) releaseType = 'EP';
 
-    const response = await fetch(`${SPOTIFY_ALBUM_URL}/${albumId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Error al obtener detalles: ${response.status}`);
-    }
-
-    const album = await response.json();
-
-    if (album.id) {
-      let genres = Array.isArray(album.genres) ? [...album.genres] : [];
-
-      // Si el álbum no trae géneros a nivel álbum, obtener géneros del artista principal
-      const primaryArtistId = album.artists?.[0]?.id;
-      if (genres.length === 0 && primaryArtistId) {
-        try {
-          const artistRes = await fetch(
-            `https://api.spotify.com/v1/artists/${primaryArtistId}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
+          return {
+            success: true,
+            album: {
+              id: albumId,
+              name: albumItem.collectionName,
+              artists: [albumItem.artistName],
+              artist: albumItem.artistName,
+              image: albumItem.artworkUrl100
+                ? albumItem.artworkUrl100.replace('100x100bb', '1000x1000bb')
+                : '',
+              releaseDate: albumItem.releaseDate ? albumItem.releaseDate.split('T')[0] : null,
+              releaseYear: releaseYear,
+              release_type: releaseType,
+              totalTracks: totalTracks,
+              genres: albumItem.primaryGenreName ? [albumItem.primaryGenreName] : [],
+              label: albumItem.copyright || null,
+              external_urls: {
+                spotify: `https://open.spotify.com/search/${encodeURIComponent(albumItem.artistName + ' ' + albumItem.collectionName)}`,
               },
-            }
-          );
-          if (artistRes.ok) {
-            const artistData = await artistRes.json();
-            if (Array.isArray(artistData.genres) && artistData.genres.length > 0) {
-              genres = artistData.genres;
-            }
-          }
-        } catch (genreErr) {
-          console.warn('No se pudieron obtener géneros del artista:', genreErr);
+              tracks: songItems.map((song, idx) => ({
+                id: String(song.trackId || idx + 1),
+                name: song.trackName,
+                duration_ms: song.trackTimeMillis || 0,
+                track_number: song.trackNumber || idx + 1,
+              })),
+            },
+          };
         }
       }
-
-      const releaseType = classifyAlbumType(album);
-      const releaseYear = extractReleaseYear(album.release_date);
-
-      return {
-        success: true,
-        album: {
-          id: album.id,
-          name: album.name,
-          artists: album.artists.map((a) => a.name),
-          artists_data: album.artists.map((a) => ({ id: a.id, name: a.name })),
-          primaryArtistId: primaryArtistId,
-          image: album.images[0]?.url || '',
-          releaseDate: album.release_date,
-          releaseYear: releaseYear,
-          album_type: album.album_type,
-          release_type: releaseType,
-          genres: genres,
-          label: album.label || '',
-          popularity: album.popularity || null,
-          totalTracks: album.total_tracks,
-          tracks: album.tracks.items.map((track) => ({
-            id: track.id,
-            name: track.name,
-            duration_ms: track.duration_ms,
-            track_number: track.track_number,
-          })),
-          external_urls: album.external_urls,
-        },
-      };
+    } catch (err) {
+      console.warn('Error obteniendo detalles desde iTunes:', err);
     }
-
-    return { success: false, error: 'No se encontró el álbum' };
-  } catch (error) {
-    console.error('Error en getAlbumDetails:', error);
-    return { success: false, error: error.message };
   }
-};
 
-export const getAlbumTracksById = async (albumId) => {
-  try {
-    const token = await getSpotifyToken();
+  // 2. Si es Spotify y no está en cooldown
+  if (Date.now() > spotifyCooldownUntil) {
+    try {
+      const token = await getSpotifyToken();
 
-    const response = await fetch(
-      `${SPOTIFY_ALBUM_URL}/${albumId}/tracks?limit=50&market=MX`,
-      {
+      const response = await fetch(`${SPOTIFY_ALBUM_URL}/${albumId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      });
+
+      if (response.status === 429) {
+        spotifyCooldownUntil = Date.now() + 60 * 1000;
+      } else if (response.ok) {
+        const album = await response.json();
+
+        if (album.id) {
+          let genres = Array.isArray(album.genres) ? [...album.genres] : [];
+
+          // Si el álbum no trae géneros a nivel álbum, obtener géneros del artista principal
+          const primaryArtistId = album.artists?.[0]?.id;
+          if (genres.length === 0 && primaryArtistId) {
+            try {
+              const artistRes = await fetch(
+                `https://api.spotify.com/v1/artists/${primaryArtistId}`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
+                }
+              );
+              if (artistRes.ok) {
+                const artistData = await artistRes.json();
+                if (Array.isArray(artistData.genres) && artistData.genres.length > 0) {
+                  genres = artistData.genres;
+                }
+              }
+            } catch (genreErr) {
+              console.warn('No se pudieron obtener géneros del artista:', genreErr);
+            }
+          }
+
+          const releaseType = classifyAlbumType(album);
+          const releaseYear = extractReleaseYear(album.release_date);
+
+          return {
+            success: true,
+            album: {
+              id: album.id,
+              name: album.name,
+              artists: album.artists.map((a) => a.name),
+              artists_data: album.artists.map((a) => ({ id: a.id, name: a.name })),
+              primaryArtistId: primaryArtistId,
+              image: album.images[0]?.url || '',
+              releaseDate: album.release_date,
+              releaseYear: releaseYear,
+              album_type: album.album_type,
+              release_type: releaseType,
+              genres: genres,
+              label: album.label || '',
+              popularity: album.popularity || null,
+              totalTracks: album.total_tracks,
+              tracks: (album.tracks?.items || []).map((track) => ({
+                id: track.id,
+                name: track.name,
+                duration_ms: track.duration_ms,
+                track_number: track.track_number,
+              })),
+              external_urls: album.external_urls,
+            },
+          };
+        }
       }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Error al obtener tracks: ${response.status}`);
+    } catch (error) {
+      console.error('Error en getAlbumDetails:', error);
     }
-
-    const data = await response.json();
-
-    if (data.items) {
-      return {
-        success: true,
-        tracks: data.items.map((track) => ({
-          id: track.id,
-          name: track.name,
-          duration_ms: track.duration_ms,
-          track_number: track.track_number,
-        })),
-      };
-    }
-
-    return { success: false, error: 'No se encontraron tracks' };
-  } catch (error) {
-    console.error('Error en getAlbumTracksById:', error);
-    return { success: false, error: error.message };
   }
+
+  return { success: false, error: 'No se pudo obtener la información del álbum' };
+};
+
+export const getAlbumTracksById = async (albumId) => {
+  // 1. Si es un ID de iTunes generado por el fallback
+  if (albumId && String(albumId).startsWith('itunes_')) {
+    const rawId = String(albumId).replace('itunes_', '');
+    try {
+      const res = await fetch(`https://itunes.apple.com/lookup?id=${rawId}&entity=song`);
+      if (res.ok) {
+        const data = await res.json();
+        const songItems = data.results.filter((r) => r.wrapperType === 'track');
+        return {
+          success: true,
+          tracks: songItems.map((song, idx) => ({
+            id: String(song.trackId || idx + 1),
+            name: song.trackName,
+            duration_ms: song.trackTimeMillis || 0,
+            track_number: song.trackNumber || idx + 1,
+          })),
+        };
+      }
+    } catch (itunesErr) {
+      console.warn('Error obteniendo tracks desde iTunes:', itunesErr);
+    }
+  }
+
+  // 2. Si es Spotify y no está en cooldown
+  if (Date.now() > spotifyCooldownUntil) {
+    try {
+      const token = await getSpotifyToken();
+
+      const response = await fetch(
+        `${SPOTIFY_ALBUM_URL}/${albumId}/tracks?limit=50&market=MX`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.status === 429) {
+        spotifyCooldownUntil = Date.now() + 60 * 1000;
+      } else if (response.ok) {
+        const data = await response.json();
+
+        if (data.items) {
+          return {
+            success: true,
+            tracks: data.items.map((track) => ({
+              id: track.id,
+              name: track.name,
+              duration_ms: track.duration_ms,
+              track_number: track.track_number,
+            })),
+          };
+        }
+      }
+    } catch (error) {
+      console.error('Error en getAlbumTracksById:', error);
+    }
+  }
+
+  return { success: false, error: 'No se encontraron tracks' };
 };
 
 export const testSpotifyConnection = async () => {
