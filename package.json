@@ -22,7 +22,10 @@
     "build": "react-scripts build",
     "sitemap": "node scripts/generate-sitemap.js",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "ingest:mb": "node scripts/hourlyMusicBrainzIngestion.mjs",
+    "ingest:daemon": "node scripts/runHourlyDaemon.mjs",
+    "enrich:missing": "node scripts/enrichMissingMusicBrainz.mjs"
   },
   "eslintConfig": {
     "extends": [

@@ -3,11 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const { POPULAR_ALBUMS } = require('./popularMusicData');
-require('dotenv').config();
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_8CYM-sB7DY1_cyw8Amyr9g_-JtuZEKO';
 const BASE_URL = 'https://musiclub.org';
+const MAX_URLS_PER_SITEMAP = 45000;
 
 function slugify(text) {
   if (!text) return '';
@@ -66,17 +67,71 @@ function getReleaseTypePrefix(rawType) {
   return 'albumes';
 }
 
+function buildXmlUrlset(urls) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (u) => `  <url>
+    <loc>${u.loc}</loc>
+    ${u.lastmod ? `<lastmod>${new Date(u.lastmod).toISOString().split('T')[0]}</lastmod>` : ''}
+    <changefreq>${u.changefreq || 'weekly'}</changefreq>
+    <priority>${u.priority || '0.5'}</priority>
+  </url>`
+  )
+  .join('\n')}
+</urlset>`;
+}
+
+function buildXmlSitemapIndex(sitemaps) {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${sitemaps
+  .map(
+    (s) => `  <sitemap>
+    <loc>${s.loc}</loc>
+    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+  </sitemap>`
+  )
+  .join('\n')}
+</sitemapindex>`;
+}
+
 async function generateSitemap() {
-  console.log('Generating sitemap.xml...');
+  console.log('🗺️ Generando sitemap.xml actualizado...');
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  const { data: albums, error } = await supabase
-    .from('albums')
-    .select('album_name, artist_name, release_type, created_at');
+  // 1. Paginación exhaustiva para consultar TODOS los álbumes de Supabase (superando el límite de 1000)
+  const allAlbums = [];
+  const step = 1000;
+  let from = 0;
+  let hasMore = true;
 
-  if (error) {
-    console.warn('Error fetching albums for sitemap:', error.message);
+  while (hasMore) {
+    const { data: pageAlbums, error } = await supabase
+      .from('albums')
+      .select('album_name, artist_name, release_type, created_at')
+      .order('created_at', { ascending: false })
+      .range(from, from + step - 1);
+
+    if (error) {
+      console.warn('⚠️ Error consultando lote de álbumes para sitemap:', error.message);
+      break;
+    }
+
+    if (!pageAlbums || pageAlbums.length === 0) {
+      hasMore = false;
+    } else {
+      allAlbums.push(...pageAlbums);
+      if (pageAlbums.length < step) {
+        hasMore = false;
+      } else {
+        from += step;
+      }
+    }
   }
+
+  console.log(`📦 Consultados ${allAlbums.length} lanzamientos de la base de datos.`);
 
   const staticRoutes = [
     { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' },
@@ -95,31 +150,33 @@ async function generateSitemap() {
   const releaseMap = new Map();
   const artistSet = new Set();
 
-  // 1. Álbumes y releases existentes en la Base de Datos de Supabase
-  (albums || []).forEach((alb) => {
+  // 2. Álbumes y releases existentes en la Base de Datos de Supabase
+  allAlbums.forEach((alb) => {
     const albumName = alb.album_name;
     const artistName = alb.artist_name;
     const prefix = getReleaseTypePrefix(alb.release_type);
 
     if (albumName) {
       const slug = slugify(albumName);
-      releaseMap.set(slug, {
-        loc: `${BASE_URL}/${prefix}/${slug}`,
-        lastmod: alb.updated_at || alb.created_at || new Date().toISOString(),
-        priority: '0.8',
-        changefreq: 'weekly',
-      });
+      if (slug && !releaseMap.has(slug)) {
+        releaseMap.set(slug, {
+          loc: `${BASE_URL}/${prefix}/${slug}`,
+          lastmod: alb.created_at || new Date().toISOString(),
+          priority: '0.8',
+          changefreq: 'weekly',
+        });
+      }
     }
     if (artistName) {
       artistSet.add(artistName);
     }
   });
 
-  // 2. Curaduría de álbumes y artistas populares para Programmatic SEO On-Demand
+  // 3. Curaduría de álbumes populares para Programmatic SEO On-Demand
   (POPULAR_ALBUMS || []).forEach((item) => {
     if (item.album) {
       const slug = slugify(item.album);
-      if (!releaseMap.has(slug)) {
+      if (slug && !releaseMap.has(slug)) {
         const prefix = getReleaseTypePrefix(item.release_type);
         releaseMap.set(slug, {
           loc: `${BASE_URL}/${prefix}/${slug}`,
@@ -143,24 +200,38 @@ async function generateSitemap() {
   }));
 
   const allUrls = [...staticRoutes, ...releaseRoutes, ...artistRoutes];
+  const publicDir = path.join(__dirname, '..', 'public');
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${allUrls
-  .map(
-    (u) => `  <url>
-    <loc>${u.loc}</loc>
-    ${u.lastmod ? `<lastmod>${new Date(u.lastmod).toISOString().split('T')[0]}</lastmod>` : ''}
-    <changefreq>${u.changefreq || 'weekly'}</changefreq>
-    <priority>${u.priority || '0.5'}</priority>
-  </url>`
-  )
-  .join('\n')}
-</urlset>`;
+  // 4. Escribir archivo de Sitemap cumpliendo con los estándares de Google
+  if (allUrls.length <= MAX_URLS_PER_SITEMAP) {
+    const xml = buildXmlUrlset(allUrls);
+    const mainSitemapPath = path.join(publicDir, 'sitemap.xml');
+    fs.writeFileSync(mainSitemapPath, xml, 'utf8');
+    console.log(`✅ sitemap.xml generado con éxito: ${allUrls.length} URLs totales indexables en ${mainSitemapPath}`);
+  } else {
+    // Si supera 45,000 URLs, particionar según estándar oficial de Google
+    const numParts = Math.ceil(allUrls.length / MAX_URLS_PER_SITEMAP);
+    const sitemapsIndexList = [];
 
-  const publicPath = path.join(__dirname, '..', 'public', 'sitemap.xml');
-  fs.writeFileSync(publicPath, xml, 'utf8');
-  console.log(`✅ sitemap.xml generated with ${allUrls.length} URLs at ${publicPath}`);
+    for (let part = 0; part < numParts; part++) {
+      const chunkUrls = allUrls.slice(part * MAX_URLS_PER_SITEMAP, (part + 1) * MAX_URLS_PER_SITEMAP);
+      const partFileName = `sitemap-${part + 1}.xml`;
+      const partXml = buildXmlUrlset(chunkUrls);
+      fs.writeFileSync(path.join(publicDir, partFileName), partXml, 'utf8');
+      sitemapsIndexList.push({ loc: `${BASE_URL}/${partFileName}` });
+    }
+
+    const indexXml = buildXmlSitemapIndex(sitemapsIndexList);
+    const mainSitemapPath = path.join(publicDir, 'sitemap.xml');
+    fs.writeFileSync(mainSitemapPath, indexXml, 'utf8');
+    console.log(`✅ sitemap.xml (Index) generado con ${numParts} partes particionadas para ${allUrls.length} URLs.`);
+  }
+
+  return allUrls.length;
 }
 
-generateSitemap().catch(console.error);
+if (require.main === module) {
+  generateSitemap().catch(console.error);
+}
+
+module.exports = { generateSitemap, slugify, getReleaseTypePrefix };

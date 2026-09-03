@@ -10,6 +10,7 @@ import {
   getReviewFavoriteTrack,
   isFavoriteTrackMatch,
 } from '../utils/ratingUtils';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function Reviews({ onClose, isPage = false }) {
   const [reviews, setReviews] = useState([]);
@@ -24,52 +25,80 @@ export function Reviews({ onClose, isPage = false }) {
 
   // Estadísticas básicas
   const [totalReviews, setTotalReviews] = useState(0);
-  const [avgRating, setAvgRating] = useState('0.0');
+  const [avgRating, setAvgRating] = useState('...');
 
   const loadReviews = useCallback(async () => {
     setLoading(true);
     setError(null);
 
     try {
-      const { data: reviewsData, error: reviewsError } = await supabase
-        .from('reviews')
-        .select(
+      const [reviewsRes, albumsRes, profilesRes] = await Promise.all([
+        supabase
+          .from('reviews')
+          .select(
+            `
+            *,
+            albums:album_id (
+              id,
+              album_name,
+              artist_name,
+              image_url,
+              release_type,
+              release_year,
+              tracks
+            )
           `
-          *,
-          albums:album_id (
-            id,
-            album_name,
-            artist_name,
-            image_url,
-            release_type,
-            release_year,
-            tracks
           )
-        `
-        )
-        .order('created_at', { ascending: false });
+          .order('created_at', { ascending: false }),
+        supabase
+          .from('albums')
+          .select('id, album_name, artist_name, release_type, release_year')
+          .order('album_name'),
+        supabase
+          .from('profiles')
+          .select('email, name, avatar_url'),
+      ]);
 
-      if (reviewsError) throw new Error(reviewsError.message);
+      if (reviewsRes.error) throw new Error(reviewsRes.error.message);
+      if (albumsRes.error) throw new Error(albumsRes.error.message);
 
-      const { data: albumsData, error: albumsError } = await supabase
-        .from('albums')
-        .select('id, album_name, artist_name, release_type, release_year')
-        .order('album_name');
+      const reviewsData = reviewsRes.data || [];
+      const albumsData = albumsRes.data || [];
+      const profilesData = profilesRes?.data || [];
 
-      if (albumsError) throw new Error(albumsError.message);
+      const profileAvatarByEmail = new Map();
+      const profileAvatarByName = new Map();
+      (profilesData || []).forEach((p) => {
+        if (p.email && p.avatar_url)
+          profileAvatarByEmail.set(p.email.toLowerCase().trim(), p.avatar_url);
+        if (p.name && p.avatar_url)
+          profileAvatarByName.set(p.name.toLowerCase().trim(), p.avatar_url);
+      });
 
-      setReviews(reviewsData || []);
+      const enrichedReviews = (reviewsData || []).map((rev) => {
+        if (rev.reviewer_avatar) return rev;
+        const emailKey = rev.reviewer_email?.toLowerCase()?.trim();
+        const nameKey = rev.reviewer_name?.toLowerCase()?.trim();
+        const fallbackAvatar =
+          (emailKey && profileAvatarByEmail.get(emailKey)) ||
+          (nameKey && profileAvatarByName.get(nameKey)) ||
+          null;
+        return fallbackAvatar ? { ...rev, reviewer_avatar: fallbackAvatar } : rev;
+      });
+
+      setReviews(enrichedReviews);
       setAlbumsList(albumsData || []);
-      setTotalReviews(reviewsData?.length || 0);
+      setTotalReviews(enrichedReviews.length);
 
-      const avg = getAlbumWeightedAverage(reviewsData || []);
+      const avg = getAlbumWeightedAverage(enrichedReviews);
       setAvgRating(avg || '0.0');
     } catch (err) {
       console.error('Error loading reviews:', err);
       setError(err.message);
+    } finally {
+      setLoading(false);
+      notifyContentLoaded('reviews');
     }
-
-    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -224,8 +253,12 @@ export function Reviews({ onClose, isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Total Reviews
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-white">
-                  {totalReviews}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-white"
+                  data-stat="number"
+                >
+                  {loading && totalReviews === 0 ? '...' : totalReviews}
                 </p>
               </div>
             </div>
@@ -241,8 +274,12 @@ export function Reviews({ onClose, isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Promedio Ponderado
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-cyan-400">
-                  ★ {avgRating}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
+                  data-stat="score"
+                >
+                  {loading || avgRating === '...' ? '★ ...' : `★ ${avgRating}`}
                 </p>
               </div>
             </div>
@@ -258,8 +295,12 @@ export function Reviews({ onClose, isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Álbumes Evaluados
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-white">
-                  {albumsList.length}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-white"
+                  data-stat="number"
+                >
+                  {loading && albumsList.length === 0 ? '...' : albumsList.length}
                 </p>
               </div>
             </div>
@@ -275,8 +316,12 @@ export function Reviews({ onClose, isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Reviewers Únicos
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-purple-400">
-                  {new Set(reviews.map((r) => r.reviewer_name)).size}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-purple-400"
+                  data-stat="number"
+                >
+                  {loading ? '...' : new Set(reviews.map((r) => r.reviewer_name)).size}
                 </p>
               </div>
             </div>

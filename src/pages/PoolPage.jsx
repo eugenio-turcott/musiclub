@@ -413,23 +413,37 @@ export function PoolPage() {
           {/* Quick Season Stats Ribbon */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-white/10 text-center">
             <div className="p-2">
-              <p className="text-xl sm:text-2xl font-black text-pink-400">
-                {activePool.length}
+              <p
+                translate="no"
+                className="notranslate text-xl sm:text-2xl font-black text-pink-400"
+                data-stat="number"
+              >
+                {poolLoading && activePool.length === 0 ? '...' : activePool.length}
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
                 En Espera en el Pool
               </p>
             </div>
             <div className="p-2">
-              <p className="text-xl sm:text-2xl font-black text-amber-300">
-                {poolHistory.length + (winner ? 1 : 0)}
+              <p
+                translate="no"
+                className="notranslate text-xl sm:text-2xl font-black text-amber-300"
+                data-stat="number"
+              >
+                {poolLoading && poolHistory.length === 0 && !winner
+                  ? '...'
+                  : poolHistory.length + (winner ? 1 : 0)}
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
                 Ganadores de Temporada
               </p>
             </div>
             <div className="p-2">
-              <p className="text-xl sm:text-2xl font-black text-purple-300">
+              <p
+                translate="no"
+                className="notranslate text-xl sm:text-2xl font-black text-purple-300"
+                data-stat="season"
+              >
                 {season.name.split(':')[0]}
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
@@ -437,7 +451,11 @@ export function PoolPage() {
               </p>
             </div>
             <div className="p-2">
-              <p className="text-xl sm:text-2xl font-black text-emerald-400">
+              <p
+                translate="no"
+                className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
+                data-stat="date"
+              >
                 11 Jul 2026
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
@@ -638,7 +656,15 @@ export function PoolPage() {
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
               Usa la Ruleta o el Gashapon Arcade para sortear el próximo álbum de
-              los {activePool.length} candidatos activos en el Pool.
+              los{' '}
+              <span
+                translate="no"
+                className="notranslate font-bold text-pink-400"
+                data-stat="number"
+              >
+                {poolLoading ? '...' : activePool.length}
+              </span>{' '}
+              candidatos activos en el Pool.
             </p>
             <Link
               to="/gashapon"
@@ -657,7 +683,15 @@ export function PoolPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Candidatos del Pool Activo ({activePool.length})
+                Candidatos del Pool Activo (
+                <span
+                  translate="no"
+                  className="notranslate"
+                  data-stat="number"
+                >
+                  {poolLoading ? '...' : activePool.length}
+                </span>
+                )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
                 Propuestas de la comunidad listas para los próximos sorteos semanales.
@@ -882,7 +916,15 @@ export function PoolPage() {
           <section className="space-y-6 text-left pt-6 border-t border-white/10">
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Historial de Ganadores ({poolHistory.length})
+                Historial de Ganadores (
+                <span
+                  translate="no"
+                  className="notranslate"
+                  data-stat="number"
+                >
+                  {poolLoading ? '...' : poolHistory.length}
+                </span>
+                )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
                 Lanzamientos que ganaron en el Pool de la Temporada 1 y ya fueron

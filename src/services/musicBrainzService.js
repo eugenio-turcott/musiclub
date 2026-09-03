@@ -462,6 +462,169 @@ export async function verifyCoverArtAvailable(mbid) {
   }
 }
 
+/**
+ * Busca de forma inteligente y exacta el mejor Release Group en MusicBrainz
+ * Maneja reintentos con backoff para evitar bloqueos por 503/429
+ */
+export async function searchBestReleaseGroup(artistName, albumName) {
+  if (!albumName || !artistName) return null;
+  const cleanArt = String(artistName).replace(/[“”"']/g, '').trim();
+  const cleanAlb = String(albumName).replace(/[“”"']/g, '').trim();
+
+  const fetchMbWithRetry = async (url) => {
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const res = await fetch(url, {
+          headers: {
+            'User-Agent': USER_AGENT,
+            Accept: 'application/json',
+          },
+        });
+        if (res.status === 503 || res.status === 429) {
+          await new Promise((r) => setTimeout(r, attempt * 1500));
+          continue;
+        }
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        await new Promise((r) => setTimeout(r, attempt * 1200));
+      }
+    }
+    return null;
+  };
+
+  // 1. Búsqueda estructurada
+  let q = `artist:"${cleanArt}" AND releasegroup:"${cleanAlb}"`;
+  let data = await fetchMbWithRetry(
+    `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+  );
+  let rgs = data?.['release-groups'] || [];
+
+  // 2. Búsqueda libre si no hubo resultados
+  if (rgs.length === 0) {
+    q = `${cleanArt} ${cleanAlb}`;
+    data = await fetchMbWithRetry(
+      `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+    );
+    rgs = data?.['release-groups'] || [];
+  }
+
+  // 3. Búsqueda simplificada eliminando +, paréntesis o corchetes
+  if (rgs.length === 0) {
+    const simplified = cleanAlb
+      .replace(/[+]/g, '')
+      .replace(/\([^)]*\)/g, '')
+      .replace(/\[[^\]]*\]/g, '')
+      .trim();
+    if (simplified && simplified !== cleanAlb) {
+      q = `artist:"${cleanArt}" AND releasegroup:"${simplified}"`;
+      data = await fetchMbWithRetry(
+        `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+      );
+      rgs = data?.['release-groups'] || [];
+    }
+  }
+
+  if (rgs.length === 0) return null;
+
+  const cleanLowerAlb = cleanAlb.toLowerCase();
+  const cleanLowerArt = cleanArt.toLowerCase();
+
+  const scored = rgs.map((rg) => {
+    let score = rg.score || 50;
+    const title = (rg.title || '').toLowerCase().trim();
+    const rgArt = (rg['artist-credit'] || [])
+      .map((a) => (typeof a === 'string' ? a : a.name || a.artist?.name || ''))
+      .join('')
+      .toLowerCase()
+      .trim();
+
+    const primary = (rg['primary-type'] || '').toLowerCase();
+    const secondary = (rg['secondary-types'] || []).map((s) => s.toLowerCase());
+
+    if (title === cleanLowerAlb) score += 45;
+    else if (title.includes(cleanLowerAlb) || cleanLowerAlb.includes(title)) score += 20;
+
+    if (rgArt === cleanLowerArt) score += 35;
+    else if (rgArt.includes(cleanLowerArt) || cleanLowerArt.includes(rgArt)) score += 20;
+
+    if (primary === 'album' && secondary.length === 0) score += 30;
+    else if (primary === 'album') score += 15;
+    else if (primary === 'ep') score += 25;
+    else if (primary === 'single') score += 5;
+
+    return { rg, score };
+  });
+
+  scored.sort((a, b) => b.score - a.score);
+  return scored[0]?.rg || null;
+}
+
+/**
+ * Enriquece un lanzamiento con metadatos canónicos DIRECTOS de MusicBrainz
+ * (MBID, release_type, release_date, release_year, géneros, discográfica, país, código de barras, tracks)
+ * IMPORTANTE: No toca la portada (image_url); la portada se preserva de Spotify.
+ */
+export async function enrichAlbumWithMusicBrainz(albumName, artistName) {
+  try {
+    const rg = await searchBestReleaseGroup(artistName, albumName);
+    if (!rg) return null;
+
+    const mbid = rg.id;
+    const releaseType = normalizeReleaseType(
+      rg['primary-type'],
+      rg['secondary-types']
+    );
+
+    let releaseDate = rg['first-release-date'] || null;
+    let releaseYear = null;
+    if (releaseDate) {
+      const y = parseInt(String(releaseDate).substring(0, 4), 10);
+      if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
+    }
+
+    let genres = (rg.tags || []).map((t) => t.name).slice(0, 5);
+    let label = null;
+    let country = null;
+    let barcode = null;
+    let totalTracks = null;
+    let tracks = [];
+
+    // Consultar detalles del Release Group
+    const details = await getMusicBrainzReleaseGroupDetails(mbid);
+    if (details) {
+      if (details.genres && details.genres.length > 0) {
+        genres = details.genres;
+      }
+      if (details.label) label = details.label;
+      if (details.country) country = details.country;
+      if (details.barcode) barcode = details.barcode;
+      if (details.totalTracks) totalTracks = details.totalTracks;
+      if (details.tracks && details.tracks.length > 0) tracks = details.tracks;
+      if (details.releaseDate && !releaseDate) {
+        releaseDate = details.releaseDate;
+        releaseYear = details.releaseYear;
+      }
+    }
+
+    return {
+      mbid,
+      release_type: releaseType,
+      release_date: releaseDate,
+      release_year: releaseYear,
+      genres,
+      label,
+      country,
+      barcode,
+      total_tracks: totalTracks || (tracks.length > 0 ? tracks.length : null),
+      tracks,
+    };
+  } catch (error) {
+    console.warn('Error en enrichAlbumWithMusicBrainz:', error.message);
+    return null;
+  }
+}
+
 export const musicBrainzService = {
   searchMusicBrainzReleases,
   getMusicBrainzReleaseGroupDetails,
@@ -469,6 +632,8 @@ export const musicBrainzService = {
   getCoverArtUrl,
   verifyCoverArtAvailable,
   normalizeReleaseType,
+  searchBestReleaseGroup,
+  enrichAlbumWithMusicBrainz,
 };
 
 export default musicBrainzService;

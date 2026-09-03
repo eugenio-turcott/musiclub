@@ -1,6 +1,5 @@
-// src/App.js
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { LandingPage } from './pages/LandingPage';
 import { PoolPage } from './pages/PoolPage';
 import { AlbumsPage } from './pages/AlbumsPage';
@@ -20,10 +19,44 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ScrollToTop } from './components/ScrollToTop';
+import { scheduleUniversalTranslation } from './utils/translateCrashGuard';
 
-export function App() {
+function AppContent() {
+  const location = useLocation();
+  const [isDelayed, setIsDelayed] = React.useState(false);
+
+  useEffect(() => {
+    const savedLang = (() => {
+      try {
+        return localStorage.getItem('musiclub_selected_lang');
+      } catch (e) {
+        return 'es';
+      }
+    })();
+
+    if (!savedLang || savedLang === 'es') {
+      setIsDelayed(false);
+      scheduleUniversalTranslation(0, 'es');
+      return;
+    }
+
+    // Delay translation by 2 seconds on navigation/refresh to let React & Supabase load first
+    setIsDelayed(true);
+
+    const timer = setTimeout(() => {
+      setIsDelayed(false);
+      scheduleUniversalTranslation(0, savedLang);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [location.pathname]);
+
   return (
-    <Router>
+    <div
+      id="musiclub-route-container"
+      className={isDelayed ? 'notranslate w-full min-h-screen' : 'w-full min-h-screen'}
+      translate={isDelayed ? 'no' : undefined}
+    >
       <ScrollToTop />
       <Routes>
         {/* Homepage: Modern Landing Page */}
@@ -100,12 +133,22 @@ export function App() {
         <Route path="/changelog" element={<PatchNotesPage />} />
         <Route path="/novedades" element={<PatchNotesPage />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/privacidad" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/terminos" element={<TermsOfService />} />
 
         {/* 404 Not Found */}
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+    </div>
+  );
+}
+
+export function App() {
+  return (
+    <Router>
+      <AppContent />
     </Router>
   );
 }

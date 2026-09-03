@@ -7,6 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { slugifyArtist, getReleaseUrl } from '../utils/ratingUtils';
 import { PLACEHOLDER_COVER } from './TierListMaker';
 import { fetchAlbumReleaseYear } from '../services/spotifyApi';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 const ITEMS_PER_PAGE = 15;
 const SPOTIFY_YEARS_CACHE_KEY = 'musiclub_spotify_years_cache_v1';
@@ -104,6 +105,7 @@ export function AlbumsCatalog({ isPage = false }) {
         setError('No se pudieron cargar los álbumes.');
       } finally {
         setLoading(false);
+        notifyContentLoaded('catalog');
       }
     }
     loadAlbums();
@@ -505,8 +507,12 @@ export function AlbumsCatalog({ isPage = false }) {
                 <p className="text-xs text-slate-400 font-medium">
                   Total Lanzamientos
                 </p>
-                <p className="text-xl sm:text-2xl font-black text-white">
-                  {globalStats.totalAlbums}
+                <p
+                  translate="no"
+                  className="notranslate text-xl sm:text-2xl font-black text-white"
+                  data-stat="number"
+                >
+                  {loading && globalStats.totalAlbums === 0 ? '...' : globalStats.totalAlbums}
                 </p>
               </div>
             </div>
@@ -521,8 +527,12 @@ export function AlbumsCatalog({ isPage = false }) {
                 <p className="text-xs text-slate-400 font-medium">
                   Total Reseñas
                 </p>
-                <p className="text-xl sm:text-2xl font-black text-amber-400">
-                  {globalStats.totalReviews}
+                <p
+                  translate="no"
+                  className="notranslate text-xl sm:text-2xl font-black text-amber-400"
+                  data-stat="number"
+                >
+                  {loading && globalStats.totalReviews === 0 ? '...' : globalStats.totalReviews}
                 </p>
               </div>
             </div>
@@ -546,7 +556,11 @@ export function AlbumsCatalog({ isPage = false }) {
                     : '—'}
                 </p>
                 {globalStats.topRatedAlbum && (
-                  <p className="text-[10px] text-yellow-200/70 font-semibold">
+                  <p
+                    translate="no"
+                    className="notranslate text-[10px] text-yellow-200/70 font-semibold"
+                    data-stat="score"
+                  >
                     {globalStats.topRatedAlbum.final_rating} ⭐
                   </p>
                 )}
@@ -563,8 +577,14 @@ export function AlbumsCatalog({ isPage = false }) {
                 <p className="text-xs text-slate-400 font-medium">
                   Promedio Global
                 </p>
-                <p className="text-xl sm:text-2xl font-black text-emerald-400">
-                  {globalStats.avgClubScore} / 10
+                <p
+                  translate="no"
+                  className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
+                  data-stat="score"
+                >
+                  {loading && (!globalStats.avgClubScore || globalStats.avgClubScore === '0.0')
+                    ? '...'
+                    : `${globalStats.avgClubScore} / 10`}
                 </p>
               </div>
             </div>
@@ -596,7 +616,14 @@ export function AlbumsCatalog({ isPage = false }) {
                         ? selectedYearFilter
                         : selectedYearFilter}
                     </strong>{' '}
-                    ({filteredAlbums.length}{' '}
+                    (
+                    <span
+                      translate="no"
+                      className="notranslate"
+                      data-stat="number"
+                    >
+                      {filteredAlbums.length}
+                    </span>{' '}
                     {filteredAlbums.length === 1 ? 'álbum' : 'álbumes'})
                   </span>
                   <span className="text-pink-400 font-black">✕</span>
@@ -1076,18 +1103,30 @@ export function AlbumsCatalog({ isPage = false }) {
               <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
                 <div className="text-xs text-slate-400">
                   Mostrando{' '}
-                  <span className="text-white font-bold">
+                  <span
+                    translate="no"
+                    className="notranslate text-white font-bold"
+                    data-stat="number"
+                  >
                     {(currentPage - 1) * ITEMS_PER_PAGE + 1}
                   </span>{' '}
                   a{' '}
-                  <span className="text-white font-bold">
+                  <span
+                    translate="no"
+                    className="notranslate text-white font-bold"
+                    data-stat="number"
+                  >
                     {Math.min(
                       currentPage * ITEMS_PER_PAGE,
                       filteredAlbums.length
                     )}
                   </span>{' '}
                   de{' '}
-                  <span className="text-cyan-400 font-bold">
+                  <span
+                    translate="no"
+                    className="notranslate text-cyan-400 font-bold"
+                    data-stat="number"
+                  >
                     {filteredAlbums.length}
                   </span>{' '}
                   álbumes

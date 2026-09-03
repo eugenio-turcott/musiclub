@@ -9,14 +9,70 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_8CYM-sB7DY1_cyw8Amyr9g_-JtuZEKO';
+const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+
+const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 
 const USER_AGENT = 'Musiclub/2.0 ( contact@musiclub.app ; https://musiclub.app )';
 const COVER_ART_BASE = 'https://coverartarchive.org';
 
+let cachedSpotifyToken = null;
+let spotifyTokenExpiry = 0;
+
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getSpotifyAccessToken() {
+  if (cachedSpotifyToken && Date.now() < spotifyTokenExpiry) {
+    return cachedSpotifyToken;
+  }
+  if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) return null;
+
+  try {
+    const res = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: 'Basic ' + Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64'),
+      },
+      body: 'grant_type=client_credentials',
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    cachedSpotifyToken = data.access_token;
+    spotifyTokenExpiry = Date.now() + (data.expires_in - 60) * 1000;
+    return cachedSpotifyToken;
+  } catch (err) {
+    console.error('Error obteniendo token de Spotify:', err.message);
+    return null;
+  }
+}
+
+async function getSpotifyCoverAndLink(artistName, albumName) {
+  try {
+    const token = await getSpotifyAccessToken();
+    if (!token) return null;
+
+    const query = `album:${albumName.replace(/[+]/g, '').trim()} artist:${artistName.trim()}`;
+    const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=1`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const item = data.albums?.items?.[0];
+    if (item && item.images && item.images.length > 0) {
+      return {
+        imageUrl: item.images[0].url,
+        spotifyLink: item.external_urls?.spotify || null,
+      };
+    }
+  } catch {
+    // Silently continue
+  }
+  return null;
 }
 
 async function fetchWithRetry(url, maxRetries = 4) {
@@ -151,13 +207,22 @@ async function searchMusicBrainz(artistName, albumName) {
     if (best) return best;
   }
 
-  // 3. Simplified name (removing parenthesis)
-  const simplifiedAlbum = cleanAlbum.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+  // 3. Simplified name (removing +, parenthesis, brackets)
+  const simplifiedAlbum = cleanAlbum.replace(/[+]/g, '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
   if (simplifiedAlbum && simplifiedAlbum !== cleanAlbum) {
     await sleep(1500);
-    const simpQuery = `${cleanArtist} ${simplifiedAlbum}`;
+    const simpQuery = `artist:"${cleanArtist}" AND releasegroup:"${simplifiedAlbum}"`;
     url = `https://musicbrainz.org/ws/2/release-group?query=${encodeURIComponent(simpQuery)}&limit=10&fmt=json`;
     data = await fetchWithRetry(url);
+    if (data) {
+      const rgs = data['release-groups'] || [];
+      const best = pickBestReleaseGroup(rgs, cleanArtist, simplifiedAlbum);
+      if (best) return best;
+    }
+
+    await sleep(1500);
+    const simpFreeUrl = `https://musicbrainz.org/ws/2/release-group?query=${encodeURIComponent(cleanArtist + ' ' + simplifiedAlbum)}&limit=10&fmt=json`;
+    data = await fetchWithRetry(simpFreeUrl);
     if (data) {
       const rgs = data['release-groups'] || [];
       const best = pickBestReleaseGroup(rgs, cleanArtist, simplifiedAlbum);
@@ -197,7 +262,7 @@ async function enrichMissing() {
   for (let i = 0; i < albums.length; i++) {
     const album = albums[i];
     const indexStr = `[${i + 1}/${albums.length}]`;
-    console.log(`\n${indexStr} Procesando: "${album.album_name}" de "${album.artist_name}"...`);
+    console.log(`\n${indexStr} Procesando: "${album.album_name}" de "${album.artist_name}" (ID: ${album.id})...`);
 
     const rg = await searchMusicBrainz(album.artist_name, album.album_name);
     await sleep(1500);
@@ -216,15 +281,29 @@ async function enrichMissing() {
         }
       }
 
-      // Check CAA image
+      // 1. REGLA ESTRICTA: La imagen de portada SIEMPRE debe ser de Spotify (API).
+      // Si el álbum ya tiene una imagen de Spotify (cdn.co), se conserva intacta.
+      // Si no tuviera imagen de Spotify o fuera placeholder, se consulta a la API de Spotify.
       let imageUrl = album.image_url;
-      const hasCaa = await checkCoverArtExists(mbid);
-      await sleep(300);
-      if (hasCaa) {
-        imageUrl = `${COVER_ART_BASE}/release-group/${mbid}/front-500`;
+      const isSpotifyImage = imageUrl && (imageUrl.includes('scdn.co') || imageUrl.includes('spotify.com'));
+
+      if (!isSpotifyImage) {
+        console.log(`  🎵 Buscando carátula oficial en Spotify API para "${album.album_name}"...`);
+        const spData = await getSpotifyCoverAndLink(album.artist_name, album.album_name);
+        if (spData?.imageUrl) {
+          imageUrl = spData.imageUrl;
+          console.log(`  ✅ Portada obtenida de Spotify: ${imageUrl}`);
+        } else if (!imageUrl || imageUrl.includes('placeholder')) {
+          const hasCaa = await checkCoverArtExists(mbid);
+          if (hasCaa) {
+            imageUrl = `${COVER_ART_BASE}/release-group/${mbid}/front-500`;
+          }
+        }
+      } else {
+        console.log(`  🖼️ Portada actual de Spotify conservada: ${imageUrl.substring(0, 45)}...`);
       }
 
-      // Get release-group details
+      // 2. Metadatos restantes DIRECTO de MusicBrainz
       let genres = Array.isArray(album.genres) ? album.genres : [];
       let label = album.label || null;
       let country = album.country || null;
@@ -312,7 +391,7 @@ async function enrichMissing() {
       if (updateError) {
         console.error(`  ❌ Error actualizando ${album.album_name}:`, updateError.message);
       } else {
-        console.log(`  ✅ Enriquecido: MBID=${mbid} | Tipo=${releaseType} | Año=${releaseYear} | Tracks=${totalTracks || tracks.length}`);
+        console.log(`  ✅ Enriquecido con éxito: MBID=${mbid} | Tipo=${releaseType} | Año=${releaseYear} | Géneros=[${genres.join(', ')}] | Portada=Spotify`);
       }
     } else {
       console.log(`  ℹ️ No encontrado en MusicBrainz, conservando datos actuales.`);

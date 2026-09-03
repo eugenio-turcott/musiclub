@@ -1,5 +1,9 @@
-// src/components/LanguageSelector.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import {
+  triggerReTranslate,
+  protectMusicAndStatsElements,
+  scheduleUniversalTranslation,
+} from '../utils/translateCrashGuard';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'es', name: 'Español', flag: '🇲🇽', short: 'ES', isOriginal: true },
@@ -186,7 +190,7 @@ export function LanguageSelector({ variant = 'header' }) {
       clearGoogleTranslateCookies();
     }
 
-    setCurrentLang(recommended);
+    setCurrentLang(saved || recommended || 'es');
 
     // Inyectar estilos para limpiar artefactos y proteger nombres musicales
     if (!document.getElementById('google-translate-clean-styles')) {
@@ -198,7 +202,7 @@ export function LanguageSelector({ variant = 'header' }) {
         .goog-te-gadget, #goog-gt-tt, .goog-te-balloon-frame { display: none !important; }
         .goog-text-highlight { background: none !important; box-shadow: none !important; }
         .skiptranslate { display: none !important; }
-        #google_translate_element { display: none !important; }
+        #google_translate_element { position: absolute !important; left: -9999px !important; top: -9999px !important; width: 1px !important; height: 1px !important; opacity: 0 !important; pointer-events: none !important; overflow: hidden !important; }
         .notranslate, [translate="no"], [translate="no"] * {
           -webkit-user-modify: read-only;
         }
@@ -206,52 +210,11 @@ export function LanguageSelector({ variant = 'header' }) {
       document.head.appendChild(style);
     }
 
-    // Proteger únicamente los títulos musicales, nombres de releases, artistas, pistas y usuarios/personas
-    const protectMusicElements = () => {
-      document
-        .querySelectorAll(
-          '.music-title, .album-name, .release-name, .release-title, .artist-name, .artist-title, .track-name, .song-title, .title-albumes, .text-albumes, .username-tag, .user-name, .member-name, .critic-name, .author-name, [data-album], [data-release], [data-release-name], [data-artist], [data-artist-name], [data-track], [data-user], [data-username], [data-member], [data-notranslate]'
-        )
-        .forEach((el) => {
-          el.setAttribute('translate', 'no');
-          el.classList.add('notranslate');
-        });
-
-      document.querySelectorAll('.musiclub-brand').forEach((el) => {
-        el.setAttribute('translate', 'no');
-        el.classList.add('notranslate');
-      });
-    };
-
-    protectMusicElements();
+    protectMusicAndStatsElements();
     const observer = new MutationObserver(() => {
-      protectMusicElements();
+      protectMusicAndStatsElements();
     });
     observer.observe(document.body, { childList: true, subtree: true });
-
-    // Inicializar callback global de Google Translate
-    window.googleTranslateElementInit = () => {
-      if (window.google && window.google.translate) {
-        new window.google.translate.TranslateElement(
-          {
-            pageLanguage: 'es',
-            includedLanguages: 'es,en,pt,fr,de,it,nl,tr,ja,ko,zh-CN,ru',
-            autoDisplay: false,
-          },
-          'google_translate_element'
-        );
-      }
-    };
-
-    // Solo inyectar script si no es español o si se requiere traducción
-    if (!document.getElementById('google-translate-script')) {
-      const script = document.createElement('script');
-      script.id = 'google-translate-script';
-      script.src =
-        'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-      script.async = true;
-      document.body.appendChild(script);
-    }
 
     return () => {
       observer.disconnect();
@@ -292,11 +255,7 @@ export function LanguageSelector({ variant = 'header' }) {
         } catch (e) {}
         setCurrentLang('es');
 
-        const select = document.querySelector('.goog-te-combo');
-        if (select) {
-          select.value = 'es';
-          select.dispatchEvent(new Event('change'));
-        }
+        scheduleUniversalTranslation(0, 'es');
 
         // Si la página tenía modificaciones de Google Translate o cookies activas, recargar limpiamente para DOM nativo
         const hadTranslation =
@@ -312,20 +271,11 @@ export function LanguageSelector({ variant = 'header' }) {
       }
 
       // CASO 2: Idioma extranjero seleccionado
-      if (langCode === currentLang) return;
-
       setCurrentLang(langCode);
       setLanguageCookie(langCode);
-
-      const select = document.querySelector('.goog-te-combo');
-      if (select) {
-        select.value = langCode;
-        select.dispatchEvent(new Event('change'));
-      } else {
-        window.location.reload();
-      }
+      triggerReTranslate(langCode);
     },
-    [currentLang]
+    []
   );
 
   const activeObj =
@@ -348,7 +298,6 @@ export function LanguageSelector({ variant = 'header' }) {
   if (variant === 'footer') {
     return (
       <div className="relative inline-block" ref={dropdownRef}>
-        <div id="google_translate_element" style={{ display: 'none' }} />
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
@@ -427,7 +376,6 @@ export function LanguageSelector({ variant = 'header' }) {
   // =========================================================================
   return (
     <div className="relative inline-block" ref={dropdownRef}>
-      <div id="google_translate_element" style={{ display: 'none' }} />
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

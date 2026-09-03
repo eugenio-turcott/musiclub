@@ -5,6 +5,7 @@ import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 const CRITERIA_INFO = [
   { key: 'rating_produccion', label: 'Producción', emoji: '🎛️' },
@@ -95,6 +96,7 @@ export function Leaderboard({ isPage = false }) {
         setError('No se pudo cargar el Leaderboard.');
       } finally {
         setLoading(false);
+        notifyContentLoaded('leaderboard');
       }
     }
     fetchLeaderboard();
@@ -279,8 +281,12 @@ export function Leaderboard({ isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Total Reviews
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-white">
-                  {globalMetrics.totalReviews}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-white"
+                  data-stat="number"
+                >
+                  {loading ? '...' : globalMetrics.totalReviews}
                 </p>
               </div>
             </div>
@@ -296,8 +302,12 @@ export function Leaderboard({ isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Miembros
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-white">
-                  {globalMetrics.totalUsers}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-white"
+                  data-stat="number"
+                >
+                  {loading ? '...' : globalMetrics.totalUsers}
                 </p>
               </div>
             </div>
@@ -313,8 +323,12 @@ export function Leaderboard({ isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Pistas Calificadas
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-cyan-400">
-                  {globalMetrics.totalTracksRated}
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
+                  data-stat="number"
+                >
+                  {loading ? '...' : globalMetrics.totalTracksRated}
                 </p>
               </div>
             </div>
@@ -330,8 +344,12 @@ export function Leaderboard({ isPage = false }) {
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Promedio del Club
                 </p>
-                <p className="text-lg sm:text-2xl font-black text-emerald-400">
-                  {globalMetrics.avgClubRating} / 10
+                <p
+                  translate="no"
+                  className="notranslate text-lg sm:text-2xl font-black text-emerald-400"
+                  data-stat="number"
+                >
+                  {loading ? '...' : `${globalMetrics.avgClubRating} / 10`}
                 </p>
               </div>
             </div>

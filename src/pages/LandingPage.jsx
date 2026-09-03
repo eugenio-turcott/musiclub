@@ -19,6 +19,7 @@ import {
   getEmotionFromReview,
   getTrackDisplayName,
 } from '../utils/ratingUtils';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function LandingPage() {
   const {
@@ -53,9 +54,9 @@ export function LandingPage() {
   const [shuffledReviewedAlbums, setShuffledReviewedAlbums] = useState([]);
   const [allReviews, setAllReviews] = useState([]);
   const [globalStats, setGlobalStats] = useState({
-    total_reviews: 0,
-    total_albums: 0,
-    total_users: 0,
+    total_reviews: 271,
+    total_albums: 149,
+    total_users: 19,
     top_score: 9.8,
   });
   const [selectedAlbumTab, setSelectedAlbumTab] = useState('active'); // 'active' | 'top' | 'recent'
@@ -123,7 +124,26 @@ export function LandingPage() {
           Array.isArray(reviewsData) &&
           reviewsData.length > 0
         ) {
-          setAllReviews(reviewsData);
+          const profileAvatarByEmail = new Map();
+          const profileAvatarByName = new Map();
+          (profilesData || []).forEach((p) => {
+            if (p.email && p.avatar_url)
+              profileAvatarByEmail.set(p.email.toLowerCase().trim(), p.avatar_url);
+            if (p.name && p.avatar_url)
+              profileAvatarByName.set(p.name.toLowerCase().trim(), p.avatar_url);
+          });
+
+          const enrichedReviews = reviewsData.map((rev) => {
+            if (rev.reviewer_avatar) return rev;
+            const emailKey = rev.reviewer_email?.toLowerCase()?.trim();
+            const nameKey = rev.reviewer_name?.toLowerCase()?.trim();
+            const fallbackAvatar =
+              (emailKey && profileAvatarByEmail.get(emailKey)) ||
+              (nameKey && profileAvatarByName.get(nameKey)) ||
+              null;
+            return fallbackAvatar ? { ...rev, reviewer_avatar: fallbackAvatar } : rev;
+          });
+          setAllReviews(enrichedReviews);
         }
 
         // Calculate global stats
@@ -143,6 +163,7 @@ export function LandingPage() {
           total_users: totalProfilesCount > 0 ? totalProfilesCount : 19,
           top_score: topScore,
         });
+        notifyContentLoaded('landing');
       } catch (err) {
         console.warn('Error loading landing page complementary data:', err);
       }
@@ -748,8 +769,12 @@ export function LandingPage() {
               ========================================================================= */}
           <div className="mt-12 sm:mt-16 mb-8 lg:mb-0 grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 p-4 sm:p-6 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl shadow-lg">
             <div className="flex flex-col items-center justify-center p-3 text-center border-r-0 md:border-r border-b md:border-b-0 border-white/10">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
-                +{globalStats.total_albums || albums.length || 0}
+              <span
+                translate="no"
+                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
+                data-stat="number"
+              >
+                +{globalStats.total_albums || (albums && albums.length) || 149}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Lanzamientos en el Club
@@ -757,8 +782,12 @@ export function LandingPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center p-3 text-center border-r-0 md:border-r border-b md:border-b-0 border-white/10">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 tracking-tight">
-                +{globalStats.total_reviews || allReviews.length || 0}
+              <span
+                translate="no"
+                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 tracking-tight"
+                data-stat="number"
+              >
+                +{globalStats.total_reviews || (allReviews && allReviews.length) || 271}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Reviews Escritas
@@ -766,7 +795,11 @@ export function LandingPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center p-3 text-center border-r-0 md:border-r border-b md:border-b-0 border-white/10">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight">
+              <span
+                translate="no"
+                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
+                data-stat="number"
+              >
                 {globalStats.total_users || 19}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
@@ -775,7 +808,11 @@ export function LandingPage() {
             </div>
 
             <div className="flex flex-col items-center justify-center p-3 text-center">
-              <span className="text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight flex items-center gap-1">
+              <span
+                translate="no"
+                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight flex items-center gap-1"
+                data-stat="number"
+              >
                 <span>⭐</span>{' '}
                 {globalStats.top_score
                   ? Number(globalStats.top_score).toFixed(1)
@@ -1430,7 +1467,11 @@ export function LandingPage() {
                 to="/reviews"
                 className="text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors self-start sm:self-auto"
               >
-                Ver todas las reviews ({globalStats.total_reviews}) →
+                Ver todas las reviews{' '}
+                <span translate="no" className="notranslate" data-stat="count">
+                  ({globalStats.total_reviews})
+                </span>{' '}
+                →
               </Link>
             </div>
 

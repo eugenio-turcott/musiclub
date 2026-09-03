@@ -1,0 +1,54 @@
+name: MusicBrainz Hourly Catalog Ingestion & Sitemap Update
+
+on:
+  schedule:
+    # Se ejecuta cada hora al minuto 0 (24 veces al día)
+    - cron: '0 * * * *'
+  workflow_dispatch: # Permite ejecutarlo manualmente con un clic en la pestaña "Actions" de GitHub
+
+permissions:
+  contents: write # Permiso necesario para commitear el sitemap.xml y crawler_state.json
+
+jobs:
+  ingest-and-update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Ingest 1,000 MusicBrainz Releases & Update Sitemap
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+          REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
+          REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
+        run: node scripts/hourlyMusicBrainzIngestion.mjs 1000
+
+      - name: Commit & Push updated Sitemap and Crawler State
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add scripts/crawler_state.json public/sitemap*.xml
+          if git diff --staged --quiet; then
+            echo "Sin cambios para commitear."
+          else
+            git commit -m "chore: automated hourly catalog ingestion and sitemap update [skip ci]"
+            git push
+          fi
+
+      - name: Ping Search Engines for Sitemap Indexing
+        run: |
+          echo "Notificando a motores de búsqueda sobre el nuevo sitemap..."
+          curl -s "https://www.bing.com/ping?sitemap=https://musiclub.org/sitemap.xml" || true
+          echo "Motores de búsqueda notificados con éxito."

@@ -401,7 +401,11 @@ export function AppHeader({
 
               {/* Badge Contador de Notificaciones No Leídas */}
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse border border-[#0c0e1a]">
+                <span
+                  translate="no"
+                  className="notranslate badge-count absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse border border-[#0c0e1a]"
+                  data-count="unread"
+                >
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
               )}
@@ -838,7 +842,11 @@ export function AppHeader({
                 <span>🔔</span>
                 <span>Notificaciones</span>
                 {unreadCount > 0 && (
-                  <span className="px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full">
+                  <span
+                    translate="no"
+                    className="notranslate badge-count px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full"
+                    data-count="unread"
+                  >
                     {unreadCount}
                   </span>
                 )}

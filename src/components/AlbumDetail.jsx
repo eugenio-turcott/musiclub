@@ -89,6 +89,60 @@ function formatDuration(ms) {
   return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
+function UserAvatar({ user, size = 'md', className = '' }) {
+  const [imgError, setImgError] = useState(false);
+  const name = user?.name || user?.email || 'U';
+  const initial = (name.trim()[0] || 'U').toUpperCase();
+
+  // Strict dimensions matching Google Avatar proportions & preventing oversized images
+  const sizeClasses =
+    {
+      sm: 'w-8 h-8 min-w-[32px] min-h-[32px] text-xs font-bold',
+      md: 'w-10 h-10 min-w-[40px] min-h-[40px] sm:w-11 sm:h-11 sm:min-w-[44px] sm:min-h-[44px] text-sm sm:text-base font-black',
+      podium_silver: 'w-full h-full text-2xl font-black',
+      podium_gold: 'w-full h-full text-3xl font-black',
+      podium_bronze: 'w-full h-full text-2xl font-black',
+      modal:
+        'w-20 h-20 min-w-[80px] min-h-[80px] sm:w-24 sm:h-24 sm:min-w-[96px] sm:min-h-[96px] text-2xl sm:text-3xl font-black',
+    }[size] || 'w-10 h-10 min-w-[40px] min-h-[40px] text-sm font-black';
+
+  const gradients = [
+    'from-rose-500 to-pink-500 text-white',
+    'from-amber-400 to-yellow-500 text-black',
+    'from-emerald-500 to-teal-400 text-white',
+    'from-cyan-400 to-blue-500 text-black',
+    'from-indigo-500 to-purple-500 text-white',
+    'from-fuchsia-500 to-pink-500 text-white',
+    'from-orange-500 to-amber-500 text-black',
+  ];
+  const charCode = initial.charCodeAt(0) || 0;
+  const gradient = gradients[charCode % gradients.length];
+
+  if (user?.avatar_url && !imgError) {
+    return (
+      <div
+        className={`${sizeClasses} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-white relative shadow-inner ${className}`}
+      >
+        <img
+          src={user.avatar_url}
+          alt={name}
+          className="w-full h-full object-cover rounded-full"
+          onError={() => setImgError(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${sizeClasses} rounded-full bg-gradient-to-tr ${gradient} flex items-center justify-center flex-shrink-0 select-none shadow-md overflow-hidden ${className}`}
+      title={name}
+    >
+      {initial}
+    </div>
+  );
+}
+
 export function AlbumDetail() {
   const { slug } = useParams();
   const { user, isAdmin } = useAuth();
@@ -179,7 +233,10 @@ export function AlbumDetail() {
             }
           }
         } catch (spErr) {
-          console.warn('Error al resolver álbum on-demand desde Spotify:', spErr);
+          console.warn(
+            'Error al resolver álbum on-demand desde Spotify:',
+            spErr
+          );
         }
       }
 
@@ -353,7 +410,9 @@ export function AlbumDetail() {
   }, [album, spotifyMeta]);
 
   const releaseTypeCategory = useMemo(() => {
-    return getReleaseTypeCategory(album?.release_type || spotifyMeta?.releaseType);
+    return getReleaseTypeCategory(
+      album?.release_type || spotifyMeta?.releaseType
+    );
   }, [album?.release_type, spotifyMeta?.releaseType]);
 
   if (loading) {
@@ -384,8 +443,8 @@ export function AlbumDetail() {
               Lanzamiento no encontrado
             </h2>
             <p className="text-slate-400 text-sm">
-              No pudimos encontrar el lanzamiento solicitado en nuestro catálogo o fue
-              modificado.
+              No pudimos encontrar el lanzamiento solicitado en nuestro catálogo
+              o fue modificado.
             </p>
             <div className="pt-2">
               <Link
@@ -404,7 +463,10 @@ export function AlbumDetail() {
   }
 
   const score = album.final_rating;
-  const canonicalPath = getReleaseUrl(album, album.release_type || spotifyMeta?.releaseType);
+  const canonicalPath = getReleaseUrl(
+    album,
+    album.release_type || spotifyMeta?.releaseType
+  );
   const canonicalUrl = `https://musiclub.org${canonicalPath}`;
   const reviewCountNum = album.reviews?.length || album.review_count || 0;
   const metaDescription = score
@@ -476,31 +538,6 @@ export function AlbumDetail() {
                       'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
                   }}
                 />
-
-                {/* Status Badge on artwork */}
-                <div className="absolute top-3 right-3 z-20">
-                  {album.is_on_demand ? (
-                    <span className="bg-gradient-to-r from-purple-500 to-pink-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 border border-purple-400/30">
-                      ✨ Por Calificar
-                    </span>
-                  ) : album.status === 'GANADOR' ? (
-                    <span className="bg-gradient-to-r from-rose-500 to-red-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 border border-rose-400/30">
-                      🏆 GANADOR
-                    </span>
-                  ) : album.status === 'INDIVIDUAL' ? (
-                    <span className="bg-blue-600/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full shadow border border-blue-400/30">
-                      📌 Individual
-                    </span>
-                  ) : album.status === 'INACTIVO' ? (
-                    <span className="bg-slate-700/90 backdrop-blur-md text-slate-300 text-xs font-bold px-3 py-1 rounded-full shadow border border-slate-600/30">
-                      💤 Inactivo
-                    </span>
-                  ) : (
-                    <span className="bg-emerald-600/90 backdrop-blur-md text-white text-xs font-bold px-3 py-1 rounded-full shadow border border-emerald-400/30">
-                      🎵 Pool Activo
-                    </span>
-                  )}
-                </div>
 
                 {/* User Ownership Badge */}
                 {user &&
@@ -630,11 +667,14 @@ export function AlbumDetail() {
                 <span className="text-white/20">•</span>
 
                 {album.tracks && album.tracks.length > 0 && (
-    <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-      <span>🎵</span>
-      <span>{album.tracks.length} {album.tracks.length === 1 ? 'Canción' : 'Canciones'}</span>
-    </span>
-  )}
+                  <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                    <span>🎵</span>
+                    <span>
+                      {album.tracks.length}{' '}
+                      {album.tracks.length === 1 ? 'Canción' : 'Canciones'}
+                    </span>
+                  </span>
+                )}
 
                 {album.created_at && (
                   <>
@@ -826,7 +866,8 @@ export function AlbumDetail() {
                 ¡Sé el primer miembro de Musiclub en calificar este álbum!
               </h3>
               <p className="text-xs sm:text-sm text-slate-300">
-                Puntúa cada canción, califica los 6 pilares de producción y regístralo oficialmente en el club.
+                Puntúa cada canción, califica los 6 pilares de producción y
+                regístralo oficialmente en el club.
               </p>
             </div>
             <button
@@ -1072,21 +1113,20 @@ export function AlbumDetail() {
                     {/* Review Header */}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <img
-                          src={
-                            rev.reviewer_avatar ||
-                            rev.avatar_url ||
-                            'https://via.placeholder.com/100/1e293b/ffffff?text=👤'
-                          }
-                          alt={rev.reviewer_name}
-                          className="w-10 h-10 rounded-full object-cover border border-white/10 shadow"
-                          onError={(e) => {
-                            e.target.src =
-                              'https://via.placeholder.com/100/1e293b/ffffff?text=👤';
+                        <UserAvatar
+                          user={{
+                            name: rev.reviewer_name,
+                            email: rev.reviewer_email,
+                            avatar_url: rev.reviewer_avatar || rev.avatar_url,
                           }}
+                          size="md"
+                          className="border border-white/10 shadow-md"
                         />
                         <div>
-                          <p className="font-bold text-white text-sm sm:text-base">
+                          <p
+                            translate="no"
+                            className="notranslate username-tag font-bold text-white text-sm sm:text-base"
+                          >
                             {rev.reviewer_name}
                           </p>
                           <p className="text-[10px] text-slate-500">

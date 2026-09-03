@@ -1,6 +1,6 @@
-// src/hooks/usePool.js
 import { useState, useEffect, useCallback } from 'react';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function usePool(seasonId = DEFAULT_SEASON.id) {
   const [season, setSeason] = useState(DEFAULT_SEASON);
@@ -51,6 +51,7 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
       setError(err.message || 'Error al cargar los datos del Pool');
     } finally {
       setLoading(false);
+      notifyContentLoaded('pool');
     }
   }, [seasonId]);
 

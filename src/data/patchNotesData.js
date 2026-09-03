@@ -14,6 +14,62 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.2',
+    title:
+      'Metadatos Oficiales de MusicBrainz + Portadas Spotify CDN, Ingesta Horaria Automatizada (1,000 Álbumes/Hora), GitHub Actions 24/7 y Sitemap XML Paginado',
+    date: '2026-09-03',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-purple-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización mayor V.6.2 de Musiclub con arquitectura híbrida transparente de enriquecimiento musical: portadas oficiales en alta definición extraídas directamente del CDN de Spotify y metadatos canónicos completos provistos por MusicBrainz (MBID, formato, año, géneros, discográfica, país, barcode y tracks). Incluye ingesta horaria automatizada de 1,000 lanzamientos vía GitHub Actions con persistencia de estado, regeneración continua de sitemap.xml paginado para indexación masiva en Google, blindaje de traducción en DNA Musical y robustez en reviews comunitarias.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Arquitectura Híbrida: Portadas Spotify HD + Metadatos Canónicos de MusicBrainz',
+        description:
+          'Integración transparente e invisible en el flujo de creación de álbumes (createAlbum en supabaseClient.js y enrichAlbumWithMusicBrainz en musicBrainzService.js). Al añadir cualquier lanzamiento, la carátula oficial de alta resolución se extrae y preserva siempre desde el CDN de Spotify (i.scdn.co), mientras que el MBID canónico, formato normalizado (ALBUM, EP, SENCILLO, COMPILACION, etc.), fecha y año oficial, géneros, discográfica, país, código de barras y listado de pistas se resuelven automáticamente desde MusicBrainz.',
+      },
+      {
+        type: 'feature',
+        title: 'Ingesta Horaria Automatizada de 1,000 Álbumes desde MusicBrainz',
+        description:
+          'Motor de ingesta por lotes (scripts/hourlyMusicBrainzIngestion.mjs) que descarga 1,000 nuevos lanzamientos oficiales por hora en bloques de 100, consulta la API de Spotify para asociar carátulas oficiales en alta calidad y realiza upsert masivo en Supabase (public.albums) con control de duplicados y cursor persistente en scripts/crawler_state.json.',
+      },
+      {
+        type: 'feature',
+        title: 'Automatización 24/7 en la Nube con GitHub Actions',
+        description:
+          'Workflow en .github/workflows/hourly_musicbrainz_ingest.yml con disparador cron horario (0 * * * *), permisos de escritura para auto-commit de sitemap y estado del crawler, y notificación instantánea (ping) a motores de búsqueda.',
+      },
+      {
+        type: 'improvement',
+        title: 'Sitemap Dinámico Paginado y Detección Automática para Google',
+        description:
+          'Actualización de scripts/generate-sitemap.js con paginación exhaustiva sobre la base de datos de Supabase (superando el límite de 1,000 filas de PostgREST) y arquitectura de partición para más de 45,000 URLs con sitemapindex. El sitemap se regenera automáticamente al finalizar cada lote de ingesta para indexación inmediata por Googlebot.',
+      },
+      {
+        type: 'improvement',
+        title: 'Ajuste de Rastreo en robots.txt',
+        description:
+          'Inclusión de reglas de rastreo explícitas en public/robots.txt para /eps/, /sencillos/, /compilaciones/ y /remixes/, maximizando la cobertura SEO de todos los formatos del catálogo.',
+      },
+      {
+        type: 'fix',
+        title: 'Blindaje de Traducción en DNA Musical y Espera de Hidratación',
+        description:
+          'Aislamiento estricto (translate="no") en artistas y miembros del club dentro del componente de Recomendaciones, evitando que traductores automáticos alteren nombres propios, y ajuste del temporizador de traducción a 2 segundos en cambios de página y recargas.',
+      },
+      {
+        type: 'fix',
+        title: 'Sincronización de Avatar de Autor en Reviews Comunitarias',
+        description:
+          'Corrección de sincronización de reviewer_avatar en la tabla reviews, integrando trigger SQL de respaldo y fallback visual robusto para garantizar la visualización de avatares en todas las reseñas.',
+      },
+    ],
+  },
+  {
     version: 'V.6.1',
     title: 'Tag de Anuncios de Google AdSense',
     date: '2026-09-03',
@@ -150,14 +206,14 @@ export const CURATED_PATCH_NOTES = [
   {
     version: 'V.5.7',
     title:
-      'Programmatic SEO, Resolución On-Demand con Spotify API, Dominio musiclub.org, Footer Global y OAuth Dinámico',
+      'Programmatic SEO, Resolución On-Demand con Spotify API y Sitemap XML de 540+ URLs',
     date: '2026-08-31',
-    sha: 'HEAD',
+    sha: '5cd74c2',
     tag: 'Mayor',
     tagColor: 'from-rose-500 via-pink-500 to-cyan-400',
     authorName: 'Eugenio Turcott',
     summary:
-      'Implementación de Programmatic SEO con resolución on-demand de álbumes desde Spotify API y auto-creación en base de datos al calificar, expansión del Sitemap XML a +540 URLs, lanzamiento del dominio oficial musiclub.org, Footer global en todas las vistas y autenticación dinámica.',
+      'Implementación de Programmatic SEO con resolución on-demand de álbumes desde Spotify API y auto-creación en base de datos al calificar, expansión del Sitemap XML a +540 URLs canónicas y curaduría histórica de álbumes populares.',
     changes: [
       {
         type: 'feature',
@@ -168,9 +224,35 @@ export const CURATED_PATCH_NOTES = [
       {
         type: 'feature',
         title:
-          'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML Expandido',
+          'Curaduría de Álbumes Populares & Sitemap XML Expandido a 540+ URLs',
         description:
-          'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, con un sitemap.xml expandido a más de 540 URLs canónicas que combinan los álbumes de la comunidad con los discos y artistas más buscados de la historia musical.',
+          'Incorporación de popularMusicData.js con los discos y artistas más emblemáticos de la música global y actualización del sitemap.xml a más de 540 URLs canónicas para indexación masiva en Google.',
+      },
+      {
+        type: 'improvement',
+        title: 'Auto-Registro en Base de Datos al Calificar',
+        description:
+          'Optimización en ReviewSystem.jsx para registrar álbumes resueltos on-demand de forma automática e inmediata en Supabase al momento de emitir la primera calificación.',
+      },
+    ],
+  },
+  {
+    version: 'V.5.6',
+    title:
+      'Dominio Oficial musiclub.org, Footer Global Universal, Soporte Dinámico de Google OAuth y Optimización Spotify API',
+    date: '2026-08-31',
+    sha: '69c2639',
+    tag: 'Mayor',
+    tagColor: 'from-rose-500 via-pink-500 to-cyan-400',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Lanzamiento oficial del nuevo dominio propio musiclub.org, integración del Footer global universal en el 100% de las páginas del sistema, redirección dinámica de Google OAuth, optimización de endpoints de Spotify API eliminando errores 403 y actualización integral de sitemap y metadatos SEO.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Lanzamiento del Dominio Oficial musiclub.org & Sitemap XML',
+        description:
+          'Migración completa de la plataforma hacia su dominio propio https://musiclub.org, incluyendo sitemap.xml regenerado con más de 250 rutas canónicas indexables, robots.txt actualizado y metaetiquetas OpenGraph/SEO oficiales.',
       },
       {
         type: 'feature',
@@ -307,6 +389,32 @@ export const CURATED_PATCH_NOTES = [
         title: 'Portadas Robustas con Fallback SVG Nativo',
         description:
           'Reemplazo de placeholders externos por un componente visual SVG nativo sin dependencias de red, garantizando carga inmediata de portadas en caso de fallos de enlace.',
+      },
+    ],
+  },
+  {
+    version: 'V.5.3',
+    title:
+      'Cálculo Preciso de Álbumes Postulados en Podio de Reseñadores y Ajustes en Patch Notes',
+    date: '2026-08-21',
+    sha: '604ed2d',
+    tag: 'Mejora',
+    tagColor: 'from-blue-500 via-indigo-500 to-purple-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Corrección en el cálculo de estadísticas de miembros en Supabase para reflejar con precisión el número de álbumes agregados y postulados al club, y optimización en la sincronización de commits de GitHub en la página de Patch Notes.',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Conteo Preciso de Álbumes Postulados por Miembro en Podio',
+        description:
+          'Corrección en getTopReviewersManual y supabaseService.getTopReviewers para contabilizar fielmente los álbumes agregados o propuestos por cada usuario (added_by y added_by_email) en lugar de contar únicamente los álbumes reseñados.',
+      },
+      {
+        type: 'improvement',
+        title: 'Sincronización Optimizada de Commits de GitHub en Patch Notes',
+        description:
+          'Actualización del endpoint de GitHub Commits API aumentando la paginación a 100 resultados por consulta, estandarización de la rama principal a master y depuración de indicadores de versión en producción.',
       },
     ],
   },

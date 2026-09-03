@@ -12,6 +12,7 @@ import {
 } from '../utils/recommendationEngine';
 import { getRecommendedAlbumsByTaste } from '../services/spotifyApi';
 import { ReviewSystem } from './ReviewSystem';
+import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function Recommendations({ isPage = false, user: propUser = null }) {
   const { user: authUser, loginWithGoogle } = useAuth();
@@ -53,6 +54,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
       setError('No se pudieron cargar los datos para generar recomendaciones.');
     } finally {
       setLoading(false);
+      notifyContentLoaded('recommendations');
     }
   }, []);
 
@@ -271,7 +273,11 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
             </div>
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
               Para Ti,{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+              <span
+                translate="no"
+                className="notranslate username-tag text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]"
+                data-username={user.name || 'Melómano'}
+              >
                 {user.name || 'Melómano'}
               </span>
             </h1>
@@ -311,8 +317,16 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 <span>🌱</span> Historial Inicial
               </div>
               <p className="text-white/60 text-xs">
-                Has calificado {userReviews.length} álbumes. Califica más discos
-                para calibrar tu perfil con mayor precisión.
+                Has calificado{' '}
+                <span
+                  translate="no"
+                  className="notranslate font-bold text-white"
+                  data-stat="number"
+                >
+                  {userReviews.length}
+                </span>{' '}
+                álbumes. Califica más discos para calibrar tu perfil con mayor
+                precisión.
               </p>
             </div>
           )}
@@ -328,7 +342,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
-            <span>💿</span> Para Ti ({recommendations.length})
+            <span>💿</span> Para Ti{' '}
+            <span translate="no" className="notranslate" data-stat="number">
+              ({loading ? '...' : recommendations.length})
+            </span>
           </button>
 
           <button
@@ -395,7 +412,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     : 'text-white/50 hover:text-white bg-white/5'
                 }`}
               >
-                🌟 Match ≥ 90% ({highMatchPicks.length})
+                🌟 Match ≥ 90%{' '}
+                <span translate="no" className="notranslate" data-stat="number">
+                  ({loading ? '...' : highMatchPicks.length})
+                </span>
               </button>
 
               <button
@@ -406,7 +426,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     : 'text-white/50 hover:text-white bg-white/5'
                 }`}
               >
-                ⚡ Todas las Sugerencias ({recommendations.length})
+                ⚡ Todas las Sugerencias{' '}
+                <span translate="no" className="notranslate" data-stat="number">
+                  ({loading ? '...' : recommendations.length})
+                </span>
               </button>
 
               {criticsTreasures.length > 0 && (
@@ -418,7 +441,14 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
                 >
-                  💎 Aclamados del Club ({criticsTreasures.length})
+                  💎 Aclamados del Club{' '}
+                  <span
+                    translate="no"
+                    className="notranslate"
+                    data-stat="number"
+                  >
+                    ({criticsTreasures.length})
+                  </span>
                 </button>
               )}
 
@@ -431,7 +461,14 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
                 >
-                  🤝 Melómanos Afines ({tasteTwinPicks.length})
+                  🤝 Melómanos Afines{' '}
+                  <span
+                    translate="no"
+                    className="notranslate"
+                    data-stat="number"
+                  >
+                    ({tasteTwinPicks.length})
+                  </span>
                 </button>
               )}
 
@@ -444,22 +481,52 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
                 >
-                  {topCriterionDef.emoji} Joyas en {topCriterionDef.label} (
-                  {criteriaPicks.length})
+                  {topCriterionDef.emoji} Joyas en {topCriterionDef.label}{' '}
+                  <span
+                    translate="no"
+                    className="notranslate"
+                    data-stat="number"
+                  >
+                    ({criteriaPicks.length})
+                  </span>
                 </button>
               )}
             </div>
 
             <span className="text-white/40 text-xs font-mono hidden sm:inline">
-              {filterCategory === 'top90'
-                ? `Mostrando ${displayedClubAlbums.length} sugerencias con alta afinidad`
-                : `${displayedClubAlbums.length} sugerencias disponibles`}
+              {filterCategory === 'top90' ? (
+                <>
+                  Mostrando{' '}
+                  <span
+                    translate="no"
+                    className="notranslate font-bold text-cyan-300"
+                    data-stat="number"
+                  >
+                    {loading ? '...' : displayedClubAlbums.length}
+                  </span>{' '}
+                  sugerencias con alta afinidad
+                </>
+              ) : (
+                <>
+                  <span
+                    translate="no"
+                    className="notranslate font-bold text-cyan-300"
+                    data-stat="number"
+                  >
+                    {loading ? '...' : displayedClubAlbums.length}
+                  </span>{' '}
+                  sugerencias disponibles
+                </>
+              )}
             </span>
           </div>
 
           {/* Grilla de Álbumes Recomendados */}
           {loading ? (
-            <div className="py-20 text-center text-white/50">
+            <div
+              translate="no"
+              className="notranslate py-20 text-center text-white/50"
+            >
               <span className="w-3 h-3 bg-[#f5576c] rounded-full animate-ping inline-block mr-2"></span>
               Calculando afinidad con el catálogo...
             </div>
@@ -477,9 +544,11 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     {/* Badge de compatibilidad superior */}
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
+                        translate="no"
+                        className={`notranslate px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
                           compatScore
                         )} shadow-md`}
+                        data-stat="score"
                       >
                         ⚡ {compatScore}% Match
                       </span>
@@ -510,15 +579,27 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       </div>
 
                       <div className="min-w-0 flex-1 space-y-1">
-                        <h3 className="text-white font-extrabold text-sm sm:text-base leading-snug line-clamp-2 group-hover:text-cyan-300 transition-colors">
+                        <h3
+                          translate="no"
+                          className="notranslate music-title text-white font-extrabold text-sm sm:text-base leading-snug line-clamp-2 group-hover:text-cyan-300 transition-colors"
+                          data-album={album.album_name || album.album}
+                        >
                           {album.album_name || album.album}
                         </h3>
-                        <p className="text-white/60 text-xs font-medium truncate">
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/60 text-xs font-medium truncate"
+                          data-artist={album.artist_name || album.artista}
+                        >
                           {album.artist_name || album.artista}
                         </p>
 
                         <div className="flex items-center gap-2 pt-1">
-                          <span className="text-amber-300 font-bold text-xs flex items-center gap-1">
+                          <span
+                            translate="no"
+                            className="notranslate text-amber-300 font-bold text-xs flex items-center gap-1"
+                            data-stat="score"
+                          >
                             ⭐{' '}
                             {(
                               album.final_rating ||
@@ -527,7 +608,11 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                             ).toFixed(1)}
                           </span>
                           <span className="text-white/30 text-[11px]">•</span>
-                          <span className="text-white/40 text-[11px]">
+                          <span
+                            translate="no"
+                            className="notranslate text-white/40 text-[11px]"
+                            data-stat="count"
+                          >
                             {album.review_count || 0} reviews
                           </span>
                         </div>
@@ -589,7 +674,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 onClick={() => setFilterCategory('all')}
                 className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs transition-all"
               >
-                Ver Todas las Sugerencias ({recommendations.length})
+                Ver Todas las Sugerencias{' '}
+                <span translate="no" className="notranslate" data-stat="number">
+                  ({recommendations.length})
+                </span>
               </button>
             </div>
           )}
@@ -683,14 +771,26 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       className="flex items-center justify-between p-3 rounded-xl bg-black/40 border border-white/5"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-6 h-6 rounded-full bg-white/10 text-white font-mono text-xs flex items-center justify-center font-bold">
+                        <span
+                          translate="no"
+                          className="notranslate w-6 h-6 rounded-full bg-white/10 text-white font-mono text-xs flex items-center justify-center font-bold"
+                          data-stat="number"
+                        >
                           {idx + 1}
                         </span>
-                        <span className="text-white font-bold text-sm">
+                        <span
+                          translate="no"
+                          className="notranslate artist-name text-white font-bold text-sm"
+                          data-artist={art.name}
+                        >
                           {art.name}
                         </span>
                       </div>
-                      <span className="text-amber-300 font-bold text-xs">
+                      <span
+                        translate="no"
+                        className="notranslate text-amber-300 font-bold text-xs"
+                        data-stat="score"
+                      >
                         ★ {art.avgScore.toFixed(1)} prom.
                       </span>
                     </div>
@@ -725,25 +825,44 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                         {twin.avatar_url ? (
                           <img
                             src={twin.avatar_url}
-                            alt={twin.name}
-                            className="w-10 h-10 rounded-full object-cover border border-white/20"
+                            alt=""
+                            translate="no"
+                            className="notranslate w-10 h-10 rounded-full object-cover border border-white/20"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center">
+                          <div
+                            translate="no"
+                            className="notranslate w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center"
+                          >
                             {(twin.name || 'U')[0].toUpperCase()}
                           </div>
                         )}
                         <div>
-                          <h4 className="text-white font-bold text-sm">
+                          <h4
+                            translate="no"
+                            className="notranslate username-tag user-name text-white font-bold text-sm"
+                            data-username={twin.name}
+                          >
                             @{twin.name}
                           </h4>
                           <span className="text-white/40 text-[11px]">
-                            {twin.commonAlbumsCount} álbumes evaluados en común
+                            <span
+                              translate="no"
+                              className="notranslate font-semibold"
+                              data-stat="count"
+                            >
+                              {twin.commonAlbumsCount}
+                            </span>{' '}
+                            álbumes evaluados en común
                           </span>
                         </div>
                       </div>
 
-                      <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black">
+                      <span
+                        translate="no"
+                        className="notranslate px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-black"
+                        data-stat="percentage"
+                      >
                         {twin.similarity}% Afinidad
                       </span>
                     </div>
@@ -790,7 +909,10 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
           </div>
 
           {loadingDiscoveries ? (
-            <div className="py-20 text-center text-white/50">
+            <div
+              translate="no"
+              className="notranslate py-20 text-center text-white/50"
+            >
               <span className="w-3 h-3 bg-emerald-400 rounded-full animate-ping inline-block mr-2"></span>
               Explorando nuevos descubrimientos musicales...
             </div>
@@ -811,8 +933,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                             alb.image ||
                             'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
                           }
-                          alt={alb.name}
-                          className="w-full h-full object-cover"
+                          alt=""
+                          translate="no"
+                          className="notranslate w-full h-full object-cover"
                         />
                         <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] text-emerald-300 font-bold border border-emerald-400/30">
                           ✨ Radar Sonoro
@@ -820,10 +943,18 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       </div>
 
                       <div>
-                        <h4 className="text-white font-extrabold text-sm line-clamp-1">
+                        <h4
+                          translate="no"
+                          className="notranslate music-title album-name text-white font-extrabold text-sm line-clamp-1"
+                          data-album={alb.name}
+                        >
                           {alb.name}
                         </h4>
-                        <p className="text-white/60 text-xs line-clamp-1 font-medium">
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/60 text-xs line-clamp-1 font-medium"
+                          data-artist={alb.artists?.join(', ')}
+                        >
                           {alb.artists?.join(', ')}
                         </p>
                       </div>
@@ -898,11 +1029,25 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                   className="w-14 h-14 rounded-xl object-cover border border-white/15"
                 />
                 <div>
-                  <h3 className="text-white font-extrabold text-base sm:text-lg">
+                  <h3
+                    translate="no"
+                    className="notranslate music-title album-name text-white font-extrabold text-base sm:text-lg"
+                    data-album={
+                      selectedAlbumForReview.album_name ||
+                      selectedAlbumForReview.album
+                    }
+                  >
                     {selectedAlbumForReview.album_name ||
                       selectedAlbumForReview.album}
                   </h3>
-                  <p className="text-white/60 text-xs">
+                  <p
+                    translate="no"
+                    className="notranslate artist-name text-white/60 text-xs"
+                    data-artist={
+                      selectedAlbumForReview.artist_name ||
+                      selectedAlbumForReview.artista
+                    }
+                  >
                     {selectedAlbumForReview.artist_name ||
                       selectedAlbumForReview.artista}
                   </p>
@@ -954,24 +1099,43 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
                 <div className="flex-1 min-w-0 space-y-2 text-center sm:text-left">
                   <span
-                    className={`px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
+                    translate="no"
+                    className={`notranslate px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
                       selectedAlbumForDetail.compatibilityScore || 75
                     )} inline-block mb-1`}
+                    data-stat="score"
                   >
-                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible
-                    Contigo
+                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible Contigo
                   </span>
-                  <h3 className="text-xl sm:text-2xl font-black text-white">
+                  <h3
+                    translate="no"
+                    className="notranslate music-title album-name text-xl sm:text-2xl font-black text-white"
+                    data-album={
+                      selectedAlbumForDetail.album_name ||
+                      selectedAlbumForDetail.album
+                    }
+                  >
                     {selectedAlbumForDetail.album_name ||
                       selectedAlbumForDetail.album}
                   </h3>
-                  <p className="text-white/70 text-sm font-semibold">
+                  <p
+                    translate="no"
+                    className="notranslate artist-name text-white/70 text-sm font-semibold"
+                    data-artist={
+                      selectedAlbumForDetail.artist_name ||
+                      selectedAlbumForDetail.artista
+                    }
+                  >
                     {selectedAlbumForDetail.artist_name ||
                       selectedAlbumForDetail.artista}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
-                    <span className="text-amber-300 font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-full">
+                    <span
+                      translate="no"
+                      className="notranslate text-amber-300 font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-full"
+                      data-stat="score"
+                    >
                       ⭐{' '}
                       {(
                         selectedAlbumForDetail.final_rating ||
@@ -980,7 +1144,11 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       ).toFixed(1)}{' '}
                       Promedio
                     </span>
-                    <span className="text-white/60 text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-full">
+                    <span
+                      translate="no"
+                      className="notranslate text-white/60 text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-full"
+                      data-stat="count"
+                    >
                       📝 {selectedAlbumForDetail.review_count || 0} Reviews
                     </span>
                   </div>
@@ -1010,8 +1178,14 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 selectedAlbumForDetail.tracks.length > 0 && (
                   <div className="space-y-2">
                     <h4 className="text-xs uppercase font-bold text-white/40 tracking-wider">
-                      Lista de Canciones ({selectedAlbumForDetail.tracks.length}
-                      )
+                      Lista de Canciones{' '}
+                      <span
+                        translate="no"
+                        className="notranslate"
+                        data-stat="count"
+                      >
+                        ({selectedAlbumForDetail.tracks.length})
+                      </span>
                     </h4>
                     <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
                       {selectedAlbumForDetail.tracks.map((t, idx) => {
@@ -1024,7 +1198,11 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                             key={idx}
                             className="flex items-center justify-between p-2 rounded-xl bg-black/30 border border-white/5 text-xs text-white/70"
                           >
-                            <span className="truncate">
+                            <span
+                              translate="no"
+                              className="notranslate track-name song-title truncate"
+                              data-track={tName}
+                            >
                               {idx + 1}. {tName}
                             </span>
                           </div>

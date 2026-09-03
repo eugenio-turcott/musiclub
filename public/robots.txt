@@ -5,6 +5,10 @@ User-agent: *
 Allow: /
 Allow: /albumes/
 Allow: /albums/
+Allow: /eps/
+Allow: /sencillos/
+Allow: /compilaciones/
+Allow: /remixes/
 Allow: /artista/
 Allow: /artistas/
 Allow: /leaderboard

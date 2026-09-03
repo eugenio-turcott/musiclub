@@ -507,6 +507,12 @@ export function ReviewSystem({
       albumId: album.id,
       reviewerName: finalReviewerName,
       reviewerEmail: finalReviewerEmail,
+      reviewerAvatar:
+        currentUserAvatar ||
+        user?.avatar_url ||
+        user?.avatar ||
+        existingUserReview?.reviewer_avatar ||
+        null,
       trackRatings: finalTrackRatings,
       ratingProduccion: ratings.produccion,
       ratingComposicion: ratings.composicion,

@@ -1,22 +1,15 @@
 // src/pages/TermsOfService.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
 
 export function TermsOfService() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
-      <div className="max-w-7xl mx-auto w-full">
-        {/* Botón para volver */}
-        
-        <div className="mb-6">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 text-white/50 hover:text-white transition-colors text-sm bg-white/5 px-4 py-2 rounded-full border border-white/10 hover:bg-white/10 shadow-sm"
-          >
-            <span>←</span> Volver a Musiclub
-          </Link>
-        </div>
+      <div className="max-w-7xl mx-auto w-full space-y-6">
+        {/* Universal App Header */}
+        <AppHeader showTitle={false} />
 
         <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
           {/* Header */}

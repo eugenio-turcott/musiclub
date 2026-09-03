@@ -5,6 +5,7 @@ import {
   calculateAlbumTopTrack,
 } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
+import { enrichAlbumWithMusicBrainz } from './musicBrainzService';
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
@@ -231,6 +232,51 @@ export const supabaseService = {
       payload.genres = Array.isArray(albumData.genres) ? albumData.genres : [albumData.genres];
     }
 
+    // =========================================================================
+    // ENRIQUECIMIENTO TRANSPARENTE CON MUSICBRAINZ
+    // La imagen de portada SIEMPRE proviene de Spotify (payload.image_url intacta)
+    // y los metadatos canónicos (MBID, release_type, géneros, fecha, discográfica,
+    // país, barcode, tracks) se resuelven automáticamente con MusicBrainz.
+    // =========================================================================
+    if (!payload.mbid) {
+      try {
+        const mbData = await enrichAlbumWithMusicBrainz(
+          payload.album_name,
+          payload.artist_name
+        );
+        if (mbData) {
+          if (mbData.mbid) payload.mbid = mbData.mbid;
+          if (mbData.release_type) payload.release_type = mbData.release_type;
+          if (mbData.release_date && !payload.release_date) {
+            payload.release_date = mbData.release_date;
+            if (mbData.release_year) payload.release_year = mbData.release_year;
+          }
+          if (
+            mbData.genres &&
+            mbData.genres.length > 0 &&
+            (!payload.genres || payload.genres.length === 0)
+          ) {
+            payload.genres = mbData.genres;
+          }
+          if (mbData.label && !payload.label) payload.label = mbData.label;
+          if (mbData.country && !payload.country) payload.country = mbData.country;
+          if (mbData.barcode && !payload.barcode) payload.barcode = mbData.barcode;
+          if (mbData.total_tracks && !payload.total_tracks) {
+            payload.total_tracks = mbData.total_tracks;
+          }
+          if (
+            mbData.tracks &&
+            mbData.tracks.length > 0 &&
+            (!payload.tracks || payload.tracks.length === 0)
+          ) {
+            payload.tracks = mbData.tracks;
+          }
+        }
+      } catch (err) {
+        console.warn('MusicBrainz auto-enrichment warning (continuando):', err);
+      }
+    }
+
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -377,6 +423,22 @@ export const supabaseService = {
       }
     }
 
+    let finalReviewerAvatar =
+      reviewData.reviewerAvatar || reviewData.reviewer_avatar || null;
+
+    if (!finalReviewerAvatar && reviewData.reviewerEmail) {
+      try {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .ilike('email', reviewData.reviewerEmail.trim())
+          .maybeSingle();
+        if (prof?.avatar_url) {
+          finalReviewerAvatar = prof.avatar_url;
+        }
+      } catch (_) {}
+    }
+
     const { data, error } = await supabase
       .from('reviews')
       .insert([
@@ -384,7 +446,7 @@ export const supabaseService = {
           album_id: reviewData.albumId,
           reviewer_name: reviewData.reviewerName,
           reviewer_email: reviewData.reviewerEmail,
-          reviewer_avatar: reviewData.reviewerAvatar || reviewData.reviewer_avatar || null,
+          reviewer_avatar: finalReviewerAvatar,
           track_ratings: reviewData.trackRatings || {},
           rating_produccion: reviewData.ratingProduccion,
           rating_composicion: reviewData.ratingComposicion,
@@ -405,12 +467,26 @@ export const supabaseService = {
   },
 
   updateReview: async (reviewId, reviewData) => {
+    let finalUpdateAvatar =
+      reviewData.reviewerAvatar || reviewData.reviewer_avatar || null;
+
+    if (!finalUpdateAvatar && reviewData.reviewerEmail) {
+      try {
+        const { data: prof } = await supabase
+          .from('profiles')
+          .select('avatar_url')
+          .ilike('email', reviewData.reviewerEmail.trim())
+          .maybeSingle();
+        if (prof?.avatar_url) {
+          finalUpdateAvatar = prof.avatar_url;
+        }
+      } catch (_) {}
+    }
+
     const updatePayload = {
       reviewer_name: reviewData.reviewerName,
       reviewer_email: reviewData.reviewerEmail,
-      ...(reviewData.reviewerAvatar || reviewData.reviewer_avatar
-        ? { reviewer_avatar: reviewData.reviewerAvatar || reviewData.reviewer_avatar }
-        : {}),
+      ...(finalUpdateAvatar ? { reviewer_avatar: finalUpdateAvatar } : {}),
       track_ratings: reviewData.trackRatings || {},
       rating_produccion: reviewData.ratingProduccion,
       rating_composicion: reviewData.ratingComposicion,
@@ -1245,6 +1321,7 @@ export const supabaseService = {
 
         reviewsByAlbum.get(r.album_id).push({
           ...r,
+          reviewer_avatar: r.reviewer_avatar || prof?.avatar_url || null,
           avatar_url: prof?.avatar_url || null,
           weighted_score:
             weightedScore !== null && weightedScore !== undefined && !isNaN(weightedScore)
