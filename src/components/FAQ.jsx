@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
+import { SEO } from './SEO';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
@@ -229,6 +230,12 @@ export function FAQ({ isPage = false }) {
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+      <SEO
+        title="Preguntas Frecuentes & Guía del Club | Musiclub"
+        description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Ruleta Cyberpunk, el sistema de calificaciones de 6 criterios, el Leaderboard y la dinámica del club."
+        url="https://musiclub.org/faq"
+      />
+
       <div className="max-w-7xl mx-auto w-full">
         {/* Universal Standard App Header */}
         {isPage && (
@@ -237,25 +244,72 @@ export function FAQ({ isPage = false }) {
           </div>
         )}
 
-        {/* Hero Banner FAQ */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-black/80 via-[#1a1a38]/80 to-black/90 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl mb-8">
-          <div className="absolute -right-10 -top-10 w-48 h-48 bg-[#f5576c]/10 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute -left-10 -bottom-10 w-48 h-48 bg-[#f093fb]/10 rounded-full blur-3xl pointer-events-none"></div>
+        {/* Hero Header estilo Patch Notes */}
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl mb-8">
+          {/* Orbes decorativos */}
+          <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5576c]/15 border border-[#f5576c]/30 text-[#f5576c] text-xs font-bold uppercase tracking-wider mb-3">
-                <span>❓</span> Centro de Ayuda y Preguntas Frecuentes
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm">
+                <span>❓</span>
+                <span>Centro de Ayuda & Guía del Club</span>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight title-albumes">
-                GUÍA & LOGÍSTICA DEL CLUB
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+                Preguntas Frecuentes
               </h1>
-              <p className="text-white/60 text-sm sm:text-base mt-2 max-w-2xl leading-relaxed">
+              <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
                 Descubre cómo funciona la Ruleta Cyberpunk, el sistema de calificaciones ponderadas, el cálculo de probabilidades, el Leaderboard con insignias y toda la dinámica comunitaria de Musiclub.
               </p>
             </div>
-            <div className="text-6xl sm:text-7xl flex-shrink-0 animate-pulse">
-              🎰
+
+            {/* Badges de Preguntas y Controles rápidos */}
+            <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
+                  <span className="text-xs">💡</span>
+                  <div className="text-left">
+                    <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
+                      Base de Respuestas
+                    </p>
+                    <p className="text-white font-black text-xs sm:text-sm leading-tight">
+                      {FAQ_DATA.length} Preguntas
+                    </p>
+                  </div>
+                </div>
+
+                <div className="px-4 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-3 shadow-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <div className="text-left">
+                    <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
+                      Categorías
+                    </p>
+                    <p className="text-white font-black text-base sm:text-lg leading-tight">
+                      {FAQ_CATEGORIES.length - 1} Áreas
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={expandAll}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                >
+                  <span>📖</span>
+                  <span>Desplegar Todo</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={collapseAll}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                >
+                  <span>📁</span>
+                  <span>Colapsar</span>
+                </button>
+              </div>
             </div>
           </div>
 

@@ -6,7 +6,6 @@ import { Footer } from '../components/Footer';
 import { ReviewSystem } from '../components/ReviewSystem';
 import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -25,7 +24,6 @@ export function LandingPage() {
   const {
     albums,
     winner,
-    loading: albumsLoading,
     refetch,
     markAlbumAsInactive,
   } = useAlbums();
@@ -128,9 +126,15 @@ export function LandingPage() {
           const profileAvatarByName = new Map();
           (profilesData || []).forEach((p) => {
             if (p.email && p.avatar_url)
-              profileAvatarByEmail.set(p.email.toLowerCase().trim(), p.avatar_url);
+              profileAvatarByEmail.set(
+                p.email.toLowerCase().trim(),
+                p.avatar_url
+              );
             if (p.name && p.avatar_url)
-              profileAvatarByName.set(p.name.toLowerCase().trim(), p.avatar_url);
+              profileAvatarByName.set(
+                p.name.toLowerCase().trim(),
+                p.avatar_url
+              );
           });
 
           const enrichedReviews = reviewsData.map((rev) => {
@@ -141,7 +145,9 @@ export function LandingPage() {
               (emailKey && profileAvatarByEmail.get(emailKey)) ||
               (nameKey && profileAvatarByName.get(nameKey)) ||
               null;
-            return fallbackAvatar ? { ...rev, reviewer_avatar: fallbackAvatar } : rev;
+            return fallbackAvatar
+              ? { ...rev, reviewer_avatar: fallbackAvatar }
+              : rev;
           });
           setAllReviews(enrichedReviews);
         }
@@ -485,8 +491,6 @@ export function LandingPage() {
     }, 100);
   };
 
-  const isLoading = albumsLoading && albums.length === 0;
-
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
@@ -504,12 +508,6 @@ export function LandingPage() {
           onLogout={handleLogout}
           loading={authLoading}
           showTitle={false}
-        />
-
-        {/* Global Loading Overlay */}
-        <LoadingOverlay
-          loading={isLoading}
-          message="Cargando el universo Musiclub..."
         />
 
         {/* Login Modal */}
@@ -787,7 +785,10 @@ export function LandingPage() {
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 tracking-tight"
                 data-stat="number"
               >
-                +{globalStats.total_reviews || (allReviews && allReviews.length) || 271}
+                +
+                {globalStats.total_reviews ||
+                  (allReviews && allReviews.length) ||
+                  271}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Reviews Escritas

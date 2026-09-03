@@ -1,5 +1,11 @@
 // src/components/GashaponMachine.jsx
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from 'react';
 import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { gashaponSound } from '../utils/gashaponAudio';
 import { ReviewSystem } from './ReviewSystem';
@@ -389,7 +395,9 @@ export function GashaponMachine({
   // 'IDLE' -> 'CRANKING' -> 'DROPPING' -> 'LANDED' -> 'OPENING' -> 'REVEALED'
   const [machineState, setMachineState] = useState('IDLE');
   const [activeFilter, setActiveFilter] = useState('pending'); // 'pending' | 'all' | 'individual' | 'winner'
-  const [soundEnabled, setSoundEnabled] = useState(() => gashaponSound.isEnabled());
+  const [soundEnabled, setSoundEnabled] = useState(() =>
+    gashaponSound.isEnabled()
+  );
   const [isFastMode, setIsFastMode] = useState(false);
 
   // Cápsula seleccionada actualmente
@@ -463,7 +471,15 @@ export function GashaponMachine({
 
   // Lanzar partículas de confeti visual
   const launchParticles = useCallback(() => {
-    const colors = ['#f5576c', '#f093fb', '#ffd93d', '#6bcb77', '#4d96ff', '#a855f7', '#06b6d4'];
+    const colors = [
+      '#f5576c',
+      '#f093fb',
+      '#ffd93d',
+      '#6bcb77',
+      '#4d96ff',
+      '#a855f7',
+      '#06b6d4',
+    ];
     const newSparks = [];
     for (let i = 0; i < 35; i++) {
       newSparks.push({
@@ -474,7 +490,9 @@ export function GashaponMachine({
         size: Math.random() * 12 + 6,
         vx: (Math.random() - 0.5) * 120,
         vy: (Math.random() - 0.8) * 140,
-        emoji: ['✨', '⭐', '🎵', '💫', '🎶', '💎', '🔥'][Math.floor(Math.random() * 7)],
+        emoji: ['✨', '⭐', '🎵', '💫', '🎶', '💎', '🔥'][
+          Math.floor(Math.random() * 7)
+        ],
       });
     }
     setSparks(newSparks);
@@ -505,7 +523,8 @@ export function GashaponMachine({
     const chosenAlbum = pool[randomIndex];
 
     // Seleccionar de forma 100% ALEATORIA una de las 20 bolas visuales del domo
-    const randomBall = DOME_CAPSULES[Math.floor(Math.random() * DOME_CAPSULES.length)];
+    const randomBall =
+      DOME_CAPSULES[Math.floor(Math.random() * DOME_CAPSULES.length)];
 
     const capsuleData = {
       album: chosenAlbum,
@@ -524,16 +543,19 @@ export function GashaponMachine({
       gashaponSound.playCapsuleDrop();
 
       // 3. Cápsula aterriza en la bandeja receptora
-      setTimeout(() => {
-        if (!isMountedRef.current) return;
-        setMachineState('LANDED');
-        setCurrentCapsule(capsuleData);
+      setTimeout(
+        () => {
+          if (!isMountedRef.current) return;
+          setMachineState('LANDED');
+          setCurrentCapsule(capsuleData);
 
-        // Si es fast mode o tras 800ms, abrir automáticamente o esperar toque
-        if (isFastMode) {
-          setTimeout(() => handleOpenCapsule(capsuleData), 400);
-        }
-      }, isFastMode ? 350 : 650);
+          // Si es fast mode o tras 800ms, abrir automáticamente o esperar toque
+          if (isFastMode) {
+            setTimeout(() => handleOpenCapsule(capsuleData), 400);
+          }
+        },
+        isFastMode ? 350 : 650
+      );
     }, spinDuration);
   };
 
@@ -546,20 +568,28 @@ export function GashaponMachine({
     gashaponSound.playCapsuleOpen();
     launchParticles();
 
-    setTimeout(() => {
-      if (!isMountedRef.current) return;
-      setMachineState('REVEALED');
-      gashaponSound.playFanfare(
-        capsuleToOpen.theme?.icon === '👑' || capsuleToOpen.theme?.icon === '💎' ? 'legendary' : 'epic'
-      );
+    setTimeout(
+      () => {
+        if (!isMountedRef.current) return;
+        setMachineState('REVEALED');
+        gashaponSound.playFanfare(
+          capsuleToOpen.theme?.icon === '👑' ||
+            capsuleToOpen.theme?.icon === '💎'
+            ? 'legendary'
+            : 'epic'
+        );
 
-      // Agregar al historial de la sesión si no está repetido
-      setSessionHistory((prev) => {
-        const exists = prev.some((item) => item.album.id === capsuleToOpen.album.id);
-        if (exists) return prev;
-        return [capsuleToOpen, ...prev.slice(0, 9)];
-      });
-    }, isFastMode ? 300 : 600);
+        // Agregar al historial de la sesión si no está repetido
+        setSessionHistory((prev) => {
+          const exists = prev.some(
+            (item) => item.album.id === capsuleToOpen.album.id
+          );
+          if (exists) return prev;
+          return [capsuleToOpen, ...prev.slice(0, 9)];
+        });
+      },
+      isFastMode ? 300 : 600
+    );
   };
 
   // Contadores para chips
@@ -568,24 +598,32 @@ export function GashaponMachine({
     return eligibleAlbums.filter((alb) => !userReviewMap.has(alb.id)).length;
   }, [eligibleAlbums, userReviewMap]);
   const individualCount = useMemo(() => {
-    return eligibleAlbums.filter((alb) => String(alb.status).toUpperCase() === 'INDIVIDUAL').length;
+    return eligibleAlbums.filter(
+      (alb) => String(alb.status).toUpperCase() === 'INDIVIDUAL'
+    ).length;
   }, [eligibleAlbums]);
   const inactiveCount = useMemo(() => {
-    return eligibleAlbums.filter((alb) => String(alb.status).toUpperCase() === 'INACTIVO').length;
+    return eligibleAlbums.filter(
+      (alb) => String(alb.status).toUpperCase() === 'INACTIVO'
+    ).length;
   }, [eligibleAlbums]);
 
   return (
     <div
       ref={containerRef}
-      className="w-full max-w-5xl mx-auto space-y-6 sm:space-y-8 animate-fadeIn pb-12"
+      className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12"
     >
       {/* Toast flotante de XP Ganado */}
       {xpToast && (
         <div className="fixed top-20 right-4 z-50 animate-xp-bounce bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-white/60 flex items-center gap-3 font-black">
           <span className="text-2xl animate-spin-slow">✨</span>
           <div>
-            <p className="text-xs uppercase tracking-wider font-bold opacity-80">{xpToast.message}</p>
-            <p className="text-lg leading-tight">+{xpToast.xp} XP para tu Perfil</p>
+            <p className="text-xs uppercase tracking-wider font-bold opacity-80">
+              {xpToast.message}
+            </p>
+            <p className="text-lg leading-tight">
+              +{xpToast.xp} XP para tu Perfil
+            </p>
           </div>
         </div>
       )}
@@ -605,7 +643,11 @@ export function GashaponMachine({
               Gashapon de Álbumes Individuales
             </h2>
             <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
-              Gira la manivela para extraer una cápsula sorpresa de <strong className="text-purple-300">Álbumes Individuales</strong> y <strong className="text-rose-300">Desactivados (Ex-Pool)</strong>. ¡Descúbrelo y califícalo con el sistema oficial!
+              Gira la manivela para extraer una cápsula sorpresa de{' '}
+              <strong className="text-purple-300">Álbumes Individuales</strong>{' '}
+              y{' '}
+              <strong className="text-rose-300">Desactivados (Ex-Pool)</strong>.
+              ¡Descúbrelo y califícalo con el sistema oficial!
             </p>
           </div>
 
@@ -620,10 +662,14 @@ export function GashaponMachine({
                   ? 'bg-amber-400/20 text-amber-300 border-amber-400/40 shadow-sm'
                   : 'bg-white/5 text-white/40 border-white/10 hover:text-white'
               }`}
-              title={soundEnabled ? 'Silenciar sonidos' : 'Activar efectos de sonido'}
+              title={
+                soundEnabled ? 'Silenciar sonidos' : 'Activar efectos de sonido'
+              }
             >
               <span>{soundEnabled ? '🔊' : '🔇'}</span>
-              <span className="hidden xs:inline">{soundEnabled ? 'FX On' : 'Mute'}</span>
+              <span className="hidden xs:inline">
+                {soundEnabled ? 'FX On' : 'Mute'}
+              </span>
             </button>
 
             {/* Toggle de Modo Rápido */}
@@ -638,7 +684,9 @@ export function GashaponMachine({
               title="Acelera la animación de giro y apertura"
             >
               <span>⚡</span>
-              <span className="hidden xs:inline">{isFastMode ? 'Turbo On' : 'Turbo Off'}</span>
+              <span className="hidden xs:inline">
+                {isFastMode ? 'Turbo On' : 'Turbo Off'}
+              </span>
             </button>
 
             {/* Token Badge */}
@@ -708,7 +756,7 @@ export function GashaponMachine({
       {/* ÁREA PRINCIPAL: MÁQUINA DE GASHAPON 3D INTERACTIVA */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* COLUMNA IZQUIERDA: GASHAPON MACHINE DOME & CRANK (5 COLUMNAS EN LG) */}
-        <div className="lg:col-span-5 flex flex-col items-center">
+        <div className="lg:col-span-4 flex flex-col items-center">
           <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-gradient-to-b from-[#1b1933] via-[#121226] to-[#0a0a14] rounded-3xl p-5 sm:p-6 border-2 border-white/15 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
             {/* Iluminación de marquesina arcade */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-80">
@@ -752,14 +800,18 @@ export function GashaponMachine({
                     }}
                   >
                     {/* Mitad superior colorida con gradiente vivo */}
-                    <div className={`h-1/2 bg-gradient-to-r ${cap.topGrad} relative`}>
+                    <div
+                      className={`h-1/2 bg-gradient-to-r ${cap.topGrad} relative`}
+                    >
                       {/* Reflejo de brillo esférico */}
                       <div className="absolute top-0.5 left-1 w-2.5 h-1 bg-white/70 rounded-full blur-[0.3px] pointer-events-none"></div>
                     </div>
                     {/* Banda divisoria de la cápsula */}
                     <div className="h-[1.5px] bg-white/90 shadow-[0_0_3px_rgba(255,255,255,0.9)]"></div>
                     {/* Mitad inferior translúcida con sticker/icono arcade */}
-                    <div className={`h-1/2 bg-gradient-to-r ${cap.botGrad} flex items-center justify-center relative`}>
+                    <div
+                      className={`h-1/2 bg-gradient-to-r ${cap.botGrad} flex items-center justify-center relative`}
+                    >
                       <span className="text-[9px] sm:text-[11px] leading-none select-none opacity-90 filter drop-shadow-sm">
                         {cap.icon}
                       </span>
@@ -775,7 +827,11 @@ export function GashaponMachine({
               <div className="flex items-center justify-center gap-4">
                 <button
                   type="button"
-                  disabled={machineState === 'CRANKING' || machineState === 'DROPPING' || filteredPool.length === 0}
+                  disabled={
+                    machineState === 'CRANKING' ||
+                    machineState === 'DROPPING' ||
+                    filteredPool.length === 0
+                  }
                   onClick={handleSpinGashapon}
                   className={`relative group w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-slate-700 via-slate-400 to-slate-200 border-4 border-amber-400/80 shadow-[0_8px_20px_rgba(0,0,0,0.6),inset_0_2px_6px_rgba(255,255,255,0.8)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60 cursor-pointer ${
                     isCrankAnimating ? 'animate-crank-turn' : 'hover:scale-105'
@@ -800,17 +856,25 @@ export function GashaponMachine({
               {/* BOTÓN GRANDE DE ACCIÓN / TIRA LA PALANCA */}
               <button
                 type="button"
-                disabled={machineState === 'CRANKING' || machineState === 'DROPPING' || filteredPool.length === 0}
+                disabled={
+                  machineState === 'CRANKING' ||
+                  machineState === 'DROPPING' ||
+                  filteredPool.length === 0
+                }
                 onClick={handleSpinGashapon}
                 className={`w-full py-3.5 px-6 rounded-2xl font-black text-sm uppercase tracking-wider text-white shadow-xl transition-all duration-300 flex items-center justify-center gap-2 border active:scale-95 ${
                   filteredPool.length === 0
                     ? 'bg-slate-800 border-white/10 opacity-60 cursor-not-allowed'
                     : machineState === 'CRANKING'
-                    ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/50 animate-pulse'
-                    : 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 border-white/20 shadow-[#f5576c]/30 hover:scale-[1.02]'
+                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/50 animate-pulse'
+                      : 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 border-white/20 shadow-[#f5576c]/30 hover:scale-[1.02]'
                 }`}
               >
-                <span>{machineState === 'CRANKING' ? '🌀 Girando...' : '✨ ¡GIRAR GASHAPON! ✨'}</span>
+                <span>
+                  {machineState === 'CRANKING'
+                    ? '🌀 Girando...'
+                    : '✨ ¡GIRAR GASHAPON! ✨'}
+                </span>
               </button>
 
               {/* BANDEJA RECEPTORA DE CÁPSULAS (CHUTE & TRAY) */}
@@ -827,45 +891,56 @@ export function GashaponMachine({
                 )}
 
                 {/* Cápsula cayendo o en bandeja */}
-                {(machineState === 'DROPPING' || machineState === 'LANDED' || machineState === 'OPENING') && currentCapsule && (
-                  <div className="relative z-10 flex flex-col items-center animate-capsule-drop">
-                    {/* Partículas de brillo */}
-                    <div className="absolute -top-3 text-sm animate-ping">✨</div>
-
-                    {/* Botón de Cápsula Interactiva */}
-                    <button
-                      type="button"
-                      onClick={() => handleOpenCapsule(currentCapsule)}
-                      className={`group relative w-16 h-16 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_25px_${currentCapsule.theme.glow}] overflow-hidden transform hover:scale-110 active:scale-95 transition-all cursor-pointer flex flex-col`}
-                      title="¡Toca para abrir la cápsula!"
-                    >
-                      {/* Mitad superior con gradiente y reflejo esférico idéntico */}
-                      <div className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad} relative`}>
-                        <div className="absolute top-1 left-2 w-4 h-1.5 bg-white/70 rounded-full blur-[0.4px] pointer-events-none"></div>
+                {(machineState === 'DROPPING' ||
+                  machineState === 'LANDED' ||
+                  machineState === 'OPENING') &&
+                  currentCapsule && (
+                    <div className="relative z-10 flex flex-col items-center animate-capsule-drop">
+                      {/* Partículas de brillo */}
+                      <div className="absolute -top-3 text-sm animate-ping">
+                        ✨
                       </div>
-                      {/* Banda divisoria metálica */}
-                      <div className="h-[2px] bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.9)]"></div>
-                      {/* Mitad inferior translúcida con el sticker exacto */}
-                      <div className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}>
-                        <span className="text-sm font-black select-none drop-shadow">
-                          {currentCapsule.theme.icon}
-                        </span>
-                      </div>
-                    </button>
 
-                    <button
-                      type="button"
-                      onClick={() => handleOpenCapsule(currentCapsule)}
-                      className="mt-1.5 text-[11px] font-black text-amber-300 bg-amber-400/20 hover:bg-amber-400/30 px-3 py-0.5 rounded-full border border-amber-400/40 animate-pulse"
-                    >
-                      ¡Toca para Abrir! 🎁
-                    </button>
-                  </div>
-                )}
+                      {/* Botón de Cápsula Interactiva */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenCapsule(currentCapsule)}
+                        className={`group relative w-16 h-16 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_25px_${currentCapsule.theme.glow}] overflow-hidden transform hover:scale-110 active:scale-95 transition-all cursor-pointer flex flex-col`}
+                        title="¡Toca para abrir la cápsula!"
+                      >
+                        {/* Mitad superior con gradiente y reflejo esférico idéntico */}
+                        <div
+                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad} relative`}
+                        >
+                          <div className="absolute top-1 left-2 w-4 h-1.5 bg-white/70 rounded-full blur-[0.4px] pointer-events-none"></div>
+                        </div>
+                        {/* Banda divisoria metálica */}
+                        <div className="h-[2px] bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.9)]"></div>
+                        {/* Mitad inferior translúcida con el sticker exacto */}
+                        <div
+                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
+                        >
+                          <span className="text-sm font-black select-none drop-shadow">
+                            {currentCapsule.theme.icon}
+                          </span>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleOpenCapsule(currentCapsule)}
+                        className="mt-1.5 text-[11px] font-black text-amber-300 bg-amber-400/20 hover:bg-amber-400/30 px-3 py-0.5 rounded-full border border-amber-400/40 animate-pulse"
+                      >
+                        ¡Toca para Abrir! 🎁
+                      </button>
+                    </div>
+                  )}
 
                 {machineState === 'REVEALED' && (
                   <div className="flex items-center gap-2">
-                    <span className="text-emerald-400 text-xs font-bold">✓ Cápsula Abierta</span>
+                    <span className="text-emerald-400 text-xs font-bold">
+                      ✓ Cápsula Abierta
+                    </span>
                     <button
                       type="button"
                       onClick={handleSpinGashapon}
@@ -881,9 +956,11 @@ export function GashaponMachine({
         </div>
 
         {/* COLUMNA DERECHA: ÁLBUM REVELADO & CALIFICACIÓN DIRECTA (7 COLUMNAS EN LG) */}
-        <div className="lg:col-span-7 space-y-4 sm:space-y-6">
+        <div className="lg:col-span-8 space-y-4 sm:space-y-6">
           {/* Si aún no se ha revelado ningún álbum */}
-          {(!currentCapsule || machineState === 'IDLE' || machineState === 'CRANKING') && (
+          {(!currentCapsule ||
+            machineState === 'IDLE' ||
+            machineState === 'CRANKING') && (
             <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 text-center flex flex-col items-center justify-center min-h-[380px] space-y-4">
               <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl shadow-2xl animate-float-slow">
                 🎰
@@ -893,7 +970,12 @@ export function GashaponMachine({
                   ¿Listo para tu siguiente joya musical?
                 </h3>
                 <p className="text-white/50 text-xs sm:text-sm leading-relaxed">
-                  Hay <strong className="text-amber-300">{filteredPool.length} álbumes</strong> disponibles en el filtro seleccionado. Gira la manivela para abrir tu cápsula y calificar directamente en esta pestaña.
+                  Hay{' '}
+                  <strong className="text-amber-300">
+                    {filteredPool.length} álbumes
+                  </strong>{' '}
+                  disponibles en el filtro seleccionado. Gira la manivela para
+                  abrir tu cápsula y calificar directamente en esta pestaña.
                 </p>
               </div>
 
@@ -939,10 +1021,16 @@ export function GashaponMachine({
                     <div
                       className={`w-8 h-8 rounded-full border ${currentCapsule.theme.ring} shadow-[0_0_12px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col flex-shrink-0`}
                     >
-                      <div className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad}`}></div>
+                      <div
+                        className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad}`}
+                      ></div>
                       <div className="h-[1px] bg-white/80"></div>
-                      <div className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}>
-                        <span className="text-[10px] leading-none">{currentCapsule.theme.icon}</span>
+                      <div
+                        className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
+                      >
+                        <span className="text-[10px] leading-none">
+                          {currentCapsule.theme.icon}
+                        </span>
                       </div>
                     </div>
                     <span className="text-xs font-black uppercase tracking-wider text-white">
@@ -957,8 +1045,11 @@ export function GashaponMachine({
                     <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
                       <span>✓</span> Ya Calificado (★{' '}
                       {(
-                        getWeightedReviewScore(userReviewMap.get(currentCapsule.album.id)) ??
-                        userReviewMap.get(currentCapsule.album.id).rating_general
+                        getWeightedReviewScore(
+                          userReviewMap.get(currentCapsule.album.id)
+                        ) ??
+                        userReviewMap.get(currentCapsule.album.id)
+                          .rating_general
                       )?.toFixed(1)}
                       )
                     </span>
@@ -987,7 +1078,8 @@ export function GashaponMachine({
                         alt={currentCapsule.album.album}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         onError={(e) => {
-                          e.target.src = 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
+                          e.target.src =
+                            'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
                         }}
                       />
                     </div>
@@ -996,25 +1088,35 @@ export function GashaponMachine({
                   {/* Metadatos del Álbum */}
                   <div className="flex-1 min-w-0 text-center sm:text-left space-y-2">
                     <div>
-                      <h3 className="text-lg sm:text-xl font-black text-white truncate" title={currentCapsule.album.album}>
+                      <h3
+                        className="text-lg sm:text-xl font-black text-white truncate"
+                        title={currentCapsule.album.album}
+                      >
                         {currentCapsule.album.album}
                       </h3>
-                      <p className="text-sm font-bold text-white/70 truncate mt-0.5" title={currentCapsule.album.artista}>
+                      <p
+                        className="text-sm font-bold text-white/70 truncate mt-0.5"
+                        title={currentCapsule.album.artista}
+                      >
                         {currentCapsule.album.artista}
                       </p>
                     </div>
 
                     {/* Chips de Información */}
                     <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-1">
-                      {currentCapsule.album.tracks && Array.isArray(currentCapsule.album.tracks) && (
-                        <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                          🎵 {currentCapsule.album.tracks.length} tracks
-                        </span>
-                      )}
+                      {currentCapsule.album.tracks &&
+                        Array.isArray(currentCapsule.album.tracks) && (
+                          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
+                            🎵 {currentCapsule.album.tracks.length} tracks
+                          </span>
+                        )}
 
                       {currentCapsule.album.status && (
                         <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 font-medium">
-                          {String(currentCapsule.album.status).toUpperCase() === 'INDIVIDUAL' ? '💎 Álbum Individual' : '📦 Ex-Pool Desactivado'}
+                          {String(currentCapsule.album.status).toUpperCase() ===
+                          'INDIVIDUAL'
+                            ? '💎 Álbum Individual'
+                            : '📦 Ex-Pool Desactivado'}
                         </span>
                       )}
 
@@ -1084,9 +1186,12 @@ export function GashaponMachine({
         <div className="rounded-3xl p-5 sm:p-6 bg-black/30 border border-white/10 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-white font-bold text-xs sm:text-sm flex items-center gap-2">
-              <span>🗂️</span> Cápsulas Abiertas en Esta Sesión ({sessionHistory.length})
+              <span>🗂️</span> Cápsulas Abiertas en Esta Sesión (
+              {sessionHistory.length})
             </h4>
-            <span className="text-white/40 text-[11px]">Toca cualquier cápsula para re-inspeccionar</span>
+            <span className="text-white/40 text-[11px]">
+              Toca cualquier cápsula para re-inspeccionar
+            </span>
           </div>
 
           <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 pt-1">
@@ -1114,20 +1219,29 @@ export function GashaponMachine({
                       alt={item.album.album}
                       className="w-full h-full object-cover"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
+                        e.target.src =
+                          'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
                       }}
                     />
-                    <div className="absolute top-1 right-1 text-xs">{item.theme.icon}</div>
+                    <div className="absolute top-1 right-1 text-xs">
+                      {item.theme.icon}
+                    </div>
                     {isReviewed && (
                       <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">
                         ✓
                       </div>
                     )}
                   </div>
-                  <h5 className="text-white font-bold text-[11px] truncate" title={item.album.album}>
+                  <h5
+                    className="text-white font-bold text-[11px] truncate"
+                    title={item.album.album}
+                  >
                     {item.album.album}
                   </h5>
-                  <p className="text-white/50 text-[10px] truncate" title={item.album.artista}>
+                  <p
+                    className="text-white/50 text-[10px] truncate"
+                    title={item.album.artista}
+                  >
                     {item.album.artista}
                   </p>
                 </button>

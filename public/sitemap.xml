@@ -67,7 +67,7 @@
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/compilaciones/Best-of-Jennifer-Warnes</loc>
+    <loc>https://musiclub.org/compilaciones/25-Greatest-Hits</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -97,13 +97,25 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/compilaciones/In-cautarea-cuibului-pierdut</loc>
+    <loc>https://musiclub.org/compilaciones/Best-of-Jennifer-Warnes</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://musiclub.org/albumes/Djinn-and-Juice</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Dead-Hills</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/compilaciones/In-cautarea-cuibului-pierdut</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -116,12 +128,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/compilaciones/Collezione</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Dead-Hills</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -2173,7 +2179,7 @@
     <priority>0.75</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Jennifer-Warnes</loc>
+    <loc>https://musiclub.org/artista/The-Swinging-Blue-Jeans</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2203,13 +2209,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Pasarea-Colibri</loc>
+    <loc>https://musiclub.org/artista/Jennifer-Warnes</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://musiclub.org/artista/Nathan-DeWitt</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Wolf-Eyes</loc>
+    <lastmod>2026-09-03</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Pasarea-Colibri</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -2222,12 +2240,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Angelo-Branduardi</loc>
-    <lastmod>2026-09-03</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Wolf-Eyes</loc>
     <lastmod>2026-09-03</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

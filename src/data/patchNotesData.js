@@ -14,6 +14,38 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.3',
+    title:
+      'Meta Description Global SEO en index.html, Blindaje WebSocket en CLI y Actualización de Runner a Node.js 22',
+    date: '2026-09-03',
+    sha: 'HEAD',
+    tag: 'Menor',
+    tagColor: 'from-cyan-500 via-blue-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Mejora de SEO global en index.html con meta description, keywords y Open Graph para previsualización e indexación en motores de búsqueda, blindaje con polyfill de WebSocket en los scripts de backend para compatibilidad universal con Supabase JS y actualización del entorno de GitHub Actions a Node.js 22.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Meta Description y Metadatos Globales SEO en index.html',
+        description:
+          'Incorporación de meta description oficial, palabras clave, canonical URL y etiquetas Open Graph y Twitter Cards directamente en index.html para una indexación inmediata y previsualizaciones enriquecidas en motores de búsqueda (Google, Bing) y redes sociales.',
+      },
+      {
+        type: 'fix',
+        title: 'Actualización de GitHub Actions a Node.js 22',
+        description:
+          'Actualización del runner en el flujo hourly_musicbrainz_ingest.yml a Node.js 22, satisfaciendo los nuevos requerimientos nativos de @supabase/supabase-js.',
+      },
+      {
+        type: 'fix',
+        title: 'Blindaje WebSocket y Sesión Ligera en Scripts CLI',
+        description:
+          'Implementación de polyfill de WebSocket e inicialización auth.persistSession: false en hourlyMusicBrainzIngestion.mjs, generate-sitemap.js y enrichMissingMusicBrainz.mjs, garantizando ejecución sin fallos en cualquier entorno de Node.',
+      },
+    ],
+  },
+  {
     version: 'V.6.2',
     title:
       'Metadatos Oficiales de MusicBrainz + Portadas Spotify CDN, Ingesta Horaria Automatizada (1,000 Álbumes/Hora), GitHub Actions 24/7 y Sitemap XML Paginado',

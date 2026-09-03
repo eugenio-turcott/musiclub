@@ -5,6 +5,17 @@ const { createClient } = require('@supabase/supabase-js');
 const { POPULAR_ALBUMS } = require('./popularMusicData');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
+// Polyfill de WebSocket para entornos Node < 22 (evita errores en @supabase/realtime-js)
+if (typeof globalThis.WebSocket === 'undefined') {
+  globalThis.WebSocket = class DummyWebSocket {
+    constructor() {}
+    addEventListener() {}
+    removeEventListener() {}
+    send() {}
+    close() {}
+  };
+}
+
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_8CYM-sB7DY1_cyw8Amyr9g_-JtuZEKO';
 const BASE_URL = 'https://musiclub.org';

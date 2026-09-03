@@ -21,14 +21,14 @@ export function TermsOfService({ onClose }) {
           {/* Header */}
           <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-8">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5576c]/15 border border-[#f5576c]/30 text-[#f5576c] text-xs font-bold uppercase tracking-wider mb-2">
-                <span>📋</span> Normas y Convivencia
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm mb-3">
+                <span>📋</span> Normas & Convivencia Comunitaria
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white title-albumes">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 TÉRMINOS DE SERVICIO
               </h1>
-              <p className="text-white/40 text-xs sm:text-sm mt-1">
-                Última actualización: Versión 4.2 · Agosto 2026
+              <p className="text-white/60 text-xs sm:text-sm mt-1">
+                Última actualización: Versión 6.3 · Septiembre 2026
               </p>
             </div>
             <div className="text-4xl hidden sm:block">🎰</div>

@@ -3,30 +3,73 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
+import { SEO } from '../components/SEO';
 
 export function TermsOfService() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+      <SEO
+        title="Términos de Servicio | Musiclub"
+        description="Consulta los términos, normas de convivencia comunitaria y condiciones de uso de la plataforma colaborativa de música Musiclub."
+        url="https://musiclub.org/terms"
+      />
+
       <div className="max-w-7xl mx-auto w-full space-y-6">
         {/* Universal App Header */}
         <AppHeader showTitle={false} />
 
-        <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
-          {/* Header */}
-          <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#f5576c]/15 border border-[#f5576c]/30 text-[#f5576c] text-xs font-bold uppercase tracking-wider mb-2">
-                <span>📋</span> Normas y Convivencia
+        {/* Hero Header estilo Patch Notes */}
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
+          {/* Orbes decorativos */}
+          <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm">
+                <span>📋</span>
+                <span>Normas & Convivencia Comunitaria</span>
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white title-albumes">
-                TÉRMINOS DE SERVICIO
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+                Términos de Servicio
               </h1>
-              <p className="text-white/40 text-xs sm:text-sm mt-1">
-                Última actualización: Versión 4.2 · Agosto 2026
+              <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
+                Descubre las normas de respeto, dinámica de votaciones y condiciones de participación colectiva en la comunidad de escucha musical de Musiclub.
               </p>
             </div>
-            <div className="text-4xl hidden sm:block">🎰</div>
+
+            {/* Badges estilo Patch Notes */}
+            <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
+                  <span className="text-xs">🤝</span>
+                  <div className="text-left">
+                    <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
+                      Comunidad
+                    </p>
+                    <p className="text-white font-black text-xs sm:text-sm leading-tight">
+                      Sin Fines de Lucro
+                    </p>
+                  </div>
+                </div>
+
+                <div className="px-4 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-3 shadow-xl">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                  <div className="text-left">
+                    <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
+                      Vigencia
+                    </p>
+                    <p className="text-white font-black text-base sm:text-lg leading-tight">
+                      Año 2026
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
 
           <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">

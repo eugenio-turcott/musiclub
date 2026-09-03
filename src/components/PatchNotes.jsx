@@ -1,5 +1,6 @@
 // src/components/PatchNotes.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { SEO } from './SEO';
 import {
   GITHUB_COMMITS_API,
   GITHUB_REPO_OWNER,
@@ -143,7 +144,13 @@ export function PatchNotes({ isPage = false }) {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 animate-fadeIn pb-12">
+    <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
+      <SEO
+        title="Patch Notes & Historial de Actualizaciones | Musiclub"
+        description="Consulta el registro completo de cambios, nuevas funciones, mejoras y correcciones de Musiclub sincronizado en tiempo real con GitHub."
+        url="https://musiclub.org/patch-notes"
+      />
+
       {/* Hero Header de Patch Notes */}
       <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
         {/* Orbes decorativos */}

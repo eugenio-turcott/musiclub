@@ -7,7 +7,6 @@ import { SEO } from '../components/SEO';
 import { ReviewSystem } from '../components/ReviewSystem';
 import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import { usePool } from '../hooks/usePool';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
@@ -264,11 +263,6 @@ export function PoolPage() {
           onLogout={logout}
           loading={authLoading}
           showTitle={false}
-        />
-
-        <LoadingOverlay
-          loading={poolLoading && activePool.length === 0}
-          message="Cargando el Pool Musical de la Temporada..."
         />
 
         {/* Login Modal */}

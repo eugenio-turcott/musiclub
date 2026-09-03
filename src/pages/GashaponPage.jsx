@@ -6,11 +6,10 @@ import { GashaponMachine } from '../components/GashaponMachine';
 import { useAlbums } from '../hooks/useAlbums';
 import { useAuth } from '../hooks/useAuth';
 import { useUserReviews } from '../hooks/useUserReviews';
-import { LoadingOverlay } from '../components/LoadingOverlay';
 import { LoginModal } from '../components/LoginModal';
 
 export function GashaponPage() {
-  const { albums, loading: albumsLoading, refetch: refetchAlbums } = useAlbums();
+  const { albums, refetch: refetchAlbums } = useAlbums();
   const { user, loading: authLoading, isAdmin, loginWithGoogle, logout } = useAuth();
   const { userReviews, refetchUserReviews } = useUserReviews(user);
 
@@ -33,8 +32,6 @@ export function GashaponPage() {
     await logout();
   };
 
-  const isLoading = albumsLoading && albums.length === 0;
-
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <div className="max-w-7xl mx-auto w-full">
@@ -47,9 +44,6 @@ export function GashaponPage() {
           loading={authLoading}
           showTitle={false}
         />
-
-        {/* Loading Overlay */}
-        <LoadingOverlay loading={isLoading} message="Cargando Gashapon Arcade..." />
 
         {/* Login Modal */}
         <LoginModal
