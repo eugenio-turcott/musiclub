@@ -14,6 +14,56 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.5',
+    title:
+      'Restauración de Catálogo y Reviews, Paginación PostgREST >1000 Filas, Extracción Garantizada de Canciones y Supresión de Rate Limits (429/403/CORS)',
+    date: '2026-09-03',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-rose-500 to-amber-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Solución integral a la desincronización del catálogo y reviews provocada por la ingesta masiva: eliminación de 1,009 álbumes fantasma sin canciones, restauración de tracklists completos para Tango Astral y Jane Remover, paginación en consultas de Supabase para superar el límite por defecto de 1,000 filas de PostgREST, mitigación de bucles agresivos en AlbumsCatalog que ocasionaban 429 de Spotify y 403/CORS de Apple iTunes, y blindaje de la creación de álbumes con fallback inmediato de canciones (Spotify -> MusicBrainz -> iTunes).',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Depuración de Álbumes Fantasma y Restauración de Estadísticas Globales',
+        description:
+          'Se eliminaron con éxito los 1,009 registros vacíos generados sin canciones en Supabase, reajustando la base de datos a 161 lanzamientos legítimos del club y recalculando de inmediato los contadores del Catálogo (Total Lanzamientos, Total Reseñas, Mejor Calificado y Promedio Global).',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección de "Álbum / Artista" en Mi Perfil (Mis Reviews)',
+        description:
+          'Ajuste en UserProfile.jsx para enriquecer las reseñas utilizando la relación directa review.albums / review.album cuando el álbum no se encuentre precargado en el mapa local. Las reviews personales ahora muestran siempre el título, artista, portada y canciones reales.',
+      },
+      {
+        type: 'fix',
+        title: 'Paginación de Consultas Supabase (Superación del Límite de 1,000 Filas)',
+        description:
+          'Se implementó paginación automática mediante bloques de 1,000 filas (.range()) en getAllAlbumsWithFullStats y en el hook useAlbums. Esto previene que catálogos extensos oculten u omitan los álbumes con reseñas y nominaciones existentes.',
+      },
+      {
+        type: 'improvement',
+        title: 'Eliminación del Bucle Agresivo de Años en Catálogo (Fin de Errores 429 y 403 CORS)',
+        description:
+          'Se reestructuró la resolución en segundo plano de años de lanzamiento en AlbumsCatalog.jsx, limitándola a un máximo de 2 elementos por sesión con retardo espaciado de 2 segundos. Se erradican por completo las alertas de cuota excedida (Spotify 429) y los bloqueos 403 Forbidden / CORS en Apple Music.',
+      },
+      {
+        type: 'feature',
+        title: 'Garantía de Canciones en Creación de Álbumes e Ingesta Controlada',
+        description:
+          'Tanto HeaderAlbumSearch como supabaseService.createAlbum cuentan ahora con extracción en cascada de tracklists (Spotify -> MusicBrainz -> iTunes) para asegurar que ningún álbum se cree con canciones vacías ([]). Asimismo, el script de ingesta por lotes y su workflow de GitHub Actions se calibraron a 25 lanzamientos verificados con tracklists completos y filtrado estricto.',
+      },
+      {
+        type: 'feature',
+        title: 'Paginación Dinámica en "Mis Reviews" (Mi Perfil)',
+        description:
+          'Se incorporó paginación interactiva en la pestaña de Mis Reviews de UserProfile.jsx con selector personalizable de elementos por página (10, 20 o 50 reviews), botones de avance/retroceso rápido y desplazamiento suave automático directo al inicio del listado.',
+      },
+    ],
+  },
+  {
     version: 'V.6.4',
     title:
       'Corrección de Notificaciones de Ganador en Pool, Sincronización de 21 Álbumes Graduados y Buscador Resiliente Multi-Tier',

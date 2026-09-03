@@ -132,6 +132,8 @@ export function UserProfile({ isPage = false }) {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsPerPage, setReviewsPerPage] = useState(10);
   const [expandedReviewId, setExpandedReviewId] = useState(null);
   const [editingReviewItem, setEditingReviewItem] = useState(null);
   const [leaderboardList, setLeaderboardList] = useState([]);
@@ -383,12 +385,26 @@ export function UserProfile({ isPage = false }) {
   // List of reviewed albums combined with review data
   const enrichedReviews = useMemo(() => {
     return userReviews.map((review) => {
-      const album = albumMap.get(review.album_id) || {
-        album: review.album_title || 'Álbum',
-        artista: review.album_artist || 'Artista',
-        imagen: review.album_image || PLACEHOLDER_COVER,
-        status: 'INDIVIDUAL',
-      };
+      const relAlbum = review.albums || review.album;
+      const album =
+        albumMap.get(review.album_id) ||
+        (relAlbum
+          ? {
+              id: relAlbum.id,
+              album: relAlbum.album_name || review.album_title || 'Álbum',
+              artista: relAlbum.artist_name || review.album_artist || 'Artista',
+              imagen: relAlbum.image_url || review.album_image || PLACEHOLDER_COVER,
+              tracks: relAlbum.tracks || [],
+              release_type: relAlbum.release_type || 'ALBUM',
+              release_year: relAlbum.release_year || null,
+              status: relAlbum.status || 'INDIVIDUAL',
+            }
+          : {
+              album: review.album_title || 'Álbum',
+              artista: review.album_artist || 'Artista',
+              imagen: review.album_image || PLACEHOLDER_COVER,
+              status: 'INDIVIDUAL',
+            });
       const weightedScore = getWeightedReviewScore(review) ?? review.rating_general ?? 0;
       return {
         ...review,
@@ -431,6 +447,32 @@ export function UserProfile({ isPage = false }) {
 
     return result;
   }, [enrichedReviews, searchTerm, sortBy]);
+
+  // Reset reviews page when search, sort or pageSize changes
+  useEffect(() => {
+    setReviewsPage(1);
+  }, [searchTerm, sortBy, reviewsPerPage]);
+
+  const totalReviewPages = Math.ceil(filteredReviews.length / reviewsPerPage) || 1;
+
+  useEffect(() => {
+    if (reviewsPage > totalReviewPages) {
+      setReviewsPage(1);
+    }
+  }, [totalReviewPages, reviewsPage]);
+
+  const paginatedReviews = useMemo(() => {
+    const start = (reviewsPage - 1) * reviewsPerPage;
+    return filteredReviews.slice(start, start + reviewsPerPage);
+  }, [filteredReviews, reviewsPage, reviewsPerPage]);
+
+  const handleReviewsPageChange = (newPage) => {
+    setReviewsPage(newPage);
+    const el = document.getElementById('reviews-section');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Pending albums to review
   const pendingAlbums = useMemo(() => {
@@ -732,7 +774,7 @@ export function UserProfile({ isPage = false }) {
 
       {/* CONTENIDO DE PESTAÑA: MIS REVIEWS */}
       {activeTab === 'reviews' && (
-        <div className="space-y-4 sm:space-y-6">
+        <div id="reviews-section" className="space-y-4 sm:space-y-6 scroll-mt-24">
           {/* Barra de Filtro y Búsqueda */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-black/40 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10">
             <div className="relative w-full sm:w-72 md:w-80">
@@ -754,7 +796,7 @@ export function UserProfile({ isPage = false }) {
               )}
             </div>
 
-            <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto">
+            <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto flex-wrap">
               <span className="text-white/40 text-[11px] sm:text-xs font-semibold whitespace-nowrap">Ordenar por:</span>
               <select
                 value={sortBy}
@@ -766,6 +808,20 @@ export function UserProfile({ isPage = false }) {
                 <option value="score_desc">Mayor calificación</option>
                 <option value="score_asc">Menor calificación</option>
               </select>
+
+              <select
+                value={reviewsPerPage}
+                onChange={(e) => {
+                  setReviewsPerPage(Number(e.target.value));
+                  setReviewsPage(1);
+                }}
+                className="bg-black/60 border border-white/10 rounded-xl px-2 py-1.5 sm:px-2.5 sm:py-2 text-xs text-white focus:outline-none focus:border-[#f5576c]"
+                title="Reviews por página"
+              >
+                <option value={10}>10 / pág</option>
+                <option value={20}>20 / pág</option>
+                <option value={50}>50 / pág</option>
+              </select>
             </div>
           </div>
 
@@ -776,8 +832,9 @@ export function UserProfile({ isPage = false }) {
               Cargando tus reviews...
             </div>
           ) : filteredReviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-              {filteredReviews.map((item, idx) => {
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                {paginatedReviews.map((item, idx) => {
                 const hasTrackRatings = item.track_ratings && Object.keys(item.track_ratings).length > 0;
                 const isExpanded = expandedReviewId === item.id;
 
@@ -990,6 +1047,95 @@ export function UserProfile({ isPage = false }) {
                 );
               })}
             </div>
+
+            {/* Controles de Paginación */}
+            {totalReviewPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-white/10">
+                <div className="text-xs text-white/50 text-center sm:text-left">
+                  Mostrando{' '}
+                  <span className="text-white font-bold">
+                    {(reviewsPage - 1) * reviewsPerPage + 1}
+                  </span>{' '}
+                  a{' '}
+                  <span className="text-white font-bold">
+                    {Math.min(reviewsPage * reviewsPerPage, filteredReviews.length)}
+                  </span>{' '}
+                  de{' '}
+                  <span className="text-[#f093fb] font-bold">
+                    {filteredReviews.length}
+                  </span>{' '}
+                  reviews
+                </div>
+
+                <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                  <button
+                    onClick={() => handleReviewsPageChange(1)}
+                    disabled={reviewsPage === 1}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all cursor-pointer"
+                    title="Primera Página"
+                  >
+                    «
+                  </button>
+
+                  <button
+                    onClick={() => handleReviewsPageChange(Math.max(1, reviewsPage - 1))}
+                    disabled={reviewsPage === 1}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    <span>←</span> Anterior
+                  </button>
+
+                  {Array.from({ length: totalReviewPages }, (_, i) => i + 1)
+                    .filter((page) => {
+                      return (
+                        page === 1 ||
+                        page === totalReviewPages ||
+                        Math.abs(page - reviewsPage) <= 2
+                      );
+                    })
+                    .map((page, idx, arr) => {
+                      const prev = arr[idx - 1];
+                      const showEllipsis = prev && page - prev > 1;
+
+                      return (
+                        <React.Fragment key={page}>
+                          {showEllipsis && (
+                            <span className="text-white/30 px-1 text-xs">...</span>
+                          )}
+                          <button
+                            onClick={() => handleReviewsPageChange(page)}
+                            className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                              reviewsPage === page
+                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-[#f5576c]/50 shadow-md shadow-[#f5576c]/20 font-black'
+                                : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        </React.Fragment>
+                      );
+                    })}
+
+                  <button
+                    onClick={() => handleReviewsPageChange(Math.min(totalReviewPages, reviewsPage + 1))}
+                    disabled={reviewsPage === totalReviewPages}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1 cursor-pointer"
+                  >
+                    Siguiente <span>→</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleReviewsPageChange(totalReviewPages)}
+                    disabled={reviewsPage === totalReviewPages}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all cursor-pointer"
+                    title="Última Página"
+                  >
+                    »
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
           ) : (
             <div className="text-center py-12 sm:py-16 bg-black/30 rounded-2xl sm:rounded-3xl border border-dashed border-white/10 p-6 sm:p-8">
               <div className="text-3xl sm:text-4xl mb-3">🎧</div>
@@ -1296,29 +1442,39 @@ export function UserProfile({ isPage = false }) {
                 <div className="flex items-center gap-1.5 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                   <span>🏆</span> Tu Álbum Mejor Calificado
                 </div>
-                {stats.highestRatedAlbum ? (
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <img
-                      src={albumMap.get(stats.highestRatedAlbum.album_id)?.imagen || PLACEHOLDER_COVER}
-                      alt="Highest"
-                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
-                      onError={(e) => {
-                        e.target.src = PLACEHOLDER_COVER;
-                      }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-white font-bold text-xs sm:text-sm truncate">
-                        {albumMap.get(stats.highestRatedAlbum.album_id)?.album || 'Álbum'}
-                      </h4>
-                      <p className="text-white/60 text-[11px] sm:text-xs truncate">
-                        {albumMap.get(stats.highestRatedAlbum.album_id)?.artista || 'Artista'}
-                      </p>
-                      <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm">
-                        ★ {(getWeightedReviewScore(stats.highestRatedAlbum) ?? stats.highestRatedAlbum.rating_general)?.toFixed(1)} / 10
-                      </span>
+                {stats.highestRatedAlbum ? (() => {
+                  const highAlb =
+                    albumMap.get(stats.highestRatedAlbum.album_id) ||
+                    stats.highestRatedAlbum.albums ||
+                    stats.highestRatedAlbum.album;
+                  const albumTitle = highAlb?.album || highAlb?.album_name || 'Álbum';
+                  const artistTitle = highAlb?.artista || highAlb?.artist_name || 'Artista';
+                  const coverImg = highAlb?.imagen || highAlb?.image_url || PLACEHOLDER_COVER;
+
+                  return (
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <img
+                        src={coverImg}
+                        alt="Highest"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
+                        onError={(e) => {
+                          e.target.src = PLACEHOLDER_COVER;
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-white font-bold text-xs sm:text-sm truncate">
+                          {albumTitle}
+                        </h4>
+                        <p className="text-white/60 text-[11px] sm:text-xs truncate">
+                          {artistTitle}
+                        </p>
+                        <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm">
+                          ★ {(getWeightedReviewScore(stats.highestRatedAlbum) ?? stats.highestRatedAlbum.rating_general)?.toFixed(1)} / 10
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ) : (
+                  );
+                })() : (
                   <p className="text-white/30 text-xs">Sin reviews suficientes</p>
                 )}
               </div>
@@ -1328,35 +1484,45 @@ export function UserProfile({ isPage = false }) {
                 <div className="flex items-center gap-1.5 text-rose-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                   <span>⚡</span> Calificación Más Exigente
                 </div>
-                {stats.lowestRatedAlbum ? (
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    <img
-                      src={albumMap.get(stats.lowestRatedAlbum.album_id)?.imagen || PLACEHOLDER_COVER}
-                      alt="Lowest"
-                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
-                      onError={(e) => {
-                        e.target.src = PLACEHOLDER_COVER;
-                      }}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <h4
-                        translate="no"
-                        className="notranslate music-title text-white font-bold text-xs sm:text-sm truncate"
-                      >
-                        {albumMap.get(stats.lowestRatedAlbum.album_id)?.album || 'Álbum'}
-                      </h4>
-                      <p
-                        translate="no"
-                        className="notranslate artist-name text-white/60 text-[11px] sm:text-xs truncate"
-                      >
-                        {albumMap.get(stats.lowestRatedAlbum.album_id)?.artista || 'Artista'}
-                      </p>
-                      <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm">
-                        ★ {(getWeightedReviewScore(stats.lowestRatedAlbum) ?? stats.lowestRatedAlbum.rating_general)?.toFixed(1)} / 10
-                      </span>
+                {stats.lowestRatedAlbum ? (() => {
+                  const lowAlb =
+                    albumMap.get(stats.lowestRatedAlbum.album_id) ||
+                    stats.lowestRatedAlbum.albums ||
+                    stats.lowestRatedAlbum.album;
+                  const albumTitle = lowAlb?.album || lowAlb?.album_name || 'Álbum';
+                  const artistTitle = lowAlb?.artista || lowAlb?.artist_name || 'Artista';
+                  const coverImg = lowAlb?.imagen || lowAlb?.image_url || PLACEHOLDER_COVER;
+
+                  return (
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <img
+                        src={coverImg}
+                        alt="Lowest"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
+                        onError={(e) => {
+                          e.target.src = PLACEHOLDER_COVER;
+                        }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <h4
+                          translate="no"
+                          className="notranslate music-title text-white font-bold text-xs sm:text-sm truncate"
+                        >
+                          {albumTitle}
+                        </h4>
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/60 text-[11px] sm:text-xs truncate"
+                        >
+                          {artistTitle}
+                        </p>
+                        <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm">
+                          ★ {(getWeightedReviewScore(stats.lowestRatedAlbum) ?? stats.lowestRatedAlbum.rating_general)?.toFixed(1)} / 10
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                ) : (
+                  );
+                })() : (
                   <p className="text-white/30 text-xs">Sin reviews suficientes</p>
                 )}
               </div>

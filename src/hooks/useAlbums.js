@@ -70,14 +70,29 @@ export function useAlbums() {
     setLoading(true);
     setError(null);
     try {
-      const { data, error } = await supabase
-        .from('albums')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const step = 1000;
+      let allData = [];
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw new Error(error.message);
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('albums')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(from, from + step - 1);
 
-      const mappedAlbums = data.map((album) => ({
+        if (error) throw new Error(error.message);
+        if (data && data.length > 0) {
+          allData.push(...data);
+          if (data.length < step) hasMore = false;
+          else from += step;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      const mappedAlbums = allData.map((album) => ({
         id: album.id,
         album: album.album_name,
         artista: album.artist_name,

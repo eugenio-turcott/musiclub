@@ -118,9 +118,10 @@ export function AlbumsCatalog({ isPage = false }) {
     let isCancelled = false;
 
     const resolveMissingYears = async () => {
-      const missing = albums.filter(
-        (alb) => !getAlbumYear(alb, spotifyYearsCache)
-      );
+      // Solo intentar resolver para un máximo de 2 álbumes por sesión para proteger cuotas de API
+      const missing = albums
+        .filter((alb) => !getAlbumYear(alb, spotifyYearsCache))
+        .slice(0, 2);
       if (missing.length === 0) return;
 
       let updatedCache = { ...spotifyYearsCache };
@@ -129,6 +130,9 @@ export function AlbumsCatalog({ isPage = false }) {
       for (const alb of missing) {
         if (isCancelled) break;
         try {
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+          if (isCancelled) break;
+
           const res = await fetchAlbumReleaseYear(
             alb.album_name,
             alb.artist_name,
@@ -153,12 +157,8 @@ export function AlbumsCatalog({ isPage = false }) {
                 .catch(() => {});
             }
           }
-        } catch (e) {
-          console.warn(
-            'Error al resolver año de Spotify para:',
-            alb.album_name,
-            e
-          );
+        } catch {
+          // Fallback silencioso sin saturar la consola
         }
       }
 
@@ -170,7 +170,7 @@ export function AlbumsCatalog({ isPage = false }) {
             JSON.stringify(updatedCache)
           );
         } catch (err) {
-          console.warn('Error guardando cache de años de Spotify:', err);
+          // Ignorar silenciosamente si quota de localStorage está llena
         }
       }
     };

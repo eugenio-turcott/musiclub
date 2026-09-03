@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
+import { searchAlbum, getAlbumDetails, getAlbumTracksById } from '../services/spotifyApi';
 import { supabaseService } from '../services/supabaseClient';
 import { getReleaseUrl } from '../utils/ratingUtils';
 
@@ -291,13 +291,24 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         let finalAlbum = existing;
 
         if (!finalAlbum) {
-          setStatusMessage('Registrando en el catálogo de Musiclub...');
-          const tracks = (finalDetails.tracks || []).map((track, idx) => ({
+          let tracks = (finalDetails.tracks || []).map((track, idx) => ({
             id: track.id || `track-${idx + 1}`,
             name: track.name,
             duration_ms: track.duration_ms || 0,
             track_number: track.track_number || idx + 1,
           }));
+
+          // Si no tiene canciones aún, intentar resolverlas
+          if (tracks.length === 0 && item.id) {
+            try {
+              const trkRes = await getAlbumTracksById(item.id);
+              if (trkRes && trkRes.success && trkRes.tracks?.length > 0) {
+                tracks = trkRes.tracks;
+              }
+            } catch (err) {
+              console.warn('Fallback getAlbumTracksById warning:', err);
+            }
+          }
 
           const albumPayload = {
             albumName: albumName,

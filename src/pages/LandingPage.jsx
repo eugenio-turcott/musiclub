@@ -52,8 +52,9 @@ export function LandingPage() {
   const [shuffledReviewedAlbums, setShuffledReviewedAlbums] = useState([]);
   const [allReviews, setAllReviews] = useState([]);
   const [globalStats, setGlobalStats] = useState({
-    total_reviews: 271,
-    total_albums: 149,
+    total_reviews: 288,
+    total_albums: 161,
+    total_reviewed_albums: 131,
     total_users: 19,
     top_score: 9.8,
   });
@@ -153,8 +154,16 @@ export function LandingPage() {
         }
 
         // Calculate global stats
+        const reviewedAlbumIds = new Set(
+          (reviewsData || []).map((rev) => rev.album_id).filter(Boolean)
+        );
+        const totalReviewedAlbums =
+          reviewedAlbumIds.size ||
+          (topData && topData.length) ||
+          statsData?.total_reviewed_albums ||
+          131;
         const totalReviewsCount =
-          reviewsData.length || statsData?.total_reviews || 271;
+          reviewsData.length || statsData?.total_reviews || 288;
         const totalProfilesCount =
           (profilesData && profilesData.length) || statsData?.total_users || 19;
         const topScore =
@@ -165,7 +174,8 @@ export function LandingPage() {
         setGlobalStats({
           total_reviews: totalReviewsCount,
           total_albums:
-            statsData?.total_albums || (albums && albums.length) || 149,
+            statsData?.total_albums || (albums && albums.length) || 161,
+          total_reviewed_albums: totalReviewedAlbums,
           total_users: totalProfilesCount > 0 ? totalProfilesCount : 19,
           top_score: topScore,
         });
@@ -772,10 +782,13 @@ export function LandingPage() {
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
                 data-stat="number"
               >
-                +{globalStats.total_albums || (albums && albums.length) || 149}
+                +
+                {globalStats.total_reviewed_albums ||
+                  (topAlbums && topAlbums.length) ||
+                  131}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
-                Lanzamientos en el Club
+                Lanzamientos con Reviews
               </span>
             </div>
 

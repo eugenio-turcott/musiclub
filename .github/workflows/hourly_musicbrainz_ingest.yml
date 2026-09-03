@@ -28,13 +28,13 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Ingest 1,000 MusicBrainz Releases & Update Sitemap
+      - name: Ingest 25 Verified MusicBrainz Releases with Tracklists & Update Sitemap
         env:
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
           REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
-        run: node scripts/hourlyMusicBrainzIngestion.mjs 1000
+        run: node scripts/hourlyMusicBrainzIngestion.mjs 25
 
       - name: Commit & Push updated Sitemap and Crawler State
         run: |

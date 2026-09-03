@@ -128,10 +128,29 @@ async function getSpotifyCoverAndLink(artistName, albumName) {
     const data = await res.json();
     const item = data.albums?.items?.[0];
     if (item && item.images && item.images.length > 0) {
+      let tracks = [];
+      try {
+        const trkRes = await fetch(`https://api.spotify.com/v1/albums/${item.id}/tracks?limit=50`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: AbortSignal.timeout(4000),
+        });
+        if (trkRes.ok) {
+          const trkData = await trkRes.json();
+          tracks = (trkData.items || []).map((t, idx) => ({
+            id: t.id || `track-${idx + 1}`,
+            name: t.name,
+            duration_ms: t.duration_ms || 0,
+            track_number: t.track_number || idx + 1,
+          }));
+        }
+      } catch {}
+
       return {
         imageUrl: item.images[0].url,
         spotifyLink: item.external_urls?.spotify || null,
         spotifyVerified: true,
+        tracks,
+        totalTracks: item.total_tracks || tracks.length,
       };
     }
   } catch {
@@ -151,6 +170,8 @@ async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
       spotifyVerified: spData.spotifyVerified,
       releaseDate: null,
       releaseYear: null,
+      tracks: spData.tracks || [],
+      totalTracks: spData.totalTracks || spData.tracks?.length || null,
     };
   }
 
@@ -172,12 +193,31 @@ async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
         if (imageUrl) {
           const rawYear = item.release_date ? parseInt(item.release_date.substring(0, 4), 10) : null;
           const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
+
+          let tracks = [];
+          try {
+            const trkRes = await fetch(`https://api.deezer.com/album/${item.id}/tracks`, {
+              signal: AbortSignal.timeout(4000),
+            });
+            if (trkRes.ok) {
+              const trkData = await trkRes.json();
+              tracks = (trkData.data || []).map((t, idx) => ({
+                id: String(t.id),
+                name: t.title,
+                duration_ms: (t.duration || 0) * 1000,
+                track_number: t.track_position || idx + 1,
+              }));
+            }
+          } catch {}
+
           return {
             imageUrl,
             spotifyLink: fallbackSpotifyLink,
             spotifyVerified: false,
             releaseDate: item.release_date || null,
             releaseYear,
+            tracks,
+            totalTracks: item.nb_tracks || tracks.length,
           };
         }
       }
@@ -197,12 +237,33 @@ async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
         if (item.artworkUrl100) {
           const rawYear = item.releaseDate ? parseInt(item.releaseDate.substring(0, 4), 10) : null;
           const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
+
+          let tracks = [];
+          try {
+            const lkRes = await fetch(`https://itunes.apple.com/lookup?id=${item.collectionId}&entity=song`, {
+              signal: AbortSignal.timeout(4000),
+            });
+            if (lkRes.ok) {
+              const lkData = await lkRes.json();
+              tracks = (lkData.results || [])
+                .filter((r) => r.wrapperType === 'track')
+                .map((song, idx) => ({
+                  id: String(song.trackId || idx + 1),
+                  name: song.trackName,
+                  duration_ms: song.trackTimeMillis || 0,
+                  track_number: song.trackNumber || idx + 1,
+                }));
+            }
+          } catch {}
+
           return {
             imageUrl: item.artworkUrl100.replace('100x100bb', '1000x1000bb'),
             spotifyLink: fallbackSpotifyLink,
             spotifyVerified: false,
             releaseDate: item.releaseDate ? item.releaseDate.split('T')[0] : null,
             releaseYear,
+            tracks,
+            totalTracks: item.trackCount || tracks.length,
           };
         }
       }
@@ -221,6 +282,8 @@ async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
           spotifyVerified: false,
           releaseDate: null,
           releaseYear: null,
+          tracks: [],
+          totalTracks: null,
         };
       }
     } catch {}
@@ -232,6 +295,8 @@ async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
     spotifyVerified: false,
     releaseDate: null,
     releaseYear: null,
+    tracks: [],
+    totalTracks: null,
   };
 }
 
@@ -289,10 +354,10 @@ function formatArtistCredit(artistCredit) {
 }
 
 /**
- * Función principal: Ingesta 1,000 lanzamientos desde MusicBrainz
- * Busca portada en Spotify para cada uno y guarda en Supabase
+ * Función principal: Ingesta lanzamientos desde MusicBrainz
+ * Busca portada y canciones para cada uno y guarda en Supabase
  */
-export async function runIngestionBatch(targetCount = 1000) {
+export async function runIngestionBatch(targetCount = 25) {
   const startTime = Date.now();
   console.log(`\n========================================================`);
   console.log(`🚀 INICIANDO INGESTA DE ${targetCount} ÁLBUMES DESDE MUSICBRAINZ`);
@@ -375,7 +440,8 @@ export async function runIngestionBatch(targetCount = 1000) {
           spotify_link: artData.spotifyLink,
           spotify_verified: artData.spotifyVerified,
           reviews_enabled: true,
-          tracks: [],
+          tracks: artData.tracks || [],
+          total_tracks: artData.totalTracks || artData.tracks?.length || null,
         };
       })
     );
@@ -389,14 +455,23 @@ export async function runIngestionBatch(targetCount = 1000) {
     await sleep(50);
   }
 
+  // Filtrar estrictamente solo álbumes que tengan canciones válidas y portada para mantener la integridad de Musiclub
+  const validAlbums = preparedAlbums.filter((a) => a.tracks && a.tracks.length > 0 && a.image_url);
+  console.log(`\n🎵 Álbumes válidos con canciones y portada completa: ${validAlbums.length}/${preparedAlbums.length}`);
+
+  if (validAlbums.length === 0) {
+    console.log(`⚠️ Ningún álbum cumplió los requisitos de calidad (canciones + portada). Omitiendo guardado.`);
+    return stats;
+  }
+
   // 3. Upsert en lotes en Supabase
-  console.log(`\n💾 Paso 3/3: Guardando ${preparedAlbums.length} álbumes en la base de datos Supabase...`);
-  const DB_BATCH_SIZE = 100;
+  console.log(`\n💾 Paso 3/3: Guardando ${validAlbums.length} álbumes en la base de datos Supabase...`);
+  const DB_BATCH_SIZE = 50;
   let insertedCount = 0;
   let duplicateOrErrorCount = 0;
 
-  for (let b = 0; b < preparedAlbums.length; b += DB_BATCH_SIZE) {
-    const batch = preparedAlbums.slice(b, b + DB_BATCH_SIZE);
+  for (let b = 0; b < validAlbums.length; b += DB_BATCH_SIZE) {
+    const batch = validAlbums.slice(b, b + DB_BATCH_SIZE);
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -412,7 +487,7 @@ export async function runIngestionBatch(targetCount = 1000) {
       } else {
         const count = data ? data.length : batch.length;
         insertedCount += count;
-        console.log(`  💾 Lote ${Math.floor(b / DB_BATCH_SIZE) + 1}/${Math.ceil(preparedAlbums.length / DB_BATCH_SIZE)} guardado (+${count} registros)`);
+        console.log(`  💾 Lote ${Math.floor(b / DB_BATCH_SIZE) + 1}/${Math.ceil(validAlbums.length / DB_BATCH_SIZE)} guardado (+${count} registros)`);
       }
     } catch (err) {
       console.error(`  ❌ Excepción en lote:`, err.message);
@@ -468,8 +543,8 @@ export async function runIngestionBatch(targetCount = 1000) {
 
 // Ejecución directa si se invoca desde CLI: node scripts/hourlyMusicBrainzIngestion.mjs
 if (process.argv[1] && process.argv[1].endsWith('hourlyMusicBrainzIngestion.mjs')) {
-  // Acepta argumento de límite opcional: node scripts/hourlyMusicBrainzIngestion.mjs 50
+  // Acepta argumento de límite opcional: node scripts/hourlyMusicBrainzIngestion.mjs 25
   const limitArg = parseInt(process.argv[2], 10);
-  const target = !isNaN(limitArg) && limitArg > 0 ? limitArg : 1000;
+  const target = !isNaN(limitArg) && limitArg > 0 ? limitArg : 25;
   runIngestionBatch(target).catch(console.error);
 }

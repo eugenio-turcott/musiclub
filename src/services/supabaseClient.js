@@ -277,6 +277,38 @@ export const supabaseService = {
       }
     }
 
+    // Fallback de canciones vía iTunes Search API si no se encontraron en MusicBrainz ni Spotify
+    if (!payload.tracks || payload.tracks.length === 0) {
+      try {
+        const queryTerm = `${payload.artist_name || ''} ${payload.album_name || ''}`.trim();
+        if (queryTerm) {
+          const itunesRes = await fetch(
+            `https://itunes.apple.com/search?term=${encodeURIComponent(queryTerm)}&entity=song&limit=50`
+          );
+          if (itunesRes.ok) {
+            const itData = await itunesRes.json();
+            if (itData.results && itData.results.length > 0) {
+              const matchedTracks = itData.results
+                .filter((r) => r.wrapperType === 'track')
+                .map((song, idx) => ({
+                  id: String(song.trackId || idx + 1),
+                  name: song.trackName,
+                  duration_ms: song.trackTimeMillis || 0,
+                  track_number: song.trackNumber || idx + 1,
+                }));
+
+              if (matchedTracks.length > 0) {
+                payload.tracks = matchedTracks;
+                if (!payload.total_tracks) payload.total_tracks = matchedTracks.length;
+              }
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('iTunes tracks auto-enrichment warning (continuando):', e);
+      }
+    }
+
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -886,7 +918,7 @@ export const supabaseService = {
         supabase
           .from('reviews')
           .select(
-            'rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
+            'album_id, rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
           ),
         supabase.from('albums').select('*', { count: 'exact', head: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
@@ -911,6 +943,7 @@ export const supabaseService = {
           distribution: {},
           total_reviews: 0,
           total_albums: albumsRes?.count || 0,
+          total_reviewed_albums: 0,
           total_users: profilesRes?.count || 0,
           top_score: topScore,
         };
@@ -950,11 +983,16 @@ export const supabaseService = {
         }
       });
 
+      const uniqueReviewedAlbums = new Set(
+        reviews.map((r) => r.album_id).filter(Boolean)
+      );
+
       return {
         ...result,
         distribution,
         total_reviews: reviews.length,
         total_albums: albumsRes?.count || 0,
+        total_reviewed_albums: uniqueReviewedAlbums.size,
         total_users: profilesRes?.count || 0,
         top_score: topScore,
       };
@@ -971,6 +1009,7 @@ export const supabaseService = {
         distribution: {},
         total_reviews: 0,
         total_albums: 0,
+        total_reviewed_albums: 0,
         total_users: 0,
         top_score: 9.8,
       };
@@ -1300,18 +1339,57 @@ export const supabaseService = {
 
   getAllAlbumsWithFullStats: async () => {
     try {
-      const [albumsRes, reviewsRes, profilesRes] = await Promise.all([
-        supabase
+      // Recuperar álbumes paginados para garantizar que catálogos mayores a 1,000 filas no se corten
+      const step = 1000;
+      let allAlbums = [];
+      let albumFrom = 0;
+      let hasMoreAlbums = true;
+
+      while (hasMoreAlbums) {
+        const { data: chunk, error: chunkErr } = await supabase
           .from('albums')
           .select('*')
-          .order('created_at', { ascending: false }),
-        supabase.from('reviews').select('*'),
-        supabase.from('profiles').select('email, name, avatar_url'),
-      ]);
+          .order('created_at', { ascending: false })
+          .range(albumFrom, albumFrom + step - 1);
 
-      const albums = albumsRes.data || [];
-      const reviews = reviewsRes.data || [];
-      const profiles = profilesRes.data || [];
+        if (chunkErr) throw chunkErr;
+        if (chunk && chunk.length > 0) {
+          allAlbums.push(...chunk);
+          if (chunk.length < step) hasMoreAlbums = false;
+          else albumFrom += step;
+        } else {
+          hasMoreAlbums = false;
+        }
+      }
+
+      // Recuperar reviews paginadas
+      let allReviews = [];
+      let revFrom = 0;
+      let hasMoreRevs = true;
+
+      while (hasMoreRevs) {
+        const { data: revChunk, error: revErr } = await supabase
+          .from('reviews')
+          .select('*')
+          .range(revFrom, revFrom + step - 1);
+
+        if (revErr) throw revErr;
+        if (revChunk && revChunk.length > 0) {
+          allReviews.push(...revChunk);
+          if (revChunk.length < step) hasMoreRevs = false;
+          else revFrom += step;
+        } else {
+          hasMoreRevs = false;
+        }
+      }
+
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('email, name, avatar_url');
+
+      const albums = allAlbums;
+      const reviews = allReviews;
+      const profiles = profilesData || [];
 
       const profileMapByEmail = new Map();
       const profileMapByName = new Map();
