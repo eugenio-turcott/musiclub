@@ -10,6 +10,12 @@ import {
   fetchPlaylistMetadataFromUrl,
   getPlaylistApprovalStats,
 } from '../utils/playlistUtils';
+import {
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from './common/PlatformLogos';
 
 export function PlaylistsCatalog({ isPage = true }) {
   const { user } = useAuth();
@@ -623,9 +629,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                               href={playlist.spotify_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 bg-[#1DB954]/20 hover:bg-[#1DB954] text-[#1ed760] hover:text-black border border-[#1DB954]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+                              className="px-2.5 py-1 bg-[#1DB954]/20 hover:bg-[#1DB954] text-[#1ed760] hover:text-black border border-[#1DB954]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <span>🟢</span> Spotify
+                              <SpotifyLogo className="w-3.5 h-3.5 fill-current" /> Spotify
                             </a>
                           )}
                           {playlist.apple_music_link && (
@@ -633,9 +639,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                               href={playlist.apple_music_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 bg-[#fc3c44]/20 hover:bg-[#fc3c44] text-rose-300 hover:text-white border border-[#fc3c44]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+                              className="px-2.5 py-1 bg-[#fc3c44]/20 hover:bg-[#fc3c44] text-rose-300 hover:text-white border border-[#fc3c44]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <span>🍎</span> Apple Music
+                              <AppleMusicLogo className="w-3.5 h-3.5 fill-current" /> Apple Music
                             </a>
                           )}
                           {playlist.youtube_music_link && (
@@ -643,9 +649,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                               href={playlist.youtube_music_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+                              className="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <span>▶️</span> YouTube Music
+                              <YouTubeLogo className="w-3.5 h-3.5 fill-current" /> YouTube Music
                             </a>
                           )}
                           {playlist.other_link && (
@@ -653,9 +659,21 @@ export function PlaylistsCatalog({ isPage = true }) {
                               href={playlist.other_link}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="px-2.5 py-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1"
+                              className={`px-2.5 py-1 ${
+                                playlist.other_link.includes('deezer')
+                                  ? 'bg-[#a238ff]/20 hover:bg-[#a238ff] text-[#c77dff] hover:text-white border-[#a238ff]/40'
+                                  : 'bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border-indigo-500/40'
+                              } border rounded-lg text-xs font-bold transition-all flex items-center gap-1.5`}
                             >
-                              <span>🔗</span> Enlace Web
+                              {playlist.other_link.includes('deezer') ? (
+                                <>
+                                  <DeezerLogo className="w-3.5 h-3.5 fill-current" /> Deezer
+                                </>
+                              ) : (
+                                <>
+                                  <span>🔗</span> Enlace Web
+                                </>
+                              )}
                             </a>
                           )}
                         </div>

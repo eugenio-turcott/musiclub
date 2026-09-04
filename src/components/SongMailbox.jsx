@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
+import {
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from './common/PlatformLogos';
 
 export function SongMailbox({ user, onOpenSendModal }) {
   const [activeSubTab, setActiveSubTab] = useState('received'); // 'received' | 'sent'
@@ -366,7 +372,18 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-xl bg-[#1DB954]/20 hover:bg-[#1DB954]/30 border border-[#1DB954]/40 text-[#1DB954] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
                       >
-                        <span>🎵</span> Abrir en Spotify
+                        <SpotifyLogo className="w-3.5 h-3.5 fill-current" /> Spotify
+                      </a>
+                    )}
+
+                    {rec.apple_music_link && (
+                      <a
+                        href={rec.apple_music_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 rounded-xl bg-[#fc3c44]/20 hover:bg-[#fc3c44]/30 border border-[#fc3c44]/40 text-[#fc3c44] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+                      >
+                        <AppleMusicLogo className="w-3.5 h-3.5 fill-current" /> Apple Music
                       </a>
                     )}
 
@@ -377,18 +394,18 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
                       >
-                        <span>▶️</span> YouTube
+                        <YouTubeLogo className="w-3.5 h-3.5 fill-current" /> YouTube
                       </a>
                     )}
 
-                    {rec.apple_music_link && (
+                    {rec.other_link && (
                       <a
-                        href={rec.apple_music_link}
+                        href={rec.other_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-pink-300 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
+                        className="px-3 py-1.5 rounded-xl bg-[#a238ff]/20 hover:bg-[#a238ff]/30 border border-[#a238ff]/40 text-[#c77dff] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
                       >
-                        <span>🍎</span> Apple Music
+                        <DeezerLogo className="w-3.5 h-3.5 fill-current" /> Deezer
                       </a>
                     )}
                   </div>
@@ -523,9 +540,9 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       href={rec.spotify_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#1DB954] hover:underline font-bold flex items-center gap-1 text-[11px]"
+                      className="text-[#1DB954] hover:underline font-bold flex items-center gap-1.5 text-[11px]"
                     >
-                      <span>🎵</span> Ver en Spotify
+                      <SpotifyLogo className="w-3.5 h-3.5 fill-current" /> Ver en Spotify
                     </a>
                   ) : (
                     <span></span>

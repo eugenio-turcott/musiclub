@@ -111,7 +111,6 @@ export function useAlbums() {
         barcode: album.barcode,
         total_tracks: album.total_tracks,
         status: album.status || 'INDIVIDUAL',
-        user_id: album.user_id,
         created_at: album.created_at,
         tracks: album.tracks || [],
         spotify_verified: album.spotify_verified || false,

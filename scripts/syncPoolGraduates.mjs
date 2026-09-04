@@ -59,7 +59,7 @@ async function sync() {
     // 1. Buscar álbum en tabla albums
     const { data: albums, error: albErr } = await supabase
       .from('albums')
-      .select('id, album_name, artist_name, user_id')
+      .select('id, album_name, artist_name')
       .ilike('artist_name', `%${item.artist}%`)
       .ilike('album_name', `%${item.album}%`)
       .limit(1);
@@ -84,7 +84,7 @@ async function sync() {
 
     // 3. Obtener perfil
     const prof = profiles[item.user] || {};
-    const userId = album.user_id || prof.id || null;
+    const userId = prof.id || null;
     const nominatedBy = item.user;
     const nominatedByEmail = prof.email || item.customEmail || null;
 

@@ -144,22 +144,30 @@ export function useNotifications(user) {
         // B. RESEÑAS A TUS ÁLBUMES PROPUESTOS
         try {
           if (user.id) {
-            const { data: userAlbums, error: albErr } = await supabase
-              .from('albums')
-              .select('id, album_name, artist_name, image_url, user_id')
+            const { data: userEntries, error: poolErr } = await supabase
+              .from('pool_entries')
+              .select('album_id')
               .eq('user_id', user.id);
 
-          if (!albErr && Array.isArray(userAlbums) && userAlbums.length > 0) {
-            const userAlbumIds = userAlbums.map((a) => a.id).filter(Boolean);
-            const albumsMap = new Map(userAlbums.map((a) => [a.id, a]));
+            const userAlbumIds = (!poolErr && Array.isArray(userEntries))
+              ? userEntries.map((e) => e.album_id).filter(Boolean)
+              : [];
 
             if (userAlbumIds.length > 0) {
-              const { data: reviews, error: revErr } = await supabase
-                .from('reviews')
-                .select('*')
-                .in('album_id', userAlbumIds)
-                .order('created_at', { ascending: false })
-                .limit(40);
+              const { data: userAlbums } = await supabase
+                .from('albums')
+                .select('id, album_name, artist_name, image_url')
+                .in('id', userAlbumIds);
+
+              if (Array.isArray(userAlbums) && userAlbums.length > 0) {
+                const albumsMap = new Map(userAlbums.map((a) => [a.id, a]));
+
+                const { data: reviews, error: revErr } = await supabase
+                  .from('reviews')
+                  .select('*')
+                  .in('album_id', userAlbumIds)
+                  .order('created_at', { ascending: false })
+                  .limit(40);
 
               if (!revErr && Array.isArray(reviews)) {
                 reviews.forEach((rev) => {

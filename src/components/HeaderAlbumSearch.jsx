@@ -7,7 +7,8 @@ import React, {
   useCallback,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { searchAlbum, getAlbumDetails, getAlbumTracksById } from '../services/spotifyApi';
+import { searchAlbum } from '../services/spotifyApi';
+import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
 import { getReleaseUrl } from '../utils/ratingUtils';
 
@@ -17,8 +18,9 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const searchProvider = 'ALL';
   const [clubAlbums, setClubAlbums] = useState([]);
-  const [spotifyResults, setSpotifyResults] = useState([]);
+  const [remoteResults, setRemoteResults] = useState([]);
   const [loadingClub, setLoadingClub] = useState(false);
   const [loadingRemote, setLoadingRemote] = useState(false);
   const [selectingAlbumId, setSelectingAlbumId] = useState(null);
@@ -63,11 +65,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
     });
   }, [clubAlbums, query]);
 
-  // Búsqueda en vivo en Spotify con Debounce
+  // Búsqueda en vivo con Debounce (catálogo general)
   useEffect(() => {
     const cleanQ = query.trim();
     if (!cleanQ || cleanQ.length < 2) {
-      setSpotifyResults([]);
+      setRemoteResults([]);
       setLoadingRemote(false);
       return;
     }
@@ -79,15 +81,15 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
     debounceTimerRef.current = setTimeout(async () => {
       try {
-        const res = await searchAlbum(cleanQ);
+        const res = await searchAlbum(cleanQ, { provider: searchProvider });
         if (res?.success && Array.isArray(res.albums)) {
-          setSpotifyResults(res.albums);
+          setRemoteResults(res.albums);
         } else {
-          setSpotifyResults([]);
+          setRemoteResults([]);
         }
       } catch (err) {
-        console.warn('Error en búsqueda:', err);
-        setSpotifyResults([]);
+        console.warn('Error en búsqueda remota:', err);
+        setRemoteResults([]);
       } finally {
         setLoadingRemote(false);
       }
@@ -123,7 +125,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
     };
   }, [isOpen]);
 
-  // Lista unificada y enriquecida de resultados (Club + Spotify)
+  // Lista unificada y enriquecida de resultados (Club + Spotify/Deezer)
   const combinedResults = useMemo(() => {
     const results = [];
     const seenKeys = new Set();
@@ -146,16 +148,17 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         status: ca.status,
         rating: ca.final_rating,
         reviewCount: ca.review_count || ca.total_reviews || 0,
+        releaseType: ca.release_type || ca.releaseType || 'ALBUM',
         rawClubAlbum: ca,
       });
     });
 
-    // 2. Resultados de Spotify (Catálogo Oficial y Carátulas CDN de Alta Velocidad)
-    spotifyResults.forEach((sp) => {
-      const normName = (sp.name || '').trim().toLowerCase();
-      const artistDisplay = Array.isArray(sp.artists)
-        ? sp.artists.join(', ')
-        : sp.artist || '';
+    // 2. Resultados de Spotify / Deezer
+    remoteResults.forEach((remote) => {
+      const normName = (remote.name || '').trim().toLowerCase();
+      const artistDisplay = Array.isArray(remote.artists)
+        ? remote.artists.join(', ')
+        : remote.artist || '';
       const normArtist = artistDisplay.trim().toLowerCase();
       const key = `${normName}:::${normArtist}`;
 
@@ -179,31 +182,33 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           id: existingClub.id,
           name: existingClub.album_name || existingClub.album,
           artist: existingClub.artist_name || existingClub.artista,
-          image: existingClub.image_url || existingClub.imagen || sp.image,
+          image: existingClub.image_url || existingClub.imagen || remote.image,
           status: existingClub.status,
           rating: existingClub.final_rating,
           reviewCount:
             existingClub.review_count || existingClub.total_reviews || 0,
+          releaseType: existingClub.release_type || existingClub.releaseType || 'ALBUM',
           rawClubAlbum: existingClub,
         });
       } else {
         seenKeys.add(key);
         results.push({
-          type: 'SPOTIFY',
-          id: sp.id,
-          name: sp.name,
+          type: remote.source === 'DEEZER' ? 'DEEZER' : 'SPOTIFY',
+          source: remote.source || 'SPOTIFY',
+          id: remote.id,
+          name: remote.name,
           artist: artistDisplay,
-          image: sp.image,
-          releaseDate: sp.releaseDate,
-          releaseYear: sp.releaseYear,
-          releaseType: sp.release_type || sp.releaseType || 'ALBUM',
-          rawSpotifyAlbum: sp,
+          image: remote.image,
+          releaseDate: remote.releaseDate,
+          releaseYear: remote.releaseYear,
+          releaseType: remote.release_type || remote.releaseType || 'ALBUM',
+          rawRemoteAlbum: remote,
         });
       }
     });
 
     return results.slice(0, 16);
-  }, [clubMatches, spotifyResults, clubAlbums]);
+  }, [clubMatches, remoteResults, clubAlbums]);
 
   const handleOpenSearch = (e) => {
     if (e) {
@@ -274,82 +279,87 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         return;
       }
 
-      // 2. Caso Álbum desde Spotify
-      if (item.type === 'SPOTIFY' && item.rawSpotifyAlbum) {
-        setStatusMessage('Obteniendo información...');
+      // 2. Caso Álbum desde catálogo remoto:
+      // Regla de usuario: Llevar a la BD la información canónica de MusicBrainz COMPLETA
+      // a excepción de la portada (que se preserva en alta resolución).
+      setStatusMessage('Cargando información del álbum...');
 
-        const spDetailsRes = await getAlbumDetails(item.id);
-        const finalDetails = spDetailsRes?.album || item.rawSpotifyAlbum;
+      const searchTitle = item.name;
+      const searchArtist = item.artist;
+      const cdnCover = item.image; // Portada HD de catálogo remoto
 
-        const albumName = finalDetails.name || item.name;
-        const artistName = Array.isArray(finalDetails.artists)
-          ? finalDetails.artists.join(', ')
-          : finalDetails.artist || item.artist || 'Artista';
+      const mbData = await getFullMusicBrainzAlbumData(
+        searchArtist,
+        searchTitle,
+        cdnCover,
+        item.rawRemoteAlbum || item
+      );
 
-        // Comprobar si ya existe en Supabase
-        const existing = await supabaseService.findAlbum(albumName, artistName);
-        let finalAlbum = existing;
+      const canonicalTitle = mbData?.album_name || searchTitle;
+      const canonicalArtist = mbData?.artist_name || searchArtist;
+      const mbid = mbData?.mbid || null;
 
-        if (!finalAlbum) {
-          let tracks = (finalDetails.tracks || []).map((track, idx) => ({
-            id: track.id || `track-${idx + 1}`,
-            name: track.name,
-            duration_ms: track.duration_ms || 0,
-            track_number: track.track_number || idx + 1,
-          }));
+      setStatusMessage('Verificando catálogo...');
 
-          // Si no tiene canciones aún, intentar resolverlas
-          if (tracks.length === 0 && item.id) {
-            try {
-              const trkRes = await getAlbumTracksById(item.id);
-              if (trkRes && trkRes.success && trkRes.tracks?.length > 0) {
-                tracks = trkRes.tracks;
-              }
-            } catch (err) {
-              console.warn('Fallback getAlbumTracksById warning:', err);
-            }
-          }
+      // Comprobar si ya existe en Supabase (por MBID o por Título y Artista)
+      const existing = await supabaseService.findAlbum(
+        canonicalTitle,
+        canonicalArtist,
+        mbid
+      );
+      let finalAlbum = existing;
 
-          const albumPayload = {
-            albumName: albumName,
-            artistName: artistName,
-            imageUrl: finalDetails.image || item.image,
-            spotifyLink:
-              finalDetails.external_urls?.spotify ||
-              `https://open.spotify.com/album/${item.id}`,
-            youtubeLink: null,
-            appleMusicLink: null,
-            label: finalDetails.label || null,
-            country: null,
-            barcode: null,
-            totalTracks: finalDetails.totalTracks || tracks.length || null,
-            tracks: tracks,
-            releaseDate: finalDetails.releaseDate || null,
-            releaseYear: finalDetails.releaseYear || null,
-            releaseType:
-              finalDetails.release_type || finalDetails.releaseType || 'ALBUM',
-            genres: finalDetails.genres || [],
-            reviews_enabled: true,
-          };
-          finalAlbum = await supabaseService.createAlbum(albumPayload);
-        }
+      if (!finalAlbum) {
+        setStatusMessage('Registrando álbum en el Club...');
 
-        const relType =
-          finalAlbum?.release_type ||
-          finalAlbum?.releaseType ||
-          finalDetails.release_type ||
-          finalDetails.releaseType;
-        const targetUrl = getReleaseUrl(
-          finalAlbum?.album_name || albumName,
-          relType
-        );
+        const albumPayload = {
+          albumName: canonicalTitle,
+          artistName: canonicalArtist,
+          imageUrl: cdnCover, // PRESERVADO DE SPOTIFY/DEEZER
+          mbid: mbid,
+          releaseType: mbData?.release_type || item.releaseType || 'ALBUM',
+          releaseDate: mbData?.release_date || item.releaseDate || null,
+          releaseYear: mbData?.release_year || item.releaseYear || null,
+          genres: mbData?.genres || [],
+          label: mbData?.label || null,
+          country: mbData?.country || null,
+          barcode: mbData?.barcode || null,
+          totalTracks:
+            mbData?.total_tracks || mbData?.tracks?.length || null,
+          tracks: mbData?.tracks || [],
+          spotifyLink:
+            mbData?.spotify_link ||
+            item.rawRemoteAlbum?.external_urls?.spotify ||
+            null,
+          youtubeLink: mbData?.youtube_link || null,
+          appleMusicLink: mbData?.apple_music_link || null,
+          otherLink:
+            mbData?.other_link ||
+            item.rawRemoteAlbum?.external_urls?.deezer ||
+            null,
+          reviews_enabled: true,
+        };
 
-        setIsOpen(false);
-        setQuery('');
-        if (onAlbumReviewed) onAlbumReviewed();
-        navigate(targetUrl);
-        return;
+        finalAlbum = await supabaseService.createAlbum(albumPayload);
       }
+
+      const relType =
+        finalAlbum?.release_type ||
+        finalAlbum?.releaseType ||
+        mbData?.release_type ||
+        item.releaseType ||
+        'ALBUM';
+
+      const targetUrl = getReleaseUrl(
+        finalAlbum?.album_name || canonicalTitle,
+        relType
+      );
+
+      setIsOpen(false);
+      setQuery('');
+      if (onAlbumReviewed) onAlbumReviewed();
+      navigate(targetUrl);
+      return;
     } catch (err) {
       console.error('Error al seleccionar y abrir álbum:', err);
       setStatusMessage('Error al abrir el álbum. Intenta de nuevo.');
@@ -490,8 +500,13 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                           }}
                         />
                         <div className="min-w-0 flex-1 text-left">
-                          <p className="text-white font-bold text-xs truncate">
-                            {item.name}
+                          <p className="text-white font-bold text-xs truncate flex items-center gap-1.5">
+                            <span className="truncate">{item.name}</span>
+                            {isClubAlbum && (
+                              <span className="text-[8px] bg-pink-500/20 text-pink-300 px-1 py-0.2 rounded font-semibold flex-shrink-0">
+                                Club
+                              </span>
+                            )}
                           </p>
                           <p className="text-white/60 text-[10px] truncate">
                             {item.artist}
@@ -503,7 +518,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                             className={`text-[9px] px-2 py-0.5 rounded-lg font-bold ${
                               isClubAlbum
                                 ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                                : 'bg-[#1DB954]/90 text-white'
+                                : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
                             }`}
                           >
                             {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}
@@ -634,13 +649,12 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 max-h-[360px]">
             {!query.trim() ? (
               <div className="py-8 px-4 text-center space-y-2">
-                <div className="text-3xl">🟢</div>
+                <div className="text-3xl">🎵</div>
                 <p className="text-white font-bold text-xs">
                   Explora el catálogo universal de música
                 </p>
                 <p className="text-white/40 text-[11px] max-w-xs mx-auto leading-relaxed">
-                  Busca cualquier álbum para leer reseñas comunitarias o
-                  calificarlo y puntuar sus pistas.
+                  Busca cualquier álbum para leer reseñas comunitarias o calificarlo y puntuar sus pistas.
                 </p>
               </div>
             ) : isSearching && combinedResults.length === 0 ? (
@@ -670,7 +684,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                   const isHighlighted = highlightedIndex === idx;
                   const isSelectingThis = selectingAlbumId === item.id;
                   const isClubAlbum = item.type === 'CLUB';
-                  const isSpotifyAlbum = item.type === 'SPOTIFY';
 
                   return (
                     <div
@@ -705,15 +718,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                           <p className="text-white font-bold text-xs sm:text-sm truncate">
                             {item.name}
                           </p>
-                          {isClubAlbum ? (
+                          {isClubAlbum && (
                             <span className="text-[9px] bg-pink-500/20 text-pink-300 px-1.5 py-0.2 rounded border border-pink-500/30 font-bold flex-shrink-0">
                               Musiclub ({item.reviewCount || 0} reviews)
                             </span>
-                          ) : isSpotifyAlbum ? (
-                            <span className="text-[9px] bg-[#1DB954]/20 text-[#1ed760] px-1.5 py-0.2 rounded border border-[#1DB954]/30 font-bold flex-shrink-0">
-                              Disponible
-                            </span>
-                          ) : null}
+                          )}
                         </div>
 
                         <p className="text-white/60 text-xs truncate mt-0.5">
@@ -736,7 +745,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                             className={`text-[10px] sm:text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm transition-transform group-hover:scale-105 inline-block ${
                               isClubAlbum
                                 ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                                : 'bg-[#1DB954] hover:bg-[#1ed760] text-black font-extrabold'
+                                : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold'
                             }`}
                           >
                             {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}

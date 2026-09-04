@@ -1010,7 +1010,7 @@ export function ReviewSystem({
                         Review de Álbum Individual
                       </span>
                     ) : isFromSpotify ? (
-                      <>Nueva Review · Álbum de Spotify</>
+                      <>Nueva Review · Álbum</>
                     ) : (
                       <>Nueva Review · Álbum del Club</>
                     )}

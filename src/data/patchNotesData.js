@@ -14,6 +14,88 @@ export const CURATED_PATCH_NOTES = [
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.6.7',
+    title:
+      'Desacoplamiento Estructural de user_id en Álbumes, Migración Supabase y Filtro Inteligente Anti-Ruido en Changelog',
+    date: '2026-09-04',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-emerald-500 via-teal-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.6.7 de Musiclub enfocada en la limpieza estructural de la base de datos y la optimización del historial de versiones: eliminación de la columna user_id y su clave foránea en la tabla albums normalizando la autoría hacia pool_entries, actualización completa de los servicios y hooks del cliente (useNotifications, useAlbums, poolService, syncPoolGraduates), y un motor inteligente de filtrado en Patch Notes que erradica el ruido de bots automáticos de CI/CD (github-actions[bot], [skip ci]) y commits de merge o conflictos de Git.',
+    changes: [
+      {
+        type: 'refactor',
+        title: 'Desacoplamiento Canónico de user_id en la Tabla albums',
+        description:
+          'Se preparó y ejecutó la migración SQL para eliminar la columna user_id y la restricción albums_user_id_fkey en Supabase PostgreSQL. Las nominaciones, autoría y estados activos del club quedan centralizados exclusivamente en la tabla pool_entries.',
+      },
+      {
+        type: 'fix',
+        title: 'Refactorización del Sistema de Notificaciones Comunitarias',
+        description:
+          'Ajuste en useNotifications.js para obtener las reseñas de álbumes propuestos por el usuario a través de pool_entries en lugar de albums.user_id, previniendo excepciones SQL de columna inexistente y reflejando con exactitud las nominaciones activas.',
+      },
+      {
+        type: 'improvement',
+        title: 'Limpieza de Servicios y Mapeos de Estado (useAlbums, poolService, syncPoolGraduates)',
+        description:
+          'Eliminación del campo obsoleto user_id en las transformaciones de useAlbums, supabaseClient y poolService, así como en los scripts de sincronización de álbumes graduados.',
+      },
+      {
+        type: 'feature',
+        title: 'Filtro Anti-Ruido en Patch Notes (Exclusión de Bots de CI/CD y Commits de Merge)',
+        description:
+          'Integración de un filtro dual en patchNotesData.js y PatchNotes.jsx que oculta automáticamente commits de github-actions[bot], tareas de ingesta horaria, tags [skip ci], commits de merge (Merge branch...) y líneas generadas por conflictos de Git (# Conflicts:).',
+      },
+      {
+        type: 'improvement',
+        title: 'Motor de Ordenamiento Semántico y Cronológico de Versiones',
+        description:
+          'Nuevo algoritmo de ordenamiento descendente por fecha y versión semántica (Major.Minor.Patch) que combina armónicamente los commits en vivo de la API de GitHub con las notas de versión curadas de Musiclub.',
+      },
+    ],
+  },
+  {
+    version: 'V.6.6',
+    title:
+      'Buscador Híbrido Silencioso, Enriquecimiento Multi-Plataforma (Deezer, Apple Music, YouTube y Spotify), Logos Oficiales e Ingesta cada 30 Minutos',
+    date: '2026-09-04',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-violet-500 via-fuchsia-500 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización mayor V.6.6 de Musiclub enfocada en la experiencia de búsqueda y streaming multi-plataforma: integración de un motor de búsqueda híbrido transparente sin marcas de terceros, soporte y logos vectoriales oficiales para Spotify, Apple Music, YouTube y Deezer en toda la aplicación, pipeline de ingesta automatizada cada 30 minutos con control de cuotas y timeouts, y normalización completa de los 262 lanzamientos de la base de datos.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Buscador Musical Híbrido, Invisible y Silencioso',
+        description:
+          'Búsqueda en tiempo real a través de APIs de streaming que guarda directamente la ficha del álbum con metadatos canónicos de MusicBrainz (MBID, tracks, sello, año y formato) y carátulas HD, ocultando de forma transparente cualquier mención a proveedores externos en la interfaz de usuario.',
+      },
+      {
+        type: 'feature',
+        title: 'Soporte de 4 Plataformas de Streaming y Logos Vectoriales Oficiales',
+        description:
+          'Componente global de logos vectoriales (Spotify, Apple Music, YouTube y Deezer) integrado de extremo a extremo en la ficha del lanzamiento (AlbumDetail), Panel de Administración, Buzón de Canciones, Catálogo de Playlists y Recomendaciones.',
+      },
+      {
+        type: 'improvement',
+        title: 'Pipeline de Ingesta Automática cada 30 Minutos con Pacing y Timeouts',
+        description:
+          'Se actualizó la frecuencia del cron y workflow a 30 minutos, procesando lotes de 50 álbumes con portadas HD (1000x1000) y pausas de seguridad entre llamadas a APIs para evitar bloqueos por rate limiting.',
+      },
+      {
+        type: 'fix',
+        title: 'Enriquecimiento Retroactivo de los 262 Lanzamientos en Base de Datos',
+        description:
+          'Se procesó el 100% de los álbumes en Supabase para completar enlaces a Deezer (other_link), Apple Music, YouTube, verificación Spotify en true y resolución de MBIDs canónicos.',
+      },
+    ],
+  },
+  {
     version: 'V.6.5',
     title:
       'Restauración de Catálogo y Reviews, Paginación PostgREST >1000 Filas, Extracción Garantizada de Canciones y Supresión de Rate Limits (429/403/CORS)',
@@ -1394,7 +1476,39 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
   const processedKeys = new Set();
 
   githubCommits.forEach((ghCommit) => {
+    const authorLogin = (ghCommit.author?.login || '').toLowerCase();
+    const commitAuthorName = (ghCommit.commit?.author?.name || '').toLowerCase();
+    const committerName = (ghCommit.commit?.committer?.name || '').toLowerCase();
+    const committerLogin = (ghCommit.committer?.login || '').toLowerCase();
     const message = ghCommit.commit?.message || '';
+
+    // 1. Ignorar commits automáticos de bots (GitHub Actions bot, Dependabot, workflows, etc.)
+    const isBot =
+      authorLogin.includes('bot') ||
+      authorLogin.includes('github-actions') ||
+      commitAuthorName.includes('bot') ||
+      commitAuthorName.includes('github-actions') ||
+      committerLogin.includes('bot') ||
+      committerName.includes('github-actions');
+
+    // 2. Ignorar commits de mantenimiento recurrente o sincronización CI/CD
+    const isAutomatedRoutine =
+      /automated hourly|hourly catalog ingestion|sitemap update|\[skip ci\]|chore\(deps\)|dependabot/i.test(message) ||
+      message.toLowerCase().startsWith('chore: automated');
+
+    // 3. Ignorar commits de Merge y resolución de conflictos de ramas de Git
+    const isMergeOrConflict =
+      /^merge\s/i.test(message.trim()) ||
+      message.toLowerCase().includes('merge branch') ||
+      message.toLowerCase().includes('merge pull request') ||
+      message.toLowerCase().includes('merge remote-tracking') ||
+      /#\s*conflicts:/i.test(message) ||
+      /conflicts:\s*#/i.test(message);
+
+    if (isBot || isAutomatedRoutine || isMergeOrConflict) {
+      return; // No mostrar tareas automáticas, bots ni merges en las Patch Notes
+    }
+
     const sha = ghCommit.sha?.substring(0, 7) || '';
     const fullSha = ghCommit.sha || '';
     const date = ghCommit.commit?.author?.date
@@ -1440,7 +1554,7 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
       const lines = message
         .split('\n')
         .map((l) => l.trim())
-        .filter(Boolean);
+        .filter((l) => l && !l.startsWith('#')); // Omitir comentarios de git o de conflictos
       const title = lines[0] || `Commit ${sha}`;
       const bodyLines = lines.slice(1);
 
@@ -1497,9 +1611,10 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
   });
 
   // Agregar cualquier nota curada que aún no haya sido devuelta por la API
+  const pendingCurated = [];
   CURATED_PATCH_NOTES.forEach((curated) => {
     if (!processedKeys.has(curated.version)) {
-      enrichedList.push({
+      pendingCurated.push({
         ...curated,
         commitUrl: `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha}`,
         isFromGithub: false,
@@ -1507,5 +1622,24 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     }
   });
 
-  return enrichedList;
+  const combined = [...pendingCurated, ...enrichedList];
+
+  // Ordenar de forma descendente por fecha y por versión semántica
+  combined.sort((a, b) => {
+    const dateComp = (b.date || '').localeCompare(a.date || '');
+    if (dateComp !== 0) return dateComp;
+
+    const vMatchA = (a.version || '').match(/V\.?(\d+)\.(\d+)(?:\.(\d+))?/i);
+    const vMatchB = (b.version || '').match(/V\.?(\d+)\.(\d+)(?:\.(\d+))?/i);
+    if (vMatchA && vMatchB) {
+      const major = parseInt(vMatchB[1], 10) - parseInt(vMatchA[1], 10);
+      if (major !== 0) return major;
+      const minor = parseInt(vMatchB[2], 10) - parseInt(vMatchA[2], 10);
+      if (minor !== 0) return minor;
+      return parseInt(vMatchB[3] || '0', 10) - parseInt(vMatchA[3] || '0', 10);
+    }
+    return 0;
+  });
+
+  return combined;
 }

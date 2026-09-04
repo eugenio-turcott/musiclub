@@ -1,5 +1,6 @@
 // src/services/spotifyApi.js
 import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication';
+import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi';
 
 // Configuración de Spotify desde variables de entorno
 const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
@@ -115,18 +116,25 @@ export const extractReleaseYear = (releaseDate) => {
 
 let spotifyCooldownUntil = 0;
 
-export const searchAlbum = async (query) => {
+export const searchAlbum = async (query, options = {}) => {
   if (!query || !query.trim()) {
     return { success: true, albums: [] };
   }
 
-  // 1. Intentar Spotify primero si no está en cooldown por rate limit / cuota
-  if (Date.now() > spotifyCooldownUntil) {
+  const provider = (typeof options === 'string' ? options : options.provider || options.source || 'ALL').toUpperCase();
+
+  // 1. Caso búsqueda exclusiva en Deezer
+  if (provider === 'DEEZER') {
+    return await searchDeezerAlbums(query, options.limit || 15);
+  }
+
+  // 2. Caso búsqueda exclusiva en Spotify
+  if (provider === 'SPOTIFY') {
     try {
       const token = await getSpotifyToken();
       if (token) {
         const response = await fetch(
-          `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=album&limit=10&market=MX`,
+          `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=album&limit=${options.limit || 15}&market=MX`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -134,10 +142,7 @@ export const searchAlbum = async (query) => {
           }
         );
 
-        if (response.status === 429) {
-          console.warn('⚠️ Spotify Search 429 (Cuota excedida/Rate limit). Activando fallback inmediato.');
-          spotifyCooldownUntil = Date.now() + 60 * 1000;
-        } else if (response.ok) {
+        if (response.ok) {
           const data = await response.json();
           if (data.albums && data.albums.items) {
             return {
@@ -159,6 +164,7 @@ export const searchAlbum = async (query) => {
                   release_type: releaseType,
                   totalTracks: album.total_tracks,
                   tracks: [],
+                  source: 'SPOTIFY',
                   external_urls: album.external_urls || {
                     spotify: `https://open.spotify.com/album/${album.id}`,
                   },
@@ -169,11 +175,113 @@ export const searchAlbum = async (query) => {
         }
       }
     } catch (error) {
-      console.warn('Spotify searchAlbum no disponible, usando fallback:', error.message);
+      console.warn('Error en búsqueda Spotify exclusiva:', error.message);
+    }
+    return { success: false, albums: [] };
+  }
+
+  // 3. Caso Búsqueda General / ALL:
+  // Ejecuta Deezer y Spotify concurrentemente; Deezer garantiza resultados inmediatos sin cuotas
+  let spotifyAlbums = [];
+  let deezerAlbums = [];
+
+  const promises = [];
+
+  // Buscar en Deezer (muy rápido, sin problemas de cuota)
+  promises.push(
+    searchDeezerAlbums(query, 12)
+      .then((res) => {
+        if (res?.success && Array.isArray(res.albums)) {
+          deezerAlbums = res.albums;
+        }
+      })
+      .catch((err) => console.warn('Deezer search error:', err.message))
+  );
+
+  // Buscar en Spotify si no está en cooldown
+  if (Date.now() > spotifyCooldownUntil) {
+    promises.push(
+      (async () => {
+        try {
+          const token = await getSpotifyToken();
+          if (token) {
+            const response = await fetch(
+              `${SPOTIFY_SEARCH_URL}?q=${encodeURIComponent(query)}&type=album&limit=10&market=MX`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+
+            if (response.status === 429) {
+              console.warn('⚠️ Spotify Search 429 (Cuota excedida). Usando resultados de Deezer.');
+              spotifyCooldownUntil = Date.now() + 60 * 1000;
+            } else if (response.ok) {
+              const data = await response.json();
+              if (data.albums && data.albums.items) {
+                spotifyAlbums = data.albums.items.map((album) => {
+                  const releaseType = classifyAlbumType(album);
+                  const releaseYear = extractReleaseYear(album.release_date);
+                  const artistList = album.artists.map((a) => a.name);
+                  return {
+                    id: album.id,
+                    name: album.name,
+                    artists: artistList,
+                    artist: artistList.join(', '),
+                    artist_id: album.artists[0]?.id || null,
+                    image: album.images[0]?.url || '',
+                    releaseDate: album.release_date,
+                    releaseYear: releaseYear,
+                    album_type: album.album_type,
+                    release_type: releaseType,
+                    totalTracks: album.total_tracks,
+                    tracks: [],
+                    source: 'SPOTIFY',
+                    external_urls: album.external_urls || {
+                      spotify: `https://open.spotify.com/album/${album.id}`,
+                    },
+                  };
+                });
+              }
+            }
+          }
+        } catch (error) {
+          console.warn('Spotify search error (usando Deezer):', error.message);
+        }
+      })()
+    );
+  }
+
+  await Promise.allSettled(promises);
+
+  // Mezclar y desduplicar resultados
+  const seenKeys = new Set();
+  const mergedAlbums = [];
+
+  // Priorizar Spotify si está disponible para este álbum
+  for (const alb of spotifyAlbums) {
+    const key = `${(alb.artist || '').toLowerCase().trim()}:::${(alb.name || '').toLowerCase().trim()}`;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      mergedAlbums.push(alb);
     }
   }
 
-  // 2. FALLBACK RESILIENTE: Apple Music / iTunes Search API (CORS habilitado, portadas HD 1000x1000)
+  // Complementar con Deezer
+  for (const alb of deezerAlbums) {
+    const key = `${(alb.artist || '').toLowerCase().trim()}:::${(alb.name || '').toLowerCase().trim()}`;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      mergedAlbums.push(alb);
+    }
+  }
+
+  if (mergedAlbums.length > 0) {
+    return { success: true, albums: mergedAlbums };
+  }
+
+  // 4. FALLBACK FINAL: iTunes Search API
   try {
     const itunesUrl = `https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=10`;
     const res = await fetch(itunesUrl);
@@ -209,6 +317,7 @@ export const searchAlbum = async (query) => {
               release_type: releaseType,
               totalTracks: totalTracks,
               tracks: [],
+              source: 'ITUNES',
               external_urls: {
                 spotify: `https://open.spotify.com/search/${encodeURIComponent(cleanArtist + ' ' + cleanName)}`,
                 itunes: item.collectionViewUrl,
@@ -304,6 +413,21 @@ export const searchTracks = async (query, limit = 10) => {
 };
 
 export const getAlbumDetails = async (albumId) => {
+  // 0. Si es un ID de Deezer
+  if (albumId && String(albumId).startsWith('deezer_')) {
+    try {
+      const dzAlbum = await getDeezerAlbumDetails(albumId);
+      if (dzAlbum) {
+        return {
+          success: true,
+          album: dzAlbum,
+        };
+      }
+    } catch (dzErr) {
+      console.warn('Error obteniendo detalles desde Deezer:', dzErr);
+    }
+  }
+
   // 1. Si es un ID de iTunes generado por el fallback
   if (albumId && String(albumId).startsWith('itunes_')) {
     const rawId = String(albumId).replace('itunes_', '');
@@ -1217,3 +1341,6 @@ export const fetchAlbumReleaseYear = async (
     return null;
   }
 };
+
+export { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi';
+

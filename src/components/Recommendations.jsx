@@ -13,6 +13,12 @@ import {
 import { getRecommendedAlbumsByTaste } from '../services/spotifyApi';
 import { ReviewSystem } from './ReviewSystem';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
+import {
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from './common/PlatformLogos';
 
 export function Recommendations({ isPage = false, user: propUser = null }) {
   const { user: authUser, loginWithGoogle } = useAuth();
@@ -1230,9 +1236,42 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     href={selectedAlbumForDetail.spotify_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="py-3 px-5 rounded-xl bg-[#1DB954]/20 text-[#1DB954] hover:bg-[#1DB954]/30 border border-[#1DB954]/30 font-bold text-xs transition-all flex items-center gap-1.5"
+                    className="py-3 px-4 rounded-xl bg-[#1DB954]/20 text-[#1DB954] hover:bg-[#1DB954]/30 border border-[#1DB954]/30 font-bold text-xs transition-all flex items-center gap-1.5"
                   >
-                    <span>🎵</span> Spotify
+                    <SpotifyLogo className="w-3.5 h-3.5 fill-current" /> Spotify
+                  </a>
+                )}
+
+                {selectedAlbumForDetail.apple_music_link && (
+                  <a
+                    href={selectedAlbumForDetail.apple_music_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-3 px-4 rounded-xl bg-[#fc3c44]/20 text-[#fc3c44] hover:bg-[#fc3c44]/30 border border-[#fc3c44]/30 font-bold text-xs transition-all flex items-center gap-1.5"
+                  >
+                    <AppleMusicLogo className="w-3.5 h-3.5 fill-current" /> Apple Music
+                  </a>
+                )}
+
+                {selectedAlbumForDetail.youtube_link && (
+                  <a
+                    href={selectedAlbumForDetail.youtube_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-3 px-4 rounded-xl bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 font-bold text-xs transition-all flex items-center gap-1.5"
+                  >
+                    <YouTubeLogo className="w-3.5 h-3.5 fill-current" /> YouTube
+                  </a>
+                )}
+
+                {selectedAlbumForDetail.other_link && (
+                  <a
+                    href={selectedAlbumForDetail.other_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="py-3 px-4 rounded-xl bg-[#a238ff]/20 text-[#c77dff] hover:bg-[#a238ff]/30 border border-[#a238ff]/30 font-bold text-xs transition-all flex items-center gap-1.5"
+                  >
+                    <DeezerLogo className="w-3.5 h-3.5 fill-current" /> Deezer
                   </a>
                 )}
               </div>

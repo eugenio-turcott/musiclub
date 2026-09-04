@@ -51,9 +51,35 @@ export function PatchNotes({ isPage = false }) {
     fetchGithubCommits();
   }, [fetchGithubCommits]);
 
-  // Fusionar commits en vivo con notas curadas
+  // Fusionar commits en vivo con notas curadas y asegurar exclusión de bots o rutinas automáticas
   const allPatchNotes = useMemo(() => {
-    return mergeGithubCommitsWithCuratedNotes(githubCommits);
+    return mergeGithubCommitsWithCuratedNotes(githubCommits).filter((note) => {
+      const author = (note.authorName || '').toLowerCase();
+      const title = (note.title || '').toLowerCase();
+      const summary = (note.summary || '').toLowerCase();
+
+      if (author.includes('bot') || author.includes('github-actions')) return false;
+      if (
+        title.includes('automated hourly') ||
+        title.includes('hourly catalog ingestion') ||
+        title.includes('[skip ci]') ||
+        title.includes('sitemap update') ||
+        title.startsWith('merge ') ||
+        title.includes('merge branch') ||
+        title.includes('conflicts:')
+      )
+        return false;
+      if (
+        summary.includes('automated hourly') ||
+        summary.includes('hourly catalog ingestion') ||
+        summary.includes('[skip ci]') ||
+        summary.startsWith('merge ') ||
+        summary.includes('conflicts:')
+      )
+        return false;
+
+      return true;
+    });
   }, [githubCommits]);
 
   // Filtrado reactivo por texto y por tags

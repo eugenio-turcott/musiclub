@@ -22,6 +22,12 @@ import {
   searchAlbum,
   getAlbumDetails,
 } from '../services/spotifyApi';
+import {
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from './common/PlatformLogos';
 
 const CRITERIA_METRICS = [
   {
@@ -551,7 +557,7 @@ export function AlbumDetail() {
               </div>
 
               {/* Streaming Links below cover */}
-              <div className="flex items-center justify-center gap-2.5 w-full mt-4 flex-wrap">
+              <div className="flex grid grid-cols-2  items-center justify-center gap-2.5 w-full mt-4 flex-wrap">
                 {album.spotify_link && (
                   <a
                     href={album.spotify_link}
@@ -559,12 +565,7 @@ export function AlbumDetail() {
                     rel="noopener noreferrer"
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1db954]/15 hover:bg-[#1db954]/25 text-[#1db954] border border-[#1db954]/30 font-bold text-xs transition-all shadow-sm group"
                   >
-                    <svg
-                      className="w-4 h-4 fill-current group-hover:scale-110 transition-transform"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306c-.216.353-.674.468-1.027.252-2.81-1.718-6.347-2.107-10.514-1.155-.403.092-.807-.16-.899-.563-.092-.403.16-.807.563-.899 4.568-1.044 8.49-.607 11.625 1.338.353.216.468.674.252 1.027zm1.47-3.268c-.272.443-.853.585-1.296.313-3.218-1.978-8.123-2.55-11.928-1.395-.499.151-1.03-.134-1.181-.633-.151-.499.134-1.03.633-1.181 4.354-1.322 9.775-.684 13.459 1.58.443.272.585.853.313 1.296zm.126-3.41c-3.858-2.29-10.222-2.502-13.886-1.39-.59.179-1.217-.156-1.396-.746-.179-.59.156-1.217.746-1.396 4.218-1.28 11.248-1.036 15.688 1.597.531.315.704 1.002.389 1.533-.315.531-1.002.704-1.541.402z" />
-                    </svg>
+                    <SpotifyLogo className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
                     <span>Spotify</span>
                   </a>
                 )}
@@ -574,9 +575,9 @@ export function AlbumDetail() {
                     href={album.apple_music_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500/15 to-rose-500/15 hover:from-pink-500/25 hover:to-rose-500/25 text-rose-300 border border-rose-500/30 font-bold text-xs transition-all shadow-sm"
+                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#fc3c44]/15 hover:bg-[#fc3c44]/25 text-[#fc3c44] border border-[#fc3c44]/30 font-bold text-xs transition-all shadow-sm group"
                   >
-                    <span>🍎</span>
+                    <AppleMusicLogo className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
                     <span>Apple Music</span>
                   </a>
                 )}
@@ -586,10 +587,22 @@ export function AlbumDetail() {
                     href={album.youtube_link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all shadow-sm"
+                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all shadow-sm group"
                   >
-                    <span>▶️</span>
+                    <YouTubeLogo className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
                     <span>YouTube</span>
+                  </a>
+                )}
+
+                {album.other_link && (
+                  <a
+                    href={album.other_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#a238ff]/15 hover:bg-[#a238ff]/25 text-[#c77dff] border border-[#a238ff]/30 font-bold text-xs transition-all shadow-sm group"
+                  >
+                    <DeezerLogo className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
+                    <span>Deezer</span>
                   </a>
                 )}
               </div>

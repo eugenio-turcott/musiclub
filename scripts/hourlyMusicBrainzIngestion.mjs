@@ -32,6 +32,34 @@ const SPOTIFY_CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 const USER_AGENT = 'MusiclubApp/2.0 ( contact@musiclub.app ; https://musiclub.app )';
 const STATE_FILE = path.resolve(__dirname, 'crawler_state.json');
 
+// ==========================================
+// CONTROL DE RATE LIMITS Y CIRCUIT BREAKERS
+// ==========================================
+
+let lastMbRequestTime = 0;
+const MB_MIN_INTERVAL_MS = 1200; // Respetar regla estricta de 1 req/sec de MusicBrainz
+
+async function musicBrainzRateLimiter() {
+  const now = Date.now();
+  const elapsed = now - lastMbRequestTime;
+  if (elapsed < MB_MIN_INTERVAL_MS) {
+    await sleep(MB_MIN_INTERVAL_MS - elapsed);
+  }
+  lastMbRequestTime = Date.now();
+}
+
+let lastDeezerRequestTime = 0;
+const DEEZER_MIN_INTERVAL_MS = 250; // Pacing preventivo de 4 req/sec max para Deezer
+
+async function deezerRateLimiter() {
+  const now = Date.now();
+  const elapsed = now - lastDeezerRequestTime;
+  if (elapsed < DEEZER_MIN_INTERVAL_MS) {
+    await sleep(DEEZER_MIN_INTERVAL_MS - elapsed);
+  }
+  lastDeezerRequestTime = Date.now();
+}
+
 // Variables de caché y circuit breaker de Spotify
 let spotifyToken = null;
 let spotifyTokenExpiry = 0;
@@ -82,7 +110,7 @@ async function getSpotifyToken() {
         Authorization: 'Basic ' + Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64'),
       },
       body: 'grant_type=client_credentials',
-      signal: AbortSignal.timeout(5000),
+      signal: AbortSignal.timeout(5000), // Timeout de 5s
     });
     if (!res.ok) return null;
     const data = await res.json();
@@ -95,11 +123,35 @@ async function getSpotifyToken() {
   }
 }
 
-// Buscar portada oficial y link en Spotify (con Circuit Breaker inteligente)
-async function getSpotifyCoverAndLink(artistName, albumName) {
-  if (Date.now() < spotifyDisabledUntil) {
-    return null;
+// Petición a MusicBrainz con User-Agent, Timeout y Reintentos exponenciales
+async function fetchMusicBrainzWithRetry(url, maxRetries = 3) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    await musicBrainzRateLimiter();
+    try {
+      const res = await fetch(url, {
+        headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+        signal: AbortSignal.timeout(10000), // Timeout estricto de 10s
+      });
+      if (res.status === 503 || res.status === 429) {
+        const delay = attempt * 2500;
+        console.log(`    ⚠️ MusicBrainz throttled (${res.status}), esperando ${delay}ms... (intento ${attempt}/${maxRetries})`);
+        await sleep(delay);
+        continue;
+      }
+      if (!res.ok) return null;
+      return await res.json();
+    } catch (err) {
+      if (attempt < maxRetries) {
+        await sleep(attempt * 2000);
+      }
+    }
   }
+  return null;
+}
+
+// Buscar en Spotify: Portada 640x640, link y pistas
+async function getSpotifyData(artistName, albumName) {
+  if (Date.now() < spotifyDisabledUntil) return null;
 
   try {
     const token = await getSpotifyToken();
@@ -112,14 +164,13 @@ async function getSpotifyCoverAndLink(artistName, albumName) {
     const url = `https://api.spotify.com/v1/search?q=${encodeURIComponent(query)}&type=album&limit=1`;
     const res = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(5000), // Timeout de 5s
     });
 
     if (!res.ok) {
       if (res.status === 429) {
         const retryAfter = parseInt(res.headers.get('Retry-After') || '60', 10);
-        console.warn(`  ⚡ Spotify API Cuota/Rate-Limit detectado (429 - Retry-After: ${retryAfter}s). Activando fallback inmediato a Deezer/iTunes/CAA sin esperas.`);
-        // Activar circuit breaker: deshabilitar llamadas a Spotify durante el cooldown o por el resto del lote
+        console.warn(`  ⚡ Spotify API 429 (Retry-After: ${retryAfter}s). Circuit breaker activado.`);
         spotifyDisabledUntil = Date.now() + Math.min(retryAfter, 86400) * 1000;
       }
       return null;
@@ -132,7 +183,7 @@ async function getSpotifyCoverAndLink(artistName, albumName) {
       try {
         const trkRes = await fetch(`https://api.spotify.com/v1/albums/${item.id}/tracks?limit=50`, {
           headers: { Authorization: `Bearer ${token}` },
-          signal: AbortSignal.timeout(4000),
+          signal: AbortSignal.timeout(5000),
         });
         if (trkRes.ok) {
           const trkData = await trkRes.json();
@@ -141,6 +192,7 @@ async function getSpotifyCoverAndLink(artistName, albumName) {
             name: t.name,
             duration_ms: t.duration_ms || 0,
             track_number: t.track_number || idx + 1,
+            disc_number: t.disc_number || 1,
           }));
         }
       } catch {}
@@ -153,173 +205,80 @@ async function getSpotifyCoverAndLink(artistName, albumName) {
         totalTracks: item.total_tracks || tracks.length,
       };
     }
-  } catch {
-    // Si falla silenciosamente por timeout u otro error de red, continuar
-  }
+  } catch {}
   return null;
 }
 
-// Resolver portada en alta definición mediante cascada de fuentes (Spotify -> Deezer -> iTunes -> CAA)
-async function resolveAlbumArtworkAndLinks(artistName, albumName, mbid) {
-  // 1. Intentar Spotify primero (si no está bloqueado por cuota)
-  const spData = await getSpotifyCoverAndLink(artistName, albumName);
-  if (spData?.imageUrl) {
-    return {
-      imageUrl: spData.imageUrl,
-      spotifyLink: spData.spotifyLink,
-      spotifyVerified: spData.spotifyVerified,
-      releaseDate: null,
-      releaseYear: null,
-      tracks: spData.tracks || [],
-      totalTracks: spData.totalTracks || spData.tracks?.length || null,
-    };
-  }
-
-  const fallbackSpotifyLink = `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
-
-  // 2. Intentar Deezer (1000x1000 HD, sin API key, ultra rápido y sin rate limits agresivos)
+// Buscar en Deezer: Portada 1000x1000 HD, Deezer Link (other_link) y pistas
+async function getDeezerData(artistName, albumName) {
+  await deezerRateLimiter();
   try {
     const cleanArt = artistName.replace(/\([^)]*\)/g, '').trim();
     const cleanAlb = albumName.replace(/\([^)]*\)/g, '').trim();
     const q = encodeURIComponent(`artist:"${cleanArt}" album:"${cleanAlb}"`);
     const res = await fetch(`https://api.deezer.com/search/album?q=${q}`, {
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(5000), // Timeout de 5s
     });
     if (res.ok) {
       const data = await res.json();
       if (data.data && data.data.length > 0) {
         const item = data.data[0];
         const imageUrl = item.cover_xl || item.cover_big || item.cover_medium;
-        if (imageUrl) {
-          const rawYear = item.release_date ? parseInt(item.release_date.substring(0, 4), 10) : null;
-          const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
+        const deezerLink = item.link || `https://www.deezer.com/album/${item.id}`;
 
-          let tracks = [];
-          try {
-            const trkRes = await fetch(`https://api.deezer.com/album/${item.id}/tracks`, {
-              signal: AbortSignal.timeout(4000),
-            });
-            if (trkRes.ok) {
-              const trkData = await trkRes.json();
-              tracks = (trkData.data || []).map((t, idx) => ({
-                id: String(t.id),
-                name: t.title,
-                duration_ms: (t.duration || 0) * 1000,
-                track_number: t.track_position || idx + 1,
-              }));
-            }
-          } catch {}
+        let tracks = [];
+        try {
+          await deezerRateLimiter();
+          const trkRes = await fetch(`https://api.deezer.com/album/${item.id}/tracks`, {
+            signal: AbortSignal.timeout(5000),
+          });
+          if (trkRes.ok) {
+            const trkData = await trkRes.json();
+            tracks = (trkData.data || []).map((t, idx) => ({
+              id: String(t.id),
+              name: t.title,
+              duration_ms: (t.duration || 0) * 1000,
+              track_number: t.track_position || idx + 1,
+              disc_number: t.disk_number || 1,
+            }));
+          }
+        } catch {}
 
-          return {
-            imageUrl,
-            spotifyLink: fallbackSpotifyLink,
-            spotifyVerified: false,
-            releaseDate: item.release_date || null,
-            releaseYear,
-            tracks,
-            totalTracks: item.nb_tracks || tracks.length,
-          };
-        }
+        return {
+          imageUrl,
+          deezerLink,
+          releaseDate: item.release_date || null,
+          tracks,
+          totalTracks: item.nb_tracks || tracks.length,
+        };
       }
     }
   } catch {}
+  return null;
+}
 
-  // 3. Intentar iTunes / Apple Music (1000x1000 HD, sin API key)
+// Buscar en iTunes como respaldo adicional de portada HD
+async function getItunesData(artistName, albumName) {
   try {
     const term = encodeURIComponent(`${artistName} ${albumName}`);
     const res = await fetch(`https://itunes.apple.com/search?term=${term}&entity=album&limit=1`, {
-      signal: AbortSignal.timeout(4000),
+      signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
       const data = await res.json();
       if (data.results && data.results.length > 0) {
         const item = data.results[0];
         if (item.artworkUrl100) {
-          const rawYear = item.releaseDate ? parseInt(item.releaseDate.substring(0, 4), 10) : null;
-          const releaseYear = !isNaN(rawYear) && rawYear >= 1900 && rawYear <= 2100 ? rawYear : null;
-
-          let tracks = [];
-          try {
-            const lkRes = await fetch(`https://itunes.apple.com/lookup?id=${item.collectionId}&entity=song`, {
-              signal: AbortSignal.timeout(4000),
-            });
-            if (lkRes.ok) {
-              const lkData = await lkRes.json();
-              tracks = (lkData.results || [])
-                .filter((r) => r.wrapperType === 'track')
-                .map((song, idx) => ({
-                  id: String(song.trackId || idx + 1),
-                  name: song.trackName,
-                  duration_ms: song.trackTimeMillis || 0,
-                  track_number: song.trackNumber || idx + 1,
-                }));
-            }
-          } catch {}
-
+          const imageUrl = item.artworkUrl100.replace('100x100bb', '1000x1000bb');
           return {
-            imageUrl: item.artworkUrl100.replace('100x100bb', '1000x1000bb'),
-            spotifyLink: fallbackSpotifyLink,
-            spotifyVerified: false,
+            imageUrl,
+            appleMusicLink: item.collectionViewUrl || null,
             releaseDate: item.releaseDate ? item.releaseDate.split('T')[0] : null,
-            releaseYear,
-            tracks,
-            totalTracks: item.trackCount || tracks.length,
           };
         }
       }
     }
   } catch {}
-
-  // 4. Fallback a Cover Art Archive de MusicBrainz (verificar que exista para no guardar enlaces 404 rotos)
-  if (mbid) {
-    try {
-      const caaUrl = `https://coverartarchive.org/release-group/${mbid}/front-500`;
-      const caaRes = await fetch(caaUrl, { method: 'HEAD', signal: AbortSignal.timeout(3000) });
-      if (caaRes.ok) {
-        return {
-          imageUrl: caaUrl,
-          spotifyLink: fallbackSpotifyLink,
-          spotifyVerified: false,
-          releaseDate: null,
-          releaseYear: null,
-          tracks: [],
-          totalTracks: null,
-        };
-      }
-    } catch {}
-  }
-
-  return {
-    imageUrl: null,
-    spotifyLink: fallbackSpotifyLink,
-    spotifyVerified: false,
-    releaseDate: null,
-    releaseYear: null,
-    tracks: [],
-    totalTracks: null,
-  };
-}
-
-// Petición a MusicBrainz con reintentos
-async function fetchMusicBrainzWithRetry(url, maxRetries = 4) {
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const res = await fetch(url, {
-        headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
-        signal: AbortSignal.timeout(10000),
-      });
-      if (res.status === 503 || res.status === 429) {
-        const delay = attempt * 2500;
-        console.log(`    ⚠️ MusicBrainz throttled (${res.status}), esperando ${delay}ms... (intento ${attempt}/${maxRetries})`);
-        await sleep(delay);
-        continue;
-      }
-      if (!res.ok) return null;
-      return await res.json();
-    } catch (err) {
-      await sleep(attempt * 2000);
-    }
-  }
   return null;
 }
 
@@ -353,151 +312,275 @@ function formatArtistCredit(artistCredit) {
   return formatted.trim() || 'Varios Artistas';
 }
 
+// Obtener detalles completos de MusicBrainz (Release Group, URL Rels y Release con Tracks)
+async function getDetailedMusicBrainzMetadata(mbid) {
+  try {
+    const rgUrl = `https://musicbrainz.org/ws/2/release-group/${mbid}?inc=artists+releases+genres+tags+url-rels&fmt=json`;
+    const rgData = await fetchMusicBrainzWithRetry(rgUrl);
+    if (!rgData) return null;
+
+    // Extraer enlaces externos oficiales desde MusicBrainz url-rels
+    const externalLinks = {
+      spotify: null,
+      appleMusic: null,
+      youtube: null,
+      deezer: null,
+    };
+
+    if (Array.isArray(rgData.relations)) {
+      for (const rel of rgData.relations) {
+        const u = rel.url?.resource || '';
+        if (u.includes('spotify.com')) externalLinks.spotify = u;
+        else if (u.includes('apple.com') || u.includes('itunes.apple.com')) externalLinks.appleMusic = u;
+        else if (u.includes('youtube.com') || u.includes('youtu.be')) externalLinks.youtube = u;
+        else if (u.includes('deezer.com')) externalLinks.deezer = u;
+      }
+    }
+
+    // Extraer géneros / tags
+    const genres = [
+      ...(rgData.genres || []).map((g) => g.name),
+      ...(rgData.tags || []).map((t) => t.name),
+    ].slice(0, 6);
+
+    // Obtener tracklist canónico y detalles de edición (barcode, país, sello)
+    let tracks = [];
+    let barcode = null;
+    let country = null;
+    let label = null;
+    let totalTracks = null;
+
+    const releases = rgData.releases || [];
+    if (releases.length > 0) {
+      // Priorizar lanzamiento oficial
+      const bestRelease = releases.find((r) => r.status === 'Official') || releases[0];
+      if (bestRelease?.id) {
+        const relUrl = `https://musicbrainz.org/ws/2/release/${bestRelease.id}?inc=recordings+media+labels&fmt=json`;
+        const relData = await fetchMusicBrainzWithRetry(relUrl);
+        if (relData) {
+          barcode = relData.barcode || null;
+          country = relData.country || null;
+          const labelInfo = relData['label-info']?.[0]?.label?.name;
+          if (labelInfo) label = labelInfo;
+
+          if (Array.isArray(relData.media)) {
+            let globalTrackIndex = 1;
+            for (const medium of relData.media) {
+              const discNum = medium.position || 1;
+              for (const trk of medium.tracks || []) {
+                tracks.push({
+                  id: trk.id || `mb-${globalTrackIndex}`,
+                  name: trk.title || trk.recording?.title || `Pista ${globalTrackIndex}`,
+                  duration_ms: trk.length || trk.recording?.length || 0,
+                  track_number: trk.position || globalTrackIndex,
+                  disc_number: discNum,
+                });
+                globalTrackIndex++;
+              }
+            }
+          }
+          totalTracks = tracks.length;
+        }
+      }
+    }
+
+    return {
+      genres,
+      externalLinks,
+      tracks,
+      barcode,
+      country,
+      label,
+      totalTracks,
+    };
+  } catch (err) {
+    console.warn(`    ⚠️ Error obteniendo detalles completos de MusicBrainz para ${mbid}:`, err.message);
+    return null;
+  }
+}
+
 /**
  * Función principal: Ingesta lanzamientos desde MusicBrainz
- * Busca portada y canciones para cada uno y guarda en Supabase
+ * Replicando exactamente el flujo canónico con portada de Deezer/Spotify y 4 links de streaming
  */
-export async function runIngestionBatch(targetCount = 25) {
+export async function runIngestionBatch(targetCount = 50) {
   const startTime = Date.now();
   console.log(`\n========================================================`);
-  console.log(`🚀 INICIANDO INGESTA DE ${targetCount} ÁLBUMES DESDE MUSICBRAINZ`);
+  console.log(`🚀 INICIANDO INGESTA AUTOMÁTICA DE ${targetCount} ÁLBUMES`);
+  console.log(`🕒 Intervalo: Cada 30 minutos`);
   console.log(`🕒 Timestamp: ${new Date().toISOString()}`);
   console.log(`========================================================\n`);
 
   const state = getCrawlerState();
   let currentOffset = state.offset;
-  console.log(`📍 Offset de inicio: ${currentOffset} (Total acumulado previo: ${state.total_ingested} álbumes)\n`);
+  console.log(`📍 Offset de inicio: ${currentOffset} (Total histórico acumulado: ${state.total_ingested} álbumes)\n`);
 
-  const collectedReleaseGroups = [];
-  const limitPerPage = 100;
-  const pagesNeeded = Math.ceil(targetCount / limitPerPage);
+  const PAGE_LIMIT = 100;
+  let collectedReleaseGroups = [];
+  let pageOffset = currentOffset;
 
-  // 1. Descargar release groups de MusicBrainz en páginas de 100
-  console.log(`📥 Paso 1/3: Obteniendo ${targetCount} Release Groups de MusicBrainz (${pagesNeeded} páginas)...`);
-  for (let page = 0; page < pagesNeeded; page++) {
-    const pageOffset = currentOffset + (page * limitPerPage);
-    // Filtro amplio de álbumes oficiales en orden
-    const mbUrl = `https://musicbrainz.org/ws/2/release-group?query=status:official%20AND%20primarytype:album&limit=${limitPerPage}&offset=${pageOffset}&fmt=json`;
-
-    console.log(`  📄 Descargando página ${page + 1}/${pagesNeeded} (offset ${pageOffset})...`);
-    
+  // 1. Obtener candidatos de MusicBrainz
+  console.log(`📥 Paso 1/3: Descargando candidatos desde catálogo oficial de MusicBrainz...`);
+  while (collectedReleaseGroups.length < targetCount * 2) {
+    const mbUrl = `https://musicbrainz.org/ws/2/release-group?query=status:official%20AND%20primarytype:album&limit=${PAGE_LIMIT}&offset=${pageOffset}&fmt=json`;
+    console.log(`  📄 Solicitando candidatos en offset ${pageOffset}...`);
     const data = await fetchMusicBrainzWithRetry(mbUrl);
-    const releaseGroups = data?.['release-groups'] || [];
-    await sleep(1200); // Respetar rate-limit de 1 req/sec de MusicBrainz
+    const groups = data?.['release-groups'] || [];
+    if (groups.length === 0) break;
 
-    if (releaseGroups.length === 0) {
-      console.log(`  ℹ️ No se obtuvieron más resultados en offset ${pageOffset}.`);
-      break;
+    collectedReleaseGroups.push(...groups);
+    pageOffset += PAGE_LIMIT;
+    if (groups.length < PAGE_LIMIT) break;
+  }
+
+  console.log(`\n✨ Candidatos obtenidos: ${collectedReleaseGroups.length} release groups.\n`);
+
+  // 2. Procesar cada álbum replicando el proceso canónico de Musiclub
+  console.log(`🔍 Paso 2/3: Enriquecimiento canónico, portada HD preservada y enlaces de streaming...`);
+  const validAlbumsToInsert = [];
+  let processedCandidates = 0;
+
+  for (const rg of collectedReleaseGroups) {
+    if (validAlbumsToInsert.length >= targetCount) break;
+
+    processedCandidates++;
+    const mbid = rg.id;
+    const albumName = (rg.title || 'Álbum Desconocido').trim();
+    const artistName = formatArtistCredit(rg['artist-credit']).trim();
+
+    // Comprobación previa de duplicados en Supabase para no saturar APIs innecesariamente
+    try {
+      const { data: existing } = await supabase
+        .from('albums')
+        .select('id')
+        .or(`mbid.eq.${mbid},and(album_name.ilike.${JSON.stringify(albumName)},artist_name.ilike.${JSON.stringify(artistName)})`)
+        .limit(1)
+        .maybeSingle();
+
+      if (existing) {
+        continue; // Ya existe en el club, continuar con el siguiente
+      }
+    } catch {}
+
+    // A) Obtener portada en alta definición y links de streaming de Deezer / Spotify / iTunes
+    const [deezerData, spotifyData] = await Promise.all([
+      getDeezerData(artistName, albumName),
+      getSpotifyData(artistName, albumName),
+    ]);
+
+    // Preservar portada HD de Deezer o Spotify
+    let finalCoverUrl = deezerData?.imageUrl || spotifyData?.imageUrl || null;
+    if (!finalCoverUrl) {
+      const itunesData = await getItunesData(artistName, albumName);
+      finalCoverUrl = itunesData?.imageUrl || null;
     }
 
-    collectedReleaseGroups.push(...releaseGroups);
-    console.log(`  ✅ Página ${page + 1} descargada (+${releaseGroups.length} release groups, total: ${collectedReleaseGroups.length})`);
-
-    if (collectedReleaseGroups.length >= targetCount) break;
-  }
-
-  const releaseGroupsToProcess = collectedReleaseGroups.slice(0, targetCount);
-  console.log(`\n✨ Descargados ${releaseGroupsToProcess.length} lanzamientos de MusicBrainz.\n`);
-
-  // 2. Resolver portadas de Spotify (con fallback automático a Deezer/iTunes/CAA) en lotes concurrentes
-  console.log(`🎨 Paso 2/3: Obteniendo portadas HD (Spotify/Deezer/iTunes/CAA) para los ${releaseGroupsToProcess.length} álbumes...`);
-  const preparedAlbums = [];
-  const CONCURRENCY = 8;
-
-  for (let i = 0; i < releaseGroupsToProcess.length; i += CONCURRENCY) {
-    const chunk = releaseGroupsToProcess.slice(i, i + CONCURRENCY);
-
-    const chunkResults = await Promise.all(
-      chunk.map(async (rg) => {
-        const mbid = rg.id;
-        const albumName = rg.title || 'Álbum Desconocido';
-        const artistName = formatArtistCredit(rg['artist-credit']);
-
-        const releaseDate = rg['first-release-date'] || null;
-        let releaseYear = null;
-        if (releaseDate) {
-          const y = parseInt(String(releaseDate).substring(0, 4), 10);
-          if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
-        }
-
-        const releaseType = normalizeReleaseType(rg['primary-type'], rg['secondary-types']);
-        const genres = (rg.tags || []).map((t) => t.name).slice(0, 5);
-
-        // Resolución de portada multi-fuente resiliente
-        const artData = await resolveAlbumArtworkAndLinks(artistName, albumName, mbid);
-        const finalReleaseDate = releaseDate || artData.releaseDate || null;
-        const finalReleaseYear = releaseYear || artData.releaseYear || null;
-
-        return {
-          album_name: albumName.substring(0, 255),
-          artist_name: artistName.substring(0, 255),
-          mbid: mbid,
-          release_type: releaseType,
-          release_date: finalReleaseDate,
-          release_year: finalReleaseYear,
-          genres: genres,
-          image_url: artData.imageUrl,
-          spotify_link: artData.spotifyLink,
-          spotify_verified: artData.spotifyVerified,
-          reviews_enabled: true,
-          tracks: artData.tracks || [],
-          total_tracks: artData.totalTracks || artData.tracks?.length || null,
-        };
-      })
-    );
-
-    preparedAlbums.push(...chunkResults);
-    if ((i + CONCURRENCY) % 100 === 0 || i + CONCURRENCY >= releaseGroupsToProcess.length) {
-      const progress = Math.min(i + CONCURRENCY, releaseGroupsToProcess.length);
-      console.log(`  🖼️ Portadas resueltas: ${progress}/${releaseGroupsToProcess.length}...`);
+    // Si no tiene carátula en alta definición de CDN, omitir para mantener estándar visual de Musiclub
+    if (!finalCoverUrl) {
+      continue;
     }
 
-    await sleep(50);
+    // B) Obtener metadatos completos y canónicos de MusicBrainz
+    const mbDetails = await getDetailedMusicBrainzMetadata(mbid);
+
+    // C) Pistas: canónicas de MusicBrainz, o fallback a Deezer/Spotify
+    const tracks = (mbDetails?.tracks && mbDetails.tracks.length > 0)
+      ? mbDetails.tracks
+      : (deezerData?.tracks?.length ? deezerData.tracks : (spotifyData?.tracks || []));
+
+    if (!tracks || tracks.length === 0) {
+      continue; // No insertar álbumes sin canciones
+    }
+
+    // D) Enlaces de streaming: Spotify, Apple Music, YouTube y Deezer (other_link)
+    const spotifyLink = mbDetails?.externalLinks?.spotify ||
+      spotifyData?.spotifyLink ||
+      `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
+
+    const deezerLink = mbDetails?.externalLinks?.deezer ||
+      deezerData?.deezerLink ||
+      `https://www.deezer.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
+
+    const youtubeLink = mbDetails?.externalLinks?.youtube ||
+      `https://www.youtube.com/results?search_query=${encodeURIComponent(artistName + ' ' + albumName + ' full album')}`;
+
+    const appleMusicLink = mbDetails?.externalLinks?.appleMusic ||
+      `https://music.apple.com/search?term=${encodeURIComponent(artistName + ' ' + albumName)}`;
+
+    // Fechas y géneros
+    const releaseType = normalizeReleaseType(rg['primary-type'], rg['secondary-types']);
+    const rawDate = rg['first-release-date'] || deezerData?.releaseDate || null;
+    let releaseYear = null;
+    if (rawDate) {
+      const y = parseInt(String(rawDate).substring(0, 4), 10);
+      if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
+    }
+
+    const genres = (mbDetails?.genres && mbDetails.genres.length > 0)
+      ? mbDetails.genres
+      : (rg.tags || []).map((t) => t.name).slice(0, 5);
+
+    const albumRecord = {
+      album_name: albumName.substring(0, 255),
+      artist_name: artistName.substring(0, 255),
+      mbid: mbid,
+      release_type: releaseType,
+      release_date: rawDate,
+      release_year: releaseYear,
+      genres: genres,
+      label: mbDetails?.label || null,
+      country: mbDetails?.country || null,
+      barcode: mbDetails?.barcode || null,
+      total_tracks: mbDetails?.totalTracks || tracks.length,
+      tracks: tracks,
+      image_url: finalCoverUrl, // REGLA: Portada preservada estrictamente de CDN
+      spotify_link: spotifyLink,
+      apple_music_link: appleMusicLink,
+      youtube_link: youtubeLink,
+      other_link: deezerLink, // Deezer link almacenado en other_link
+      spotify_verified: true,
+      reviews_enabled: true,
+    };
+
+    validAlbumsToInsert.push(albumRecord);
+    console.log(`  ✅ [${validAlbumsToInsert.length}/${targetCount}] ${artistName} - ${albumName} (${tracks.length} tracks, Deezer + Spotify + MBID)`);
   }
 
-  // Filtrar estrictamente solo álbumes que tengan canciones válidas y portada para mantener la integridad de Musiclub
-  const validAlbums = preparedAlbums.filter((a) => a.tracks && a.tracks.length > 0 && a.image_url);
-  console.log(`\n🎵 Álbumes válidos con canciones y portada completa: ${validAlbums.length}/${preparedAlbums.length}`);
+  console.log(`\n🎵 Álbumes listos para guardar en Supabase: ${validAlbumsToInsert.length}`);
 
-  if (validAlbums.length === 0) {
-    console.log(`⚠️ Ningún álbum cumplió los requisitos de calidad (canciones + portada). Omitiendo guardado.`);
-    return stats;
+  if (validAlbumsToInsert.length === 0) {
+    console.log(`⚠️ Ningún álbum nuevo para insertar en esta iteración.`);
+    return;
   }
 
-  // 3. Upsert en lotes en Supabase
-  console.log(`\n💾 Paso 3/3: Guardando ${validAlbums.length} álbumes en la base de datos Supabase...`);
-  const DB_BATCH_SIZE = 50;
+  // 3. Inserción directa en lotes en Supabase
+  console.log(`\n💾 Paso 3/3: Guardando ${validAlbumsToInsert.length} álbumes en Supabase...`);
   let insertedCount = 0;
-  let duplicateOrErrorCount = 0;
+  const DB_BATCH = 25;
 
-  for (let b = 0; b < validAlbums.length; b += DB_BATCH_SIZE) {
-    const batch = validAlbums.slice(b, b + DB_BATCH_SIZE);
+  for (let b = 0; b < validAlbumsToInsert.length; b += DB_BATCH) {
+    const chunk = validAlbumsToInsert.slice(b, b + DB_BATCH);
     try {
       const { data, error } = await supabase
         .from('albums')
-        .upsert(batch, {
-          onConflict: 'album_name,artist_name',
-          ignoreDuplicates: true,
-        })
+        .upsert(chunk, { onConflict: 'album_name,artist_name', ignoreDuplicates: true })
         .select('id');
 
       if (error) {
-        console.warn(`  ⚠️ Error en lote ${b / DB_BATCH_SIZE + 1}: ${error.message}`);
-        duplicateOrErrorCount += batch.length;
+        console.warn(`  ⚠️ Error al guardar lote: ${error.message}`);
       } else {
-        const count = data ? data.length : batch.length;
+        const count = data ? data.length : chunk.length;
         insertedCount += count;
-        console.log(`  💾 Lote ${Math.floor(b / DB_BATCH_SIZE) + 1}/${Math.ceil(validAlbums.length / DB_BATCH_SIZE)} guardado (+${count} registros)`);
+        console.log(`  💾 Lote guardado exitosamente (+${count} registros)`);
       }
     } catch (err) {
-      console.error(`  ❌ Excepción en lote:`, err.message);
-      duplicateOrErrorCount += batch.length;
+      console.error(`  ❌ Excepción en lote Supabase:`, err.message);
     }
   }
 
-  // 4. Actualizar automáticamente sitemap.xml para indexación inmediata en Google
+  // 4. Regenerar sitemap.xml
   try {
-    console.log(`\n🗺️ Actualizando sitemap.xml automáticamente con los nuevos lanzamientos para Google...`);
+    console.log(`\n🗺️ Actualizando sitemap.xml automáticamente para indexación en Google...`);
     const { execSync } = await import('child_process');
     execSync('node scripts/generate-sitemap.js', { stdio: 'inherit' });
     console.log(`✅ sitemap.xml regenerado e indexable de inmediato.`);
@@ -505,8 +588,8 @@ export async function runIngestionBatch(targetCount = 25) {
     console.warn(`⚠️ Error regenerando sitemap.xml:`, err.message);
   }
 
-  // 5. Actualizar estado persistente para la siguiente hora
-  const newOffset = currentOffset + releaseGroupsToProcess.length;
+  // 5. Actualizar estado persistente para la siguiente ejecución (cada 30 min)
+  const newOffset = currentOffset + processedCandidates;
   const totalIngested = state.total_ingested + insertedCount;
   const durationSec = Math.round((Date.now() - startTime) / 1000);
 
@@ -515,9 +598,8 @@ export async function runIngestionBatch(targetCount = 25) {
     duration_seconds: durationSec,
     offset_start: currentOffset,
     offset_end: newOffset,
-    fetched: releaseGroupsToProcess.length,
+    candidates_analyzed: processedCandidates,
     inserted_or_upserted: insertedCount,
-    errors_or_duplicates: duplicateOrErrorCount,
   };
 
   const updatedState = {
@@ -525,26 +607,25 @@ export async function runIngestionBatch(targetCount = 25) {
     total_ingested: totalIngested,
     last_run: new Date().toISOString(),
     last_stats: stats,
-    history: [stats, ...(state.history || []).slice(0, 48)], // Conservar últimas 48 ejecuciones (2 días)
+    history: [stats, ...(state.history || []).slice(0, 96)], // Conservar últimas 96 ejecuciones (2 días a 30m)
   };
 
   saveCrawlerState(updatedState);
 
   console.log(`\n========================================================`);
-  console.log(`🎉 INGESTA DE LA HORA COMPLETADA CON ÉXITO`);
+  console.log(`🎉 INGESTA COMPLETADA EXITOSAMENTE`);
   console.log(`⏱️ Tiempo total: ${durationSec} segundos`);
-  console.log(`📊 Álbumes procesados: ${releaseGroupsToProcess.length}`);
-  console.log(`✅ Álbumes guardados en Supabase: ${insertedCount}`);
-  console.log(`📍 Siguiente offset para la próxima hora: ${newOffset}`);
+  console.log(`📊 Candidatos evaluados: ${processedCandidates}`);
+  console.log(`✅ Nuevos álbumes guardados en la BD: ${insertedCount}`);
+  console.log(`📍 Próximo offset (en 30 minutos): ${newOffset}`);
   console.log(`========================================================\n`);
 
   return stats;
 }
 
-// Ejecución directa si se invoca desde CLI: node scripts/hourlyMusicBrainzIngestion.mjs
+// Ejecución directa si se invoca desde CLI: node scripts/hourlyMusicBrainzIngestion.mjs [count]
 if (process.argv[1] && process.argv[1].endsWith('hourlyMusicBrainzIngestion.mjs')) {
-  // Acepta argumento de límite opcional: node scripts/hourlyMusicBrainzIngestion.mjs 25
   const limitArg = parseInt(process.argv[2], 10);
-  const target = !isNaN(limitArg) && limitArg > 0 ? limitArg : 25;
+  const target = !isNaN(limitArg) && limitArg > 0 ? limitArg : 50;
   runIngestionBatch(target).catch(console.error);
 }

@@ -5,6 +5,12 @@ import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
+import {
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from './common/PlatformLogos';
 
 export function AdminPanel({ onClose, isPage = true }) {
   // Navigation Tabs
@@ -314,6 +320,7 @@ export function AdminPanel({ onClose, isPage = true }) {
           spotify_link: editingAlbum.spotify_link?.trim() || null,
           youtube_link: editingAlbum.youtube_link?.trim() || null,
           apple_music_link: editingAlbum.apple_music_link?.trim() || null,
+          other_link: editingAlbum.other_link?.trim() || null,
           release_type: editingAlbum.release_type,
           release_year: isNaN(year) ? null : year,
           release_date: editingAlbum.release_date || null,
@@ -1843,10 +1850,11 @@ export function AdminPanel({ onClose, isPage = true }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
-                    <label className="block text-slate-400 font-bold mb-1">
-                      Spotify:
+                    <label className="text-slate-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                      <SpotifyLogo className="w-3.5 h-3.5 text-[#1db954]" />
+                      <span>Spotify:</span>
                     </label>
                     <input
                       type="url"
@@ -1858,31 +1866,14 @@ export function AdminPanel({ onClose, isPage = true }) {
                           spotify_link: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
+                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#1db954]/50"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 font-bold mb-1">
-                      YouTube:
-                    </label>
-                    <input
-                      type="url"
-                      placeholder="https://music.youtube.com/..."
-                      value={editingAlbum.youtube_link || ''}
-                      onChange={(e) =>
-                        setEditingAlbum({
-                          ...editingAlbum,
-                          youtube_link: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-slate-400 font-bold mb-1">
-                      Apple Music:
+                    <label className="text-slate-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                      <AppleMusicLogo className="w-3.5 h-3.5 text-[#fc3c44]" />
+                      <span>Apple Music:</span>
                     </label>
                     <input
                       type="url"
@@ -1894,7 +1885,45 @@ export function AdminPanel({ onClose, isPage = true }) {
                           apple_music_link: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none"
+                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#fc3c44]/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                      <YouTubeLogo className="w-3.5 h-3.5 text-red-500" />
+                      <span>YouTube:</span>
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://music.youtube.com/..."
+                      value={editingAlbum.youtube_link || ''}
+                      onChange={(e) =>
+                        setEditingAlbum({
+                          ...editingAlbum,
+                          youtube_link: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-red-500/50"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-slate-300 font-bold mb-1 flex items-center gap-1.5 text-xs">
+                      <DeezerLogo className="w-3.5 h-3.5 text-[#a238ff]" />
+                      <span>Deezer:</span>
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://www.deezer.com/album/..."
+                      value={editingAlbum.other_link || ''}
+                      onChange={(e) =>
+                        setEditingAlbum({
+                          ...editingAlbum,
+                          other_link: e.target.value,
+                        })
+                      }
+                      className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-[#a238ff]/50"
                     />
                   </div>
                 </div>

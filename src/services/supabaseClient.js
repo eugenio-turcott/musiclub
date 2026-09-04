@@ -173,7 +173,17 @@ export const supabaseService = {
     return data;
   },
 
-  findAlbum: async (albumName, artistName) => {
+  findAlbum: async (albumName, artistName, mbid = null) => {
+    if (mbid) {
+      const { data: byMbid, error: mbidErr } = await supabase
+        .from('albums')
+        .select('*')
+        .eq('mbid', mbid)
+        .maybeSingle();
+
+      if (!mbidErr && byMbid) return byMbid;
+    }
+
     const { data, error } = await supabase
       .from('albums')
       .select('*')
@@ -234,9 +244,9 @@ export const supabaseService = {
 
     // =========================================================================
     // ENRIQUECIMIENTO TRANSPARENTE CON MUSICBRAINZ
-    // La imagen de portada SIEMPRE proviene de Spotify (payload.image_url intacta)
+    // La imagen de portada SIEMPRE proviene de Spotify o Deezer (payload.image_url intacta)
     // y los metadatos canónicos (MBID, release_type, géneros, fecha, discográfica,
-    // país, barcode, tracks) se resuelven automáticamente con MusicBrainz.
+    // país, barcode, tracks) provienen de MusicBrainz.
     // =========================================================================
     if (!payload.mbid) {
       try {
@@ -247,28 +257,20 @@ export const supabaseService = {
         if (mbData) {
           if (mbData.mbid) payload.mbid = mbData.mbid;
           if (mbData.release_type) payload.release_type = mbData.release_type;
-          if (mbData.release_date && !payload.release_date) {
+          if (mbData.release_date) {
             payload.release_date = mbData.release_date;
             if (mbData.release_year) payload.release_year = mbData.release_year;
           }
-          if (
-            mbData.genres &&
-            mbData.genres.length > 0 &&
-            (!payload.genres || payload.genres.length === 0)
-          ) {
+          if (mbData.genres && mbData.genres.length > 0) {
             payload.genres = mbData.genres;
           }
-          if (mbData.label && !payload.label) payload.label = mbData.label;
-          if (mbData.country && !payload.country) payload.country = mbData.country;
-          if (mbData.barcode && !payload.barcode) payload.barcode = mbData.barcode;
-          if (mbData.total_tracks && !payload.total_tracks) {
+          if (mbData.label) payload.label = mbData.label;
+          if (mbData.country) payload.country = mbData.country;
+          if (mbData.barcode) payload.barcode = mbData.barcode;
+          if (mbData.total_tracks) {
             payload.total_tracks = mbData.total_tracks;
           }
-          if (
-            mbData.tracks &&
-            mbData.tracks.length > 0 &&
-            (!payload.tracks || payload.tracks.length === 0)
-          ) {
+          if (mbData.tracks && mbData.tracks.length > 0) {
             payload.tracks = mbData.tracks;
           }
         }
@@ -396,7 +398,7 @@ export const supabaseService = {
         ...album,
         pool_entry_id: poolWinner.id,
         nominated_by: poolWinner.nominated_by,
-        user_id: poolWinner.user_id || album.user_id,
+        user_id: poolWinner.user_id || null,
         status: 'GANADOR',
       };
     } catch {
@@ -1553,7 +1555,6 @@ export const supabaseService = {
           album_name: alb.album_name,
           artist_name: alb.artist_name,
           image_url: alb.image_url,
-          user_id: alb.user_id,
           mbid: alb.mbid,
           label: alb.label,
           country: alb.country,

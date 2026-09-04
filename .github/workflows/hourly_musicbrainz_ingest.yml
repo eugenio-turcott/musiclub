@@ -1,9 +1,9 @@
-name: MusicBrainz Hourly Catalog Ingestion & Sitemap Update
+name: MusicBrainz 30-Minute Catalog Ingestion & Sitemap Update
 
 on:
   schedule:
-    # Se ejecuta cada hora al minuto 0 (24 veces al día)
-    - cron: '0 * * * *'
+    # Se ejecuta cada 30 minutos (48 veces al día)
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Permite ejecutarlo manualmente con un clic en la pestaña "Actions" de GitHub
 
 permissions:
@@ -28,13 +28,13 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Ingest 25 Verified MusicBrainz Releases with Tracklists & Update Sitemap
+      - name: Ingest 50 Verified MusicBrainz Releases with Tracklists & Update Sitemap
         env:
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
           REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
-        run: node scripts/hourlyMusicBrainzIngestion.mjs 25
+        run: node scripts/hourlyMusicBrainzIngestion.mjs 50
 
       - name: Commit & Push updated Sitemap and Crawler State
         run: |

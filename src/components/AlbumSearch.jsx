@@ -1,12 +1,13 @@
 // src/components/AlbumSearch.jsx
 import React, { useState } from 'react';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
+import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
-import { ReviewSystem } from './ReviewSystem';
 
 export function AlbumSearch({ onAlbumCreated, user }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchProvider = 'ALL';
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -31,14 +32,14 @@ export function AlbumSearch({ onAlbumCreated, user }) {
     setExistingAlbum(null);
 
     try {
-      const res = await searchAlbum(searchQuery);
+      const res = await searchAlbum(searchQuery, { provider: searchProvider });
       if (res?.success && Array.isArray(res.albums) && res.albums.length > 0) {
         setSearchResults(res.albums);
       } else {
-        setError('No se encontraron álbumes en Spotify para esta búsqueda.');
+        setError('No se encontraron álbumes para esta búsqueda.');
       }
     } catch (err) {
-      setError('Error de conexión con Spotify. Intenta de nuevo.');
+      setError('Error de conexión al buscar álbumes. Intenta de nuevo.');
     } finally {
       setLoading(false);
     }
@@ -63,7 +64,25 @@ export function AlbumSearch({ onAlbumCreated, user }) {
       const artistName = Array.isArray(album.artists)
         ? album.artists.join(', ')
         : album.artists?.[0] || album.artist || 'Artista';
-      const existing = await supabaseService.findAlbum(album.name, artistName);
+
+      // 1. Obtener detalles base desde el proveedor original (Spotify / Deezer / iTunes)
+      const detailsRes = await getAlbumDetails(album.id);
+      const baseDetails = detailsRes?.album || album;
+
+      // 2. Obtener información canónica completa de MusicBrainz preservando la portada HD de Spotify/Deezer
+      const mbData = await getFullMusicBrainzAlbumData(
+        artistName,
+        album.name,
+        album.image,
+        baseDetails
+      );
+
+      const targetTitle = mbData?.album_name || album.name;
+      const targetArtist = mbData?.artist_name || artistName;
+      const targetMbid = mbData?.mbid || null;
+
+      // 3. Comprobar si ya existe en Supabase (por MBID o por Título y Artista)
+      const existing = await supabaseService.findAlbum(targetTitle, targetArtist, targetMbid);
 
       if (existing) {
         setExistingAlbum({
@@ -80,16 +99,19 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         return;
       }
 
-      const detailsRes = await getAlbumDetails(album.id);
-      if (detailsRes?.success && detailsRes.album) {
-        setAlbumDetails(detailsRes.album);
-        setSearchResults([]);
-      } else {
-        setAlbumDetails(album);
-        setSearchResults([]);
-      }
+      setAlbumDetails({
+        ...baseDetails,
+        ...mbData,
+        id: album.id,
+        name: targetTitle,
+        artist: targetArtist,
+        image: album.image || baseDetails.image, // PRESERVADO DE SPOTIFY/DEEZER
+        release_type: mbData?.release_type || baseDetails.release_type || 'ALBUM',
+      });
+      setSearchResults([]);
     } catch (err) {
-      setError('Error al obtener los detalles del álbum desde Spotify.');
+      console.warn('Error al obtener metadatos:', err);
+      setError('Error al obtener los detalles del álbum.');
     } finally {
       setLoading(false);
     }
@@ -107,6 +129,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         name: track.name,
         duration_ms: track.duration_ms || 0,
         track_number: track.track_number || idx + 1,
+        disc_number: track.disc_number || 1,
       }));
 
       const finalType =
@@ -117,24 +140,38 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
       const artistName = Array.isArray(albumDetails.artists)
         ? albumDetails.artists.join(', ')
-        : albumDetails.artist || 'Artista';
+        : albumDetails.artist_name || albumDetails.artist || 'Artista';
 
       const albumData = {
-        albumName: albumDetails.name,
+        albumName: albumDetails.album_name || albumDetails.name,
         artistName: artistName,
-        imageUrl: albumDetails.image,
+        imageUrl: albumDetails.image, // Portada HD de Spotify/Deezer
+        mbid: albumDetails.mbid || null,
         spotifyLink:
+          albumDetails.spotify_link ||
           albumDetails.external_urls?.spotify ||
-          `https://open.spotify.com/album/${albumDetails.id}`,
-        youtubeLink: null,
-        appleMusicLink: null,
+          (albumDetails.id && !String(albumDetails.id).startsWith('deezer_')
+            ? `https://open.spotify.com/album/${albumDetails.id}`
+            : null),
+        youtubeLink: albumDetails.youtube_link || null,
+        appleMusicLink: albumDetails.apple_music_link || null,
+        otherLink:
+          albumDetails.other_link ||
+          albumDetails.external_urls?.deezer ||
+          null,
         label: albumDetails.label || null,
-        country: null,
-        barcode: null,
-        totalTracks: albumDetails.totalTracks || tracks.length || null,
+        country: albumDetails.country || null,
+        barcode: albumDetails.barcode || null,
+        totalTracks:
+          albumDetails.total_tracks ||
+          albumDetails.totalTracks ||
+          tracks.length ||
+          null,
         tracks: tracks,
-        releaseDate: albumDetails.releaseDate || null,
-        releaseYear: albumDetails.releaseYear || null,
+        releaseDate:
+          albumDetails.release_date || albumDetails.releaseDate || null,
+        releaseYear:
+          albumDetails.release_year || albumDetails.releaseYear || null,
         releaseType: finalType,
         genres: albumDetails.genres || [],
         reviews_enabled: true,
@@ -189,7 +226,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 </span>
               </div>
               <p className="text-white/60 text-xs mt-1 leading-relaxed">
-                Búscalo en Spotify y agrégalo para reseñar en el club.
+                Búscalo en el catálogo musical e impórtalo para reseñar en el club.
               </p>
             </div>
           </div>
@@ -213,15 +250,15 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {/* Cabecera cuando está expandido */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#1DB954] to-[#1ed760] flex items-center justify-center text-sm shadow-md flex-shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm shadow-md flex-shrink-0">
               🎵
             </div>
             <div className="min-w-0">
               <h3 className="text-white font-black text-sm sm:text-base truncate">
-                Proponer Álbum desde Spotify
+                Proponer Álbum
               </h3>
               <p className="text-white/40 text-xs truncate">
-                Busca en el catálogo oficial de Spotify.
+                Busca en el catálogo musical e impórtalo con información completa.
               </p>
             </div>
           </div>
@@ -244,14 +281,14 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Buscar álbum por nombre o artista en Spotify..."
+            placeholder="Buscar álbum por nombre o artista..."
             className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#f5576c] transition-colors"
             autoFocus
           />
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 whitespace-nowrap shadow-lg shadow-[#f5576c]/20"
+            className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 whitespace-nowrap shadow-lg shadow-[#f5576c]/20 cursor-pointer"
           >
             {loading ? '🔍 Buscando...' : '🔍 Buscar'}
           </button>
@@ -264,11 +301,13 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         )}
 
         {loading && (
-          <div className="text-white/20 text-sm py-4 text-center">
-            <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse inline-block mr-2"></span>
-            {searchResults.length === 0
-              ? 'Consultando catálogo oficial de Spotify...'
-              : 'Verificando en el club...'}
+          <div className="text-white/40 text-sm py-4 text-center flex items-center justify-center gap-2">
+            <span className="w-2.5 h-2.5 bg-[#f5576c] rounded-full animate-pulse"></span>
+            <span>
+              {searchResults.length === 0
+                ? 'Consultando catálogo oficial...'
+                : 'Verificando en el club...'}
+            </span>
           </div>
         )}
 
@@ -320,7 +359,6 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                     </p>
                     <div className="flex items-center justify-between text-[10px] text-white/30 mt-1">
                       <span>{album.releaseYear || ''}</span>
-                      <span>🟢 Spotify</span>
                     </div>
                   </div>
                 </div>
