@@ -1,16 +1,24 @@
 {
-  "offset": 1885,
-  "total_ingested": 1636,
-  "last_run": "2026-09-06T01:21:40.352Z",
+  "offset": 1961,
+  "total_ingested": 1686,
+  "last_run": "2026-09-06T06:24:43.746Z",
   "last_stats": {
-    "run_timestamp": "2026-09-06T01:21:40.352Z",
-    "duration_seconds": 525,
-    "offset_start": 1823,
-    "offset_end": 1885,
-    "candidates_analyzed": 62,
+    "run_timestamp": "2026-09-06T06:24:43.746Z",
+    "duration_seconds": 326,
+    "offset_start": 1885,
+    "offset_end": 1961,
+    "candidates_analyzed": 76,
     "inserted_or_upserted": 50
   },
   "history": [
+    {
+      "run_timestamp": "2026-09-06T06:24:43.746Z",
+      "duration_seconds": 326,
+      "offset_start": 1885,
+      "offset_end": 1961,
+      "candidates_analyzed": 76,
+      "inserted_or_upserted": 50
+    },
     {
       "run_timestamp": "2026-09-06T01:21:40.352Z",
       "duration_seconds": 525,
