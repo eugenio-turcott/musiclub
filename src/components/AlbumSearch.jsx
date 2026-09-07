@@ -158,7 +158,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         otherLink:
           albumDetails.other_link ||
           albumDetails.external_urls?.deezer ||
-          null,
+          (albumDetails.name && (albumDetails.artist || albumDetails.artists?.[0])
+            ? `https://www.deezer.com/search/${encodeURIComponent((albumDetails.artist || albumDetails.artists?.[0]) + ' ' + albumDetails.name)}`
+            : null),
         label: albumDetails.label || null,
         country: albumDetails.country || null,
         barcode: albumDetails.barcode || null,

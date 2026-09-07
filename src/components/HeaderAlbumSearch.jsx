@@ -372,10 +372,10 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           youtubeLink: mbData?.youtube_link || null,
           appleMusicLink: mbData?.apple_music_link || rawRemote?.external_urls?.itunes || null,
           otherLink:
-            mbData?.other_link ||
-            rawRemote?.external_urls?.deezer ||
             item.rawRemoteAlbum?.external_urls?.deezer ||
-            null,
+            rawRemote?.external_urls?.deezer ||
+            mbData?.other_link ||
+            `https://www.deezer.com/search/${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
           reviews_enabled: true,
           skipMusicBrainzEnrichment: true, // Ya enriquecido de forma optimizada
         };

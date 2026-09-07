@@ -642,9 +642,14 @@ export function AlbumDetail() {
                   </a>
                 )}
 
-                {album.other_link && (
+                {(album.other_link || (album.album_name && album.artist_name)) && (
                   <a
-                    href={album.other_link}
+                    href={
+                      album.other_link ||
+                      `https://www.deezer.com/search/${encodeURIComponent(
+                        album.artist_name + ' ' + album.album_name
+                      )}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#a238ff]/15 hover:bg-[#a238ff]/25 text-[#c77dff] border border-[#a238ff]/30 font-bold text-xs transition-all shadow-sm group"

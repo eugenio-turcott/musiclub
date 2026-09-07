@@ -179,6 +179,7 @@ export async function resolveStreamingLinks(artistName, albumName, existingLinks
     spotify: existingLinks?.spotify || null,
     youtube: existingLinks?.youtube || null,
     apple_music: existingLinks?.apple_music || null,
+    deezer: existingLinks?.deezer || null,
     bandcamp: existingLinks?.bandcamp || null,
     discogs: existingLinks?.discogs || null,
   };
@@ -216,6 +217,11 @@ export async function resolveStreamingLinks(artistName, albumName, existingLinks
     result.apple_music = `https://music.apple.com/search?term=${encodedQuery}`;
   }
 
+  // 4. Resolver Deezer (other_link en Musiclub)
+  if (!result.deezer && query) {
+    result.deezer = `https://www.deezer.com/search/${encodedQuery}`;
+  }
+
   return result;
 }
 
@@ -244,6 +250,7 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
       spotify: null,
       apple_music: null,
       youtube: null,
+      deezer: null,
       bandcamp: null,
       discogs: null,
       wikidata: null,
@@ -264,6 +271,8 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
           !foundLinks.youtube
         )
           foundLinks.youtube = targetUrl;
+        else if (targetUrl.includes('deezer.com') && !foundLinks.deezer)
+          foundLinks.deezer = targetUrl;
         else if (targetUrl.includes('bandcamp.com') && !foundLinks.bandcamp)
           foundLinks.bandcamp = targetUrl;
         else if (targetUrl.includes('discogs.com') && !foundLinks.discogs)
@@ -689,7 +698,7 @@ export async function getFullMusicBrainzAlbumData(artistName, albumName, coverIm
       spotify_link: fallbackData.spotify_link || fallbackData.external_urls?.spotify || null,
       youtube_link: fallbackData.youtube_link || `https://www.youtube.com/results?search_query=${encodeURIComponent((fallbackData.artist || artistName) + ' ' + (fallbackData.name || albumName) + ' full album')}`,
       apple_music_link: fallbackData.apple_music_link || `https://music.apple.com/search?term=${encodeURIComponent((fallbackData.artist || artistName) + ' ' + (fallbackData.name || albumName))}`,
-      other_link: fallbackData.other_link || fallbackData.external_urls?.deezer || null,
+      other_link: fallbackData.other_link || fallbackData.external_urls?.deezer || `https://www.deezer.com/search/${encodeURIComponent((fallbackData.artist || artistName) + ' ' + (fallbackData.name || albumName))}`,
       spotify_verified: true,
       reviews_enabled: true,
       source: fallbackData.source || 'FALLBACK',
@@ -744,7 +753,13 @@ export async function getFullMusicBrainzAlbumData(artistName, albumName, coverIm
         spotify_link: details?.externalLinks?.spotify || fallbackData?.spotify_link || fallbackData?.external_urls?.spotify || null,
         youtube_link: details?.externalLinks?.youtube || fallbackData?.youtube_link || `https://www.youtube.com/results?search_query=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle + ' full album')}`,
         apple_music_link: details?.externalLinks?.appleMusic || fallbackData?.apple_music_link || `https://music.apple.com/search?term=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
-        other_link: details?.externalLinks?.bandcamp || details?.externalLinks?.discogs || fallbackData?.external_urls?.deezer || null,
+        other_link:
+          details?.externalLinks?.deezer ||
+          fallbackData?.other_link ||
+          fallbackData?.external_urls?.deezer ||
+          details?.externalLinks?.bandcamp ||
+          details?.externalLinks?.discogs ||
+          `https://www.deezer.com/search/${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
         spotify_verified: true,
         reviews_enabled: true,
         source: 'MUSICBRAINZ',

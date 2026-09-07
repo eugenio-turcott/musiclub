@@ -397,7 +397,12 @@ export const supabaseService = {
       spotify_link: albumData.spotifyLink || albumData.spotify_link || null,
       youtube_link: albumData.youtubeLink || albumData.youtube_link || null,
       apple_music_link: albumData.appleMusicLink || albumData.apple_music_link || null,
-      other_link: albumData.otherLink || albumData.other_link || null,
+      other_link:
+        albumData.otherLink ||
+        albumData.other_link ||
+        ((albumData.artistName || albumData.artist_name) && (albumData.albumName || albumData.album_name)
+          ? `https://www.deezer.com/search/${encodeURIComponent((albumData.artistName || albumData.artist_name) + ' ' + (albumData.albumName || albumData.album_name))}`
+          : null),
       tracks: albumData.tracks || [],
       spotify_verified: true,
       reviews_enabled: albumData.reviews_enabled ?? true,

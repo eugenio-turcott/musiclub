@@ -14,11 +14,43 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.2',
+    title:
+      'Resolución Universal de Streaming para Deezer (other_link), Fallback de Búsqueda Inteligente y Disponibilidad Total de Plataformas',
+    date: '2026-09-07',
+    sha: 'HEAD',
+    tag: 'Mejora',
+    tagColor: 'from-purple-500 via-fuchsia-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.2 de Musiclub enfocada en la completitud y resiliencia del ecosistema de streaming multi-plataforma: extracción automática de enlaces de Deezer desde las relaciones de MusicBrainz, fallback canónico de búsqueda inteligente de Deezer al importar discos desde Spotify o fuentes externas, persistencia garantizada en Supabase (other_link) y disponibilidad total del botón oficial de Deezer tanto en la ficha del disco como en la recomendación horaria, incluso para álbumes históricos.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Resolución Universal de Deezer (other_link) en la Ingesta de Álbumes',
+        description:
+          'Al registrar o calificar cualquier nuevo álbum desde el buscador global o explorador, el sistema ahora extrae enlaces de Deezer directamente desde las relaciones de MusicBrainz o genera un enlace canónico de búsqueda inteligente (https://www.deezer.com/search/...), asegurando que other_link nunca quede nulo.',
+      },
+      {
+        type: 'improvement',
+        title: 'Botón de Deezer Siempre Activo en Álbumes Históricos',
+        description:
+          'En AlbumDetail y HourlyRecommendedRelease, si un álbum existente en la base de datos no contaba previamente con other_link, la interfaz genera automáticamente en tiempo real el enlace de búsqueda de Deezer con el nombre del artista y álbum, garantizando que los 4 reproductores de streaming (Spotify, Apple Music, YouTube y Deezer) estén siempre 100% operativos.',
+      },
+      {
+        type: 'improvement',
+        title: 'Optimización de Enlaces en createAlbum y Buscadores',
+        description:
+          'Refuerzo en el cliente de Supabase (createAlbum), HeaderAlbumSearch y AlbumSearch para normalizar y blindar la persistencia de los 4 enlaces de streaming sin penalizar la velocidad de respuesta ni requerir peticiones bloqueantes adicionales.',
+      },
+    ],
+  },
+  {
     version: 'V.7.1',
     title:
       'Calificador de Portadas de Álbumes (Cover Art Ratings), Recomendación Horaria en Portada, Reorganización de Navegación y Blindaje Defensivo en Búsqueda y Detalle',
     date: '2026-09-07',
-    sha: 'HEAD',
+    sha: 'v7.1',
     tag: 'Mayor',
     tagColor: 'from-amber-500 via-orange-500 to-rose-500',
     authorName: 'Eugenio Turcott',

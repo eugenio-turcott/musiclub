@@ -200,7 +200,12 @@ export function HourlyRecommendedRelease({
   const spotifyUrl = album.spotify_link || album.spotifyLink || null;
   const appleMusicUrl = album.apple_music_link || album.appleMusicLink || null;
   const youtubeUrl = album.youtube_link || album.youtubeLink || null;
-  const otherUrl = album.other_link || album.otherLink || null;
+  const otherUrl =
+    album.other_link ||
+    album.otherLink ||
+    (album.artist_name && album.album_name
+      ? `https://www.deezer.com/search/${encodeURIComponent(album.artist_name + ' ' + album.album_name)}`
+      : null);
 
   // Información de la reseña destacada
   const firstReviewScore = review
