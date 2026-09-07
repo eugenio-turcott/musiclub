@@ -1,6 +1,8 @@
 // src/components/TierListMaker.jsx
 import React, { useState, useMemo } from 'react';
 import { getWeightedReviewScore } from '../utils/ratingUtils';
+import { ShareIcon } from './ShareReviewModal';
+import ShareTierListModal from './ShareTierListModal';
 
 // SVG local data URIs que nunca fallan por red ni por CORS
 export const PLACEHOLDER_COVER =
@@ -196,6 +198,326 @@ function drawRoundedLeftRect(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+/**
+ * Generador de canvas 2D nativo para el Tier List de un usuario.
+ * Exportado para reutilización directa en TierListMaker y ShareTierListModal.
+ */
+export async function generateTierListCanvas({
+  classifiedItems = [],
+  tierGroups = {},
+  userName = 'Melómano',
+  totalCategorized = 0,
+}) {
+  // Asegurar que las fuentes web estén completamente cargadas antes de pintar
+  if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+    try {
+      await document.fonts.ready;
+    } catch (e) {
+      console.warn('document.fonts.ready error in tier list canvas:', e);
+    }
+  }
+
+  // 1. Precargar logo de Musiclub y portadas con CORS seguro
+  const logoImgPromise = preloadCORSImage('/5662059.png');
+  const albumImagesPromises = classifiedItems.map(async (item) => {
+    const img = await preloadCORSImage(item.imagen);
+    return { albumId: item.albumId, img };
+  });
+
+  const [logoImg, loadedAlbumImages] = await Promise.all([
+    logoImgPromise,
+    Promise.all(albumImagesPromises),
+  ]);
+
+  const imageMap = new Map();
+  loadedAlbumImages.forEach(({ albumId, img }) => {
+    if (img) imageMap.set(albumId, img);
+  });
+
+  // 2. Geometría y dimensiones de exportación (1200px de ancho)
+  const CANVAS_WIDTH = 1200;
+  const PADDING_X = 36;
+  const HEADER_HEIGHT = 110;
+  const FOOTER_HEIGHT = 64;
+  const ROW_GAP = 14;
+  const BADGE_WIDTH = 150;
+  const TILE_SIZE = 90;
+  const TILE_GAP = 12;
+  const TRAY_PADDING = 14;
+
+  const availableTrayWidth =
+    CANVAS_WIDTH - PADDING_X * 2 - BADGE_WIDTH - TRAY_PADDING * 2;
+  const tilesPerRow = Math.max(
+    1,
+    Math.floor((availableTrayWidth + TILE_GAP) / (TILE_SIZE + TILE_GAP))
+  );
+
+  // Calcular altura por cada fila
+  const tierLayouts = DEFAULT_TIERS.map((tier) => {
+    const items = tierGroups[tier.id] || [];
+    const rowsCount = Math.max(1, Math.ceil(items.length / tilesPerRow));
+    const calculatedHeight =
+      items.length === 0
+        ? 104
+        : rowsCount * TILE_SIZE +
+          (rowsCount - 1) * TILE_GAP +
+          TRAY_PADDING * 2;
+    const rowHeight = Math.max(104, calculatedHeight);
+    return { tier, items, rowHeight };
+  });
+
+  const totalRowsHeight = tierLayouts.reduce(
+    (sum, t) => sum + t.rowHeight + ROW_GAP,
+    0
+  );
+  const CANVAS_HEIGHT =
+    HEADER_HEIGHT + totalRowsHeight + FOOTER_HEIGHT + 20;
+
+  // 3. Crear canvas y contexto 2D (con escala x2 para máxima definición)
+  const SCALE = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width = CANVAS_WIDTH * SCALE;
+  canvas.height = CANVAS_HEIGHT * SCALE;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(SCALE, SCALE);
+
+  // Fondo general
+  ctx.fillStyle = '#0a0c1a';
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // Sutil brillo radial de fondo
+  const gradient = ctx.createRadialGradient(
+    CANVAS_WIDTH / 2,
+    HEADER_HEIGHT,
+    100,
+    CANVAS_WIDTH / 2,
+    CANVAS_HEIGHT / 2,
+    CANVAS_WIDTH
+  );
+  gradient.addColorStop(0, '#151733');
+  gradient.addColorStop(1, '#090a16');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+  // 4. DIBUJAR ENCABEZADO
+  const headerY = 28;
+  if (logoImg) {
+    ctx.drawImage(logoImg, PADDING_X, headerY, 52, 52);
+  }
+
+  // Título MUSICLUB TIER LIST
+  const titleX = logoImg ? PADDING_X + 66 : PADDING_X;
+  ctx.font =
+    '900 26px "Stack Sans Notch", "Bowlby One SC", -apple-system, sans-serif';
+  ctx.fillStyle = '#ffffff';
+  ctx.textBaseline = 'top';
+  ctx.fillText('MUSICLUB ', titleX, headerY + 4);
+
+  const titleWidth = ctx.measureText('MUSICLUB ').width;
+  ctx.fillStyle = '#f5576c';
+  ctx.fillText('TIER LIST', titleX + titleWidth, headerY + 4);
+
+  // Subtítulo
+  ctx.font = '500 13px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillText(
+    'Colección y ranking oficial de álbumes evaluados',
+    titleX,
+    headerY + 34
+  );
+
+  // Usuario a la derecha
+  ctx.font = '800 18px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.fillStyle = '#f093fb';
+  ctx.textAlign = 'right';
+  ctx.fillText(userName, CANVAS_WIDTH - PADDING_X, headerY + 6);
+
+  const countDisplay = totalCategorized || classifiedItems.length;
+  ctx.font = '600 13px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.fillText(
+    `${countDisplay} álbumes calificados`,
+    CANVAS_WIDTH - PADDING_X,
+    headerY + 30
+  );
+
+  ctx.textAlign = 'left';
+
+  // Línea divisoria del header
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(PADDING_X, headerY + 68);
+  ctx.lineTo(CANVAS_WIDTH - PADDING_X, headerY + 68);
+  ctx.stroke();
+
+  // 5. DIBUJAR FILAS DE TIERS
+  let currentY = HEADER_HEIGHT + 10;
+
+  for (const { tier, items, rowHeight } of tierLayouts) {
+    const rowX = PADDING_X;
+    const rowWidth = CANVAS_WIDTH - PADDING_X * 2;
+
+    // Fondo y borde de toda la fila
+    drawRoundedRect(ctx, rowX, currentY, rowWidth, rowHeight, 14);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // Insignia / Cabecera Lateral del Tier (Izquierda)
+    drawRoundedLeftRect(ctx, rowX, currentY, BADGE_WIDTH, rowHeight, 14);
+    ctx.fillStyle = tier.hexColor;
+    ctx.fill();
+
+    // Contenido del Badge
+    const isDarkText = tier.id === 'B' || tier.id === 'C';
+    const badgeTextColor = isDarkText ? '#090d16' : '#ffffff';
+
+    // Letra del Tier (S, A, B, C, D, F)
+    ctx.textAlign = 'center';
+    ctx.fillStyle = badgeTextColor;
+    ctx.font = '900 38px "Stack Sans Notch", -apple-system, sans-serif';
+    ctx.fillText(tier.label, rowX + BADGE_WIDTH / 2, currentY + 14);
+
+    // Nombre del Tier (Obras Maestras, Excelentes, etc.)
+    ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
+    ctx.fillText(
+      tier.name.toUpperCase(),
+      rowX + BADGE_WIDTH / 2,
+      currentY + 56
+    );
+
+    // Rango de puntuación (Pill)
+    const pillY = currentY + 74;
+    const pillWidth = 78;
+    const pillHeight = 18;
+    const pillX = rowX + (BADGE_WIDTH - pillWidth) / 2;
+
+    drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 8);
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+    ctx.fill();
+
+    ctx.font = '700 10px monospace, sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText(tier.subtitle, rowX + BADGE_WIDTH / 2, pillY + 3.5);
+
+    // Bandeja de Álbumes (Derecha)
+    const trayX = rowX + BADGE_WIDTH + TRAY_PADDING;
+    const trayY = currentY + TRAY_PADDING;
+
+    if (items.length === 0) {
+      ctx.textAlign = 'center';
+      ctx.font =
+        'italic 500 13px "Stack Sans Notch", -apple-system, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.fillText(
+        '0 álbumes calificados',
+        trayX + (rowWidth - BADGE_WIDTH - TRAY_PADDING * 2) / 2,
+        currentY + rowHeight / 2 - 6
+      );
+    } else {
+      items.forEach((item, idx) => {
+        const col = idx % tilesPerRow;
+        const row = Math.floor(idx / tilesPerRow);
+        const tileX = trayX + col * (TILE_SIZE + TILE_GAP);
+        const tileY = trayY + row * (TILE_SIZE + TILE_GAP);
+
+        // Borde y fondo del cuadro
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
+        ctx.fillStyle = '#0c0e1a';
+        ctx.fill();
+
+        // Dibujar carátula del álbum
+        const loadedImg = imageMap.get(item.albumId);
+        ctx.save();
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
+        ctx.clip();
+
+        if (loadedImg) {
+          try {
+            ctx.drawImage(loadedImg, tileX, tileY, TILE_SIZE, TILE_SIZE);
+          } catch (e) {
+            ctx.fillStyle = '#181b30';
+            ctx.fillRect(tileX, tileY, TILE_SIZE, TILE_SIZE);
+          }
+        } else {
+          ctx.fillStyle = '#16192e';
+          ctx.fillRect(tileX, tileY, TILE_SIZE, TILE_SIZE);
+          ctx.beginPath();
+          ctx.arc(
+            tileX + TILE_SIZE / 2,
+            tileY + TILE_SIZE / 2,
+            TILE_SIZE / 3,
+            0,
+            Math.PI * 2
+          );
+          ctx.fillStyle = '#262d47';
+          ctx.fill();
+        }
+
+        // Gradiente oscuro inferior para la estrella
+        const scoreGrad = ctx.createLinearGradient(
+          tileX,
+          tileY + TILE_SIZE - 26,
+          tileX,
+          tileY + TILE_SIZE
+        );
+        scoreGrad.addColorStop(0, 'transparent');
+        scoreGrad.addColorStop(1, 'rgba(0, 0, 0, 0.92)');
+        ctx.fillStyle = scoreGrad;
+        ctx.fillRect(tileX, tileY + TILE_SIZE - 26, TILE_SIZE, 26);
+
+        // Calificación ★ X.X
+        ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
+        ctx.fillStyle = '#fcd34d';
+        ctx.textAlign = 'center';
+        ctx.fillText(
+          `★ ${item.score.toFixed(1)}`,
+          tileX + TILE_SIZE / 2,
+          tileY + TILE_SIZE - 15
+        );
+
+        ctx.restore();
+
+        // Borde final del tile
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+    }
+
+    currentY += rowHeight + ROW_GAP;
+  }
+
+  // 6. DIBUJAR FOOTER
+  const footerY = CANVAS_HEIGHT - FOOTER_HEIGHT + 14;
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(PADDING_X, footerY);
+  ctx.lineTo(CANVAS_WIDTH - PADDING_X, footerY);
+  ctx.stroke();
+
+  ctx.textAlign = 'left';
+  ctx.font = '600 12px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.fillText(
+    '✨ Musiclub • Club Oficial de Crítica de Álbumes',
+    PADDING_X,
+    footerY + 16
+  );
+
+  ctx.textAlign = 'right';
+  ctx.font = '800 12px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.fillStyle = '#f5576c';
+  ctx.fillText('Musiclub', CANVAS_WIDTH - PADDING_X, footerY + 16);
+
+  return canvas;
+}
+
 export function TierListMaker({
   userReviews = [],
   albums = [],
@@ -206,6 +528,7 @@ export function TierListMaker({
   const [cardSize, setCardSize] = useState('normal'); // 'normal' | 'compact'
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [imageGeneratedSuccess, setImageGeneratedSuccess] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Lista de álbumes clasificados automáticamente desde las reseñas del usuario
   const classifiedItems = useMemo(() => {
@@ -260,318 +583,26 @@ export function TierListMaker({
 
   // =========================================================================
   // GENERADOR DE IMAGEN NATIVO EN HTML5 CANVAS (2D)
-  // 100% nítido, sin error de canvas manchado, con portadas reales y tipografía
+  // Reutiliza generateTierListCanvas para exportar PNG en alta resolución
   // =========================================================================
   const handleDownloadImage = async () => {
     if (isGeneratingImage || classifiedItems.length === 0) return;
     setIsGeneratingImage(true);
 
     try {
-      // 1. Precargar logo de Musiclub y portadas con CORS seguro
-      const logoImgPromise = preloadCORSImage('/5662059.png');
-      const albumImagesPromises = classifiedItems.map(async (item) => {
-        const img = await preloadCORSImage(item.imagen);
-        return { albumId: item.albumId, img };
+      const resolvedUserName =
+        user?.name || user?.email?.split('@')[0] || 'Melómano';
+      const canvas = await generateTierListCanvas({
+        classifiedItems,
+        tierGroups,
+        userName: resolvedUserName,
+        totalCategorized: classifiedItems.length,
       });
 
-      const [logoImg, loadedAlbumImages] = await Promise.all([
-        logoImgPromise,
-        Promise.all(albumImagesPromises),
-      ]);
-
-      const imageMap = new Map();
-      loadedAlbumImages.forEach(({ albumId, img }) => {
-        if (img) imageMap.set(albumId, img);
-      });
-
-      // 2. Geometría y dimensiones de exportación (1200px de ancho)
-      const CANVAS_WIDTH = 1200;
-      const PADDING_X = 36;
-      const HEADER_HEIGHT = 110;
-      const FOOTER_HEIGHT = 64;
-      const ROW_GAP = 14;
-      const BADGE_WIDTH = 150;
-      const TILE_SIZE = 90; // Tamaño generoso y nítido para los álbumes
-      const TILE_GAP = 12;
-      const TRAY_PADDING = 14;
-
-      const availableTrayWidth =
-        CANVAS_WIDTH - PADDING_X * 2 - BADGE_WIDTH - TRAY_PADDING * 2;
-      const tilesPerRow = Math.max(
-        1,
-        Math.floor((availableTrayWidth + TILE_GAP) / (TILE_SIZE + TILE_GAP))
-      );
-
-      // Calcular altura por cada fila
-      const tierLayouts = DEFAULT_TIERS.map((tier) => {
-        const items = tierGroups[tier.id] || [];
-        const rowsCount = Math.max(1, Math.ceil(items.length / tilesPerRow));
-        const calculatedHeight =
-          items.length === 0
-            ? 104
-            : rowsCount * TILE_SIZE +
-              (rowsCount - 1) * TILE_GAP +
-              TRAY_PADDING * 2;
-        const rowHeight = Math.max(104, calculatedHeight);
-        return { tier, items, rowHeight };
-      });
-
-      const totalRowsHeight = tierLayouts.reduce(
-        (sum, t) => sum + t.rowHeight + ROW_GAP,
-        0
-      );
-      const CANVAS_HEIGHT =
-        HEADER_HEIGHT + totalRowsHeight + FOOTER_HEIGHT + 20;
-
-      // 3. Crear canvas y contexto 2D (con escala x2 para máxima definición)
-      const SCALE = 2;
-      const canvas = document.createElement('canvas');
-      canvas.width = CANVAS_WIDTH * SCALE;
-      canvas.height = CANVAS_HEIGHT * SCALE;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(SCALE, SCALE);
-
-      // Fondo general
-      ctx.fillStyle = '#0a0c1a';
-      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      // Sutil brillo radial de fondo
-      const gradient = ctx.createRadialGradient(
-        CANVAS_WIDTH / 2,
-        HEADER_HEIGHT,
-        100,
-        CANVAS_WIDTH / 2,
-        CANVAS_HEIGHT / 2,
-        CANVAS_WIDTH
-      );
-      gradient.addColorStop(0, '#151733');
-      gradient.addColorStop(1, '#090a16');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      // 4. DIBUJAR ENCABEZADO
-      const headerY = 28;
-      // Logo
-      if (logoImg) {
-        ctx.drawImage(logoImg, PADDING_X, headerY, 52, 52);
-      }
-
-      // Título MUSICLUB TIER LIST
-      const titleX = logoImg ? PADDING_X + 66 : PADDING_X;
-      ctx.font =
-        '900 26px "Stack Sans Notch", "Bowlby One SC", -apple-system, sans-serif';
-      ctx.fillStyle = '#ffffff';
-      ctx.textBaseline = 'top';
-      ctx.fillText('MUSICLUB ', titleX, headerY + 4);
-
-      const titleWidth = ctx.measureText('MUSICLUB ').width;
-      ctx.fillStyle = '#f5576c';
-      ctx.fillText('TIER LIST', titleX + titleWidth, headerY + 4);
-
-      // Subtítulo
-      ctx.font = '500 13px "Stack Sans Notch", -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillText(
-        'Colección y ranking oficial de álbumes evaluados',
-        titleX,
-        headerY + 34
-      );
-
-      // Usuario a la derecha
-      const userName = user?.name || user?.email?.split('@')[0] || 'Melómano';
-      ctx.font = '800 18px "Stack Sans Notch", -apple-system, sans-serif';
-      ctx.fillStyle = '#f093fb';
-      ctx.textAlign = 'right';
-      ctx.fillText(userName, CANVAS_WIDTH - PADDING_X, headerY + 6);
-
-      ctx.font = '600 13px "Stack Sans Notch", -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-      ctx.fillText(
-        `${classifiedItems.length} álbumes calificados`,
-        CANVAS_WIDTH - PADDING_X,
-        headerY + 30
-      );
-
-      ctx.textAlign = 'left';
-
-      // Línea divisoria del header
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(PADDING_X, headerY + 68);
-      ctx.lineTo(CANVAS_WIDTH - PADDING_X, headerY + 68);
-      ctx.stroke();
-
-      // 5. DIBUJAR FILAS DE TIERS
-      let currentY = HEADER_HEIGHT + 10;
-
-      for (const { tier, items, rowHeight } of tierLayouts) {
-        const rowX = PADDING_X;
-        const rowWidth = CANVAS_WIDTH - PADDING_X * 2;
-
-        // Fondo y borde de toda la fila
-        drawRoundedRect(ctx, rowX, currentY, rowWidth, rowHeight, 14);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-
-        // Insignia / Cabecera Lateral del Tier (Izquierda)
-        drawRoundedLeftRect(ctx, rowX, currentY, BADGE_WIDTH, rowHeight, 14);
-        ctx.fillStyle = tier.hexColor;
-        ctx.fill();
-
-        // Contenido del Badge
-        const isDarkText = tier.id === 'B' || tier.id === 'C';
-        const badgeTextColor = isDarkText ? '#090d16' : '#ffffff';
-
-        // Letra del Tier (S, A, B, C, D, F)
-        ctx.textAlign = 'center';
-        ctx.fillStyle = badgeTextColor;
-        ctx.font = '900 38px "Stack Sans Notch", -apple-system, sans-serif';
-        ctx.fillText(tier.label, rowX + BADGE_WIDTH / 2, currentY + 14);
-
-        // Nombre del Tier (Obras Maestras, Excelentes, etc.)
-        ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
-        ctx.fillText(
-          tier.name.toUpperCase(),
-          rowX + BADGE_WIDTH / 2,
-          currentY + 56
-        );
-
-        // Rango de puntuación (Pill)
-        const pillY = currentY + 74;
-        const pillWidth = 78;
-        const pillHeight = 18;
-        const pillX = rowX + (BADGE_WIDTH - pillWidth) / 2;
-
-        drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 8);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-        ctx.fill();
-
-        ctx.font = '700 10px monospace, sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(tier.subtitle, rowX + BADGE_WIDTH / 2, pillY + 3.5);
-
-        // Bandeja de Álbumes (Derecha)
-        const trayX = rowX + BADGE_WIDTH + TRAY_PADDING;
-        const trayY = currentY + TRAY_PADDING;
-
-        if (items.length === 0) {
-          ctx.textAlign = 'center';
-          ctx.font =
-            'italic 500 13px "Stack Sans Notch", -apple-system, sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
-          ctx.fillText(
-            '0 álbumes calificados',
-            trayX + (rowWidth - BADGE_WIDTH - TRAY_PADDING * 2) / 2,
-            currentY + rowHeight / 2 - 6
-          );
-        } else {
-          items.forEach((item, idx) => {
-            const col = idx % tilesPerRow;
-            const row = Math.floor(idx / tilesPerRow);
-            const tileX = trayX + col * (TILE_SIZE + TILE_GAP);
-            const tileY = trayY + row * (TILE_SIZE + TILE_GAP);
-
-            // Borde y fondo del cuadro
-            drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
-            ctx.fillStyle = '#0c0e1a';
-            ctx.fill();
-
-            // Dibujar carátula del álbum
-            const loadedImg = imageMap.get(item.albumId);
-            ctx.save();
-            drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
-            ctx.clip();
-
-            if (loadedImg) {
-              try {
-                ctx.drawImage(loadedImg, tileX, tileY, TILE_SIZE, TILE_SIZE);
-              } catch (e) {
-                // Si la imagen falla en runtime
-                ctx.fillStyle = '#181b30';
-                ctx.fillRect(tileX, tileY, TILE_SIZE, TILE_SIZE);
-              }
-            } else {
-              // Portada vinilo elegante de respaldo
-              ctx.fillStyle = '#16192e';
-              ctx.fillRect(tileX, tileY, TILE_SIZE, TILE_SIZE);
-              ctx.beginPath();
-              ctx.arc(
-                tileX + TILE_SIZE / 2,
-                tileY + TILE_SIZE / 2,
-                TILE_SIZE / 3,
-                0,
-                Math.PI * 2
-              );
-              ctx.fillStyle = '#262d47';
-              ctx.fill();
-            }
-
-            // Gradiente oscuro inferior para la estrella
-            const scoreGrad = ctx.createLinearGradient(
-              tileX,
-              tileY + TILE_SIZE - 26,
-              tileX,
-              tileY + TILE_SIZE
-            );
-            scoreGrad.addColorStop(0, 'transparent');
-            scoreGrad.addColorStop(1, 'rgba(0, 0, 0, 0.92)');
-            ctx.fillStyle = scoreGrad;
-            ctx.fillRect(tileX, tileY + TILE_SIZE - 26, TILE_SIZE, 26);
-
-            // Calificación ★ X.X
-            ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
-            ctx.fillStyle = '#fcd34d';
-            ctx.textAlign = 'center';
-            ctx.fillText(
-              `★ ${item.score.toFixed(1)}`,
-              tileX + TILE_SIZE / 2,
-              tileY + TILE_SIZE - 15
-            );
-
-            ctx.restore();
-
-            // Borde final del tile
-            drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.lineWidth = 1;
-            ctx.stroke();
-          });
-        }
-
-        currentY += rowHeight + ROW_GAP;
-      }
-
-      // 6. DIBUJAR FOOTER
-      const footerY = CANVAS_HEIGHT - FOOTER_HEIGHT + 14;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(PADDING_X, footerY);
-      ctx.lineTo(CANVAS_WIDTH - PADDING_X, footerY);
-      ctx.stroke();
-
-      ctx.textAlign = 'left';
-      ctx.font = '600 12px "Stack Sans Notch", -apple-system, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.fillText(
-        '✨ Musiclub • Club Oficial de Crítica de Álbumes',
-        PADDING_X,
-        footerY + 16
-      );
-
-      ctx.textAlign = 'right';
-      ctx.font = '800 12px "Stack Sans Notch", -apple-system, sans-serif';
-      ctx.fillStyle = '#f5576c';
-      ctx.fillText('musiclub.app', CANVAS_WIDTH - PADDING_X, footerY + 16);
-
-      // 7. DESCARGAR IMAGEN PNG
+      // DESCARGAR IMAGEN PNG
       const imageUri = canvas.toDataURL('image/png');
       const link = document.createElement('a');
-      const safeUserName = userName.replace(/[^a-zA-Z0-9_-]/g, '_');
+      const safeUserName = resolvedUserName.replace(/[^a-zA-Z0-9_-]/g, '_');
       link.download = `musiclub-tierlist-${safeUserName}.png`;
       link.href = imageUri;
       document.body.appendChild(link);
@@ -656,24 +687,36 @@ export function TierListMaker({
             </button>
           </div>
 
-          {/* Botón Generar / Descargar Imagen */}
+          {/* Botón Descargar Imagen */}
           <button
             type="button"
             onClick={handleDownloadImage}
             disabled={isGeneratingImage || totalCategorized === 0}
-            className={`px-4 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:opacity-95 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-pink-500/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
-            title="Generar imagen PNG de tu Tier List en alta resolución"
+            className={`px-3 sm:px-4 py-2.5 bg-white/10 hover:bg-white/15 border border-white/15 text-white text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2 transition-all active:scale-95 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed`}
+            title="Descargar imagen PNG de tu Tier List en alta resolución"
           >
             <span>
               {isGeneratingImage ? '⏳' : imageGeneratedSuccess ? '✅' : '📸'}
             </span>
             <span>
               {isGeneratingImage
-                ? 'Generando imagen...'
+                ? 'Generando...'
                 : imageGeneratedSuccess
-                  ? '¡Imagen Descargada!'
-                  : 'Descargar Imagen'}
+                  ? '¡Descargada!'
+                  : 'Descargar'}
             </span>
+          </button>
+
+          {/* Botón Compartir en Redes Sociales */}
+          <button
+            type="button"
+            onClick={() => setIsShareModalOpen(true)}
+            disabled={totalCategorized === 0}
+            className="px-3.5 sm:px-4 py-2.5 bg-gradient-to-r from-[#f5576c] via-[#f43f5e] to-[#a855f7] hover:opacity-95 text-white text-xs sm:text-sm font-black rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-pink-500/25 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Compartir tu Tier List en Instagram, TikTok, WhatsApp, X, Threads y más"
+          >
+            <ShareIcon className="w-4 h-4 text-white" />
+            <span>Compartir en Redes</span>
           </button>
         </div>
       </div>
@@ -930,6 +973,18 @@ export function TierListMaker({
           Musiclub Tier System
         </span>
       </div>
+
+      {/* Modal Compartir Tier List en Redes Sociales */}
+      {isShareModalOpen && (
+        <ShareTierListModal
+          isOpen={isShareModalOpen}
+          onClose={() => setIsShareModalOpen(false)}
+          user={user}
+          classifiedItems={classifiedItems}
+          tierGroups={tierGroups}
+          totalCategorized={totalCategorized}
+        />
+      )}
     </div>
   );
 }

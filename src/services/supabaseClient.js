@@ -3,6 +3,7 @@ import {
   getWeightedReviewScore,
   calculateReviewBonus,
   calculateAlbumTopTrack,
+  findAlbumBySlug,
 } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
 import { enrichAlbumWithMusicBrainz } from './musicBrainzService';
@@ -91,6 +92,199 @@ async function getTopReviewersManual() {
     console.error('Error en getTopReviewersManual:', error);
     return [];
   }
+}
+
+// ============================================
+// FUNCIONES DE ESTADÍSTICAS Y AGREGACIÓN
+// ============================================
+
+/**
+ * Transforma un registro de álbum y sus reviews asociadas en la estructura de estadísticas completas.
+ */
+export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []) {
+  if (!alb) return null;
+
+  const profileMapByEmail = new Map();
+  const profileMapByName = new Map();
+  (profiles || []).forEach((p) => {
+    if (p.email) profileMapByEmail.set(p.email.toLowerCase().trim(), p);
+    if (p.name) profileMapByName.set(p.name.toLowerCase().trim(), p);
+  });
+
+  const albumReviews = (rawAlbumReviews || []).map((r) => {
+    const prof =
+      (r.reviewer_email &&
+        profileMapByEmail.get(r.reviewer_email.toLowerCase().trim())) ||
+      (r.reviewer_name &&
+        profileMapByName.get(r.reviewer_name.toLowerCase().trim())) ||
+      null;
+
+    const weightedScore = getWeightedReviewScore(r) ?? r.rating_general;
+
+    return {
+      ...r,
+      reviewer_avatar: r.reviewer_avatar || prof?.avatar_url || null,
+      avatar_url: prof?.avatar_url || null,
+      weighted_score:
+        weightedScore !== null && weightedScore !== undefined && !isNaN(weightedScore)
+          ? parseFloat(weightedScore.toFixed(2))
+          : null,
+    };
+  });
+
+  const validScores = albumReviews
+    .map((r) => r.weighted_score ?? r.rating_general)
+    .filter((s) => s !== null && s !== undefined && !isNaN(s));
+
+  const reviewCount = albumReviews.length;
+  const baseAvg =
+    validScores.length > 0
+      ? validScores.reduce((a, b) => a + b, 0) / validScores.length
+      : 0;
+  const bonus = calculateReviewBonus(reviewCount);
+  const finalScore = validScores.length > 0 ? Math.min(10, baseAvg + bonus) : null;
+
+  const critKeys = [
+    'rating_produccion',
+    'rating_composicion',
+    'rating_letras',
+    'rating_originalidad',
+    'rating_cohesion',
+    'rating_replay',
+    'rating_general',
+  ];
+  const criteriaAverages = {};
+  critKeys.forEach((ck) => {
+    const vals = albumReviews
+      .map((r) => r[ck])
+      .filter((v) => v !== null && v !== undefined && !isNaN(v));
+    criteriaAverages[ck] =
+      vals.length > 0
+        ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
+        : null;
+  });
+
+  // Estadísticas por canción
+  const tracksList = Array.isArray(alb.tracks) ? alb.tracks : [];
+  const canonicalTracks = [];
+  const idToCanonicalIndex = new Map();
+  const nameToCanonicalIndex = new Map();
+
+  tracksList.forEach((t, idx) => {
+    const tName = typeof t === 'string' ? t : (t.name || `Pista ${idx + 1}`);
+    const tId = typeof t === 'object' && t.id ? String(t.id) : null;
+    const trackObj = {
+      id: tId,
+      name: tName,
+      scores: [],
+      track_number: typeof t === 'object' && t.track_number ? t.track_number : idx + 1,
+      duration_ms: typeof t === 'object' ? t.duration_ms : undefined,
+    };
+    canonicalTracks.push(trackObj);
+    if (tId) {
+      idToCanonicalIndex.set(tId, idx);
+    }
+    nameToCanonicalIndex.set(tName.toLowerCase().trim(), idx);
+  });
+
+  albumReviews.forEach((rev) => {
+    if (rev.track_ratings && typeof rev.track_ratings === 'object') {
+      Object.entries(rev.track_ratings).forEach(([rawKey, score]) => {
+        if (score !== null && score !== undefined && !isNaN(score)) {
+          const numScore = Number(score);
+          const strKey = String(rawKey).trim();
+          const lowerKey = strKey.toLowerCase();
+
+          let targetTrack = null;
+
+          // 1. Coincidencia por ID de Spotify / base de datos
+          if (idToCanonicalIndex.has(strKey)) {
+            targetTrack = canonicalTracks[idToCanonicalIndex.get(strKey)];
+          }
+          // 2. Coincidencia por nombre de pista
+          else if (nameToCanonicalIndex.has(lowerKey)) {
+            targetTrack = canonicalTracks[nameToCanonicalIndex.get(lowerKey)];
+          }
+          // 3. Coincidencia por índice numérico
+          else if (!isNaN(Number(strKey)) && Number(strKey) > 0 && canonicalTracks[Number(strKey) - 1]) {
+            targetTrack = canonicalTracks[Number(strKey) - 1];
+          }
+
+          if (targetTrack) {
+            targetTrack.scores.push(numScore);
+          } else {
+            // Fallback: Si la pista no está en alb.tracks, agregarla asegurando nombre limpio
+            let extraTrack = canonicalTracks.find(
+              (ct) => ct.name.toLowerCase() === lowerKey || ct.id === strKey
+            );
+            if (!extraTrack) {
+              extraTrack = {
+                id: strKey,
+                name: strKey,
+                scores: [],
+                track_number: canonicalTracks.length + 1,
+              };
+              canonicalTracks.push(extraTrack);
+            }
+            extraTrack.scores.push(numScore);
+          }
+        }
+      });
+    }
+  });
+
+  const computedTrackStats = canonicalTracks.map((ts) => {
+    const avg =
+      ts.scores.length > 0
+        ? ts.scores.reduce((a, b) => a + b, 0) / ts.scores.length
+        : null;
+    return {
+      id: ts.id,
+      name: ts.name,
+      track_number: ts.track_number,
+      duration_ms: ts.duration_ms,
+      rating_count: ts.scores.length,
+      avg_rating: avg ? parseFloat(avg.toFixed(1)) : null,
+    };
+  });
+
+  const tracksWithAvg = computedTrackStats.filter((t) => t.avg_rating !== null);
+  let bestTrack = calculateAlbumTopTrack(alb, albumReviews, computedTrackStats);
+  let worstTrack = null;
+  if (tracksWithAvg.length > 0) {
+    worstTrack = [...tracksWithAvg].sort((a, b) => a.avg_rating - b.avg_rating)[0];
+  }
+
+  return {
+    id: alb.id,
+    album_name: alb.album_name,
+    artist_name: alb.artist_name,
+    image_url: alb.image_url,
+    mbid: alb.mbid,
+    label: alb.label,
+    country: alb.country,
+    barcode: alb.barcode,
+    total_tracks: alb.total_tracks,
+    release_type: alb.release_type || 'ALBUM',
+    genres: alb.genres || [],
+    spotify_link: alb.spotify_link,
+    youtube_link: alb.youtube_link,
+    apple_music_link: alb.apple_music_link,
+    other_link: alb.other_link,
+    tracks: alb.tracks || [],
+    created_at: alb.created_at,
+    release_date: alb.release_date,
+    release_year: alb.release_year,
+    review_count: reviewCount,
+    base_rating: parseFloat(baseAvg.toFixed(2)),
+    bonus: parseFloat(bonus.toFixed(2)),
+    final_rating: finalScore !== null ? parseFloat(finalScore.toFixed(2)) : null,
+    criteria_averages: criteriaAverages,
+    track_stats: computedTrackStats,
+    best_track: bestTrack,
+    worst_track: worstTrack,
+    reviews: albumReviews,
+  };
 }
 
 // ============================================
@@ -248,7 +442,7 @@ export const supabaseService = {
     // y los metadatos canónicos (MBID, release_type, géneros, fecha, discográfica,
     // país, barcode, tracks) provienen de MusicBrainz.
     // =========================================================================
-    if (!payload.mbid) {
+    if (!payload.mbid && !albumData.skipMusicBrainzEnrichment && (!payload.tracks || payload.tracks.length === 0)) {
       try {
         const mbData = await enrichAlbumWithMusicBrainz(
           payload.album_name,
@@ -630,6 +824,42 @@ export const supabaseService = {
     } catch (err) {
       console.error('Error en getUserReviewedAlbumIds:', err);
       return [];
+    }
+  },
+
+  getAllReviewedAlbumIds: async () => {
+    try {
+      const ids = new Set();
+      const step = 1000;
+      let from = 0;
+      let hasMore = true;
+
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('album_id')
+          .range(from, from + step - 1);
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          data.forEach((r) => {
+            if (r.album_id != null) {
+              ids.add(r.album_id);
+              const str = String(r.album_id).trim();
+              ids.add(str);
+              ids.add(str.toLowerCase());
+            }
+          });
+          if (data.length < step) hasMore = false;
+          else from += step;
+        } else {
+          hasMore = false;
+        }
+      }
+      return ids;
+    } catch (err) {
+      console.error('Error en getAllReviewedAlbumIds:', err);
+      return new Set();
     }
   },
 
@@ -1111,7 +1341,7 @@ export const supabaseService = {
         supabase.from('profiles').select('*'),
         supabase
           .from('reviews')
-          .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year)'),
+          .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year, tracks)'),
       ]);
 
       const profiles = profilesRes.data || [];
@@ -1339,6 +1569,90 @@ export const supabaseService = {
     }
   },
 
+  getAlbumWithFullStats: async (slugOrId) => {
+    if (!slugOrId) return null;
+    try {
+      let album = null;
+      const strId = String(slugOrId).trim();
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(strId);
+
+      // 1. Si parece UUID o ID numérico, buscar directo por ID
+      if (isUuid || (!isNaN(strId) && !strId.includes('-'))) {
+        const { data, error } = await supabase
+          .from('albums')
+          .select('*')
+          .eq('id', strId)
+          .maybeSingle();
+        if (!error && data) album = data;
+      }
+
+      // 2. Si no se encontró por ID, buscar por coincidencia de nombre o slug
+      if (!album) {
+        const cleanName = strId.replace(/[-_]/g, ' ').trim();
+        const { data: exactMatches } = await supabase
+          .from('albums')
+          .select('*')
+          .ilike('album_name', cleanName);
+
+        if (exactMatches && exactMatches.length > 0) {
+          album = findAlbumBySlug(exactMatches, strId) || exactMatches[0];
+        }
+      }
+
+      // 3. Si aún no se encontró, buscar coincidencias parciales con límite
+      if (!album) {
+        const cleanName = strId.replace(/[-_]/g, ' ').trim();
+        const prefix = cleanName.slice(0, 20);
+        if (prefix.length >= 3) {
+          const { data: partialMatches } = await supabase
+            .from('albums')
+            .select('*')
+            .ilike('album_name', `%${prefix}%`)
+            .limit(25);
+
+          if (partialMatches && partialMatches.length > 0) {
+            album = findAlbumBySlug(partialMatches, strId);
+          }
+        }
+      }
+
+      // 4. Fallback exhaustivo si el slug difiere: consultar solo columnas ligeras
+      if (!album) {
+        const { data: lightweightList } = await supabase
+          .from('albums')
+          .select('id, album_name, artist_name, release_type');
+
+        const matched = findAlbumBySlug(lightweightList || [], strId);
+        if (matched) {
+          const { data: fullAlbum } = await supabase
+            .from('albums')
+            .select('*')
+            .eq('id', matched.id)
+            .maybeSingle();
+          if (fullAlbum) album = fullAlbum;
+        }
+      }
+
+      if (!album) return null;
+
+      // Recuperar ÚNICAMENTE las reviews de este álbum (ultrarrápido, ~50ms)
+      const { data: reviewsData } = await supabase
+        .from('reviews')
+        .select('*')
+        .eq('album_id', album.id);
+
+      // Recuperar perfiles para los avatares
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('email, name, avatar_url');
+
+      return buildAlbumWithFullStats(album, reviewsData || [], profilesData || []);
+    } catch (err) {
+      console.error('Error in getAlbumWithFullStats:', err);
+      return null;
+    }
+  },
+
   getAllAlbumsWithFullStats: async () => {
     try {
       // Recuperar álbumes paginados para garantizar que catálogos mayores a 1,000 filas no se corten
@@ -1393,193 +1707,17 @@ export const supabaseService = {
       const reviews = allReviews;
       const profiles = profilesData || [];
 
-      const profileMapByEmail = new Map();
-      const profileMapByName = new Map();
-      profiles.forEach((p) => {
-        if (p.email) profileMapByEmail.set(p.email.toLowerCase().trim(), p);
-        if (p.name) profileMapByName.set(p.name.toLowerCase().trim(), p);
-      });
-
       const reviewsByAlbum = new Map();
       reviews.forEach((r) => {
         if (!reviewsByAlbum.has(r.album_id)) {
           reviewsByAlbum.set(r.album_id, []);
         }
-        const prof =
-          (r.reviewer_email &&
-            profileMapByEmail.get(r.reviewer_email.toLowerCase().trim())) ||
-          (r.reviewer_name &&
-            profileMapByName.get(r.reviewer_name.toLowerCase().trim())) ||
-          null;
-
-        const weightedScore = getWeightedReviewScore(r) ?? r.rating_general;
-
-        reviewsByAlbum.get(r.album_id).push({
-          ...r,
-          reviewer_avatar: r.reviewer_avatar || prof?.avatar_url || null,
-          avatar_url: prof?.avatar_url || null,
-          weighted_score:
-            weightedScore !== null && weightedScore !== undefined && !isNaN(weightedScore)
-              ? parseFloat(weightedScore.toFixed(2))
-              : null,
-        });
+        reviewsByAlbum.get(r.album_id).push(r);
       });
 
       const result = albums.map((alb) => {
         const albumReviews = reviewsByAlbum.get(alb.id) || [];
-        const validScores = albumReviews
-          .map((r) => r.weighted_score ?? r.rating_general)
-          .filter((s) => s !== null && s !== undefined && !isNaN(s));
-
-        const reviewCount = albumReviews.length;
-        const baseAvg =
-          validScores.length > 0
-            ? validScores.reduce((a, b) => a + b, 0) / validScores.length
-            : 0;
-        const bonus = calculateReviewBonus(reviewCount);
-        const finalScore = validScores.length > 0 ? Math.min(10, baseAvg + bonus) : null;
-
-        const critKeys = [
-          'rating_produccion',
-          'rating_composicion',
-          'rating_letras',
-          'rating_originalidad',
-          'rating_cohesion',
-          'rating_replay',
-          'rating_general',
-        ];
-        const criteriaAverages = {};
-        critKeys.forEach((ck) => {
-          const vals = albumReviews
-            .map((r) => r[ck])
-            .filter((v) => v !== null && v !== undefined && !isNaN(v));
-          criteriaAverages[ck] =
-            vals.length > 0
-              ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1))
-              : null;
-        });
-
-        // Estadísticas por canción
-        const tracksList = Array.isArray(alb.tracks) ? alb.tracks : [];
-        const canonicalTracks = [];
-        const idToCanonicalIndex = new Map();
-        const nameToCanonicalIndex = new Map();
-
-        tracksList.forEach((t, idx) => {
-          const tName = typeof t === 'string' ? t : (t.name || `Pista ${idx + 1}`);
-          const tId = typeof t === 'object' && t.id ? String(t.id) : null;
-          const trackObj = {
-            id: tId,
-            name: tName,
-            scores: [],
-            track_number: typeof t === 'object' && t.track_number ? t.track_number : idx + 1,
-            duration_ms: typeof t === 'object' ? t.duration_ms : undefined,
-          };
-          canonicalTracks.push(trackObj);
-          if (tId) {
-            idToCanonicalIndex.set(tId, idx);
-          }
-          nameToCanonicalIndex.set(tName.toLowerCase().trim(), idx);
-        });
-
-        albumReviews.forEach((rev) => {
-          if (rev.track_ratings && typeof rev.track_ratings === 'object') {
-            Object.entries(rev.track_ratings).forEach(([rawKey, score]) => {
-              if (score !== null && score !== undefined && !isNaN(score)) {
-                const numScore = Number(score);
-                const strKey = String(rawKey).trim();
-                const lowerKey = strKey.toLowerCase();
-
-                let targetTrack = null;
-
-                // 1. Coincidencia por ID de Spotify / base de datos
-                if (idToCanonicalIndex.has(strKey)) {
-                  targetTrack = canonicalTracks[idToCanonicalIndex.get(strKey)];
-                }
-                // 2. Coincidencia por nombre de pista
-                else if (nameToCanonicalIndex.has(lowerKey)) {
-                  targetTrack = canonicalTracks[nameToCanonicalIndex.get(lowerKey)];
-                }
-                // 3. Coincidencia por índice numérico
-                else if (!isNaN(Number(strKey)) && Number(strKey) > 0 && canonicalTracks[Number(strKey) - 1]) {
-                  targetTrack = canonicalTracks[Number(strKey) - 1];
-                }
-
-                if (targetTrack) {
-                  targetTrack.scores.push(numScore);
-                } else {
-                  // Fallback: Si la pista no está en alb.tracks, agregarla asegurando nombre limpio
-                  let extraTrack = canonicalTracks.find(
-                    (ct) => ct.name.toLowerCase() === lowerKey || ct.id === strKey
-                  );
-                  if (!extraTrack) {
-                    extraTrack = {
-                      id: strKey,
-                      name: strKey,
-                      scores: [],
-                      track_number: canonicalTracks.length + 1,
-                    };
-                    canonicalTracks.push(extraTrack);
-                  }
-                  extraTrack.scores.push(numScore);
-                }
-              }
-            });
-          }
-        });
-
-        const computedTrackStats = canonicalTracks.map((ts) => {
-          const avg =
-            ts.scores.length > 0
-              ? ts.scores.reduce((a, b) => a + b, 0) / ts.scores.length
-              : null;
-          return {
-            id: ts.id,
-            name: ts.name,
-            track_number: ts.track_number,
-            duration_ms: ts.duration_ms,
-            rating_count: ts.scores.length,
-            avg_rating: avg ? parseFloat(avg.toFixed(1)) : null,
-          };
-        });
-
-        const tracksWithAvg = computedTrackStats.filter((t) => t.avg_rating !== null);
-        let bestTrack = calculateAlbumTopTrack(alb, albumReviews, computedTrackStats);
-        let worstTrack = null;
-        if (tracksWithAvg.length > 0) {
-          worstTrack = [...tracksWithAvg].sort((a, b) => a.avg_rating - b.avg_rating)[0];
-        }
-
-        return {
-          id: alb.id,
-          album_name: alb.album_name,
-          artist_name: alb.artist_name,
-          image_url: alb.image_url,
-          mbid: alb.mbid,
-          label: alb.label,
-          country: alb.country,
-          barcode: alb.barcode,
-          total_tracks: alb.total_tracks,
-          release_type: alb.release_type || 'ALBUM',
-          genres: alb.genres || [],
-          spotify_link: alb.spotify_link,
-          youtube_link: alb.youtube_link,
-          apple_music_link: alb.apple_music_link,
-          other_link: alb.other_link,
-          tracks: alb.tracks || [],
-          created_at: alb.created_at,
-          release_date: alb.release_date,
-          release_year: alb.release_year,
-          review_count: reviewCount,
-          base_rating: parseFloat(baseAvg.toFixed(2)),
-          bonus: parseFloat(bonus.toFixed(2)),
-          final_rating: finalScore !== null ? parseFloat(finalScore.toFixed(2)) : null,
-          criteria_averages: criteriaAverages,
-          track_stats: computedTrackStats,
-          best_track: bestTrack,
-          worst_track: worstTrack,
-          reviews: albumReviews,
-        };
+        return buildAlbumWithFullStats(alb, albumReviews, profiles);
       });
 
       return result;
@@ -1890,5 +2028,474 @@ export const supabaseService = {
       return false;
     }
   },
+
+  // ==========================================
+  // CALIFICACIÓN DE PORTADAS (COVER ART RATINGS)
+  // ==========================================
+
+  getCoverRatings: async (albumId) => {
+    try {
+      const { data, error } = await supabase
+        .from('cover_ratings')
+        .select('*')
+        .eq('album_id', albumId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return getLocalCoverRatings().filter((r) => r.album_id === albumId);
+      }
+      return data || [];
+    } catch (err) {
+      return getLocalCoverRatings().filter((r) => r.album_id === albumId);
+    }
+  },
+
+  getAllCoverRatings: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cover_ratings')
+        .select(`
+          *,
+          albums:album_id (
+            id,
+            album_name,
+            artist_name,
+            image_url,
+            release_type,
+            release_year
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return getLocalCoverRatings();
+      }
+      const local = getLocalCoverRatings();
+      if (local.length === 0) return data || [];
+      const remoteIds = new Set((data || []).map((r) => r.id));
+      const merged = [...(data || [])];
+      local.forEach((l) => {
+        if (!remoteIds.has(l.id)) merged.push(l);
+      });
+      return merged;
+    } catch (err) {
+      return getLocalCoverRatings();
+    }
+  },
+
+  getUserCoverRatings: async (userEmail, userName) => {
+    if (!userEmail && !userName) return [];
+    try {
+      let query = supabase.from('cover_ratings').select('*');
+      if (userEmail) {
+        query = query.eq('user_email', userEmail);
+      } else {
+        query = query.eq('user_name', userName);
+      }
+      const { data, error } = await query.order('created_at', { ascending: false });
+
+      if (error) {
+        return getLocalCoverRatings().filter(
+          (r) =>
+            (userEmail && r.user_email === userEmail) ||
+            (userName && r.user_name === userName)
+        );
+      }
+      return data || [];
+    } catch (err) {
+      return getLocalCoverRatings().filter(
+        (r) =>
+          (userEmail && r.user_email === userEmail) ||
+          (userName && r.user_name === userName)
+      );
+    }
+  },
+
+  submitCoverRating: async ({
+    album_id,
+    rating,
+    aesthetic_tags = [],
+    comment = '',
+    user_id = null,
+    user_email = null,
+    user_name = null,
+    user_avatar = null,
+  }) => {
+    if (!album_id || !rating) throw new Error('album_id y rating son requeridos');
+
+    const payload = {
+      album_id,
+      rating: parseFloat(Number(rating).toFixed(1)),
+      aesthetic_tags: Array.isArray(aesthetic_tags) ? aesthetic_tags : [],
+      comment: comment?.trim() || null,
+      user_id: user_id || null,
+      user_email: user_email?.trim() || null,
+      user_name: user_name?.trim() || null,
+      user_avatar: user_avatar || null,
+      updated_at: new Date().toISOString(),
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('cover_ratings')
+        .upsert(payload, { onConflict: 'album_id,user_email' })
+        .select()
+        .single();
+
+      if (error) {
+        console.warn('Guardando calificación de portada localmente:', error.message);
+        return saveLocalCoverRating(payload);
+      }
+
+      saveLocalCoverRating(data || payload);
+      return data || payload;
+    } catch (err) {
+      console.warn('Fallback a almacenamiento local para calificación de portada:', err);
+      return saveLocalCoverRating(payload);
+    }
+  },
+
+  deleteCoverRating: async (id, album_id, user_email) => {
+    try {
+      let query = supabase.from('cover_ratings').delete();
+      if (id) {
+        query = query.eq('id', id);
+      } else if (album_id && user_email) {
+        query = query.eq('album_id', album_id).eq('user_email', user_email);
+      }
+      await query;
+    } catch (e) {
+      console.warn('Error al borrar calificación de portada en Supabase:', e);
+    }
+
+    try {
+      const list = getLocalCoverRatings().filter(
+        (r) => (id ? r.id !== id : !(r.album_id === album_id && r.user_email === user_email))
+      );
+      localStorage.setItem(LOCAL_COVER_RATINGS_KEY, JSON.stringify(list));
+    } catch (_) {}
+
+    return true;
+  },
+
+  // ============================================
+  // INTERACCIONES EN RESEÑAS: REACCIONES Y COMENTARIOS
+  // ============================================
+
+  getReviewInteractions: async ({ reviewIds = [], albumId = null } = {}) => {
+    let remoteReactions = [];
+    let remoteComments = [];
+
+    try {
+      let rQuery = supabase.from('review_reactions').select('*');
+      let cQuery = supabase.from('review_comments').select('*').order('created_at', { ascending: true });
+
+      if (albumId) {
+        rQuery = rQuery.eq('album_id', albumId);
+        cQuery = cQuery.eq('album_id', albumId);
+      } else if (reviewIds && reviewIds.length > 0) {
+        rQuery = rQuery.in('review_id', reviewIds);
+        cQuery = cQuery.in('review_id', reviewIds);
+      }
+
+      const [rRes, cRes] = await Promise.all([rQuery, cQuery]);
+      if (rRes.data && !rRes.error) remoteReactions = rRes.data;
+      if (cRes.data && !cRes.error) remoteComments = cRes.data;
+    } catch (e) {
+      console.warn('Usando respaldo local para interacciones de reseñas:', e);
+    }
+
+    // Unir con interacciones locales
+    const localReactions = getLocalReviewReactions();
+    const localComments = getLocalReviewComments();
+
+    const mergedReactionsMap = new Map();
+    remoteReactions.forEach((r) =>
+      mergedReactionsMap.set(r.id || `${r.review_id}-${r.user_email}-${r.reaction_type}`, r)
+    );
+    localReactions.forEach((r) => {
+      const key = r.id || `${r.review_id}-${r.user_email}-${r.reaction_type}`;
+      if (!mergedReactionsMap.has(key)) {
+        if (!reviewIds.length || reviewIds.includes(r.review_id) || (albumId && r.album_id === albumId)) {
+          mergedReactionsMap.set(key, r);
+        }
+      }
+    });
+
+    const mergedCommentsMap = new Map();
+    remoteComments.forEach((c) => mergedCommentsMap.set(c.id, c));
+    localComments.forEach((c) => {
+      if (!mergedCommentsMap.has(c.id)) {
+        if (!reviewIds.length || reviewIds.includes(c.review_id) || (albumId && c.album_id === albumId)) {
+          mergedCommentsMap.set(c.id, c);
+        }
+      }
+    });
+
+    return {
+      reactions: Array.from(mergedReactionsMap.values()),
+      comments: Array.from(mergedCommentsMap.values()).sort(
+        (a, b) => new Date(a.created_at || 0) - new Date(b.created_at || 0)
+      ),
+    };
+  },
+
+  toggleReviewReaction: async ({ review_id, album_id = null, user, reaction_type }) => {
+    if (!review_id || !user || !reaction_type) throw new Error('Datos incompletos para reaccionar');
+
+    const userEmail = user.email ? user.email.toLowerCase().trim() : null;
+    const userName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.name ||
+      (userEmail ? userEmail.split('@')[0] : 'Melómano');
+
+    if (!userEmail) throw new Error('Debes iniciar sesión para reaccionar');
+
+    const normalizeRx = (t) => {
+      const map = {
+        like: '👍',
+        dislike: '👎',
+        love: '❤️',
+        care: '🥰',
+        haha: '😂',
+        wow: '😮',
+        sad: '😢',
+        angry: '😡',
+        fire: '🔥',
+        heart: '❤️',
+        mindblown: '🤯',
+        clap: '👏',
+        music: '🎶',
+        skull: '💀',
+      };
+      return map[t] || t;
+    };
+
+    const localList = getLocalReviewReactions();
+    const existingIndex = localList.findIndex(
+      (r) =>
+        r.review_id === review_id &&
+        r.user_email?.toLowerCase().trim() === userEmail &&
+        (r.reaction_type === reaction_type ||
+          normalizeRx(r.reaction_type) === normalizeRx(reaction_type))
+    );
+
+    if (existingIndex >= 0) {
+      // Quitar reacción
+      const removedItem = localList[existingIndex];
+      localList.splice(existingIndex, 1);
+      setLocalReviewReactions(localList);
+
+      try {
+        let deleteQuery = supabase
+          .from('review_reactions')
+          .delete()
+          .eq('review_id', review_id)
+          .eq('user_email', userEmail);
+
+        if (removedItem.id && !removedItem.id.startsWith('react-') && !removedItem.id.startsWith('opt-')) {
+          deleteQuery = deleteQuery.eq('id', removedItem.id);
+        } else {
+          deleteQuery = deleteQuery.in('reaction_type', [
+            reaction_type,
+            removedItem.reaction_type,
+          ]);
+        }
+        await deleteQuery;
+      } catch (e) {
+        console.warn('Error eliminando reacción en Supabase:', e);
+      }
+
+      return { action: 'removed', reaction_type, review_id, user_email: userEmail, id: removedItem.id };
+    } else {
+      // Agregar reacción
+      const payload = {
+        id: `react-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        review_id,
+        album_id: album_id || null,
+        user_id: user.id || null,
+        user_email: userEmail,
+        user_name: userName,
+        reaction_type,
+        created_at: new Date().toISOString(),
+      };
+
+      try {
+        const { data, error } = await supabase
+          .from('review_reactions')
+          .insert({
+            review_id,
+            album_id: album_id || null,
+            user_id: user.id || null,
+            user_email: userEmail,
+            user_name: userName,
+            reaction_type,
+          })
+          .select()
+          .single();
+
+        if (!error && data) {
+          payload.id = data.id;
+        }
+      } catch (e) {
+        console.warn('Guardando reacción en respaldo local:', e);
+      }
+
+      localList.push(payload);
+      setLocalReviewReactions(localList);
+      return { action: 'added', reaction: payload };
+    }
+  },
+
+  addReviewComment: async ({ review_id, album_id = null, user, comment }) => {
+    if (!review_id || !user || !comment || !comment.trim()) {
+      throw new Error('El comentario no puede estar vacío');
+    }
+
+    const userEmail = user.email ? user.email.toLowerCase().trim() : null;
+    const userName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.name ||
+      (userEmail ? userEmail.split('@')[0] : 'Melómano');
+    const userAvatar =
+      user.user_metadata?.avatar_url ||
+      user.user_metadata?.picture ||
+      user.avatar_url ||
+      null;
+
+    if (!userEmail) throw new Error('Debes iniciar sesión para comentar');
+
+    const payload = {
+      id: `comm-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      review_id,
+      album_id: album_id || null,
+      user_id: user.id || null,
+      user_email: userEmail,
+      user_name: userName,
+      user_avatar: userAvatar,
+      comment: comment.trim(),
+      created_at: new Date().toISOString(),
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from('review_comments')
+        .insert({
+          review_id,
+          album_id: album_id || null,
+          user_id: user.id || null,
+          user_email: userEmail,
+          user_name: userName,
+          user_avatar: userAvatar,
+          comment: comment.trim(),
+        })
+        .select()
+        .single();
+
+      if (!error && data) {
+        payload.id = data.id;
+      }
+    } catch (e) {
+      console.warn('Guardando comentario en respaldo local:', e);
+    }
+
+    const localList = getLocalReviewComments();
+    localList.push(payload);
+    setLocalReviewComments(localList);
+    return payload;
+  },
+
+  deleteReviewComment: async (commentId) => {
+    if (!commentId) return false;
+
+    try {
+      await supabase.from('review_comments').delete().eq('id', commentId);
+    } catch (e) {
+      console.warn('Error eliminando comentario en Supabase:', e);
+    }
+
+    const localList = getLocalReviewComments().filter((c) => c.id !== commentId);
+    setLocalReviewComments(localList);
+    return true;
+  },
 };
+
+const LOCAL_COVER_RATINGS_KEY = 'musiclub_cover_ratings_local';
+
+function getLocalCoverRatings() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_COVER_RATINGS_KEY) : null;
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveLocalCoverRating(ratingData) {
+  try {
+    if (typeof window === 'undefined') return ratingData;
+    const list = getLocalCoverRatings();
+    const existingIndex = list.findIndex(
+      (r) =>
+        r.album_id === ratingData.album_id &&
+        ((ratingData.user_email && r.user_email === ratingData.user_email) ||
+          (ratingData.user_name && r.user_name === ratingData.user_name))
+    );
+    const item = {
+      id: ratingData.id || `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      ...ratingData,
+      created_at: ratingData.created_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    if (existingIndex >= 0) {
+      list[existingIndex] = { ...list[existingIndex], ...item };
+    } else {
+      list.unshift(item);
+    }
+    localStorage.setItem(LOCAL_COVER_RATINGS_KEY, JSON.stringify(list));
+    return item;
+  } catch (e) {
+    console.warn('Error saving local cover rating:', e);
+    return ratingData;
+  }
+}
+
+const LOCAL_REVIEW_REACTIONS_KEY = 'musiclub_review_reactions_local';
+const LOCAL_REVIEW_COMMENTS_KEY = 'musiclub_review_comments_local';
+
+function getLocalReviewReactions() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_REVIEW_REACTIONS_KEY) : null;
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setLocalReviewReactions(list) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_REVIEW_REACTIONS_KEY, JSON.stringify(list));
+    }
+  } catch (_) {}
+}
+
+function getLocalReviewComments() {
+  try {
+    const raw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_REVIEW_COMMENTS_KEY) : null;
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function setLocalReviewComments(list) {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(LOCAL_REVIEW_COMMENTS_KEY, JSON.stringify(list));
+    }
+  } catch (_) {}
+}
 

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { useAuth } from '../hooks/useAuth';
+import { InstagramIcon, SpotifyIcon } from './ShareReviewModal';
 
 const AVAILABLE_GENRES = [
   'Rock',
@@ -448,8 +449,9 @@ export function UserSettings() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-white/70 text-xs font-semibold mb-1">
-                Perfil de Spotify URL:
+              <label className="block text-white/70 text-xs font-semibold mb-1 flex items-center gap-1.5">
+                <SpotifyIcon className="w-3.5 h-3.5 text-[#1DB954]" />
+                <span>Perfil de Spotify URL:</span>
               </label>
               <input
                 type="url"
@@ -461,8 +463,9 @@ export function UserSettings() {
             </div>
 
             <div>
-              <label className="block text-white/70 text-xs font-semibold mb-1">
-                Instagram URL / Perfil:
+              <label className="block text-white/70 text-xs font-semibold mb-1 flex items-center gap-1.5">
+                <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                <span>Instagram URL / Perfil:</span>
               </label>
               <input
                 type="url"

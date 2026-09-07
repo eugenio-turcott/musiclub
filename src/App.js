@@ -17,6 +17,7 @@ import { FAQPage } from './pages/FAQPage';
 import { PatchNotesPage } from './pages/PatchNotesPage';
 import { PrivacyPolicy } from './pages/PrivacyPolicy';
 import { TermsOfService } from './pages/TermsOfService';
+import { CoverRatingsPage } from './pages/CoverRatingsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { ScrollToTop } from './components/ScrollToTop';
 import { scheduleUniversalTranslation } from './utils/translateCrashGuard';
@@ -107,6 +108,12 @@ function AppContent() {
         {/* Leaderboard & Salón de la Fama */}
         <Route path="/leaderboard" element={<LeaderboardPage />} />
         <Route path="/ranking" element={<LeaderboardPage />} />
+
+        {/* Calificación de Portadas de Álbumes */}
+        <Route path="/portadas" element={<CoverRatingsPage />} />
+        <Route path="/calificar-portadas" element={<CoverRatingsPage />} />
+        <Route path="/cover-ratings" element={<CoverRatingsPage />} />
+        <Route path="/portada/:slug" element={<CoverRatingsPage />} />
 
         {/* Reseñas Comunitarias */}
         <Route path="/reviews" element={<ReviewsPage />} />

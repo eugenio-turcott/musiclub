@@ -20,12 +20,13 @@ import { Recommendations } from './Recommendations';
 import { SongMailbox } from './SongMailbox';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { TierListMaker, PLACEHOLDER_COVER } from './TierListMaker';
+import { ShareReviewModal, InstagramIcon, SpotifyIcon } from './ShareReviewModal';
 import { supabaseService } from '../services/supabaseClient';
 
 export const PLACEHOLDER_AVATAR =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' width='100' height='100'%3E%3Crect width='100' height='100' fill='%231e2238'/%3E%3Ccircle cx='50' cy='38' r='20' fill='%2364748b'/%3E%3Cpath d='M20,85 C20,62 35,62 50,62 C65,62 80,62 80,85 Z' fill='%2364748b'/%3E%3C/svg%3E";
 
-const CRITERIA_METRICS = [
+export const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
   { key: 'rating_composicion', label: 'Composición', icon: '🎵', max: 5, color: 'from-green-500 to-emerald-400' },
   { key: 'rating_letras', label: 'Letras', icon: '📝', max: 5, color: 'from-amber-500 to-yellow-400' },
@@ -35,7 +36,7 @@ const CRITERIA_METRICS = [
   { key: 'rating_general', label: 'General', icon: '⭐', max: 10, color: 'from-[#f5576c] to-[#f093fb]' },
 ];
 
-const MELOMANO_LEVELS = [
+export const MELOMANO_LEVELS = [
   {
     level: 1,
     title: '🎧 Oyente Principiante',
@@ -121,14 +122,14 @@ export function UserProfile({ isPage = false }) {
     try {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox'].includes(tabParam)) {
+      if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'mailbox'].includes(tabParam)) {
         return tabParam;
       }
     } catch {
       // fallback
     }
     return 'reviews';
-  }); // 'recommendations' | 'reviews' | 'badges' | 'stats' | 'pending' | 'mailbox'
+  }); // 'recommendations' | 'reviews' | 'badges' | 'stats' | 'mailbox'
 
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
@@ -136,6 +137,7 @@ export function UserProfile({ isPage = false }) {
   const [reviewsPerPage, setReviewsPerPage] = useState(10);
   const [expandedReviewId, setExpandedReviewId] = useState(null);
   const [editingReviewItem, setEditingReviewItem] = useState(null);
+  const [sharingReviewItem, setSharingReviewItem] = useState(null);
   const [leaderboardList, setLeaderboardList] = useState([]);
 
   // Buzón de Canciones
@@ -474,12 +476,6 @@ export function UserProfile({ isPage = false }) {
     }
   };
 
-  // Pending albums to review
-  const pendingAlbums = useMemo(() => {
-    const reviewedSet = new Set(userReviews.map((r) => r.album_id));
-    return albums.filter((alb) => !reviewedSet.has(alb.id));
-  }, [albums, userReviews]);
-
   if (!user) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
@@ -638,9 +634,10 @@ export function UserProfile({ isPage = false }) {
                   href={user.spotify_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs bg-[#1DB954]/20 text-[#1DB954] hover:bg-[#1DB954]/30 border border-[#1DB954]/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold transition-all active:scale-95"
+                  className="text-[11px] sm:text-xs bg-[#1DB954]/20 text-[#1DB954] hover:bg-[#1DB954]/30 border border-[#1DB954]/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold transition-all active:scale-95"
                 >
-                  <span>🎵</span> Spotify
+                  <SpotifyIcon className="w-3.5 h-3.5 text-[#1DB954]" />
+                  <span>Spotify</span>
                 </a>
               )}
 
@@ -649,9 +646,10 @@ export function UserProfile({ isPage = false }) {
                   href={user.instagram_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 border border-pink-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-semibold transition-all active:scale-95"
+                  className="text-[11px] sm:text-xs bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 border border-pink-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold transition-all active:scale-95"
                 >
-                  <span>📷</span> Instagram
+                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
+                  <span>Instagram</span>
                 </a>
               )}
             </div>
@@ -760,16 +758,6 @@ export function UserProfile({ isPage = false }) {
           <span>📊</span> Estadísticas Detalladas
         </button>
 
-        <button
-          onClick={() => setActiveTab('pending')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
-            activeTab === 'pending'
-              ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-lg shadow-amber-500/20'
-              : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
-          }`}
-        >
-          <span>⏳</span> Por Calificar ({pendingAlbums.length})
-        </button>
       </div>
 
       {/* CONTENIDO DE PESTAÑA: MIS REVIEWS */}
@@ -1019,16 +1007,27 @@ export function UserProfile({ isPage = false }) {
                         )}
                       </div>
                     )}
-                    {/* Acciones de la Review: Botón Editar y Ver Página del Álbum */}
-                    <div className="flex items-center justify-between gap-2 pt-2.5 border-t border-white/10 mt-auto">
+                    {/* Acciones de la Review: Botón Editar, Compartir Story y Ver Página del Álbum */}
+                    <div className="flex items-center justify-between gap-1.5 sm:gap-2 pt-2.5 border-t border-white/10 mt-auto">
                       <button
                         type="button"
                         onClick={() => setEditingReviewItem(item)}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                         title="Editar las calificaciones y comentario de esta review"
                       >
                         <span>✏️</span>
-                        <span>Editar Review</span>
+                        <span className="hidden xs:inline">Editar</span>
+                        <span className="xs:hidden">Edit</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSharingReviewItem({ review: item, album: item.album })}
+                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                        title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
+                      >
+                        <span>📱</span>
+                        <span>Story</span>
                       </button>
 
                       <Link
@@ -1036,10 +1035,10 @@ export function UserProfile({ isPage = false }) {
                           item.album.album || item.album.album_name,
                           item.album.release_type || item.album.releaseType
                         )}
-                        className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
+                        className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
                         title="Ir a la página del lanzamiento"
                       >
-                        <span>Ver Más</span>
+                        <span className="hidden xs:inline">Ver</span>
                         <span>➔</span>
                       </Link>
                     </div>
@@ -1216,6 +1215,17 @@ export function UserProfile({ isPage = false }) {
               </div>
             </div>,
             document.body
+          )}
+
+          {/* Modal para Compartir Review en Redes Sociales (Formato Celular / Stories) */}
+          {sharingReviewItem && (
+            <ShareReviewModal
+              isOpen={!!sharingReviewItem}
+              onClose={() => setSharingReviewItem(null)}
+              review={sharingReviewItem.review}
+              album={sharingReviewItem.album}
+              currentUser={user}
+            />
           )}
         </div>
       )}
@@ -1605,68 +1615,6 @@ export function UserProfile({ isPage = false }) {
         </div>
       )}
 
-      {/* CONTENIDO DE PESTAÑA: ÁLBUMES PENDIENTES POR CALIFICAR */}
-      {activeTab === 'pending' && (
-        <div className="space-y-3 sm:space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-white font-bold text-xs sm:text-base flex items-center gap-1.5 sm:gap-2">
-              <span>⏳</span> Álbumes Disponibles para tu Review ({pendingAlbums.length})
-            </h3>
-          </div>
-
-          {pendingAlbums.length > 0 ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3">
-              {pendingAlbums.map((alb, idx) => (
-                <div
-                  key={alb.id || idx}
-                  className="rounded-xl sm:rounded-2xl p-2 sm:p-3 bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 transition-all group flex flex-col justify-between"
-                >
-                  <div className="aspect-square rounded-lg sm:rounded-xl overflow-hidden mb-2 relative">
-                    <img
-                      src={alb.imagen}
-                      alt={alb.album}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.src = PLACEHOLDER_COVER;
-                      }}
-                    />
-                  </div>
-                  <div className="min-w-0">
-                    <h4
-                      translate="no"
-                      className="notranslate music-title text-white font-bold text-xs truncate leading-snug"
-                      title={alb.album}
-                    >
-                      {alb.album}
-                    </h4>
-                    <p
-                      translate="no"
-                      className="notranslate artist-name text-white/50 text-[10px] truncate mb-2"
-                      title={alb.artista}
-                    >
-                      {alb.artista}
-                    </p>
-                    <Link
-                      to="/"
-                      className="w-full py-1.5 bg-[#f5576c]/20 hover:bg-[#f5576c]/30 text-[#f5576c] hover:text-white rounded-lg text-[10px] sm:text-[11px] font-bold border border-[#f5576c]/30 flex items-center justify-center gap-1 transition-all active:scale-95"
-                    >
-                      <span>✍️</span> Evaluar
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12 sm:py-16 bg-black/30 rounded-2xl sm:rounded-3xl border border-white/10 p-6 sm:p-8">
-              <div className="text-3xl sm:text-4xl mb-3">🎉</div>
-              <h3 className="text-white font-bold text-sm sm:text-base">¡Felicidades! Has calificado todos los álbumes</h3>
-              <p className="text-white/40 text-xs mt-1">
-                No tienes álbumes pendientes por revisar en el catálogo actual.
-              </p>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* CONTENIDO DE PESTAÑA: BUZÓN MUSICAL (CARTITAS) */}
       {activeTab === 'mailbox' && (

@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
+import { useAuth } from '../hooks/useAuth';
+import { ShareReviewModal } from './ShareReviewModal';
+import { ReviewInteractions } from './ReviewInteractions';
 import {
   getWeightedReviewScore,
   getAlbumWeightedAverage,
@@ -13,13 +16,14 @@ import {
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function Reviews({ onClose, isPage = false }) {
+  const { user } = useAuth();
+  const [sharingReview, setSharingReview] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAlbum, setFilterAlbum] = useState('todos');
   const [filterRating, setFilterRating] = useState('todos');
-  const [albumsList, setAlbumsList] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(20);
 
@@ -32,7 +36,7 @@ export function Reviews({ onClose, isPage = false }) {
     setError(null);
 
     try {
-      const [reviewsRes, albumsRes, profilesRes] = await Promise.all([
+      const [reviewsRes, profilesRes] = await Promise.all([
         supabase
           .from('reviews')
           .select(
@@ -51,19 +55,13 @@ export function Reviews({ onClose, isPage = false }) {
           )
           .order('created_at', { ascending: false }),
         supabase
-          .from('albums')
-          .select('id, album_name, artist_name, release_type, release_year')
-          .order('album_name'),
-        supabase
           .from('profiles')
           .select('email, name, avatar_url'),
       ]);
 
       if (reviewsRes.error) throw new Error(reviewsRes.error.message);
-      if (albumsRes.error) throw new Error(albumsRes.error.message);
 
       const reviewsData = reviewsRes.data || [];
-      const albumsData = albumsRes.data || [];
       const profilesData = profilesRes?.data || [];
 
       const profileAvatarByEmail = new Map();
@@ -87,7 +85,6 @@ export function Reviews({ onClose, isPage = false }) {
       });
 
       setReviews(enrichedReviews);
-      setAlbumsList(albumsData || []);
       setTotalReviews(enrichedReviews.length);
 
       const avg = getAlbumWeightedAverage(enrichedReviews);
@@ -166,6 +163,30 @@ export function Reviews({ onClose, isPage = false }) {
     return 'text-rose-300 bg-rose-500/15 border-rose-400/40 shadow-[0_0_12px_rgba(244,63,94,0.2)]';
   };
 
+  // Álbumes únicos que han sido evaluados en las reseñas de la comunidad
+  const evaluatedAlbums = useMemo(() => {
+    const map = new Map();
+    reviews.forEach((r) => {
+      const albumId = r.album_id || r.albums?.id;
+      if (!albumId) return;
+      if (!map.has(albumId)) {
+        map.set(albumId, {
+          id: albumId,
+          album_name: r.albums?.album_name || 'Álbum desconocido',
+          artist_name: r.albums?.artist_name || 'Artista desconocido',
+          count: 0,
+        });
+      }
+      map.get(albumId).count += 1;
+    });
+
+    return Array.from(map.values()).sort((a, b) =>
+      (a.album_name || '').localeCompare(b.album_name || '', 'es', {
+        sensitivity: 'base',
+      })
+    );
+  }, [reviews]);
+
   const filteredReviews = reviews.filter((review) => {
     const albumName = review.albums?.album_name?.toLowerCase() || '';
     const artistName = review.albums?.artist_name?.toLowerCase() || '';
@@ -179,7 +200,9 @@ export function Reviews({ onClose, isPage = false }) {
       comment.includes(searchTerm.toLowerCase());
 
     const matchesAlbum =
-      filterAlbum === 'todos' || review.album_id === filterAlbum;
+      filterAlbum === 'todos' ||
+      review.album_id === filterAlbum ||
+      review.albums?.id === filterAlbum;
 
     const weightedScore =
       getWeightedReviewScore(review) ?? review.rating_general;
@@ -300,7 +323,7 @@ export function Reviews({ onClose, isPage = false }) {
                   className="notranslate text-lg sm:text-2xl font-black text-white"
                   data-stat="number"
                 >
-                  {loading && albumsList.length === 0 ? '...' : albumsList.length}
+                  {loading ? '...' : evaluatedAlbums.length}
                 </p>
               </div>
             </div>
@@ -352,11 +375,11 @@ export function Reviews({ onClose, isPage = false }) {
               className="bg-black/60 border border-white/10 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-pink-400 font-semibold cursor-pointer max-w-[200px] truncate"
             >
               <option value="todos">
-                Todos los álbumes ({albumsList.length})
+                Todos los álbumes ({evaluatedAlbums.length})
               </option>
-              {albumsList.map((album) => (
+              {evaluatedAlbums.map((album) => (
                 <option key={album.id} value={album.id}>
-                  {album.album_name} - {album.artist_name}
+                  {album.album_name} - {album.artist_name} ({album.count})
                 </option>
               ))}
             </select>
@@ -429,6 +452,13 @@ export function Reviews({ onClose, isPage = false }) {
               const rating =
                 weightedScore !== null ? weightedScore : review.rating_general;
               const trackRatings = review.track_ratings || {};
+              const isOwnReview = Boolean(
+                user && (
+                  (review.user_id && user.id && String(review.user_id) === String(user.id)) ||
+                  (review.reviewer_email && user.email && review.reviewer_email.toLowerCase() === user.email.toLowerCase()) ||
+                  (review.reviewer_name && user.name && review.reviewer_name.toLowerCase() === user.name.toLowerCase())
+                )
+              );
 
               return (
                 <div
@@ -651,6 +681,30 @@ export function Reviews({ onClose, isPage = false }) {
                           </div>
                         </div>
                       )}
+
+                      {/* Interacciones: Reacciones y Comentarios */}
+                      <ReviewInteractions
+                        reviewId={review.id}
+                        albumId={review.album_id || album?.id}
+                        currentUser={user}
+                        reviewerEmail={review.reviewer_email}
+                        reviewerName={review.reviewer_name}
+                      />
+
+                      {/* Botón de Compartir Story en Redes Sociales si es review propia */}
+                      {isOwnReview && (
+                        <div className="pt-2 border-t border-white/5 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setSharingReview({ review, album })}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                            title="Compartir tu review en redes sociales en formato celular / story"
+                          >
+                            <span>📱</span>
+                            <span>Compartir Story</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -694,6 +748,17 @@ export function Reviews({ onClose, isPage = false }) {
 
         <Footer />
       </div>
+
+      {/* Modal para Compartir Review en Redes Sociales (Formato Celular / Stories 9:16) */}
+      {sharingReview && (
+        <ShareReviewModal
+          isOpen={!!sharingReview}
+          onClose={() => setSharingReview(null)}
+          review={sharingReview.review}
+          album={sharingReview.album}
+          currentUser={user}
+        />
+      )}
     </div>
   );
 }

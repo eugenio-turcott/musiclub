@@ -25,6 +25,10 @@ export function Footer() {
           <span>📜</span> Patch Notes & Versiones
         </Link>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
+        <Link to="/portadas" className="hover:text-[#f5576c] transition-colors flex items-center gap-1">
+          <span>🖼️</span> Calificar Portadas
+        </Link>
+        <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <LanguageSelector variant="footer" />
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <span className="text-white/20">Hecho con 🎵 para el club</span>

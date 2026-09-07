@@ -89,6 +89,12 @@ export function PatchNotes({ isPage = false }) {
     return allPatchNotes.filter((note) => {
       // Filtro de tag
       if (
+        selectedTag === 'V7' &&
+        !note.version.startsWith('V.7') &&
+        !note.version.startsWith('v.7')
+      )
+        return false;
+      if (
         selectedTag === 'V6' &&
         !note.version.startsWith('V.6') &&
         !note.version.startsWith('v.6')
@@ -308,6 +314,7 @@ export function PatchNotes({ isPage = false }) {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {[
             { id: 'ALL', label: `Todas (${allPatchNotes.length})` },
+            { id: 'V7', label: 'V7.x' },
             { id: 'V6', label: 'V6.x' },
             { id: 'V5', label: 'V5.x' },
             { id: 'V4', label: 'V4.x' },

@@ -7,7 +7,7 @@ import React, {
   useCallback,
 } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { searchAlbum } from '../services/spotifyApi';
+import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
 import { getReleaseUrl } from '../utils/ratingUtils';
@@ -275,7 +275,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
-        navigate(targetUrl);
+        navigate(targetUrl, { state: { preloadedAlbum: target } });
         return;
       }
 
@@ -288,11 +288,27 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       const searchArtist = item.artist;
       const cdnCover = item.image; // Portada HD de catálogo remoto
 
+      // Obtener detalles remotos (tracks, genres, fecha) en ~200ms
+      let remoteDetails = null;
+      if (item.id) {
+        try {
+          const detailRes = await getAlbumDetails(item.id);
+          if (detailRes?.success && detailRes.album) {
+            remoteDetails = detailRes.album;
+          }
+        } catch (detailErr) {
+          console.warn('Error fetching remote album details:', detailErr);
+        }
+      }
+
+      const rawRemote = remoteDetails || item.rawRemoteAlbum || item;
+
+      // Obtener datos canónicos de MusicBrainz con timeout estricto de 2.5s y fallback rápido
       const mbData = await getFullMusicBrainzAlbumData(
         searchArtist,
         searchTitle,
         cdnCover,
-        item.rawRemoteAlbum || item
+        rawRemote
       );
 
       const canonicalTitle = mbData?.album_name || searchTitle;
@@ -312,32 +328,41 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       if (!finalAlbum) {
         setStatusMessage('Registrando álbum en el Club...');
 
+        const tracksToSave = (mbData?.tracks && mbData.tracks.length > 0)
+          ? mbData.tracks
+          : (rawRemote?.tracks && rawRemote.tracks.length > 0)
+            ? rawRemote.tracks
+            : [];
+
         const albumPayload = {
           albumName: canonicalTitle,
           artistName: canonicalArtist,
           imageUrl: cdnCover, // PRESERVADO DE SPOTIFY/DEEZER
           mbid: mbid,
-          releaseType: mbData?.release_type || item.releaseType || 'ALBUM',
-          releaseDate: mbData?.release_date || item.releaseDate || null,
-          releaseYear: mbData?.release_year || item.releaseYear || null,
-          genres: mbData?.genres || [],
-          label: mbData?.label || null,
+          releaseType: mbData?.release_type || item.releaseType || rawRemote?.release_type || 'ALBUM',
+          releaseDate: mbData?.release_date || item.releaseDate || rawRemote?.releaseDate || null,
+          releaseYear: mbData?.release_year || item.releaseYear || rawRemote?.releaseYear || null,
+          genres: (mbData?.genres && mbData.genres.length > 0) ? mbData.genres : (rawRemote?.genres || []),
+          label: mbData?.label || rawRemote?.label || null,
           country: mbData?.country || null,
           barcode: mbData?.barcode || null,
           totalTracks:
-            mbData?.total_tracks || mbData?.tracks?.length || null,
-          tracks: mbData?.tracks || [],
+            mbData?.total_tracks || tracksToSave.length || rawRemote?.totalTracks || null,
+          tracks: tracksToSave,
           spotifyLink:
             mbData?.spotify_link ||
+            rawRemote?.external_urls?.spotify ||
             item.rawRemoteAlbum?.external_urls?.spotify ||
             null,
           youtubeLink: mbData?.youtube_link || null,
-          appleMusicLink: mbData?.apple_music_link || null,
+          appleMusicLink: mbData?.apple_music_link || rawRemote?.external_urls?.itunes || null,
           otherLink:
             mbData?.other_link ||
+            rawRemote?.external_urls?.deezer ||
             item.rawRemoteAlbum?.external_urls?.deezer ||
             null,
           reviews_enabled: true,
+          skipMusicBrainzEnrichment: true, // Ya enriquecido de forma optimizada
         };
 
         finalAlbum = await supabaseService.createAlbum(albumPayload);
@@ -358,7 +383,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       setIsOpen(false);
       setQuery('');
       if (onAlbumReviewed) onAlbumReviewed();
-      navigate(targetUrl);
+      navigate(targetUrl, { state: { preloadedAlbum: finalAlbum } });
       return;
     } catch (err) {
       console.error('Error al seleccionar y abrir álbum:', err);

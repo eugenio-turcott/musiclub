@@ -12,6 +12,7 @@ import {
   isFavoriteTrackMatch,
   getTopRatedTrack,
 } from '../utils/ratingUtils';
+import { ShareReviewModal } from './ShareReviewModal';
 
 const CRITERIOS = [
   {
@@ -99,6 +100,7 @@ export function ReviewSystem({
   const [success, setSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
 
   // Wizard state: 'tracks' | 'criteria' | 'summary'
   const [wizardStep, setWizardStep] = useState('tracks');
@@ -736,13 +738,24 @@ export function ReviewSystem({
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={handleStartEditing}
-                className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/60 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-95 flex-shrink-0"
-              >
-                <span>✏️</span> Editar Mi Review
-              </button>
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => setShowShareModal(true)}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-pink-500/25 via-purple-500/25 to-indigo-500/25 hover:from-pink-500/35 hover:to-indigo-500/35 text-pink-300 hover:text-white border border-pink-400/40 hover:border-pink-400/70 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,87,108,0.2)] active:scale-95 flex-shrink-0 cursor-pointer"
+                  title="Compartir review en redes sociales en formato celular / story"
+                >
+                  <span>📱</span> Compartir Story
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleStartEditing}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/60 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-95 flex-shrink-0 cursor-pointer"
+                >
+                  <span>✏️</span> Editar Review
+                </button>
+              </div>
             </div>
 
             <div className="space-y-4 sm:space-y-5">
@@ -2132,9 +2145,18 @@ export function ReviewSystem({
                       </div>
                     )}
                     {success && (
-                      <div className="text-green-400 text-xs sm:text-sm bg-green-400/10 p-3.5 rounded-xl border border-green-400/20 flex items-center gap-2">
-                        <span>✅</span> ¡Review enviada con éxito! Muchas
-                        gracias.
+                      <div className="bg-emerald-500/15 p-3.5 rounded-xl border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+                        <div className="flex items-center gap-2 text-emerald-300 text-xs sm:text-sm font-semibold">
+                          <span>✅</span> ¡Review enviada con éxito! Muchas gracias.
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowShareModal(true)}
+                          className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                          title="Compartir en formato celular / story a redes sociales"
+                        >
+                          <span>📱</span> Compartir Story
+                        </button>
                       </div>
                     )}
 
@@ -2506,6 +2528,17 @@ export function ReviewSystem({
             </div>
           )}
         </div>
+      )}
+
+      {/* Modal para Compartir Review en Redes Sociales (Formato Celular / Stories 9:16) */}
+      {showShareModal && (
+        <ShareReviewModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          review={existingUserReview || (reviews.length > 0 ? reviews[0] : null)}
+          album={album}
+          currentUser={user}
+        />
       )}
     </div>
   );

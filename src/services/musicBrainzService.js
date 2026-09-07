@@ -13,7 +13,10 @@ import { searchAlbum } from './spotifyApi';
 
 const MUSICBRAINZ_API_BASE = 'https://musicbrainz.org/ws/2';
 const COVER_ART_ARCHIVE_BASE = 'https://coverartarchive.org';
-const USER_AGENT = 'MusiclubApp/1.0 ( https://musiclub.app ; contact@musiclub.app )';
+const USER_AGENT = 'Musiclub/1.0 ( https://musiclub.org ; contact@musiclub.org )';
+
+// Cooldown para MusicBrainz cuando el servidor público está sobrecargado (503/429)
+let mbCooldownUntil = 0;
 
 // Cache en memoria para evitar solicitudes redundantes y respetar rate limits
 const cache = new Map();
@@ -35,6 +38,37 @@ function setCache(key, data) {
     cache.delete(firstKey);
   }
   cache.set(key, { data, timestamp: Date.now() });
+}
+
+/**
+ * Fetch con timeout estricto, User-Agent reglamentario y detección de 503/429.
+ * Si MusicBrainz está saturado, activa un cooldown de 60s para no congelar la app.
+ */
+async function fetchMbWithTimeout(url, options = {}, timeoutMs = 2500) {
+  if (Date.now() < mbCooldownUntil) return null;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        'User-Agent': USER_AGENT,
+        Accept: 'application/json',
+        ...(options.headers || {}),
+      },
+    });
+    clearTimeout(timeoutId);
+    if (res.status === 503 || res.status === 429) {
+      console.warn('⚠️ MusicBrainz reportó sobrecarga (503/429). Activando cooldown temporal de 60s.');
+      mbCooldownUntil = Date.now() + 60 * 1000;
+      return null;
+    }
+    return res;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    return null;
+  }
 }
 
 /**
@@ -82,15 +116,8 @@ export async function searchMusicBrainzReleases(query, limit = 15) {
     const encodedQuery = encodeURIComponent(cleanQ);
     const url = `${MUSICBRAINZ_API_BASE}/release-group?query=${encodedQuery}&limit=${limit}&fmt=json`;
 
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      console.warn(`MusicBrainz search error status: ${response.status}`);
+    const response = await fetchMbWithTimeout(url, {}, 2500);
+    if (!response || !response.ok) {
       return [];
     }
 
@@ -205,14 +232,9 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
 
   try {
     const url = `${MUSICBRAINZ_API_BASE}/release-group/${mbid}?inc=artists+releases+genres+ratings+url-rels&fmt=json`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'application/json',
-      },
-    });
+    const response = await fetchMbWithTimeout(url, {}, 2500);
 
-    if (!response.ok) return null;
+    if (!response || !response.ok) return null;
 
     const data = await response.json();
     const releases = data.releases || [];
@@ -271,11 +293,10 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
     let tracks = [];
     let totalTracks = null;
 
-    // Probar hasta los mejores 3 releases para asegurar tracks y metadatos completos
-    const candidates = sortedReleases.length > 0 ? sortedReleases.slice(0, 3) : (releases[0] ? [releases[0]] : []);
-    for (const candidate of candidates) {
-      if (!candidate?.id) continue;
-      const releaseInfo = await getMusicBrainzReleaseDetailedInfo(candidate.id);
+    // Consultar el mejor release oficial para asegurar tracks y metadatos (rápido y no bloqueante)
+    const topCandidate = sortedReleases[0] || releases[0];
+    if (topCandidate?.id) {
+      const releaseInfo = await getMusicBrainzReleaseDetailedInfo(topCandidate.id);
       if (releaseInfo) {
         if (!targetLabel && releaseInfo.label) targetLabel = releaseInfo.label;
         if (!targetCountry && releaseInfo.country) targetCountry = releaseInfo.country;
@@ -286,7 +307,6 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
         if (releaseInfo.tracks && releaseInfo.tracks.length > 0) {
           tracks = releaseInfo.tracks;
           totalTracks = releaseInfo.totalTracks || tracks.length;
-          break; // Encontramos release con lista de pistas completa
         }
       }
     }
@@ -354,14 +374,9 @@ export async function getMusicBrainzReleaseDetailedInfo(releaseId) {
 
   try {
     const url = `${MUSICBRAINZ_API_BASE}/release/${releaseId}?inc=recordings+artist-credits+media+labels+url-rels+discids&fmt=json`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'application/json',
-      },
-    });
+    const response = await fetchMbWithTimeout(url, {}, 2500);
 
-    if (!response.ok) return null;
+    if (!response || !response.ok) return null;
 
     const data = await response.json();
     const mediaList = data.media || [];
@@ -425,14 +440,9 @@ export async function getMusicBrainzReleaseTracks(releaseId) {
 
   try {
     const url = `${MUSICBRAINZ_API_BASE}/release/${releaseId}?inc=recordings+artist-credits+media&fmt=json`;
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': USER_AGENT,
-        Accept: 'application/json',
-      },
-    });
+    const response = await fetchMbWithTimeout(url, {}, 2500);
 
-    if (!response.ok) return [];
+    if (!response || !response.ok) return [];
 
     const data = await response.json();
     const mediaList = data.media || [];
@@ -481,49 +491,47 @@ export async function verifyCoverArtAvailable(mbid) {
  */
 export async function searchBestReleaseGroup(artistName, albumName) {
   if (!albumName || !artistName) return null;
+  if (Date.now() < mbCooldownUntil) return null;
+
   const cleanArt = String(artistName).replace(/[“”"']/g, '').trim();
   const cleanAlb = String(albumName).replace(/[“”"']/g, '').trim();
 
-  const fetchMbWithRetry = async (url) => {
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const res = await fetch(url, {
-          headers: {
-            'User-Agent': USER_AGENT,
-            Accept: 'application/json',
-          },
-        });
-        if (res.status === 503 || res.status === 429) {
-          await new Promise((r) => setTimeout(r, attempt * 1500));
-          continue;
-        }
-        if (!res.ok) return null;
-        return await res.json();
-      } catch {
-        await new Promise((r) => setTimeout(r, attempt * 1200));
-      }
+  const cacheKey = `best_rg_${cleanArt}_${cleanAlb}`.toLowerCase();
+  const cached = getCached(cacheKey);
+  if (cached) return cached;
+
+  const fetchMbJson = async (url) => {
+    try {
+      const res = await fetchMbWithTimeout(url, {}, 2500);
+      if (!res || !res.ok) return null;
+      return await res.json();
+    } catch {
+      return null;
     }
-    return null;
   };
 
   // 1. Búsqueda estructurada
   let q = `artist:"${cleanArt}" AND releasegroup:"${cleanAlb}"`;
-  let data = await fetchMbWithRetry(
-    `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+  let data = await fetchMbJson(
+    `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=5&fmt=json`
   );
   let rgs = data?.['release-groups'] || [];
 
   // 2. Búsqueda libre si no hubo resultados
-  if (rgs.length === 0) {
+  if (rgs.length === 0 && Date.now() >= mbCooldownUntil) {
     q = `${cleanArt} ${cleanAlb}`;
-    data = await fetchMbWithRetry(
-      `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+    data = await fetchMbJson(
+      `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=5&fmt=json`
     );
     rgs = data?.['release-groups'] || [];
   }
 
   // 3. Búsqueda simplificada eliminando (Remastered), [Deluxe], anexos de edición, etc.
-  if (rgs.length === 0 || cleanAlb.includes('(') || cleanAlb.includes('-')) {
+  if (
+    rgs.length === 0 &&
+    Date.now() >= mbCooldownUntil &&
+    (cleanAlb.includes('(') || cleanAlb.includes('-'))
+  ) {
     const simplified = cleanAlb
       .replace(/\s*[-–—]\s*(Remastered|Deluxe|Anniversary|Edition|Bonus|Expanded).*/i, '')
       .replace(/\((Remastered|Deluxe|Anniversary|Edition|Bonus|Expanded|Live)[^)]*\)/gi, '')
@@ -532,8 +540,8 @@ export async function searchBestReleaseGroup(artistName, albumName) {
       .trim();
     if (simplified && simplified.toLowerCase() !== cleanAlb.toLowerCase()) {
       q = `artist:"${cleanArt}" AND releasegroup:"${simplified}"`;
-      data = await fetchMbWithRetry(
-        `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=8&fmt=json`
+      data = await fetchMbJson(
+        `${MUSICBRAINZ_API_BASE}/release-group?query=${encodeURIComponent(q)}&limit=5&fmt=json`
       );
       if (data?.['release-groups']?.length > 0) {
         rgs = [...rgs, ...data['release-groups']];
@@ -582,62 +590,70 @@ export async function searchBestReleaseGroup(artistName, albumName) {
  * IMPORTANTE: No toca la portada (image_url); la portada se preserva de Spotify.
  */
 export async function enrichAlbumWithMusicBrainz(albumName, artistName) {
+  if (Date.now() < mbCooldownUntil) return null;
   try {
-    const rg = await searchBestReleaseGroup(artistName, albumName);
-    if (!rg) return null;
+    const enrichPromise = (async () => {
+      const rg = await searchBestReleaseGroup(artistName, albumName);
+      if (!rg) return null;
 
-    const mbid = rg.id;
-    const releaseType = normalizeReleaseType(
-      rg['primary-type'],
-      rg['secondary-types']
-    );
+      const mbid = rg.id;
+      const releaseType = normalizeReleaseType(
+        rg['primary-type'],
+        rg['secondary-types']
+      );
 
-    let releaseDate = rg['first-release-date'] || null;
-    let releaseYear = null;
-    if (releaseDate) {
-      const y = parseInt(String(releaseDate).substring(0, 4), 10);
-      if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
-    }
-
-    let genres = (rg.tags || []).map((t) => t.name).slice(0, 5);
-    let label = null;
-    let country = null;
-    let barcode = null;
-    let totalTracks = null;
-    let tracks = [];
-
-    // Consultar detalles del Release Group
-    const details = await getMusicBrainzReleaseGroupDetails(mbid);
-    if (details) {
-      if (details.genres && details.genres.length > 0) {
-        genres = details.genres;
+      let releaseDate = rg['first-release-date'] || null;
+      let releaseYear = null;
+      if (releaseDate) {
+        const y = parseInt(String(releaseDate).substring(0, 4), 10);
+        if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
       }
-      if (details.label) label = details.label;
-      if (details.country) country = details.country;
-      if (details.barcode) barcode = details.barcode;
-      if (details.totalTracks) totalTracks = details.totalTracks;
-      if (details.tracks && details.tracks.length > 0) tracks = details.tracks;
-      if (details.releaseDate && !releaseDate) {
-        releaseDate = details.releaseDate;
-        releaseYear = details.releaseYear;
-      }
-    }
 
-    return {
-      mbid,
-      album_name: details?.name || rg.title || albumName,
-      artist_name: details?.artist || artistName,
-      release_type: releaseType,
-      release_date: releaseDate,
-      release_year: releaseYear,
-      genres,
-      label,
-      country,
-      barcode,
-      total_tracks: totalTracks || (tracks.length > 0 ? tracks.length : null),
-      tracks,
-      externalLinks: details?.externalLinks || null,
-    };
+      let genres = (rg.tags || []).map((t) => t.name).slice(0, 5);
+      let label = null;
+      let country = null;
+      let barcode = null;
+      let totalTracks = null;
+      let tracks = [];
+
+      // Consultar detalles del Release Group
+      const details = await getMusicBrainzReleaseGroupDetails(mbid);
+      if (details) {
+        if (details.genres && details.genres.length > 0) {
+          genres = details.genres;
+        }
+        if (details.label) label = details.label;
+        if (details.country) country = details.country;
+        if (details.barcode) barcode = details.barcode;
+        if (details.totalTracks) totalTracks = details.totalTracks;
+        if (details.tracks && details.tracks.length > 0) tracks = details.tracks;
+        if (details.releaseDate && !releaseDate) {
+          releaseDate = details.releaseDate;
+          releaseYear = details.releaseYear;
+        }
+      }
+
+      return {
+        mbid,
+        album_name: details?.name || rg.title || albumName,
+        artist_name: details?.artist || artistName,
+        release_type: releaseType,
+        release_date: releaseDate,
+        release_year: releaseYear,
+        genres,
+        label,
+        country,
+        barcode,
+        total_tracks: totalTracks || (tracks.length > 0 ? tracks.length : null),
+        tracks,
+        externalLinks: details?.externalLinks || null,
+      };
+    })();
+
+    return await Promise.race([
+      enrichPromise,
+      new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
+    ]);
   } catch (error) {
     console.warn('Error en enrichAlbumWithMusicBrainz:', error.message);
     return null;
@@ -650,83 +666,102 @@ export async function enrichAlbumWithMusicBrainz(albumName, artistName) {
  *   release_date, release_year, géneros, discográfica, país, barcode, total_tracks, tracks).
  * - La portada (image_url) se PRESERVA explícitamente de la API de origen (Spotify o Deezer HD)
  *   satisfaciendo la regla: "información de MusicBrainz COMPLETA a excepción de la portada".
+ * - Timeout estricto de 2500ms para evitar esperas y bloqueos de la interfaz.
  * 
  * @param {string} artistName - Nombre del artista
  * @param {string} albumName - Nombre del álbum
  * @param {string|null} coverImageUrl - Portada en alta resolución de Spotify o Deezer
- * @param {object|null} fallbackData - Datos de respaldo (Spotify/Deezer) en caso de que MB falle
+ * @param {object|null} fallbackData - Datos de respaldo (Spotify/Deezer) en caso de que MB falle o tarde
  */
 export async function getFullMusicBrainzAlbumData(artistName, albumName, coverImageUrl = null, fallbackData = null) {
-  try {
-    const rg = await searchBestReleaseGroup(artistName, albumName);
-    if (!rg) {
-      if (fallbackData) {
-        return {
-          ...fallbackData,
-          album_name: fallbackData.name || fallbackData.album_name || albumName,
-          artist_name: fallbackData.artist || fallbackData.artist_name || artistName,
-          image_url: coverImageUrl || fallbackData.image_url || fallbackData.image,
-          source: fallbackData.source || 'FALLBACK',
-        };
-      }
-      return null;
-    }
-
-    const details = await getMusicBrainzReleaseGroupDetails(rg.id);
-    const releaseType = normalizeReleaseType(rg['primary-type'], rg['secondary-types']);
-
-    let releaseDate = details?.releaseDate || rg['first-release-date'] || fallbackData?.releaseDate || fallbackData?.release_date || null;
-    let releaseYear = details?.releaseYear || null;
-    if (!releaseYear && releaseDate) {
-      const y = parseInt(String(releaseDate).substring(0, 4), 10);
-      if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
-    }
-
-    const tracks = (details?.tracks && details.tracks.length > 0)
-      ? details.tracks
-      : (fallbackData?.tracks || []);
-
-    const genres = (details?.genres && details.genres.length > 0)
-      ? details.genres
-      : (fallbackData?.genres || []);
-
-    const canonicalTitle = details?.name || rg.title || albumName;
-    const canonicalArtist = details?.artist || artistName;
-
+  const resolveFallback = () => {
+    if (!fallbackData) return null;
     return {
-      mbid: rg.id,
-      album_name: canonicalTitle,
-      artist_name: canonicalArtist,
-      release_type: releaseType,
-      release_date: releaseDate,
-      release_year: releaseYear,
-      genres: genres,
-      label: details?.label || fallbackData?.label || null,
-      country: details?.country || fallbackData?.country || null,
-      barcode: details?.barcode || fallbackData?.barcode || null,
-      total_tracks: details?.totalTracks || tracks.length || fallbackData?.total_tracks || null,
-      tracks: tracks,
-      // REQUERIMIENTO CLAVE: Conservar la portada de Spotify o Deezer HD
-      image_url: coverImageUrl || fallbackData?.image_url || fallbackData?.image || null,
-      spotify_link: details?.externalLinks?.spotify || fallbackData?.spotify_link || fallbackData?.external_urls?.spotify || null,
-      youtube_link: details?.externalLinks?.youtube || fallbackData?.youtube_link || `https://www.youtube.com/results?search_query=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle + ' full album')}`,
-      apple_music_link: details?.externalLinks?.appleMusic || fallbackData?.apple_music_link || `https://music.apple.com/search?term=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
-      other_link: details?.externalLinks?.bandcamp || details?.externalLinks?.discogs || fallbackData?.external_urls?.deezer || null,
+      ...fallbackData,
+      album_name: fallbackData.name || fallbackData.album_name || albumName,
+      artist_name: fallbackData.artist || fallbackData.artist_name || artistName,
+      image_url: coverImageUrl || fallbackData.image_url || fallbackData.image,
+      tracks: fallbackData.tracks || [],
+      genres: fallbackData.genres || [],
+      release_date: fallbackData.releaseDate || fallbackData.release_date || null,
+      release_year: fallbackData.releaseYear || fallbackData.release_year || null,
+      release_type: fallbackData.release_type || fallbackData.releaseType || 'ALBUM',
+      spotify_link: fallbackData.spotify_link || fallbackData.external_urls?.spotify || null,
+      youtube_link: fallbackData.youtube_link || `https://www.youtube.com/results?search_query=${encodeURIComponent((fallbackData.artist || artistName) + ' ' + (fallbackData.name || albumName) + ' full album')}`,
+      apple_music_link: fallbackData.apple_music_link || `https://music.apple.com/search?term=${encodeURIComponent((fallbackData.artist || artistName) + ' ' + (fallbackData.name || albumName))}`,
+      other_link: fallbackData.other_link || fallbackData.external_urls?.deezer || null,
       spotify_verified: true,
       reviews_enabled: true,
-      source: 'MUSICBRAINZ',
+      source: fallbackData.source || 'FALLBACK',
     };
+  };
+
+  if (Date.now() < mbCooldownUntil) {
+    return resolveFallback();
+  }
+
+  try {
+    const mbPromise = (async () => {
+      const rg = await searchBestReleaseGroup(artistName, albumName);
+      if (!rg) return null;
+
+      const details = await getMusicBrainzReleaseGroupDetails(rg.id);
+      const releaseType = normalizeReleaseType(rg['primary-type'], rg['secondary-types']);
+
+      let releaseDate = details?.releaseDate || rg['first-release-date'] || fallbackData?.releaseDate || fallbackData?.release_date || null;
+      let releaseYear = details?.releaseYear || null;
+      if (!releaseYear && releaseDate) {
+        const y = parseInt(String(releaseDate).substring(0, 4), 10);
+        if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
+      }
+
+      const tracks = (details?.tracks && details.tracks.length > 0)
+        ? details.tracks
+        : (fallbackData?.tracks || []);
+
+      const genres = (details?.genres && details.genres.length > 0)
+        ? details.genres
+        : (fallbackData?.genres || []);
+
+      const canonicalTitle = details?.name || rg.title || albumName;
+      const canonicalArtist = details?.artist || artistName;
+
+      return {
+        mbid: rg.id,
+        album_name: canonicalTitle,
+        artist_name: canonicalArtist,
+        release_type: releaseType,
+        release_date: releaseDate,
+        release_year: releaseYear,
+        genres: genres,
+        label: details?.label || fallbackData?.label || null,
+        country: details?.country || fallbackData?.country || null,
+        barcode: details?.barcode || fallbackData?.barcode || null,
+        total_tracks: details?.totalTracks || tracks.length || fallbackData?.total_tracks || null,
+        tracks: tracks,
+        // REQUERIMIENTO CLAVE: Conservar la portada de Spotify o Deezer HD
+        image_url: coverImageUrl || fallbackData?.image_url || fallbackData?.image || null,
+        spotify_link: details?.externalLinks?.spotify || fallbackData?.spotify_link || fallbackData?.external_urls?.spotify || null,
+        youtube_link: details?.externalLinks?.youtube || fallbackData?.youtube_link || `https://www.youtube.com/results?search_query=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle + ' full album')}`,
+        apple_music_link: details?.externalLinks?.appleMusic || fallbackData?.apple_music_link || `https://music.apple.com/search?term=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
+        other_link: details?.externalLinks?.bandcamp || details?.externalLinks?.discogs || fallbackData?.external_urls?.deezer || null,
+        spotify_verified: true,
+        reviews_enabled: true,
+        source: 'MUSICBRAINZ',
+      };
+    })();
+
+    // Límite estricto de 2500ms para evitar que la UI quede congelada esperando a MusicBrainz
+    const result = await Promise.race([
+      mbPromise,
+      new Promise((resolve) => setTimeout(() => resolve(null), 2500)),
+    ]);
+
+    if (result) return result;
+    return resolveFallback();
   } catch (err) {
     console.warn('Error en getFullMusicBrainzAlbumData:', err);
-    if (fallbackData) {
-      return {
-        ...fallbackData,
-        album_name: fallbackData.name || fallbackData.album_name || albumName,
-        artist_name: fallbackData.artist || fallbackData.artist_name || artistName,
-        image_url: coverImageUrl || fallbackData.image_url || fallbackData.image,
-      };
-    }
-    return null;
+    return resolveFallback();
   }
 }
 

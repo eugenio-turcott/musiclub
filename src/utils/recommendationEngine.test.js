@@ -86,7 +86,7 @@ describe('recommendationEngine', () => {
       album_name: 'Titanic Rising',
       artist_name: 'Weyes Blood',
       image_url: 'https://example.com/titanic.jpg',
-      status: 'ACTIVO',
+      status: 'INDIVIDUAL',
       final_rating: 9.4,
       review_count: 6,
       criteria_averages: {

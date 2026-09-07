@@ -11,6 +11,65 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   // ----------------------------------------------------
+  // V7.x (Septiembre 2026)
+  // ----------------------------------------------------
+  {
+    version: 'V.7.0',
+    title:
+      'Interacciones Sociales en Reseñas (Reacciones y Comentarios en Hilo), Rediseño de Perfiles en Leaderboard, Optimización Extrema en Calificación de Álbumes (0 ms) y Suite de Compartir',
+    date: '2026-09-07',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-fuchsia-600 via-pink-600 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Lanzamiento oficial de Musiclub V.7.0, una de las mayores actualizaciones de la plataforma: transformación social de las reseñas con sistema de reacciones estilo Facebook más selector completo de emojis (estilo WhatsApp) y comentarios anidados en hilos; rediseño del perfil emergente en Leaderboard adaptando la experiencia integral de Mi Perfil; depuración de secciones eliminando "Por Calificar"; optimización radical del rendimiento al registrar y calificar álbumes nuevos (reduciendo la latencia de más de 30 segundos a renderizado instantáneo de 0 ms mediante Circuit Breaker para MusicBrainz, timeout de 2.5s y endpoints granulares en Supabase); y perfeccionamiento visual en los modales de compartir (logos oficiales de Threads y Snapchat, solución a márgenes en popups y soporte para nombres largos de canciones en Tracks Destacados).',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Interacciones Comunitarias: Reacciones estilo Facebook con Selector de Emojis',
+        description:
+          'Los usuarios ahora pueden reaccionar a las reseñas de los álbumes mediante una barra de reacciones estilo Facebook (Me Gusta, Me Encanta, Me Divierte, Me Sorprende, Me Entristece y No Me Gusta / Dislike) o seleccionar cualquier emoji personalizado a través de un panel interactivo al estilo WhatsApp, con recuentos agrupados en tiempo real y persistencia optimizada.',
+      },
+      {
+        type: 'feature',
+        title: 'Sistema de Comentarios y Discusión en Reseñas',
+        description:
+          'Integración de hilos de comentarios para cada reseña publicada: permite iniciar debates musicales, responder directamente a otros miembros del club, visualizar avatares de perfil con enlaces interactivos y moderar comentarios propios o como administrador.',
+      },
+      {
+        type: 'feature',
+        title: 'Rediseño de Perfiles en Leaderboard estilo "Mi Perfil"',
+        description:
+          'Al hacer clic en cualquier miembro desde el Leaderboard o listados comunitarios, se abre un perfil enriquecido idéntico a la experiencia de "Mi Perfil": portada, biografía, insignias de gamificación (rango, nivel, reputación), estadísticas de calificaciones y acceso a sus álbumes favoritos.',
+      },
+      {
+        type: 'improvement',
+        title: 'Optimización Extrema de Latencia al Calificar Nuevos Álbumes (0 ms & <100 ms)',
+        description:
+          'Eliminación del cuello de botella de más de 30 segundos al buscar y pulsar "Calificar": incorporación de Circuit Breaker y cooldown automático de 60s ante saturaciones (HTTP 503) de MusicBrainz, timeouts estrictos de 2.5s con AbortController, endpoint granular getAlbumWithFullStats(slug) que previene la descarga masiva de los 1,421 álbumes, y renderizado visual instantáneo con preloadedAlbum en React Router.',
+      },
+      {
+        type: 'improvement',
+        title: 'Depuración de Pestañas en Mi Perfil',
+        description:
+          'Se eliminó definitivamente la sección "Por Calificar" de la vista de perfil de usuario, manteniendo una interfaz más limpia, ágil y enfocada exclusivamente en el contenido y reseñas evaluadas.',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección Visual en Modales de Compartir y Story Canvas (Threads, Snapchat y Layout)',
+        description:
+          'Actualización de los isotipos vectoriales oficiales de Threads y Snapchat en el modal de compartir review y Tier List. Corrección del margen superior del overlay para cubrir el 100% del viewport sin transparencias indeseadas, y ajuste al renderizado de canciones con títulos extensos en "Tracks Destacados" para evitar desbordamientos visuales.',
+      },
+      {
+        type: 'fix',
+        title: 'Resiliencia CORS en Portadas Externas y Normalización de Estadísticas en Reviews',
+        description:
+          'Soporte de proxies CORS de respaldo para evitar bloqueos al generar las imágenes descargables de reviews con imágenes alojadas en CDNs externos. Corrección y nitidez en el contador global de "Álbumes Evaluados" dentro de la sección de Reseñas.',
+      },
+    ],
+  },
+  // ----------------------------------------------------
   // V6.x (Septiembre 2026)
   // ----------------------------------------------------
   {

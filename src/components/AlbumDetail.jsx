@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
@@ -28,6 +28,8 @@ import {
   YouTubeLogo,
   DeezerLogo,
 } from './common/PlatformLogos';
+import { ShareReviewModal } from './ShareReviewModal';
+import { ReviewInteractions } from './ReviewInteractions';
 
 const CRITERIA_METRICS = [
   {
@@ -152,22 +154,27 @@ function UserAvatar({ user, size = 'md', className = '' }) {
 export function AlbumDetail() {
   const { slug } = useParams();
   const { user, isAdmin } = useAuth();
+  const location = useLocation();
+  const preloadedAlbum = location.state?.preloadedAlbum;
 
-  const [album, setAlbum] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [album, setAlbum] = useState(() => preloadedAlbum || null);
+  const [loading, setLoading] = useState(() => !preloadedAlbum);
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
   const [expandedReviews, setExpandedReviews] = useState({});
   const [spotifyMeta, setSpotifyMeta] = useState(null);
+  const [sharingReview, setSharingReview] = useState(null);
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
+  const loadData = useCallback(async (isInitialBackground = false) => {
+    if (!isInitialBackground) {
+      setLoading(true);
+    }
     setError(null);
     try {
-      const data = await supabaseService.getAllAlbumsWithFullStats();
-      let current = findAlbumBySlug(data || [], slug);
+      // 1. Consulta directa y ultrarrápida por slug / id (~50ms)
+      let current = await supabaseService.getAlbumWithFullStats(slug);
 
-      // Fallback 1: si el álbum fue recién insertado y la vista agregada no lo reflejó de inmediato
+      // Fallback 1: si no se encontró con getAlbumWithFullStats, probar con getAllAlbums
       if (!current) {
         const fallbackAlbums = await supabaseService.getAllAlbums();
         current = findAlbumBySlug(fallbackAlbums || [], slug);
@@ -248,24 +255,31 @@ export function AlbumDetail() {
 
       if (current) {
         setAlbum(current);
-      } else {
+      } else if (!preloadedAlbum) {
         setError('Álbum no encontrado');
       }
     } catch (err) {
       console.error('Error loading album details:', err);
-      setError('Error al cargar la información del álbum');
+      if (!preloadedAlbum) {
+        setError('Error al cargar la información del álbum');
+      }
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, preloadedAlbum]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    // Si tenemos preloadedAlbum, sincronizamos en background sin pantalla de carga bloqueante
+    loadData(Boolean(preloadedAlbum));
+  }, [loadData, preloadedAlbum]);
 
   // Enriquecer automáticamente metadatos desde Spotify (año, géneros, tipo de lanzamiento)
   useEffect(() => {
     if (!album) return;
+    // Si el álbum ya cuenta con año, géneros y tipo, evitamos peticiones de red redundantes
+    if (album.release_year && album.genres && album.genres.length > 0 && album.release_type) {
+      return;
+    }
 
     let isMounted = true;
     const enrichFromSpotify = async () => {
@@ -1117,6 +1131,13 @@ export function AlbumDetail() {
                 const hasTrackRatings =
                   rev.track_ratings &&
                   Object.keys(rev.track_ratings).length > 0;
+                const isOwnReview = Boolean(
+                  user && (
+                    (rev.user_id && user.id && String(rev.user_id) === String(user.id)) ||
+                    (rev.reviewer_email && user.email && rev.reviewer_email.toLowerCase() === user.email.toLowerCase()) ||
+                    (rev.reviewer_name && user.name && rev.reviewer_name.toLowerCase() === user.name.toLowerCase())
+                  )
+                );
 
                 return (
                   <div
@@ -1292,6 +1313,30 @@ export function AlbumDetail() {
                         )}
                       </div>
                     )}
+
+                    {/* Interacciones de la Comunidad: Reacciones y Comentarios */}
+                    <ReviewInteractions
+                      reviewId={rev.id}
+                      albumId={album.id}
+                      currentUser={user}
+                      reviewerEmail={rev.reviewer_email}
+                      reviewerName={rev.reviewer_name}
+                    />
+
+                    {/* Botón de Compartir Story en Redes Sociales si es review propia */}
+                    {isOwnReview && (
+                      <div className="pt-2.5 border-t border-white/10 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setSharingReview(rev)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                          title="Compartir tu review en redes sociales en formato celular / story"
+                        >
+                          <span>📱</span>
+                          <span>Compartir Story</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -1312,6 +1357,17 @@ export function AlbumDetail() {
           <Footer />
         </div>
       </div>
+
+      {/* Modal para Compartir Review en Redes Sociales (Formato Celular / Stories 9:16) */}
+      {sharingReview && (
+        <ShareReviewModal
+          isOpen={!!sharingReview}
+          onClose={() => setSharingReview(null)}
+          review={sharingReview}
+          album={album}
+          currentUser={user}
+        />
+      )}
     </div>
   );
 }

@@ -84,10 +84,22 @@ export function AlbumsCatalog({ isPage = false }) {
   // Sync with URL query param ?tipo=...
   useEffect(() => {
     const params = new URLSearchParams(location.search);
-    const tipo = params.get('tipo') || params.get('type') || params.get('formato');
+    const tipo =
+      params.get('tipo') || params.get('type') || params.get('formato');
     if (tipo) {
       const upper = tipo.toUpperCase();
-      if (['EP', 'SENCILLO', 'COMPILACION', 'EN_VIVO', 'SOUNDTRACK', 'REMIX', 'ALBUM', 'ALL'].includes(upper)) {
+      if (
+        [
+          'EP',
+          'SENCILLO',
+          'COMPILACION',
+          'EN_VIVO',
+          'SOUNDTRACK',
+          'REMIX',
+          'ALBUM',
+          'ALL',
+        ].includes(upper)
+      ) {
         setReleaseTypeFilter(upper);
       }
     }
@@ -213,7 +225,11 @@ export function AlbumsCatalog({ isPage = false }) {
       REMIX: 0,
     };
     albums.forEach((alb) => {
-      const raw = (alb.release_type || alb.releaseType || 'ALBUM').toUpperCase();
+      const raw = (
+        alb.release_type ||
+        alb.releaseType ||
+        'ALBUM'
+      ).toUpperCase();
       if (raw === 'EP' || raw === 'SINGLE_EP') {
         counts.EP++;
       } else if (
@@ -238,7 +254,6 @@ export function AlbumsCatalog({ isPage = false }) {
     });
     return counts;
   }, [albums]);
-
 
   // Conteo de álbumes por año y década
   const yearCounts = useMemo(() => {
@@ -351,11 +366,7 @@ export function AlbumsCatalog({ isPage = false }) {
     // Release Type Filter (Álbumes, EPs, Sencillos/Canciones, Compilaciones, En Vivo, Bandas Sonoras, Remixes)
     if (releaseTypeFilter !== 'ALL') {
       result = result.filter((a) => {
-        const raw = (
-          a.release_type ||
-          a.releaseType ||
-          'ALBUM'
-        ).toUpperCase();
+        const raw = (a.release_type || a.releaseType || 'ALBUM').toUpperCase();
         if (releaseTypeFilter === 'ALBUM') {
           return raw === 'ALBUM' || (!a.release_type && !a.releaseType);
         }
@@ -512,7 +523,9 @@ export function AlbumsCatalog({ isPage = false }) {
                   className="notranslate text-xl sm:text-2xl font-black text-white"
                   data-stat="number"
                 >
-                  {loading && globalStats.totalAlbums === 0 ? '...' : globalStats.totalAlbums}
+                  {loading && globalStats.totalAlbums === 0
+                    ? '...'
+                    : globalStats.totalAlbums}
                 </p>
               </div>
             </div>
@@ -532,7 +545,9 @@ export function AlbumsCatalog({ isPage = false }) {
                   className="notranslate text-xl sm:text-2xl font-black text-amber-400"
                   data-stat="number"
                 >
-                  {loading && globalStats.totalReviews === 0 ? '...' : globalStats.totalReviews}
+                  {loading && globalStats.totalReviews === 0
+                    ? '...'
+                    : globalStats.totalReviews}
                 </p>
               </div>
             </div>
@@ -582,7 +597,9 @@ export function AlbumsCatalog({ isPage = false }) {
                   className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
                   data-stat="score"
                 >
-                  {loading && (!globalStats.avgClubScore || globalStats.avgClubScore === '0.0')
+                  {loading &&
+                  (!globalStats.avgClubScore ||
+                    globalStats.avgClubScore === '0.0')
                     ? '...'
                     : `${globalStats.avgClubScore} / 10`}
                 </p>
@@ -798,14 +815,66 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {[
-              { id: 'ALL', label: 'Todos', icon: '🎧', count: releaseTypeCounts.ALL },
-              { id: 'ALBUM', label: 'Álbumes', icon: '💿', count: releaseTypeCounts.ALBUM },
-              { id: 'EP', label: 'EPs', icon: '💽', count: releaseTypeCounts.EP },
-              { id: 'SENCILLO', label: 'Sencillos', icon: '🎵', count: releaseTypeCounts.SENCILLO },
-              { id: 'COMPILACION', label: 'Compilaciones', icon: '📦', count: releaseTypeCounts.COMPILACION },
-              ...(releaseTypeCounts.EN_VIVO > 0 ? [{ id: 'EN_VIVO', label: 'En Vivo', icon: '🎤', count: releaseTypeCounts.EN_VIVO }] : []),
-              ...(releaseTypeCounts.SOUNDTRACK > 0 ? [{ id: 'SOUNDTRACK', label: 'Soundtracks', icon: '🎬', count: releaseTypeCounts.SOUNDTRACK }] : []),
-              ...(releaseTypeCounts.REMIX > 0 ? [{ id: 'REMIX', label: 'Remixes', icon: '🎛️', count: releaseTypeCounts.REMIX }] : []),
+              {
+                id: 'ALL',
+                label: 'Todos',
+                icon: '🎧',
+                count: releaseTypeCounts.ALL,
+              },
+              {
+                id: 'ALBUM',
+                label: 'Álbumes',
+                icon: '💿',
+                count: releaseTypeCounts.ALBUM,
+              },
+              {
+                id: 'EP',
+                label: 'EPs',
+                icon: '💽',
+                count: releaseTypeCounts.EP,
+              },
+              {
+                id: 'SENCILLO',
+                label: 'Sencillos',
+                icon: '🎵',
+                count: releaseTypeCounts.SENCILLO,
+              },
+              {
+                id: 'COMPILACION',
+                label: 'Compilaciones',
+                icon: '📦',
+                count: releaseTypeCounts.COMPILACION,
+              },
+              ...(releaseTypeCounts.EN_VIVO > 0
+                ? [
+                    {
+                      id: 'EN_VIVO',
+                      label: 'En Vivo',
+                      icon: '🎤',
+                      count: releaseTypeCounts.EN_VIVO,
+                    },
+                  ]
+                : []),
+              ...(releaseTypeCounts.SOUNDTRACK > 0
+                ? [
+                    {
+                      id: 'SOUNDTRACK',
+                      label: 'Soundtracks',
+                      icon: '🎬',
+                      count: releaseTypeCounts.SOUNDTRACK,
+                    },
+                  ]
+                : []),
+              ...(releaseTypeCounts.REMIX > 0
+                ? [
+                    {
+                      id: 'REMIX',
+                      label: 'Remixes',
+                      icon: '🎛️',
+                      count: releaseTypeCounts.REMIX,
+                    },
+                  ]
+                : []),
             ].map((fmt) => {
               const isSelected = releaseTypeFilter === fmt.id;
               return (
@@ -947,50 +1016,6 @@ export function AlbumsCatalog({ isPage = false }) {
                         }}
                       />
 
-                      {/* Badge: Added by current user */}
-                      {isMine && (
-                        <div
-                          className="absolute top-2 left-2 z-20 flex items-center gap-1 bg-yellow-400 text-black text-[10px] font-black px-2 py-0.5 rounded-full shadow-lg"
-                          title="Añadido por ti"
-                        >
-                          <span>★</span>
-                          <span>AÑADIDO POR TI</span>
-                        </div>
-                      )}
-
-                      {/* Status / Format Badge */}
-                      <div className="absolute top-2 right-2 z-10">
-                        {album.status === 'GANADOR' ? (
-                          <span className="bg-[#f5576c] text-white text-[10px] font-black px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                            🏆 GANADOR
-                          </span>
-                        ) : album.status === 'ACTIVO' ? (
-                          <span className="bg-pink-500/90 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow flex items-center gap-1">
-                            🗳️ EN POOL
-                          </span>
-                        ) : (
-                          <span className="bg-black/70 backdrop-blur-md text-white/90 text-[10px] font-bold px-2 py-0.5 rounded-full border border-white/10 shadow">
-                            {album.release_type === 'EP'
-                              ? '💽 EP'
-                              : album.release_type === 'SENCILLO' ||
-                                  album.release_type === 'SINGLE' ||
-                                  album.release_type === 'TRACK'
-                                ? '🎵 Sencillo'
-                                : album.release_type === 'COMPILACION' ||
-                                    album.release_type === 'COMPILATION'
-                                  ? '📦 Compilación'
-                                  : album.release_type === 'EN VIVO' ||
-                                      album.release_type === 'LIVE'
-                                    ? '🎤 En Vivo'
-                                    : album.release_type === 'SOUNDTRACK'
-                                      ? '🎬 Soundtrack'
-                                      : album.release_type === 'REMIX'
-                                        ? '🎛️ Remix'
-                                        : '💿 Álbum'}
-                          </span>
-                        )}
-                      </div>
-
                       {/* Bottom overlay: Score and review count */}
                       <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
                         {score !== null ? (
@@ -1021,12 +1046,11 @@ export function AlbumsCatalog({ isPage = false }) {
                     <div className="p-3 sm:p-4 space-y-2.5 flex-1 flex flex-col justify-between">
                       <div>
                         <div className="flex items-center gap-1.5 mb-1">
-                          {album.release_type &&
-                            album.release_type !== 'ALBUM' && (
-                              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
-                                {album.release_type}
-                              </span>
-                            )}
+                          {album.release_type && (
+                            <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
+                              {album.release_type}
+                            </span>
+                          )}
                         </div>
                         <h3
                           translate="no"
@@ -1056,21 +1080,6 @@ export function AlbumsCatalog({ isPage = false }) {
                             </span>
                           )}
                         </div>
-                        {album.added_by && (
-                          <p className="text-slate-500 text-[10px] sm:text-[11px] mt-1 line-clamp-1">
-                            <span>Añadido por:</span>{' '}
-                            <span
-                              translate="no"
-                              className={`notranslate username-tag ${
-                                isMine
-                                  ? 'text-yellow-400 font-bold'
-                                  : 'text-slate-300'
-                              }`}
-                            >
-                              {album.added_by}
-                            </span>
-                          </p>
-                        )}
                       </div>
 
                       {/* Best Track Highlight if available */}

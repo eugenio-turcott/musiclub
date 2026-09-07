@@ -6,6 +6,7 @@ import { Footer } from '../components/Footer';
 import { ReviewSystem } from '../components/ReviewSystem';
 import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
+import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -584,6 +585,14 @@ export function LandingPage() {
                   <span>Gashapon Arcade</span>
                 </Link>
 
+                <Link
+                  to="/portadas"
+                  className="w-full sm:w-auto px-5 py-3.5 bg-gradient-to-r from-pink-500/15 to-purple-500/15 hover:from-pink-500/25 hover:to-purple-500/25 text-pink-200 hover:text-white font-bold text-sm rounded-2xl border border-pink-500/30 hover:border-pink-500/50 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                >
+                  <span>🖼️</span>
+                  <span>Calificar Portadas</span>
+                </Link>
+
                 {!user && (
                   <button
                     type="button"
@@ -1011,6 +1020,18 @@ export function LandingPage() {
             </div>
           </section>
         )}
+
+        {/* =========================================================================
+            RELEASE ALEATORIO POR HORA RECOMENDADO PARA CALIFICAR (1 A 3 RESEÑAS)
+            ========================================================================= */}
+        <HourlyRecommendedRelease
+          albums={albums}
+          allReviews={allReviews}
+          topAlbums={topAlbums}
+          user={user}
+          onLogin={handleLogin}
+          onAlbumUpdated={handleAlbumUpdated}
+        />
 
         {/* =========================================================================
             3. ¿CÓMO FUNCIONA MUSICLUB? EL POOL Y EL CICLO MUSICAL

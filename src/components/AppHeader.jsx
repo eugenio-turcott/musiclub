@@ -151,7 +151,7 @@ export function AppHeader({
 
   // Rutas para los grupos
   const discoverPaths = ['/recomendaciones', '/para-ti', '/playlists', '/playlist', '/reviews'];
-  const gamesPaths = ['/gashapon', '/gacha', '/leaderboard', '/ranking'];
+  const gamesPaths = ['/gashapon', '/gacha', '/leaderboard', '/ranking', '/portadas', '/calificar-portadas', '/cover-ratings'];
 
   const isDiscoverActive = isPathActive(discoverPaths);
   const isGamesActive = isPathActive(gamesPaths);
@@ -344,6 +344,21 @@ export function AppHeader({
                     <div className="flex flex-col text-left">
                       <span className="font-semibold">Leaderboard</span>
                       <span className="text-[10px] text-slate-400 font-normal">Ranking de críticos del club</span>
+                    </div>
+                  </Link>
+                  <Link
+                    to="/portadas"
+                    onClick={() => setOpenNavDropdown(null)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                      isPathActive(['/portadas', '/calificar-portadas', '/cover-ratings'])
+                        ? 'bg-pink-500/20 text-pink-200 font-bold border border-pink-500/30'
+                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                    }`}
+                  >
+                    <span className="text-base">🖼️</span>
+                    <div className="flex flex-col text-left">
+                      <span className="font-semibold">Calificar Portadas</span>
+                      <span className="text-[10px] text-slate-400 font-normal">Galería de arte y dirección visual</span>
                     </div>
                   </Link>
                 </div>
@@ -817,6 +832,18 @@ export function AppHeader({
               >
                 <span className="text-base">🏆</span>
                 <span>Leaderboard</span>
+              </Link>
+              <Link
+                to="/portadas"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  isPathActive(['/portadas', '/calificar-portadas', '/cover-ratings'])
+                    ? 'bg-gradient-to-r from-pink-500/25 to-purple-500/25 text-pink-200 border border-pink-500/40 shadow-sm'
+                    : 'text-pink-300 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20'
+                }`}
+              >
+                <span className="text-base">🖼️</span>
+                <span>Calificar Portadas de Álbumes</span>
               </Link>
             </div>
           </div>
