@@ -67,49 +67,13 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://musiclub.org/sencillos/Second-Sleep-Star-Eyes</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://musiclub.org/albumes/Spice</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Sanctum-Sanctorum</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/compilaciones/The-Best-Of</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Solid-Gold-Rockstars</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/compilaciones/The-Music-of-John-Williams-40-Years-of-Film-Music</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Siam-pasauly</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Play-With-Matches</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Mi-Higo-Pico-Flaguer</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -121,7 +85,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Born-in-the-S-A-V-O</loc>
+    <loc>https://musiclub.org/albumes/Play-With-Matches</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/compilaciones/The-Music-of-John-Williams-40-Years-of-Film-Music</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -134,6 +104,12 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/Spirits</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Siam-pasauly</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -163,13 +139,37 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/No-Blood</loc>
+    <loc>https://musiclub.org/albumes/Sanctum-Sanctorum</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Rita-Connolly</loc>
+    <loc>https://musiclub.org/albumes/Solid-Gold-Rockstars</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Mi-Higo-Pico-Flaguer</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Born-in-the-S-A-V-O</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/compilaciones/The-Best-Of</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/No-Blood</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -206,6 +206,54 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/50th-Birthday-Celebration-Volume-7</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Rita-Connolly</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Tired-of-Not-Being-Away-From-Here</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Kaikista-kaikkein</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Den-gatfulla-manniskan</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Satori</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/The-Live-Concert</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/PLAYS</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Prototokyo</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -313,115 +361,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Tired-of-Not-Being-Away-From-Here</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://musiclub.org/compilaciones/Fromveur</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Kaikista-kaikkein</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Den-gatfulla-manniskan</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Satori</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/The-Live-Concert</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/PLAYS</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Prototokyo</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Bienvenidos-a-Occidente</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Cosmic-Assault</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Zeit-zu-leben</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Time-for-Three</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/As-Is</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Tellurique</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Additional-Parts-Inside</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/The-Girl-Who-Runs-the-Beat-Hotel-Pass-the-Paintbrush-Honey</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/The-Inconsolable-Secret</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/The-Search</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/und-habt-mich-gern</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -433,7 +373,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/grosse-kundsd</loc>
+    <loc>https://musiclub.org/albumes/Bienvenidos-a-Occidente</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -445,19 +385,43 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/For-You</loc>
+    <loc>https://musiclub.org/albumes/grosse-kundsd</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/und-habt-mich-gern</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/The-Inconsolable-Secret</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Time-for-Three</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Cosmic-Assault</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Additional-Parts-Inside</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://musiclub.org/compilaciones/Hurricane-The-Best-of-The-Prisoners</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Acoustic-Nights</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -470,6 +434,18 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/Annette-Sings-Anka</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/For-You</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Acoustic-Nights</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -506,6 +482,36 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/Aelita-The-Queen-of-Mars</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/As-Is</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/The-Girl-Who-Runs-the-Beat-Hotel-Pass-the-Paintbrush-Honey</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Tellurique</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/The-Search</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Zeit-zu-leben</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -901,7 +907,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Say-It-Again</loc>
+    <loc>https://musiclub.org/albumes/The-Dark-Command</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -919,7 +925,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/The-Dark-Command</loc>
+    <loc>https://musiclub.org/albumes/Secos-Molhados</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -943,7 +949,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Secos-Molhados</loc>
+    <loc>https://musiclub.org/albumes/Say-It-Again</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -967,7 +973,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Otello</loc>
+    <loc>https://musiclub.org/compilaciones/Come-On-Get-Happy-The-Very-Best-of-the-Partridge-Family</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -980,6 +986,12 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/Kristal</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/Otello</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1010,12 +1022,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/albumes/This-Side-Up</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/compilaciones/Come-On-Get-Happy-The-Very-Best-of-the-Partridge-Family</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1621,13 +1627,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/compilaciones/Zion-Gate</loc>
+    <loc>https://musiclub.org/albumes/Bwa-Brile</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Bwa-Brile</loc>
+    <loc>https://musiclub.org/compilaciones/Zion-Gate</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1873,7 +1879,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/The-Mask-Is-Off</loc>
+    <loc>https://musiclub.org/albumes/Army-of-Me</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1885,7 +1891,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Army-of-Me</loc>
+    <loc>https://musiclub.org/sencillos/Mina-Tannenbaum</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1897,19 +1903,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/sencillos/Mina-Tannenbaum</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://musiclub.org/compilaciones/Searching-to-Find-the-One</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/albumes/Here-Comes-the-Bright-Light</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1921,7 +1915,19 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://musiclub.org/albumes/Here-Comes-the-Bright-Light</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://musiclub.org/albumes/Genoux-a-terre</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/albumes/The-Mask-Is-Off</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -1975,13 +1981,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/feel-well</loc>
+    <loc>https://musiclub.org/albumes/Michael-Stuart</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Michael-Stuart</loc>
+    <loc>https://musiclub.org/albumes/feel-well</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -3805,13 +3811,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Orgonon</loc>
+    <loc>https://musiclub.org/albumes/Cosmopolite-The-Oscar-Peterson-Verve-Sessions</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Cosmopolite-The-Oscar-Peterson-Verve-Sessions</loc>
+    <loc>https://musiclub.org/albumes/Orgonon</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4219,7 +4225,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Instinct-Obsession</loc>
+    <loc>https://musiclub.org/albumes/Barbez</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4243,7 +4249,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Barbez</loc>
+    <loc>https://musiclub.org/albumes/Instinct-Obsession</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4423,7 +4429,7 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/compilaciones/Biggest-Hits</loc>
+    <loc>https://musiclub.org/albumes/The-Tone-T-h-ree</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -4441,13 +4447,13 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/Re-Hash</loc>
+    <loc>https://musiclub.org/compilaciones/Biggest-Hits</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/albumes/The-Tone-T-h-ree</loc>
+    <loc>https://musiclub.org/albumes/Re-Hash</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -9559,49 +9565,13 @@
     <priority>0.75</priority>
   </url>
   <url>
+    <loc>https://musiclub.org/artista/Magdalena-Bay</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://musiclub.org/artista/Spice-Girls</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Numina</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Gary-U-S-Bonds</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/The-Krispies</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/The-City-of-Prague-Philharmonic-Orchestra</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Gytis-Paskevicius</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Carolyn-Wonderland-the-Imperial-Monkeys</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Sin-Fundamento</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9613,7 +9583,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Sleepy-Sleepers</loc>
+    <loc>https://musiclub.org/artista/Carolyn-Wonderland-the-Imperial-Monkeys</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/The-City-of-Prague-Philharmonic-Orchestra</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9626,6 +9602,12 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Ian-Boddy</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Gytis-Paskevicius</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9661,13 +9643,37 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Najwajean</loc>
+    <loc>https://musiclub.org/artista/Numina</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Rita-Connolly</loc>
+    <loc>https://musiclub.org/artista/The-Krispies</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Sin-Fundamento</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Sleepy-Sleepers</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Gary-U-S-Bonds</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Najwajean</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9704,6 +9710,54 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Masada</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Rita-Connolly</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Before-Braille</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Heikki-Hela</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Eric-Malmberg</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Riley-Lee-Gabriel-Lee</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Don-Francisco</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Emotional-Joystick</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Prototokyo</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9811,115 +9865,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Before-Braille</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://musiclub.org/artista/Bagad-de-Lann-Bihoue</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Heikki-Hela</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Eric-Malmberg</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Riley-Lee-Gabriel-Lee</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Don-Francisco</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Emotional-Joystick</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Prototokyo</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Disidencia</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Helios-Creed</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Klaus-Hoffmann</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Time-for-Three</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/The-High-Strung</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Kill-the-Thrill</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Dead-Men-Walking</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Biff-Bang-Pow</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Glass-Hammer</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/David-Paton</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Tim-Fischer</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9931,7 +9877,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Malediva</loc>
+    <loc>https://musiclub.org/artista/Disidencia</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9943,7 +9889,37 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Decibel</loc>
+    <loc>https://musiclub.org/artista/Malediva</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Tim-Fischer</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Glass-Hammer</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Time-for-Three</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Helios-Creed</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Dead-Men-Walking</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9955,13 +9931,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Paddy-Goes-to-Holyhead</loc>
+    <loc>https://musiclub.org/artista/Klaus-Hoffmann</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://musiclub.org/artista/Annette-Funicello</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Decibel</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Paddy-Goes-to-Holyhead</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -9998,6 +9986,30 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Cleaning-Women</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/The-High-Strung</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Biff-Bang-Pow</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Kill-the-Thrill</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/David-Paton</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -10387,12 +10399,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Jermaine-Stewart</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://musiclub.org/artista/Dub-Syndicate</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -10400,6 +10406,12 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Batmobile</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Secos-Molhados</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -10423,7 +10435,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Secos-Molhados</loc>
+    <loc>https://musiclub.org/artista/Jermaine-Stewart</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -10447,7 +10459,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Verdi-Jon-Vickers-Leonie-Rysanek-Tito-Gobbi-Rome-Opera-Orchestra-and-Chorus-Tullio-Serafin</loc>
+    <loc>https://musiclub.org/artista/The-Partridge-Family</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -10460,6 +10472,12 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Gilles-Floro</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/Verdi-Jon-Vickers-Leonie-Rysanek-Tito-Gobbi-Rome-Opera-Orchestra-and-Chorus-Tullio-Serafin</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -10490,12 +10508,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Tania-Elizabeth</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/The-Partridge-Family</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11107,13 +11119,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Horace-Andy</loc>
+    <loc>https://musiclub.org/artista/Eugene-Mona</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Eugene-Mona</loc>
+    <loc>https://musiclub.org/artista/Horace-Andy</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11347,7 +11359,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/The-Last-Mr-Bigg</loc>
+    <loc>https://musiclub.org/artista/Army-of-Me</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11359,19 +11371,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Army-of-Me</loc>
+    <loc>https://musiclub.org/artista/Peter-Chase</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://musiclub.org/artista/The-Capital-Suite</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Peter-Chase</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11389,19 +11395,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/David-Hopkins</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://musiclub.org/artista/Artists-United-Against-Apartheid</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://musiclub.org/artista/David-Hopkins</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://musiclub.org/artista/Ramses</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://musiclub.org/artista/The-Last-Mr-Bigg</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -11449,13 +11461,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/</loc>
+    <loc>https://musiclub.org/artista/Michael-Stuart</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Michael-Stuart</loc>
+    <loc>https://musiclub.org/artista/</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -13225,13 +13237,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Laila-France</loc>
+    <loc>https://musiclub.org/artista/Benny-Carter</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Benny-Carter</loc>
+    <loc>https://musiclub.org/artista/Laila-France</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -13591,7 +13603,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Sadis-Euphoria</loc>
+    <loc>https://musiclub.org/artista/Barbez</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -13615,7 +13627,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://musiclub.org/artista/Barbez</loc>
+    <loc>https://musiclub.org/artista/Sadis-Euphoria</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -13771,6 +13783,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://musiclub.org/artista/Matthew-Florianz</loc>
+    <lastmod>2026-09-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://musiclub.org/artista/Jean-Luc-Le-Tenia</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
@@ -13784,12 +13802,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Magic-Mushroom-Band</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Matthew-Florianz</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -16988,12 +17000,6 @@
   </url>
   <url>
     <loc>https://musiclub.org/artista/Selena</loc>
-    <lastmod>2026-09-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://musiclub.org/artista/Magdalena-Bay</loc>
     <lastmod>2026-09-07</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

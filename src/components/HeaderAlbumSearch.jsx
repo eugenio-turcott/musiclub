@@ -275,7 +275,22 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         setIsOpen(false);
         setQuery('');
         if (onAlbumReviewed) onAlbumReviewed();
-        navigate(targetUrl, { state: { preloadedAlbum: target } });
+        navigate(targetUrl, {
+          state: {
+            preloadedAlbum: {
+              ...target,
+              final_rating:
+                target.final_rating !== undefined ? target.final_rating : null,
+              bonus: target.bonus !== undefined ? target.bonus : 0,
+              review_count:
+                target.review_count !== undefined
+                  ? target.review_count
+                  : target.reviews?.length || 0,
+              reviews: target.reviews || [],
+              track_stats: target.track_stats || [],
+            },
+          },
+        });
         return;
       }
 
@@ -383,7 +398,32 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       setIsOpen(false);
       setQuery('');
       if (onAlbumReviewed) onAlbumReviewed();
-      navigate(targetUrl, { state: { preloadedAlbum: finalAlbum } });
+
+      const albumToPass = {
+        ...finalAlbum,
+        final_rating:
+          finalAlbum?.final_rating !== undefined ? finalAlbum.final_rating : null,
+        bonus: finalAlbum?.bonus !== undefined ? finalAlbum.bonus : 0,
+        review_count:
+          finalAlbum?.review_count !== undefined ? finalAlbum.review_count : 0,
+        reviews: finalAlbum?.reviews || [],
+        track_stats:
+          finalAlbum?.track_stats ||
+          (Array.isArray(finalAlbum?.tracks)
+            ? finalAlbum.tracks.map((t, idx) => ({
+                id: typeof t === 'object' && t.id ? String(t.id) : null,
+                name: typeof t === 'string' ? t : t.name || `Pista ${idx + 1}`,
+                track_number:
+                  typeof t === 'object' && t.track_number
+                    ? t.track_number
+                    : idx + 1,
+                avg_rating: null,
+                rating_count: 0,
+              }))
+            : []),
+      };
+
+      navigate(targetUrl, { state: { preloadedAlbum: albumToPass } });
       return;
     } catch (err) {
       console.error('Error al seleccionar y abrir álbum:', err);

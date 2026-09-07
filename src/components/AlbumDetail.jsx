@@ -151,13 +151,38 @@ function UserAvatar({ user, size = 'md', className = '' }) {
   );
 }
 
+// Helper para asegurar que un objeto album siempre tenga valores seguros por defecto
+const normalizeAlbumData = (rawAlbum) => {
+  if (!rawAlbum) return null;
+  return {
+    ...rawAlbum,
+    final_rating:
+      rawAlbum.final_rating !== undefined && rawAlbum.final_rating !== null
+        ? Number(rawAlbum.final_rating)
+        : null,
+    bonus:
+      rawAlbum.bonus !== undefined && rawAlbum.bonus !== null
+        ? Number(rawAlbum.bonus) || 0
+        : 0,
+    review_count:
+      rawAlbum.review_count !== undefined && rawAlbum.review_count !== null
+        ? Number(rawAlbum.review_count) || 0
+        : Array.isArray(rawAlbum.reviews)
+        ? rawAlbum.reviews.length
+        : 0,
+    reviews: Array.isArray(rawAlbum.reviews) ? rawAlbum.reviews : [],
+    track_stats: Array.isArray(rawAlbum.track_stats) ? rawAlbum.track_stats : [],
+    criteria_averages: rawAlbum.criteria_averages || {},
+  };
+};
+
 export function AlbumDetail() {
   const { slug } = useParams();
   const { user, isAdmin } = useAuth();
   const location = useLocation();
   const preloadedAlbum = location.state?.preloadedAlbum;
 
-  const [album, setAlbum] = useState(() => preloadedAlbum || null);
+  const [album, setAlbum] = useState(() => normalizeAlbumData(preloadedAlbum));
   const [loading, setLoading] = useState(() => !preloadedAlbum);
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
@@ -254,7 +279,7 @@ export function AlbumDetail() {
       }
 
       if (current) {
-        setAlbum(current);
+        setAlbum(normalizeAlbumData(current));
       } else if (!preloadedAlbum) {
         setError('Álbum no encontrado');
       }
@@ -374,7 +399,7 @@ export function AlbumDetail() {
             : `Reseña y calificación para ${album.album_name} de ${album.artist_name} en Musiclub.`,
         reviewRating: {
           '@type': 'Rating',
-          ratingValue: Number(r.rating).toFixed(1),
+          ratingValue: Number(r.rating || r.rating_general || 0).toFixed(1),
           bestRating: '10',
           worstRating: '1',
         },
@@ -411,7 +436,11 @@ export function AlbumDetail() {
       track: tracksList.length > 0 ? tracksList : undefined,
     };
 
-    if (album.final_rating) {
+    if (
+      album.final_rating !== null &&
+      album.final_rating !== undefined &&
+      !isNaN(Number(album.final_rating))
+    ) {
       schema.aggregateRating = {
         '@type': 'AggregateRating',
         ratingValue: Number(album.final_rating).toFixed(2),
@@ -482,15 +511,20 @@ export function AlbumDetail() {
     );
   }
 
-  const score = album.final_rating;
+  const score =
+    album.final_rating !== null &&
+    album.final_rating !== undefined &&
+    !isNaN(Number(album.final_rating))
+      ? Number(album.final_rating)
+      : null;
   const canonicalPath = getReleaseUrl(
     album,
     album.release_type || spotifyMeta?.releaseType
   );
   const canonicalUrl = `https://musiclub.org${canonicalPath}`;
   const reviewCountNum = album.reviews?.length || album.review_count || 0;
-  const metaDescription = score
-    ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${Number(score).toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
+  const metaDescription = score !== null
+    ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
     : `Descubre las reseñas, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub.`;
 
   return (
@@ -770,7 +804,7 @@ export function AlbumDetail() {
                     Calificación Final
                   </span>
                   <div className="flex items-baseline justify-center md:justify-start gap-1.5 mt-1">
-                    {score !== null ? (
+                    {score !== null && !isNaN(score) ? (
                       <>
                         <span className="text-2xl sm:text-3xl md:text-4xl font-black text-amber-400">
                           {score.toFixed(2)}
@@ -778,9 +812,9 @@ export function AlbumDetail() {
                         <span className="text-sm sm:text-base text-amber-300">
                           ⭐
                         </span>
-                        {album.bonus > 0 && (
+                        {Number(album.bonus) > 0 && (
                           <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 px-1.5 py-0.5 rounded-md ml-1">
-                            +{album.bonus.toFixed(2)}
+                            +{Number(album.bonus).toFixed(2)}
                           </span>
                         )}
                       </>
@@ -1080,21 +1114,31 @@ export function AlbumDetail() {
                             {t.rating_count === 1 ? 'voto' : 'votos'}
                           </span>
                         )}
-                        <span
-                          className={`font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg border ${
-                            isTop
-                              ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
-                              : t.avg_rating >= 8
-                                ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                                : t.avg_rating >= 6
-                                  ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
-                                  : t.avg_rating !== null
-                                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                                    : 'bg-white/5 text-slate-500 border-white/5'
-                          }`}
-                        >
-                          {t.avg_rating !== null ? `${t.avg_rating} ⭐` : '—'}
-                        </span>
+                        {(() => {
+                          const hasTrackRating =
+                            t.avg_rating !== null &&
+                            t.avg_rating !== undefined &&
+                            !isNaN(Number(t.avg_rating));
+                          const numRating = hasTrackRating ? Number(t.avg_rating) : null;
+
+                          return (
+                            <span
+                              className={`font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg border ${
+                                isTop
+                                  ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                                  : hasTrackRating && numRating >= 8
+                                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                    : hasTrackRating && numRating >= 6
+                                      ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
+                                      : hasTrackRating
+                                        ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                                        : 'bg-white/5 text-slate-500 border-white/5'
+                              }`}
+                            >
+                              {hasTrackRating ? `${numRating.toFixed(1)} ⭐` : '—'}
+                            </span>
+                          );
+                        })()}
                       </div>
                     </div>
                   );

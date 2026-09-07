@@ -988,7 +988,12 @@ export function AlbumsCatalog({ isPage = false }) {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
               {paginatedAlbums.map((album) => {
                 const isMine = isUserAlbum(album);
-                const score = album.final_rating;
+                const score =
+                  album.final_rating !== null &&
+                  album.final_rating !== undefined &&
+                  !isNaN(Number(album.final_rating))
+                    ? Number(album.final_rating)
+                    : null;
                 const albumYear = getAlbumYear(album, spotifyYearsCache);
 
                 return (
@@ -1024,9 +1029,9 @@ export function AlbumsCatalog({ isPage = false }) {
                               {score.toFixed(2)}
                             </span>
                             <span className="text-[10px] sm:text-xs">⭐</span>
-                            {album.bonus > 0 && (
+                            {Number(album.bonus) > 0 && (
                               <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded">
-                                +{album.bonus.toFixed(2)}
+                                +{Number(album.bonus).toFixed(2)}
                               </span>
                             )}
                           </div>

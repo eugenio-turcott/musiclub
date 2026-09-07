@@ -1777,10 +1777,14 @@ export function ReviewSystem({
                             rating_replay: ratings.replay,
                             rating_general: ratings.general,
                           });
-                          return currentReviewScore !== null ? (
+                          const hasScore =
+                            currentReviewScore !== null &&
+                            currentReviewScore !== undefined &&
+                            !isNaN(Number(currentReviewScore));
+                          return hasScore ? (
                             <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold">
                               ★ Promedio Ponderado Final:{' '}
-                              {currentReviewScore.toFixed(2)} / 10
+                              {Number(currentReviewScore).toFixed(2)} / 10
                             </div>
                           ) : null;
                         })()}

@@ -1398,7 +1398,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                             {album.avg_rating || album.final_rating ? (
                               <span className="font-bold text-amber-300">
                                 ⭐{' '}
-                                {(
+                                {Number(
                                   album.avg_rating || album.final_rating
                                 ).toFixed(1)}
                               </span>

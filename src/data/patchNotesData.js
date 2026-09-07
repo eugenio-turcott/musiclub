@@ -14,11 +14,55 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.1',
+    title:
+      'Calificador de Portadas de Álbumes (Cover Art Ratings), Recomendación Horaria en Portada, Reorganización de Navegación y Blindaje Defensivo en Búsqueda y Detalle',
+    date: '2026-09-07',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-amber-500 via-orange-500 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.1 de Musiclub: estreno del sistema interactivo de calificación de portadas de álbumes (Cover Art Ratings) con etiquetas estéticas y podio visual; nuevo módulo de recomendación musical rotativa cada hora en la página principal con reseñas comunitarias destacadas; reorganización de navegación en la cabecera mediante menús agrupados ("Descubrir" y "Juegos"); y blindaje defensivo crítico en el buscador y vista de detalles de álbumes que erradica fallos de renderizado (TypeError toFixed) al consultar o crear lanzamientos sin calificaciones previas.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Calificador y Explorador de Portadas de Álbumes (Cover Art Ratings)',
+        description:
+          'Nuevo módulo dedicado en /portadas para evaluar el arte gráfico y visual de las portadas de discos (escala del 1 al 10 con medallas honoríficas de dirección de arte). Incluye etiquetado estético (Fotografía, Ilustración, Minimalista, Psicodélico, Surrealista, Cyberpunk, etc.), podio de mejores carátulas, filtros avanzados y vista modal de detalles visuales.',
+      },
+      {
+        type: 'feature',
+        title: 'Lanzamiento Recomendado Cada Hora en la Landing Page',
+        description:
+          'Sección dinámica en la página de inicio que rota determinísticamente un álbum del catálogo cada 60 minutos: exhibe su portada en alta definición, la reseña más elocuente de la comunidad, promedio ponderado, enlaces directos a las 4 plataformas de streaming y acceso instantáneo para calificar o debatir.',
+      },
+      {
+        type: 'fix',
+        title: 'Blindaje Defensivo Crítico en Búsqueda y Detalle de Álbumes (Fix toFixed Crash)',
+        description:
+          'Corrección definitiva al error de renderizado ("TypeError: Cannot read properties of undefined (reading toFixed)") que bloqueaba la interfaz al buscar y abrir lanzamientos no calificados o recién indexados. Incorporación de normalizeAlbumData en AlbumDetail, sanitización de preloadedAlbum en HeaderAlbumSearch y refuerzo preventivo en AlbumsCatalog, ReviewSystem y AdminPanel.',
+      },
+      {
+        type: 'improvement',
+        title: 'Reorganización de la Navegación Superior (Menús Desplegables Agrupados)',
+        description:
+          'La cabecera de la aplicación ahora cuenta con menús desplegables agrupados para "Descubrir" y "Juegos / Dinámicas", optimizando el espacio y facilitando el acceso rápido a Portadas, Gashapon Machine, Tier Lists, Leaderboard y Catálogo tanto en escritorio como en dispositivos móviles.',
+      },
+      {
+        type: 'improvement',
+        title: 'Sitemap Dinámico Actualizado y Enriquecimiento de Metadatos SEO',
+        description:
+          'Sincronización del generador de sitemap con más de 2,980 rutas indexables en producción, incorporando las nuevas URL canónicas de portadas (/portadas, /calificar-portadas, /portada/:slug) y optimizando el marcado estructurado JSON-LD y OpenGraph.',
+      },
+    ],
+  },
+  {
     version: 'V.7.0',
     title:
       'Interacciones Sociales en Reseñas (Reacciones y Comentarios en Hilo), Rediseño de Perfiles en Leaderboard, Optimización Extrema en Calificación de Álbumes (0 ms) y Suite de Compartir',
     date: '2026-09-07',
-    sha: 'HEAD',
+    sha: '471330b',
     tag: 'Mayor',
     tagColor: 'from-fuchsia-600 via-pink-600 to-rose-500',
     authorName: 'Eugenio Turcott',
