@@ -365,7 +365,7 @@ export function AlbumDetail() {
     const releaseFormat = album.release_type || spotifyMeta?.releaseType;
     const canonicalPath = getReleaseUrl(album, releaseFormat);
     const artistSlug = slugifyArtist(album.artist_name);
-    const canonicalUrl = `https://musiclub.org${canonicalPath}`;
+    const canonicalUrl = `https://www.musiclub.org${canonicalPath}`;
     const releaseYear =
       album.release_year ||
       (album.release_date ? album.release_date.substring(0, 4) : undefined);
@@ -386,6 +386,10 @@ export function AlbumDetail() {
       .filter((r) => r.rating !== undefined && r.rating !== null)
       .map((r) => ({
         '@type': 'Review',
+        itemReviewed: {
+          '@type': 'MusicAlbum',
+          name: album.album_name,
+        },
         author: {
           '@type': 'Person',
           name: r.reviewer_name || 'Miembro de Musiclub',
@@ -425,14 +429,14 @@ export function AlbumDetail() {
       byArtist: {
         '@type': 'MusicGroup',
         name: album.artist_name,
-        url: `https://musiclub.org/artista/${artistSlug}`,
+        url: `https://www.musiclub.org/artista/${artistSlug}`,
       },
       numTracks: album.tracks?.length || album.track_stats?.length || undefined,
       genre: genres.length > 0 ? genres : undefined,
       datePublished:
         album.release_date ||
         (releaseYear ? `${releaseYear}-01-01` : undefined),
-      description: `Reseñas, calificaciones de la comunidad y desglose pista por pista del álbum "${album.album_name}" de ${album.artist_name} en Musiclub.`,
+      description: `Reviews, opiniones y calificaciones de la comunidad para el álbum "${album.album_name}" de ${album.artist_name} en Musiclub.`,
       track: tracksList.length > 0 ? tracksList : undefined,
     };
 
@@ -521,11 +525,13 @@ export function AlbumDetail() {
     album,
     album.release_type || spotifyMeta?.releaseType
   );
-  const canonicalUrl = `https://musiclub.org${canonicalPath}`;
+  const canonicalUrl = `https://www.musiclub.org${canonicalPath}`;
   const reviewCountNum = album.reviews?.length || album.review_count || 0;
   const metaDescription = score !== null
-    ? `Reseñas y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name}. Calificación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Canción destacada y desglose pista por pista en Musiclub.`
-    : `Descubre las reseñas, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub.`;
+    ? `Reviews, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub. Puntuación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Descubre canciones destacadas, opiniones y desglose pista por pista.`
+    : `Reviews, opiniones y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name} en Musiclub. Analiza sus pistas, canciones destacadas y comparte tu reseña.`;
+  const pageTitle = `${album.album_name} - ${album.artist_name} | Reviews & Calificaciones | Musiclub`;
+  const pageKeywords = `${album.album_name}, ${album.artist_name}, ${album.album_name} reviews, ${album.album_name} reseñas, ${album.album_name} opiniones, ${album.album_name} calificaciones, ${album.artist_name} discografia, canciones de ${album.album_name}, tracklist ${album.album_name}, musiclub`;
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black">
@@ -534,11 +540,12 @@ export function AlbumDetail() {
       <div className="absolute top-48 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
 
       <SEO
-        title={`${album.artist_name} - ${album.album_name} - Reviews | Musiclub`}
+        title={pageTitle}
         description={metaDescription}
         image={album.image_url}
         url={canonicalUrl}
         type="music.album"
+        keywords={pageKeywords}
         schemaData={schemaData}
       />
 

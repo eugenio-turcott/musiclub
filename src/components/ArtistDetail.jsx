@@ -250,7 +250,7 @@ export function ArtistDetail() {
   // Structured JSON-LD Schema for Artist
   const artistSchema = useMemo(() => {
     if (!artist) return null;
-    const canonicalUrl = `https://musiclub.org/artista/${slug}`;
+    const canonicalUrl = `https://www.musiclub.org/artista/${slug}`;
     return {
       '@context': 'https://schema.org',
       '@type': 'MusicGroup',
@@ -265,13 +265,16 @@ export function ArtistDetail() {
     };
   }, [artist, slug]);
 
+  const artistKeywords = `${artist?.name || 'Artista'}, discografia ${artist?.name || ''}, albumes ${artist?.name || ''}, reviews ${artist?.name || ''}, reseñas ${artist?.name || ''}, canciones ${artist?.name || ''}, musiclub`;
+
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
         title={`${artist?.name || 'Artista'} - Discografía, Álbumes y Reviews | Musiclub`}
-        description={`Explora los álbumes, EPs, sencillos y calificaciones de la comunidad para ${artist?.name || 'este artista'} en Musiclub.`}
+        description={`Explora la discografía, álbumes, EPs, sencillos, opiniones y calificaciones de la comunidad para ${artist?.name || 'este artista'} en Musiclub.`}
         image={artist?.image}
-        url={`https://musiclub.org/artista/${slug}`}
+        url={`https://www.musiclub.org/artista/${slug}`}
+        keywords={artistKeywords}
         schemaData={artistSchema}
       />
 

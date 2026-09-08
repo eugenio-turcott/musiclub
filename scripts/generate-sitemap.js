@@ -18,7 +18,7 @@ if (typeof globalThis.WebSocket === 'undefined') {
 
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
 const SUPABASE_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY || 'sb_publishable_8CYM-sB7DY1_cyw8Amyr9g_-JtuZEKO';
-const BASE_URL = 'https://musiclub.org';
+const BASE_URL = 'https://www.musiclub.org';
 const MAX_URLS_PER_SITEMAP = 45000;
 
 function slugify(text) {
@@ -150,6 +150,8 @@ async function generateSitemap() {
     { loc: `${BASE_URL}/pool`, priority: '0.85', changefreq: 'daily' },
     { loc: `${BASE_URL}/leaderboard`, priority: '0.8', changefreq: 'daily' },
     { loc: `${BASE_URL}/reviews`, priority: '0.8', changefreq: 'daily' },
+    { loc: `${BASE_URL}/portadas`, priority: '0.75', changefreq: 'weekly' },
+    { loc: `${BASE_URL}/playlists`, priority: '0.75', changefreq: 'weekly' },
     { loc: `${BASE_URL}/recomendaciones`, priority: '0.7', changefreq: 'weekly' },
     { loc: `${BASE_URL}/gashapon`, priority: '0.6', changefreq: 'weekly' },
     { loc: `${BASE_URL}/faq`, priority: '0.5', changefreq: 'monthly' },

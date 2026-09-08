@@ -18,7 +18,7 @@ export function NotFoundPage() {
       <SEO
         title="404: Pista No Encontrada | Musiclub"
         description="La página o disco que estás buscando no existe en el repertorio o ha sido movido a otra frecuencia."
-        url="https://musiclub.org/404"
+        url="https://www.musiclub.org/404"
       />
 
       <div className="max-w-7xl mx-auto space-y-8 w-full flex-grow flex flex-col">

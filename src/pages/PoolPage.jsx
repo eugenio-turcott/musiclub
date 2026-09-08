@@ -249,9 +249,10 @@ export function PoolPage() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-['Stack_Sans_Notch',sans-serif] flex flex-col justify-between">
       <SEO
-        title="Pool Musical — Musiclub Temporada 1"
-        description="El Pool Musical comunitario de Musiclub. Descubre los álbumes propuestos para la Temporada 1, el ganador de la semana y participa en las votaciones y sorteos."
-        url="https://musiclub.org/pool"
+        title="Pool Musical Comunitario y Temporadas | Musiclub"
+        description="El Pool Musical comunitario de Musiclub. Descubre los álbumes propuestos para las temporadas, el álbum ganador de la semana y participa en las votaciones."
+        url="https://www.musiclub.org/pool"
+        keywords="pool musical, club de musica, album de la semana, votaciones de albumes, musiclub pool"
       />
 
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12 w-full">

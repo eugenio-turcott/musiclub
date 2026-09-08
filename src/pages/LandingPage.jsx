@@ -505,9 +505,10 @@ export function LandingPage() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
-        title="Musiclub — El Club Social de Álbumes, EPs y Música"
-        description="En Musiclub descubre, califica y debate cada álbum, EP y canción. Calificaciones multi-criterio, ruleta de selección, gashapon arcade y recomendaciones personalizadas."
-        url="https://musiclub.org"
+        title="Musiclub — El Club Social de Álbumes, EPs y Reviews de Música"
+        description="En Musiclub descubre, califica y debate cada álbum, EP y canción. Calificaciones multi-criterio, ruleta de selección, gashapon arcade, rankings y reviews de la comunidad."
+        url="https://www.musiclub.org"
+        keywords="musica, albumes, reviews, calificaciones de musica, reseñas de discos, criticas musicales, spotify, discografias, rankings de albumes, musiclub"
       />
 
       <div className="max-w-7xl mx-auto w-full">

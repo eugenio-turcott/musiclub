@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
 import { GashaponMachine } from '../components/GashaponMachine';
+import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { useAuth } from '../hooks/useAuth';
 import { useUserReviews } from '../hooks/useUserReviews';
@@ -34,6 +35,12 @@ export function GashaponPage() {
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
+      <SEO
+        title="Gashapon Musical — Ruleta Arcade para Descubrir Álbumes | Musiclub"
+        description="Juega en la máquina Gashapon de Musiclub. Gira la ruleta arcade para obtener álbumes aleatorios, descubrir joyas ocultas y sumar lanzamientos a tu lista de escucha."
+        url="https://www.musiclub.org/gashapon"
+        keywords="ruleta musical, gashapon musica, descubrir albumes aleatorios, juego musical arcade, musiclub gashapon"
+      />
       <div className="max-w-7xl mx-auto w-full">
         {/* Header con navegación completa y login */}
         <AppHeader

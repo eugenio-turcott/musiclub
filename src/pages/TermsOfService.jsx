@@ -11,7 +11,7 @@ export function TermsOfService() {
       <SEO
         title="Términos de Servicio | Musiclub"
         description="Consulta los términos, normas de convivencia comunitaria y condiciones de uso de la plataforma colaborativa de música Musiclub."
-        url="https://musiclub.org/terms"
+        url="https://www.musiclub.org/terms"
       />
 
       <div className="max-w-7xl mx-auto w-full space-y-6">

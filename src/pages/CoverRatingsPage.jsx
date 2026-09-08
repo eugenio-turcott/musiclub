@@ -591,9 +591,10 @@ export function CoverRatingsPage() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
-        title="Calificar Portadas de Álbumes — Galería de Arte Visual Musiclub"
+        title="Calificar Portadas de Álbumes — Galería de Arte Visual | Musiclub"
         description="Aprecia y califica las mejores portadas de discos en gran formato. Evalúa dirección de arte, asigna tags visuales (#Minimalista, #Psicodélico, #Fotografía) y corona tus portadas favoritas en Musiclub."
-        url="https://musiclub.org/portadas"
+        url="https://www.musiclub.org/portadas"
+        keywords="portadas de albumes, cover art, portadas de discos, arte musical, mejores portadas de musica, calificar portadas"
       />
 
       <div className="max-w-7xl mx-auto w-full">

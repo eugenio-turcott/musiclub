@@ -13,7 +13,7 @@ import { searchAlbum } from './spotifyApi';
 
 const MUSICBRAINZ_API_BASE = 'https://musicbrainz.org/ws/2';
 const COVER_ART_ARCHIVE_BASE = 'https://coverartarchive.org';
-const USER_AGENT = 'Musiclub/1.0 ( https://musiclub.org ; contact@musiclub.org )';
+const USER_AGENT = 'Musiclub/1.0 ( https://www.musiclub.org ; contact@musiclub.org )';
 
 // Cooldown para MusicBrainz cuando el servidor público está sobrecargado (503/429)
 let mbCooldownUntil = 0;

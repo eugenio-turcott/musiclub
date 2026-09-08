@@ -11,7 +11,7 @@ export function PrivacyPolicy() {
       <SEO
         title="Política de Privacidad | Musiclub"
         description="Conoce cómo protegemos tus datos, el tratamiento de tu cuenta con Google OAuth y nuestra política de transparencia y privacidad en Musiclub."
-        url="https://musiclub.org/privacy"
+        url="https://www.musiclub.org/privacy"
       />
 
       <div className="max-w-7xl mx-auto w-full space-y-6">

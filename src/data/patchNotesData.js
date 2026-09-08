@@ -14,6 +14,50 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.3',
+    title:
+      'Optimización SEO Integral, Blindaje Canónico Universal (www.musiclub.org), Redirección 308 de Dominio Vercel y Regeneración Masiva de Sitemap (3,370+ URLs)',
+    date: '2026-09-08',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-emerald-500 via-teal-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.3 de Musiclub enfocada en la infraestructura técnica de indexación, SEO avanzado y autoridad en motores de búsqueda: unificación definitiva del dominio canónico oficial a https://www.musiclub.org erradicando conflictos de redirección en Google Search Console; optimización del algoritmo de metadatos de álbumes para posicionar búsquedas clave como "Reviews" y "Calificaciones"; integración de datos estructurados Schema.org enriquecidos (MusicAlbum, AggregateRating y Review con estrellas); redirección HTTP 308 permanente desde el subdominio de Vercel (musiclub-albums.vercel.app); y regeneración del sitemap.xml con más de 3,370 rutas indexables.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Blindaje Canónico Universal y Normalización de URLs',
+        description:
+          'Eliminación de etiquetas canónicas estáticas en public/index.html y creación de normalización automática en el componente central SEO.jsx para forzar siempre URLs absolutas con www y HTTPS, resolviendo el cuello de botella de "Página con redirección" y "Descubierta: actualmente sin indexar" en Google Search Console.',
+      },
+      {
+        type: 'improvement',
+        title: 'Optimización de Metadatos y Rich Snippets para Búsquedas de Reviews',
+        description:
+          'Reestructuración de títulos en AlbumDetail posicionando el nombre del álbum al inicio para consultas como "{Álbum} Reviews", metadescripciones dinámicas con puntuación promedio y cantidad de reseñas, y enriquecimiento de Schema.org JSON-LD (MusicAlbum, MusicGroup, AggregateRating y Reviews individuales con itemReviewed) para estrellas doradas en Google.',
+      },
+      {
+        type: 'feature',
+        title: 'Redirección 308 de Dominio Vercel (vercel.json) y Doble Capa Defensiva',
+        description:
+          'Configuración de vercel.json con reglas HTTP 308 permanentes para transferir toda la autoridad y tráfico de musiclub-albums.vercel.app y musiclub.org hacia https://www.musiclub.org, preservando el enrutamiento SPA y añadiendo un script de redirección instantánea en el cliente.',
+      },
+      {
+        type: 'improvement',
+        title: 'Regeneración Masiva de Sitemap con 3,370+ URLs Indexables',
+        description:
+          'Paginación exhaustiva en scripts/generate-sitemap.js que indexa más de 1,600 álbumes de la base de datos de Supabase, artistas y rutas estáticas prioritarias incluyendo /portadas y /playlists bajo el dominio canónico oficial.',
+      },
+      {
+        type: 'improvement',
+        title: 'Metadatos SEO en Vistas Secundarias',
+        description:
+          'Implementación de componentes SEO dedicados con títulos y metadescripciones optimizadas en las páginas de Reseñas (/reviews), Leaderboard (/leaderboard), Playlists (/playlists), Recomendaciones (/recomendaciones) y Gashapon Arcade (/gashapon).',
+      },
+    ],
+  },
+  {
     version: 'V.7.2',
     title:
       'Resolución Universal de Streaming para Deezer (other_link), Fallback de Búsqueda Inteligente y Disponibilidad Total de Plataformas',

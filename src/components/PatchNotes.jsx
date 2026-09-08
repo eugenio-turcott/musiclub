@@ -180,7 +180,7 @@ export function PatchNotes({ isPage = false }) {
       <SEO
         title="Patch Notes & Historial de Actualizaciones | Musiclub"
         description="Consulta el registro completo de cambios, nuevas funciones, mejoras y correcciones de Musiclub sincronizado en tiempo real con GitHub."
-        url="https://musiclub.org/patch-notes"
+        url="https://www.musiclub.org/patch-notes"
       />
 
       {/* Hero Header de Patch Notes */}

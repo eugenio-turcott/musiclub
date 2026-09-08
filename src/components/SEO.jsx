@@ -3,14 +3,28 @@ import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 export function SEO({
-  title = 'Musiclub - Descubre, Califica y Sortea Álbumes',
-  description = 'Musiclub es una plataforma interactiva para descubrir, sortear, calificar y reseñar álbumes de música en comunidad.',
-  image = '/og-image.png',
-  url = 'https://musiclub.org',
+  title = 'Musiclub - Reviews From & For Music Lovers',
+  description = 'Descubre, califica y reseña álbumes, EPs y canciones en Musiclub. Únete a la comunidad de melómanos para explorar rankings globales y recomendaciones.',
+  image = '/5662059.png',
+  url = 'https://www.musiclub.org',
   type = 'website',
-  keywords = 'musica, albumes, reviews, calificaciones, club de musica, reseñas musicales',
+  keywords = 'musica, albumes, reviews, calificaciones, club de musica, reseñas musicales, discografia, canciones',
   schemaData = null,
 }) {
+  // Normalizar siempre al dominio canónico oficial con www y https
+  const rawUrl = url || 'https://www.musiclub.org';
+  const normalizedUrl = rawUrl
+    .replace('https://musiclub.org', 'https://www.musiclub.org')
+    .replace('http://musiclub.org', 'https://www.musiclub.org');
+
+  const fullUrl = normalizedUrl.startsWith('http')
+    ? normalizedUrl
+    : `https://www.musiclub.org${normalizedUrl.startsWith('/') ? normalizedUrl : `/${normalizedUrl}`}`;
+
+  const fullImage = image && image.startsWith('http')
+    ? image
+    : `https://www.musiclub.org${image ? (image.startsWith('/') ? image : `/${image}`) : '/5662059.png'}`;
+
   return (
     <Helmet>
       <title>{title}</title>
@@ -20,8 +34,8 @@ export function SEO({
       {/* Open Graph */}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:url" content={url} />
+      <meta property="og:image" content={fullImage} />
+      <meta property="og:url" content={fullUrl} />
       <meta property="og:type" content={type} />
       <meta property="og:site_name" content="Musiclub" />
 
@@ -29,11 +43,12 @@ export function SEO({
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:image" content={fullImage} />
+      <meta name="twitter:url" content={fullUrl} />
 
-      {/* Additional */}
+      {/* Additional & Canonical */}
       <meta name="robots" content="index, follow" />
-      <link rel="canonical" href={url} />
+      <link rel="canonical" href={fullUrl} />
 
       {/* JSON-LD Structured Data */}
       {schemaData && (

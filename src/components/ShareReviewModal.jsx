@@ -1146,7 +1146,7 @@ export function ShareReviewModal({
     const origin =
       typeof window !== 'undefined'
         ? window.location.origin
-        : 'https://musiclub.org';
+        : 'https://www.musiclub.org';
     const relUrl = album
       ? getReleaseUrl(album.album_name, album.release_type)
       : '/';

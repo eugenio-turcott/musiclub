@@ -232,8 +232,9 @@ export function FAQ({ isPage = false }) {
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
         title="Preguntas Frecuentes & Guía del Club | Musiclub"
-        description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Ruleta Cyberpunk, el sistema de calificaciones de 6 criterios, el Leaderboard y la dinámica del club."
-        url="https://musiclub.org/faq"
+        description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Ruleta, el sistema de calificaciones, el Leaderboard y la dinámica del club."
+        url="https://www.musiclub.org/faq"
+        keywords="faq musiclub, preguntas frecuentes, como funciona musiclub, reglas del club de musica"
       />
 
       <div className="max-w-7xl mx-auto w-full">
