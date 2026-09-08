@@ -44,6 +44,7 @@ const STATE_FILE = path.resolve(__dirname, 'seeder_state.json');
 // Rate limiting preventivo
 let spotifyToken = null;
 let spotifyTokenExpiry = 0;
+let spotifyRateLimitedUntil = 0;
 let lastDeezerRequestTime = 0;
 
 function sleep(ms) {
@@ -133,18 +134,78 @@ async function getDeezerLink(artistName, albumName) {
   return fallback;
 }
 
-// Obtener detalles completos de un álbum en Spotify (tracks, fecha, imágenes) con timeout y reintentos
+// Obtener detalles completos de un álbum en Deezer (fallback robusto si Spotify entra en 429)
+async function getDeezerAlbumDetails(artistName, albumName) {
+  await deezerRateLimiter();
+  try {
+    const cleanArt = artistName.replace(/\([^)]*\)/g, '').trim();
+    const cleanAlb = albumName.replace(/\([^)]*\)/g, '').trim();
+    const q = encodeURIComponent(`artist:"${cleanArt}" album:"${cleanAlb}"`);
+    const res = await fetch(`https://api.deezer.com/search/album?q=${q}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!data.data || data.data.length === 0) return null;
+
+    const deezerAlbum = data.data[0];
+    const albumRes = await fetch(`https://api.deezer.com/album/${deezerAlbum.id}`, {
+      signal: AbortSignal.timeout(5000),
+    });
+    if (!albumRes.ok) return null;
+    const fullDeezer = await albumRes.json();
+
+    const tracks = (fullDeezer.tracks?.data || []).map((t, idx) => ({
+      id: `dz-${t.id || idx + 1}`,
+      name: t.title,
+      duration_ms: (t.duration || 0) * 1000,
+      track_number: t.track_position || idx + 1,
+      disc_number: t.disk_number || 1,
+    }));
+
+    if (tracks.length === 0) return null;
+
+    return {
+      name: fullDeezer.title || albumName,
+      artists: [{ name: fullDeezer.artist?.name || artistName }],
+      images: [{ url: fullDeezer.cover_xl || fullDeezer.cover_big || fullDeezer.cover_medium }],
+      release_date: fullDeezer.release_date || null,
+      total_tracks: fullDeezer.nb_tracks || tracks.length,
+      album_type: fullDeezer.record_type || 'album',
+      label: fullDeezer.label || null,
+      genres: fullDeezer.genres?.data?.map((g) => g.name) || [],
+      tracks: { items: tracks },
+      external_urls: { deezer: fullDeezer.link },
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Obtener detalles completos de un álbum en Spotify (tracks, fecha, imágenes) con timeout y reintentos protegidos
 async function getFullSpotifyAlbum(albumId, maxRetries = 2) {
+  if (Date.now() < spotifyRateLimitedUntil) {
+    return null; // Si Spotify activó rate-limit reciente, usar fallback de inmediato
+  }
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     const token = await getSpotifyToken();
     if (!token) return null;
     try {
       const res = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
         headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(8000), // Timeout estricto de 8s
+        signal: AbortSignal.timeout(6000), // Timeout estricto de 6s
       });
       if (res.status === 429) {
-        const retrySec = parseInt(res.headers.get('Retry-After') || '2', 10);
+        const retryHeader = res.headers.get('Retry-After');
+        const retrySec = parseInt(retryHeader || '3', 10);
+
+        // CAP CRÍTICO: Si Spotify pide esperar más de 5 segundos (a veces envía horas como 42309s!),
+        // NUNCA nos quedamos esperando horas. Abortamos Spotify de inmediato y activamos fallback para no congelar.
+        if (retrySec > 5) {
+          console.warn(`  ⚠️ Spotify 429 con Retry-After excesivo (${retrySec}s). Activando fallback inmediato.`);
+          spotifyRateLimitedUntil = Date.now() + Math.min(retrySec, 300) * 1000;
+          return null;
+        }
         console.warn(`  ⚡ Spotify 429 rate limit. Esperando ${retrySec}s...`);
         await sleep(retrySec * 1000);
         continue;
@@ -153,7 +214,7 @@ async function getFullSpotifyAlbum(albumId, maxRetries = 2) {
       return await res.json();
     } catch (err) {
       if (attempt < maxRetries) {
-        await sleep(attempt * 1000);
+        await sleep(Math.min(attempt * 1000, 2000));
       }
     }
   }
@@ -407,15 +468,31 @@ export async function runSmartSeed(options = {}) {
     if (isFamous && countFamous >= targetFamous) continue;
     if (isDecade && countDecades >= targetDecades) continue;
 
-    // Pausa preventiva de 120ms para respetar límites de tasa y estabilidad de conexión
-    await sleep(120);
+    // Pausa preventiva de 250ms para respetar límites de tasa y no saturar Spotify
+    await sleep(250);
 
-    const full = await getFullSpotifyAlbum(spotifyItem.id);
-    if (!full || !full.images || full.images.length === 0) continue;
+    const rawName = (spotifyItem.name || '').substring(0, 255).trim();
+    const rawArtist = (spotifyItem.artists?.map((a) => a.name).join(', ') || '').substring(0, 255).trim();
 
-    const albumName = full.name.substring(0, 255).trim();
-    const artistName = full.artists.map((a) => a.name).join(', ').substring(0, 255).trim();
-    const imageUrl = full.images[0]?.url;
+    let full = null;
+    if (Date.now() >= spotifyRateLimitedUntil) {
+      full = await getFullSpotifyAlbum(spotifyItem.id);
+    }
+
+    // FALLBACK A DEEZER si Spotify no respondió, dio timeout o tiene 429
+    if (!full || !full.tracks?.items || full.tracks.items.length === 0) {
+      const deezerFull = await getDeezerAlbumDetails(rawArtist, rawName);
+      if (deezerFull && deezerFull.tracks?.items?.length > 0) {
+        full = deezerFull;
+        console.log(`    ↳ 🔀 Fallback Deezer activado para "${rawArtist} - ${rawName}" (${deezerFull.tracks.items.length} tracks)`);
+      }
+    }
+
+    if (!full) continue;
+
+    const albumName = (full.name || rawName).substring(0, 255).trim();
+    const artistName = (full.artists?.map((a) => a.name).join(', ') || rawArtist).substring(0, 255).trim();
+    const imageUrl = full.images?.[0]?.url || spotifyItem.images?.[0]?.url;
     if (!imageUrl) continue;
 
     // Tracklist
@@ -442,7 +519,7 @@ export async function runSmartSeed(options = {}) {
     }
 
     // Fechas y año
-    const rawDate = full.release_date || null;
+    const rawDate = full.release_date || spotifyItem.release_date || null;
     let releaseYear = null;
     if (rawDate) {
       const y = parseInt(String(rawDate).substring(0, 4), 10);
@@ -453,8 +530,8 @@ export async function runSmartSeed(options = {}) {
     const releaseType = full.album_type === 'single' ? 'ep' : (full.album_type || 'album');
 
     // Streaming links (4 oficiales: Spotify, Apple Music, YouTube, Deezer)
-    const spotifyLink = full.external_urls?.spotify || `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
-    const deezerLink = await getDeezerLink(artistName, albumName);
+    const spotifyLink = full.external_urls?.spotify || spotifyItem.external_urls?.spotify || `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + albumName)}`;
+    const deezerLink = full.external_urls?.deezer || await getDeezerLink(artistName, albumName);
     const appleMusicLink = `https://music.apple.com/search?term=${encodeURIComponent(artistName + ' ' + albumName)}`;
     const youtubeLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(artistName + ' ' + albumName + ' full album')}`;
 

@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.6',
+    title:
+      'Blindaje Anti-Freeze en Rate Limiting (429), Fallback Automático a Deezer y Resiliencia de Ingesta Continua',
+    date: '2026-09-08',
+    sha: 'HEAD',
+    tag: 'Seguridad',
+    tagColor: 'from-rose-500 via-red-500 to-amber-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Parche crítico V.7.6 de Musiclub enfocado en la resiliencia y tolerancia a fallos del motor de siembra de catálogo: solución definitiva al bloqueo por rate-limiting (HTTP 429) de Spotify mediante un tope estricto de espera de 5 segundos en cabeceras Retry-After (eliminando congelamientos provocados por pausas de horas impuestas por la API); conmutación inmediata y transparente a la API de Deezer para la extracción de tracklists, duraciones oficiales y portadas HD; duplicación del intervalo preventivo de red (250ms); y garantía de guardado continuo en Supabase sin pérdida de registros acumulados.',
+    changes: [
+      {
+        type: 'security',
+        title: 'Tope Estricto de Espera Anti-Freeze en Retry-After',
+        description:
+          'Detección y limitación de tiempos de espera en respuestas HTTP 429 a un máximo de 5 segundos. Si la API de Spotify solicita pausas prolongadas (como penalizaciones de miles de segundos), el proceso cancela la espera a 0s y pausa Spotify para esa tanda, previniendo congelamientos indefinidos.',
+      },
+      {
+        type: 'feature',
+        title: 'Fallback Automático e Instantáneo a Deezer API',
+        description:
+          'Implementación de getDeezerAlbumDetails en scripts/smartCatalogSeeder.mjs: cuando Spotify entra en rate limit o no responde, el sistema conmuta en tiempo real a Deezer para obtener el tracklist oficial completo, duraciones en milisegundos y portada HD sin interrumpir la ejecución.',
+      },
+      {
+        type: 'improvement',
+        title: 'Pacing Preventivo de Red (250ms)',
+        description:
+          'Ampliación del intervalo entre consultas individuales de álbumes a 250ms, reduciendo la frecuencia en más del 50% y evitando la saturación de cuotas por ventana deslizante en las APIs externas.',
+      },
+      {
+        type: 'improvement',
+        title: 'Persistencia Garantizada y Blindaje de Inserción',
+        description:
+          'Aseguramiento de que cualquier lote de lanzamientos recolectado antes de una eventualidad de red se procese e inserte directamente en Supabase, protegiendo el avance del catálogo y actualizando el sitemap canónico.',
+      },
+    ],
+  },
+  {
     version: 'V.7.5',
     title:
       'Migración de GitHub Actions a Smart Catalog Seeder, Automatización CI/CD con Selector Dinámico y Ping Canónico SEO',
