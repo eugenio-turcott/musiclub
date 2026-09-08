@@ -14,6 +14,56 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.4',
+    title:
+      'Motor de Siembra Inteligente de Catálogo (65% 2026 / 20% Tendencia / 15% Décadas), Filtro Estricto de Álbumes Populares (Tracks >= 4) y Expansión Masiva del Sitemap (3,660+ URLs)',
+    date: '2026-09-08',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-amber-500 via-orange-500 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.4 de Musiclub que revoluciona el crecimiento y la relevancia del catálogo musical: lanzamiento del motor de siembra inteligente (smartCatalogSeeder) diseñado para poblar la base de datos con una distribución estratégica optimizada para el usuario y el SEO (65% lanzamientos de 2026, 20% álbumes icónicos y de máxima tendencia global, y 15% obras maestras de las décadas 70s a 2020s); filtro estricto de calidad que garantiza únicamente álbumes y EPs completos (mínimo 4 pistas) erradicando canciones sueltas o singles de 1 tema; protección de red con timeouts de 8 segundos y pacing anti-bloqueos; e integración directa con el demonio de ingesta periódica y regeneración automática del sitemap con más de 3,660 rutas canónicas.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Motor de Siembra Inteligente (Smart Catalog Seeder)',
+        description:
+          'Implementación de scripts/smartCatalogSeeder.mjs que orquesta la ingesta de lanzamientos basada en demanda real: 65% novedades y estrenos de 2026, 20% artistas y discos de máxima relevancia y tendencia mundial, y 15% clásicos consagrados por década (70s, 80s, 90s, 2000s, 2010s y 2020s).',
+      },
+      {
+        type: 'improvement',
+        title: 'Filtro Estricto de Calidad y Álbumes Completos (Tracks >= 4)',
+        description:
+          'Filtrado obligatorio que descarta sencillos promocionales de 1 a 3 temas, bootlegs, versiones de karaoke, tributos no oficiales y pistas instrumentales caseras, asegurando que cada nuevo registro en Musiclub sea una obra completa con tracklist íntegro, duraciones oficiales y portadas HD.',
+      },
+      {
+        type: 'security',
+        title: 'Blindaje de Red: Timeouts de 8s, Pacing y Control de Tasa (429)',
+        description:
+          'Incorporación de AbortSignal con timeouts estrictos de 8 segundos en todas las llamadas HTTP hacia Spotify y Deezer, pausas preventivas de 120ms entre peticiones, lectura de cabeceras Retry-After y reintentos exponenciales para garantizar estabilidad continua sin saturar las APIs.',
+      },
+      {
+        type: 'feature',
+        title: 'Deduplicación Instantánea en Memoria a 0ms',
+        description:
+          'Precarga ultrarrápida del catálogo existente desde Supabase en un set hash en memoria para evitar colisiones, sobreescrituras innecesarias o desperdicio de cuota de búsqueda.',
+      },
+      {
+        type: 'improvement',
+        title: 'Comando CLI "npm run seed" y Conexión al Demonio Periódico',
+        description:
+          'Nuevo comando directo en package.json (npm run seed -- --target=100 --sitemap) y modernización del demonio automático (scripts/runHourlyDaemon.mjs) para mantener la base de datos viva, actualizada y sincronizada cada 30 minutos.',
+      },
+      {
+        type: 'improvement',
+        title: 'Crecimiento del Catálogo y Expansión del Sitemap a 3,660+ URLs',
+        description:
+          'Incorporación exitosa de más de 140 álbumes populares (Kendrick Lamar, Taylor Swift, Pink Floyd, Nirvana, Radiohead, The Weeknd, Dua Lipa, Rosalía, Drake, Bruno Mars, entre otros) elevando la base a 1,815 álbumes y actualizando public/sitemap.xml a 3,666 URLs canónicas indexables.',
+      },
+    ],
+  },
+  {
     version: 'V.7.3',
     title:
       'Optimización SEO Integral, Blindaje Canónico Universal (www.musiclub.org), Redirección 308 de Dominio Vercel y Regeneración Masiva de Sitemap (3,370+ URLs)',

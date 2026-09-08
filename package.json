@@ -25,7 +25,8 @@
     "eject": "react-scripts eject",
     "ingest:mb": "node scripts/hourlyMusicBrainzIngestion.mjs",
     "ingest:daemon": "node scripts/runHourlyDaemon.mjs",
-    "enrich:missing": "node scripts/enrichMissingMusicBrainz.mjs"
+    "enrich:missing": "node scripts/enrichMissingMusicBrainz.mjs",
+    "seed": "node scripts/smartCatalogSeeder.mjs"
   },
   "eslintConfig": {
     "extends": [
