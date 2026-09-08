@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.5',
+    title:
+      'Migración de GitHub Actions a Smart Catalog Seeder, Automatización CI/CD con Selector Dinámico y Ping Canónico SEO',
+    date: '2026-09-08',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-blue-500 via-indigo-500 to-violet-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.5 de Musiclub que culmina la automatización del catálogo en la nube: migración completa del workflow de GitHub Actions (.github/workflows/hourly_musicbrainz_ingest.yml) para ejecutar periódicamente el Smart Catalog Seeder con la distribución estratégica (65% 2026, 20% Tendencia y 15% Décadas); adición de inputs interactivos en workflow_dispatch para seleccionar la cantidad de lanzamientos a sembrar bajo demanda; seguimiento y persistencia automática del estado del seeder (seeder_state.json); y sincronización canónica con motores de búsqueda bajo www.musiclub.org.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Migración de Flujo en GitHub Actions a Smart Catalog Seeder',
+        description:
+          'Sustitución definitiva del crawler secuencial de MusicBrainz por el motor inteligente de siembra en .github/workflows/hourly_musicbrainz_ingest.yml, asegurando que cada 30 minutos se ingesten únicamente álbumes populares completos con portadas HD y enlaces oficiales de streaming.',
+      },
+      {
+        type: 'improvement',
+        title: 'Selector Dinámico de Cuota en Actions (workflow_dispatch)',
+        description:
+          'Inclusión de un parámetro interactivo "target" en GitHub Actions para permitir ejecuciones manuales desde la interfaz web de GitHub eligiendo la cantidad de álbumes a sembrar (50, 100, etc.), manteniendo un valor predeterminado de 50 en la ejecución periódica automatizada.',
+      },
+      {
+        type: 'improvement',
+        title: 'Persistencia de Estado del Seeder en Git',
+        description:
+          'Actualización de la rutina de versionado automático en Actions para commitear scripts/seeder_state.json en lugar del antiguo crawler_state.json, conservando el avance continuo de offsets, artistas y décadas sin repeticiones.',
+      },
+      {
+        type: 'improvement',
+        title: 'Ping Canónico de Indexación',
+        description:
+          'Notificación directa a los motores de búsqueda utilizando la URL canónica estricta https://www.musiclub.org/sitemap.xml para acelerar el rastreo de nuevos lanzamientos.',
+      },
+    ],
+  },
+  {
     version: 'V.7.4',
     title:
       'Motor de Siembra Inteligente de Catálogo (65% 2026 / 20% Tendencia / 15% Décadas), Filtro Estricto de Álbumes Populares (Tracks >= 4) y Expansión Masiva del Sitemap (3,660+ URLs)',
