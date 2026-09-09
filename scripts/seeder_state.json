@@ -1,10 +1,10 @@
 {
-  "offset2026": 10,
-  "offsetFamous": 4,
-  "decadeIndex": 5,
-  "totalSeeded": 407,
+  "offset2026": 180,
+  "offsetFamous": 24,
+  "decadeIndex": 0,
+  "totalSeeded": 434,
   "history": [],
-  "lastRun": "2026-09-09T19:13:51.172Z",
+  "lastRun": "2026-09-09T21:50:32.519Z",
   "offset_1970s": 10,
   "offset_2000s": 10
 }
