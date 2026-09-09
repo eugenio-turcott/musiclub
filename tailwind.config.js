@@ -25,6 +25,13 @@ module.exports = {
           },
         },
       },
+      fontFamily: {
+        sans: ['Figtree', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        figtree: ['Figtree', 'sans-serif'],
+        gabarito: ['Gabarito', 'sans-serif'],
+        heading: ['Figtree', '-apple-system', 'sans-serif'],
+        display: ['Figtree', '-apple-system', 'sans-serif'],
+      },
       colors: {
         cyber: {
           pink: '#f5576c',

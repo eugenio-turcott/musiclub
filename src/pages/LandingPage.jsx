@@ -162,7 +162,9 @@ export function LandingPage() {
         const totalReviewsCount =
           reviewsData.length || statsData?.total_reviews || 288;
         const uniqueReviewersCount = new Set(
-          (reviewsData || []).map((rev) => rev.reviewer_name?.trim()).filter(Boolean)
+          (reviewsData || [])
+            .map((rev) => rev.reviewer_name?.trim())
+            .filter(Boolean)
         ).size;
         const totalReviewersCount =
           uniqueReviewersCount ||
@@ -552,7 +554,7 @@ export function LandingPage() {
               <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.08]">
                 En{' '}
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-rose-400">
-                  Musiclub
+                  MUSICLUB
                 </span>
                 , descubre, califica y debate cada disco.
               </h1>

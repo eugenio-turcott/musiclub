@@ -14,16 +14,42 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.8',
+    title:
+      'Adopción Universal de Tipografía Figtree y Blindaje de Navegación Limpia (Retiro de Popunders)',
+    date: '2026-09-09',
+    sha: 'HEAD',
+    tag: 'Diseño / UX',
+    tagColor: 'from-emerald-500 via-teal-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.8 de Musiclub enfocada en la armonía visual, legibilidad superior y navegación 100% limpia y respetuosa: unificación tipográfica universal al 100% con la fuente Google Fonts Figtree en toda la interfaz (títulos h1-h6, subtítulos, texto corrido, menús, botones y componentes interactivos); y erradicación definitiva del formato publicitario Popunder para garantizar que ningún clic en la web abra pestañas o ventanas no solicitadas en el navegador, preservando un flujo ágil e ininterrumpido.',
+    changes: [
+      {
+        type: 'improvement',
+        title: 'Adopción Universal de Tipografía Figtree (Google Fonts)',
+        description:
+          'Implementación de la fuente Figtree (pesos 300 a 900) como la tipografía única y universal para el 100% de la plataforma: encabezados principales, títulos h1-h6, subtítulos, texto corrido, botones, tablas, navegación y componentes interactivos, brindando una experiencia visual de máxima legibilidad, elegancia contemporánea y nitidez en cualquier resolución.',
+      },
+      {
+        type: 'fix',
+        title: 'Erradicación Definitiva del Formato Popunder (OnClick)',
+        description:
+          'Retiro integral del script de anuncios Popunder para proteger la experiencia del usuario y evitar aperturas de ventanas indeseadas en el navegador. Se garantiza que todas las interacciones (búsquedas, clics en enlaces, botones o elementos de la interfaz) permanezcan exclusivamente dentro del flujo de la aplicación.',
+      },
+    ],
+  },
+  {
     version: 'V.7.7',
     title:
-      'Gashapon Cinemático Universal, Auto-Curación de MBID/Géneros, Monetización No Intrusiva con Adsterra y Cuadratura de Métricas',
+      'Gashapon Cinemático Universal, Auto-Curación de MBID/Géneros, Monetización con Adsterra y Cuadratura de Métricas',
     date: '2026-09-09',
     sha: 'HEAD',
     tag: 'Mayor',
     tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
     authorName: 'Eugenio Turcott',
     summary:
-      'Actualización mayor V.7.7 de Musiclub: transformación cinemática del Gashapon a un popup modal inmersivo de gran escala para todos los lanzamientos del catálogo (eliminando referencias obsoletas a Ex-Pool y esquemas de status previos); perfeccionamiento de la navegación y corrección del anclaje del desplegable de Comunidad; motor continuo de enriquecimiento y auto-curación de MBID y géneros faltantes con rate-limiting y fallback a Deezer; monetización estratégica con Adsterra (Native Banner en Hero, Popunder, Social Bar y Smartlink) con blindaje universal de texto claro contra temas de sistema y opción de modo solo imágenes; y sincronización exacta de métricas entre la Landing Page y la vista de Reseñas (19 críticos activos).',
+      'Actualización mayor V.7.7 de Musiclub: transformación cinemática del Gashapon a un popup modal inmersivo de gran escala para todos los lanzamientos del catálogo (eliminando referencias obsoletas a Ex-Pool y esquemas de status previos); perfeccionamiento de la navegación y corrección del anclaje del desplegable de Comunidad; motor continuo de enriquecimiento y auto-curación de MBID y géneros faltantes con rate-limiting y fallback a Deezer; monetización estratégica con Adsterra (Native Banner en Hero, Social Bar y Smartlink de apoyo) con blindaje universal de texto claro contra temas de sistema y opción de modo solo imágenes; y sincronización exacta de métricas entre la Landing Page y la vista de Reseñas (19 críticos activos).',
     changes: [
       {
         type: 'feature',
@@ -41,7 +67,7 @@ export const CURATED_PATCH_NOTES = [
         type: 'feature',
         title: 'Monetización Estratégica con Adsterra (Modo Claro/Oscuro Blindado)',
         description:
-          'Integración no invasiva de formatos oficiales de Adsterra (Popunder, Social Bar, Smartlink de apoyo y Native Banner colocado estratégicamente entre el Navbar y el Hero de la Landing). Blindaje de alto contraste universal que fuerza texto blanco (#f8fafc) sin importar el tema claro/oscuro del dispositivo, MutationObserver reactivo y soporte de la opción onlyImages para modo solo imágenes.',
+          'Integración cuidada de formatos oficiales de Adsterra (Native Banner colocado estratégicamente entre el Navbar y el Hero de la Landing, Social Bar y Smartlink de apoyo en footer). Incluye blindaje de alto contraste universal que fuerza texto blanco (#f8fafc) sin importar el tema claro/oscuro del dispositivo, MutationObserver reactivo y soporte de la opción onlyImages para modo solo imágenes.',
       },
       {
         type: 'improvement',
