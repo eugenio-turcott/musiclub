@@ -2,8 +2,8 @@ name: Smart Catalog Ingestion (65% 2026 / 20% Tendencia / 15% Décadas) & Sitema
 
 on:
   schedule:
-    # Se ejecuta automáticamente cada 30 minutos (48 veces al día)
-    - cron: '*/30 * * * *'
+    # Minutos 17 y 47 de cada hora (evita congestión global de GitHub en :00 y :30)
+    - cron: '17,47 * * * *'
   workflow_dispatch: # Permite ejecución manual con selector de cantidad desde GitHub Actions
     inputs:
       target:
@@ -40,6 +40,12 @@ jobs:
           REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
           REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
         run: node scripts/smartCatalogSeeder.mjs --target=${{ github.event.inputs.target || '50' }} --sitemap
+
+      - name: Continuous Healing of Legacy Albums (MBID & Genres)
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
+        run: node scripts/populateMissingMbidAndGenres.mjs --limit=25
 
       - name: Commit & Push updated Sitemap and Seeder State
         run: |

@@ -28,15 +28,14 @@ export function AppHeader({
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  // Dropdown para navegación agrupada en desktop ('discover' | 'games' | null)
+  // Dropdown para navegación agrupada en desktop ('community' | null)
   const [openNavDropdown, setOpenNavDropdown] = useState(null);
 
   const userMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
   const heroContainerRef = useRef(null);
-  const discoverDropdownRef = useRef(null);
-  const gamesDropdownRef = useRef(null);
+  const communityDropdownRef = useRef(null);
 
   // Fallbacks using useAuth hook if props are not explicitly provided
   const user = propUser !== undefined ? propUser : auth.user;
@@ -84,10 +83,8 @@ export function AppHeader({
         setIsMobileMenuOpen(false);
       }
       if (
-        discoverDropdownRef.current &&
-        !discoverDropdownRef.current.contains(event.target) &&
-        gamesDropdownRef.current &&
-        !gamesDropdownRef.current.contains(event.target)
+        communityDropdownRef.current &&
+        !communityDropdownRef.current.contains(event.target)
       ) {
         setOpenNavDropdown(null);
       }
@@ -149,12 +146,18 @@ export function AppHeader({
     });
   };
 
-  // Rutas para los grupos
-  const discoverPaths = ['/recomendaciones', '/para-ti', '/playlists', '/playlist', '/reviews'];
-  const gamesPaths = ['/gashapon', '/gacha', '/leaderboard', '/ranking', '/portadas', '/calificar-portadas', '/cover-ratings'];
+  // Rutas para grupo Comunidad
+  const communityPaths = [
+    '/recomendaciones',
+    '/para-ti',
+    '/playlists',
+    '/playlist',
+    '/reviews',
+    '/leaderboard',
+    '/ranking',
+  ];
 
-  const isDiscoverActive = isPathActive(discoverPaths);
-  const isGamesActive = isPathActive(gamesPaths);
+  const isCommunityActive = isPathActive(communityPaths);
 
   return (
     <header className="w-full backdrop-blur-xl sticky top-0 z-50">
@@ -162,205 +165,198 @@ export function AppHeader({
         {/* Lado Izquierdo: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center overflow-hidden">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden">
               <img
-                src="/5662059.png"
+                src="/musiclub_logo_corchea.png"
                 alt="Musiclub Logo"
-                className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                className="w-full h-full object-contain"
               />
             </div>
           </Link>
         </div>
 
-        {/* Centro: Menú de Navegación Agrupado & Compacto - Pantallas medianas/grandes (md/lg/xl) */}
-        <div className="hidden md:flex items-center justify-center flex-1 min-w-0 px-2">
-          <nav className="flex items-center gap-1 xl:gap-1.5 bg-white/5 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-md shadow-inner">
+        {/* Centro: Menú de Navegación Principal - Destacando lo más relevante (md/lg/xl) */}
+        <div className="hidden md:flex items-center justify-center flex-1 min-w-0 px-1 lg:px-2">
+          <nav className="flex items-center gap-1 lg:gap-1.5 bg-[#0c0e1b]/80 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-xl shadow-inner shadow-black/40">
             {/* 1. Catálogo Directo */}
             <Link
               to="/catalogo"
-              className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
+              className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
                 isPathActive(['/catalogo', '/catalog', '/albumes', '/albums'])
-                  ? 'bg-white/15 text-white border border-white/20 shadow-sm'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
+                  ? 'bg-white/15 text-white border border-white/25 shadow-sm font-bold'
+                  : 'text-white/75 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span>💿</span>
+              <span className="text-sm">💿</span>
               <span>Catálogo</span>
             </Link>
 
-            {/* 2. Pool Musical (Pill Destacado) */}
+            {/* 2. Pool Musical (Pill Destacado - Dinámica Semanal) */}
             <Link
               to="/pool"
-              className={`text-xs font-bold flex items-center gap-1.5 px-3.5 py-1 rounded-full transition-all duration-200 whitespace-nowrap ${
-                isPathActive(['/pool', '/pool-musical', '/temporadas', '/season'])
+              className={`text-xs font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
+                isPathActive([
+                  '/pool',
+                  '/pool-musical',
+                  '/temporadas',
+                  '/season',
+                ])
                   ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
-                  : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20'
+                  : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/25'
               }`}
             >
-              <span>🗳️</span>
-              <span>Pool Musical</span>
+              <span className="text-sm">🗳️</span>
+              <span>
+                Pool<span className="hidden lg:inline"> Musical</span>
+              </span>
             </Link>
 
-            {/* 3. Dropdown Agrupado: Descubrir (Para Ti, Playlists, Reviews) */}
-            <div className="relative" ref={discoverDropdownRef}>
+            {/* 3. Gashapon Arcade (Pill Destacado - Minijuego & Cápsulas 3D) */}
+            <Link
+              to="/gashapon"
+              className={`relative text-xs font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
+                isPathActive(['/gashapon', '/gacha'])
+                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-[0_0_18px_rgba(251,191,36,0.5)] font-black'
+                  : 'text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
+              }`}
+            >
+              <span className="text-sm">🎰</span>
+              <span>Gashapon</span>
+            </Link>
+
+            {/* 4. Calificar Portadas */}
+            <Link
+              to="/portadas"
+              className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
+                isPathActive([
+                  '/portadas',
+                  '/calificar-portadas',
+                  '/cover-ratings',
+                ])
+                  ? 'bg-purple-500/25 text-purple-200 border border-purple-500/40 shadow-[0_0_15px_rgba(168,85,247,0.3)] font-bold'
+                  : 'text-purple-300/80 hover:text-purple-100 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20'
+              }`}
+            >
+              <span className="text-sm">🖼️</span>
+              <span>Portadas</span>
+            </Link>
+
+            {/* 5. Dropdown Agrupado: Comunidad (Para Ti, Reviews, Leaderboard, Playlists) */}
+            <div className="relative" ref={communityDropdownRef}>
               <button
                 type="button"
                 onClick={() =>
-                  setOpenNavDropdown((prev) => (prev === 'discover' ? null : 'discover'))
+                  setOpenNavDropdown((prev) =>
+                    prev === 'community' ? null : 'community'
+                  )
                 }
-                className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
-                  openNavDropdown === 'discover' || isDiscoverActive
-                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/35 shadow-sm'
+                className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
+                  openNavDropdown === 'community' || isCommunityActive
+                    ? 'bg-white/15 text-white border border-white/25 shadow-sm font-bold'
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span>✨</span>
-                <span>Descubrir</span>
+                <span className="text-sm">👥</span>
+                <span className="hidden lg:inline">Comunidad</span>
+                <span className="lg:hidden">Más</span>
                 <svg
                   className={`w-3 h-3 transition-transform duration-200 ${
-                    openNavDropdown === 'discover' ? 'rotate-180 text-purple-300' : 'text-white/40'
+                    openNavDropdown === 'community'
+                      ? 'rotate-180 text-white'
+                      : 'text-white/40'
                   }`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
 
-              {/* Submenú Flotante Descubrir */}
-              {openNavDropdown === 'discover' && (
-                <div className="absolute top-full mt-2 left-0 w-60 bg-[#0c0e1c]/95 border border-purple-500/30 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-fadeIn space-y-0.5">
-                  <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-purple-300/70 border-b border-white/5 mb-1">
-                    Exploración Musical
+              {/* Submenú Flotante Comunidad */}
+              {openNavDropdown === 'community' && (
+                <div className="absolute top-full mt-2.5 left-1/2 -translate-x-1/2 z-50">
+                  <div className="w-64 bg-[#0c0e1c]/95 border border-white/15 rounded-2xl p-2 shadow-2xl backdrop-blur-2xl animate-fadeIn space-y-1 origin-top">
+                    <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-white/40 border-b border-white/5 mb-1 flex items-center justify-between">
+                      <span>Comunidad Musiclub</span>
+                      <span className="text-[9px] text-pink-400 font-normal">
+                        Social
+                      </span>
+                    </div>
+                    <Link
+                      to="/recomendaciones"
+                      onClick={() => setOpenNavDropdown(null)}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                        isPathActive(['/recomendaciones', '/para-ti'])
+                          ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-base">✨</span>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">Para Ti</span>
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          Recomendaciones personalizadas
+                        </span>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/reviews"
+                      onClick={() => setOpenNavDropdown(null)}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                        isPathActive(['/reviews'])
+                          ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-base">📝</span>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">Feed de Reviews</span>
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          Opiniones y calificaciones recientes
+                        </span>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/leaderboard"
+                      onClick={() => setOpenNavDropdown(null)}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                        isPathActive(['/leaderboard', '/ranking'])
+                          ? 'bg-amber-500/20 text-amber-200 font-bold border border-amber-500/30'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-base">🏆</span>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">Leaderboard</span>
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          Ranking de críticos del club
+                        </span>
+                      </div>
+                    </Link>
+                    <Link
+                      to="/playlists"
+                      onClick={() => setOpenNavDropdown(null)}
+                      className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
+                        isPathActive(['/playlists', '/playlist'])
+                          ? 'bg-cyan-500/20 text-cyan-200 font-bold border border-cyan-500/30'
+                          : 'text-slate-300 hover:bg-white/5 hover:text-white'
+                      }`}
+                    >
+                      <span className="text-base">🎵</span>
+                      <div className="flex flex-col text-left">
+                        <span className="font-semibold">Playlists</span>
+                        <span className="text-[10px] text-slate-400 font-normal">
+                          Colecciones y selecciones del club
+                        </span>
+                      </div>
+                    </Link>
                   </div>
-                  <Link
-                    to="/recomendaciones"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/recomendaciones', '/para-ti'])
-                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">✨</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Para Ti</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Recomendaciones personalizadas</span>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/playlists"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/playlists', '/playlist'])
-                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">🎵</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Playlists</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Colecciones y selecciones del club</span>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/reviews"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/reviews'])
-                        ? 'bg-purple-500/20 text-purple-200 font-bold border border-purple-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">📝</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Reviews</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Feed de opiniones y notas</span>
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            {/* 4. Dropdown Agrupado: Dinámicas (Gashapon, Leaderboard) */}
-            <div className="relative" ref={gamesDropdownRef}>
-              <button
-                type="button"
-                onClick={() =>
-                  setOpenNavDropdown((prev) => (prev === 'games' ? null : 'games'))
-                }
-                className={`text-xs font-semibold flex items-center gap-1.5 px-3 py-1 rounded-full transition-all duration-200 whitespace-nowrap cursor-pointer select-none ${
-                  openNavDropdown === 'games' || isGamesActive
-                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/35 shadow-sm'
-                    : 'text-white/70 hover:text-white hover:bg-white/10'
-                }`}
-              >
-                <span>🎮</span>
-                <span>Dinámicas</span>
-                <svg
-                  className={`w-3 h-3 transition-transform duration-200 ${
-                    openNavDropdown === 'games' ? 'rotate-180 text-amber-300' : 'text-white/40'
-                  }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
-                </svg>
-              </button>
-
-              {/* Submenú Flotante Dinámicas */}
-              {openNavDropdown === 'games' && (
-                <div className="absolute top-full mt-2 left-0 w-60 bg-[#0c0e1c]/95 border border-amber-500/30 rounded-2xl p-1.5 shadow-2xl backdrop-blur-2xl z-50 animate-fadeIn space-y-0.5">
-                  <div className="px-3 py-1 text-[10px] uppercase font-bold tracking-wider text-amber-300/70 border-b border-white/5 mb-1">
-                    Arcade & Ranking
-                  </div>
-                  <Link
-                    to="/gashapon"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/gashapon', '/gacha'])
-                        ? 'bg-amber-500/20 text-amber-200 font-bold border border-amber-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">🎰</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Gashapon</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Sorteo arcade de cápsulas</span>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/leaderboard"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/leaderboard', '/ranking'])
-                        ? 'bg-amber-500/20 text-amber-200 font-bold border border-amber-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">🏆</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Leaderboard</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Ranking de críticos del club</span>
-                    </div>
-                  </Link>
-                  <Link
-                    to="/portadas"
-                    onClick={() => setOpenNavDropdown(null)}
-                    className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs transition-all ${
-                      isPathActive(['/portadas', '/calificar-portadas', '/cover-ratings'])
-                        ? 'bg-pink-500/20 text-pink-200 font-bold border border-pink-500/30'
-                        : 'text-slate-300 hover:bg-white/5 hover:text-white'
-                    }`}
-                  >
-                    <span className="text-base">🖼️</span>
-                    <div className="flex flex-col text-left">
-                      <span className="font-semibold">Calificar Portadas</span>
-                      <span className="text-[10px] text-slate-400 font-normal">Galería de arte y dirección visual</span>
-                    </div>
-                  </Link>
                 </div>
               )}
             </div>
@@ -725,49 +721,119 @@ export function AppHeader({
           ref={mobileMenuRef}
           className="md:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3.5 animate-fadeIn shadow-2xl"
         >
-          {/* SECCIÓN 1: MÚSICA & POOL */}
-          <div className="space-y-1.5">
+          {/* SECCIÓN 1: EXPERIENCIAS PRINCIPALES */}
+          <div className="space-y-2">
             <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider px-1">
-              Música & Club
+              Experiencias Principales
             </span>
             <div className="grid grid-cols-2 gap-2">
-              <Link
-                to="/catalogo"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isPathActive(['/catalogo', '/catalog', '/albumes', '/albums'])
-                    ? 'bg-white/15 text-white border border-white/20'
-                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                <span className="text-base">💿</span>
-                <span>Catálogo</span>
-              </Link>
+              {/* Pool Musical */}
               <Link
                 to="/pool"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isPathActive(['/pool', '/pool-musical', '/temporadas', '/season'])
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
-                    : 'bg-pink-500/10 text-pink-300 border border-pink-500/20 hover:bg-pink-500/20'
+                className={`flex flex-col p-3 rounded-2xl border transition-all ${
+                  isPathActive([
+                    '/pool',
+                    '/pool-musical',
+                    '/temporadas',
+                    '/season',
+                  ])
+                    ? 'bg-gradient-to-r from-[#f5576c]/30 to-[#f093fb]/30 border-pink-500/50 text-white shadow-lg shadow-pink-500/20'
+                    : 'bg-pink-500/10 hover:bg-pink-500/20 border-pink-500/20 text-pink-300'
                 }`}
               >
-                <span className="text-base">🗳️</span>
-                <span>Pool Musical</span>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xl">🗳️</span>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-pink-500/30 text-pink-200 border border-pink-500/40">
+                    Semanal
+                  </span>
+                </div>
+                <span className="font-black text-xs text-white">
+                  Pool Musical
+                </span>
+                <span className="text-[10px] text-pink-200/60 leading-tight mt-0.5">
+                  Votación & Ruleta
+                </span>
+              </Link>
+
+              {/* Gashapon Arcade */}
+              <Link
+                to="/gashapon"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex flex-col p-3 rounded-2xl border transition-all ${
+                  isPathActive(['/gashapon', '/gacha'])
+                    ? 'bg-gradient-to-r from-amber-500/30 to-yellow-500/30 border-amber-400/50 text-white shadow-lg shadow-amber-500/20'
+                    : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/25 text-amber-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xl">🎰</span>
+                  <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-400/30 text-amber-200 border border-amber-400/40">
+                    Arcade
+                  </span>
+                </div>
+                <span className="font-black text-xs text-white">
+                  Gashapon 3D
+                </span>
+                <span className="text-[10px] text-amber-200/60 leading-tight mt-0.5">
+                  Cápsulas Sorpresa
+                </span>
+              </Link>
+
+              {/* Catálogo Completo */}
+              <Link
+                to="/catalogo"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex flex-col p-3 rounded-2xl border transition-all ${
+                  isPathActive(['/catalogo', '/catalog', '/albumes', '/albums'])
+                    ? 'bg-white/15 text-white border-white/30 shadow-sm'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/80'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xl">💿</span>
+                </div>
+                <span className="font-bold text-xs text-white">Catálogo</span>
+                <span className="text-[10px] text-white/50 leading-tight mt-0.5">
+                  Todos los releases
+                </span>
+              </Link>
+
+              {/* Calificar Portadas */}
+              <Link
+                to="/portadas"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex flex-col p-3 rounded-2xl border transition-all ${
+                  isPathActive([
+                    '/portadas',
+                    '/calificar-portadas',
+                    '/cover-ratings',
+                  ])
+                    ? 'bg-purple-500/25 text-purple-200 border border-purple-500/40 shadow-sm'
+                    : 'bg-purple-500/10 hover:bg-purple-500/20 border-purple-500/20 text-purple-300'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xl">🖼️</span>
+                </div>
+                <span className="font-bold text-xs text-white">Portadas</span>
+                <span className="text-[10px] text-purple-200/60 leading-tight mt-0.5">
+                  Curaduría visual
+                </span>
               </Link>
             </div>
           </div>
 
-          {/* SECCIÓN 2: DESCUBRIMIENTO */}
+          {/* SECCIÓN 2: COMUNIDAD & SOCIAL */}
           <div className="space-y-1.5">
             <span className="text-[10px] uppercase font-bold text-purple-300/70 tracking-wider px-1">
-              Descubrimiento
+              Comunidad & Social
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/recomendaciones"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isPathActive(['/recomendaciones', '/para-ti'])
                     ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
@@ -777,21 +843,9 @@ export function AppHeader({
                 <span>Para Ti</span>
               </Link>
               <Link
-                to="/playlists"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
-                  isPathActive(['/playlists', '/playlist'])
-                    ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
-                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                <span className="text-base">🎵</span>
-                <span>Playlists</span>
-              </Link>
-              <Link
                 to="/reviews"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                   isPathActive(['/reviews'])
                     ? 'bg-purple-500/20 text-purple-200 border border-purple-500/30'
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
@@ -799,27 +853,6 @@ export function AppHeader({
               >
                 <span className="text-base">📝</span>
                 <span>Reviews</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* SECCIÓN 3: DINÁMICAS & RANKING */}
-          <div className="space-y-1.5">
-            <span className="text-[10px] uppercase font-bold text-amber-300/70 tracking-wider px-1">
-              Dinámicas & Ranking
-            </span>
-            <div className="grid grid-cols-2 gap-2">
-              <Link
-                to="/gashapon"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                  isPathActive(['/gashapon', '/gacha'])
-                    ? 'bg-amber-500/20 text-amber-200 border border-amber-500/30'
-                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
-                }`}
-              >
-                <span className="text-base">🎰</span>
-                <span>Gashapon</span>
               </Link>
               <Link
                 to="/leaderboard"
@@ -834,16 +867,16 @@ export function AppHeader({
                 <span>Leaderboard</span>
               </Link>
               <Link
-                to="/portadas"
+                to="/playlists"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`col-span-2 flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                  isPathActive(['/portadas', '/calificar-portadas', '/cover-ratings'])
-                    ? 'bg-gradient-to-r from-pink-500/25 to-purple-500/25 text-pink-200 border border-pink-500/40 shadow-sm'
-                    : 'text-pink-300 bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/20'
+                className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                  isPathActive(['/playlists', '/playlist'])
+                    ? 'bg-cyan-500/20 text-cyan-200 border border-cyan-500/30'
+                    : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
                 }`}
               >
-                <span className="text-base">🖼️</span>
-                <span>Calificar Portadas de Álbumes</span>
+                <span className="text-base">🎵</span>
+                <span>Playlists</span>
               </Link>
             </div>
           </div>

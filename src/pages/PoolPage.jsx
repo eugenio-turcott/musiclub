@@ -610,6 +610,23 @@ export function PoolPage() {
                     )}
                   </div>
                 </div>
+
+                {/* Spinning Vinyl Disc on the Right */}
+                <div className="hidden md:flex flex-shrink-0 items-center justify-center relative p-2 self-center">
+                  <div className="relative w-32 h-32 lg:w-44 lg:h-44 xl:w-52 xl:h-52 group">
+                    {/* Ambient Glow behind disc */}
+                    <div className="absolute -inset-3 bg-gradient-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+
+                    {/* Disc Frame & Shadow */}
+                    <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
+                      <img
+                        src="/musiclub_logo_3.png"
+                        alt="Disco de la semana"
+                        className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Inline Review Form Accordion - Solo si reviews_enabled está activo */}

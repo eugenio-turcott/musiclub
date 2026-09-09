@@ -39,16 +39,49 @@ const supabase = createClient(supabaseUrl, supabaseKey, {
 const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
 
+import { cleanGenres, normalizeReleaseType } from './populateMissingMbidAndGenres.mjs';
+
 const STATE_FILE = path.resolve(__dirname, 'seeder_state.json');
+const USER_AGENT = 'MusiclubApp/2.0 ( contact@musiclub.app ; https://musiclub.app )';
 
 // Rate limiting preventivo
 let spotifyToken = null;
 let spotifyTokenExpiry = 0;
 let spotifyRateLimitedUntil = 0;
 let lastDeezerRequestTime = 0;
+let lastMbRequestTime = 0;
+const MB_MIN_INTERVAL_MS = 1250;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function musicBrainzRateLimiter() {
+  const now = Date.now();
+  const elapsed = now - lastMbRequestTime;
+  if (elapsed < MB_MIN_INTERVAL_MS) {
+    await sleep(MB_MIN_INTERVAL_MS - elapsed);
+  }
+  lastMbRequestTime = Date.now();
+}
+
+async function searchMusicBrainzReleaseGroupSeeder(artistName, albumName) {
+  await musicBrainzRateLimiter();
+  const cleanArt = artistName.replace(/\([^)]*\)/g, '').replace(/[“”"']/g, '').trim();
+  const cleanAlb = albumName.replace(/\([^)]*\)/g, '').replace(/[“”"']/g, '').trim();
+  try {
+    const q = `artist:"${cleanArt}" AND releasegroup:"${cleanAlb}"`;
+    const url = `https://musicbrainz.org/ws/2/release-group?query=${encodeURIComponent(q)}&limit=3&fmt=json`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data['release-groups']?.[0] || null;
+  } catch {
+    return null;
+  }
 }
 
 async function deezerRateLimiter() {
@@ -535,17 +568,38 @@ export async function runSmartSeed(options = {}) {
     const appleMusicLink = `https://music.apple.com/search?term=${encodeURIComponent(artistName + ' ' + albumName)}`;
     const youtubeLink = `https://www.youtube.com/results?search_query=${encodeURIComponent(artistName + ' ' + albumName + ' full album')}`;
 
-    const genres = (full.genres && full.genres.length > 0)
-      ? full.genres
-      : (full.artists[0]?.genres || []);
+    // Enriquecimiento canónico vía MusicBrainz (MBID, release_type, géneros) con fallback Deezer
+    let mbid = null;
+    let finalReleaseType = releaseType;
+    let finalGenres = (full.genres && full.genres.length > 0) ? cleanGenres(full.genres) : [];
+
+    const mbRg = await searchMusicBrainzReleaseGroupSeeder(artistName, albumName);
+    if (mbRg) {
+      mbid = mbRg.id;
+      finalReleaseType = normalizeReleaseType(mbRg['primary-type'], mbRg['secondary-types']);
+      const mbGenres = cleanGenres(mbRg.tags || []);
+      if (mbGenres.length > 0) {
+        finalGenres = mbGenres;
+      }
+    }
+
+    if (finalGenres.length === 0) {
+      try {
+        const dzDetails = await getDeezerAlbumDetails(artistName, albumName);
+        if (dzDetails?.genres?.length > 0) {
+          finalGenres = cleanGenres(dzDetails.genres);
+        }
+      } catch {}
+    }
 
     const record = {
       album_name: albumName,
       artist_name: artistName,
-      release_type: releaseType,
+      mbid: mbid,
+      release_type: finalReleaseType,
       release_date: rawDate,
       release_year: releaseYear,
-      genres: genres,
+      genres: finalGenres,
       label: full.label || null,
       total_tracks: full.total_tracks || tracks.length,
       tracks: tracks,
@@ -563,7 +617,9 @@ export async function runSmartSeed(options = {}) {
     if (isFamous) countFamous++;
     if (isDecade) countDecades++;
 
-    console.log(`  [${badge}] ${artistName} - ${albumName} (${releaseYear || 'N/A'}, ${tracks.length} tracks)`);
+    const mbidStr = mbid ? `MBID: ${mbid.substring(0, 8)}...` : 'Sin MBID';
+    const genresStr = finalGenres.length > 0 ? `[${finalGenres.join(', ')}]` : '[]';
+    console.log(`  [${badge}] ${artistName} - ${albumName} (${releaseYear || 'N/A'}, ${tracks.length} tracks) -> ${mbidStr} | ${genresStr}`);
 
   }
 

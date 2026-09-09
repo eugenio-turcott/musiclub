@@ -1155,7 +1155,7 @@ export const supabaseService = {
         supabase
           .from('reviews')
           .select(
-            'album_id, rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
+            'album_id, reviewer_name, rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
           ),
         supabase.from('albums').select('*', { count: 'exact', head: true }),
         supabase.from('profiles').select('*', { count: 'exact', head: true }),
@@ -1223,6 +1223,9 @@ export const supabaseService = {
       const uniqueReviewedAlbums = new Set(
         reviews.map((r) => r.album_id).filter(Boolean)
       );
+      const uniqueReviewers = new Set(
+        reviews.map((r) => r.reviewer_name?.trim()).filter(Boolean)
+      );
 
       return {
         ...result,
@@ -1230,7 +1233,7 @@ export const supabaseService = {
         total_reviews: reviews.length,
         total_albums: albumsRes?.count || 0,
         total_reviewed_albums: uniqueReviewedAlbums.size,
-        total_users: profilesRes?.count || 0,
+        total_users: uniqueReviewers.size || profilesRes?.count || 0,
         top_score: topScore,
       };
     } catch (error) {

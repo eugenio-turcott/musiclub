@@ -14,6 +14,56 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.7',
+    title:
+      'Gashapon Cinemático Universal, Auto-Curación de MBID/Géneros, Monetización No Intrusiva con Adsterra y Cuadratura de Métricas',
+    date: '2026-09-09',
+    sha: 'HEAD',
+    tag: 'Mayor',
+    tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización mayor V.7.7 de Musiclub: transformación cinemática del Gashapon a un popup modal inmersivo de gran escala para todos los lanzamientos del catálogo (eliminando referencias obsoletas a Ex-Pool y esquemas de status previos); perfeccionamiento de la navegación y corrección del anclaje del desplegable de Comunidad; motor continuo de enriquecimiento y auto-curación de MBID y géneros faltantes con rate-limiting y fallback a Deezer; monetización estratégica con Adsterra (Native Banner en Hero, Popunder, Social Bar y Smartlink) con blindaje universal de texto claro contra temas de sistema y opción de modo solo imágenes; y sincronización exacta de métricas entre la Landing Page y la vista de Reseñas (19 críticos activos).',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Gashapon Cinemático de Cápsulas a Pantalla Completa',
+        description:
+          'Evolución visual del Gashapon: apertura de cápsulas en un modal cinemático a pantalla completa con backdrop blur oscuro, modelado a gran escala, animaciones de flotación y apertura física, rayos dorados y renderizado centrado libre de recortes o desbordes superiores.',
+      },
+      {
+        type: 'improvement',
+        title: 'Universalización del Gashapon a Todo el Catálogo',
+        description:
+          'Eliminación de la terminología de Ex-Pool y status individual en el Gashapon: adaptación completa a la arquitectura de release_type (álbumes, singles y EPs), permitiendo que cualquier lanzamiento de la base de datos pueda ser obtenido en la ruleta.',
+      },
+      {
+        type: 'feature',
+        title: 'Monetización Estratégica con Adsterra (Modo Claro/Oscuro Blindado)',
+        description:
+          'Integración no invasiva de formatos oficiales de Adsterra (Popunder, Social Bar, Smartlink de apoyo y Native Banner colocado estratégicamente entre el Navbar y el Hero de la Landing). Blindaje de alto contraste universal que fuerza texto blanco (#f8fafc) sin importar el tema claro/oscuro del dispositivo, MutationObserver reactivo y soporte de la opción onlyImages para modo solo imágenes.',
+      },
+      {
+        type: 'improvement',
+        title: 'Auto-Sanación Continua de Metadatos (MBID & Géneros)',
+        description:
+          'Creación de populateMissingMbidAndGenres.mjs e integración en el cron de GitHub Actions (minutos 17 y 47 para evitar cuellos de botella). Consulta rate-limited (1.25s) a MusicBrainz con backoff exponencial y fallback a Deezer para poblar automáticamente identificadores MBID y etiquetas de géneros faltantes.',
+      },
+      {
+        type: 'fix',
+        title: 'Sincronización de Métricas de Comunidad (Críticos & Reviewers)',
+        description:
+          'Alineación del cálculo de usuarios entre la Landing Page ("Críticos & Miembros") y la sección de Reseñas ("Reviewers Únicos"). Ambos módulos y el servicio global consultan ahora a los 19 críticos activos que han publicado reseñas, eliminando discrepancias contra perfiles sin actividad.',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección de Salto Visual en Menú Desplegable de Comunidad',
+        description:
+          'Estabilización de posición y transiciones CSS en el menú dropdown del AppHeader, eliminando el reacomodo tardío de layout al abrirse y garantizando una apertura fluida y perfectamente centrada.',
+      },
+    ],
+  },
+  {
     version: 'V.7.6',
     title:
       'Blindaje Anti-Freeze en Rate Limiting (429), Fallback Automático a Deezer y Resiliencia de Ingesta Continua',

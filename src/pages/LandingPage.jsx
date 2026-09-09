@@ -3,6 +3,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
+import { AdsterraNativeBanner } from '../components/AdsterraNativeBanner';
 import { ReviewSystem } from '../components/ReviewSystem';
 import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
@@ -22,12 +23,7 @@ import {
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
 export function LandingPage() {
-  const {
-    albums,
-    winner,
-    refetch,
-    markAlbumAsInactive,
-  } = useAlbums();
+  const { albums, winner, refetch, markAlbumAsInactive } = useAlbums();
   const { activePool } = usePool();
   const {
     user,
@@ -165,8 +161,14 @@ export function LandingPage() {
           131;
         const totalReviewsCount =
           reviewsData.length || statsData?.total_reviews || 288;
-        const totalProfilesCount =
-          (profilesData && profilesData.length) || statsData?.total_users || 19;
+        const uniqueReviewersCount = new Set(
+          (reviewsData || []).map((rev) => rev.reviewer_name?.trim()).filter(Boolean)
+        ).size;
+        const totalReviewersCount =
+          uniqueReviewersCount ||
+          statsData?.total_users ||
+          (profilesData && profilesData.length) ||
+          19;
         const topScore =
           topData && topData.length > 0 && topData[0].avg_rating
             ? topData[0].avg_rating
@@ -177,7 +179,7 @@ export function LandingPage() {
           total_albums:
             statsData?.total_albums || (albums && albums.length) || 161,
           total_reviewed_albums: totalReviewedAlbums,
-          total_users: totalProfilesCount > 0 ? totalProfilesCount : 19,
+          total_users: totalReviewersCount > 0 ? totalReviewersCount : 19,
           top_score: topScore,
         });
         notifyContentLoaded('landing');
@@ -532,6 +534,9 @@ export function LandingPage() {
           googleLoading={loginLoading}
         />
 
+        {/* Banner de Anuncios Nativos Adsterra (Debajo del Navbar y Arriba del Titular Hero) */}
+        <AdsterraNativeBanner className="mt-4 sm:mt-6 mb-2 sm:mb-4" />
+
         {/* =========================================================================
             1. HERO SECTION (Clean, Striking, Mentioning Musiclub explicitly)
             ========================================================================= */}
@@ -665,26 +670,12 @@ export function LandingPage() {
                     {/* Shared Frame for Cover + Sliding Disc */}
                     <div className="relative w-[180px] sm:w-[210px] md:w-[230px] lg:w-[245px] aspect-square flex-shrink-0">
                       {/* Vinyl Disc: out by default, tucks into sleeve ONLY when hovering over the vinyl assembly */}
-                      <div className="absolute inset-0 z-0 rounded-full bg-[#0a0a0e] border-2 border-white/25 shadow-2xl flex items-center justify-center transform translate-x-24 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
-                        {/* Grooves Texture with Radial Sheen */}
-                        <div
-                          className="w-full h-full rounded-full flex items-center justify-center animate-disc-spin relative overflow-hidden"
-                          style={{
-                            background:
-                              'radial-gradient(circle, #252528 5%, #111114 18%, #2d2d35 22%, #0e0e12 36%, #25252b 40%, #101014 55%, #2a2a30 60%, #08080a 78%, #1f1f24 82%, #050507 100%)',
-                            boxShadow: 'inset 0 0 15px rgba(0,0,0,0.8)',
-                          }}
-                        >
-                          {/* Gloss reflection shimmer line */}
-                          <div className="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-white/5 pointer-events-none rounded-full"></div>
-
-                          {/* Center Label */}
-                          <div className="w-14 h-14 sm:w-16 sm:h-16 md:w-18 md:h-18 rounded-full bg-gradient-to-tr from-[#f5576c] via-[#e11d48] to-[#f093fb] border-[3px] border-[#0a0a0e] flex items-center justify-center shadow-2xl relative">
-                            <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full bg-[#08080c] border border-white/40 shadow-inner flex items-center justify-center">
-                              <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-white/20"></div>
-                            </div>
-                          </div>
-                        </div>
+                      <div className="absolute inset-0 z-0 rounded-full shadow-2xl flex items-center justify-center transform translate-x-24 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
+                        <img
+                          src="/musiclub_logo_3.png"
+                          alt="Musiclub Vinyl Disc"
+                          className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none border-2 border-white/25 shadow-2xl"
+                        />
                       </div>
 
                       {/* Album Cover Sleeve (Front Layer with Glass Sheen) */}
@@ -981,6 +972,23 @@ export function LandingPage() {
                             : '✅ Habilitar Reviews'}
                       </button>
                     )}
+                  </div>
+                </div>
+
+                {/* Spinning Vinyl Disc on the Right */}
+                <div className="hidden md:flex flex-shrink-0 items-center justify-center relative p-2 self-center">
+                  <div className="relative w-32 h-32 lg:w-44 lg:h-44 xl:w-52 xl:h-52 group">
+                    {/* Ambient Glow behind disc */}
+                    <div className="absolute -inset-3 bg-gradient-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+
+                    {/* Disc Frame & Shadow */}
+                    <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
+                      <img
+                        src="/musiclub_logo_3.png"
+                        alt="Disco de la semana"
+                        className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1827,7 +1835,7 @@ export function LandingPage() {
       </div>
 
       {/* Footer */}
-      <Footer />
+      <Footer showAd={false} />
     </div>
   );
 }
