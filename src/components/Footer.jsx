@@ -1,13 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LanguageSelector } from './LanguageSelector';
-import { AdsterraNativeBanner } from './AdsterraNativeBanner';
 
 export function Footer({ showAd = true }) {
   return (
     <footer className="mt-12 pt-6 border-t border-white/5">
-      {/* Banner de Anuncios Nativos Adsterra (No intrusivo, visualmente integrado) */}
-      {showAd && <AdsterraNativeBanner />}
+      {/* Banner de Anuncios Nativos Adsterra (Comentado temporalmente) */}
+      {/* {showAd && <AdsterraNativeBanner />} */}
 
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-white/30">
         <span className="font-semibold text-white/50">© 2026 Musiclub</span>

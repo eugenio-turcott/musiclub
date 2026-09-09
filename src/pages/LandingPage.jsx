@@ -3,7 +3,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
-import { AdsterraNativeBanner } from '../components/AdsterraNativeBanner';
 import { ReviewSystem } from '../components/ReviewSystem';
 import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
@@ -536,8 +535,8 @@ export function LandingPage() {
           googleLoading={loginLoading}
         />
 
-        {/* Banner de Anuncios Nativos Adsterra (Debajo del Navbar y Arriba del Titular Hero) */}
-        <AdsterraNativeBanner className="mt-4 sm:mt-6 mb-2 sm:mb-4" />
+        {/* Banner de Anuncios Nativos Adsterra (Comentado temporalmente) */}
+        {/* <AdsterraNativeBanner className="mt-4 sm:mt-6 mb-2 sm:mb-4" /> */}
 
         {/* =========================================================================
             1. HERO SECTION (Clean, Striking, Mentioning Musiclub explicitly)

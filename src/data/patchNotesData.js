@@ -14,6 +14,32 @@ export const CURATED_PATCH_NOTES = [
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.7.9',
+    title:
+      'Optimización Crítica de Velocidad de Carga, Depuración de Red y Filtros de Calidad Publicitaria',
+    date: '2026-09-09',
+    sha: 'HEAD',
+    tag: 'Rendimiento / Fix',
+    tagColor: 'from-amber-500 via-orange-500 to-red-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización V.7.9 de Musiclub enfocada en la velocidad de respuesta, estabilidad del hilo principal de JavaScript y calidad publicitaria: resolución definitiva del cuello de botella en la carga del sitio mediante la supresión del bucle de microtareas del MutationObserver, retiro de scripts bloqueantes del Social Bar, purga de fuentes tipográficas en desuso en el head (con Figtree en display=swap) y migración de reglas CSS a herencia nativa; asegurando tiempos de carga inmediatos y un entorno publicitario libre de contenido para adultos o intrusivo.',
+    changes: [
+      {
+        type: 'performance',
+        title: 'Optimización Crítica de Velocidad de Carga y Rendimiento',
+        description:
+          'Eliminación del cuello de botella que ralentizaba la web: supresión del bucle de microtareas del MutationObserver en el banner de anuncios, retiro del script síncrono bloqueante de Social Bar, purga de fuentes tipográficas en desuso en el head (dejando Figtree optimizado con display=swap) y migración de la regla CSS de fuentes hacia herencia limpia nativa, restaurando la velocidad de carga instantánea del sitio.',
+      },
+      {
+        type: 'fix',
+        title: 'Desactivación Preventiva del Banner y Filtrado de Contenido',
+        description:
+          'Desactivación temporal del banner publicitario en la Landing Page y Footer mientras se completan las exclusiones de categorías en la red publicitaria para erradicar anuncios para adultos (18+), citas/dating internacional, alertas engañosas de software y contenido no familiar, manteniendo un entorno 100% seguro, limpio y acorde a la comunidad de Musiclub.',
+      },
+    ],
+  },
+  {
     version: 'V.7.8',
     title:
       'Adopción Universal de Tipografía Figtree y Blindaje de Navegación Limpia (Retiro de Popunders)',
