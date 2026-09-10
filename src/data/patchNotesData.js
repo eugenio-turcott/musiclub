@@ -67,6 +67,18 @@ export const CURATED_PATCH_NOTES = [
         description:
           'Se depuraron 2,121 lanzamientos residuales sin reseñas en Supabase para evitar ruido y spam en el catálogo. La base de datos ahora alberga exclusivamente lanzamientos con actividad y reseñas reales de los miembros, adoptando un esquema de ingesta bajo demanda idéntico al estándar de plataformas como Record Club.',
       },
+      {
+        type: 'feature',
+        title: 'Catálogo Híbrido con Pestaña de "Tendencias & Novedades"',
+        description:
+          'Se introdujo en el Catálogo Musical (/catalogo) un selector de vistas dual: "En el Club" (con las estadísticas, décadas y calificaciones comunitarias) y "Tendencias & Novedades" (lanzamientos frescos obtenidos en tiempo real de Spotify). Permite filtrar por álbumes, EPs y sencillos, buscar en vivo y reseñar cualquier novedad con un solo clic bajo demanda.',
+      },
+      {
+        type: 'feature',
+        title: 'Caché Rotatorio Resiliente en Supabase (trending_releases)',
+        description:
+          'Para garantizar cero caídas y alta velocidad ante cortes o límites de cuotas de APIs externas, se diseñó la tabla rotatoria trending_releases en Supabase respaldada por la ruta Edge /api/trending. Si la API externa experimenta fallas o saturación, el catálogo sirve instantáneamente el último snapshot de respaldo sin interrumpir la navegación.',
+      },
     ],
   },
   {
