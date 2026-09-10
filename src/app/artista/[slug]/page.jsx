@@ -5,13 +5,16 @@ export const revalidate = 3600; // Incremental Static Regeneration
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const artistName = slug
-    ? decodeURIComponent(slug)
-        .replace(/[-_]/g, ' ')
-        .split(' ')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(' ')
+  const rawDecoded = slug
+    ? decodeURIComponent(slug).replace(/[-_]/g, ' ').trim()
     : 'Artista';
+  const artistName =
+    rawDecoded === rawDecoded.toLowerCase()
+      ? rawDecoded
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ')
+      : rawDecoded;
 
   const canonicalUrl = `https://www.musiclub.org/artista/${slug}`;
   const title = `${artistName} - Discografía, Álbumes y Calificaciones`;
@@ -63,13 +66,16 @@ export async function generateMetadata({ params }) {
 
 export default async function ArtistPage({ params }) {
   const { slug } = await params;
-  const artistName = slug
-    ? decodeURIComponent(slug)
-        .replace(/[-_]/g, ' ')
-        .split(' ')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
-        .join(' ')
+  const rawDecoded = slug
+    ? decodeURIComponent(slug).replace(/[-_]/g, ' ').trim()
     : 'Artista';
+  const artistName =
+    rawDecoded === rawDecoded.toLowerCase()
+      ? rawDecoded
+          .split(' ')
+          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+          .join(' ')
+      : rawDecoded;
 
   const schemaData = {
     '@context': 'https://schema.org',

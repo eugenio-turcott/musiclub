@@ -1,6 +1,9 @@
 // src/services/spotifyApi.js
-import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication';
-import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi';
+import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication.js';
+import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
+import { slugifyArtist } from '../utils/ratingUtils.js';
+
+
 
 // Configuración de Spotify desde variables de entorno
 const SPOTIFY_CLIENT_ID =
@@ -977,8 +980,9 @@ export const getArtistTopTracks = async (artistId, artistName) => {
 };
 
 /**
- * Obtiene la discografía completa de un artista organizada y deduplicada
- * Utiliza paginación vía Search API (resistente a límites y cuotas) con fallback
+ * Obtiene la discografía completa de un artista organizada y deduplicada.
+ * Prioriza el endpoint oficial de Spotify por artistId (/v1/artists/{id}/albums) con límite 10 por página,
+ * garantizando cero contaminación con artistas homónimos o canciones no relacionadas.
  */
 export const getArtistDiscography = async (artistId, artistName) => {
   if (!artistId && !artistName) {
@@ -995,36 +999,35 @@ export const getArtistDiscography = async (artistId, artistName) => {
   try {
     const token = await getSpotifyToken();
     const rawItems = [];
+    let resolvedArtistId = artistId;
 
-    // 1. Obtener lanzamientos mediante Spotify Search API con paginación
-    if (artistName) {
-      const offsets = [0, 10, 20, 30, 40];
-      const searchPromises = offsets.map((offset) =>
-        fetch(
-          `https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=album&limit=10&offset=${offset}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+    // 0. Si no se proporcionó artistId pero sí artistName, buscar primero el ID oficial
+    if (!resolvedArtistId && artistName) {
+      try {
+        const searchRes = await searchArtist(artistName, 10);
+        if (searchRes.success && searchRes.artists.length > 0) {
+          const cleanTarget = artistName.toLowerCase().trim();
+          const targetSlug = slugifyArtist(artistName).toLowerCase();
+          const match = searchRes.artists.find(
+            (a) =>
+              a.name.toLowerCase().trim() === cleanTarget ||
+              slugifyArtist(a.name).toLowerCase() === targetSlug
+          );
+          if (match) {
+            resolvedArtistId = match.id;
           }
-        )
-          .then((r) => (r.ok ? r.json() : null))
-          .catch(() => null)
-      );
-
-      const searchResults = await Promise.all(searchPromises);
-      searchResults.forEach((res) => {
-        if (res?.albums?.items) {
-          rawItems.push(...res.albums.items);
         }
-      });
+      } catch (_) {}
     }
 
-    // 2. Si no hubo resultados o no había nombre, intentar endpoint por ID
-    if (rawItems.length === 0 && artistId) {
-      const discoPromises = [0, 10, 20, 30].map((offset) =>
+    // 1. Prioridad: Endpoint oficial de álbumes por ID de artista de Spotify
+    // include_groups=album,single,compilation excluye 'appears_on' ajenos.
+    // Spotify limita estrictamente este endpoint a 10 elementos por llamada.
+    if (resolvedArtistId) {
+      const offsets = [0, 10, 20, 30, 40, 50, 60, 70];
+      const discoPromises = offsets.map((offset) =>
         fetch(
-          `https://api.spotify.com/v1/artists/${artistId}/albums?include_groups=album,single,compilation&limit=10&offset=${offset}`,
+          `https://api.spotify.com/v1/artists/${resolvedArtistId}/albums?include_groups=album,single,compilation&limit=10&offset=${offset}&market=MX`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1043,21 +1046,46 @@ export const getArtistDiscography = async (artistId, artistName) => {
       });
     }
 
-    // Deduplicar y clasificar lanzamientos
+    // 2. Fallback: sólo si no hubo resultados con el endpoint por ID, usar Search API con filtro estricto
+    if (rawItems.length === 0 && artistName) {
+      const offsets = [0, 10, 20, 30];
+      const searchPromises = offsets.map((offset) =>
+        fetch(
+          `https://api.spotify.com/v1/search?q=${encodeURIComponent(`artist:"${artistName}"`)}&type=album&limit=10&offset=${offset}&market=MX`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+      );
+
+      const searchResults = await Promise.all(searchPromises);
+      searchResults.forEach((res) => {
+        if (res?.albums?.items) {
+          rawItems.push(...res.albums.items);
+        }
+      });
+    }
+
+    // Deduplicar y clasificar lanzamientos garantizando pertenencia estricta
+    const cleanTarget = (artistName || '').toLowerCase().trim();
+    const targetSlug = slugifyArtist(artistName || '').toLowerCase();
     const seenMap = new Map();
-    const discography = [];
 
     rawItems.forEach((item) => {
-      // Filtrar sólo si coincide con el artista objetivo
-      if (artistName && item.artists && item.artists.length > 0) {
-        const cleanTarget = artistName.toLowerCase().trim();
+      // Filtrar estrictamente: solo admitir releases donde el artista sea parte verificada
+      if (item.artists && item.artists.length > 0) {
         const matchesArtist = item.artists.some((a) => {
-          const aName = a.name.toLowerCase().trim();
-          return (
-            aName === cleanTarget ||
-            cleanTarget.includes(aName) ||
-            aName.includes(cleanTarget)
-          );
+          if (resolvedArtistId && a.id && a.id === resolvedArtistId) return true;
+          if (cleanTarget) {
+            const aName = a.name.toLowerCase().trim();
+            if (aName === cleanTarget) return true;
+            if (slugifyArtist(a.name).toLowerCase() === targetSlug) return true;
+          }
+          return false;
         });
         if (!matchesArtist) return;
       }
@@ -1068,27 +1096,35 @@ export const getArtistDiscography = async (artistId, artistName) => {
         .toLowerCase()
         .replace(/\s*\(deluxe|\s*\(re-issue|\s*\(remastered.*/i, '')
         .trim();
-      const dedupeKey = `${cleanName}-${releaseYear || ''}-${releaseType}`;
+      const dedupeKey = `${cleanName}-${releaseType}`;
 
-      if (!seenMap.has(dedupeKey)) {
-        seenMap.set(dedupeKey, true);
-        discography.push({
-          id: item.id,
-          name: item.name,
-          artists: item.artists ? item.artists.map((a) => a.name) : [],
-          image: item.images?.[0]?.url || item.images?.[1]?.url || '',
-          releaseDate: item.release_date,
-          releaseYear: releaseYear,
-          album_type: item.album_type,
-          release_type: releaseType,
-          totalTracks: item.total_tracks,
-          spotifyUrl:
-            item.external_urls?.spotify ||
-            `https://open.spotify.com/album/${item.id}`,
-          external_urls: item.external_urls,
-        });
+      const mappedItem = {
+        id: item.id,
+        name: item.name,
+        artists: item.artists ? item.artists.map((a) => a.name) : [],
+        image: item.images?.[0]?.url || item.images?.[1]?.url || '',
+        releaseDate: item.release_date,
+        releaseYear: releaseYear,
+        album_type: item.album_type,
+        release_type: releaseType,
+        totalTracks: item.total_tracks || item.tracks?.total || 1,
+        spotifyUrl:
+          item.external_urls?.spotify ||
+          `https://open.spotify.com/album/${item.id}`,
+        external_urls: item.external_urls,
+      };
+
+      const existing = seenMap.get(dedupeKey);
+      if (
+        !existing ||
+        (mappedItem.totalTracks &&
+          mappedItem.totalTracks > (existing.totalTracks || 0))
+      ) {
+        seenMap.set(dedupeKey, mappedItem);
       }
     });
+
+    const discography = Array.from(seenMap.values());
 
     // Ordenar cronológicamente descendente (lo más nuevo primero)
     discography.sort((a, b) => {
@@ -1128,7 +1164,7 @@ export const getArtistDiscography = async (artistId, artistName) => {
 
 /**
  * Obtiene toda la información completa de un artista (perfil y discografía completa)
- * Buscando por nombre de artista o por su ID de Spotify
+ * Buscando por nombre de artista o por su ID de Spotify con resolución de máxima coincidencia
  */
 export const getArtistCompleteProfile = async (artistNameOrId) => {
   if (!artistNameOrId)
@@ -1143,15 +1179,38 @@ export const getArtistCompleteProfile = async (artistNameOrId) => {
     if (/^[0-9A-Za-z]{22}$/.test(artistNameOrId.trim())) {
       artistId = artistNameOrId.trim();
     } else {
-      // Buscar por nombre
-      const searchRes = await searchArtist(artistNameOrId, 3);
+      // Buscar por nombre con límite más amplio para hallar coincidencias exactas
+      const searchRes = await searchArtist(artistNameOrId, 10);
       if (searchRes.success && searchRes.artists.length > 0) {
-        // Encontrar la mejor coincidencia
         const cleanTarget = artistNameOrId.toLowerCase().trim();
-        const exactMatch = searchRes.artists.find(
-          (a) => a.name.toLowerCase().trim() === cleanTarget
+        const targetSlug = slugifyArtist(artistNameOrId).toLowerCase();
+
+        // 1. Coincidencia exacta de nombre o slug
+        let best = searchRes.artists.find(
+          (a) =>
+            a.name.toLowerCase().trim() === cleanTarget ||
+            slugifyArtist(a.name).toLowerCase() === targetSlug
         );
-        const best = exactMatch || searchRes.artists[0];
+
+        // 2. Coincidencia que empiece exactamente con el término buscado
+        if (!best) {
+          const startingMatches = searchRes.artists.filter((a) =>
+            a.name.toLowerCase().trim().startsWith(cleanTarget)
+          );
+          if (startingMatches.length > 0) {
+            best = startingMatches.sort(
+              (a, b) => (b.popularity || 0) - (a.popularity || 0)
+            )[0];
+          }
+        }
+
+        // 3. Fallback al artista más popular de los resultados
+        if (!best) {
+          best = [...searchRes.artists].sort(
+            (a, b) => (b.popularity || 0) - (a.popularity || 0)
+          )[0];
+        }
+
         artistId = best.id;
         initialArtistData = best;
         resolvedArtistName = best.name || artistNameOrId;
@@ -1194,6 +1253,7 @@ export const getArtistCompleteProfile = async (artistNameOrId) => {
     return { success: false, error: error.message };
   }
 };
+
 
 /**
  * Obtiene metadatos completos de un álbum desde Spotify (año, géneros, tipo de lanzamiento, pistas)
@@ -1348,5 +1408,6 @@ export const fetchAlbumReleaseYear = async (
   }
 };
 
-export { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi';
+export { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
+
 

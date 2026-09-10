@@ -11,7 +11,8 @@ import {
   getArtistCompleteProfile,
   getAlbumDetails,
 } from '../services/spotifyApi';
-import { findAlbumsByArtist, getReleaseUrl } from '../utils/ratingUtils';
+import { findAlbumsByArtist, getReleaseUrl, slugifyArtist } from '../utils/ratingUtils';
+
 
 export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlug } = {}) {
   const params = useParams();
@@ -36,18 +37,22 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
     try {
       // 1. Obtener todos los álbumes de Musiclub para cruzar datos
       const allClubAlbums = await supabaseService.getAllAlbumsWithFullStats();
-      const rawArtistName = slug ? slug.replace(/-/g, ' ') : '';
+      const decodedSlug = decodeURIComponent(slug || '').replace(/[-_]/g, ' ').trim();
       const matchedClub = findAlbumsByArtist(
         allClubAlbums || [],
-        rawArtistName || slug
+        decodedSlug || slug
       );
       setClubAlbums(matchedClub);
 
-      // Usar el nombre exacto de la base de datos si existe, o el slug decodificado
-      const targetQuery =
-        matchedClub.length > 0
-          ? matchedClub[0].artist_name || matchedClub[0].artista
-          : decodeURIComponent(rawArtistName);
+      // Usar el nombre exacto de la base de datos si existe coincidencia precisa, o el slug decodificado
+      const exactClubArtist = matchedClub.find((ca) => {
+        const name = (ca.artist_name || ca.artista || '').trim();
+        return slugifyArtist(name).toLowerCase() === slugifyArtist(decodedSlug).toLowerCase();
+      });
+
+      const targetQuery = exactClubArtist
+        ? exactClubArtist.artist_name || exactClubArtist.artista
+        : decodedSlug;
 
       // 2. Obtener perfil completo desde Spotify API
       const spotifyRes = await getArtistCompleteProfile(targetQuery);

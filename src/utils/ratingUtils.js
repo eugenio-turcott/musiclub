@@ -381,22 +381,60 @@ export function slugifyArtist(artistName) {
 }
 
 /**
- * Busca todos los álbumes de un artista en la colección local de Musiclub
+ * Busca todos los álbumes de un artista en la colección local de Musiclub.
+ * Implementa coincidencia estricta y soporte para colaboraciones (feat., ft., &, /, x, with).
+ * Previene falsos positivos por substrings (ej. "Bibie" no se confunde con "BIBI", ni "Beneefit" con "BENEE").
  */
 export function findAlbumsByArtist(albums = [], artistQuery = '') {
   if (!artistQuery || !albums || albums.length === 0) return [];
   const targetSlug = slugifyArtist(artistQuery).toLowerCase();
-  const cleanQuery = artistQuery.toLowerCase().trim();
+  const cleanQuery = artistQuery
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+  // Helper de normalización profunda para comparar nombres de artista
+  const normalize = (str) =>
+    String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/['’"”]/g, '')
+      .toLowerCase()
+      .trim();
+
+  const isExactOrNormalizedMatch = (name) => {
+    if (!name) return false;
+    const n = normalize(name);
+    if (n === cleanQuery) return true;
+    if (slugifyArtist(name).toLowerCase() === targetSlug) return true;
+    // Equivalencia 'A and B' <-> 'A & B'
+    const replaceAnd = (s) => s.replace(/\s+and\s+/g, ' & ');
+    if (replaceAnd(n) === replaceAnd(cleanQuery)) return true;
+    return false;
+  };
 
   return albums.filter((a) => {
     const artistName = a.artist_name || a.artist || a.artista || '';
     if (!artistName) return false;
-    if (slugifyArtist(artistName).toLowerCase() === targetSlug) return true;
-    if (artistName.toLowerCase().trim() === cleanQuery) return true;
-    if (artistName.toLowerCase().includes(cleanQuery)) return true;
+
+    // 1. Coincidencia directa del artista completo
+    if (isExactOrNormalizedMatch(artistName)) return true;
+
+    // 2. Coincidencia si es colaboración con múltiples artistas (ej: "BIBI & Jackson Wang", "Phoenix feat. BENEE")
+    const multiArtists = artistName
+      .split(/[,&/+]|\s+feat\.?\s+|\s+ft\.?\s+|\s+x\s+|\s+with\s+/i)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    if (multiArtists.length > 1) {
+      return multiArtists.some((part) => isExactOrNormalizedMatch(part));
+    }
+
     return false;
   });
 }
+
 
 /**
  * Convierte el nombre de un álbum en un slug URL-friendly para rutas como /albumes/Love-Deluxe.

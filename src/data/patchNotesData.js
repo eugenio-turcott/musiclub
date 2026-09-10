@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.3',
+    title:
+      'Precisión Universal de Perfiles de Artistas, Eliminación de Falsos Homónimos y Consulta Oficial de Discografías en Spotify',
+    date: '2026-09-10',
+    sha: 'HEAD',
+    tag: 'Artistas & Discografías',
+    tagColor: 'from-pink-500 via-purple-500 to-indigo-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.3 centrada en la precisión algorítmica y veracidad absoluta de las páginas de artistas (/artista/[slug]). Se corrige de raíz la contaminación cruzada en discografías de artistas como BENEE y el falso emparejamiento por subcadena en artistas homónimos o de nombre corto como BIBI (que se asociaba erróneamente a Bibie Clarel). Ahora la plataforma prioriza la consulta por Artist ID directamente al endpoint oficial de Spotify con filtrado estricto de autores primarios y verificación de colaboraciones.',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Depuración y Exactitud Absoluta en Discografías de Spotify (Caso BENEE)',
+        description:
+          'Se solucionó la aparición de lanzamientos ajenos en la discografía de artistas (como "Beneefit", "Sonayah Benee" o "Sebita Benee" en el perfil de BENEE). Se reestructuró getArtistDiscography() en spotifyApi.js para priorizar la consulta directa al endpoint oficial /v1/artists/{id}/albums con include_groups=album,single,compilation, eliminando coincidencias difusas por subcadenas y garantizando que cada lanzamiento pertenezca estrictamente al artista mediante comprobación exacta de ID y nombre.',
+      },
+      {
+        type: 'fix',
+        title: 'Resolución Rigurosa de Artistas y Supresión de Falsos Homónimos (Caso BIBI)',
+        description:
+          'Se erradicó el bug de coincidencia laxa en findAlbumsByArtist() que provocaba que consultas de artistas con nombres breves como "BIBI" asociaran lanzamientos de artistas diferentes como "Bibie" / "Bibie Clarel". Se implementó un algoritmo estricto de comparación basado en slugs normalizados y detección precisa de colaboraciones (feat., ft., &, /, x, with).',
+      },
+      {
+        type: 'optimization',
+        title: 'Resolución Inteligente de Metadatos y URLs en Rutas de Artista (/artista/[slug])',
+        description:
+          'En ArtistDetail.jsx y en la ruta de servidor de Next.js (/artista/[slug]), se preserva la intención original del slug decodificado para la consulta de Spotify y la generación de etiquetas SEO (OpenGraph, Twitter Cards y Schema.org JSON-LD), impidiendo que mayúsculas estilizadas (ej. "BIBI", "BENEE", "AC/DC", "MF DOOM") sean alteradas por coincidencias locales parciales.',
+      },
+      {
+        type: 'feature',
+        title: 'Deduplicación Avanzada con Preservación de Ediciones Deluxe',
+        description:
+          'Al clasificar y deduplicar la discografía devuelta por Spotify, si existen versiones estándar y versiones extendidas/deluxe de un mismo título y tipo de lanzamiento, el motor conserva automáticamente la edición con mayor cantidad de canciones, garantizando la colección más completa disponible para la comunidad.',
+      },
+    ],
+  },
+  {
     version: 'V.8.2',
     title:
       'Catálogo Universal Completo (2,277+ Álbumes), Resolución de Tracks Favoritos y Paginación Integral en Admin',
