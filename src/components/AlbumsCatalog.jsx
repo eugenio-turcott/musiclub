@@ -71,9 +71,11 @@ export function AlbumsCatalog({ isPage = false }) {
   const [albums, setAlbums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [spotifyYearsCache, setSpotifyYearsCache] = useState(
-    getInitialSpotifyYearsCache
-  );
+  const [spotifyYearsCache, setSpotifyYearsCache] = useState({});
+
+  useEffect(() => {
+    setSpotifyYearsCache(getInitialSpotifyYearsCache());
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION

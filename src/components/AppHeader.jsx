@@ -31,6 +31,11 @@ export function AppHeader({
 
   // Dropdown para navegación agrupada en desktop ('community' | null)
   const [openNavDropdown, setOpenNavDropdown] = useState(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const userMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
@@ -441,7 +446,7 @@ export function AppHeader({
           </div>
 
           {/* Si el usuario ha iniciado sesión: Extensible User Profile Dropdown */}
-          {user ? (
+          {mounted && user ? (
             <div className="relative" ref={userMenuRef}>
               <button
                 type="button"
@@ -658,11 +663,11 @@ export function AppHeader({
             /* Botón de Iniciar Sesión */
             <button
               onClick={handleLoginClick}
-              disabled={loading}
+              disabled={!mounted || loading}
               className="px-3.5 sm:px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
             >
               <span>👤</span>
-              <span>{loading ? '...' : 'Iniciar sesión'}</span>
+              <span>{!mounted || loading ? '...' : 'Iniciar sesión'}</span>
             </button>
           )}
 

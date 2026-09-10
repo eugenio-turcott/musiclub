@@ -15,25 +15,11 @@ export function useNotifications(user) {
   const readStorageKey = `musiclub_notifs_read_${userKey}`;
   const deletedStorageKey = `musiclub_notifs_deleted_${userKey}`;
 
-  // IDs de notificaciones leídas
-  const [readIds, setReadIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`musiclub_notifs_read_${userKey}`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // IDs de notificaciones leídas (se hidratan desde localStorage en el useEffect)
+  const [readIds, setReadIds] = useState([]);
 
-  // IDs de notificaciones eliminadas
-  const [deletedIds, setDeletedIds] = useState(() => {
-    try {
-      const saved = localStorage.getItem(`musiclub_notifs_deleted_${userKey}`);
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
+  // IDs de notificaciones eliminadas (se hidratan desde localStorage en el useEffect)
+  const [deletedIds, setDeletedIds] = useState([]);
 
   // Actualizar listas de localStorage cuando cambia el usuario
   useEffect(() => {

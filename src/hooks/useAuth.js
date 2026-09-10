@@ -3,38 +3,9 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '../services/supabaseClient';
 
 export function useAuth() {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('maquina_musical_user');
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
-    }
-  });
-  const [loading, setLoading] = useState(() => {
-    try {
-      return !localStorage.getItem('maquina_musical_user');
-    } catch {
-      return true;
-    }
-  });
-  const [isAdmin, setIsAdmin] = useState(() => {
-    try {
-      const saved = localStorage.getItem('maquina_musical_user');
-      if (saved) {
-        const u = JSON.parse(saved);
-        return (
-          u?.role === 'admin' ||
-          ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'].includes(
-            u?.email?.toLowerCase()
-          )
-        );
-      }
-      return false;
-    } catch {
-      return false;
-    }
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [session, setSession] = useState(null);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
@@ -215,6 +186,23 @@ export function useAuth() {
   // Cargar sesión al iniciar - SIN dependencias problemáticas
   useEffect(() => {
     let isMounted = true;
+
+    // Hidratación segura en cliente: recuperar sesión en caché sin causar mismatch de SSR
+    try {
+      const saved = localStorage.getItem('maquina_musical_user');
+      if (saved && isMounted) {
+        const u = JSON.parse(saved);
+        setUser(u);
+        setIsAdmin(
+          u?.role === 'admin' ||
+          ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'].includes(
+            u?.email?.toLowerCase()
+          )
+        );
+        setLoading(false);
+      }
+    } catch {}
+
     const loadSession = async () => {
       try {
         const {
