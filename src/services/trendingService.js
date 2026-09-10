@@ -3,6 +3,8 @@ import { supabase } from './supabaseClient.js';
 
 let cachedToken = null;
 let tokenExpiresAt = 0;
+let inMemoryTrending = null;
+let inMemoryTrendingExpires = 0;
 
 function getSpotifyCredentials() {
   const clientId =
@@ -79,10 +81,15 @@ export async function getTrendingReleases(options = {}) {
     }
   }
 
+  // Si tenemos caché en memoria fresco en el servidor
+  if (!forceRefresh && inMemoryTrending && Date.now() < inMemoryTrendingExpires) {
+    return inMemoryTrending;
+  }
+
   let dbData = null;
   let isCacheFresh = false;
 
-  // 1. Intentar leer desde Supabase (tabla rotatoria trending_releases)
+  // 1. Intentar leer desde Supabase (tabla rotatoria trending_releases) si existe
   try {
     const { data, error } = await supabase
       .from('trending_releases')
@@ -95,37 +102,67 @@ export async function getTrendingReleases(options = {}) {
       const newestUpdated = new Date(data[0].updated_at || 0).getTime();
       const ageHours = (Date.now() - newestUpdated) / (1000 * 60 * 60);
 
-      // Si tiene menos de 8 horas y no forzamos refresco, servimos del caché instantáneo
-      if (ageHours < 8 && !forceRefresh) {
+      if (ageHours < 6 && !forceRefresh) {
         isCacheFresh = true;
       }
     }
   } catch {
-    // Si la tabla no está creada aún o hay error de red con Supabase, continúa a Spotify
+    // Si la tabla no está creada aún, continúa a Spotify
   }
 
   if (isCacheFresh && dbData && dbData.length > 0) {
-    return {
+    const response = {
       success: true,
       source: 'supabase_cache',
       releases: dbData,
     };
+    inMemoryTrending = response;
+    inMemoryTrendingExpires = Date.now() + 60 * 60 * 1000;
+    return response;
   }
 
-  // 2. Consultar Spotify tag:new en vivo (Mercado MX)
+  let lastError = null;
+
+  // 2. Consultar Spotify tag:new en vivo en lotes de 10 (límite estricto de Spotify para tag:new)
   try {
     const token = await getSpotifyAppToken();
-    const spotifyRes = await fetch(
-      `https://api.spotify.com/v1/search?q=tag:new&type=album&market=MX&limit=${limit}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const spotifyJson = await spotifyRes.json();
+    const targetCount = Math.min(Math.max(limit, 10), 50);
+    const numBatches = Math.ceil(targetCount / 10);
+    const offsets = Array.from({ length: numBatches }, (_, i) => i * 10);
 
-    if (spotifyJson?.albums?.items?.length > 0) {
-      const items = spotifyJson.albums.items;
-      const formattedReleases = items.map((item) => {
+    const batchResults = await Promise.all(
+      offsets.map(async (offset) => {
+        try {
+          const res = await fetch(
+            `https://api.spotify.com/v1/search?q=tag:new&type=album&market=MX&limit=10&offset=${offset}`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+          return await res.json();
+        } catch {
+          return null;
+        }
+      })
+    );
+
+    const rawItems = [];
+    batchResults.forEach((json) => {
+      if (json?.albums?.items) {
+        rawItems.push(...json.albums.items);
+      } else if (json?.error) {
+        lastError = json.error.message;
+      }
+    });
+
+    if (rawItems.length > 0) {
+      const seenIds = new Set();
+      const formattedReleases = [];
+
+      for (const item of rawItems) {
+        if (!item || !item.id || seenIds.has(item.id)) continue;
+        seenIds.add(item.id);
+
         let releaseType = 'ALBUM';
         if (item.album_type === 'single') {
           releaseType = item.total_tracks > 2 ? 'EP' : 'SENCILLO';
@@ -133,7 +170,7 @@ export async function getTrendingReleases(options = {}) {
           releaseType = 'COMPILACION';
         }
 
-        return {
+        formattedReleases.push({
           id: item.id,
           album_name: item.name,
           artist_name: item.artists
@@ -149,25 +186,30 @@ export async function getTrendingReleases(options = {}) {
           total_tracks: item.total_tracks || 1,
           popularity: item.popularity || 0,
           updated_at: new Date().toISOString(),
-        };
-      });
+        });
+      }
 
-      // 3. Sincronizar de forma rotatoria en Supabase
+      // Sincronizar silenciosamente en Supabase si la tabla existe
       try {
         await supabase
           .from('trending_releases')
           .upsert(formattedReleases, { onConflict: 'id' });
       } catch {
-        // Fallback silencioso si la tabla aún no fue creada en Supabase
+        // Fallback silencioso sin ensuciar la base de datos principal
       }
 
-      return {
+      const response = {
         success: true,
         source: 'spotify_live',
         releases: formattedReleases,
       };
+
+      inMemoryTrending = response;
+      inMemoryTrendingExpires = Date.now() + 60 * 60 * 1000; // 1 hora de caché en memoria
+      return response;
     }
   } catch (spotifyErr) {
+    lastError = spotifyErr?.message;
     console.warn('⚠️ Error al consultar Spotify en vivo:', spotifyErr?.message);
   }
 
@@ -184,5 +226,6 @@ export async function getTrendingReleases(options = {}) {
     success: false,
     source: 'none',
     releases: [],
+    error: lastError,
   };
 }

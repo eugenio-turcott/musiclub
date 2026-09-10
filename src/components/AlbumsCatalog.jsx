@@ -11,7 +11,7 @@ import { fetchAlbumReleaseYear, getAlbumDetails } from '../services/spotifyApi';
 import { getTrendingReleases } from '../services/trendingService.js';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
-const ITEMS_PER_PAGE = 15;
+const ITEMS_PER_PAGE = 20;
 const SPOTIFY_YEARS_CACHE_KEY = 'musiclub_spotify_years_cache_v1';
 
 const getInitialSpotifyYearsCache = () => {
@@ -82,7 +82,7 @@ export function AlbumsCatalog({ isPage = false }) {
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
-  const [sortBy, setSortBy] = useState('rating_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
+  const [sortBy, setSortBy] = useState('trending_first'); // trending_first | rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
   const [currentPage, setCurrentPage] = useState(1);
 
   // Filtro de exploración híbrida estilo Record Club: ALL | TRENDING | REVIEWED
@@ -662,19 +662,17 @@ export function AlbumsCatalog({ isPage = false }) {
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
-        {/* Header Title */}
-        <div className="text-center space-y-3">
+        {/* Header Title & Record Club Aesthetics */}
+        <div className="text-center space-y-3 pt-2">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-cyan-500/20 to-blue-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider">
-            <span>💿</span>
-            <span>Catálogo Completo y Estadísticas</span>
+            <span>🌐</span>
+            <span>Explorador Híbrido · Música en Tiempo Real</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
-            Catálogo Musical
+            Catálogo & Novedades
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Consulta las calificaciones detalladas, desglose por canciones,
-            criterios ponderados y todas las reseñas de la comunidad en álbumes,
-            EPs, sencillos y compilaciones.
+            Explora lanzamientos en tendencia en vivo e indaga en los álbumes calificados por los miembros del club con desglose de reseñas y canciones.
           </p>
         </div>
 
@@ -686,108 +684,62 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
         )}
 
-
-            {/* Global Summary Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#151722]/80 border border-white/5 p-4 rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                💿
+        {/* Record Club Style Stats Ribbon */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/40 transition-all shadow-lg">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
+              Releases Disponibles
+            </span>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-2xl sm:text-3xl font-black text-white">
+                4,113,018+
               </span>
-              <div>
-                <p className="text-xs text-slate-400 font-medium">
-                  Total Lanzamientos
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-xl sm:text-2xl font-black text-white"
-                  data-stat="number"
-                >
-                  {loading && globalStats.totalAlbums === 0
-                    ? '...'
-                    : globalStats.totalAlbums}
-                </p>
-                <p className="text-[10px] text-slate-400 mt-0.5">
-                  {globalStats.totalClub} en Club · {globalStats.totalTrending} en vivo
-                </p>
-              </div>
             </div>
+            <p className="text-[11px] text-cyan-300 font-medium mt-1">
+              {globalStats.totalClub} en Club · {globalStats.totalTrending} Tendencias en vivo
+            </p>
           </div>
 
-          <div className="bg-[#151722]/80 border border-white/5 p-4 rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-amber-500/30 transition-all">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                📝
+          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-pink-500/40 transition-all shadow-lg">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
+              Artistas & Discografías
+            </span>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-2xl sm:text-3xl font-black text-white">
+                2,988,705+
               </span>
-              <div>
-                <p className="text-xs text-slate-400 font-medium">
-                  Total Reseñas
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-xl sm:text-2xl font-black text-amber-400"
-                  data-stat="number"
-                >
-                  {loading && globalStats.totalReviews === 0
-                    ? '...'
-                    : globalStats.totalReviews}
-                </p>
-              </div>
             </div>
+            <p className="text-[11px] text-pink-300 font-medium mt-1">
+              Sincronizado vía Spotify & MusicBrainz
+            </p>
           </div>
 
-          <div className="bg-[#151722]/80 border border-white/5 p-4 rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-yellow-500/30 transition-all">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                👑
+          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-amber-500/40 transition-all shadow-lg">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
+              Reseñas en Club
+            </span>
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-2xl sm:text-3xl font-black text-amber-400">
+                {loading && globalStats.totalReviews === 0 ? '...' : globalStats.totalReviews}
               </span>
-              <div className="min-w-0">
-                <p className="text-xs text-slate-400 font-medium">
-                  Mejor Calificado
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate music-title text-sm sm:text-base font-black text-yellow-300 truncate"
-                >
-                  {globalStats.topRatedAlbum
-                    ? globalStats.topRatedAlbum.album_name
-                    : '—'}
-                </p>
-                {globalStats.topRatedAlbum && (
-                  <p
-                    translate="no"
-                    className="notranslate text-[10px] text-yellow-200/70 font-semibold"
-                    data-stat="score"
-                  >
-                    {globalStats.topRatedAlbum.final_rating} ⭐
-                  </p>
-                )}
-              </div>
             </div>
+            <p className="text-[11px] text-amber-300/80 font-medium mt-1">
+              Promedio: {globalStats.avgClubScore} ⭐ por álbum
+            </p>
           </div>
 
-          <div className="bg-[#151722]/80 border border-white/5 p-4 rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl sm:text-3xl p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                ⭐
-              </span>
-              <div>
-                <p className="text-xs text-slate-400 font-medium">
-                  Promedio Global
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
-                  data-stat="score"
-                >
-                  {loading &&
-                  (!globalStats.avgClubScore ||
-                    globalStats.avgClubScore === '0.0')
-                    ? '...'
-                    : `${globalStats.avgClubScore} / 10`}
-                </p>
-              </div>
+          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-yellow-500/40 transition-all shadow-lg">
+            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
+              Top del Club
+            </span>
+            <div className="mt-1">
+              <p className="text-sm sm:text-base font-black text-yellow-300 truncate">
+                {globalStats.topRatedAlbum ? globalStats.topRatedAlbum.album_name : '—'}
+              </p>
             </div>
+            <p className="text-[11px] text-yellow-200/80 font-semibold mt-1">
+              {globalStats.topRatedAlbum ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}` : 'Sin calificar'}
+            </p>
           </div>
         </div>
 
@@ -1088,14 +1040,14 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
         </div>
 
-        {/* Search, Filter Collection and Sort Bar */}
-        <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center">
+        {/* Record Club Hybrid Browse & Filter Bar */}
+        <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
           {/* Record Club Hybrid Browse Pills */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {[
-              { id: 'ALL', label: 'Todos', count: unifiedAlbums.length, icon: '🌐' },
-              { id: 'TRENDING', label: 'Tendencias', count: trendingReleases.length, icon: '🔥' },
-              { id: 'REVIEWED', label: 'Reseñados', count: albums.length, icon: '⭐' },
+              { id: 'ALL', label: 'Todo el Catálogo', count: unifiedAlbums.length, icon: '🌐' },
+              { id: 'TRENDING', label: 'Tendencias & Novedades', count: trendingReleases.length, icon: '🔥' },
+              { id: 'REVIEWED', label: 'Calificados en Club', count: albums.length, icon: '⭐' },
             ].map((tab) => {
               const active = browseFilter === tab.id;
               return (
@@ -1106,10 +1058,12 @@ export function AlbumsCatalog({ isPage = false }) {
                     setBrowseFilter(tab.id);
                     setCurrentPage(1);
                   }}
-                  className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                     active
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black shadow-md shadow-cyan-500/25 scale-[1.02]'
-                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
+                      ? tab.id === 'TRENDING'
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-black border-orange-400 shadow-md shadow-orange-500/25 scale-[1.02]'
+                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
+                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                   }`}
                 >
                   <span>{tab.icon}</span>
@@ -1136,8 +1090,17 @@ export function AlbumsCatalog({ isPage = false }) {
               placeholder="Buscar álbum, novedad, artista o curador..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
+              className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
             />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+              >
+                ✕
+              </button>
+            )}
           </div>
 
           {/* Quick Pool Shortcut */}
@@ -1152,12 +1115,12 @@ export function AlbumsCatalog({ isPage = false }) {
           {/* Sorting */}
           <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
             <label className="text-xs text-slate-400 whitespace-nowrap">
-              Ordenar por:
+              Ordenar:
             </label>
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-auto bg-black/40 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer"
+              className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
             >
               <option value="trending_first">🔥 Tendencias primero</option>
               <option value="rating_desc">🌟 Mayor Calificación</option>
@@ -1241,18 +1204,18 @@ export function AlbumsCatalog({ isPage = false }) {
                         handleCardClick(e);
                       }
                     }}
-                    className={`bg-[#141622]/90 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
+                    className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
                       isMine
                         ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
                         : album.status === 'GANADOR'
                           ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
                           : album.is_trending && !isCardInClub
-                            ? 'border-orange-500/30 hover:border-orange-400/70 shadow-[0_4px_20px_rgba(249,115,22,0.12)]'
-                            : 'border-white/5 hover:border-white/20'
+                            ? 'border-orange-500/30 hover:border-orange-400/80 shadow-[0_4px_25px_rgba(249,115,22,0.15)]'
+                            : 'border-white/10 hover:border-cyan-400/50 shadow-[0_4px_25px_rgba(6,182,212,0.1)]'
                     }`}
                   >
                     {/* Artwork Container */}
-                    <div className="relative aspect-square overflow-hidden bg-black/40">
+                    <div className="relative aspect-square overflow-hidden bg-black/50">
                       <img
                         src={album.image_url || PLACEHOLDER_COVER}
                         alt={album.album_name}
@@ -1264,46 +1227,45 @@ export function AlbumsCatalog({ isPage = false }) {
                         }}
                       />
 
-                      {/* Top Badges */}
+                      {/* Top Badges (Record Club style floating badges) */}
                       <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
                         {album.release_type && (
-                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-md border backdrop-blur-md shadow-sm bg-black/75 text-cyan-300 border-cyan-500/40">
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm bg-black/80 text-cyan-300 border-cyan-500/40">
                             {album.release_type}
                           </span>
                         )}
                       </div>
 
-                      {album.is_trending && !isCardInClub && (
-                        <div className="absolute top-2 right-2 z-10">
-                          <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                            🔥 Novedad
+                      <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+                        {album.is_trending && !isCardInClub && (
+                          <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
+                            🔥 Tendencia
                           </span>
-                        </div>
-                      )}
-
-                      {/* Bottom overlay: Score and review count */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
-                        {score !== null ? (
-                          <div className="flex items-center gap-1 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg">
-                            <span className="text-amber-400 text-xs sm:text-sm font-black">
+                        )}
+                        {score !== null && (
+                          <div className="flex items-center gap-1 bg-black/80 backdrop-blur-md border border-amber-500/40 px-2 py-0.5 rounded-lg shadow-sm">
+                            <span className="text-amber-400 text-xs font-black">
                               {score.toFixed(2)}
                             </span>
-                            <span className="text-[10px] sm:text-xs">⭐</span>
-                            {Number(album.bonus) > 0 && (
-                              <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded">
-                                +{Number(album.bonus).toFixed(2)}
-                              </span>
-                            )}
-                          </div>
-                        ) : !isCardInClub ? (
-                          <div className="text-[10px] text-orange-300 bg-black/75 border border-orange-500/30 px-2 py-0.5 rounded-lg font-bold">
-                            On-Demand
-                          </div>
-                        ) : (
-                          <div className="text-[9px] text-slate-400 bg-black/70 px-1.5 py-0.5 rounded">
-                            Sin calificar
+                            <span className="text-[10px]">⭐</span>
                           </div>
                         )}
+                      </div>
+
+                      {/* Bottom overlay: Year & Status */}
+                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
+                        <div className="flex items-center gap-1.5">
+                          {albumYear ? (
+                            <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded">
+                              {albumYear}
+                            </span>
+                          ) : null}
+                          {Number(album.bonus) > 0 && (
+                            <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded border border-cyan-500/30">
+                              +{Number(album.bonus).toFixed(2)}
+                            </span>
+                          )}
+                        </div>
 
                         <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
                           {isCardInClub
@@ -1314,7 +1276,7 @@ export function AlbumsCatalog({ isPage = false }) {
                     </div>
 
                     {/* Info Body */}
-                    <div className="p-3 sm:p-4 space-y-2.5 flex-1 flex flex-col justify-between">
+                    <div className="p-3 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
                       <div>
                         <h3
                           translate="no"
@@ -1339,11 +1301,6 @@ export function AlbumsCatalog({ isPage = false }) {
                           >
                             {album.artist_name}
                           </button>
-                          {albumYear && (
-                            <span className="text-[10px] font-mono font-bold text-slate-400 bg-white/5 border border-white/5 px-1.5 py-0.2 rounded ml-1.5 flex-shrink-0">
-                              {albumYear}
-                            </span>
-                          )}
                         </div>
                       </div>
 
@@ -1383,7 +1340,7 @@ export function AlbumsCatalog({ isPage = false }) {
                               handleQuickPropose(album);
                             }}
                             disabled={isProposing}
-                            className="w-full py-1.5 px-3 rounded-xl bg-orange-500/20 hover:bg-orange-500/30 text-orange-300 hover:text-orange-200 border border-orange-500/40 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+                            className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400 text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
                           >
                             <span>✍️</span>
                             <span>
