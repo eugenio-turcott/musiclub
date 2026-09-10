@@ -8,6 +8,27 @@
  * and SPA route changes, ensuring all dynamic data loads in Spanish first.
  */
 
+export function isSearchBotOrCrawler() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = (navigator.userAgent || '').toLowerCase();
+  return (
+    Boolean(navigator.webdriver) ||
+    ua.includes('googlebot') ||
+    ua.includes('google-inspectiontool') ||
+    ua.includes('bingbot') ||
+    ua.includes('yandex') ||
+    ua.includes('baiduspider') ||
+    ua.includes('slurp') ||
+    ua.includes('duckduckbot') ||
+    ua.includes('facebookexternalhit') ||
+    ua.includes('twitterbot') ||
+    ua.includes('whatsapp') ||
+    ua.includes('telegrambot') ||
+    ua.includes('applebot') ||
+    ua.includes('headlesschrome')
+  );
+}
+
 export function installTranslateCrashGuard() {
   if (
     typeof window === 'undefined' ||
@@ -143,6 +164,7 @@ export function setLanguageCookie(langCode) {
  */
 export function ensureGoogleTranslateScriptMounted() {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
+  if (isSearchBotOrCrawler()) return;
 
   // Ensure mount container exists
   if (!document.getElementById('google_translate_element')) {
@@ -331,7 +353,7 @@ installTranslateCrashGuard();
 
 // Initial page load / refresh coordination:
 // Si hay un idioma extranjero guardado, esperar exactamente 2 segundos antes de traducir
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && !isSearchBotOrCrawler()) {
   const initialSavedLang = (() => {
     try {
       return localStorage.getItem('musiclub_selected_lang');

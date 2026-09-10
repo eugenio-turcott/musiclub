@@ -468,9 +468,58 @@ export function AlbumDetail() {
     );
   }, [album?.release_type, spotifyMeta?.releaseType]);
 
+  const formattedSlug = useMemo(() => {
+    if (!slug) return '';
+    try {
+      return decodeURIComponent(slug).replace(/-/g, ' ');
+    } catch (e) {
+      return slug.replace(/-/g, ' ');
+    }
+  }, [slug]);
+
+  const score =
+    album &&
+    album.final_rating !== null &&
+    album.final_rating !== undefined &&
+    !isNaN(Number(album.final_rating))
+      ? Number(album.final_rating)
+      : null;
+
+  const canonicalPath = album
+    ? getReleaseUrl(album, album.release_type || spotifyMeta?.releaseType)
+    : (location?.pathname || `/albumes/${slug || ''}`);
+  const canonicalUrl = `https://www.musiclub.org${canonicalPath}`;
+  const reviewCountNum = album?.reviews?.length || album?.review_count || 0;
+
+  const pageTitle = album
+    ? `${album.album_name} - ${album.artist_name} | Reviews & Calificaciones | Musiclub`
+    : formattedSlug
+      ? `${formattedSlug} | Reviews & Calificaciones | Musiclub`
+      : 'Detalle del Lanzamiento | Musiclub';
+
+  const metaDescription = album
+    ? (score !== null
+        ? `Reviews, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub. Puntuación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Descubre canciones destacadas, opiniones y desglose pista por pista.`
+        : `Reviews, opiniones y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name} en Musiclub. Analiza sus pistas, canciones destacadas y comparte tu reseña.`)
+    : `Reviews, opiniones, calificaciones y desglose pista por pista de "${formattedSlug || 'este lanzamiento'}" en Musiclub.`;
+
+  const pageKeywords = album
+    ? `${album.album_name}, ${album.artist_name}, ${album.album_name} reviews, ${album.album_name} reseñas, ${album.album_name} opiniones, ${album.album_name} calificaciones, ${album.artist_name} discografia, canciones de ${album.album_name}, tracklist ${album.album_name}, musiclub`
+    : `${formattedSlug}, reviews ${formattedSlug}, reseñas ${formattedSlug}, calificaciones ${formattedSlug}, discografia, musiclub`;
+
+  const pageImage = album?.image_url || '/5662059.png';
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0a0b12] text-white py-8 px-4 sm:px-6 lg:px-8">
+        <SEO
+          title={pageTitle}
+          description={metaDescription}
+          image={pageImage}
+          url={canonicalUrl}
+          type="music.album"
+          keywords={pageKeywords}
+        />
         <div className="max-w-6xl mx-auto space-y-8">
           <AppHeader showTitle={false} />
           <div className="py-24 text-center space-y-4">
@@ -488,6 +537,12 @@ export function AlbumDetail() {
   if (error || !album) {
     return (
       <div className="min-h-screen bg-[#0a0b12] text-white py-8 px-4 sm:px-6 lg:px-8">
+        <SEO
+          title="Lanzamiento no encontrado | Musiclub"
+          description="No pudimos encontrar el lanzamiento solicitado en nuestro catálogo o fue modificado."
+          url={canonicalUrl}
+          keywords="musica, albumes, reviews, calificaciones, musiclub"
+        />
         <div className="max-w-6xl mx-auto space-y-8">
           <AppHeader showTitle={false} />
           <div className="p-10 bg-white/5 border border-white/10 rounded-3xl text-center space-y-4 max-w-lg mx-auto mt-12 shadow-2xl">
@@ -515,24 +570,6 @@ export function AlbumDetail() {
     );
   }
 
-  const score =
-    album.final_rating !== null &&
-    album.final_rating !== undefined &&
-    !isNaN(Number(album.final_rating))
-      ? Number(album.final_rating)
-      : null;
-  const canonicalPath = getReleaseUrl(
-    album,
-    album.release_type || spotifyMeta?.releaseType
-  );
-  const canonicalUrl = `https://www.musiclub.org${canonicalPath}`;
-  const reviewCountNum = album.reviews?.length || album.review_count || 0;
-  const metaDescription = score !== null
-    ? `Reviews, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub. Puntuación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Descubre canciones destacadas, opiniones y desglose pista por pista.`
-    : `Reviews, opiniones y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name} en Musiclub. Analiza sus pistas, canciones destacadas y comparte tu reseña.`;
-  const pageTitle = `${album.album_name} - ${album.artist_name} | Reviews & Calificaciones | Musiclub`;
-  const pageKeywords = `${album.album_name}, ${album.artist_name}, ${album.album_name} reviews, ${album.album_name} reseñas, ${album.album_name} opiniones, ${album.album_name} calificaciones, ${album.artist_name} discografia, canciones de ${album.album_name}, tracklist ${album.album_name}, musiclub`;
-
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black">
       {/* Background ambient light */}
@@ -542,7 +579,7 @@ export function AlbumDetail() {
       <SEO
         title={pageTitle}
         description={metaDescription}
-        image={album.image_url}
+        image={pageImage}
         url={canonicalUrl}
         type="music.album"
         keywords={pageKeywords}

@@ -265,13 +265,23 @@ export function ArtistDetail() {
     };
   }, [artist, slug]);
 
-  const artistKeywords = `${artist?.name || 'Artista'}, discografia ${artist?.name || ''}, albumes ${artist?.name || ''}, reviews ${artist?.name || ''}, reseñas ${artist?.name || ''}, canciones ${artist?.name || ''}, musiclub`;
+  const formattedArtistName = useMemo(() => {
+    if (artist?.name) return artist.name;
+    if (!slug) return 'Artista';
+    try {
+      return decodeURIComponent(slug).replace(/-/g, ' ');
+    } catch (e) {
+      return slug.replace(/-/g, ' ');
+    }
+  }, [artist?.name, slug]);
+
+  const artistKeywords = `${formattedArtistName}, discografia ${formattedArtistName}, albumes ${formattedArtistName}, reviews ${formattedArtistName}, reseñas ${formattedArtistName}, canciones ${formattedArtistName}, musiclub`;
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
-        title={`${artist?.name || 'Artista'} - Discografía, Álbumes y Reviews | Musiclub`}
-        description={`Explora la discografía, álbumes, EPs, sencillos, opiniones y calificaciones de la comunidad para ${artist?.name || 'este artista'} en Musiclub.`}
+        title={`${formattedArtistName} - Discografía, Álbumes y Reviews | Musiclub`}
+        description={`Explora la discografía, álbumes, EPs, sencillos, opiniones y calificaciones de la comunidad para ${formattedArtistName} en Musiclub.`}
         image={artist?.image}
         url={`https://www.musiclub.org/artista/${slug}`}
         keywords={artistKeywords}

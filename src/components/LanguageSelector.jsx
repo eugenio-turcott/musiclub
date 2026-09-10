@@ -3,6 +3,7 @@ import {
   triggerReTranslate,
   protectMusicAndStatsElements,
   scheduleUniversalTranslation,
+  isSearchBotOrCrawler,
 } from '../utils/translateCrashGuard';
 
 export const SUPPORTED_LANGUAGES = [
@@ -69,6 +70,8 @@ function setLanguageCookie(langCode) {
 // Detección automática no invasiva por navegador y timezone SIN pedir permisos
 function detectRecommendedLanguage() {
   try {
+    if (isSearchBotOrCrawler()) return 'es';
+
     // 1. Si el usuario ya seleccionó manualmente un idioma antes, respetarlo
     const saved = localStorage.getItem('musiclub_selected_lang');
     if (saved) return saved;
@@ -174,6 +177,11 @@ export function LanguageSelector({ variant = 'header' }) {
 
   // Inicializar detección de idioma y motor de traducción
   useEffect(() => {
+    if (isSearchBotOrCrawler()) {
+      setCurrentLang('es');
+      return;
+    }
+
     const recommended = detectRecommendedLanguage();
     const saved = (() => {
       try {
