@@ -425,16 +425,19 @@ export async function generateReviewStoryCanvas({
       .slice(0, 3);
   }
 
-  // Precargar imágenes concurrentemente
+  // Precargar imágenes concurrentemente con fallback oficial
+  const logoImgPromise = preloadCORSImage('/musiclub_logo_corchea.png').then(
+    (img) => img || preloadCORSImage('/musiclub_logo_3.png')
+  );
   const [logoImg, coverImg, avatarImg] = await Promise.all([
-    preloadCORSImage('/5662059.png'),
+    logoImgPromise,
     preloadCORSImage(album.image_url),
     preloadCORSImage(reviewerAvatar),
   ]);
 
   const theme = THEMES.find((t) => t.id === themeId) || THEMES[0];
 
-  // Crear canvas en 1080 x 1920 (9:16 nativo)
+  // Crear canvas en 1080 x 1920 (9:16 nativo para Stories / Shorts / TikTok)
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1920;
@@ -449,22 +452,22 @@ export async function generateReviewStoryCanvas({
   ctx.fillRect(0, 0, 1080, 1920);
 
   // 2. RESPLANDORES AMBIENTALES
-  const glow1 = ctx.createRadialGradient(920, 200, 50, 920, 200, 600);
+  const glow1 = ctx.createRadialGradient(920, 240, 50, 920, 240, 600);
   glow1.addColorStop(0, theme.glow1);
   glow1.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = glow1;
   ctx.fillRect(0, 0, 1080, 1920);
 
-  const glow2 = ctx.createRadialGradient(150, 1720, 50, 150, 1720, 650);
+  const glow2 = ctx.createRadialGradient(150, 1550, 50, 150, 1550, 650);
   glow2.addColorStop(0, theme.glow2);
   glow2.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = glow2;
   ctx.fillRect(0, 0, 1080, 1920);
 
-  // 3. HEADER FIJO (y: 64 a 165)
+  // 3. HEADER FIJO EN ZONA SEGURA (y: 135 a 220)
   // Caja de logo de la app
-  drawRoundedRect(ctx, 64, 64, 76, 76, 20);
-  const logoBoxGrad = ctx.createLinearGradient(64, 64, 140, 140);
+  drawRoundedRect(ctx, 64, 135, 72, 72, 20);
+  const logoBoxGrad = ctx.createLinearGradient(64, 135, 136, 207);
   logoBoxGrad.addColorStop(0, '#1c1c28');
   logoBoxGrad.addColorStop(1, '#0e0f17');
   ctx.fillStyle = logoBoxGrad;
@@ -474,32 +477,32 @@ export async function generateReviewStoryCanvas({
   ctx.stroke();
 
   if (logoImg) {
-    ctx.drawImage(logoImg, 74, 74, 56, 56);
+    ctx.drawImage(logoImg, 72, 143, 56, 56);
   } else {
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 36px "Stack Sans Notch", -apple-system, sans-serif';
+    ctx.font = '900 36px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('M', 102, 115);
+    ctx.fillText('M', 100, 182);
   }
 
   // Título de la app
   ctx.textAlign = 'left';
-  ctx.font = '900 34px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '900 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('Musiclub', 158, 98);
+  ctx.fillText('Musiclub', 152, 168);
 
-  ctx.font = '800 16px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '800 15px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = theme.accentColor;
-  ctx.fillText('CRÍTICA MUSICAL', 158, 126);
+  ctx.fillText('CRÍTICA MUSICAL', 152, 194);
 
   // Píldora de fecha
   const dateStr = formatReviewDate(review?.created_at || review?.review_date);
   if (dateStr) {
     const dText = `🗓️ ${dateStr}`;
-    ctx.font = '700 18px "Stack Sans Notch", sans-serif';
+    ctx.font = '700 17px "Gabarito", sans-serif';
     const dW = ctx.measureText(dText).width + 36;
     const dX = 1080 - 64 - dW;
-    drawRoundedRect(ctx, dX, 78, dW, 46, 23);
+    drawRoundedRect(ctx, dX, 148, dW, 44, 22);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
@@ -508,24 +511,24 @@ export async function generateReviewStoryCanvas({
 
     ctx.textAlign = 'center';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.fillText(dText, dX + dW / 2, 107);
+    ctx.fillText(dText, dX + dW / 2, 175);
   }
 
   // Divisor de cabecera
   ctx.beginPath();
-  ctx.moveTo(64, 165);
-  ctx.lineTo(1080 - 64, 165);
+  ctx.moveTo(64, 226);
+  ctx.lineTo(1080 - 64, 226);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   // 4. PORTADA DE ÁLBUM + DISCO DE VINILO 3D
-  const coverSize = showVinylDisc ? 400 : 410;
-  const coverX = showVinylDisc ? 255 : 340;
-  const coverY = 195;
+  const coverSize = showVinylDisc ? 400 : 430;
+  const coverX = showVinylDisc ? 240 : (1080 - coverSize) / 2;
+  const coverY = 250;
 
   if (showVinylDisc) {
-    const vx = 695;
+    const vx = 665;
     const vy = coverY + coverSize / 2;
     const vr = 190;
 
@@ -587,6 +590,15 @@ export async function generateReviewStoryCanvas({
     ctx.stroke();
   }
 
+  // Resplandor ambiental de la carátula
+  ctx.save();
+  ctx.shadowColor = theme.accentColor;
+  ctx.shadowBlur = 35;
+  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fill();
+  ctx.restore();
+
   // Renderizar portada
   ctx.save();
   drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
@@ -616,9 +628,9 @@ export async function generateReviewStoryCanvas({
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // 5. TÍTULOS DEL LANZAMIENTO (y: 650 a 735)
+  // 5. TÍTULOS DEL LANZAMIENTO (y: 700 a 810)
   ctx.textAlign = 'center';
-  ctx.font = '900 44px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '900 42px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
   let albumTitleToDraw = album.album_name;
   if (ctx.measureText(albumTitleToDraw).width > 920) {
@@ -630,10 +642,10 @@ export async function generateReviewStoryCanvas({
     }
     albumTitleToDraw += '…';
   }
-  ctx.fillText(albumTitleToDraw, 540, 680);
+  ctx.fillText(albumTitleToDraw, 540, 715);
 
-  ctx.font = '700 26px "Stack Sans Notch", -apple-system, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.font = '700 25px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
   let artistToDraw = album.artist_name;
   if (ctx.measureText(artistToDraw).width > 920) {
     while (
@@ -644,7 +656,7 @@ export async function generateReviewStoryCanvas({
     }
     artistToDraw += '…';
   }
-  ctx.fillText(artistToDraw, 540, 720);
+  ctx.fillText(artistToDraw, 540, 755);
 
   // Píldora Tipo · Año
   const typeText = [
@@ -653,34 +665,38 @@ export async function generateReviewStoryCanvas({
   ]
     .filter(Boolean)
     .join(' · ');
-  ctx.font = '800 15px "Stack Sans Notch", sans-serif';
+  ctx.font = '800 15px "Gabarito", sans-serif';
   const typeW = ctx.measureText(typeText).width + 30;
-  drawRoundedRect(ctx, 540 - typeW / 2, 742, typeW, 32, 16);
+  drawRoundedRect(ctx, 540 - typeW / 2, 775, typeW, 32, 16);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(typeText, 540, 764);
+  ctx.fillText(typeText, 540, 797);
 
   // 6. CÁLCULO DE ALTURAS Y DISTRIBUCIÓN VERTICAL ADAPTATIVA
-  const reviewerH = emotion ? 172 : 110;
-  const favH = favoriteTrackName ? 86 : 0;
+  const reviewerH = emotion ? 168 : 108;
+  const favH = favoriteTrackName ? 84 : 0;
 
   let commentLines = [];
   let commentH = 0;
   if (showComment && review?.comment) {
-    ctx.font = '500 22px "Stack Sans Notch", sans-serif';
+    ctx.font = '500 22px "Gabarito", sans-serif';
     commentLines = wrapText(ctx, review.comment, 840);
-    commentH = 38 + commentLines.length * 32 + 20;
+    if (commentLines.length > 4) {
+      commentLines = commentLines.slice(0, 4);
+      commentLines[3] = commentLines[3] + '…';
+    }
+    commentH = 36 + commentLines.length * 32 + 16;
   }
 
   const criteriaRows = criteria.length > 3 ? 2 : criteria.length > 0 ? 1 : 0;
   const criteriaH =
     showCriteria && criteriaRows > 0
       ? criteriaRows === 2
-        ? 84 * 2 + 20
-        : 84
+        ? 82 * 2 + 18
+        : 82
       : 0;
 
   // Pre-calcular distribución de filas para Tracks Destacados (Flex-wrap)
@@ -688,12 +704,12 @@ export async function generateReviewStoryCanvas({
   const pillHeight = 42;
   const pillGapX = 12;
   const pillGapY = 10;
-  const headerSectionH = 34; // Altura del título 🎵 TRACKS DESTACADOS y separación
+  const headerSectionH = 34;
   const trackCardPaddingY = 16;
 
   const trackRows = [];
   if (showTracks && topTracksList.length > 0) {
-    ctx.font = '700 16px "Stack Sans Notch", sans-serif';
+    ctx.font = '700 16px "Gabarito", sans-serif';
     let currentRow = [];
     let currentRowW = 0;
 
@@ -747,8 +763,8 @@ export async function generateReviewStoryCanvas({
   if (criteriaH > 0) contentCards.push({ id: 'criteria', h: criteriaH });
   if (tracksH > 0) contentCards.push({ id: 'tracks', h: tracksH });
 
-  const startAreaY = 770;
-  const endAreaY = 1770;
+  const startAreaY = 825;
+  const endAreaY = 1650;
   const totalAvailable = endAreaY - startAreaY;
   const totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
   const cardCount = contentCards.length;
@@ -758,7 +774,7 @@ export async function generateReviewStoryCanvas({
   const availableForGaps = totalAvailable - totalCardsH;
   const idealGap = Math.max(
     10,
-    Math.min(28, availableForGaps / (cardCount + 1))
+    Math.min(26, availableForGaps / (cardCount + 1))
   );
   const totalGapsH = idealGap * numGaps;
   const topPadding = Math.max(
@@ -794,7 +810,7 @@ export async function generateReviewStoryCanvas({
         ctx.fillStyle = '#4f46e5';
         ctx.fillRect(122 - 34, curY + 54 - 34, 68, 68);
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 30px "Stack Sans Notch", sans-serif';
+        ctx.font = '900 30px "Gabarito", sans-serif';
         ctx.textAlign = 'center';
         ctx.fillText((reviewerName[0] || 'M').toUpperCase(), 122, curY + 64);
       }
@@ -802,7 +818,7 @@ export async function generateReviewStoryCanvas({
 
       // Nombre y Rango del crítico
       ctx.textAlign = 'left';
-      ctx.font = '800 26px "Stack Sans Notch", -apple-system, sans-serif';
+      ctx.font = '800 26px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = '#ffffff';
       let rNameToDraw = reviewerName;
       if (ctx.measureText(rNameToDraw).width > 450) {
@@ -816,7 +832,7 @@ export async function generateReviewStoryCanvas({
       }
       ctx.fillText(rNameToDraw, 174, curY + 49);
 
-      ctx.font = '600 18px "Stack Sans Notch", -apple-system, sans-serif';
+      ctx.font = '600 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
       ctx.fillText('Crítico de Musiclub', 174, curY + 77);
 
@@ -838,30 +854,30 @@ export async function generateReviewStoryCanvas({
       ctx.fill();
 
       ctx.fillStyle = theme.scoreTextColor;
-      ctx.font = '900 34px "Stack Sans Notch", sans-serif';
+      ctx.font = '900 34px "Gabarito", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + 45);
 
       // Divisor y Mood
       if (emotion) {
         ctx.beginPath();
-        ctx.moveTo(88, curY + 110);
-        ctx.lineTo(1080 - 88, curY + 110);
+        ctx.moveTo(88, curY + 108);
+        ctx.lineTo(1080 - 88, curY + 108);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.stroke();
 
         ctx.textAlign = 'left';
-        ctx.font = '800 20px "Stack Sans Notch", sans-serif';
+        ctx.font = '800 20px "Gabarito", sans-serif';
         ctx.fillStyle = '#ffffff';
         ctx.fillText(
           `${emotion.emoji || '🎵'} ${emotion.label}`,
           92,
-          curY + 146
+          curY + 144
         );
 
         if (emotion.desc) {
           ctx.textAlign = 'right';
-          ctx.font = '500 17px "Stack Sans Notch", sans-serif';
+          ctx.font = '500 17px "Gabarito", sans-serif';
           ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
           let descToDraw = emotion.desc;
           if (ctx.measureText(descToDraw).width > 480) {
@@ -873,7 +889,7 @@ export async function generateReviewStoryCanvas({
             }
             descToDraw += '…';
           }
-          ctx.fillText(descToDraw, 1080 - 92, curY + 146);
+          ctx.fillText(descToDraw, 1080 - 92, curY + 144);
         }
       }
 
@@ -887,19 +903,19 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      drawRoundedRect(ctx, 84, curY + 19, 48, 48, 14);
+      drawRoundedRect(ctx, 84, curY + 18, 48, 48, 14);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
       ctx.fill();
       ctx.textAlign = 'center';
       ctx.font = '24px sans-serif';
-      ctx.fillText('⭐', 84 + 24, curY + 51);
+      ctx.fillText('⭐', 84 + 24, curY + 50);
 
       ctx.textAlign = 'left';
-      ctx.font = '800 14px "Stack Sans Notch", sans-serif';
+      ctx.font = '800 14px "Gabarito", sans-serif';
       ctx.fillStyle = '#f59e0b';
-      ctx.fillText('CANCIÓN FAVORITA', 148, curY + 38);
+      ctx.fillText('CANCIÓN FAVORITA', 148, curY + 36);
 
-      ctx.font = '800 26px "Stack Sans Notch", sans-serif';
+      ctx.font = '800 25px "Gabarito", sans-serif';
       ctx.fillStyle = '#fef08a';
       let favToDraw = favoriteTrackName;
       if (ctx.measureText(favToDraw).width > 760) {
@@ -911,7 +927,7 @@ export async function generateReviewStoryCanvas({
         }
         favToDraw += '…';
       }
-      ctx.fillText(favToDraw, 148, curY + 67);
+      ctx.fillText(favToDraw, 148, curY + 65);
 
       curY += favH + gap;
     } else if (card.id === 'comment') {
@@ -923,11 +939,11 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      ctx.font = '900 32px "Stack Sans Notch", sans-serif';
+      ctx.font = '900 32px "Gabarito", sans-serif';
       ctx.fillStyle = theme.accentColor;
       ctx.fillText('“', 88, curY + 44);
 
-      ctx.font = '500 22px "Stack Sans Notch", -apple-system, sans-serif';
+      ctx.font = '500 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
       for (let i = 0; i < commentLines.length; i++) {
         ctx.fillText(commentLines[i], 118, curY + 44 + i * 32);
@@ -937,9 +953,9 @@ export async function generateReviewStoryCanvas({
     } else if (card.id === 'criteria') {
       // Tarjetas de Criterios (2x3)
       const boxW = 304;
-      const boxH = 84;
+      const boxH = 82;
       const gapX = 20;
-      const gapY = 20;
+      const gapY = 18;
 
       for (let idx = 0; idx < criteria.length; idx++) {
         const c = criteria[idx];
@@ -955,13 +971,13 @@ export async function generateReviewStoryCanvas({
         ctx.stroke();
 
         ctx.textAlign = 'center';
-        ctx.font = '700 15px "Stack Sans Notch", sans-serif';
+        ctx.font = '700 15px "Gabarito", sans-serif';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 34);
+        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 32);
 
-        ctx.font = '900 26px "Stack Sans Notch", sans-serif';
+        ctx.font = '900 26px "Gabarito", sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.val, bx + boxW / 2, by + 66);
+        ctx.fillText(c.val, bx + boxW / 2, by + 64);
       }
 
       curY += criteriaH + gap;
@@ -976,7 +992,7 @@ export async function generateReviewStoryCanvas({
 
       // Título de la sección
       ctx.textAlign = 'left';
-      ctx.font = '800 15px "Stack Sans Notch", sans-serif';
+      ctx.font = '800 15px "Gabarito", sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
       ctx.fillText('🎵 TRACKS DESTACADOS:', 88, curY + 34);
 
@@ -995,7 +1011,7 @@ export async function generateReviewStoryCanvas({
           ctx.stroke();
 
           ctx.textAlign = 'left';
-          ctx.font = '700 16px "Stack Sans Notch", sans-serif';
+          ctx.font = '700 16px "Gabarito", sans-serif';
           ctx.fillStyle = '#ffffff';
           ctx.fillText(item.displayName, pillX + 14, pillRowY + 26);
 
@@ -1011,37 +1027,38 @@ export async function generateReviewStoryCanvas({
     }
   }
 
-  // 8. FOOTER FIJO (y: 1800 a 1880)
+  // 8. FOOTER FIJO EN ZONA SEGURA (y: 1675 a 1720)
+  // Deja 200px libres en la parte inferior para la UI nativa de Instagram/TikTok
   ctx.beginPath();
-  ctx.moveTo(64, 1800);
-  ctx.lineTo(1080 - 64, 1800);
+  ctx.moveTo(64, 1675);
+  ctx.lineTo(1080 - 64, 1675);
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
   if (logoImg) {
-    ctx.drawImage(logoImg, 64, 1822, 44, 44);
+    ctx.drawImage(logoImg, 64, 1686, 36, 36);
   }
 
   ctx.textAlign = 'left';
-  ctx.font = '900 24px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '900 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('Musiclub', 124, 1853);
+  ctx.fillText('musiclub.org', 114, 1711);
 
-  ctx.font = '300 20px "Stack Sans Notch", sans-serif';
+  ctx.font = '300 18px "Gabarito", sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.fillText('|', 254, 1853);
+  ctx.fillText('|', 260, 1711);
 
-  ctx.font = '600 18px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '600 17px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-  ctx.fillText('Comunidad de Crítica Musical', 274, 1853);
+  ctx.fillText('Comunidad de Crítica Musical', 278, 1711);
 
   // Píldora #Musiclub
   const tagText = '#Musiclub';
-  ctx.font = '800 18px "Stack Sans Notch", sans-serif';
-  const tagW = ctx.measureText(tagText).width + 36;
+  ctx.font = '800 17px "Gabarito", sans-serif';
+  const tagW = ctx.measureText(tagText).width + 34;
   const tagX = 1080 - 64 - tagW;
-  drawRoundedRect(ctx, tagX, 1822, tagW, 44, 22);
+  drawRoundedRect(ctx, tagX, 1683, tagW, 40, 20);
   ctx.fillStyle = 'rgba(244, 63, 94, 0.25)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(244, 63, 94, 0.6)';
@@ -1049,7 +1066,7 @@ export async function generateReviewStoryCanvas({
   ctx.stroke();
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(tagText, tagX + tagW / 2, 1850);
+  ctx.fillText(tagText, tagX + tagW / 2, 1709);
 
   return canvas;
 }
@@ -1515,7 +1532,7 @@ export function ShareReviewModal({
     >
       {/* Contenedor Modal */}
       <div
-        className="relative w-full max-w-4xl bg-[#0d0f1c] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col max-h-[92vh]"
+        className="relative w-full max-w-4xl bg-[#0d0f1c] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col max-h-[92vh] font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toast Flotante */}
@@ -1560,30 +1577,24 @@ export function ShareReviewModal({
               <span>📱</span> Vista Previa Formato Story (9:16)
             </div>
 
-            {/* Chasis de Celular */}
+            {/* Chasis de Celular Responsive */}
             <div
-              className="relative rounded-[36px] bg-[#05060a] border-[7px] border-slate-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col items-center justify-center flex-shrink-0"
+              className="relative rounded-[28px] sm:rounded-[36px] bg-[#05060a] border-[5px] sm:border-[7px] border-slate-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col items-center justify-center flex-shrink-0"
               style={{
-                width: '284px',
-                height: '504px',
+                width: 'min(240px, 68vw)',
+                height: 'min(426px, calc(68vw * 16 / 9))',
                 boxShadow:
                   '0 0 0 2px rgba(255,255,255,0.1), 0 20px 50px rgba(0,0,0,0.9)',
               }}
             >
               {/* Notch / Dynamic Island */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-22 h-4 bg-black rounded-full z-30 flex items-center justify-center border border-white/10 shadow-sm pointer-events-none">
-                <div className="w-8 h-1 rounded-full bg-slate-800 mr-2"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 sm:w-22 h-3.5 sm:h-4 bg-black rounded-full z-30 flex items-center justify-center border border-white/10 shadow-sm pointer-events-none">
+                <div className="w-6 sm:w-8 h-1 rounded-full bg-slate-800 mr-2"></div>
+                <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-slate-900"></div>
               </div>
 
-              {/* Pantalla del Teléfono (270 x 480 px) */}
-              <div
-                className="overflow-hidden relative flex items-center justify-center bg-[#0a0c16]"
-                style={{
-                  width: '270px',
-                  height: '480px',
-                }}
-              >
+              {/* Pantalla del Teléfono (9:16) */}
+              <div className="w-full h-full overflow-hidden relative flex items-center justify-center bg-[#0a0c16]">
                 {previewDataUrl ? (
                   <img
                     src={previewDataUrl}
@@ -1925,6 +1936,28 @@ export function ShareReviewModal({
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Barra de Acciones Móviles Fija (Sticky Bottom Bar en Celular) */}
+        <div className="md:hidden border-t border-white/10 bg-[#0c0d1c]/95 p-3 backdrop-blur-md flex items-center gap-2 flex-shrink-0">
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={handleNativeShare}
+            className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+          >
+            <ShareIcon className="w-3.5 h-3.5" />
+            <span>Compartir Story</span>
+          </button>
+          <button
+            type="button"
+            disabled={isGenerating}
+            onClick={handleDownloadImage}
+            className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 text-white font-bold text-xs border border-white/15 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+          >
+            <DownloadIcon className="w-3.5 h-3.5" />
+            <span>Descargar HD</span>
+          </button>
         </div>
       </div>
     </div>

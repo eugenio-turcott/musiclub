@@ -509,7 +509,7 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
     ? `${album.album_name}, ${album.artist_name}, ${album.album_name} reviews, ${album.album_name} reseñas, ${album.album_name} opiniones, ${album.album_name} calificaciones, ${album.artist_name} discografia, canciones de ${album.album_name}, tracklist ${album.album_name}, musiclub`
     : `${formattedSlug}, reviews ${formattedSlug}, reseñas ${formattedSlug}, calificaciones ${formattedSlug}, discografia, musiclub`;
 
-  const pageImage = album?.image_url || '/5662059.png';
+  const pageImage = album?.image_url || '/musiclub_logo_corchea.png';
 
   if (loading) {
     return (

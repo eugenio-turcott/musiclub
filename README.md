@@ -167,7 +167,8 @@ musiclub-albumes/
 │   └── workflows/
 │       └── hourly_musicbrainz_ingest.yml # Pipeline de ingesta automática y sitemap
 ├── public/
-│   ├── 5662059.png                       # Logotipo oficial
+│   ├── musiclub_logo_corchea.png         # Logotipo oficial (Corchea Musiclub)
+│   ├── musiclub_logo_3.png               # Logotipo secundario / isotipo
 │   ├── index.html                        # HTML base, fuentes de Google y viewport
 │   ├── manifest.json                     # Configuración PWA
 │   ├── robots.txt                        # Directivas para rastreadores web

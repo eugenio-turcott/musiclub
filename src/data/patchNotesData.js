@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.1',
+    title:
+      'Unificación Tipográfica Gabarito, Rediseño Mobile-First de Review Stories y Actualización de Logotipos Oficiales',
+    date: '2026-09-10',
+    sha: 'HEAD',
+    tag: 'Diseño & Experiencia Móvil',
+    tagColor: 'from-pink-500 via-rose-500 to-amber-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.1 enfocada en pulir la coherencia visual y la experiencia de usuario: se extiende la tipografía oficial Gabarito a las vistas de Catálogo, Pool, Admin y Estadísticas Detalladas/Tier List en Perfil. Se rediseña por completo la plantilla de Review Stories 9:16 con márgenes seguros para celulares (Instagram, TikTok, WhatsApp) y tipografía Gabarito, además de una interfaz móvil optimizada con barra de acción fija. Finalmente, se actualiza el logotipo oficial de Musiclub (/musiclub_logo_corchea.png) en todas las exportaciones y cabeceras de Tier List y Stories.',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Unificación Tipográfica Global con Gabarito',
+        description:
+          'Corrección de clases residuales de "Stack Sans Notch" en el Catálogo de Álbumes, Pool Semanal, Panel de Administración y la sección de Estadísticas Detalladas de Perfil (Tier List Maker). La tipografía Gabarito ahora se aplica de forma homogénea y fidedigna en el 100% de las vistas.',
+      },
+      {
+        type: 'design',
+        title: 'Nueva Plantilla de Review Story 9:16 Adaptada a Celulares',
+        description:
+          'Rediseño completo del generador Canvas de Stories: distribución vertical con márgenes seguros adaptados para pantallas de smartphone (respetando la barra superior y el campo de comentarios inferior de Instagram/TikTok). Incluye carátula con resplandor ambiental, disco de vinilo 3D, badges glassmorphic de puntuación, canción favorita, pilares de evaluación y textos nítidos en Gabarito.',
+      },
+      {
+        type: 'feature',
+        title: 'Experiencia Móvil Optimizada en Modal de Compartir',
+        description:
+          'Chasis de vista previa responsivo con escalado automático para cualquier resolución de móvil y barra fija inferior ("Sticky Bottom Bar") en celular con botones directos para Compartir Nativo y Descargar Story HD en un solo toque.',
+      },
+      {
+        type: 'design',
+        title: 'Actualización Universal de Logotipos Oficiales',
+        description:
+          'Reemplazo del antiguo recurso provisional por el isotipo oficial de la corchea de Musiclub (/musiclub_logo_corchea.png) con fallback a /musiclub_logo_3.png en las imágenes generadas de Tier List, cabeceras interactivas, plantilla de Stories y metadatos SEO.',
+      },
+    ],
+  },
+  {
     version: 'V.8.0',
     title:
       'Migración de Arquitectura a Next.js App Router, SSR, Schema.org Nativo y Adopción Tipográfica Gabarito',

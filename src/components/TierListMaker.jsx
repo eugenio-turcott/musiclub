@@ -218,7 +218,9 @@ export async function generateTierListCanvas({
   }
 
   // 1. Precargar logo de Musiclub y portadas con CORS seguro
-  const logoImgPromise = preloadCORSImage('/5662059.png');
+  const logoImgPromise = preloadCORSImage('/musiclub_logo_corchea.png').then(
+    (img) => img || preloadCORSImage('/musiclub_logo_3.png')
+  );
   const albumImagesPromises = classifiedItems.map(async (item) => {
     const img = await preloadCORSImage(item.imagen);
     return { albumId: item.albumId, img };
@@ -302,13 +304,16 @@ export async function generateTierListCanvas({
   // 4. DIBUJAR ENCABEZADO
   const headerY = 28;
   if (logoImg) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(245, 87, 108, 0.4)';
+    ctx.shadowBlur = 12;
     ctx.drawImage(logoImg, PADDING_X, headerY, 52, 52);
+    ctx.restore();
   }
 
   // Título MUSICLUB TIER LIST
   const titleX = logoImg ? PADDING_X + 66 : PADDING_X;
-  ctx.font =
-    '900 26px "Stack Sans Notch", "Bowlby One SC", -apple-system, sans-serif';
+  ctx.font = '900 26px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.textBaseline = 'top';
   ctx.fillText('MUSICLUB ', titleX, headerY + 4);
@@ -318,7 +323,7 @@ export async function generateTierListCanvas({
   ctx.fillText('TIER LIST', titleX + titleWidth, headerY + 4);
 
   // Subtítulo
-  ctx.font = '500 13px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.fillText(
     'Colección y ranking oficial de álbumes evaluados',
@@ -327,13 +332,13 @@ export async function generateTierListCanvas({
   );
 
   // Usuario a la derecha
-  ctx.font = '800 18px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '800 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#f093fb';
   ctx.textAlign = 'right';
   ctx.fillText(userName, CANVAS_WIDTH - PADDING_X, headerY + 6);
 
   const countDisplay = totalCategorized || classifiedItems.length;
-  ctx.font = '600 13px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '600 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.fillText(
     `${countDisplay} álbumes calificados`,
@@ -378,11 +383,11 @@ export async function generateTierListCanvas({
     // Letra del Tier (S, A, B, C, D, F)
     ctx.textAlign = 'center';
     ctx.fillStyle = badgeTextColor;
-    ctx.font = '900 38px "Stack Sans Notch", -apple-system, sans-serif';
+    ctx.font = '900 38px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillText(tier.label, rowX + BADGE_WIDTH / 2, currentY + 14);
 
     // Nombre del Tier (Obras Maestras, Excelentes, etc.)
-    ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
+    ctx.font = '900 11px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.fillText(
       tier.name.toUpperCase(),
       rowX + BADGE_WIDTH / 2,
@@ -410,7 +415,7 @@ export async function generateTierListCanvas({
     if (items.length === 0) {
       ctx.textAlign = 'center';
       ctx.font =
-        'italic 500 13px "Stack Sans Notch", -apple-system, sans-serif';
+        'italic 500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
       ctx.fillText(
         '0 álbumes calificados',
@@ -470,7 +475,7 @@ export async function generateTierListCanvas({
         ctx.fillRect(tileX, tileY + TILE_SIZE - 26, TILE_SIZE, 26);
 
         // Calificación ★ X.X
-        ctx.font = '900 11px "Stack Sans Notch", -apple-system, sans-serif';
+        ctx.font = '900 11px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
         ctx.fillStyle = '#fcd34d';
         ctx.textAlign = 'center';
         ctx.fillText(
@@ -502,7 +507,7 @@ export async function generateTierListCanvas({
   ctx.stroke();
 
   ctx.textAlign = 'left';
-  ctx.font = '600 12px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '600 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
   ctx.fillText(
     '✨ Musiclub • Club Oficial de Crítica de Álbumes',
@@ -511,7 +516,7 @@ export async function generateTierListCanvas({
   );
 
   ctx.textAlign = 'right';
-  ctx.font = '800 12px "Stack Sans Notch", -apple-system, sans-serif';
+  ctx.font = '800 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#f5576c';
   ctx.fillText('Musiclub', CANVAS_WIDTH - PADDING_X, footerY + 16);
 
@@ -624,17 +629,17 @@ export function TierListMaker({
   const totalCategorized = classifiedItems.length;
 
   return (
-    <div className="bg-gradient-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-['Stack_Sans_Notch',sans-serif]">
+    <div className="bg-gradient-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-sans">
       {/* CABECERA CON LOGO OFICIAL DE MUSICLUB */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-white/10">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-2 flex-shrink-0 shadow-lg shadow-pink-500/10">
             <img
-              src="/5662059.png"
+              src="/musiclub_logo_corchea.png"
               alt="Musiclub Logo"
               className="w-full h-full object-contain drop-shadow"
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.src = '/musiclub_logo_3.png';
               }}
             />
           </div>
@@ -754,11 +759,11 @@ export function TierListMaker({
         <div className="flex items-center justify-between px-2 pt-1 pb-2.5 border-b border-white/10">
           <div className="flex items-center gap-2">
             <img
-              src="/5662059.png"
+              src="/musiclub_logo_corchea.png"
               alt="Musiclub Logo"
               className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
               onError={(e) => {
-                e.target.style.display = 'none';
+                e.target.src = '/musiclub_logo_3.png';
               }}
             />
             <span className="font-black text-white text-xs sm:text-sm tracking-wider">

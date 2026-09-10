@@ -365,9 +365,12 @@ export default function ShareTierListModal({
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-2 shadow-inner">
               <img
-                src="/5662059.png"
+                src="/musiclub_logo_corchea.png"
                 alt="Musiclub Logo"
                 className="w-full h-full object-contain"
+                onError={(e) => {
+                  e.target.src = '/musiclub_logo_3.png';
+                }}
               />
             </div>
             <div>

@@ -248,7 +248,7 @@ export function PoolPage() {
   };
 
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-['Stack_Sans_Notch',sans-serif] flex flex-col justify-between">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans flex flex-col justify-between">
       <SEO
         title="Pool Musical Comunitario y Temporadas | Musiclub"
         description="El Pool Musical comunitario de Musiclub. Descubre los álbumes propuestos para las temporadas, el álbum ganador de la semana y participa en las votaciones."

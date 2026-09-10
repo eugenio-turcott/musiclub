@@ -588,8 +588,8 @@ export function AdminPanel({ onClose, isPage = true }) {
     <div
       className={
         isPage
-          ? "min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-['Stack_Sans_Notch',sans-serif] flex flex-col justify-between"
-          : 'fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] overflow-y-auto p-4 sm:p-6 md:p-8 text-white'
+          ? 'min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans flex flex-col justify-between'
+          : 'fixed inset-0 bg-black/95 backdrop-blur-2xl z-[99999] overflow-y-auto p-4 sm:p-6 md:p-8 text-white font-sans'
       }
     >
       <div className="max-w-7xl mx-auto space-y-6 w-full">

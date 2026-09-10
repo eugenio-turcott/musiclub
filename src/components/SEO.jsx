@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 export function SEO({
   title = 'Musiclub - Reviews From & For Music Lovers',
   description = 'Descubre, califica y reseña álbumes, EPs y canciones en Musiclub. Únete a la comunidad de melómanos para explorar rankings globales y recomendaciones.',
-  image = '/5662059.png',
+  image = '/musiclub_logo_corchea.png',
   url = 'https://www.musiclub.org',
   type = 'website',
   keywords = 'musica, albumes, reviews, calificaciones, club de musica, reseñas musicales, discografia, canciones',

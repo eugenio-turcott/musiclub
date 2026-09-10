@@ -489,7 +489,7 @@ export function AlbumsCatalog({ isPage = false }) {
   }, [filteredAlbums, currentPage]);
 
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-['Stack_Sans_Notch',sans-serif]">
+    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans">
       <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full">
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
