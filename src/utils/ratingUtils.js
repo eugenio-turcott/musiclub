@@ -89,40 +89,98 @@ export function calculateReviewBonus() {
 }
 
 /**
+ * Catálogo de resolución rápida para IDs de Spotify registrados en reseñas históricas
+ */
+export const KNOWN_SPOTIFY_TRACKS = {
+  '7oWkK4yK2saSHAqMtcPVXI': 'Animal',
+  '7qfdK8Pyi8YViFYpeVgEqi': 'The Sounder',
+  '7kwFRE8IHukpi9UiULk3oL': '그림자놀이',
+  '5LnFURDZ1n3psF1IhjKkfe': 'Famous Prophets (Stars)',
+  '0kIwf6nY9oc1Uf8iabJPMh': 'Metamorfosis',
+  '18oHXpnFV71DeMX8Gvk4uq': 'Suéltate',
+  '2cmRpmO04TLaKPzmAzySYZ': 'Dance Yrself Clean',
+  '1Pbs2eCcX9p2onaAvMYvhk': 'Bodys',
+  '4HfZE4MBRoOpjIbAD4BUa6': 'Nervous Young Inhumans',
+  '2kcbSjvCyeryZVfgvdt4FQ': 'One X',
+  '5xYtT1TT3rJsd857mnvdQs': 'Jesse Pinkman',
+  '2bUqWO1Q8SeILAS2YMA1oF': 'Child of Burning Time',
+  '37kBHJ6OaVocsSWOgFPIOd': 'Pipiripipi',
+  '6YU556RBcA4js0poLlP8Cu': 'Full Nelson',
+  '56sk7jBpZV0CD31G9hEU3b': 'Animal I Have Become',
+  '4PMdSiX6UP7WWiKaTuSpOQ': 'Coco',
+  '3V1jBnDI3zCn25ONFiqwN8': 'Ojitos de Miel',
+  '5sZfunGvFI3gABkC0ALwwh': 'Galina',
+  '5kRPPEWFJIMox5qIkQkiz5': 'Sweet Creature',
+  '116ORJSOi1UltDApfKABzj': 'Weird World',
+  '4nbj8QaMlvQrzHUifoaMSq': 'Girl With No Face',
+  '2ohzeQAVgFSt5jnikuIWDD': 'Off With Her Tits',
+  '04b2mpXXNWDlOlRNYJNX3I': 'John and Jonathan',
+  '6JMQZ2zx0Y1xwTXCZx9R02': 'Hardware Software',
+  '5nYpmbQBquInLIX268dE4c': 'Black Eye',
+  '5ck0j6M9T01MxWhesQlGSW': 'You Slept On Me',
+  '0llbdVyfquvzwnFjebrqLj': 'Saddest Smile',
+  '6JBZZi8hebdrVIRpXP5HQM': 'Staying Power',
+  '25GJ6VBiEfEfIaECARkfc4': 'Truly Dreams',
+};
+
+/**
  * Obtiene el nombre legible de una pista dado su identificador (id, spotifyId, o nombre)
  * y la lista de canciones del álbum.
  */
 export function getTrackDisplayName(trackKey, tracks = []) {
   if (!trackKey) return 'Pista';
   const strKey = String(trackKey).trim();
-  if (Array.isArray(tracks) && tracks.length > 0) {
+  const cleanKey = strKey.replace(/^spotify:track:/i, '');
+
+  // 0. Si coincide directamente con el catálogo conocido de IDs de Spotify
+  if (KNOWN_SPOTIFY_TRACKS[cleanKey]) {
+    return KNOWN_SPOTIFY_TRACKS[cleanKey];
+  }
+
+  let trackList = tracks;
+  if (typeof trackList === 'string') {
+    try {
+      trackList = JSON.parse(trackList);
+    } catch (e) {
+      trackList = [];
+    }
+  }
+
+  if (Array.isArray(trackList) && trackList.length > 0) {
     // 1. Buscar coincidencia exacta por ID de Spotify o ID de base de datos
-    const foundById = tracks.find(
+    const foundById = trackList.find(
       (t) =>
         t &&
         typeof t === 'object' &&
-        (t.id === strKey || String(t.id) === strKey || t.spotify_id === strKey)
+        (t.id === cleanKey ||
+          String(t.id) === cleanKey ||
+          t.spotify_id === cleanKey ||
+          String(t.spotify_id) === cleanKey ||
+          t.uri === strKey)
     );
     if (foundById && foundById.name) return foundById.name;
 
     // 2. Buscar coincidencia por nombre insensible a mayúsculas
-    const foundByName = tracks.find(
-      (t) =>
-        t &&
-        ((typeof t === 'string' && t.toLowerCase().trim() === strKey.toLowerCase()) ||
-          (typeof t === 'object' &&
-            t.name &&
-            t.name.toLowerCase().trim() === strKey.toLowerCase()))
-    );
+    const normalizedKey = cleanKey.toLowerCase().trim();
+    const foundByName = trackList.find((t) => {
+      if (!t) return false;
+      const tName = (typeof t === 'string' ? t : t.name || '').toLowerCase().trim();
+      if (!tName) return false;
+      if (tName === normalizedKey) return true;
+      // Remaster o sufijo de versión (ej: " - 2019 Remasterizado")
+      const baseTName = tName.split(' - ')[0].trim();
+      const baseKey = normalizedKey.split(' - ')[0].trim();
+      return baseTName.length > 2 && baseTName === baseKey;
+    });
     if (foundByName) {
       return typeof foundByName === 'string' ? foundByName : foundByName.name;
     }
 
     // 3. Si el key es un índice numérico (1-based o 0-based)
-    if (!isNaN(Number(strKey)) && Number(strKey) > 0) {
-      const idx = Number(strKey);
-      if (tracks[idx - 1]) {
-        const item = tracks[idx - 1];
+    if (!isNaN(Number(cleanKey)) && Number(cleanKey) > 0) {
+      const idx = Number(cleanKey);
+      if (trackList[idx - 1]) {
+        const item = trackList[idx - 1];
         return typeof item === 'string' ? item : item.name || `Pista ${idx}`;
       }
     }

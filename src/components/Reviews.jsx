@@ -31,6 +31,7 @@ export function Reviews({ onClose, isPage = false }) {
   // Estadísticas básicas
   const [totalReviews, setTotalReviews] = useState(0);
   const [avgRating, setAvgRating] = useState('...');
+  const [totalMembers, setTotalMembers] = useState(21);
 
   const loadReviews = useCallback(async () => {
     setLoading(true);
@@ -64,6 +65,10 @@ export function Reviews({ onClose, isPage = false }) {
 
       const reviewsData = reviewsRes.data || [];
       const profilesData = profilesRes?.data || [];
+
+      if (profilesData && profilesData.length > 0) {
+        setTotalMembers(profilesData.length);
+      }
 
       const profileAvatarByEmail = new Map();
       const profileAvatarByName = new Map();
@@ -330,7 +335,10 @@ export function Reviews({ onClose, isPage = false }) {
             </div>
           </div>
 
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-purple-500/30 transition-all">
+          <div
+            className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-purple-500/30 transition-all"
+            title={`${new Set(reviews.map((r) => r.reviewer_name)).size} críticos han publicado reseñas`}
+          >
             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
               <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
@@ -338,14 +346,14 @@ export function Reviews({ onClose, isPage = false }) {
               </span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
-                  Reviewers Únicos
+                  Críticos & Miembros
                 </p>
                 <p
                   translate="no"
                   className="notranslate text-lg sm:text-2xl font-black text-purple-400"
                   data-stat="number"
                 >
-                  {loading ? '...' : new Set(reviews.map((r) => r.reviewer_name)).size}
+                  {loading ? '...' : (totalMembers || 21)}
                 </p>
               </div>
             </div>

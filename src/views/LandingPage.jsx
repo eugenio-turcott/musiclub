@@ -49,10 +49,10 @@ export function LandingPage() {
   const [shuffledReviewedAlbums, setShuffledReviewedAlbums] = useState([]);
   const [allReviews, setAllReviews] = useState([]);
   const [globalStats, setGlobalStats] = useState({
-    total_reviews: 288,
+    total_reviews: 320,
     total_albums: 161,
     total_reviewed_albums: 131,
-    total_users: 19,
+    total_users: 21,
     top_score: 9.8,
   });
   const [selectedAlbumTab, setSelectedAlbumTab] = useState('active'); // 'active' | 'top' | 'recent'
@@ -166,11 +166,11 @@ export function LandingPage() {
             .map((rev) => rev.reviewer_name?.trim())
             .filter(Boolean)
         ).size;
-        const totalReviewersCount =
-          uniqueReviewersCount ||
-          statsData?.total_users ||
+        const totalMembersCount =
           (profilesData && profilesData.length) ||
-          19;
+          statsData?.total_users ||
+          uniqueReviewersCount ||
+          21;
         const topScore =
           topData && topData.length > 0 && topData[0].avg_rating
             ? topData[0].avg_rating
@@ -181,7 +181,7 @@ export function LandingPage() {
           total_albums:
             statsData?.total_albums || (albums && albums.length) || 161,
           total_reviewed_albums: totalReviewedAlbums,
-          total_users: totalReviewersCount > 0 ? totalReviewersCount : 19,
+          total_users: totalMembersCount > 0 ? totalMembersCount : 21,
           top_score: topScore,
         });
         notifyContentLoaded('landing');
@@ -817,7 +817,7 @@ export function LandingPage() {
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
                 data-stat="number"
               >
-                {globalStats.total_users || 19}
+                {globalStats.total_users || 21}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Críticos & Miembros

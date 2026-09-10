@@ -6,12 +6,115 @@ import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
+import { getTrackDisplayName } from '../utils/ratingUtils';
 import {
   SpotifyLogo,
   AppleMusicLogo,
   YouTubeLogo,
   DeezerLogo,
 } from './common/PlatformLogos';
+
+function AdminPagination({
+  currentPage,
+  totalPages,
+  totalItems,
+  pageSize,
+  onPageChange,
+  onPageSizeChange,
+  pageSizeOptions = [10, 25, 50],
+  itemName = 'elementos',
+}) {
+  if (totalItems === 0) return null;
+
+  const startItem = (currentPage - 1) * pageSize + 1;
+  const endItem = Math.min(currentPage * pageSize, totalItems);
+
+  // Generación inteligente de botones de página con elipsis
+  const getPageNumbers = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = [1];
+    if (currentPage > 3) pages.push('dots-prev');
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+    if (currentPage < totalPages - 2) pages.push('dots-next');
+    pages.push(totalPages);
+    return pages;
+  };
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-black/40 rounded-2xl border border-white/10 text-xs mt-3">
+      <div className="flex items-center gap-3 text-slate-400 flex-wrap justify-center sm:justify-start">
+        <span>
+          Mostrando <strong className="text-white">{startItem}</strong> -{' '}
+          <strong className="text-white">{endItem}</strong> de{' '}
+          <strong className="text-pink-400">{totalItems}</strong> {itemName}
+        </span>
+        {onPageSizeChange && (
+          <div className="flex items-center gap-1.5 ml-1">
+            <span className="text-[11px] text-slate-500">Por pág:</span>
+            <select
+              value={pageSize}
+              onChange={(e) => onPageSizeChange(Number(e.target.value))}
+              className="bg-black/60 border border-white/15 rounded-lg text-[11px] text-white px-2 py-1 focus:outline-none focus:border-pink-500/50 cursor-pointer"
+            >
+              {pageSizeOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {totalPages > 1 && (
+        <div className="flex items-center gap-1 flex-wrap justify-center">
+          <button
+            type="button"
+            disabled={currentPage <= 1}
+            onClick={() => onPageChange(currentPage - 1)}
+            className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-25 disabled:cursor-not-allowed border border-white/5 transition-all font-semibold text-xs flex items-center gap-1 cursor-pointer"
+          >
+            <span>←</span> <span className="hidden sm:inline">Anterior</span>
+          </button>
+
+          {getPageNumbers().map((p, idx) =>
+            typeof p === 'string' ? (
+              <span key={`dots-${idx}`} className="px-1 text-slate-600 select-none">
+                ...
+              </span>
+            ) : (
+              <button
+                key={p}
+                type="button"
+                onClick={() => onPageChange(p)}
+                className={`min-w-[28px] h-7 px-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
+                  currentPage === p
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/25 scale-105'
+                    : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
+                }`}
+              >
+                {p}
+              </button>
+            )
+          )}
+
+          <button
+            type="button"
+            disabled={currentPage >= totalPages}
+            onClick={() => onPageChange(currentPage + 1)}
+            className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 disabled:opacity-25 disabled:cursor-not-allowed border border-white/5 transition-all font-semibold text-xs flex items-center gap-1 cursor-pointer"
+          >
+            <span className="hidden sm:inline">Siguiente</span> <span>→</span>
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function AdminPanel({ onClose, isPage = true }) {
   // Navigation Tabs
@@ -64,6 +167,43 @@ export function AdminPanel({ onClose, isPage = true }) {
   const [userSearch, setUserSearch] = useState('');
   const [updatingUserId, setUpdatingUserId] = useState(null);
 
+  // Pagination States
+  const [catalogPage, setCatalogPage] = useState(1);
+  const [catalogPageSize, setCatalogPageSize] = useState(50);
+
+  const [reviewsPage, setReviewsPage] = useState(1);
+  const [reviewsPageSize, setReviewsPageSize] = useState(20);
+
+  const [usersPage, setUsersPage] = useState(1);
+  const [usersPageSize, setUsersPageSize] = useState(10);
+
+  const [poolPage, setPoolPage] = useState(1);
+  const [poolPageSize, setPoolPageSize] = useState(8);
+
+  const [seasonsPage, setSeasonsPage] = useState(1);
+  const [seasonsPageSize, setSeasonsPageSize] = useState(6);
+
+  // Auto-reset pages when filters/lists change
+  useEffect(() => {
+    setCatalogPage(1);
+  }, [catalogSearch, catalogFormatFilter]);
+
+  useEffect(() => {
+    setReviewsPage(1);
+  }, [reviewSearch, reviewFilter]);
+
+  useEffect(() => {
+    setUsersPage(1);
+  }, [userSearch]);
+
+  useEffect(() => {
+    setPoolPage(1);
+  }, [poolActive.length]);
+
+  useEffect(() => {
+    setSeasonsPage(1);
+  }, [seasons.length]);
+
   // Show transient toast notification
   const showToast = (message) => {
     setActionSuccess(message);
@@ -89,22 +229,39 @@ export function AdminPanel({ onClose, isPage = true }) {
       setPoolWinner(poolData.winner || null);
       setIsPoolOpen(poolService.isPoolOpen());
 
-      // 3. Cargar Catálogo Universal de Álbumes
-      const { data: albumsData, error: albumsError } = await supabase
-        .from('albums')
-        .select('*')
-        .order('created_at', { ascending: false });
+      // 3. Cargar Catálogo Universal de Álbumes (Paginación interna para superar el límite de 1000 de PostgREST)
+      let allAlbums = [];
+      let from = 0;
+      const step = 1000;
+      let hasMore = true;
+      while (hasMore) {
+        const { data: pageAlbums, error: albumsError } = await supabase
+          .from('albums')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .range(from, from + step - 1);
 
-      if (albumsError) throw new Error(albumsError.message);
-      setAlbums(albumsData || []);
+        if (albumsError) throw new Error(albumsError.message);
+        if (!pageAlbums || pageAlbums.length === 0) {
+          hasMore = false;
+        } else {
+          allAlbums.push(...pageAlbums);
+          if (pageAlbums.length < step) {
+            hasMore = false;
+          } else {
+            from += step;
+          }
+        }
+      }
+      setAlbums(allAlbums);
 
-      // 4. Cargar Reseñas para Moderación
+      // 4. Cargar Reseñas para Moderación (con tracks para resolución de canción favorita)
       const { data: reviewsData, error: reviewsError } = await supabase
         .from('reviews')
         .select(
           `
           *,
-          album:album_id (id, album_name, artist_name, image_url)
+          album:album_id (id, album_name, artist_name, image_url, tracks)
         `
         )
         .order('created_at', { ascending: false });
@@ -584,6 +741,52 @@ export function AdminPanel({ onClose, isPage = true }) {
     });
   }, [profiles, userSearch]);
 
+  // Paginated Slices & Total Pages Calculations
+  const totalCatalogPages = Math.max(
+    1,
+    Math.ceil(filteredAlbums.length / catalogPageSize)
+  );
+  const paginatedAlbums = useMemo(() => {
+    const start = (catalogPage - 1) * catalogPageSize;
+    return filteredAlbums.slice(start, start + catalogPageSize);
+  }, [filteredAlbums, catalogPage, catalogPageSize]);
+
+  const totalReviewsPages = Math.max(
+    1,
+    Math.ceil(filteredReviews.length / reviewsPageSize)
+  );
+  const paginatedReviews = useMemo(() => {
+    const start = (reviewsPage - 1) * reviewsPageSize;
+    return filteredReviews.slice(start, start + reviewsPageSize);
+  }, [filteredReviews, reviewsPage, reviewsPageSize]);
+
+  const totalUsersPages = Math.max(
+    1,
+    Math.ceil(filteredProfiles.length / usersPageSize)
+  );
+  const paginatedProfiles = useMemo(() => {
+    const start = (usersPage - 1) * usersPageSize;
+    return filteredProfiles.slice(start, start + usersPageSize);
+  }, [filteredProfiles, usersPage, usersPageSize]);
+
+  const totalPoolPages = Math.max(
+    1,
+    Math.ceil(poolActive.length / poolPageSize)
+  );
+  const paginatedPool = useMemo(() => {
+    const start = (poolPage - 1) * poolPageSize;
+    return poolActive.slice(start, start + poolPageSize);
+  }, [poolActive, poolPage, poolPageSize]);
+
+  const totalSeasonsPages = Math.max(
+    1,
+    Math.ceil(seasons.length / seasonsPageSize)
+  );
+  const paginatedSeasons = useMemo(() => {
+    const start = (seasonsPage - 1) * seasonsPageSize;
+    return seasons.slice(start, start + seasonsPageSize);
+  }, [seasons, seasonsPage, seasonsPageSize]);
+
   return (
     <div
       className={
@@ -957,52 +1160,65 @@ export function AdminPanel({ onClose, isPage = true }) {
                   No hay discos en espera en el Pool activo.
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {poolActive.map((item) => (
-                    <div
-                      key={item.id}
-                      className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between gap-3"
-                    >
-                      <div className="flex items-center gap-3 min-w-0">
-                        <img
-                          src={item.imagen}
-                          alt={item.album}
-                          className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0"
-                        />
-                        <div className="min-w-0">
-                          <h4 className="text-xs sm:text-sm font-bold text-white truncate">
-                            {item.album}
-                          </h4>
-                          <p className="text-[11px] text-slate-400 truncate">
-                            {item.artista}
-                          </p>
-                          <p className="text-[10px] text-pink-400 truncate">
-                            Por: {item.added_by || 'Comunidad'}
-                          </p>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {paginatedPool.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-3.5 rounded-2xl bg-black/40 border border-white/10 flex items-center justify-between gap-3"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <img
+                            src={item.imagen}
+                            alt={item.album}
+                            className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <h4 className="text-xs sm:text-sm font-bold text-white truncate">
+                              {item.album}
+                            </h4>
+                            <p className="text-[11px] text-slate-400 truncate">
+                              {item.artista}
+                            </p>
+                            <p className="text-[10px] text-pink-400 truncate">
+                              Por: {item.added_by || 'Comunidad'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleSetWinner(item.id)}
+                            className="px-2.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 text-xs font-bold transition-all"
+                            title="Hacer Ganador de la Semana"
+                          >
+                            🏆 Ganador
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveFromPool(item.id)}
+                            className="px-2.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold transition-all"
+                            title="Quitar del Pool"
+                          >
+                            ✕
+                          </button>
                         </div>
                       </div>
+                    ))}
+                  </div>
 
-                      <div className="flex items-center gap-1.5 flex-shrink-0">
-                        <button
-                          type="button"
-                          onClick={() => handleSetWinner(item.id)}
-                          className="px-2.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 text-xs font-bold transition-all"
-                          title="Hacer Ganador de la Semana"
-                        >
-                          🏆 Ganador
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveFromPool(item.id)}
-                          className="px-2.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold transition-all"
-                          title="Quitar del Pool"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  <AdminPagination
+                    currentPage={poolPage}
+                    totalPages={totalPoolPages}
+                    totalItems={poolActive.length}
+                    pageSize={poolPageSize}
+                    onPageChange={setPoolPage}
+                    onPageSizeChange={setPoolPageSize}
+                    pageSizeOptions={[6, 8, 12, 20]}
+                    itemName="candidatos"
+                  />
+                </>
               )}
             </div>
           </div>
@@ -1034,7 +1250,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
             {/* Seasons Cards Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {seasons.map((s) => (
+              {paginatedSeasons.map((s) => (
                 <div
                   key={s.id}
                   className={`p-6 rounded-3xl border transition-all space-y-4 ${
@@ -1109,6 +1325,17 @@ export function AdminPanel({ onClose, isPage = true }) {
                 </div>
               ))}
             </div>
+
+            <AdminPagination
+              currentPage={seasonsPage}
+              totalPages={totalSeasonsPages}
+              totalItems={seasons.length}
+              pageSize={seasonsPageSize}
+              onPageChange={setSeasonsPage}
+              onPageSizeChange={setSeasonsPageSize}
+              pageSizeOptions={[4, 6, 12]}
+              itemName="temporadas"
+            />
 
             {/* Modal for Creating or Editing Season */}
             {(isCreatingSeason || editingSeason) && (
@@ -1364,7 +1591,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                         </td>
                       </tr>
                     ) : (
-                      filteredAlbums.slice(0, 100).map((album) => (
+                      paginatedAlbums.map((album) => (
                         <tr
                           key={album.id}
                           className="hover:bg-white/5 transition-colors"
@@ -1443,6 +1670,17 @@ export function AdminPanel({ onClose, isPage = true }) {
                 </table>
               </div>
             </div>
+
+            <AdminPagination
+              currentPage={catalogPage}
+              totalPages={totalCatalogPages}
+              totalItems={filteredAlbums.length}
+              pageSize={catalogPageSize}
+              onPageChange={setCatalogPage}
+              onPageSizeChange={setCatalogPageSize}
+              pageSizeOptions={[25, 50, 100]}
+              itemName="álbumes"
+            />
           </div>
         )}
 
@@ -1483,7 +1721,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   No se encontraron reseñas con los filtros seleccionados.
                 </div>
               ) : (
-                filteredReviews.map((rev) => (
+                paginatedReviews.map((rev) => (
                   <div
                     key={rev.id}
                     className="p-4 rounded-2xl bg-[#14172a] border border-white/10 flex flex-col md:flex-row items-start justify-between gap-4"
@@ -1526,11 +1764,23 @@ export function AdminPanel({ onClose, isPage = true }) {
                             Letras: <strong>{rev.rating_letras}</strong>
                           </span>
                         )}
-                        {rev.favorite_track && (
-                          <span className="text-pink-300 font-semibold">
-                            👑 Track: {rev.favorite_track}
-                          </span>
-                        )}
+                        {(() => {
+                          const favKey = rev.favorite_track || rev.favoriteTrack;
+                          if (!favKey) return null;
+                          const albumTracks =
+                            rev.album?.tracks ||
+                            albums.find((a) => a.id === rev.album_id)?.tracks ||
+                            [];
+                          const trackName = getTrackDisplayName(favKey, albumTracks);
+                          return (
+                            <span
+                              className="text-pink-300 font-semibold"
+                              title={trackName}
+                            >
+                              👑 Track: {trackName}
+                            </span>
+                          );
+                        })()}
                       </div>
 
                       {/* Review Comment */}
@@ -1553,6 +1803,17 @@ export function AdminPanel({ onClose, isPage = true }) {
                 ))
               )}
             </div>
+
+            <AdminPagination
+              currentPage={reviewsPage}
+              totalPages={totalReviewsPages}
+              totalItems={filteredReviews.length}
+              pageSize={reviewsPageSize}
+              onPageChange={setReviewsPage}
+              onPageSizeChange={setReviewsPageSize}
+              pageSizeOptions={[10, 20, 50]}
+              itemName="reseñas"
+            />
           </div>
         )}
 
@@ -1596,7 +1857,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                         </td>
                       </tr>
                     ) : (
-                      filteredProfiles.map((prof) => (
+                      paginatedProfiles.map((prof) => (
                         <tr
                           key={prof.id}
                           className="hover:bg-white/5 transition-colors"
@@ -1646,6 +1907,17 @@ export function AdminPanel({ onClose, isPage = true }) {
                 </table>
               </div>
             </div>
+
+            <AdminPagination
+              currentPage={usersPage}
+              totalPages={totalUsersPages}
+              totalItems={filteredProfiles.length}
+              pageSize={usersPageSize}
+              onPageChange={setUsersPage}
+              onPageSizeChange={setUsersPageSize}
+              pageSizeOptions={[10, 20, 50]}
+              itemName="usuarios"
+            />
           </div>
         )}
 

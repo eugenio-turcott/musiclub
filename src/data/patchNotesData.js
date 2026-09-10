@@ -14,6 +14,44 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.2',
+    title:
+      'Catálogo Universal Completo (2,277+ Álbumes), Resolución de Tracks Favoritos y Paginación Integral en Admin',
+    date: '2026-09-10',
+    sha: 'HEAD',
+    tag: 'Admin & Optimización',
+    tagColor: 'from-cyan-500 via-blue-500 to-indigo-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.2 enfocada en la escalabilidad y consistencia del Centro de Mando y las métricas de la plataforma. Se supera el límite de 1,000 registros de PostgREST implementando paginación por rangos para cargar los 2,277+ lanzamientos del Catálogo Universal en el panel de Administración. Se implementa un motor de resolución inteligente de nombres de Canción Favorita en la moderación de reseñas para traducir hashes y URIs crudas de Spotify (ej. "7oWkK4yK2saSHAqMtcPVXI" → "Animal") a títulos legibles. Asimismo, se incorpora paginación completa en todas las pestañas de administración y se sincroniza el censo oficial de 21 miembros.',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Carga Completa del Catálogo Universal (2,277+ Lanzamientos)',
+        description:
+          'Se solucionó la limitación de 1,000 filas de PostgREST/Supabase mediante consultas por rangos (.range()), permitiendo que el Centro de Mando cargue y cuantifique la totalidad de los 2,277+ álbumes en el contador de métricas y en la tabla de administración.',
+      },
+      {
+        type: 'fix',
+        title: 'Resolución Fidedigna de Canción Favorita en Reseñas',
+        description:
+          'En la moderación de reseñas, las canciones favoritas que se guardaron como IDs de Spotify (como "7oWkK4yK2saSHAqMtcPVXI" en WILD de KATSEYE) ahora se resuelven y muestran con su nombre de pista real ("Animal"), integrando la lista de tracks del álbum y el diccionario de correspondencias conocido.',
+      },
+      {
+        type: 'feature',
+        title: 'Paginación Completa en el Centro de Mando (AdminPanel)',
+        description:
+          'Nuevo componente reutilizable de paginación con salto dinámico de página, botones con elipsis, selector de filas por página ("Por pág"), botones anterior/siguiente y contador de rango (Mostrando X - Y de Z). Se implementó en el Catálogo Universal (25/50/100 filas), en Moderación de Reseñas (10/20/50 filas), en Usuarios & Perfiles (10/20/50 filas), en el Pool Semanal y en la cuadrícula de Temporadas.',
+      },
+      {
+        type: 'fix',
+        title: 'Sincronización de Conteo de Miembros de la Comunidad (21 Miembros)',
+        description:
+          'Resolución de la disparidad entre los 21 perfiles registrados en la base de datos de Supabase y los 19 reviewers que se mostraban en la Landing Page y en la tarjeta de Reviewers Únicos. Se actualizó la función getGlobalStats() en supabaseClient.js y las vistas de LandingPage y Reviews para priorizar el censo de perfiles registrados de la comunidad (21) bajo la denominación unificada "Críticos & Miembros".',
+      },
+    ],
+  },
+  {
     version: 'V.8.1',
     title:
       'Unificación Tipográfica Gabarito, Rediseño Mobile-First de Review Stories y Actualización de Logotipos Oficiales',

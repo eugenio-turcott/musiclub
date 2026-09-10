@@ -1239,7 +1239,8 @@ export const supabaseService = {
         total_reviews: reviews.length,
         total_albums: albumsRes?.count || 0,
         total_reviewed_albums: uniqueReviewedAlbums.size,
-        total_users: uniqueReviewers.size || profilesRes?.count || 0,
+        total_users: profilesRes?.count || uniqueReviewers.size || 0,
+        unique_reviewers: uniqueReviewers.size || 0,
         top_score: topScore,
       };
     } catch (error) {
