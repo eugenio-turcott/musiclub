@@ -32,6 +32,11 @@ Disallow: /profile
 Disallow: /perfil
 Disallow: /404
 
-# Host & Official Sitemap
+# Host & Official Sitemaps
 Host: https://www.musiclub.org
 Sitemap: https://www.musiclub.org/sitemap.xml
+Sitemap: https://www.musiclub.org/sitemap-core.xml
+Sitemap: https://www.musiclub.org/sitemap-reviews.xml
+Sitemap: https://www.musiclub.org/sitemap-catalog.xml
+Sitemap: https://www.musiclub.org/sitemap-artists.xml
+

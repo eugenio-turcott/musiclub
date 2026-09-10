@@ -78,6 +78,17 @@ function getReleaseTypePrefix(rawType) {
   return 'albumes';
 }
 
+function formatDate(dateVal) {
+  try {
+    if (!dateVal) return new Date().toISOString().split('T')[0];
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return new Date().toISOString().split('T')[0];
+    return d.toISOString().split('T')[0];
+  } catch (e) {
+    return new Date().toISOString().split('T')[0];
+  }
+}
+
 function buildXmlUrlset(urls) {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -85,7 +96,7 @@ ${urls
   .map(
     (u) => `  <url>
     <loc>${u.loc}</loc>
-    ${u.lastmod ? `<lastmod>${new Date(u.lastmod).toISOString().split('T')[0]}</lastmod>` : ''}
+    <lastmod>${formatDate(u.lastmod)}</lastmod>
     <changefreq>${u.changefreq || 'weekly'}</changefreq>
     <priority>${u.priority || '0.5'}</priority>
   </url>`
@@ -101,7 +112,7 @@ ${sitemaps
   .map(
     (s) => `  <sitemap>
     <loc>${s.loc}</loc>
-    <lastmod>${new Date().toISOString().split('T')[0]}</lastmod>
+    <lastmod>${formatDate(s.lastmod)}</lastmod>
   </sitemap>`
   )
   .join('\n')}
@@ -109,10 +120,51 @@ ${sitemaps
 }
 
 async function generateSitemap() {
-  console.log('🗺️ Generando sitemap.xml actualizado...');
+  console.log('🗺️ Generando arquitectura modular de Sitemaps...');
   const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+  const today = new Date().toISOString();
 
-  // 1. Paginación exhaustiva para consultar TODOS los álbumes de Supabase (superando el límite de 1000)
+  // 1. Consultar reseñas comunitarias para identificar álbumes con valor y opiniones reales
+  const reviewMap = new Map();
+  try {
+    const { data: reviewsData, error: revError } = await supabase
+      .from('reviews')
+      .select('album_id, created_at');
+
+    if (!revError && Array.isArray(reviewsData)) {
+      reviewsData.forEach((r) => {
+        if (r.album_id) {
+          const prev = reviewMap.get(r.album_id);
+          if (!prev || new Date(r.created_at) > new Date(prev)) {
+            reviewMap.set(r.album_id, r.created_at);
+          }
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('⚠️ Error consultando reseñas para sitemap:', err.message);
+  }
+  console.log(`⭐ Identificados ${reviewMap.size} álbumes con reseñas y opiniones de la comunidad.`);
+
+  // 2. Consultar candidatos y ganadores del Pool
+  const featuredPoolSet = new Set();
+  try {
+    const { data: poolData, error: poolError } = await supabase
+      .from('pool_entries')
+      .select('album_id, status');
+
+    if (!poolError && Array.isArray(poolData)) {
+      poolData.forEach((p) => {
+        if (p.album_id && (p.status === 'winner' || p.status === 'graduated')) {
+          featuredPoolSet.add(p.album_id);
+        }
+      });
+    }
+  } catch (err) {
+    console.warn('⚠️ Error consultando pool para sitemap:', err.message);
+  }
+
+  // 3. Paginación exhaustiva para consultar TODOS los álbumes de Supabase (superando límite de 1000)
   const allAlbums = [];
   const step = 1000;
   let from = 0;
@@ -121,7 +173,7 @@ async function generateSitemap() {
   while (hasMore) {
     const { data: pageAlbums, error } = await supabase
       .from('albums')
-      .select('album_name, artist_name, release_type, created_at')
+      .select('id, album_name, artist_name, release_type, created_at')
       .order('created_at', { ascending: false })
       .range(from, from + step - 1);
 
@@ -142,28 +194,30 @@ async function generateSitemap() {
     }
   }
 
-  console.log(`📦 Consultados ${allAlbums.length} lanzamientos de la base de datos.`);
+  console.log(`📦 Consultados ${allAlbums.length} lanzamientos totales de la base de datos.`);
 
-  const staticRoutes = [
-    { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' },
-    { loc: `${BASE_URL}/catalogo`, priority: '0.9', changefreq: 'daily' },
-    { loc: `${BASE_URL}/pool`, priority: '0.85', changefreq: 'daily' },
-    { loc: `${BASE_URL}/leaderboard`, priority: '0.8', changefreq: 'daily' },
-    { loc: `${BASE_URL}/reviews`, priority: '0.8', changefreq: 'daily' },
-    { loc: `${BASE_URL}/portadas`, priority: '0.75', changefreq: 'weekly' },
-    { loc: `${BASE_URL}/playlists`, priority: '0.75', changefreq: 'weekly' },
-    { loc: `${BASE_URL}/recomendaciones`, priority: '0.7', changefreq: 'weekly' },
-    { loc: `${BASE_URL}/gashapon`, priority: '0.6', changefreq: 'weekly' },
-    { loc: `${BASE_URL}/faq`, priority: '0.5', changefreq: 'monthly' },
-    { loc: `${BASE_URL}/patch-notes`, priority: '0.4', changefreq: 'weekly' },
-    { loc: `${BASE_URL}/privacy`, priority: '0.3', changefreq: 'monthly' },
-    { loc: `${BASE_URL}/terms`, priority: '0.3', changefreq: 'monthly' },
+  // 4. Rutas estáticas clave (Core)
+  const coreRoutes = [
+    { loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/catalogo`, priority: '0.9', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/pool`, priority: '0.85', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/leaderboard`, priority: '0.85', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/reviews`, priority: '0.85', changefreq: 'daily', lastmod: today },
+    { loc: `${BASE_URL}/portadas`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/playlists`, priority: '0.75', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/recomendaciones`, priority: '0.75', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/gashapon`, priority: '0.65', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/faq`, priority: '0.5', changefreq: 'monthly', lastmod: today },
+    { loc: `${BASE_URL}/patch-notes`, priority: '0.5', changefreq: 'weekly', lastmod: today },
+    { loc: `${BASE_URL}/privacy`, priority: '0.3', changefreq: 'monthly', lastmod: today },
+    { loc: `${BASE_URL}/terms`, priority: '0.3', changefreq: 'monthly', lastmod: today },
   ];
 
-  const releaseMap = new Map();
+  // 5. Separación inteligente de lanzamientos (Con reseñas vs Catálogo general)
+  const reviewedReleasesMap = new Map();
+  const catalogReleasesMap = new Map();
   const artistSet = new Set();
 
-  // 2. Álbumes y releases existentes en la Base de Datos de Supabase
   allAlbums.forEach((alb) => {
     const albumName = alb.album_name;
     const artistName = alb.artist_name;
@@ -171,31 +225,48 @@ async function generateSitemap() {
 
     if (albumName) {
       const slug = slugify(albumName);
-      if (slug && !releaseMap.has(slug)) {
-        releaseMap.set(slug, {
-          loc: `${BASE_URL}/${prefix}/${slug}`,
-          lastmod: alb.created_at || new Date().toISOString(),
-          priority: '0.8',
-          changefreq: 'weekly',
-        });
+      if (slug) {
+        const hasReviews = reviewMap.has(alb.id) || featuredPoolSet.has(alb.id);
+        const lastModDate = reviewMap.get(alb.id) || alb.created_at || today;
+
+        if (hasReviews) {
+          if (!reviewedReleasesMap.has(slug)) {
+            reviewedReleasesMap.set(slug, {
+              loc: `${BASE_URL}/${prefix}/${slug}`,
+              lastmod: lastModDate,
+              priority: '0.9',
+              changefreq: 'weekly',
+            });
+          }
+        } else {
+          if (!catalogReleasesMap.has(slug) && !reviewedReleasesMap.has(slug)) {
+            catalogReleasesMap.set(slug, {
+              loc: `${BASE_URL}/${prefix}/${slug}`,
+              lastmod: alb.created_at || today,
+              priority: '0.6',
+              changefreq: 'monthly',
+            });
+          }
+        }
       }
     }
+
     if (artistName) {
       artistSet.add(artistName);
     }
   });
 
-  // 3. Curaduría de álbumes populares para Programmatic SEO On-Demand
+  // Integrar curaduría de álbumes populares para SEO programático
   (POPULAR_ALBUMS || []).forEach((item) => {
     if (item.album) {
       const slug = slugify(item.album);
-      if (slug && !releaseMap.has(slug)) {
+      if (slug && !reviewedReleasesMap.has(slug) && !catalogReleasesMap.has(slug)) {
         const prefix = getReleaseTypePrefix(item.release_type);
-        releaseMap.set(slug, {
+        catalogReleasesMap.set(slug, {
           loc: `${BASE_URL}/${prefix}/${slug}`,
-          lastmod: new Date().toISOString(),
-          priority: '0.75',
-          changefreq: 'weekly',
+          lastmod: today,
+          priority: '0.6',
+          changefreq: 'monthly',
         });
       }
     }
@@ -204,43 +275,61 @@ async function generateSitemap() {
     }
   });
 
-  const releaseRoutes = Array.from(releaseMap.values());
+  const reviewedRoutes = Array.from(reviewedReleasesMap.values());
+  const catalogRoutes = Array.from(catalogReleasesMap.values());
   const artistRoutes = Array.from(artistSet).map((art) => ({
     loc: `${BASE_URL}/artista/${slugify(art)}`,
-    lastmod: new Date().toISOString(),
-    priority: '0.7',
-    changefreq: 'weekly',
+    lastmod: today,
+    priority: '0.5',
+    changefreq: 'monthly',
   }));
 
-  const allUrls = [...staticRoutes, ...releaseRoutes, ...artistRoutes];
   const publicDir = path.join(__dirname, '..', 'public');
 
-  // 4. Escribir archivo de Sitemap cumpliendo con los estándares de Google
-  if (allUrls.length <= MAX_URLS_PER_SITEMAP) {
-    const xml = buildXmlUrlset(allUrls);
-    const mainSitemapPath = path.join(publicDir, 'sitemap.xml');
-    fs.writeFileSync(mainSitemapPath, xml, 'utf8');
-    console.log(`✅ sitemap.xml generado con éxito: ${allUrls.length} URLs totales indexables en ${mainSitemapPath}`);
-  } else {
-    // Si supera 45,000 URLs, particionar según estándar oficial de Google
-    const numParts = Math.ceil(allUrls.length / MAX_URLS_PER_SITEMAP);
-    const sitemapsIndexList = [];
+  // 6. Escribir los 4 sub-sitemaps modulares
+  // Sub-sitemap 1: Páginas Principales (Core)
+  const coreXml = buildXmlUrlset(coreRoutes);
+  fs.writeFileSync(path.join(publicDir, 'sitemap-core.xml'), coreXml, 'utf8');
 
-    for (let part = 0; part < numParts; part++) {
-      const chunkUrls = allUrls.slice(part * MAX_URLS_PER_SITEMAP, (part + 1) * MAX_URLS_PER_SITEMAP);
-      const partFileName = `sitemap-${part + 1}.xml`;
-      const partXml = buildXmlUrlset(chunkUrls);
-      fs.writeFileSync(path.join(publicDir, partFileName), partXml, 'utf8');
-      sitemapsIndexList.push({ loc: `${BASE_URL}/${partFileName}` });
-    }
+  // Sub-sitemap 2: Álbumes con Reseñas Comunitarias (Oro SEO)
+  const reviewsXml = buildXmlUrlset(reviewedRoutes);
+  fs.writeFileSync(path.join(publicDir, 'sitemap-reviews.xml'), reviewsXml, 'utf8');
 
-    const indexXml = buildXmlSitemapIndex(sitemapsIndexList);
-    const mainSitemapPath = path.join(publicDir, 'sitemap.xml');
-    fs.writeFileSync(mainSitemapPath, indexXml, 'utf8');
-    console.log(`✅ sitemap.xml (Index) generado con ${numParts} partes particionadas para ${allUrls.length} URLs.`);
-  }
+  // Sub-sitemap 3: Catálogo General
+  const catalogXml = buildXmlUrlset(catalogRoutes);
+  fs.writeFileSync(path.join(publicDir, 'sitemap-catalog.xml'), catalogXml, 'utf8');
 
-  return allUrls.length;
+  // Sub-sitemap 4: Perfiles de Artistas
+  const artistsXml = buildXmlUrlset(artistRoutes);
+  fs.writeFileSync(path.join(publicDir, 'sitemap-artists.xml'), artistsXml, 'utf8');
+
+  // 7. Escribir el Sitemap Index Maestro (sitemap.xml)
+  const indexSitemaps = [
+    { loc: `${BASE_URL}/sitemap-core.xml`, lastmod: today },
+    { loc: `${BASE_URL}/sitemap-reviews.xml`, lastmod: today },
+    { loc: `${BASE_URL}/sitemap-catalog.xml`, lastmod: today },
+    { loc: `${BASE_URL}/sitemap-artists.xml`, lastmod: today },
+  ];
+  const indexXml = buildXmlSitemapIndex(indexSitemaps);
+  fs.writeFileSync(path.join(publicDir, 'sitemap.xml'), indexXml, 'utf8');
+
+  const totalUrls = coreRoutes.length + reviewedRoutes.length + catalogRoutes.length + artistRoutes.length;
+
+  console.log('✅ Arquitectura de Sitemaps generada exitosamente:');
+  console.log(`   🌟 sitemap-core.xml:     ${coreRoutes.length} URLs (Páginas maestras)`);
+  console.log(`   🏆 sitemap-reviews.xml:  ${reviewedRoutes.length} URLs (Álbumes con reseñas reales)`);
+  console.log(`   💿 sitemap-catalog.xml:  ${catalogRoutes.length} URLs (Catálogo general)`);
+  console.log(`   🎤 sitemap-artists.xml:  ${artistRoutes.length} URLs (Perfiles de artistas)`);
+  console.log(`   📑 sitemap.xml:          Sitemap Index maestro que agrupa los 4 submódulos.`);
+  console.log(`   🌐 Total de URLs:        ${totalUrls} URLs indexables.`);
+
+  return {
+    totalUrls,
+    core: coreRoutes.length,
+    reviews: reviewedRoutes.length,
+    catalog: catalogRoutes.length,
+    artists: artistRoutes.length,
+  };
 }
 
 if (require.main === module) {

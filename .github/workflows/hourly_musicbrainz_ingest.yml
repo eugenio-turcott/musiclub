@@ -1,9 +1,9 @@
 name: Smart Catalog Ingestion (65% 2026 / 20% Tendencia / 15% Décadas) & Sitemap Update
 
 on:
-  schedule:
-    # Minutos 17 y 47 de cada hora (evita congestión global de GitHub en :00 y :30)
-    - cron: '17,47 * * * *'
+  # Ingestión automática programada (cada 30 min) suspendida temporalmente a petición del administrador
+  # schedule:
+  #   - cron: '17,47 * * * *'
   workflow_dispatch: # Permite ejecución manual con selector de cantidad desde GitHub Actions
     inputs:
       target:
