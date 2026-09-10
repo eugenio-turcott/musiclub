@@ -669,10 +669,10 @@ export function AlbumsCatalog({ isPage = false }) {
             <span>Explorador Híbrido · Música en Tiempo Real</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
-            Catálogo & Novedades
+            Catálogo & Tendencias 2026
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Explora lanzamientos en tendencia en vivo e indaga en los álbumes calificados por los miembros del club con desglose de reseñas y canciones.
+            Explora los álbumes más famosos y tendencia de 2026 en vivo e indaga en los lanzamientos calificados por los miembros del club con desglose de reseñas y canciones.
           </p>
         </div>
 
@@ -696,7 +696,7 @@ export function AlbumsCatalog({ isPage = false }) {
               </span>
             </div>
             <p className="text-[11px] text-cyan-300 font-medium mt-1">
-              {globalStats.totalClub} en Club · {globalStats.totalTrending} Tendencias en vivo
+              {globalStats.totalClub} en Club · {globalStats.totalTrending} Tendencias 2026
             </p>
           </div>
 
@@ -1046,7 +1046,7 @@ export function AlbumsCatalog({ isPage = false }) {
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {[
               { id: 'ALL', label: 'Todo el Catálogo', count: unifiedAlbums.length, icon: '🌐' },
-              { id: 'TRENDING', label: 'Tendencias & Novedades', count: trendingReleases.length, icon: '🔥' },
+              { id: 'TRENDING', label: 'Tendencias 2026', count: trendingReleases.length, icon: '🔥' },
               { id: 'REVIEWED', label: 'Calificados en Club', count: albums.length, icon: '⭐' },
             ].map((tab) => {
               const active = browseFilter === tab.id;
@@ -1087,7 +1087,7 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <input
               type="text"
-              placeholder="Buscar álbum, novedad, artista o curador..."
+              placeholder="Buscar álbum, artista o curador en el catálogo..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
@@ -1122,7 +1122,7 @@ export function AlbumsCatalog({ isPage = false }) {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
             >
-              <option value="trending_first">🔥 Tendencias primero</option>
+              <option value="trending_first">🔥 Tendencias 2026 primero</option>
               <option value="rating_desc">🌟 Mayor Calificación</option>
               <option value="rating_asc">📉 Menor Calificación</option>
               <option value="reviews_desc">📝 Más Reseñas</option>
@@ -1239,7 +1239,7 @@ export function AlbumsCatalog({ isPage = false }) {
                       <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                         {album.is_trending && !isCardInClub && (
                           <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
-                            🔥 Tendencia
+                            🔥 Tendencia 2026
                           </span>
                         )}
                         {score !== null && (

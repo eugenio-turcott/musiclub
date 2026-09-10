@@ -88,8 +88,9 @@ export async function getTrendingReleases(options = {}) {
 
   let dbData = null;
   let isCacheFresh = false;
+  const currentYear = new Date().getFullYear();
 
-  // 1. Intentar leer desde Supabase (tabla rotatoria trending_releases) si existe
+  // 1. Intentar leer desde Supabase (tabla rotatoria trending_releases) si son álbumes sustanciales de 2026
   try {
     const { data, error } = await supabase
       .from('trending_releases')
@@ -98,12 +99,16 @@ export async function getTrendingReleases(options = {}) {
       .limit(limit);
 
     if (!error && data && data.length > 0) {
-      dbData = data;
+      const allFromCurrentYear = data.every((r) =>
+        (r.release_date || '').startsWith(String(currentYear))
+      );
+      const hasSubstantialTracks = data.some((r) => (r.total_tracks || 0) >= 8);
       const newestUpdated = new Date(data[0].updated_at || 0).getTime();
       const ageHours = (Date.now() - newestUpdated) / (1000 * 60 * 60);
 
-      if (ageHours < 6 && !forceRefresh) {
+      if (ageHours < 6 && allFromCurrentYear && hasSubstantialTracks && !forceRefresh) {
         isCacheFresh = true;
+        dbData = data;
       }
     }
   } catch {
@@ -123,77 +128,101 @@ export async function getTrendingReleases(options = {}) {
 
   let lastError = null;
 
-  // 2. Consultar Spotify tag:new en vivo en lotes de 10 (límite estricto de Spotify para tag:new)
+  // 2. Consultar los álbumes más famosos y tendencia de 2026 vía Spotify (Mercado MX y Global)
   try {
     const token = await getSpotifyAppToken();
-    const targetCount = Math.min(Math.max(limit, 10), 50);
-    const numBatches = Math.ceil(targetCount / 10);
-    const offsets = Array.from({ length: numBatches }, (_, i) => i * 10);
+    const offsets = [0, 10, 20, 30, 40, 50, 60, 70];
+    const fetchTasks = [];
 
-    const batchResults = await Promise.all(
-      offsets.map(async (offset) => {
-        try {
-          const res = await fetch(
-            `https://api.spotify.com/v1/search?q=tag:new&type=album&market=MX&limit=10&offset=${offset}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            }
-          );
-          return await res.json();
-        } catch {
-          return null;
-        }
-      })
-    );
-
-    const rawItems = [];
-    batchResults.forEach((json) => {
-      if (json?.albums?.items) {
-        rawItems.push(...json.albums.items);
-      } else if (json?.error) {
-        lastError = json.error.message;
-      }
+    offsets.forEach((offset) => {
+      // Mercado México / Latino
+      fetchTasks.push(
+        fetch(
+          `https://api.spotify.com/v1/search?q=year:${currentYear}&type=album&market=MX&limit=10&offset=${offset}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+          .then((r) => r.json())
+          .catch(() => null)
+      );
+      // Mercado Global / Internacional
+      fetchTasks.push(
+        fetch(
+          `https://api.spotify.com/v1/search?q=year:${currentYear}&type=album&limit=10&offset=${offset}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+          .then((r) => r.json())
+          .catch(() => null)
+      );
     });
 
-    if (rawItems.length > 0) {
-      const seenIds = new Set();
-      const formattedReleases = [];
+    const batchResults = await Promise.all(fetchTasks);
+    const seenIds = new Set();
+    const seenTitleArtist = new Set();
+    const formattedReleases = [];
 
-      for (const item of rawItems) {
-        if (!item || !item.id || seenIds.has(item.id)) continue;
+    batchResults.forEach((json) => {
+      if (!json?.albums?.items) {
+        if (json?.error) lastError = json.error.message;
+        return;
+      }
+
+      for (const item of json.albums.items) {
+        if (!item || !item.id) continue;
+        if (seenIds.has(item.id)) continue;
+
+        const artistName = item.artists
+          ? item.artists.map((a) => a.name).join(', ')
+          : 'Varios Artistas';
+        const normKey = `${(item.name || '').trim().toLowerCase()}:::${artistName.trim().toLowerCase()}`;
+        if (seenTitleArtist.has(normKey)) continue;
+
+        // Filtrado estricto estilo Record Club:
+        // Solo ÁLBUMES y EPs legítimos de 2026 (excluyendo cualquier single suelto o compilaciones spotlight)
+        const relDate = item.release_date || '';
+        const isCurrentYear = relDate.startsWith(String(currentYear));
+        const isTrueAlbum =
+          item.album_type === 'album' || item.album_type === 'compilation';
+        const isGenericSpotlight = (item.name || '')
+          .toLowerCase()
+          .includes('artist spotlight');
+
+        if (!isCurrentYear || !isTrueAlbum || isGenericSpotlight) continue;
+
         seenIds.add(item.id);
+        seenTitleArtist.add(normKey);
 
         let releaseType = 'ALBUM';
-        if (item.album_type === 'single') {
-          releaseType = item.total_tracks > 2 ? 'EP' : 'SENCILLO';
-        } else if (item.album_type === 'compilation') {
+        if (item.album_type === 'compilation') {
           releaseType = 'COMPILACION';
+        } else if ((item.total_tracks || 0) <= 6) {
+          releaseType = 'EP';
         }
 
         formattedReleases.push({
           id: item.id,
           album_name: item.name,
-          artist_name: item.artists
-            ? item.artists.map((a) => a.name).join(', ')
-            : 'Varios Artistas',
+          artist_name: artistName,
           image_url: item.images?.[0]?.url || item.images?.[1]?.url || '',
           spotify_url:
             item.external_urls?.spotify ||
             `https://open.spotify.com/album/${item.id}`,
-          release_date:
-            item.release_date || new Date().toISOString().split('T')[0],
+          release_date: relDate || `${currentYear}-01-01`,
           release_type: releaseType,
           total_tracks: item.total_tracks || 1,
           popularity: item.popularity || 0,
           updated_at: new Date().toISOString(),
         });
       }
+    });
 
-      // Sincronizar silenciosamente en Supabase si la tabla existe
+    if (formattedReleases.length > 0) {
+      const finalReleases = formattedReleases.slice(0, Math.max(limit, 50));
+
+      // Sincronizar silenciosamente en Supabase (tabla rotatoria)
       try {
         await supabase
           .from('trending_releases')
-          .upsert(formattedReleases, { onConflict: 'id' });
+          .upsert(finalReleases, { onConflict: 'id' });
       } catch {
         // Fallback silencioso sin ensuciar la base de datos principal
       }
@@ -201,7 +230,7 @@ export async function getTrendingReleases(options = {}) {
       const response = {
         success: true,
         source: 'spotify_live',
-        releases: formattedReleases,
+        releases: finalReleases,
       };
 
       inMemoryTrending = response;
