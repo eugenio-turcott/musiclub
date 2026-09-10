@@ -1,3 +1,4 @@
+'use client';
 // src/components/PatchNotes.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { SEO } from './SEO';

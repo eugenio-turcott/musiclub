@@ -3,8 +3,14 @@ import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi';
 
 // Configuración de Spotify desde variables de entorno
-const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
-const SPOTIFY_CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
+const SPOTIFY_CLIENT_ID =
+  process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ||
+  process.env.REACT_APP_SPOTIFY_CLIENT_ID ||
+  process.env.SPOTIFY_CLIENT_ID;
+const SPOTIFY_CLIENT_SECRET =
+  process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET ||
+  process.env.REACT_APP_SPOTIFY_CLIENT_SECRET ||
+  process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_SEARCH_URL = 'https://api.spotify.com/v1/search';
 const SPOTIFY_ALBUM_URL = 'https://api.spotify.com/v1/albums';

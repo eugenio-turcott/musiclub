@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';

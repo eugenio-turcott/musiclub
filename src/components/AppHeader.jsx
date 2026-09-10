@@ -1,3 +1,4 @@
+'use client';
 // src/components/AppHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';

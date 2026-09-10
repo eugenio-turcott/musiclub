@@ -1,3 +1,4 @@
+'use client';
 // src/components/HeroMusicCanvas.jsx
 import React, { useEffect, useRef } from 'react';
 

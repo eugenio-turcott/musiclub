@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -176,11 +177,12 @@ const normalizeAlbumData = (rawAlbum) => {
   };
 };
 
-export function AlbumDetail() {
-  const { slug } = useParams();
+export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } = {}) {
+  const params = useParams();
+  const slug = initialSlug || params?.slug;
   const { user, isAdmin } = useAuth();
   const location = useLocation();
-  const preloadedAlbum = location.state?.preloadedAlbum;
+  const preloadedAlbum = propPreloadedAlbum || location?.state?.preloadedAlbum;
 
   const [album, setAlbum] = useState(() => normalizeAlbumData(preloadedAlbum));
   const [loading, setLoading] = useState(() => !preloadedAlbum);

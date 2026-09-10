@@ -9,6 +9,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
     "html2canvas": "^1.4.1",
+    "next": "^16.3.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-helmet-async": "^3.0.0",
@@ -17,12 +18,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "next dev",
     "prebuild": "node scripts/generate-sitemap.js",
-    "build": "react-scripts build",
+    "build": "next build",
+    "start": "next start",
     "sitemap": "node scripts/generate-sitemap.js",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
     "ingest:mb": "node scripts/hourlyMusicBrainzIngestion.mjs",
     "ingest:daemon": "node scripts/runHourlyDaemon.mjs",
     "enrich:missing": "node scripts/enrichMissingMusicBrainz.mjs",

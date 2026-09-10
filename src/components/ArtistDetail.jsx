@@ -1,3 +1,4 @@
+'use client';
 // src/components/ArtistDetail.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -12,14 +13,15 @@ import {
 } from '../services/spotifyApi';
 import { findAlbumsByArtist, getReleaseUrl } from '../utils/ratingUtils';
 
-export function ArtistDetail() {
-  const { slug } = useParams();
+export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlug } = {}) {
+  const params = useParams();
+  const slug = initialSlug || params?.slug;
   const navigate = useNavigate();
   const { user, isAdmin, loginWithGoogle, logout } = useAuth();
 
-  const [profileData, setProfileData] = useState(null);
-  const [clubAlbums, setClubAlbums] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [profileData, setProfileData] = useState(() => initialProfileData || null);
+  const [clubAlbums, setClubAlbums] = useState(() => initialClubAlbums || []);
+  const [loading, setLoading] = useState(() => !initialProfileData);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ALBUM' | 'EP' | 'SENCILLO' | 'COMPILACION'
   const [searchFilter, setSearchFilter] = useState('');
