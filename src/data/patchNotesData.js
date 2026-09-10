@@ -11,6 +11,53 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   // ----------------------------------------------------
+  // V8.x (Septiembre 2026)
+  // ----------------------------------------------------
+  {
+    version: 'V.8.0',
+    title:
+      'Migración de Arquitectura a Next.js App Router, SSR, Schema.org Nativo y Adopción Tipográfica Gabarito',
+    date: '2026-09-10',
+    sha: 'HEAD',
+    tag: 'Mayor / Arquitectura',
+    tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Lanzamiento mayor de Musiclub V.8.0 que revoluciona los cimientos técnicos de la plataforma: migración completa de Create React App (SPA) hacia Next.js 16 con App Router, Server-Side Rendering (SSR) e Incremental Static Regeneration (ISR). Se implementa la inyección nativa en servidor de metadatos SEO, Open Graph y Schema.org JSON-LD (MusicAlbum, MusicGroup, AggregateRating y listado de pistas) resolviendo de raíz la indexación en motores de búsqueda como Google Search Console. Además, se estrena una nueva identidad tipográfica moderna y expresiva con la fuente Google Fonts Gabarito en toda la interfaz.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Arquitectura Next.js 16 App Router con SSR e ISR',
+        description:
+          'Transformación integral desde una SPA a una arquitectura híbrida de alto rendimiento impulsada por Next.js App Router. Cada página de álbum (/albumes/[slug]) y artista (/artista/[slug]) se genera en el servidor con ISR (revalidate de 1 hora), garantizando tiempos de respuesta ultrarrápidos y entrega de HTML pre-renderizado completo en el primer byte.',
+      },
+      {
+        type: 'feature',
+        title: 'Indexación SEO Avanzada y Schema.org JSON-LD Nativo',
+        description:
+          'Generación en servidor de metadatos dinámicos (<title>, meta description, canonical URLs, tarjetas Open Graph con portadas oficiales de alta resolución) e inyección directa en el HTML inicial de scripts JSON-LD estructurados (MusicAlbum, MusicGroup, valoraciones comunitarias y tracks con duración y numeración). Ahora validadores como validator.schema.org y los rastreadores de Googlebot indexan el catálogo musical al 100% de forma inmediata.',
+      },
+      {
+        type: 'design',
+        title: 'Nueva Identidad Tipográfica Universal: Gabarito',
+        description:
+          'Adopción de la fuente Google Fonts "Gabarito" como la tipografía principal y universal de Musiclub. Su diseño geométrico, moderno y con gran legibilidad encaja a la perfección con la estética cyber-punk/neón de la plataforma, optimizada para carga sin parpadeo mediante next/font con display=swap.',
+      },
+      {
+        type: 'fix',
+        title: 'Blindaje contra Mismatches de Hidratación en Autenticación',
+        description:
+          'Resolución de discrepancias entre el servidor y el cliente causadas por lecturas síncronas de localStorage en useAuth, AppHeader y useNotifications. La sesión se hidrata de forma segura post-montaje, preservando la coherencia del DOM y evitando caídas o advertencias en consola.',
+      },
+      {
+        type: 'performance',
+        title: 'Generación Dinámica de Sitemap con +4,300 URLs',
+        description:
+          'Pipeline automatizado que compila e incluye más de 4,300 URLs indexables en public/sitemap.xml antes de cada compilación de producción, conectando todo el catálogo de lanzamientos directamente a Google Search Console.',
+      },
+    ],
+  },
+  // ----------------------------------------------------
   // V7.x (Septiembre 2026)
   // ----------------------------------------------------
   {

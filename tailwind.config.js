@@ -26,11 +26,11 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['Figtree', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['var(--font-gabarito)', 'Gabarito', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        gabarito: ['var(--font-gabarito)', 'Gabarito', 'sans-serif'],
+        heading: ['var(--font-gabarito)', 'Gabarito', '-apple-system', 'sans-serif'],
+        display: ['var(--font-gabarito)', 'Gabarito', '-apple-system', 'sans-serif'],
         figtree: ['Figtree', 'sans-serif'],
-        gabarito: ['Gabarito', 'sans-serif'],
-        heading: ['Figtree', '-apple-system', 'sans-serif'],
-        display: ['Figtree', '-apple-system', 'sans-serif'],
       },
       colors: {
         cyber: {

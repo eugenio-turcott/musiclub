@@ -1,13 +1,13 @@
 import '../styles/global.css';
 import '../index.css';
-import { Figtree } from 'next/font/google';
+import { Gabarito } from 'next/font/google';
 import Script from 'next/script';
 import { ClientProviders } from './ClientProviders';
 
-const figtree = Figtree({
+const gabarito = Gabarito({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-figtree',
+  variable: '--font-gabarito',
 });
 
 export const viewport = {
@@ -70,7 +70,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className={figtree.variable}>
+    <html lang="es" className={gabarito.variable}>
       <head>
         <Script
           async
@@ -79,7 +79,7 @@ export default function RootLayout({ children }) {
           strategy="afterInteractive"
         />
       </head>
-      <body className="bg-[#0a0a12] text-white antialiased min-h-screen">
+      <body className={`${gabarito.className} bg-[#0a0a12] text-white antialiased min-h-screen font-sans`}>
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
