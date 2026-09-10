@@ -14,11 +14,76 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.4',
+    title:
+      'Diseño Híbrido Estilo Record Club, Explorador de Álbumes Tendencia 2026 en Vivo y Arquitectura Modular de Sitemaps SEO',
+    date: '2026-09-10',
+    sha: '0ead842',
+    associatedShas: [
+      '0ead842',
+      '92dff34',
+      '96bd466',
+      'bb626a3',
+      '6396867',
+      '47ce38d',
+    ],
+    tag: 'Record Club & Tendencias 2026',
+    tagColor: 'from-orange-500 via-amber-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Gran actualización Musiclub V.8.4 que fusiona la identidad del club con la arquitectura y estética de Record Club. Integra un explorador híbrido unificado (/catalogo) que sincroniza en tiempo real los 156 álbumes calificados por la comunidad con los 50 álbumes más famosos y tendencia de 2026 directamente desde Spotify. Presenta una cinta de métricas comunitarias (4.1M+ releases, 2.9M+ artistas), navegación por píldoras segmentadas, tarjetas mate con badges de formato y flujo on-demand ("✍️ Reseñar en Club"). Asimismo, consolida la arquitectura modular de Sitemaps Index (con 4 submódulos y 561 URLs indexables), blinda la base de datos contra ingesta basura y optimiza el despliegue nativo de Next.js en Vercel.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Diseño Híbrido Estilo Record Club en Catálogo (/catalogo)',
+        description:
+          'Transformación visual y funcional inspirada en record.club/browse y record.club/about: nuevo encabezado con cinta de métricas en vivo (4,113,018+ releases disponibles, 2,988,705+ artistas y discografías sincronizadas vía Spotify/MusicBrainz, conteo de reseñas y top #1 del club), píldoras de navegación segmentada (Tendencias 2026, Calificados en Club, Todo el Catálogo), buscador rápido con botón de limpieza y cuadrícula simétrica de 20 álbumes por página (4 filas × 5 columnas).',
+      },
+      {
+        type: 'feature',
+        title: 'Explorador en Vivo de Álbumes Más Famosos y Tendencia de 2026',
+        description:
+          'Se implementó una consulta multi-mercado (Regional MX y Global) a Spotify API filtrando estrictamente por año en curso (year:2026). Para superar el límite estricto de 10 resultados de Spotify, el servicio ejecuta peticiones paralelas con offsets de 0 a 70 mediante Promise.all con caché en memoria en el servidor, entregando en menos de 90ms los álbumes más reproducidos de 2026 (Karol G, Drake, Olivia Rodrigo, Bruno Mars, BTS, Ariana Grande, Feid, Quevedo, Peso Pluma, etc.).',
+      },
+      {
+        type: 'filter',
+        title: 'Filtro Estricto de Calidad (Cero Singles Sueltos)',
+        description:
+          'El feed de tendencias descarta automáticamente singles de 1 a 3 canciones, previews instrumentales y compilaciones genéricas publicitarias (Artist Spotlight). El catálogo presenta exclusivamente LPs completos y EPs de calidad sustancial, emulando la curaduría especializada de Record Club.',
+      },
+      {
+        type: 'feature',
+        title: 'Tarjetas Interactivas y Acción de Reseña On-Demand',
+        description:
+          'Cada tarjeta de álbum cuenta con badges flotantes en vidrio esmerilado con formato (ALBUM, EP), badge resplandeciente "🔥 Tendencia 2026" o score comunitario con estrellas. Para álbumes aún no calificados, el botón interactivo "✍️ Reseñar en Club" permite iniciar una reseña al instante incorporando el álbum bajo demanda, garantizando que la base de datos se mantenga siempre limpia de spam.',
+      },
+      {
+        type: 'optimization',
+        title: 'Arquitectura Modular de Sitemaps Index (SEO Maestro)',
+        description:
+          'Reemplazo del sitemap plano por un Sitemap Index maestro (sitemap.xml) compuesto por 4 submódulos independientes: sitemap-core.xml (páginas principales), sitemap-reviews.xml (álbumes con reseñas), sitemap-catalog.xml (catálogo general) y sitemap-artists.xml (perfiles de artistas), indexando más de 560 URLs optimizadas para motores de búsqueda.',
+      },
+      {
+        type: 'fix',
+        title: 'Blindaje de Base de Datos y Pausa de Ingesta Innecesaria',
+        description:
+          'Se verificó y blindó la tabla de Supabase conservando intactos los 156 álbumes calificados de la comunidad y pausando rutinas de scraping o ingesta periódica no solicitada. Todo el flujo de nuevos lanzamientos funciona ahora bajo demanda pura.',
+      },
+      {
+        type: 'optimization',
+        title: 'Alineación de Despliegue en Vercel y Workflow de Releases',
+        description:
+          'Configuración explícita de framework Next.js en vercel.json eliminando reglas SPA legadas, y creación de workflow de CI/CD en GitHub Actions para versionado y publicación de releases automáticos.',
+      },
+    ],
+  },
+  {
     version: 'V.8.3',
     title:
       'Precisión Universal de Perfiles de Artistas, Eliminación de Falsos Homónimos y Consulta Oficial de Discografías en Spotify',
     date: '2026-09-10',
-    sha: 'HEAD',
+    sha: '9ab5784',
+    associatedShas: ['9ab5784', '2166fef'],
     tag: 'Artistas & Discografías',
     tagColor: 'from-pink-500 via-purple-500 to-indigo-600',
     authorName: 'Eugenio Turcott',
@@ -86,7 +151,7 @@ export const CURATED_PATCH_NOTES = [
     title:
       'Catálogo Universal Completo (2,277+ Álbumes), Resolución de Tracks Favoritos y Paginación Integral en Admin',
     date: '2026-09-10',
-    sha: 'HEAD',
+    sha: 'd8391f5',
     tag: 'Admin & Optimización',
     tagColor: 'from-cyan-500 via-blue-500 to-indigo-600',
     authorName: 'Eugenio Turcott',
@@ -2125,87 +2190,35 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     const versionMatch = message.match(/V\.?\s?(\d+\.\d+(\.\d+)?)/i);
     const versionKey = versionMatch ? `V.${versionMatch[1]}` : null;
 
-    // Buscar en notas curadas por SHA corto o por versión
+    // Buscar en notas curadas por SHA corto, por associatedShas o por versión semántica
     const curated = CURATED_PATCH_NOTES.find(
       (n) =>
         (n.sha && (sha.startsWith(n.sha) || n.sha.startsWith(sha))) ||
+        (n.associatedShas &&
+          n.associatedShas.some((s) => sha.startsWith(s) || s.startsWith(sha))) ||
         (versionKey && n.version.toLowerCase() === versionKey.toLowerCase())
     );
 
-    const matchKey = curated ? curated.version : sha;
-
-    if (curated && !processedKeys.has(matchKey)) {
-      processedKeys.add(matchKey);
-      enrichedList.push({
-        ...curated,
-        sha,
-        fullSha,
-        authorName: curated.authorName || authorName,
-        authorAvatar: authorAvatar || curated.authorAvatar,
-        commitUrl,
-        rawMessage: message,
-        isFromGithub: true,
-      });
-    } else if (!curated && !processedKeys.has(sha)) {
-      processedKeys.add(sha);
-      // Commit nuevo sin entrada curada previa: parsear automáticamente
-      const lines = message
-        .split('\n')
-        .map((l) => l.trim())
-        .filter((l) => l && !l.startsWith('#')); // Omitir comentarios de git o de conflictos
-      const title = lines[0] || `Commit ${sha}`;
-      const bodyLines = lines.slice(1);
-
-      let tag = 'Update';
-      let tagColor = 'from-blue-500 to-cyan-500';
-      if (/feat|nuevo|feature/i.test(title)) {
-        tag = 'Feature';
-        tagColor = 'from-pink-500 to-rose-500';
-      } else if (/fix|correg|bug/i.test(title)) {
-        tag = 'Fix';
-        tagColor = 'from-amber-500 to-red-500';
-      } else if (/refactor|mejora|perf|optim/i.test(title)) {
-        tag = 'Mejora';
-        tagColor = 'from-purple-500 to-indigo-500';
+    if (curated) {
+      const matchKey = curated.version;
+      if (!processedKeys.has(matchKey)) {
+        processedKeys.add(matchKey);
+        enrichedList.push({
+          ...curated,
+          sha: curated.sha || sha,
+          fullSha: fullSha || curated.fullSha,
+          authorName: curated.authorName || authorName,
+          authorAvatar: authorAvatar || curated.authorAvatar,
+          commitUrl:
+            curated.commitUrl ||
+            `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha || sha}`,
+          rawMessage: message,
+          isFromGithub: true,
+        });
       }
-
-      const changes =
-        bodyLines.length > 0
-          ? bodyLines.map((line) => ({
-              type: /fix|bug/i.test(line)
-                ? 'fix'
-                : /mejora|optim/i.test(line)
-                  ? 'improvement'
-                  : 'feature',
-              title: line.replace(/^[-*•]\s*/, ''),
-              description: 'Actualización registrada en el repositorio GitHub.',
-            }))
-          : [
-              {
-                type: 'feature',
-                title: title,
-                description:
-                  'Cambios sincronizados directamente desde el commit de GitHub.',
-              },
-            ];
-
-      enrichedList.push({
-        version: versionKey || `v${sha}`,
-        title: title,
-        date,
-        sha,
-        fullSha,
-        tag,
-        tagColor,
-        summary: bodyLines.join(' ') || title,
-        changes,
-        authorName,
-        authorAvatar,
-        commitUrl,
-        rawMessage: message,
-        isFromGithub: true,
-      });
     }
+    // IMPORTANTE: Los commits individuales intermedios que no son una versión oficial
+    // NO se muestran como pseudo-versiones ('v47ce38d'). Se consolidan en su versión oficial.
   });
 
   // Agregar cualquier nota curada que aún no haya sido devuelta por la API
@@ -2214,7 +2227,9 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
     if (!processedKeys.has(curated.version)) {
       pendingCurated.push({
         ...curated,
-        commitUrl: `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha}`,
+        commitUrl:
+          curated.commitUrl ||
+          `https://github.com/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commit/${curated.sha || 'HEAD'}`,
         isFromGithub: false,
       });
     }

@@ -234,7 +234,7 @@ export function PatchNotes({ isPage = false }) {
                     Versión Actual
                   </p>
                   <p className="text-white font-black text-base sm:text-lg leading-tight">
-                    {allPatchNotes[0]?.version || 'V.6.0'}
+                    {allPatchNotes[0]?.version || 'V.8.4'}
                   </p>
                 </div>
               </div>
