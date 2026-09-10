@@ -1,0 +1,45 @@
+name: Automated GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Nombre del Tag / Versión (ej. v8.2)'
+        required: true
+        default: 'v8.2'
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Generate Release Body from Patch Notes
+        run: |
+          TAG_INPUT="${{ github.event.inputs.tag_name || github.ref_name }}"
+          node scripts/generate-release-body.mjs "$TAG_INPUT"
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
+          name: Musiclub ${{ github.event.inputs.tag_name || github.ref_name }}
+          body_path: RELEASE_BODY.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
