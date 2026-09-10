@@ -236,15 +236,15 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
       );
 
       setProposeMessage(
-        `¡"${release.name}" agregado con éxito! Redirigiendo...`
+        `¡"${release.name}" listo para reseñar! Redirigiendo al club...`
       );
       setTimeout(() => {
         navigate(targetUrl);
       }, 700);
     } catch (err) {
-      console.error('Error al proponer álbum:', err);
+      console.error('Error al preparar álbum para reseña:', err);
       setProposeMessage(
-        `Error: ${err.message || 'No se pudo agregar el lanzamiento'}`
+        `Error: ${err.message || 'No se pudo preparar el lanzamiento para reseña'}`
       );
       setTimeout(() => setProposeMessage(null), 3000);
     } finally {
@@ -376,6 +376,18 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                 />
               )}
               <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-[#1db954]/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+              {/* Spinning Musiclub Logo in Artist Banner */}
+              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
+                <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
+                  <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-xl animate-pulse" />
+                  <img
+                    src="/musiclub_logo.png"
+                    alt="Musiclub Logo"
+                    className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+                  />
+                </div>
+              </div>
 
               <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
                 {/* Artist Avatar */}
@@ -639,10 +651,33 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                         'bg-purple-300/80 text-purple-800 border-purple-700/50',
                                     };
 
+                    const targetClubUrl = getReleaseUrl(
+                      existingInClub?.album_name || release.name,
+                      existingInClub?.release_type || release.release_type || 'ALBUM'
+                    );
+
+                    const handleCardClick = () => {
+                      if (proposingId) return;
+                      if (existingInClub) {
+                        navigate(targetClubUrl);
+                      } else {
+                        handleQuickPropose(release);
+                      }
+                    };
+
                     return (
                       <div
                         key={release.id}
-                        className="bg-gradient-to-b from-[#131526] to-[#0c0e1a] border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between group hover:border-cyan-400/40 hover:scale-[1.02] transition-all shadow-xl"
+                        onClick={handleCardClick}
+                        className="bg-gradient-to-b from-[#131526] to-[#0c0e1a] border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between group hover:border-cyan-400/50 hover:shadow-[0_10px_25px_rgba(6,182,212,0.15)] hover:scale-[1.02] cursor-pointer transition-all shadow-xl select-none"
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleCardClick();
+                          }
+                        }}
                       >
                         <div>
                           {/* Cover Image Container */}
@@ -718,7 +753,8 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                         <div className="pt-3 mt-2 border-t border-white/5 space-y-1.5">
                           {existingInClub ? (
                             <Link
-                              to={getReleaseUrl(release.name, release.release_type || 'ALBUM')}
+                              to={targetClubUrl}
+                              onClick={(e) => e.stopPropagation()}
                               className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
                             >
                               <span>🎧</span>
@@ -727,15 +763,18 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                           ) : (
                             <button
                               type="button"
-                              onClick={() => handleQuickPropose(release)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleQuickPropose(release);
+                              }}
                               disabled={proposingId === release.id}
                               className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30 font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
                             >
-                              <span>➕</span>
+                              <span>✍️</span>
                               <span>
                                 {proposingId === release.id
-                                  ? 'Agregando...'
-                                  : 'Proponer al Club'}
+                                  ? 'Preparando reseña...'
+                                  : 'Reseñar en Club'}
                               </span>
                             </button>
                           )}

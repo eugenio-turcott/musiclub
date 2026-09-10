@@ -49,6 +49,24 @@ export const CURATED_PATCH_NOTES = [
         description:
           'Al clasificar y deduplicar la discografía devuelta por Spotify, si existen versiones estándar y versiones extendidas/deluxe de un mismo título y tipo de lanzamiento, el motor conserva automáticamente la edición con mayor cantidad de canciones, garantizando la colección más completa disponible para la comunidad.',
       },
+      {
+        type: 'feature',
+        title: 'Emblema Giratorio de Musiclub en Hero Banner del Artista',
+        description:
+          'Se integró el isotipo oficial musiclub_logo.png en el encabezado principal de cada artista con animación fluida continua (spin-slow), simulando la rotación de un vinilo y aportando identidad visual cyberpunk a la experiencia.',
+      },
+      {
+        type: 'feature',
+        title: 'Tarjetas de Lanzamiento Interactivas y Acción "Reseñar en Club"',
+        description:
+          'Toda la superficie de las tarjetas de discografía ahora es interactiva con cursor y feedback visual. Se actualizó la acción de "Proponer al Club" a "Reseñar en Club", permitiendo a los miembros abrir directamente el álbum si ya existe o prepararlo instantáneamente para comenzar su reseña con un solo toque.',
+      },
+      {
+        type: 'optimization',
+        title: 'Purga Integral de Base de Datos y Adopción de Modelo On-Demand',
+        description:
+          'Se depuraron 2,121 lanzamientos residuales sin reseñas en Supabase para evitar ruido y spam en el catálogo. La base de datos ahora alberga exclusivamente lanzamientos con actividad y reseñas reales de los miembros, adoptando un esquema de ingesta bajo demanda idéntico al estándar de plataformas como Record Club.',
+      },
     ],
   },
   {
