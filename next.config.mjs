@@ -17,6 +17,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'archive.org' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'cdn.rcrd.club' },
+      { protocol: 'https', hostname: 'cdn-images.dzcdn.net' },
     ],
   },
   turbopack: {

@@ -8,7 +8,7 @@ export function AlbumsPage() {
   return (
     <>
       <SEO
-        title="Catálogo de Álbumes, EPs y Reviews de Música | Musiclub"
+        title="Catálogo Musical | Musiclub"
         description="Explora el catálogo completo de álbumes, EPs y sencillos reseñados y calificados por la comunidad de Musiclub. Descubre notas, tracklists y opiniones."
         url="https://www.musiclub.org/catalogo"
         keywords="catalogo de albumes, discografias, reviews de musica, mejores albumes, calificaciones musicales, canciones, musiclub"

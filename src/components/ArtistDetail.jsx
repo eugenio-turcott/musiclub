@@ -67,11 +67,24 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
             spotifyRes.artist.name
           );
           setClubAlbums(refinedMatches);
+
+          // Registrar / sincronizar artista canónico en tabla artists de Supabase (V.8.5)
+          supabaseService.upsertArtist({
+            name: spotifyRes.artist.name,
+            slug: slugifyArtist(spotifyRes.artist.name),
+            spotify_id: spotifyRes.artist.id,
+            image_url: spotifyRes.artist.image,
+            genres: spotifyRes.artist.genres || [],
+            followers: spotifyRes.artist.followers,
+            popularity: spotifyRes.artist.popularity,
+          });
         }
       } else {
         // Fallback si no está en Spotify pero sí en Musiclub
         if (matchedClub.length > 0) {
           const sample = matchedClub[0];
+          const artName = sample.artist_name || sample.artista;
+          supabaseService.recordArtistClick(artName);
           setProfileData({
             success: true,
             artist: {
@@ -196,7 +209,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
   const handleQuickPropose = async (release) => {
     if (proposingId) return;
     setProposingId(release.id);
-    setProposeMessage(`Proponiendo "${release.name}" a Musiclub...`);
+    setProposeMessage(null);
 
     try {
       // 1. Obtener detalles de canciones desde Spotify
@@ -235,18 +248,13 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         release.release_type || 'ALBUM'
       );
 
-      setProposeMessage(
-        `¡"${release.name}" listo para reseñar! Redirigiendo al club...`
-      );
-      setTimeout(() => {
-        navigate(targetUrl);
-      }, 700);
+      navigate(targetUrl);
     } catch (err) {
       console.error('Error al preparar álbum para reseña:', err);
       setProposeMessage(
         `Error: ${err.message || 'No se pudo preparar el lanzamiento para reseña'}`
       );
-      setTimeout(() => setProposeMessage(null), 3000);
+      setTimeout(() => setProposeMessage(null), 3500);
     } finally {
       setProposingId(null);
     }
@@ -354,13 +362,23 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
           </div>
         )}
 
-        {/* Notification Toast */}
+        {/* Barra superior de carga sutil y no invasiva */}
+        {proposingId && (
+          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 animate-pulse shadow-[0_0_12px_rgba(6,182,212,0.7)]" />
+        )}
+
+        {/* Notificación discreta de error (solo en caso de fallo real) */}
         {proposeMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#121428] border border-cyan-400/40 text-cyan-200 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3 animate-bounce">
-            <span className="text-lg">💿</span>
-            <span className="text-xs sm:text-sm font-bold">
-              {proposeMessage}
-            </span>
+          <div className="fixed bottom-6 right-6 z-50 bg-[#121428]/95 border border-rose-500/40 text-rose-200 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2 text-xs">
+            <span>⚠️</span>
+            <span>{proposeMessage}</span>
+            <button
+              type="button"
+              onClick={() => setProposeMessage(null)}
+              className="ml-2 text-slate-400 hover:text-white"
+            >
+              ✕
+            </button>
           </div>
         )}
 
@@ -768,12 +786,39 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                 handleQuickPropose(release);
                               }}
                               disabled={proposingId === release.id}
-                              className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30 font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
+                              className={`w-full py-2 px-3 rounded-xl font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-60 ${
+                                proposingId === release.id
+                                  ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/40'
+                                  : 'bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30'
+                              }`}
                             >
-                              <span>✍️</span>
+                              {proposingId === release.id ? (
+                                <svg
+                                  className="animate-spin h-3.5 w-3.5 text-cyan-300"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                  />
+                                  <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8v8H4z"
+                                  />
+                                </svg>
+                              ) : (
+                                <span>✍️</span>
+                              )}
                               <span>
                                 {proposingId === release.id
-                                  ? 'Preparando reseña...'
+                                  ? 'Abriendo...'
                                   : 'Reseñar en Club'}
                               </span>
                             </button>

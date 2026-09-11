@@ -368,7 +368,22 @@ export function isFavoriteTrackMatch(trackOrKey, favoriteTrackKey, tracks = [], 
 }
 
 /**
- * Convierte el nombre de un artista en un slug URL-friendly para rutas como /artista/Radiohead o /artistas/The-Weeknd
+ * Lista de artistas conocidos con comas o ampersands que no deben separarse por coma
+ */
+const KNOWN_INDIVISIBLE_ARTISTS = [
+  'tyler, the creator',
+  'earth, wind & fire',
+  'crosby, stills, nash & young',
+  'emerson, lake & palmer',
+  'blood, sweat & tears',
+  'peter, paul and mary',
+  'tony! toni! toné!',
+  'bell biv devoe',
+  'sun ra and his arkestra'
+];
+
+/**
+ * Convierte el nombre de un artista en un slug URL-friendly para rutas como /artista/Radiohead o /artista/The-Weeknd
  */
 export function slugifyArtist(artistName) {
   if (!artistName) return '';
@@ -376,14 +391,67 @@ export function slugifyArtist(artistName) {
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diacríticos
     .replace(/['’]/g, '') // Remueve comillas/apóstrofes
+    .replace(/&/g, 'and')
     .replace(/[^a-zA-Z0-9]+/g, '-') // Caracteres especiales y espacios se vuelven guiones
-    .replace(/^-+|-+$/g, ''); // Quita guiones iniciales y finales
+    .replace(/^-+|-+$/g, '') // Quita guiones iniciales y finales
+    .toLowerCase();
+}
+
+/**
+ * Divide una cadena de artista(s) en artistas individuales.
+ * Soporta casos complejos como:
+ * - "piri & tommy, piri, Tommy Villiers" -> ["piri & tommy", "piri", "Tommy Villiers"]
+ * - "Rosalía feat. The Weeknd" -> ["Rosalía", "The Weeknd"]
+ * - "Tyler, The Creator" -> ["Tyler, The Creator"] (preserva la coma)
+ */
+export function splitArtists(artistString) {
+  if (!artistString) return [];
+  const raw = String(artistString).trim();
+  if (!raw) return [];
+  const lower = raw.toLowerCase();
+
+  for (const exc of KNOWN_INDIVISIBLE_ARTISTS) {
+    if (lower === exc) {
+      return [{ name: raw, slug: slugifyArtist(raw) }];
+    }
+  }
+
+  // Separar colaboraciones explícitas con feat., ft., featuring, with
+  const featParts = raw.split(/\s+(?:feat\.?|ft\.?|featuring|with)\s+/i);
+
+  const rawArtists = [];
+  featParts.forEach((part) => {
+    let hasExc = false;
+    for (const exc of KNOWN_INDIVISIBLE_ARTISTS) {
+      if (part.toLowerCase().includes(exc)) {
+        hasExc = true;
+        break;
+      }
+    }
+
+    if (hasExc) {
+      rawArtists.push(part.trim());
+    } else {
+      const subParts = part.split(',').map((s) => s.trim()).filter(Boolean);
+      rawArtists.push(...subParts);
+    }
+  });
+
+  return rawArtists
+    .map((name) => {
+      const clean = name.trim();
+      return {
+        name: clean,
+        slug: slugifyArtist(clean),
+      };
+    })
+    .filter((a) => a.name.length > 0);
 }
 
 /**
  * Busca todos los álbumes de un artista en la colección local de Musiclub.
- * Implementa coincidencia estricta y soporte para colaboraciones (feat., ft., &, /, x, with).
- * Previene falsos positivos por substrings (ej. "Bibie" no se confunde con "BIBI", ni "Beneefit" con "BENEE").
+ * Implementa coincidencia estricta y soporte para colaboraciones y artistas divididos.
+ * Previene falsos positivos por substrings (ej. "Bibie" no se confunde con "BIBI").
  */
 export function findAlbumsByArtist(albums = [], artistQuery = '') {
   if (!artistQuery || !albums || albums.length === 0) return [];
@@ -403,53 +471,64 @@ export function findAlbumsByArtist(albums = [], artistQuery = '') {
       .toLowerCase()
       .trim();
 
-  const isExactOrNormalizedMatch = (name) => {
+  const isMatch = (name) => {
     if (!name) return false;
     const n = normalize(name);
     if (n === cleanQuery) return true;
     if (slugifyArtist(name).toLowerCase() === targetSlug) return true;
-    // Equivalencia 'A and B' <-> 'A & B'
     const replaceAnd = (s) => s.replace(/\s+and\s+/g, ' & ');
     if (replaceAnd(n) === replaceAnd(cleanQuery)) return true;
     return false;
   };
 
   return albums.filter((a) => {
-    const artistName = a.artist_name || a.artist || a.artista || '';
-    if (!artistName) return false;
+    const artistString = a.artist_name || a.artist || a.artista || '';
+    if (!artistString) return false;
 
     // 1. Coincidencia directa del artista completo
-    if (isExactOrNormalizedMatch(artistName)) return true;
+    if (isMatch(artistString)) return true;
 
-    // 2. Coincidencia si es colaboración con múltiples artistas (ej: "BIBI & Jackson Wang", "Phoenix feat. BENEE")
-    const multiArtists = artistName
-      .split(/[,&/+]|\s+feat\.?\s+|\s+ft\.?\s+|\s+x\s+|\s+with\s+/i)
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-    if (multiArtists.length > 1) {
-      return multiArtists.some((part) => isExactOrNormalizedMatch(part));
+    // 2. Coincidencia por artistas individuales separados (ej. "piri & tommy, piri, Tommy Villiers")
+    const parsedArtists = splitArtists(artistString);
+    if (parsedArtists.some((p) => isMatch(p.name) || p.slug === targetSlug)) {
+      return true;
     }
 
     return false;
   });
 }
 
-
 /**
  * Convierte el nombre de un álbum en un slug URL-friendly para rutas como /albumes/Love-Deluxe.
+ * - Convierte el '+' a 'plus' para diferenciar 'MOTOMAMI' de 'MOTOMAMI +' (deluxe).
  * - Quita acentos y caracteres diacríticos.
- * - Elimina caracteres especiales y los reemplaza por guión.
  * - Normaliza guiones consecutivos y extremos.
  */
 export function slugifyAlbum(albumName) {
   if (!albumName) return '';
   return String(albumName)
+    .replace(/\+/g, ' plus ') // Preserva sufijo deluxe como MOTOMAMI + -> motomami-plus
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diacríticos
     .replace(/['’]/g, '') // Remueve comillas/apóstrofes
+    .replace(/&/g, 'and')
     .replace(/[^a-zA-Z0-9]+/g, '-') // Caracteres especiales y espacios se vuelven guiones
-    .replace(/^-+|-+$/g, ''); // Quita guiones iniciales y finales
+    .replace(/^-+|-+$/g, '') // Quita guiones iniciales y finales
+    .toLowerCase();
+}
+
+/**
+ * Genera un slug completo para un lanzamiento que incluye primero el artista
+ * y luego el nombre del release, diferenciando ediciones especiales/deluxe.
+ * Ejemplo:
+ * - ROSALÍA + MOTOMAMI -> rosalia-motomami
+ * - ROSALÍA + MOTOMAMI + -> rosalia-motomami-plus
+ */
+export function slugifyRelease(artistName, albumName) {
+  const aSlug = slugifyArtist(artistName);
+  const rSlug = slugifyAlbum(albumName);
+  if (aSlug && rSlug) return `${aSlug}-${rSlug}`;
+  return rSlug || aSlug || 'release';
 }
 
 /**
@@ -532,25 +611,37 @@ export function getReleaseTypeCategory(rawType = '') {
 /**
  * Genera la URL canónica e idiomática para un lanzamiento en Musiclub
  * según su formato (EP, Sencillo, Compilación, Remix, Álbum).
+ * Incluye primero el artista y luego el nombre del release, diferenciando deluxe/plus.
  * Ejemplo:
- * - FIRE ON MARZZ (EP) -> /eps/FIRE-ON-MARZZ
- * - Sour (Álbum) -> /albumes/Sour
- * - Espresso (Sencillo) -> /sencillos/Espresso
+ * - ROSALÍA - MOTOMAMI (Álbum) -> /albumes/rosalia-motomami
+ * - ROSALÍA - MOTOMAMI + (Álbum) -> /albumes/rosalia-motomami-plus
+ * - piri & tommy - about dancing (EP) -> /eps/piri-and-tommy-about-dancing
  */
-export function getReleaseUrl(albumOrName, releaseType) {
+export function getReleaseUrl(albumOrName, releaseType, maybeArtistName) {
   if (!albumOrName) return '/catalogo';
 
   let name = '';
   let type = releaseType || '';
+  let artist = maybeArtistName || '';
 
   if (typeof albumOrName === 'object') {
     name = albumOrName.album_name || albumOrName.album || albumOrName.name || '';
     type = albumOrName.release_type || albumOrName.releaseType || releaseType || '';
+    artist =
+      albumOrName.artist_name ||
+      albumOrName.artist ||
+      albumOrName.artista ||
+      maybeArtistName ||
+      '';
   } else {
     name = String(albumOrName);
   }
 
-  const slug = slugifyAlbum(name);
+  // Si tenemos artista, incluir primero el artista y luego el release
+  const slug = artist
+    ? slugifyRelease(artist, name)
+    : slugifyAlbum(name);
+
   if (!slug) return '/catalogo';
 
   const category = getReleaseTypeCategory(type);
@@ -558,23 +649,48 @@ export function getReleaseUrl(albumOrName, releaseType) {
 }
 
 /**
- * Busca un álbum en una lista por su slug o por su ID.
+ * Busca un álbum en una lista por su slug (incluyendo formato [artista]-[release] o legado [release]) o por ID.
+ * Soporta desambiguación precisa entre versiones estándar y deluxe/plus (ej. MOTOMAMI vs MOTOMAMI +).
  */
 export function findAlbumBySlug(albums = [], slug = '') {
   if (!slug || !albums || albums.length === 0) return null;
   const cleanSlug = String(slug).trim().toLowerCase();
 
-  // 1. Coincidencia por slug exacto
-  const bySlug = albums.find(
-    (a) => slugifyAlbum(a.album_name || a.album || '').toLowerCase() === cleanSlug
-  );
-  if (bySlug) return bySlug;
+  // 1. Coincidencia por slug completo (artista + album, ej. "rosalia-motomami-plus")
+  const byFullSlug = albums.find((a) => {
+    const art = a.artist_name || a.artist || a.artista || '';
+    const alb = a.album_name || a.album || a.name || '';
+    return slugifyRelease(art, alb).toLowerCase() === cleanSlug;
+  });
+  if (byFullSlug) return byFullSlug;
 
-  // 2. Coincidencia por ID directo
+  // 2. Coincidencia por slug solo de álbum (ej. "motomami-plus" o legado "motomami")
+  const byAlbumSlug = albums.find(
+    (a) => slugifyAlbum(a.album_name || a.album || a.name || '').toLowerCase() === cleanSlug
+  );
+  if (byAlbumSlug) return byAlbumSlug;
+
+  // 3. Coincidencia por ID directo (UUID de Supabase o numérico)
   const byId = albums.find((a) => String(a.id).toLowerCase() === cleanSlug);
   if (byId) return byId;
 
-  // 3. Coincidencia por nombre alfanumérico normalizado
+  // 4. Si el slug incluye el artista (ej. "rosalia-motomami-plus"), buscar si algún álbum
+  // del artista coincide exactamente con la porción del álbum
+  const partialMatches = albums.filter((a) => {
+    const art = a.artist_name || a.artist || a.artista || '';
+    const alb = a.album_name || a.album || a.name || '';
+    const artSlug = slugifyArtist(art);
+    const albSlug = slugifyAlbum(alb);
+
+    if (artSlug && cleanSlug.startsWith(artSlug)) {
+      const remainder = cleanSlug.replace(new RegExp(`^${artSlug}-?`), '');
+      if (remainder === albSlug) return true;
+    }
+    return false;
+  });
+  if (partialMatches.length > 0) return partialMatches[0];
+
+  // 5. Coincidencia por nombre alfanumérico normalizado
   const targetAlnum = cleanSlug.replace(/[^a-z0-9]/g, '');
   if (targetAlnum) {
     const byNormalizedName = albums.find((a) => {

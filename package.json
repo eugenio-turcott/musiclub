@@ -26,7 +26,10 @@
     "ingest:mb": "node scripts/hourlyMusicBrainzIngestion.mjs",
     "ingest:daemon": "node scripts/runHourlyDaemon.mjs",
     "enrich:missing": "node scripts/enrichMissingMusicBrainz.mjs",
-    "seed": "node scripts/smartCatalogSeeder.mjs"
+    "seed": "node scripts/smartCatalogSeeder.mjs",
+    "sync:recordclub": "node scripts/sync-record-club-supabase.mjs",
+    "sync:recordclub:daily": "node scripts/dailyRecordClubSync.mjs",
+    "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force"
   },
   "eslintConfig": {
     "extends": [

@@ -8,8 +8,18 @@ import { useAuth } from '../hooks/useAuth';
 import { slugifyArtist, getReleaseUrl } from '../utils/ratingUtils';
 import { PLACEHOLDER_COVER } from './TierListMaker';
 import { fetchAlbumReleaseYear, getAlbumDetails } from '../services/spotifyApi';
-import { getTrendingReleases } from '../services/trendingService.js';
+import {
+  getTrendingReleases,
+  getMonthlyTrendingReleases,
+  getAnticipatedReleases,
+} from '../services/trendingService.js';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
+import { ArtistLinks } from './common/ArtistLinks';
+import { TrendingMonthlySection } from './catalog/TrendingMonthlySection';
+import { AnticipatedSection } from './catalog/AnticipatedSection';
+import { RecommendedSection } from './catalog/RecommendedSection';
+import { CatalogArtistsView } from './catalog/CatalogArtistsView';
+import { CatalogGenresView } from './catalog/CatalogGenresView';
 
 const ITEMS_PER_PAGE = 20;
 const SPOTIFY_YEARS_CACHE_KEY = 'musiclub_spotify_years_cache_v1';
@@ -78,22 +88,76 @@ export function AlbumsCatalog({ isPage = false }) {
     setSpotifyYearsCache(getInitialSpotifyYearsCache());
   }, []);
 
+  // Pestañas principales inspiradas en Musiclub: 'releases' | 'artists' | 'genres' (V.8.5)
+  // Inicializado de forma determinista para evitar hydration mismatch entre SSR y cliente
+  const [activeMainTab, setActiveMainTab] = useState('releases');
+
+  // Sincronizar pestaña activa desde la URL en el cliente tras la hidratación inicial
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const p = new URLSearchParams(window.location.search);
+      const tab = p.get('tab') || p.get('seccion');
+      if (tab === 'artistas' || tab === 'artists') {
+        setActiveMainTab('artists');
+      } else if (tab === 'generos' || tab === 'genres') {
+        setActiveMainTab('genres');
+      } else if (tab === 'releases') {
+        setActiveMainTab('releases');
+      }
+    }
+  }, [location.search]);
+
+  const [monthlyTrending, setMonthlyTrending] = useState({
+    releases: [],
+    monthLabel: 'Tendencias del Mes',
+    lastFridayStr: 'Viernes',
+  });
+  const [anticipatedReleases, setAnticipatedReleases] = useState([]);
+
+  const handleTabChange = (tabKey) => {
+    setActiveMainTab(tabKey);
+    const searchParams = new URLSearchParams(location.search);
+    searchParams.set('tab', tabKey);
+    const path = location.pathname || '/catalogo';
+    const qs = searchParams.toString();
+    navigate(`${path}?${qs}`, { replace: true });
+  };
+
   const [searchQuery, setSearchQuery] = useState('');
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
-  const [sortBy, setSortBy] = useState('trending_first'); // trending_first | rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
+  const [sortBy, setSortBy] = useState('rating_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Filtro de exploración híbrida estilo Record Club: ALL | TRENDING | REVIEWED
+  // Filtro de exploración híbrida estilo Musiclub: ALL | TRENDING | REVIEWED
   const [browseFilter, setBrowseFilter] = useState('ALL');
   const [trendingReleases, setTrendingReleases] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(false);
   const [proposingId, setProposingId] = useState(null);
-  const [proposeMessage, setProposeMessage] = useState(null);
+  const [proposeError, setProposeError] = useState(null);
 
   // Ingesta On-Demand al vuelo al hacer click en cualquier release en tendencia
   const handleQuickPropose = async (release) => {
+    // 1. Si ya existe en la lista de álbumes del club, navegar de inmediato sin esperar
+    const existingAlbum = (albums || []).find((a) => {
+      const matchName =
+        a.album_name?.trim().toLowerCase() === release.album_name?.trim().toLowerCase();
+      const matchArtist =
+        a.artist_name?.trim().toLowerCase() === release.artist_name?.trim().toLowerCase();
+      return matchName && matchArtist;
+    });
+
+    if (existingAlbum) {
+      const targetUrl = getReleaseUrl(
+        existingAlbum.album_name,
+        existingAlbum.release_type || 'ALBUM',
+        existingAlbum.artist_name
+      );
+      navigate(targetUrl);
+      return;
+    }
+
     const rawId =
       release.spotify_id ||
       (typeof release.id === 'string' && release.id.startsWith('trend_')
@@ -101,8 +165,8 @@ export function AlbumsCatalog({ isPage = false }) {
         : release.id);
 
     if (proposingId) return;
-    setProposingId(rawId);
-    setProposeMessage(`Preparando "${release.album_name}" para reseñar...`);
+    setProposingId(rawId || release.album_name);
+    setProposeError(null);
 
     try {
       const details = await getAlbumDetails(rawId);
@@ -140,27 +204,23 @@ export function AlbumsCatalog({ isPage = false }) {
       const created = await supabaseService.createAlbum(albumPayload);
       const targetUrl = getReleaseUrl(
         created?.album_name || release.album_name,
-        release.release_type || 'ALBUM'
+        release.release_type || 'ALBUM',
+        created?.artist_name || release.artist_name
       );
 
-      setProposeMessage(
-        `¡"${release.album_name}" listo para reseñar! Redirigiendo al club...`
-      );
-      setTimeout(() => {
-        navigate(targetUrl);
-      }, 700);
+      navigate(targetUrl);
     } catch (err) {
       console.error('Error al preparar álbum para reseña:', err);
-      setProposeMessage(
-        `Error: ${err.message || 'No se pudo preparar el lanzamiento'}`
+      setProposeError(
+        err.message || 'No se pudo abrir el lanzamiento para reseña'
       );
-      setTimeout(() => setProposeMessage(null), 3500);
+      setTimeout(() => setProposeError(null), 4000);
     } finally {
       setProposingId(null);
     }
   };
 
-  // Sync with URL query param ?tipo=...
+  // Sync with URL query param ?tipo=... and ?tab=...
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tipo =
@@ -182,26 +242,45 @@ export function AlbumsCatalog({ isPage = false }) {
         setReleaseTypeFilter(upper);
       }
     }
+
+    const tab = params.get('tab') || params.get('seccion');
+    if (tab === 'artistas' || tab === 'artists') {
+      setActiveMainTab('artists');
+    } else if (tab === 'generos' || tab === 'genres') {
+      setActiveMainTab('genres');
+    } else if (tab === 'releases' || tab === 'lanzamientos') {
+      setActiveMainTab('releases');
+    }
   }, [location.search]);
 
-  // Carga simultánea y unificada: Álbumes en BD de Supabase + Novedades en vivo
+  // Carga simultánea y unificada: Álbumes en BD de Supabase + Novedades + Tendencias del Mes + Anticipados
   useEffect(() => {
     async function loadCatalog() {
       setLoading(true);
       setError(null);
       setLoadingTrending(true);
       try {
-        const [clubData, trendingData] = await Promise.allSettled([
+        const [clubData, trendingData, monthlyData] = await Promise.allSettled([
           supabaseService.getAllAlbumsWithFullStats(),
           getTrendingReleases({ limit: 50 }),
+          getMonthlyTrendingReleases(),
         ]);
 
+        let clubList = [];
         if (clubData.status === 'fulfilled' && clubData.value) {
-          setAlbums(clubData.value || []);
+          clubList = clubData.value || [];
+          setAlbums(clubList);
         }
         if (trendingData.status === 'fulfilled' && trendingData.value?.releases) {
           setTrendingReleases(trendingData.value.releases);
         }
+        if (monthlyData.status === 'fulfilled' && monthlyData.value) {
+          setMonthlyTrending(monthlyData.value);
+        }
+
+        // Obtener lanzamientos anticipados vinculando los de BD y la curaduría
+        const anticipated = await getAnticipatedReleases(clubList);
+        setAnticipatedReleases(anticipated);
       } catch (err) {
         console.error('Error loading albums catalog:', err);
         setError('No se pudieron cargar los álbumes.');
@@ -303,7 +382,7 @@ export function AlbumsCatalog({ isPage = false }) {
     return false;
   };
 
-  // Fusión híbrida de lanzamientos estilo Record Club (BD Club + Novedades de Spotify)
+  // Fusión híbrida de lanzamientos estilo Musiclub (BD Club + Novedades de Spotify)
   const unifiedAlbums = useMemo(() => {
     const list = [];
     const seenMap = new Map();
@@ -510,11 +589,11 @@ export function AlbumsCatalog({ isPage = false }) {
     };
   }, [unifiedAlbums, albums, trendingReleases]);
 
-  // Álbumes filtrados y ordenados (Record Club Hybrid Browse)
+  // Álbumes filtrados y ordenados (Musiclub Hybrid Browse)
   const filteredAlbums = useMemo(() => {
     let result = [...unifiedAlbums];
 
-    // Record Club Collection Filter (ALL | TRENDING | REVIEWED)
+    // Musiclub Collection Filter (ALL | TRENDING | REVIEWED)
     if (browseFilter === 'TRENDING') {
       result = result.filter((a) => a.is_trending);
     } else if (browseFilter === 'REVIEWED') {
@@ -591,15 +670,6 @@ export function AlbumsCatalog({ isPage = false }) {
 
     // Sorting
     result.sort((a, b) => {
-      if (sortBy === 'trending_first') {
-        const trendA = a.is_trending ? 1 : 0;
-        const trendB = b.is_trending ? 1 : 0;
-        if (trendA !== trendB) return trendB - trendA;
-        return (
-          (b.final_rating || 0) - (a.final_rating || 0) ||
-          (b.review_count || 0) - (a.review_count || 0)
-        );
-      }
       if (sortBy === 'rating_desc') {
         if (a.final_rating === null && b.final_rating !== null) return 1;
         if (b.final_rating === null && a.final_rating !== null) return -1;
@@ -662,29 +732,41 @@ export function AlbumsCatalog({ isPage = false }) {
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
-        {/* Header Title & Record Club Aesthetics */}
+        {/* Header Title & Musiclub Aesthetics */}
         <div className="text-center space-y-3 pt-2">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-cyan-500/20 to-blue-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider">
             <span>🌐</span>
             <span>Explorador Híbrido · Música en Tiempo Real</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
-            Catálogo & Tendencias 2026
+            Catálogo Musical
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Explora los álbumes más famosos y tendencia de 2026 en vivo e indaga en los lanzamientos calificados por los miembros del club con desglose de reseñas y canciones.
+            Explora discografías completas, lanzamientos en tendencia e indaga en los álbumes calificados por los miembros del club con desglose de reseñas y canciones.
           </p>
         </div>
 
-        {/* Notificación Toast Flotante */}
-        {proposeMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 text-white font-bold px-5 py-3 rounded-2xl shadow-2xl border border-cyan-400/40 animate-bounce flex items-center gap-3">
-            <span className="text-xl">🎶</span>
-            <span>{proposeMessage}</span>
+        {/* Barra superior de carga no invasiva al abrir o procesar un álbum */}
+        {proposingId && (
+          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 animate-pulse shadow-[0_0_12px_rgba(236,72,153,0.7)]" />
+        )}
+
+        {/* Notificación discreta de error (solo si ocurre una falla real, sin popups intrusivos) */}
+        {proposeError && (
+          <div className="fixed bottom-6 right-6 z-50 bg-[#161828]/95 border border-rose-500/40 text-rose-200 text-xs font-medium px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2.5">
+            <span className="text-sm">⚠️</span>
+            <span>{proposeError}</span>
+            <button
+              type="button"
+              onClick={() => setProposeError(null)}
+              className="ml-2 text-slate-400 hover:text-white"
+            >
+              ✕
+            </button>
           </div>
         )}
 
-        {/* Record Club Style Stats Ribbon */}
+        {/* Musiclub Style Stats Ribbon */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/40 transition-all shadow-lg">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
@@ -696,7 +778,7 @@ export function AlbumsCatalog({ isPage = false }) {
               </span>
             </div>
             <p className="text-[11px] text-cyan-300 font-medium mt-1">
-              {globalStats.totalClub} en Club · {globalStats.totalTrending} Tendencias 2026
+              {globalStats.totalClub} en Club · Base discográfica global
             </p>
           </div>
 
@@ -710,7 +792,7 @@ export function AlbumsCatalog({ isPage = false }) {
               </span>
             </div>
             <p className="text-[11px] text-pink-300 font-medium mt-1">
-              Sincronizado vía Spotify & MusicBrainz
+              Discografías oficiales y perfiles completos
             </p>
           </div>
 
@@ -744,9 +826,96 @@ export function AlbumsCatalog({ isPage = false }) {
         </div>
 
         {/* ========================================================================= */}
-        {/* BARRA DE AÑOS Y DÉCADAS (ESTILO ALBUMOFTHEYEAR.ORG)                        */}
+        {/* MUSICLUB BROWSE MAIN TABS: Releases | Artistas | Géneros (V.8.5)      */}
         {/* ========================================================================= */}
-        <div className="bg-[#151722]/95 border border-white/10 rounded-2xl p-3.5 sm:p-4 backdrop-blur-md shadow-xl relative space-y-3">
+        <div className="bg-[#12141F]/95 border border-white/10 rounded-2xl p-2 sm:p-2.5 backdrop-blur-xl shadow-2xl flex items-center justify-center gap-2 sm:gap-4 flex-wrap sticky top-16 z-30">
+          <button
+            type="button"
+            onClick={() => handleTabChange('releases')}
+            className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
+              activeMainTab === 'releases'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-lg shadow-cyan-500/25 scale-[1.02]'
+                : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
+            }`}
+          >
+            <span className="text-base sm:text-lg">💿</span>
+            <span>Releases</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('artists')}
+            className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
+              activeMainTab === 'artists'
+                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-400 shadow-lg shadow-pink-500/25 scale-[1.02]'
+                : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
+            }`}
+          >
+            <span className="text-base sm:text-lg">🎤</span>
+            <span>Artistas</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleTabChange('genres')}
+            className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
+              activeMainTab === 'genres'
+                ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-400 shadow-lg shadow-purple-500/25 scale-[1.02]'
+                : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
+            }`}
+          >
+            <span className="text-base sm:text-lg">🏷️</span>
+            <span>Géneros</span>
+          </button>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* VISTAS CONDICIONALES ESTILO MUSICLUB                                   */}
+        {/* ========================================================================= */}
+        {activeMainTab === 'artists' ? (
+          <CatalogArtistsView albums={albums} />
+        ) : activeMainTab === 'genres' ? (
+          <CatalogGenresView
+            albums={albums}
+            onQuickPropose={handleQuickPropose}
+            proposingId={proposingId}
+          />
+        ) : (
+          <>
+            {/* 1. SECCIÓN DE TRENDING RELEASES MENSUALES (Top 20, mayoría POP, corte semanal viernes) */}
+            <TrendingMonthlySection
+              trendingData={monthlyTrending}
+              loading={loadingTrending}
+              onQuickPropose={handleQuickPropose}
+              proposingId={proposingId}
+            />
+
+            {/* 2. SECCIÓN DE RELEASES ANTICIPADOS (No calificables hasta estreno, indexables) */}
+            <AnticipatedSection
+              anticipatedReleases={anticipatedReleases}
+              loading={loading}
+            />
+
+            {/* 3. SECCIÓN DE MÁS RECOMENDADOS POR LOS USUARIOS DEL CLUB */}
+            <RecommendedSection albums={albums} />
+
+            {/* 4. SECCIÓN DE CATÁLOGO COMPLETO Y EXPLORADOR */}
+            <div className="flex items-center gap-3 pt-6 border-t border-white/10">
+              <span className="text-2xl">📚</span>
+              <div>
+                <h2 className="text-xl sm:text-2xl font-black text-white">
+                  Explorador de Catálogo y Colección
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-400">
+                  Filtra por formato, década y año o busca en los {unifiedAlbums.length} lanzamientos disponibles
+                </p>
+              </div>
+            </div>
+
+            {/* ========================================================================= */}
+            {/* BARRA DE AÑOS Y DÉCADAS (ESTILO ALBUMOFTHEYEAR.ORG)                        */}
+            {/* ========================================================================= */}
+            <div className="bg-[#151722]/95 border border-white/10 rounded-2xl p-3.5 sm:p-4 backdrop-blur-md shadow-xl relative space-y-3">
           <div className="flex items-center justify-between gap-2 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-sm">📅</span>
@@ -1040,13 +1209,12 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
         </div>
 
-        {/* Record Club Hybrid Browse & Filter Bar */}
+        {/* Musiclub Hybrid Browse & Filter Bar */}
         <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
-          {/* Record Club Hybrid Browse Pills */}
+          {/* Musiclub Hybrid Browse Pills */}
           <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
             {[
               { id: 'ALL', label: 'Todo el Catálogo', count: unifiedAlbums.length, icon: '🌐' },
-              { id: 'TRENDING', label: 'Tendencias 2026', count: trendingReleases.length, icon: '🔥' },
               { id: 'REVIEWED', label: 'Calificados en Club', count: albums.length, icon: '⭐' },
             ].map((tab) => {
               const active = browseFilter === tab.id;
@@ -1060,9 +1228,7 @@ export function AlbumsCatalog({ isPage = false }) {
                   }}
                   className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                     active
-                      ? tab.id === 'TRENDING'
-                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-black border-orange-400 shadow-md shadow-orange-500/25 scale-[1.02]'
-                        : 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
+                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
                       : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                   }`}
                 >
@@ -1122,7 +1288,6 @@ export function AlbumsCatalog({ isPage = false }) {
               onChange={(e) => setSortBy(e.target.value)}
               className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
             >
-              <option value="trending_first">🔥 Tendencias 2026 primero</option>
               <option value="rating_desc">🌟 Mayor Calificación</option>
               <option value="rating_asc">📉 Menor Calificación</option>
               <option value="reviews_desc">📝 Más Reseñas</option>
@@ -1181,7 +1346,9 @@ export function AlbumsCatalog({ isPage = false }) {
                 const isCardInClub = album.is_in_club;
                 const clubUrl = isCardInClub ? getReleaseUrl(album) : null;
                 const isProposing =
-                  proposingId === (album.spotify_id || album.id);
+                  Boolean(proposingId) &&
+                  (proposingId === (album.spotify_id || album.id) ||
+                    proposingId === album.album_name);
 
                 const handleCardClick = (e) => {
                   if (isProposing) return;
@@ -1227,7 +1394,7 @@ export function AlbumsCatalog({ isPage = false }) {
                         }}
                       />
 
-                      {/* Top Badges (Record Club style floating badges) */}
+                      {/* Top Badges (Musiclub style floating badges) */}
                       <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
                         {album.release_type && (
                           <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm bg-black/80 text-cyan-300 border-cyan-500/40">
@@ -1285,22 +1452,12 @@ export function AlbumsCatalog({ isPage = false }) {
                         >
                           {album.album_name}
                         </h3>
-                        <div className="flex items-center justify-between text-xs text-slate-400 font-medium mt-0.5">
-                          <button
-                            type="button"
-                            translate="no"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              navigate(
-                                `/artista/${slugifyArtist(album.artist_name)}`
-                              );
-                            }}
-                            className="notranslate truncate flex-1 text-left hover:text-cyan-400 hover:underline transition-colors"
-                            title={`Ver discografía de ${album.artist_name}`}
-                          >
-                            {album.artist_name}
-                          </button>
+                        <div className="mt-1">
+                          <ArtistLinks
+                            artistName={album.artist_name}
+                            className="text-xs text-slate-400 line-clamp-1"
+                            linkClassName="hover:text-cyan-400 hover:underline transition-colors notranslate"
+                          />
                         </div>
                       </div>
 
@@ -1340,12 +1497,39 @@ export function AlbumsCatalog({ isPage = false }) {
                               handleQuickPropose(album);
                             }}
                             disabled={isProposing}
-                            className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400 text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50 shadow-sm"
+                            className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
+                              isProposing
+                                ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50'
+                                : 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
+                            }`}
                           >
-                            <span>✍️</span>
+                            {isProposing ? (
+                              <svg
+                                className="animate-spin h-3.5 w-3.5 text-orange-300"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                />
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8v8H4z"
+                                />
+                              </svg>
+                            ) : (
+                              <span>✍️</span>
+                            )}
                             <span>
                               {isProposing
-                                ? 'Preparando reseña...'
+                                ? 'Abriendo...'
                                 : 'Reseñar en Club'}
                             </span>
                           </button>
@@ -1476,6 +1660,8 @@ export function AlbumsCatalog({ isPage = false }) {
                 </div>
               </div>
             )}
+          </>
+        )}
           </>
         )}
 

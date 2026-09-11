@@ -31,6 +31,7 @@ import {
 } from './common/PlatformLogos';
 import { ShareReviewModal } from './ShareReviewModal';
 import { ReviewInteractions } from './ReviewInteractions';
+import ArtistLinks from './common/ArtistLinks';
 
 const CRITERIA_METRICS = [
   {
@@ -353,6 +354,21 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
       );
     });
   }, [album, user]);
+
+  // Identificar si es un lanzamiento anticipado (estreno futuro no calificable aún)
+  const isAnticipated = useMemo(() => {
+    if (!album) return false;
+    if (album.status === 'ANTICIPADO') return true;
+    const dateStr = album.release_date || spotifyMeta?.releaseDate;
+    if (dateStr) {
+      const releaseTime = new Date(dateStr).getTime();
+      const nowTime = Date.now();
+      if (!isNaN(releaseTime) && releaseTime > nowTime) {
+        return true;
+      }
+    }
+    return false;
+  }, [album, spotifyMeta]);
 
   const toggleReviewExpanded = (reviewId) => {
     setExpandedReviews((prev) => ({
@@ -807,19 +823,11 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                   {album.album_name}
                 </h1>
                 <div className="flex items-center justify-center md:justify-start gap-2 pt-1">
-                  <Link
-                    to={`/artista/${slugifyArtist(album.artist_name)}`}
-                    translate="no"
-                    className="notranslate group/artist inline-flex items-center gap-2 text-xl sm:text-2xl text-cyan-400 hover:text-cyan-300 font-bold tracking-wide transition-all"
-                    title={`Ver página y discografía de ${album.artist_name}`}
-                  >
-                    <span
-                      translate="no"
-                      className="notranslate underline decoration-cyan-500/30 group-hover/artist:decoration-cyan-400 underline-offset-4"
-                    >
-                      {album.artist_name}
-                    </span>
-                  </Link>
+                  <ArtistLinks
+                    artistName={album.artist_name}
+                    className="text-xl sm:text-2xl font-bold tracking-wide"
+                    linkClassName="text-cyan-400 hover:text-cyan-300 underline decoration-cyan-500/30 hover:decoration-cyan-400 underline-offset-4 transition-all"
+                  />
                 </div>
 
                 {/* Genres Tags from Spotify */}
@@ -936,16 +944,26 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
 
               {/* Action Buttons */}
               <div className="flex items-center justify-center md:justify-start gap-3 pt-2 flex-wrap">
-                <button
-                  onClick={() => setShowReviewSystem((prev) => !prev)}
-                  className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
-                >
-                  <span>
-                    {userReview
-                      ? '✏️ Modificar Mi Reseña'
-                      : '⭐ Calificar y Reseñar'}
-                  </span>
-                </button>
+                {isAnticipated ? (
+                  <div
+                    className="px-6 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed select-none shadow-lg"
+                    title="Este álbum aún no se ha estrenado. Se habilitará para calificar una vez disponible en plataformas."
+                  >
+                    <span>⏳</span>
+                    <span>Lanzamiento Anticipado (Estreno {album.release_date || spotifyMeta?.releaseDate || 'próximo'})</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setShowReviewSystem((prev) => !prev)}
+                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                  >
+                    <span>
+                      {userReview
+                        ? '✏️ Modificar Mi Reseña'
+                        : '⭐ Calificar y Reseñar'}
+                    </span>
+                  </button>
+                )}
 
                 <Link
                   to={`/artista/${slugifyArtist(album.artist_name)}`}
@@ -967,8 +985,30 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
           </div>
         </div>
 
-        {/* ON-DEMAND SPOTIFY ALBUM CTA BANNER */}
-        {album.is_on_demand && (
+        {/* ANTICIPATED OR ON-DEMAND BANNER */}
+        {isAnticipated ? (
+          <div className="rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
+            <div className="space-y-1.5 text-center sm:text-left">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider">
+                <span>⏳</span> Lanzamiento Anticipado
+              </div>
+              <h3 className="text-base sm:text-lg font-black text-white">
+                Este lanzamiento aún no está disponible para calificación
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                El álbum está anunciado y programado para su estreno oficial el{' '}
+                <strong className="text-amber-300">
+                  {album.release_date || spotifyMeta?.releaseDate || 'próximamente'}
+                </strong>
+                . Conforme a las normas del Club, las calificaciones y reseñas comunitarias se habilitarán exactamente en su fecha de salida. ¡Puedes indexarlo, consultar sus pistas y compartirlo!
+              </p>
+            </div>
+            <div className="px-5 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 flex-shrink-0">
+              <span>📅</span>
+              <span>Estreno: {album.release_date || spotifyMeta?.releaseDate || 'Próximamente'}</span>
+            </div>
+          </div>
+        ) : album.is_on_demand ? (
           <div className="rounded-3xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
@@ -990,10 +1030,10 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
               <span>Calificar Álbum Ahora</span>
             </button>
           </div>
-        )}
+        ) : null}
 
         {/* REVIEW SYSTEM MODAL / SECTION (Interactive Rating Form) */}
-        {showReviewSystem && (
+        {showReviewSystem && !isAnticipated && (
           <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">

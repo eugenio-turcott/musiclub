@@ -14,9 +14,102 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.5',
+    title:
+      'Rediseño Total del Catálogo (Releases, Artistas, Géneros), Paginación en Géneros, Sincronización Diaria en Supabase, Slugs Canónicos y Desambiguación Multi-Artista',
+    date: '2026-09-11',
+    sha: '85f09cb',
+    associatedShas: ['85f09cb', 'c149eb0', 'fa720d1', '4e58b12'],
+    tag: 'Catálogo Integral & Arquitectura Multi-Artista',
+    tagColor: 'from-cyan-500 via-pink-500 to-amber-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Gran actualización Musiclub V.8.5 con una arquitectura de navegación moderna y categorizada. Reestructura el catálogo general en tres grandes universos: Releases (con ranking global de tendencias semanales de 84 álbumes, 50 lanzamientos anticipados con ranking de hype y los más recomendados por el Club), Directorio de Artistas (con desambiguación multi-artista independiente e indexación por clics en tabla Supabase), y Explorador de Géneros (con 10 géneros legendarios, paginación reactiva de 10 a 15 álbumes por página y recomendaciones esenciales de respaldo). Incorpora un motor de sincronización diaria idempotente en Supabase (una única consulta diaria programada a las 04:00 AM para consultar todo 100% desde la base de datos propia), estandariza slugs canónicos [artista]-[release] con soporte deluxe (+), blinda perfiles oficiales contra spam IA y resuelve discrepancias de hidratación SSR en Next.js.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Navegación Integral del Catálogo (Releases, Artistas, Géneros)',
+        description:
+          'Se implementó una barra superior persistente con pestañas dedicadas para Releases, Artistas y Géneros (omitiendo Labels). Cada pestaña cuenta con sincronización bidireccional en URL (?tab=releases, ?tab=artists, ?tab=genres) y vistas optimizadas tanto en móvil como en escritorio.',
+      },
+      {
+        type: 'feature',
+        title: 'Paginación Inteligente en la Exploración por Géneros',
+        description:
+          'Se incorporó un sistema de paginación reactivo y autónomo para cada categoría dentro del explorador de géneros. En la vista global de "Todos los Géneros", cada bloque limita la muestra a 10 álbumes por página (2 filas de 5), evitando la sobrecarga visual de listas infinitas. En la vista aislada por género, muestra 15 álbumes por página. Incluye controles completos de navegación (primera página, anterior, selector numérico con elipsis, siguiente, última página) y acceso directo "Ver solo [Género]".',
+      },
+      {
+        type: 'database',
+        title: 'Sincronización Diaria Idempotente en Supabase (Tendencias y Próximos Releases)',
+        description:
+          'Diseño y despliegue del esquema de tablas en Supabase para almacenamiento local persistente: record_club_releases (84 lanzamientos semanales en tendencia) y record_club_upcoming (50 lanzamientos anticipados de alta expectativa). Se implementó un control de idempotencia diaria mediante la tabla record_club_sync_state, asegurando una única consulta automática al día (programada a las 04:00 AM) para consultar todo 100% desde la base de datos propia sin saturar servicios externos.',
+      },
+      {
+        type: 'feature',
+        title: 'Ranking de Expectativa y Selector de Próximos Estrenos (10 vs 50 Releases)',
+        description:
+          'La sección de lanzamientos anticipados ahora muestra badges de popularidad y expectativa (#1 Hype, #2 Hype, etc.) e integra un control interactivo para alternar con fluidez entre el top 10 inicial y la lista extendida de los 50 estrenos confirmados más esperados a nivel global.',
+      },
+      {
+        type: 'feature',
+        title: 'Tendencias Semanales con Ranking Global de Popularidad (84 Lanzamientos)',
+        description:
+          'Módulo de lanzamientos más destacados de la semana sincronizado con el ranking global oficial, con badges de desempeño ("🔥 #1 Popularity This Week", "Top 3 Global", "Tendencia Semanal"), corte semanal cada viernes y métricas de impacto en vivo.',
+      },
+      {
+        type: 'feature',
+        title: 'Releases Anticipados con Bloqueo Preventivo de Reseñas',
+        description:
+          'Soporte completo para álbumes y EPs anunciados oficialmente que aún no salen al mercado. Se pueden indexar y explorar en la plataforma con ficha técnica completa y slug canónico, pero sus calificaciones y sistema de reseñas se mantienen bloqueados mediante una directiva estricta hasta su fecha de estreno oficial.',
+      },
+      {
+        type: 'feature',
+        title: 'Releases Más Recomendados por los Miembros del Club',
+        description:
+          'Nueva sección que filtra y ranquea los álbumes con reseñas y opiniones verificadas en Musiclub, ordenados mediante una función de balance entre puntuación media comunitaria y volumen de críticas.',
+      },
+      {
+        type: 'feature',
+        title: 'Directorio de Artistas y Desambiguación Multi-Artista en Colaboraciones',
+        description:
+          'Nuevo directorio de artistas con buscador en vivo, filtro alfabético (A-Z, #) y tarjetas con avatares circulares y conteo de lanzamientos. Mediante el nuevo componente ArtistLinks y el algoritmo splitArtists(), colaboraciones complejas como "piri & tommy, piri, Tommy Villiers" ahora se descomponen en 3 enlaces individuales e independientes.',
+      },
+      {
+        type: 'database',
+        title: 'Tabla Canónica de Artistas en Supabase y Registro de Clics',
+        description:
+          'Creación de la tabla canónica artists en Supabase con campos de slug, biografía, seguidores, popularidad y click_count. Cada vez que un usuario interactúa con un enlace de artista, se registra y actualiza la popularidad del perfil en la base de datos.',
+      },
+      {
+        type: 'feature',
+        title: 'Exploración de Géneros Más Famosos con Recomendaciones Fallback (<5)',
+        description:
+          'Catálogo de los 10 géneros más trascendentes de la música (Pop, Rock, Hip-Hop, Indie, Electrónica, R&B, Latino, Metal, Jazz, Folk). Cuando un género cuenta con menos de 5 lanzamientos en la base de datos, el sistema despliega automáticamente una selección de obras maestras recomendadas listas para reseñar.',
+      },
+      {
+        type: 'fix',
+        title: 'Resolución Integral de Hydration Mismatch en Next.js App Router',
+        description:
+          'Se erradicó el error de hidratación en /catalogo originado por la lectura prematura de parámetros de URL en el servidor. Se estableció una inicialización determinista de pestañas combinada con sincronización asíncrona post-hidratación en useEffect y un límite de contención con <Suspense>.',
+      },
+      {
+        type: 'fix',
+        title: 'Filtro Anti-Impostores y Eliminación de Spam IA (Caso Olivia Rodrigo)',
+        description:
+          'Se añadió una lista negra estricta de pistas falsas generadas por IA y títulos publicitarios (bloqueando "Dunya Will Betray You" en Olivia Rodrigo y "Artist Spotlight"). Se configuró una verificación de autor primario exacto que valida a.id === resolvedArtistId en la API de Spotify.',
+      },
+      {
+        type: 'feature',
+        title: 'Formato Canónico de Slugs [Artista]-[Release] y Soporte Deluxe (+)',
+        description:
+          'Estandarización de URLs de álbumes al formato [artista]-[release] (ej. /albumes/rosalia-motomami). Se incorporó normalización para variantes deluxe con el símbolo "+" (e.g. MOTOMAMI + se convierte en rosalia-motomami-plus), resolviendo colisiones entre versiones estándar y extendidas.',
+      },
+    ],
+  },
+  {
     version: 'V.8.4',
     title:
-      'Diseño Híbrido Estilo Record Club, Explorador de Álbumes Tendencia 2026 en Vivo y Arquitectura Modular de Sitemaps SEO',
+      'Diseño Híbrido del Catálogo, Explorador de Álbumes Tendencia 2026 en Vivo y Arquitectura Modular de Sitemaps SEO',
     date: '2026-09-10',
     sha: '0ead842',
     associatedShas: [
@@ -27,17 +120,17 @@ export const CURATED_PATCH_NOTES = [
       '6396867',
       '47ce38d',
     ],
-    tag: 'Record Club & Tendencias 2026',
+    tag: 'Catálogo & Tendencias 2026',
     tagColor: 'from-orange-500 via-amber-500 to-cyan-500',
     authorName: 'Eugenio Turcott',
     summary:
-      'Gran actualización Musiclub V.8.4 que fusiona la identidad del club con la arquitectura y estética de Record Club. Integra un explorador híbrido unificado (/catalogo) que sincroniza en tiempo real los 156 álbumes calificados por la comunidad con los 50 álbumes más famosos y tendencia de 2026 directamente desde Spotify. Presenta una cinta de métricas comunitarias (4.1M+ releases, 2.9M+ artistas), navegación por píldoras segmentadas, tarjetas mate con badges de formato y flujo on-demand ("✍️ Reseñar en Club"). Asimismo, consolida la arquitectura modular de Sitemaps Index (con 4 submódulos y 561 URLs indexables), blinda la base de datos contra ingesta basura y optimiza el despliegue nativo de Next.js en Vercel.',
+      'Gran actualización Musiclub V.8.4 que fusiona la identidad del club con una experiencia de exploración musical de primer nivel. Integra un explorador híbrido unificado (/catalogo) que sincroniza en tiempo real los 156 álbumes calificados por la comunidad con los 50 álbumes más famosos y tendencia de 2026 directamente desde Spotify. Presenta una cinta de métricas comunitarias (4.1M+ releases, 2.9M+ artistas), navegación por píldoras segmentadas, tarjetas mate con badges de formato y flujo on-demand ("✍️ Reseñar en Club"). Asimismo, consolida la arquitectura modular de Sitemaps Index (con 4 submódulos y 561 URLs indexables), blinda la base de datos contra ingesta basura y optimiza el despliegue nativo de Next.js en Vercel.',
     changes: [
       {
         type: 'feature',
-        title: 'Diseño Híbrido Estilo Record Club en Catálogo (/catalogo)',
+        title: 'Diseño Híbrido del Catálogo en Catálogo (/catalogo)',
         description:
-          'Transformación visual y funcional inspirada en record.club/browse y record.club/about: nuevo encabezado con cinta de métricas en vivo (4,113,018+ releases disponibles, 2,988,705+ artistas y discografías sincronizadas vía Spotify/MusicBrainz, conteo de reseñas y top #1 del club), píldoras de navegación segmentada (Tendencias 2026, Calificados en Club, Todo el Catálogo), buscador rápido con botón de limpieza y cuadrícula simétrica de 20 álbumes por página (4 filas × 5 columnas).',
+          'Transformación visual y funcional del catálogo: nuevo encabezado con cinta de métricas en vivo (4,113,018+ releases disponibles, 2,988,705+ artistas y discografías sincronizadas vía Spotify/MusicBrainz, conteo de reseñas y top #1 del club), píldoras de navegación segmentada (Tendencias 2026, Calificados en Club, Todo el Catálogo), buscador rápido con botón de limpieza y cuadrícula simétrica de 20 álbumes por página (4 filas × 5 columnas).',
       },
       {
         type: 'feature',
@@ -49,7 +142,7 @@ export const CURATED_PATCH_NOTES = [
         type: 'filter',
         title: 'Filtro Estricto de Calidad (Cero Singles Sueltos)',
         description:
-          'El feed de tendencias descarta automáticamente singles de 1 a 3 canciones, previews instrumentales y compilaciones genéricas publicitarias (Artist Spotlight). El catálogo presenta exclusivamente LPs completos y EPs de calidad sustancial, emulando la curaduría especializada de Record Club.',
+          'El feed de tendencias descarta automáticamente singles de 1 a 3 canciones, previews instrumentales y compilaciones genéricas publicitarias (Artist Spotlight). El catálogo presenta exclusivamente LPs completos y EPs de calidad sustancial, garantizando una curaduría musical especializada de máxima calidad.',
       },
       {
         type: 'feature',
@@ -130,7 +223,7 @@ export const CURATED_PATCH_NOTES = [
         type: 'optimization',
         title: 'Purga Integral de Base de Datos y Adopción de Modelo On-Demand',
         description:
-          'Se depuraron 2,121 lanzamientos residuales sin reseñas en Supabase para evitar ruido y spam en el catálogo. La base de datos ahora alberga exclusivamente lanzamientos con actividad y reseñas reales de los miembros, adoptando un esquema de ingesta bajo demanda idéntico al estándar de plataformas como Record Club.',
+          'Se depuraron 2,121 lanzamientos residuales sin reseñas en Supabase para evitar ruido y spam en el catálogo. La base de datos ahora alberga exclusivamente lanzamientos con actividad y reseñas reales de los miembros, adoptando un esquema de ingesta bajo demanda idéntico al estándar de plataformas musicales profesionales.',
       },
       {
         type: 'feature',

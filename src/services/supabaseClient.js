@@ -4,9 +4,10 @@ import {
   calculateReviewBonus,
   calculateAlbumTopTrack,
   findAlbumBySlug,
-} from '../utils/ratingUtils';
-import { calculateUserGamification } from '../utils/badgeSystem';
-import { enrichAlbumWithMusicBrainz } from './musicBrainzService';
+  slugifyArtist,
+} from '../utils/ratingUtils.js';
+import { calculateUserGamification } from '../utils/badgeSystem.js';
+import { enrichAlbumWithMusicBrainz } from './musicBrainzService.js';
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -349,6 +350,116 @@ export const supabaseService = {
   },
 
   // ==========================================
+  // ARTISTAS & DESAMBIGUACIÓN (V.8.5)
+  // ==========================================
+
+  getArtistBySlug: async (slug) => {
+    if (!slug) return null;
+    try {
+      const { data, error } = await supabase
+        .from('artists')
+        .select('*')
+        .eq('slug', slug.toLowerCase())
+        .maybeSingle();
+
+      if (!error && data) return data;
+      return null;
+    } catch (_) {
+      return null;
+    }
+  },
+
+  upsertArtist: async (artistData) => {
+    if (!artistData || !artistData.name) return null;
+    try {
+      const slug = artistData.slug || slugifyArtist(artistData.name);
+      const payload = {
+        name: artistData.name.trim(),
+        slug: slug.toLowerCase(),
+        spotify_id: artistData.spotify_id || artistData.id || null,
+        mbid: artistData.mbid || null,
+        image_url: artistData.image_url || artistData.image || null,
+        genres: Array.isArray(artistData.genres) ? artistData.genres : [],
+        followers: artistData.followers || 0,
+        popularity: artistData.popularity || 0,
+        bio: artistData.bio || null,
+        verified: artistData.verified ?? false,
+        updated_at: new Date().toISOString(),
+      };
+
+      const { data, error } = await supabase
+        .from('artists')
+        .upsert(payload, { onConflict: 'slug' })
+        .select()
+        .maybeSingle();
+
+      if (error) {
+        console.warn('⚠️ No se pudo guardar artista en tabla artists:', error.message);
+        return null;
+      }
+      return data;
+    } catch (err) {
+      console.warn('⚠️ Error en upsertArtist:', err);
+      return null;
+    }
+  },
+
+  recordArtistClick: async (artistNameOrData) => {
+    if (!artistNameOrData) return;
+    try {
+      const name =
+        typeof artistNameOrData === 'string'
+          ? artistNameOrData
+          : artistNameOrData.name;
+      if (!name) return;
+      const slug = slugifyArtist(name).toLowerCase();
+
+      const { data: existing } = await supabase
+        .from('artists')
+        .select('id, click_count')
+        .eq('slug', slug)
+        .maybeSingle();
+
+      if (existing) {
+        await supabase
+          .from('artists')
+          .update({
+            click_count: (existing.click_count || 0) + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existing.id);
+      } else {
+        const extra =
+          typeof artistNameOrData === 'object' ? artistNameOrData : {};
+        await supabase.from('artists').insert([
+          {
+            name: name.trim(),
+            slug,
+            spotify_id: extra.spotify_id || extra.id || null,
+            image_url: extra.image_url || extra.image || null,
+            genres: Array.isArray(extra.genres) ? extra.genres : [],
+            click_count: 1,
+          },
+        ]);
+      }
+    } catch (_) {}
+  },
+
+  getAllArtists: async () => {
+    try {
+      const { data, error } = await supabase
+        .from('artists')
+        .select('*')
+        .order('click_count', { ascending: false });
+
+      if (!error && data && data.length > 0) {
+        return data;
+      }
+    } catch (_) {}
+    return [];
+  },
+
+  // ==========================================
   // ÁLBUMES
   // ==========================================
 
@@ -516,6 +627,20 @@ export const supabaseService = {
       }
     }
 
+    // 0. Si ya existe en la base de datos (por MBID o por album_name y artist_name), recuperarlo y retornarlo
+    try {
+      const existing = await supabaseService.getAlbumByNameAndArtist(
+        payload.album_name,
+        payload.artist_name,
+        payload.mbid
+      );
+      if (existing) {
+        return existing;
+      }
+    } catch (checkErr) {
+      console.warn('Verificación previa de álbum existente:', checkErr);
+    }
+
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -524,6 +649,21 @@ export const supabaseService = {
         .single();
 
       if (error) {
+        // Si el error es por restricción única (ej. "unique_album_artist"), recuperar el álbum existente
+        const isConflict =
+          error.code === '23505' ||
+          error.message?.toLowerCase().includes('unique') ||
+          error.message?.toLowerCase().includes('duplicate');
+
+        if (isConflict) {
+          const existing = await supabaseService.getAlbumByNameAndArtist(
+            payload.album_name,
+            payload.artist_name,
+            payload.mbid
+          );
+          if (existing) return existing;
+        }
+
         // Fallback si alguna columna extendida aún no existe en la BD
         const cleanedPayload = { ...payload };
         delete cleanedPayload.mbid;
@@ -542,7 +682,23 @@ export const supabaseService = {
           .insert([cleanedPayload])
           .select()
           .single();
-        if (retryRes.error) throw new Error(retryRes.error.message);
+
+        if (retryRes.error) {
+          const isRetryConflict =
+            retryRes.error.code === '23505' ||
+            retryRes.error.message?.toLowerCase().includes('unique') ||
+            retryRes.error.message?.toLowerCase().includes('duplicate');
+
+          if (isRetryConflict) {
+            const existing = await supabaseService.getAlbumByNameAndArtist(
+              payload.album_name,
+              payload.artist_name,
+              payload.mbid
+            );
+            if (existing) return existing;
+          }
+          throw new Error(retryRes.error.message);
+        }
         return retryRes.data;
       }
       return data;
@@ -1614,24 +1770,7 @@ export const supabaseService = {
         }
       }
 
-      // 3. Si aún no se encontró, buscar coincidencias parciales con límite
-      if (!album) {
-        const cleanName = strId.replace(/[-_]/g, ' ').trim();
-        const prefix = cleanName.slice(0, 20);
-        if (prefix.length >= 3) {
-          const { data: partialMatches } = await supabase
-            .from('albums')
-            .select('*')
-            .ilike('album_name', `%${prefix}%`)
-            .limit(25);
-
-          if (partialMatches && partialMatches.length > 0) {
-            album = findAlbumBySlug(partialMatches, strId);
-          }
-        }
-      }
-
-      // 4. Fallback exhaustivo si el slug difiere: consultar solo columnas ligeras
+      // 3. Coincidencia por catálogo con findAlbumBySlug (soporta [artista]-[release] y [release])
       if (!album) {
         const { data: lightweightList } = await supabase
           .from('albums')
@@ -1645,6 +1784,23 @@ export const supabaseService = {
             .eq('id', matched.id)
             .maybeSingle();
           if (fullAlbum) album = fullAlbum;
+        }
+      }
+
+      // 4. Coincidencias parciales como fallback adicional
+      if (!album) {
+        const cleanName = strId.replace(/[-_]/g, ' ').trim();
+        const prefix = cleanName.slice(0, 20);
+        if (prefix.length >= 3) {
+          const { data: partialMatches } = await supabase
+            .from('albums')
+            .select('*')
+            .ilike('album_name', `%${prefix}%`)
+            .limit(25);
+
+          if (partialMatches && partialMatches.length > 0) {
+            album = findAlbumBySlug(partialMatches, strId);
+          }
         }
       }
 
@@ -2434,6 +2590,114 @@ export const supabaseService = {
     const localList = getLocalReviewComments().filter((c) => c.id !== commentId);
     setLocalReviewComments(localList);
     return true;
+  },
+
+  // ==========================================
+  // RECORD CLUB SYNC & TRENDING EN SUPABASE
+  // ==========================================
+
+  getRecordClubTrending: async ({ limit = 84 } = {}) => {
+    try {
+      const { data, error } = await supabase
+        .from('record_club_releases')
+        .select('*')
+        .order('trending_rank', { ascending: true })
+        .limit(limit);
+
+      if (error) {
+        return null;
+      }
+      return data || [];
+    } catch (err) {
+      return null;
+    }
+  },
+
+  upsertRecordClubReleases: async (releases) => {
+    if (!Array.isArray(releases) || releases.length === 0) return false;
+    try {
+      const { error } = await supabase
+        .from('record_club_releases')
+        .upsert(releases, { onConflict: 'id' });
+
+      if (error) {
+        return false;
+      }
+      return true;
+    } catch (err) {
+      return false;
+    }
+  },
+
+  getRecordClubUpcoming: async ({ limit = 50 } = {}) => {
+    try {
+      const { data, error } = await supabase
+        .from('record_club_upcoming')
+        .select('*')
+        .order('popularity_rank', { ascending: true })
+        .limit(limit);
+
+      if (error) {
+        return null;
+      }
+      return data || [];
+    } catch (err) {
+      return null;
+    }
+  },
+
+  upsertRecordClubUpcoming: async (releases) => {
+    if (!Array.isArray(releases) || releases.length === 0) return false;
+    try {
+      const { error } = await supabase
+        .from('record_club_upcoming')
+        .upsert(releases, { onConflict: 'id' });
+
+      if (error) {
+        return false;
+      }
+      return true;
+    } catch (err) {
+      return false;
+    }
+  },
+
+  getRecordClubSyncState: async (syncType) => {
+    try {
+      const { data, error } = await supabase
+        .from('record_club_sync_state')
+        .select('*')
+        .eq('sync_type', syncType)
+        .maybeSingle();
+
+      if (error) return null;
+      return data;
+    } catch (err) {
+      return null;
+    }
+  },
+
+  updateRecordClubSyncState: async (syncType, itemsCount) => {
+    try {
+      const todayDate = new Date().toISOString().split('T')[0];
+      const { error } = await supabase
+        .from('record_club_sync_state')
+        .upsert(
+          {
+            sync_type: syncType,
+            last_synced_at: new Date().toISOString(),
+            last_synced_date: todayDate,
+            items_count: itemsCount,
+            status: 'OK',
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: 'sync_type' }
+        );
+
+      return !error;
+    } catch (err) {
+      return false;
+    }
   },
 };
 

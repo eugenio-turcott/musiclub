@@ -1,5 +1,5 @@
 // src/services/musicBrainzService.js
-import { searchAlbum } from './spotifyApi';
+import { searchAlbum } from './spotifyApi.js';
 
 /**
  * MusicBrainz & Cover Art Archive Service for Musiclub

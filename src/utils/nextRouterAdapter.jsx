@@ -31,6 +31,7 @@ Link.displayName = 'Link';
  */
 export function useNavigate() {
   const router = useRouter();
+  const currentPathname = usePathname();
   return (destination, options) => {
     if (typeof destination === 'number') {
       if (destination < 0) {
@@ -40,10 +41,31 @@ export function useNavigate() {
       }
       return;
     }
+
+    let target = destination;
+    if (typeof destination === 'object' && destination !== null) {
+      const p = destination.pathname || currentPathname || '/';
+      const s = destination.search
+        ? destination.search.startsWith('?')
+          ? destination.search
+          : `?${destination.search}`
+        : '';
+      const h = destination.hash
+        ? destination.hash.startsWith('#')
+          ? destination.hash
+          : `#${destination.hash}`
+        : '';
+      target = `${p}${s}${h}`;
+    }
+
+    if (typeof target !== 'string') {
+      target = String(target || '/');
+    }
+
     if (options?.replace) {
-      router.replace(destination);
+      router.replace(target);
     } else {
-      router.push(destination);
+      router.push(target);
     }
   };
 }

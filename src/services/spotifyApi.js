@@ -1076,14 +1076,25 @@ export const getArtistDiscography = async (artistId, artistName) => {
     const seenMap = new Map();
 
     rawItems.forEach((item) => {
-      // Filtrar estrictamente: solo admitir releases donde el artista sea parte verificada
+      if (!item || !item.name) return;
+
+      // Filtro anti-impostores e IA spam (ej. "Dunya Will Betray You" de cuentas falsas como "Olivia rodrigo.")
+      const itemNameLower = item.name.toLowerCase().trim();
+      const isKnownAiSpam = [
+        'dunya will betray you',
+        'artist spotlight',
+      ].some((spam) => itemNameLower.includes(spam));
+      if (isKnownAiSpam) return;
+
+      // Filtrar estrictamente: si conocemos el Artist ID oficial, exigir coincidencia estricta por ID
       if (item.artists && item.artists.length > 0) {
         const matchesArtist = item.artists.some((a) => {
-          if (resolvedArtistId && a.id && a.id === resolvedArtistId) return true;
+          if (resolvedArtistId) {
+            return a.id === resolvedArtistId;
+          }
           if (cleanTarget) {
             const aName = a.name.toLowerCase().trim();
             if (aName === cleanTarget) return true;
-            if (slugifyArtist(a.name).toLowerCase() === targetSlug) return true;
           }
           return false;
         });
