@@ -14,6 +14,57 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.6',
+    title:
+      'Rediseño de Review Stories 9:16: Tipografía de Alta Legibilidad, Distribución Vertical Adaptativa y Modal Responsivo Móvil',
+    date: '2026-09-15',
+    sha: 'e5c4a23',
+    associatedShas: ['e5c4a23'],
+    tag: 'Review Stories HD & UX Móvil',
+    tagColor: 'from-pink-500 via-purple-500 to-indigo-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.6 enfocada en maximizar el impacto visual, la legibilidad y la experiencia móvil al compartir críticas y reseñas en redes sociales (Instagram Stories, TikTok y WhatsApp). Se rediseña integralmente el motor de renderizado Canvas 2D (1080x1920) aumentando sustancialmente el tamaño de letra en todos los elementos clave: los comentarios de las reseñas ahora escalan dinámicamente de 29px a 36px con un interlineado amplio y de alto contraste (reemplazando los 22px anteriores), el título del álbum incorpora envoltura inteligente multi-línea (48px–52px), y los 6 pilares de crítica y tracks destacados se optimizan con un sistema de flex-wrap para evitar recortes de texto. Además, se implementa un algoritmo de distribución vertical adaptativa con centrado automático que elimina los vacíos o huecos muertos según las tarjetas activadas, y se transforma el modal de compartir en una interfaz segmentada 100% responsiva para celulares con pestañas dedicadas (Vista Previa vs. Ajustes & Redes), acceso directo a botones de acción y barra inferior fija.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Tipografía de Alta Legibilidad y Comentarios Dinámicos (29px–36px)',
+        description:
+          'El tamaño de la tipografía del comentario de la reseña en las Stories 9:16 fue incrementado significativamente, pasando de los 22px anteriores a un rango dinámico de 29px a 36px con interlineado holgado de 41px a 50px según la longitud del texto. Se agregó una comilla estilizada de apertura (“) de 48px y texto blanco de alto contraste sobre fondos oscuros translúcidos, garantizando una lectura inmediata y cómoda en teléfonos celulares.',
+      },
+      {
+        type: 'feature',
+        title: 'Distribución Vertical Adaptativa y Centrado Automático',
+        description:
+          'Se eliminaron las coordenadas fijas del lienzo de historias. Un nuevo algoritmo calcula la altura acumulada de las tarjetas visibles (crítico, canción favorita, comentario, 6 pilares, tracks destacados) y aplica un espaciado proporcional (gap adaptativo de 14px a 26px) con centrado vertical en el lienzo de 1080x1920. Esto elimina por completo los huecos muertos y vacíos espaciales cuando se activan o desactivan elementos.',
+      },
+      {
+        type: 'improvement',
+        title: 'Envoltura Inteligente de Títulos Multi-Línea (48px–52px)',
+        description:
+          'El nombre del lanzamiento ahora cuenta con soporte dinámico de hasta 2 líneas a 48px–52px para títulos largos (hasta 940px de ancho). Se incrementó la tipografía del artista a 32px, la píldora de fecha a 20px, la cabecera a 38px y el dominio canónico de pie de página a 28px.',
+      },
+      {
+        type: 'fix',
+        title: 'Flex-Wrap en Canciones Destacadas contra Desbordamientos',
+        description:
+          'Se implementó un algoritmo de flujo multi-fila en la sección de canciones destacadas. El sistema mide individualmente el ancho del texto y el badge de puntuación de cada pista, distribuyendo las píldoras en filas continuas sin sobrepasar el ancho de la tarjeta y erradicando cualquier recorte visual en el margen derecho.',
+      },
+      {
+        type: 'improvement',
+        title: 'Zonas Seguras Calibradas para Instagram, TikTok y WhatsApp',
+        description:
+          'Se optimizaron las distancias de seguridad superior (220px) e inferior (120px) en el lienzo de 1080x1920. Los encabezados, carátula, datos y enlaces de Musiclub se mantienen 100% visibles y libres de solapamiento con los controles de interfaz nativos de Stories y estados móviles.',
+      },
+      {
+        type: 'feature',
+        title: 'Modal de Compartir 100% Responsivo con Pestañas Móviles',
+        description:
+          'Rediseño responsivo del componente ShareReviewModal en dispositivos móviles. En pantallas pequeñas se incorpora un control segmentado con pestañas dedicadas: "📱 Vista Previa Story" (con mockup de teléfono, selector táctil de temas y acciones directas) y "⚙️ Ajustes & Redes" (con switches de personalización y cuadrícula de redes sociales). Mantiene además una barra inferior fija (sticky bottom bar) para compartir o descargar en un solo toque, y preserva la vista de 2 columnas en escritorio.',
+      },
+    ],
+  },
+  {
     version: 'V.8.5',
     title:
       'Rediseño Total del Catálogo (Releases, Artistas, Géneros), Paginación en Géneros, Sincronización Diaria en Supabase, Slugs Canónicos y Desambiguación Multi-Artista',

@@ -464,80 +464,80 @@ export async function generateReviewStoryCanvas({
   ctx.fillStyle = glow2;
   ctx.fillRect(0, 0, 1080, 1920);
 
-  // 3. HEADER FIJO EN ZONA SEGURA (y: 135 a 220)
+  // 3. HEADER FIJO EN ZONA SEGURA (y: 116 a 215)
   // Caja de logo de la app
-  drawRoundedRect(ctx, 64, 135, 72, 72, 20);
-  const logoBoxGrad = ctx.createLinearGradient(64, 135, 136, 207);
-  logoBoxGrad.addColorStop(0, '#1c1c28');
+  drawRoundedRect(ctx, 64, 118, 78, 78, 22);
+  const logoBoxGrad = ctx.createLinearGradient(64, 118, 142, 196);
+  logoBoxGrad.addColorStop(0, '#1f2033');
   logoBoxGrad.addColorStop(1, '#0e0f17');
   ctx.fillStyle = logoBoxGrad;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   if (logoImg) {
-    ctx.drawImage(logoImg, 72, 143, 56, 56);
+    ctx.drawImage(logoImg, 73, 127, 60, 60);
   } else {
     ctx.fillStyle = '#ffffff';
-    ctx.font = '900 36px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+    ctx.font = '900 40px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('M', 100, 182);
+    ctx.fillText('M', 103, 172);
   }
 
   // Título de la app
   ctx.textAlign = 'left';
-  ctx.font = '900 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '900 38px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('Musiclub', 152, 168);
+  ctx.fillText('Musiclub', 160, 154);
 
-  ctx.font = '800 15px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '800 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = theme.accentColor;
-  ctx.fillText('CRÍTICA MUSICAL', 152, 194);
+  ctx.fillText('CRÍTICA DE ÁLBUM', 160, 184);
 
   // Píldora de fecha
   const dateStr = formatReviewDate(review?.created_at || review?.review_date);
   if (dateStr) {
     const dText = `🗓️ ${dateStr}`;
-    ctx.font = '700 17px "Gabarito", sans-serif';
-    const dW = ctx.measureText(dText).width + 36;
+    ctx.font = '700 20px "Gabarito", sans-serif';
+    const dW = ctx.measureText(dText).width + 40;
     const dX = 1080 - 64 - dW;
-    drawRoundedRect(ctx, dX, 148, dW, 44, 22);
+    drawRoundedRect(ctx, dX, 132, dW, 48, 24);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+    ctx.lineWidth = 1.2;
     ctx.stroke();
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.fillText(dText, dX + dW / 2, 175);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillText(dText, dX + dW / 2, 163);
   }
 
   // Divisor de cabecera
   ctx.beginPath();
-  ctx.moveTo(64, 226);
-  ctx.lineTo(1080 - 64, 226);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+  ctx.moveTo(64, 216);
+  ctx.lineTo(1080 - 64, 216);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // 4. PORTADA DE ÁLBUM + DISCO DE VINILO 3D
-  const coverSize = showVinylDisc ? 400 : 430;
-  const coverX = showVinylDisc ? 240 : (1080 - coverSize) / 2;
-  const coverY = 250;
+  // 4. PORTADA DE ÁLBUM + DISCO DE VINILO 3D (y: 242)
+  const coverSize = showVinylDisc ? 380 : 390;
+  const coverX = showVinylDisc ? 230 : (1080 - coverSize) / 2;
+  const coverY = 242;
 
   if (showVinylDisc) {
-    const vx = 665;
+    const vx = 670;
     const vy = coverY + coverSize / 2;
-    const vr = 190;
+    const vr = 180;
 
     // Sombra del vinilo
     ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.92)';
     ctx.shadowBlur = 50;
-    ctx.shadowOffsetX = 12;
-    ctx.shadowOffsetY = 16;
+    ctx.shadowOffsetX = 14;
+    ctx.shadowOffsetY = 18;
     ctx.beginPath();
     ctx.arc(vx, vy, vr, 0, Math.PI * 2);
     const vinylGrad = ctx.createLinearGradient(
@@ -554,7 +554,7 @@ export async function generateReviewStoryCanvas({
     ctx.restore();
 
     // Surcos circulares del disco
-    [170, 150, 130, 110, 90].forEach((r) => {
+    [162, 144, 126, 108, 90].forEach((r) => {
       ctx.beginPath();
       ctx.arc(vx, vy, r, 0, Math.PI * 2);
       ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
@@ -564,19 +564,19 @@ export async function generateReviewStoryCanvas({
 
     // Etiqueta del disco con gradiente del tema
     ctx.beginPath();
-    ctx.arc(vx, vy, 62, 0, Math.PI * 2);
+    ctx.arc(vx, vy, 60, 0, Math.PI * 2);
     const labelGrad = ctx.createLinearGradient(
-      vx - 62,
-      vy - 62,
-      vx + 62,
-      vy + 62
+      vx - 60,
+      vy - 60,
+      vx + 60,
+      vy + 60
     );
     labelGrad.addColorStop(0, theme.vinylLabelGrad[0]);
     labelGrad.addColorStop(0.5, theme.vinylLabelGrad[1]);
     labelGrad.addColorStop(1, theme.vinylLabelGrad[2]);
     ctx.fillStyle = labelGrad;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
     ctx.lineWidth = 2;
     ctx.stroke();
 
@@ -593,70 +593,79 @@ export async function generateReviewStoryCanvas({
   // Resplandor ambiental de la carátula
   ctx.save();
   ctx.shadowColor = theme.accentColor;
-  ctx.shadowBlur = 35;
+  ctx.shadowBlur = 38;
   drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
   ctx.fill();
   ctx.restore();
 
-  // Renderizar portada
+  // Borde y Carátula
   ctx.save();
   drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
   ctx.clip();
   if (coverImg) {
     ctx.drawImage(coverImg, coverX, coverY, coverSize, coverSize);
   } else {
-    ctx.fillStyle = '#1c1c28';
+    const placeholderGrad = ctx.createLinearGradient(
+      coverX,
+      coverY,
+      coverX + coverSize,
+      coverY + coverSize
+    );
+    placeholderGrad.addColorStop(0, '#1e1b4b');
+    placeholderGrad.addColorStop(1, '#312e81');
+    ctx.fillStyle = placeholderGrad;
     ctx.fillRect(coverX, coverY, coverSize, coverSize);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 48px "Gabarito", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('DISCO', coverX + coverSize / 2, coverY + coverSize / 2 + 16);
   }
-  // Sombra suave encima de la portada
-  const coverShadow = ctx.createLinearGradient(
-    coverX,
-    coverY,
-    coverX,
-    coverY + coverSize
-  );
-  coverShadow.addColorStop(0, 'rgba(255, 255, 255, 0.08)');
-  coverShadow.addColorStop(1, 'rgba(0, 0, 0, 0.25)');
-  ctx.fillStyle = coverShadow;
-  ctx.fillRect(coverX, coverY, coverSize, coverSize);
   ctx.restore();
 
-  // Borde nítido de la carátula
   drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
   ctx.strokeStyle = theme.coverBorder;
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // 5. TÍTULOS DEL LANZAMIENTO (y: 700 a 810)
+  // 5. TÍTULOS DEL LANZAMIENTO (Envolvente inteligente multi-línea)
   ctx.textAlign = 'center';
-  ctx.font = '900 42px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  const rawAlbumTitle = album.album_name || 'Álbum';
+  const titleFontSize = rawAlbumTitle.length <= 22 ? 52 : 48;
+  ctx.font = `900 ${titleFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.fillStyle = '#ffffff';
-  let albumTitleToDraw = album.album_name;
-  if (ctx.measureText(albumTitleToDraw).width > 920) {
-    while (
-      albumTitleToDraw.length > 5 &&
-      ctx.measureText(albumTitleToDraw + '…').width > 920
-    ) {
-      albumTitleToDraw = albumTitleToDraw.slice(0, -1);
-    }
-    albumTitleToDraw += '…';
-  }
-  ctx.fillText(albumTitleToDraw, 540, 715);
 
-  ctx.font = '700 25px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-  let artistToDraw = album.artist_name;
-  if (ctx.measureText(artistToDraw).width > 920) {
+  let albumTitleLines = wrapText(ctx, rawAlbumTitle, 940);
+  if (albumTitleLines.length > 2) {
+    albumTitleLines = albumTitleLines.slice(0, 2);
+    albumTitleLines[1] = albumTitleLines[1] + '…';
+  }
+
+  let titleY = 668;
+  if (albumTitleLines.length === 1) {
+    ctx.fillText(albumTitleLines[0], 540, titleY);
+  } else {
+    titleY = 654;
+    ctx.fillText(albumTitleLines[0], 540, titleY);
+    titleY += 52;
+    ctx.fillText(albumTitleLines[1], 540, titleY);
+  }
+
+  const artistY = titleY + 44;
+  ctx.font = '700 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+  let artistToDraw = album.artist_name || 'Artista';
+  if (ctx.measureText(artistToDraw).width > 940) {
     while (
       artistToDraw.length > 5 &&
-      ctx.measureText(artistToDraw + '…').width > 920
+      ctx.measureText(artistToDraw + '…').width > 940
     ) {
       artistToDraw = artistToDraw.slice(0, -1);
     }
     artistToDraw += '…';
   }
-  ctx.fillText(artistToDraw, 540, 755);
+  ctx.fillText(artistToDraw, 540, artistY);
 
   // Píldora Tipo · Año
   const typeText = [
@@ -665,59 +674,83 @@ export async function generateReviewStoryCanvas({
   ]
     .filter(Boolean)
     .join(' · ');
-  ctx.font = '800 15px "Gabarito", sans-serif';
-  const typeW = ctx.measureText(typeText).width + 30;
-  drawRoundedRect(ctx, 540 - typeW / 2, 775, typeW, 32, 16);
+  const typeY = artistY + 22;
+  ctx.font = '800 18px "Gabarito", sans-serif';
+  const typeW = ctx.measureText(typeText).width + 36;
+  drawRoundedRect(ctx, 540 - typeW / 2, typeY, typeW, 36, 18);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
   ctx.stroke();
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(typeText, 540, 797);
+  ctx.fillText(typeText, 540, typeY + 25);
+
+  const heroBottom = typeY + 36;
 
   // 6. CÁLCULO DE ALTURAS Y DISTRIBUCIÓN VERTICAL ADAPTATIVA
-  const reviewerH = emotion ? 168 : 108;
-  const favH = favoriteTrackName ? 84 : 0;
+  const startAreaY = heroBottom + 26;
+  const endAreaY = 1726;
+  const totalAvailable = endAreaY - startAreaY;
 
+  const reviewerH = emotion ? 180 : 110;
+  const favH = favoriteTrackName ? 96 : 0;
+
+  // Tipografía dinámica de Comentario ("Letra mucho más grande y legible")
   let commentLines = [];
   let commentH = 0;
+  let commentFontSize = 34;
+  let commentLineHeight = 46;
+
   if (showComment && review?.comment) {
-    ctx.font = '500 22px "Gabarito", sans-serif';
-    commentLines = wrapText(ctx, review.comment, 840);
-    if (commentLines.length > 4) {
-      commentLines = commentLines.slice(0, 4);
-      commentLines[3] = commentLines[3] + '…';
+    const trimmedComment = review.comment.trim();
+    if (trimmedComment.length > 220) {
+      commentFontSize = 29;
+      commentLineHeight = 41;
+    } else if (trimmedComment.length > 100) {
+      commentFontSize = 33;
+      commentLineHeight = 45;
+    } else {
+      commentFontSize = 36;
+      commentLineHeight = 50;
     }
-    commentH = 36 + commentLines.length * 32 + 16;
+
+    ctx.font = `600 ${commentFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
+    commentLines = wrapText(ctx, trimmedComment, 810);
+    if (commentLines.length > 5) {
+      commentLines = commentLines.slice(0, 5);
+      commentLines[4] = commentLines[4] + '…';
+    }
+    commentH = 34 + 28 + commentLines.length * commentLineHeight;
   }
 
   const criteriaRows = criteria.length > 3 ? 2 : criteria.length > 0 ? 1 : 0;
   const criteriaH =
     showCriteria && criteriaRows > 0
       ? criteriaRows === 2
-        ? 82 * 2 + 18
-        : 82
+        ? 92 * 2 + 16
+        : 92
       : 0;
 
   // Pre-calcular distribución de filas para Tracks Destacados (Flex-wrap)
-  const maxRowWidth = 952 - 48; // 904px ancho interior disponible
-  const pillHeight = 42;
-  const pillGapX = 12;
-  const pillGapY = 10;
-  const headerSectionH = 34;
-  const trackCardPaddingY = 16;
+  const maxRowWidth = 952 - 56;
+  const pillHeight = 50;
+  const pillGapX = 14;
+  const pillGapY = 12;
+  const trackCardPaddingY = 18;
+  const trackHeaderH = 36;
 
   const trackRows = [];
   if (showTracks && topTracksList.length > 0) {
-    ctx.font = '700 16px "Gabarito", sans-serif';
     let currentRow = [];
     let currentRowW = 0;
 
     for (let i = 0; i < topTracksList.length; i++) {
       const t = topTracksList[i];
+      ctx.font = '800 20px "Gabarito", sans-serif';
       const scoreW = ctx.measureText(' ' + t.score).width;
-      const maxAllowedNameW = maxRowWidth - scoreW - 32;
+      const maxAllowedNameW = maxRowWidth - scoreW - 44;
 
+      ctx.font = '700 20px "Gabarito", sans-serif';
       let displayName = t.name;
       if (ctx.measureText(displayName).width > maxAllowedNameW) {
         while (
@@ -729,7 +762,7 @@ export async function generateReviewStoryCanvas({
         displayName += '…';
       }
       const nameW = ctx.measureText(displayName).width;
-      const pillW = nameW + scoreW + 30;
+      const pillW = nameW + scoreW + 36;
 
       if (
         currentRow.length > 0 &&
@@ -751,7 +784,7 @@ export async function generateReviewStoryCanvas({
   const tracksH =
     showTracks && trackRows.length > 0
       ? trackCardPaddingY * 2 +
-        headerSectionH +
+        trackHeaderH +
         trackRows.length * pillHeight +
         (trackRows.length - 1) * pillGapY
       : 0;
@@ -763,25 +796,36 @@ export async function generateReviewStoryCanvas({
   if (criteriaH > 0) contentCards.push({ id: 'criteria', h: criteriaH });
   if (tracksH > 0) contentCards.push({ id: 'tracks', h: tracksH });
 
-  const startAreaY = 825;
-  const endAreaY = 1650;
-  const totalAvailable = endAreaY - startAreaY;
-  const totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
+  let totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
   const cardCount = contentCards.length;
-  const numGaps = Math.max(1, cardCount - 1);
 
-  // Espacio libre y gap adaptativo responsivo
+  // Ajuste inteligente si todo está activo y hay exceso de altura
+  if (totalCardsH + (cardCount - 1) * 14 > totalAvailable && commentH > 0) {
+    commentFontSize = Math.max(26, commentFontSize - 3);
+    commentLineHeight = Math.max(36, commentLineHeight - 4);
+    ctx.font = `600 ${commentFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
+    commentLines = wrapText(ctx, (review?.comment || '').trim(), 810);
+    if (commentLines.length > 4) {
+      commentLines = commentLines.slice(0, 4);
+      commentLines[3] = commentLines[3] + '…';
+    }
+    const newCommentH = 34 + 28 + commentLines.length * commentLineHeight;
+    const cObj = contentCards.find((c) => c.id === 'comment');
+    if (cObj) cObj.h = newCommentH;
+    totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
+  }
+
+  // Distribución de espacio libre con Gap adaptativo
   const availableForGaps = totalAvailable - totalCardsH;
   const idealGap = Math.max(
-    10,
+    14,
     Math.min(26, availableForGaps / (cardCount + 1))
   );
-  const totalGapsH = idealGap * numGaps;
+  const totalGapsH = idealGap * Math.max(1, cardCount - 1);
   const topPadding = Math.max(
     0,
     (totalAvailable - (totalCardsH + totalGapsH)) / 2
   );
-  const gap = idealGap;
 
   let curY = startAreaY + topPadding;
 
@@ -799,49 +843,49 @@ export async function generateReviewStoryCanvas({
       // Avatar del crítico
       ctx.save();
       ctx.beginPath();
-      ctx.arc(122, curY + 54, 34, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
+      ctx.arc(126, curY + 56, 38, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.35)';
+      ctx.lineWidth = 2.5;
       ctx.stroke();
       ctx.clip();
       if (avatarImg) {
-        ctx.drawImage(avatarImg, 122 - 34, curY + 54 - 34, 68, 68);
+        ctx.drawImage(avatarImg, 126 - 38, curY + 56 - 38, 76, 76);
       } else {
         ctx.fillStyle = '#4f46e5';
-        ctx.fillRect(122 - 34, curY + 54 - 34, 68, 68);
+        ctx.fillRect(126 - 38, curY + 56 - 38, 76, 76);
         ctx.fillStyle = '#ffffff';
-        ctx.font = '900 30px "Gabarito", sans-serif';
+        ctx.font = '900 36px "Gabarito", sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText((reviewerName[0] || 'M').toUpperCase(), 122, curY + 64);
+        ctx.fillText((reviewerName[0] || 'M').toUpperCase(), 126, curY + 68);
       }
       ctx.restore();
 
       // Nombre y Rango del crítico
       ctx.textAlign = 'left';
-      ctx.font = '800 26px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.font = '800 34px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = '#ffffff';
       let rNameToDraw = reviewerName;
-      if (ctx.measureText(rNameToDraw).width > 450) {
+      if (ctx.measureText(rNameToDraw).width > 440) {
         while (
           rNameToDraw.length > 5 &&
-          ctx.measureText(rNameToDraw + '…').width > 450
+          ctx.measureText(rNameToDraw + '…').width > 440
         ) {
           rNameToDraw = rNameToDraw.slice(0, -1);
         }
         rNameToDraw += '…';
       }
-      ctx.fillText(rNameToDraw, 174, curY + 49);
+      ctx.fillText(rNameToDraw, 184, curY + 52);
 
-      ctx.font = '600 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-      ctx.fillText('Crítico de Musiclub', 174, curY + 77);
+      ctx.font = '600 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.fillText('Crítico de Musiclub', 184, curY + 84);
 
       // Píldora de Calificación General
-      const pillW = 196;
-      const pillH = 66;
-      const pillX = 1080 - 64 - 20 - pillW;
+      const pillW = 216;
+      const pillH = 70;
+      const pillX = 1016 - pillW - 20;
       const pillY = curY + 21;
-      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 20);
+      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 22);
       const scoreGrad = ctx.createLinearGradient(
         pillX,
         pillY,
@@ -854,68 +898,68 @@ export async function generateReviewStoryCanvas({
       ctx.fill();
 
       ctx.fillStyle = theme.scoreTextColor;
-      ctx.font = '900 34px "Gabarito", sans-serif';
+      ctx.font = '900 38px "Gabarito", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + 45);
+      ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + 48);
 
       // Divisor y Mood
       if (emotion) {
         ctx.beginPath();
-        ctx.moveTo(88, curY + 108);
-        ctx.lineTo(1080 - 88, curY + 108);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.moveTo(88, curY + 112);
+        ctx.lineTo(1016 - 24, curY + 112);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
         ctx.stroke();
 
         ctx.textAlign = 'left';
-        ctx.font = '800 20px "Gabarito", sans-serif';
+        ctx.font = '800 26px "Gabarito", sans-serif';
         ctx.fillStyle = '#ffffff';
         ctx.fillText(
           `${emotion.emoji || '🎵'} ${emotion.label}`,
           92,
-          curY + 144
+          curY + 152
         );
 
         if (emotion.desc) {
           ctx.textAlign = 'right';
-          ctx.font = '500 17px "Gabarito", sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+          ctx.font = '600 22px "Gabarito", sans-serif';
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
           let descToDraw = emotion.desc;
-          if (ctx.measureText(descToDraw).width > 480) {
+          if (ctx.measureText(descToDraw).width > 460) {
             while (
               descToDraw.length > 5 &&
-              ctx.measureText(descToDraw + '…').width > 480
+              ctx.measureText(descToDraw + '…').width > 460
             ) {
               descToDraw = descToDraw.slice(0, -1);
             }
             descToDraw += '…';
           }
-          ctx.fillText(descToDraw, 1080 - 92, curY + 144);
+          ctx.fillText(descToDraw, 1016 - 28, curY + 152);
         }
       }
 
-      curY += reviewerH + gap;
+      curY += card.h + idealGap;
     } else if (card.id === 'fav') {
       // Tarjeta de Canción Favorita
-      drawRoundedRect(ctx, 64, curY, 952, favH, 20);
+      drawRoundedRect(ctx, 64, curY, 952, favH, 22);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      drawRoundedRect(ctx, 84, curY + 18, 48, 48, 14);
+      drawRoundedRect(ctx, 86, curY + 20, 56, 56, 16);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
       ctx.fill();
       ctx.textAlign = 'center';
-      ctx.font = '24px sans-serif';
-      ctx.fillText('⭐', 84 + 24, curY + 50);
+      ctx.font = '28px sans-serif';
+      ctx.fillText('⭐', 86 + 28, curY + 58);
 
       ctx.textAlign = 'left';
-      ctx.font = '800 14px "Gabarito", sans-serif';
+      ctx.font = '800 18px "Gabarito", sans-serif';
       ctx.fillStyle = '#f59e0b';
-      ctx.fillText('CANCIÓN FAVORITA', 148, curY + 36);
+      ctx.fillText('CANCIÓN FAVORITA', 158, curY + 42);
 
-      ctx.font = '800 25px "Gabarito", sans-serif';
+      ctx.font = '800 32px "Gabarito", sans-serif';
       ctx.fillStyle = '#fef08a';
       let favToDraw = favoriteTrackName;
       if (ctx.measureText(favToDraw).width > 760) {
@@ -927,35 +971,35 @@ export async function generateReviewStoryCanvas({
         }
         favToDraw += '…';
       }
-      ctx.fillText(favToDraw, 148, curY + 65);
+      ctx.fillText(favToDraw, 158, curY + 76);
 
-      curY += favH + gap;
+      curY += card.h + idealGap;
     } else if (card.id === 'comment') {
-      // Tarjeta de Comentario / Reseña
-      drawRoundedRect(ctx, 64, curY, 952, commentH, 20);
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+      // Tarjeta de Comentario / Reseña ("Letra grande, destacada y legible")
+      drawRoundedRect(ctx, 64, curY, 952, card.h, 22);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      ctx.font = '900 32px "Gabarito", sans-serif';
+      ctx.font = '900 48px "Gabarito", sans-serif';
       ctx.fillStyle = theme.accentColor;
-      ctx.fillText('“', 88, curY + 44);
+      ctx.fillText('“', 88, curY + 54);
 
-      ctx.font = '500 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+      ctx.font = `600 ${commentFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.96)';
       for (let i = 0; i < commentLines.length; i++) {
-        ctx.fillText(commentLines[i], 118, curY + 44 + i * 32);
+        ctx.fillText(commentLines[i], 126, curY + 50 + i * commentLineHeight);
       }
 
-      curY += commentH + gap;
+      curY += card.h + idealGap;
     } else if (card.id === 'criteria') {
       // Tarjetas de Criterios (2x3)
       const boxW = 304;
-      const boxH = 82;
+      const boxH = 92;
       const gapX = 20;
-      const gapY = 18;
+      const gapY = 16;
 
       for (let idx = 0; idx < criteria.length; idx++) {
         const c = criteria[idx];
@@ -965,108 +1009,117 @@ export async function generateReviewStoryCanvas({
         const by = curY + row * (boxH + gapY);
 
         drawRoundedRect(ctx, bx, by, boxW, boxH, 18);
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.48)';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
         ctx.stroke();
 
         ctx.textAlign = 'center';
-        ctx.font = '700 15px "Gabarito", sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 32);
+        ctx.font = '700 19px "Gabarito", sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 36);
 
-        ctx.font = '900 26px "Gabarito", sans-serif';
+        ctx.font = '900 32px "Gabarito", sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.val, bx + boxW / 2, by + 64);
+        ctx.fillText(c.val, bx + boxW / 2, by + 74);
       }
 
-      curY += criteriaH + gap;
+      curY += card.h + idealGap;
     } else if (card.id === 'tracks') {
       // Tarjeta de Canciones Destacadas con envoltura dinámica en filas (Flex-Wrap)
-      drawRoundedRect(ctx, 64, curY, 952, tracksH, 20);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+      drawRoundedRect(ctx, 64, curY, 952, card.h, 22);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.fill();
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
       // Título de la sección
       ctx.textAlign = 'left';
-      ctx.font = '800 15px "Gabarito", sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-      ctx.fillText('🎵 TRACKS DESTACADOS:', 88, curY + 34);
+      ctx.font = '800 20px "Gabarito", sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.fillText('🎵 TRACKS DESTACADOS:', 88, curY + 36);
 
       // Renderizar filas de canciones
-      let pillRowY = curY + trackCardPaddingY + headerSectionH;
+      let pillRowY = curY + trackCardPaddingY + trackHeaderH;
       for (let r = 0; r < trackRows.length; r++) {
         const row = trackRows[r];
         let pillX = 88;
         for (let c = 0; c < row.length; c++) {
           const item = row[c];
-          drawRoundedRect(ctx, pillX, pillRowY, item.pillW, pillHeight, 12);
-          ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+          drawRoundedRect(ctx, pillX, pillRowY, item.pillW, pillHeight, 14);
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
           ctx.fill();
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
           ctx.lineWidth = 1.2;
           ctx.stroke();
 
           ctx.textAlign = 'left';
-          ctx.font = '700 16px "Gabarito", sans-serif';
+          ctx.font = '700 20px "Gabarito", sans-serif';
           ctx.fillStyle = '#ffffff';
-          ctx.fillText(item.displayName, pillX + 14, pillRowY + 26);
+          ctx.fillText(item.displayName, pillX + 18, pillRowY + 32);
 
+          ctx.font = '800 20px "Gabarito", sans-serif';
           ctx.fillStyle = '#fde047';
-          ctx.fillText(item.score, pillX + 14 + item.nameW + 4, pillRowY + 26);
+          ctx.fillText(item.score, pillX + 18 + item.nameW + 6, pillRowY + 32);
 
           pillX += item.pillW + pillGapX;
         }
         pillRowY += pillHeight + pillGapY;
       }
 
-      curY += tracksH + gap;
+      curY += card.h + idealGap;
     }
   }
 
-  // 8. FOOTER FIJO EN ZONA SEGURA (y: 1675 a 1720)
-  // Deja 200px libres en la parte inferior para la UI nativa de Instagram/TikTok
+  // 8. FOOTER FIJO EN ZONA SEGURA (y: 1735 a 1810)
+  // Deja zona libre en la parte inferior para la UI nativa de Instagram/TikTok/WhatsApp
   ctx.beginPath();
-  ctx.moveTo(64, 1675);
-  ctx.lineTo(1080 - 64, 1675);
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+  ctx.moveTo(64, 1735);
+  ctx.lineTo(1080 - 64, 1735);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
   if (logoImg) {
-    ctx.drawImage(logoImg, 64, 1686, 36, 36);
+    ctx.drawImage(logoImg, 64, 1748, 48, 48);
+  } else {
+    drawRoundedRect(ctx, 64, 1748, 48, 48, 14);
+    ctx.fillStyle = '#f5576c';
+    ctx.fill();
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '900 26px "Gabarito", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('M', 88, 1782);
   }
 
   ctx.textAlign = 'left';
-  ctx.font = '900 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '900 28px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('musiclub.org', 114, 1711);
+  ctx.fillText('musiclub.org', 126, 1782);
 
-  ctx.font = '300 18px "Gabarito", sans-serif';
+  ctx.font = '300 24px "Gabarito", sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.fillText('|', 260, 1711);
+  ctx.fillText('|', 290, 1782);
 
-  ctx.font = '600 17px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-  ctx.fillText('Comunidad de Crítica Musical', 278, 1711);
+  ctx.font = '600 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.fillText('Comunidad de Crítica Musical', 312, 1782);
 
   // Píldora #Musiclub
   const tagText = '#Musiclub';
-  ctx.font = '800 17px "Gabarito", sans-serif';
-  const tagW = ctx.measureText(tagText).width + 34;
+  ctx.font = '800 22px "Gabarito", sans-serif';
+  const tagW = ctx.measureText(tagText).width + 42;
   const tagX = 1080 - 64 - tagW;
-  drawRoundedRect(ctx, tagX, 1683, tagW, 40, 20);
-  ctx.fillStyle = 'rgba(244, 63, 94, 0.25)';
+  drawRoundedRect(ctx, tagX, 1748, tagW, 48, 24);
+  ctx.fillStyle = 'rgba(244, 63, 94, 0.28)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(244, 63, 94, 0.6)';
+  ctx.strokeStyle = 'rgba(244, 63, 94, 0.65)';
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(tagText, tagX + tagW / 2, 1709);
+  ctx.fillText(tagText, tagX + tagW / 2, 1780);
 
   return canvas;
 }
@@ -1090,6 +1143,7 @@ export function ShareReviewModal({
   const [previewDataUrl, setPreviewDataUrl] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
+  const [activeMobileTab, setActiveMobileTab] = useState('preview'); // 'preview' | 'options'
 
   // Normalizar datos del álbum
   const album = useMemo(() => {
@@ -1569,10 +1623,42 @@ export function ShareReviewModal({
           </button>
         </div>
 
-        {/* Contenido en 2 Columnas */}
+        {/* Pestañas Móviles (Segmented Control para celular) */}
+        <div className="md:hidden flex items-center p-1.5 bg-black/40 border-b border-white/10 gap-1.5 flex-shrink-0">
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('preview')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeMobileTab === 'preview'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
+                : 'text-white/60 hover:text-white bg-white/5'
+            }`}
+          >
+            <span>📱</span>
+            <span>Vista Previa Story</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveMobileTab('options')}
+            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
+              activeMobileTab === 'options'
+                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
+                : 'text-white/60 hover:text-white bg-white/5'
+            }`}
+          >
+            <span>⚙️</span>
+            <span>Ajustes & Redes</span>
+          </button>
+        </div>
+
+        {/* Contenido en 2 Columnas (Responsivo para Celular y Escritorio) */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 custom-scrollbar">
           {/* COLUMNA IZQUIERDA: MOCKUP DE CELULAR */}
-          <div className="md:col-span-5 flex flex-col items-center justify-center">
+          <div
+            className={`${
+              activeMobileTab === 'preview' ? 'flex' : 'hidden'
+            } md:flex md:col-span-5 flex-col items-center justify-center`}
+          >
             <div className="text-white/60 text-xs font-bold mb-2 flex items-center gap-1.5">
               <span>📱</span> Vista Previa Formato Story (9:16)
             </div>
@@ -1627,10 +1713,47 @@ export function ShareReviewModal({
                 </button>
               ))}
             </div>
+
+            {/* Acciones Rápidas en Vista Previa Móvil */}
+            <div className="md:hidden mt-4 w-full flex flex-col gap-2">
+              <button
+                type="button"
+                disabled={isGenerating}
+                onClick={handleNativeShare}
+                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+              >
+                <ShareIcon className="w-4 h-4 text-white" />
+                <span>Compartir Nativo</span>
+              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={handleDownloadImage}
+                  className="flex-1 py-2 px-3 rounded-xl bg-white/10 text-white font-bold text-xs border border-white/15 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <DownloadIcon className="w-3.5 h-3.5 text-white" />
+                  <span>Descargar HD</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={handleCopyImage}
+                  className="flex-1 py-2 px-3 rounded-xl bg-white/5 text-white/90 font-bold text-xs border border-white/10 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  <CopyImageIcon className="w-3.5 h-3.5 text-white" />
+                  <span>Copiar</span>
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* COLUMNA DERECHA: REDES SOCIALES FAMOSAS Y ACCIONES DIRECTAS */}
-          <div className="md:col-span-7 flex flex-col justify-between space-y-5">
+          <div
+            className={`${
+              activeMobileTab === 'options' ? 'flex' : 'hidden'
+            } md:flex md:col-span-7 flex-col justify-between space-y-5`}
+          >
             {/* 1. OPCIONES DE PERSONALIZACIÓN RÁPIDA */}
             <div className="bg-black/40 border border-white/10 rounded-2xl p-4 space-y-2.5">
               <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">
@@ -1686,7 +1809,7 @@ export function ShareReviewModal({
             </div>
 
             {/* 2. BOTONES DE ACCIÓN PRINCIPAL (WEB SHARE + DESCARGA DIRECTA) */}
-            <div className="space-y-2.5">
+            <div className="hidden md:block space-y-2.5">
               <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">
                 ⚡ Acciones Rápidas:
               </span>
