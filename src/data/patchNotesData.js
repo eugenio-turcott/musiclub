@@ -14,6 +14,51 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.7',
+    title:
+      'Rediseño Total de Compartir Review: Experiencia Móvil Ultra-Responsiva, Diseño Fijo sin Ajustes Manuales, Canvas 9:16 con Carátula Centrada y Barra de Acciones Nativa',
+    date: '2026-09-17',
+    sha: 'a7f3e12',
+    associatedShas: ['a7f3e12'],
+    tag: 'Compartir Review & Mobile UX',
+    tagColor: 'from-pink-500 via-purple-600 to-indigo-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.7 enfocada en perfeccionar al 100% la experiencia de compartir reseñas y críticas en redes sociales desde cualquier tamaño de teléfono celular. Se rediseña completamente la interfaz de ShareReviewModal eliminando la fragmentación por pestañas y los controles manuales de configuración (como el disco de vinilo 3D y toggles de elementos), sustituyéndolos por una arquitectura fija, limpia y ultra-responsiva que se adapta automáticamente a cualquier pantalla móvil (100dvh) sin provocar scrolls indeseados ni recortes. El motor de renderizado Canvas 2D (1080x1920 en 9:16) se estandariza con una portada de álbum centrada, pulida y con resplandor temático, y una distribución editorial fija que organiza armónicamente la cita del comentario, pilares y tracks destacados. Incorpora una barra inferior fija con botón de Compartir Story nativo (Web Share API), herramientas de descarga/copiado en un toque y un carrusel táctil horizontal con accesos directos oficiales a Instagram, WhatsApp, TikTok, Threads, X, Facebook, Telegram y Snapchat.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Arquitectura Celular Nativa y Ultra-Responsiva (100dvh)',
+        description:
+          'Reconstrucción integral del componente ShareReviewModal orientada primordialmente a teléfonos celulares. El modal aprovecha el 100% de la altura dinámica de pantalla (100dvh) y sustituye los mockups rígidos con marcos gruesos y notches fijos por un contenedor fluido y flexible. La vista previa 9:16 se escala proporcionalmente en tiempo real mediante flex-1 y object-contain, garantizando que el diseño completo (cabecera, preview, selector de temas y barra de acciones) se mantenga visible y accesible en cualquier resolución y modelo de smartphone sin desbordamientos.',
+      },
+      {
+        type: 'improvement',
+        title: 'Diseño Fijo y Depuración de Controles (Sin Ajustes ni Vinilo 3D)',
+        description:
+          'Se eliminó por completo la sección de "Ajustes de la Story" (el checkbox de disco de vinilo 3D y los switches de visibilidad de comentario, pilares y tracks). El diseño ahora es completamente fijo, estándar y editorial, calculando automáticamente y sin fricción la inclusión armónica de los datos reales de la reseña, ofreciendo una experiencia instantánea y sin pasos intermedios.',
+      },
+      {
+        type: 'improvement',
+        title: 'Canvas 2D 9:16 con Carátula Centrada y Resplandor Temático',
+        description:
+          'El generador gráfico Canvas en 1080x1920 centra la portada del álbum en el eje horizontal (430x430 px) con esquinas redondeadas de 26px, resplandor ambiental temático y borde de acento. Se descartó el trazado de vinilos salientes para otorgar absoluto protagonismo a la carátula, logrando una estética moderna, limpia y de alto impacto para Instagram Stories, WhatsApp Status y TikTok.',
+      },
+      {
+        type: 'feature',
+        title: 'Barra de Acciones Fija y Carrusel Táctil de Redes Sociales',
+        description:
+          'Se centralizaron todas las vías de difusión en un panel inferior fijo con respeto al safe-area móvil: botón principal prominente "Compartir Story" con soporte Web Share API nativo de archivos, barra de utilidades (Descargar HD 1080x1920, Copiar Imagen al portapapeles y Copiar Enlace) y una tira horizontal táctil con botones oficiales de marca para Instagram, WhatsApp, TikTok, Threads, X, Facebook, Telegram y Snapchat.',
+      },
+      {
+        type: 'feature',
+        title: 'Selector Rápido de Temas Estéticos en Píldoras Táctiles',
+        description:
+          'Se integró un selector táctil compacto directamente bajo la vista previa con 4 temas visuales (🌌 Neon, 🖤 Onyx, 💿 Retro, 🔮 Cyber), permitiendo alternar la paleta cromática, gradientes y resplandores de la Story con un solo toque y previsualización reactiva en tiempo real.',
+      },
+    ],
+  },
+  {
     version: 'V.8.6',
     title:
       'Rediseño de Review Stories 9:16: Tipografía de Alta Legibilidad, Distribución Vertical Adaptativa y Modal Responsivo Móvil',

@@ -15,7 +15,8 @@ import {
 export const THEMES = [
   {
     id: 'neon',
-    name: '🌌 Musiclub Neon',
+    name: '🌌 Neon',
+    fullName: '🌌 Musiclub Neon',
     bgColors: ['#0f0a20', '#0b0d1a', '#05060b'],
     glow1: 'rgba(244, 63, 94, 0.22)',
     glow2: 'rgba(168, 85, 247, 0.18)',
@@ -23,11 +24,11 @@ export const THEMES = [
     accentColor: '#f5576c',
     scorePillGrad: ['#f5576c', '#f093fb'],
     scoreTextColor: '#ffffff',
-    vinylLabelGrad: ['#f5576c', '#e11d48', '#9333ea'],
   },
   {
     id: 'onyx',
-    name: '🖤 Onyx Minimal',
+    name: '🖤 Onyx',
+    fullName: '🖤 Onyx Minimal',
     bgColors: ['#18181b', '#09090b', '#000000'],
     glow1: 'rgba(255, 255, 255, 0.08)',
     glow2: 'rgba(255, 255, 255, 0.04)',
@@ -35,11 +36,11 @@ export const THEMES = [
     accentColor: '#ffffff',
     scorePillGrad: ['#ffffff', '#e4e4e7'],
     scoreTextColor: '#000000',
-    vinylLabelGrad: ['#ffffff', '#a1a1aa', '#3f3f46'],
   },
   {
     id: 'vinyl',
-    name: '💿 Retro Vinyl',
+    name: '💿 Retro',
+    fullName: '💿 Retro Vinyl',
     bgColors: ['#241407', '#120903', '#060301'],
     glow1: 'rgba(245, 158, 11, 0.25)',
     glow2: 'rgba(217, 119, 6, 0.15)',
@@ -47,11 +48,11 @@ export const THEMES = [
     accentColor: '#f59e0b',
     scorePillGrad: ['#f59e0b', '#fbbf24'],
     scoreTextColor: '#000000',
-    vinylLabelGrad: ['#f59e0b', '#d97706', '#92400e'],
   },
   {
     id: 'cyber',
-    name: '🔮 Cyber Aura',
+    name: '🔮 Cyber',
+    fullName: '🔮 Cyber Aura',
     bgColors: ['#04101e', '#071529', '#0d071a'],
     glow1: 'rgba(6, 182, 212, 0.25)',
     glow2: 'rgba(217, 70, 239, 0.2)',
@@ -59,7 +60,6 @@ export const THEMES = [
     accentColor: '#06b6d4',
     scorePillGrad: ['#06b6d4', '#d946ef'],
     scoreTextColor: '#ffffff',
-    vinylLabelGrad: ['#06b6d4', '#8b5cf6', '#d946ef'],
   },
 ];
 
@@ -224,7 +224,6 @@ export function LinkIcon({ className = 'w-4 h-4' }) {
 
 export function getSafeCORSUrl(url) {
   if (!url || typeof url !== 'string') return null;
-  // Rutas locales relativas, blob: o data: URLs son siempre seguras
   if (
     url.startsWith('/') ||
     url.startsWith('data:') ||
@@ -232,18 +231,14 @@ export function getSafeCORSUrl(url) {
   ) {
     return url;
   }
-  // Si ya contiene el proxy wsrv.nl, no re-encapsular
   if (url.includes('wsrv.nl')) {
     return url;
   }
-  // Dominios que sabemos positivamente que envían cabecera Access-Control-Allow-Origin: *
   const isDirectCORSAllowed =
     /i\.scdn\.co|supabase\.co|coverartarchive\.org|archive\.org/i.test(url);
   if (isDirectCORSAllowed) {
     return url;
   }
-  // Para Pinterest (*.pinimg.com) y cualquier otro dominio externo sin CORS garantizado:
-  // enrutar de forma proactiva por wsrv.nl para evitar el error en la consola del navegador
   return `https://wsrv.nl/?url=${encodeURIComponent(url)}&w=800&h=800&fit=cover&output=png`;
 }
 
@@ -255,14 +250,12 @@ export async function preloadCORSImage(src) {
     img.crossOrigin = 'anonymous';
     img.onload = () => resolve(img);
     img.onerror = () => {
-      // Si la URL segura a través del proxy falló, intentar directo como fallback
       if (targetUrl !== src) {
         const directImg = new Image();
         directImg.onload = () => resolve(directImg);
         directImg.onerror = () => resolve(null);
         directImg.src = src;
       } else {
-        // Si era directo y falló, intentar a través de wsrv.nl
         const proxied = `https://wsrv.nl/?url=${encodeURIComponent(src)}&w=800&h=800&fit=cover&output=png`;
         const proxyImg = new Image();
         proxyImg.crossOrigin = 'anonymous';
@@ -326,18 +319,14 @@ function formatReviewDate(dateStr) {
 
 // =========================================================================
 // GENERADOR NATIVO CANVAS 2D FULL HD 1080x1920 (FORMATO CELULAR 9:16)
+// DISEÑO FIJO, CENTRADO Y ULTRA-LIMPIO (SIN AJUSTES NI VINILO 3D)
 // =========================================================================
 export async function generateReviewStoryCanvas({
   review,
   album: rawAlbum,
   currentUser = null,
   themeId = 'neon',
-  showVinylDisc = true,
-  showComment = true,
-  showCriteria = true,
-  showTracks = true,
 }) {
-  // Asegurar que las fuentes web estén listas
   if (
     typeof document !== 'undefined' &&
     document.fonts &&
@@ -425,7 +414,7 @@ export async function generateReviewStoryCanvas({
       .slice(0, 3);
   }
 
-  // Precargar imágenes concurrentemente con fallback oficial
+  // Precargar imágenes concurrentemente
   const logoImgPromise = preloadCORSImage('/musiclub_logo_corchea.png').then(
     (img) => img || preloadCORSImage('/musiclub_logo_3.png')
   );
@@ -437,7 +426,7 @@ export async function generateReviewStoryCanvas({
 
   const theme = THEMES.find((t) => t.id === themeId) || THEMES[0];
 
-  // Crear canvas en 1080 x 1920 (9:16 nativo para Stories / Shorts / TikTok)
+  // Crear canvas en 1080 x 1920 (9:16 nativo para Stories)
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1920;
@@ -465,7 +454,6 @@ export async function generateReviewStoryCanvas({
   ctx.fillRect(0, 0, 1080, 1920);
 
   // 3. HEADER FIJO EN ZONA SEGURA (y: 116 a 215)
-  // Caja de logo de la app
   drawRoundedRect(ctx, 64, 118, 78, 78, 22);
   const logoBoxGrad = ctx.createLinearGradient(64, 118, 142, 196);
   logoBoxGrad.addColorStop(0, '#1f2033');
@@ -485,7 +473,6 @@ export async function generateReviewStoryCanvas({
     ctx.fillText('M', 103, 172);
   }
 
-  // Título de la app
   ctx.textAlign = 'left';
   ctx.font = '900 38px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
@@ -522,86 +509,23 @@ export async function generateReviewStoryCanvas({
   ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // 4. PORTADA DE ÁLBUM + DISCO DE VINILO 3D (y: 242)
-  const coverSize = showVinylDisc ? 380 : 390;
-  const coverX = showVinylDisc ? 230 : (1080 - coverSize) / 2;
-  const coverY = 242;
-
-  if (showVinylDisc) {
-    const vx = 670;
-    const vy = coverY + coverSize / 2;
-    const vr = 180;
-
-    // Sombra del vinilo
-    ctx.save();
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.92)';
-    ctx.shadowBlur = 50;
-    ctx.shadowOffsetX = 14;
-    ctx.shadowOffsetY = 18;
-    ctx.beginPath();
-    ctx.arc(vx, vy, vr, 0, Math.PI * 2);
-    const vinylGrad = ctx.createLinearGradient(
-      vx - vr,
-      vy - vr,
-      vx + vr,
-      vy + vr
-    );
-    vinylGrad.addColorStop(0, '#1c1c1c');
-    vinylGrad.addColorStop(0.5, '#0e0e0e');
-    vinylGrad.addColorStop(1, '#151515');
-    ctx.fillStyle = vinylGrad;
-    ctx.fill();
-    ctx.restore();
-
-    // Surcos circulares del disco
-    [162, 144, 126, 108, 90].forEach((r) => {
-      ctx.beginPath();
-      ctx.arc(vx, vy, r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    });
-
-    // Etiqueta del disco con gradiente del tema
-    ctx.beginPath();
-    ctx.arc(vx, vy, 60, 0, Math.PI * 2);
-    const labelGrad = ctx.createLinearGradient(
-      vx - 60,
-      vy - 60,
-      vx + 60,
-      vy + 60
-    );
-    labelGrad.addColorStop(0, theme.vinylLabelGrad[0]);
-    labelGrad.addColorStop(0.5, theme.vinylLabelGrad[1]);
-    labelGrad.addColorStop(1, theme.vinylLabelGrad[2]);
-    ctx.fillStyle = labelGrad;
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Orificio central
-    ctx.beginPath();
-    ctx.arc(vx, vy, 15, 0, Math.PI * 2);
-    ctx.fillStyle = '#0a0c1a';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  }
+  // 4. PORTADA DE ÁLBUM (DISEÑO FIJO Y CENTRADO, SIN DISCO DE VINILO)
+  const coverSize = 430;
+  const coverX = (1080 - coverSize) / 2;
+  const coverY = 240;
 
   // Resplandor ambiental de la carátula
   ctx.save();
   ctx.shadowColor = theme.accentColor;
-  ctx.shadowBlur = 38;
-  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+  ctx.shadowBlur = 40;
+  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 26);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
   ctx.fill();
   ctx.restore();
 
   // Borde y Carátula
   ctx.save();
-  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
+  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 26);
   ctx.clip();
   if (coverImg) {
     ctx.drawImage(coverImg, coverX, coverY, coverSize, coverSize);
@@ -624,7 +548,7 @@ export async function generateReviewStoryCanvas({
   }
   ctx.restore();
 
-  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 24);
+  drawRoundedRect(ctx, coverX, coverY, coverSize, coverSize, 26);
   ctx.strokeStyle = theme.coverBorder;
   ctx.lineWidth = 3;
   ctx.stroke();
@@ -632,7 +556,7 @@ export async function generateReviewStoryCanvas({
   // 5. TÍTULOS DEL LANZAMIENTO (Envolvente inteligente multi-línea)
   ctx.textAlign = 'center';
   const rawAlbumTitle = album.album_name || 'Álbum';
-  const titleFontSize = rawAlbumTitle.length <= 22 ? 52 : 48;
+  const titleFontSize = rawAlbumTitle.length <= 22 ? 50 : 46;
   ctx.font = `900 ${titleFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.fillStyle = '#ffffff';
 
@@ -642,17 +566,17 @@ export async function generateReviewStoryCanvas({
     albumTitleLines[1] = albumTitleLines[1] + '…';
   }
 
-  let titleY = 668;
+  let titleY = 712;
   if (albumTitleLines.length === 1) {
     ctx.fillText(albumTitleLines[0], 540, titleY);
   } else {
-    titleY = 654;
+    titleY = 702;
     ctx.fillText(albumTitleLines[0], 540, titleY);
-    titleY += 52;
+    titleY += 50;
     ctx.fillText(albumTitleLines[1], 540, titleY);
   }
 
-  const artistY = titleY + 44;
+  const artistY = titleY + 42;
   ctx.font = '700 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
   let artistToDraw = album.artist_name || 'Artista';
@@ -688,20 +612,20 @@ export async function generateReviewStoryCanvas({
   const heroBottom = typeY + 36;
 
   // 6. CÁLCULO DE ALTURAS Y DISTRIBUCIÓN VERTICAL ADAPTATIVA
-  const startAreaY = heroBottom + 26;
+  const startAreaY = heroBottom + 24;
   const endAreaY = 1726;
   const totalAvailable = endAreaY - startAreaY;
 
-  const reviewerH = emotion ? 180 : 110;
-  const favH = favoriteTrackName ? 96 : 0;
+  const reviewerH = emotion ? 175 : 110;
+  const favH = favoriteTrackName ? 94 : 0;
 
-  // Tipografía dinámica de Comentario ("Letra mucho más grande y legible")
+  // Tipografía dinámica de Comentario
   let commentLines = [];
   let commentH = 0;
   let commentFontSize = 34;
   let commentLineHeight = 46;
 
-  if (showComment && review?.comment) {
+  if (review?.comment) {
     const trimmedComment = review.comment.trim();
     if (trimmedComment.length > 220) {
       commentFontSize = 29;
@@ -716,31 +640,31 @@ export async function generateReviewStoryCanvas({
 
     ctx.font = `600 ${commentFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
     commentLines = wrapText(ctx, trimmedComment, 810);
-    if (commentLines.length > 5) {
-      commentLines = commentLines.slice(0, 5);
-      commentLines[4] = commentLines[4] + '…';
+    if (commentLines.length > 4) {
+      commentLines = commentLines.slice(0, 4);
+      commentLines[3] = commentLines[3] + '…';
     }
     commentH = 34 + 28 + commentLines.length * commentLineHeight;
   }
 
   const criteriaRows = criteria.length > 3 ? 2 : criteria.length > 0 ? 1 : 0;
   const criteriaH =
-    showCriteria && criteriaRows > 0
+    criteriaRows > 0
       ? criteriaRows === 2
         ? 92 * 2 + 16
         : 92
       : 0;
 
-  // Pre-calcular distribución de filas para Tracks Destacados (Flex-wrap)
+  // Pre-calcular distribución de canciones destacadas
   const maxRowWidth = 952 - 56;
-  const pillHeight = 50;
+  const pillHeight = 48;
   const pillGapX = 14;
   const pillGapY = 12;
   const trackCardPaddingY = 18;
   const trackHeaderH = 36;
 
   const trackRows = [];
-  if (showTracks && topTracksList.length > 0) {
+  if (topTracksList.length > 0) {
     let currentRow = [];
     let currentRowW = 0;
 
@@ -782,7 +706,7 @@ export async function generateReviewStoryCanvas({
   }
 
   const tracksH =
-    showTracks && trackRows.length > 0
+    trackRows.length > 0
       ? trackCardPaddingY * 2 +
         trackHeaderH +
         trackRows.length * pillHeight +
@@ -794,20 +718,19 @@ export async function generateReviewStoryCanvas({
   if (favH > 0) contentCards.push({ id: 'fav', h: favH });
   if (commentH > 0) contentCards.push({ id: 'comment', h: commentH });
   if (criteriaH > 0) contentCards.push({ id: 'criteria', h: criteriaH });
-  if (tracksH > 0) contentCards.push({ id: 'tracks', h: tracksH });
+  if (tracksH > 0 && contentCards.length < 4) contentCards.push({ id: 'tracks', h: tracksH });
 
   let totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
   const cardCount = contentCards.length;
 
-  // Ajuste inteligente si todo está activo y hay exceso de altura
   if (totalCardsH + (cardCount - 1) * 14 > totalAvailable && commentH > 0) {
     commentFontSize = Math.max(26, commentFontSize - 3);
     commentLineHeight = Math.max(36, commentLineHeight - 4);
     ctx.font = `600 ${commentFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
     commentLines = wrapText(ctx, (review?.comment || '').trim(), 810);
-    if (commentLines.length > 4) {
-      commentLines = commentLines.slice(0, 4);
-      commentLines[3] = commentLines[3] + '…';
+    if (commentLines.length > 3) {
+      commentLines = commentLines.slice(0, 3);
+      commentLines[2] = commentLines[2] + '…';
     }
     const newCommentH = 34 + 28 + commentLines.length * commentLineHeight;
     const cObj = contentCards.find((c) => c.id === 'comment');
@@ -815,7 +738,6 @@ export async function generateReviewStoryCanvas({
     totalCardsH = contentCards.reduce((acc, c) => acc + c.h, 0);
   }
 
-  // Distribución de espacio libre con Gap adaptativo
   const availableForGaps = totalAvailable - totalCardsH;
   const idealGap = Math.max(
     14,
@@ -832,7 +754,6 @@ export async function generateReviewStoryCanvas({
   // 7. RENDERIZADO DE LAS TARJETAS DINÁMICAS
   for (const card of contentCards) {
     if (card.id === 'reviewer') {
-      // Tarjeta de Crítico y Calificación
       drawRoundedRect(ctx, 64, curY, 952, reviewerH, 24);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.fill();
@@ -840,7 +761,6 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Avatar del crítico
       ctx.save();
       ctx.beginPath();
       ctx.arc(126, curY + 56, 38, 0, Math.PI * 2);
@@ -848,6 +768,7 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 2.5;
       ctx.stroke();
       ctx.clip();
+
       if (avatarImg) {
         ctx.drawImage(avatarImg, 126 - 38, curY + 56 - 38, 76, 76);
       } else {
@@ -860,7 +781,6 @@ export async function generateReviewStoryCanvas({
       }
       ctx.restore();
 
-      // Nombre y Rango del crítico
       ctx.textAlign = 'left';
       ctx.font = '800 34px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
       ctx.fillStyle = '#ffffff';
@@ -880,7 +800,6 @@ export async function generateReviewStoryCanvas({
       ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
       ctx.fillText('Crítico de Musiclub', 184, curY + 84);
 
-      // Píldora de Calificación General
       const pillW = 216;
       const pillH = 70;
       const pillX = 1016 - pillW - 20;
@@ -902,7 +821,6 @@ export async function generateReviewStoryCanvas({
       ctx.textAlign = 'center';
       ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + 48);
 
-      // Divisor y Mood
       if (emotion) {
         ctx.beginPath();
         ctx.moveTo(88, curY + 112);
@@ -939,7 +857,6 @@ export async function generateReviewStoryCanvas({
 
       curY += card.h + idealGap;
     } else if (card.id === 'fav') {
-      // Tarjeta de Canción Favorita
       drawRoundedRect(ctx, 64, curY, 952, favH, 22);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
       ctx.fill();
@@ -947,19 +864,19 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      drawRoundedRect(ctx, 86, curY + 20, 56, 56, 16);
+      drawRoundedRect(ctx, 86, curY + 19, 56, 56, 16);
       ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
       ctx.fill();
       ctx.textAlign = 'center';
       ctx.font = '28px sans-serif';
-      ctx.fillText('⭐', 86 + 28, curY + 58);
+      ctx.fillText('⭐', 86 + 28, curY + 57);
 
       ctx.textAlign = 'left';
       ctx.font = '800 18px "Gabarito", sans-serif';
       ctx.fillStyle = '#f59e0b';
-      ctx.fillText('CANCIÓN FAVORITA', 158, curY + 42);
+      ctx.fillText('CANCIÓN FAVORITA', 158, curY + 41);
 
-      ctx.font = '800 32px "Gabarito", sans-serif';
+      ctx.font = '800 30px "Gabarito", sans-serif';
       ctx.fillStyle = '#fef08a';
       let favToDraw = favoriteTrackName;
       if (ctx.measureText(favToDraw).width > 760) {
@@ -971,11 +888,10 @@ export async function generateReviewStoryCanvas({
         }
         favToDraw += '…';
       }
-      ctx.fillText(favToDraw, 158, curY + 76);
+      ctx.fillText(favToDraw, 158, curY + 75);
 
       curY += card.h + idealGap;
     } else if (card.id === 'comment') {
-      // Tarjeta de Comentario / Reseña ("Letra grande, destacada y legible")
       drawRoundedRect(ctx, 64, curY, 952, card.h, 22);
       ctx.fillStyle = 'rgba(0, 0, 0, 0.52)';
       ctx.fill();
@@ -995,7 +911,6 @@ export async function generateReviewStoryCanvas({
 
       curY += card.h + idealGap;
     } else if (card.id === 'criteria') {
-      // Tarjetas de Criterios (2x3)
       const boxW = 304;
       const boxH = 92;
       const gapX = 20;
@@ -1026,7 +941,6 @@ export async function generateReviewStoryCanvas({
 
       curY += card.h + idealGap;
     } else if (card.id === 'tracks') {
-      // Tarjeta de Canciones Destacadas con envoltura dinámica en filas (Flex-Wrap)
       drawRoundedRect(ctx, 64, curY, 952, card.h, 22);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
       ctx.fill();
@@ -1034,13 +948,11 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Título de la sección
       ctx.textAlign = 'left';
       ctx.font = '800 20px "Gabarito", sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
       ctx.fillText('🎵 TRACKS DESTACADOS:', 88, curY + 36);
 
-      // Renderizar filas de canciones
       let pillRowY = curY + trackCardPaddingY + trackHeaderH;
       for (let r = 0; r < trackRows.length; r++) {
         const row = trackRows[r];
@@ -1057,11 +969,11 @@ export async function generateReviewStoryCanvas({
           ctx.textAlign = 'left';
           ctx.font = '700 20px "Gabarito", sans-serif';
           ctx.fillStyle = '#ffffff';
-          ctx.fillText(item.displayName, pillX + 18, pillRowY + 32);
+          ctx.fillText(item.displayName, pillX + 18, pillRowY + 31);
 
           ctx.font = '800 20px "Gabarito", sans-serif';
           ctx.fillStyle = '#fde047';
-          ctx.fillText(item.score, pillX + 18 + item.nameW + 6, pillRowY + 32);
+          ctx.fillText(item.score, pillX + 18 + item.nameW + 6, pillRowY + 31);
 
           pillX += item.pillW + pillGapX;
         }
@@ -1073,7 +985,6 @@ export async function generateReviewStoryCanvas({
   }
 
   // 8. FOOTER FIJO EN ZONA SEGURA (y: 1735 a 1810)
-  // Deja zona libre en la parte inferior para la UI nativa de Instagram/TikTok/WhatsApp
   ctx.beginPath();
   ctx.moveTo(64, 1735);
   ctx.lineTo(1080 - 64, 1735);
@@ -1106,7 +1017,6 @@ export async function generateReviewStoryCanvas({
   ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
   ctx.fillText('Comunidad de Crítica Musical', 312, 1782);
 
-  // Píldora #Musiclub
   const tagText = '#Musiclub';
   ctx.font = '800 22px "Gabarito", sans-serif';
   const tagW = ctx.measureText(tagText).width + 42;
@@ -1126,6 +1036,7 @@ export async function generateReviewStoryCanvas({
 
 // =========================================================================
 // COMPONENTE PRINCIPAL: SHARE REVIEW MODAL
+// DISEÑO FIJO, MODERNO, RESPONSIVO 100% PARA CUALQUIER TAMAÑO DE CELULAR
 // =========================================================================
 export function ShareReviewModal({
   isOpen,
@@ -1135,15 +1046,9 @@ export function ShareReviewModal({
   currentUser = null,
 }) {
   const [selectedThemeId, setSelectedThemeId] = useState('neon');
-  const [showVinylDisc, setShowVinylDisc] = useState(true);
-  const [showComment, setShowComment] = useState(true);
-  const [showCriteria, setShowCriteria] = useState(true);
-  const [showTracks, setShowTracks] = useState(true);
-
   const [previewDataUrl, setPreviewDataUrl] = useState(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
-  const [activeMobileTab, setActiveMobileTab] = useState('preview'); // 'preview' | 'options'
 
   // Normalizar datos del álbum
   const album = useMemo(() => {
@@ -1184,34 +1089,6 @@ export function ShareReviewModal({
     return getTrackDisplayName(favKey, album?.tracks);
   }, [review, album]);
 
-  // Criterios disponibles
-  const criteriaList = useMemo(() => {
-    if (!review) return [];
-    return [
-      { label: 'Producción', icon: '🎛️', val: review.rating_produccion },
-      { label: 'Composición', icon: '🎵', val: review.rating_composicion },
-      { label: 'Letras', icon: '📝', val: review.rating_letras },
-      { label: 'Originalidad', icon: '💡', val: review.rating_originalidad },
-      { label: 'Cohesión', icon: '🔗', val: review.rating_cohesion },
-      { label: 'Replay Value', icon: '🔄', val: review.rating_replay },
-    ].filter((c) => c.val !== undefined && c.val !== null);
-  }, [review]);
-
-  // Top tracks calificados
-  const topTracksList = useMemo(() => {
-    const trMap = review?.track_ratings || review?.trackRatings;
-    if (!trMap || typeof trMap !== 'object') return [];
-    return Object.entries(trMap)
-      .map(([k, score]) => ({
-        key: k,
-        name: getTrackDisplayName(k, album?.tracks),
-        score: Number(score),
-      }))
-      .filter((t) => !isNaN(t.score) && t.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
-  }, [review, album]);
-
   // URL del álbum
   const albumUrl = useMemo(() => {
     const origin =
@@ -1225,7 +1102,7 @@ export function ShareReviewModal({
   }, [album]);
 
   // Notificación toast
-  const showToast = useCallback((msg, duration = 3500) => {
+  const showToast = useCallback((msg, duration = 3000) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), duration);
   }, []);
@@ -1242,10 +1119,6 @@ export function ShareReviewModal({
           album: rawAlbum,
           currentUser,
           themeId: selectedThemeId,
-          showVinylDisc,
-          showComment,
-          showCriteria,
-          showTracks,
         });
         if (!cancelled && canvas) {
           setPreviewDataUrl(canvas.toDataURL('image/png'));
@@ -1260,34 +1133,19 @@ export function ShareReviewModal({
     return () => {
       cancelled = true;
     };
-  }, [
-    isOpen,
-    review,
-    rawAlbum,
-    currentUser,
-    selectedThemeId,
-    showVinylDisc,
-    showComment,
-    showCriteria,
-    showTracks,
-    album,
-  ]);
+  }, [isOpen, review, rawAlbum, currentUser, selectedThemeId, album]);
 
   // Descargar imagen HD (PNG 9:16)
   const handleDownloadImage = async () => {
     try {
       setIsGenerating(true);
-      showToast('📸 Generando Story en alta definición (9:16)...', 2000);
+      showToast('📸 Generando Story HD en 1080x1920...', 2000);
 
       const canvas = await generateReviewStoryCanvas({
         review,
         album: rawAlbum,
         currentUser,
         themeId: selectedThemeId,
-        showVinylDisc,
-        showComment,
-        showCriteria,
-        showTracks,
       });
       const dataUrl = canvas.toDataURL('image/png');
 
@@ -1304,10 +1162,10 @@ export function ShareReviewModal({
       link.href = dataUrl;
       link.click();
 
-      showToast('✅ ¡Story descargada en tu dispositivo! Lista para publicar.');
+      showToast('✅ ¡Story descargada en tu dispositivo!');
     } catch (err) {
       console.error('Error generando imagen:', err);
-      showToast('⚠️ No se pudo generar la imagen. Intenta nuevamente.');
+      showToast('⚠️ No se pudo generar la imagen.');
     } finally {
       setIsGenerating(false);
     }
@@ -1317,17 +1175,13 @@ export function ShareReviewModal({
   const handleCopyImage = async () => {
     try {
       setIsGenerating(true);
-      showToast('📋 Copiando imagen al portapapeles...');
+      showToast('📋 Copiando imagen...', 2000);
 
       const canvas = await generateReviewStoryCanvas({
         review,
         album: rawAlbum,
         currentUser,
         themeId: selectedThemeId,
-        showVinylDisc,
-        showComment,
-        showCriteria,
-        showTracks,
       });
 
       canvas.toBlob(async (blob) => {
@@ -1338,17 +1192,12 @@ export function ShareReviewModal({
           if (navigator.clipboard && window.ClipboardItem) {
             const item = new ClipboardItem({ 'image/png': blob });
             await navigator.clipboard.write([item]);
-            showToast(
-              '✅ ¡Imagen copiada! Puedes pegarla en tus chats o apps.'
-            );
+            showToast('✅ ¡Imagen copiada al portapapeles!');
           } else {
             handleDownloadImage();
           }
         } catch (clipErr) {
-          console.warn(
-            'Clipboard write falló, descargando en su lugar:',
-            clipErr
-          );
+          console.warn('Clipboard write falló, descargando en su lugar:', clipErr);
           handleDownloadImage();
         } finally {
           setIsGenerating(false);
@@ -1356,9 +1205,7 @@ export function ShareReviewModal({
       }, 'image/png');
     } catch (err) {
       console.error('Error al copiar imagen:', err);
-      showToast(
-        '⚠️ No se pudo copiar la imagen al portapapeles. Descargando...'
-      );
+      showToast('⚠️ No se pudo copiar. Descargando imagen...');
       handleDownloadImage();
     }
   };
@@ -1377,14 +1224,8 @@ export function ShareReviewModal({
             album: rawAlbum,
             currentUser,
             themeId: selectedThemeId,
-            showVinylDisc,
-            showComment,
-            showCriteria,
-            showTracks,
           });
-          const blob = await new Promise((res) =>
-            canvas.toBlob(res, 'image/png')
-          );
+          const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
           if (blob && navigator.canShare) {
             const cleanArtist = (album?.artist_name || 'artista').replace(
               /[^a-z0-9]/gi,
@@ -1408,10 +1249,7 @@ export function ShareReviewModal({
             }
           }
         } catch (fileShareErr) {
-          console.warn(
-            'Compartir archivo nativo omitido, usando enlace:',
-            fileShareErr
-          );
+          console.warn('Compartir archivo omitido, usando fallback:', fileShareErr);
         }
 
         await navigator.share({
@@ -1423,9 +1261,7 @@ export function ShareReviewModal({
       } else {
         await navigator.clipboard.writeText(`${shareText}\n${albumUrl}`);
         handleDownloadImage();
-        showToast(
-          '📋 Texto y link copiados + imagen descargada para tus redes.'
-        );
+        showToast('📋 Link copiado e imagen descargada.');
       }
     } catch (err) {
       if (err.name !== 'AbortError') {
@@ -1463,7 +1299,7 @@ export function ShareReviewModal({
     }
 
     if (platform === 'tiktok') {
-      return `Mi review de "${albumTitle}" de ${artist} 🎵 Calificación: ${finalScore}/10 ${moodStr} #Musiclub #AlbumReview #Musica #Review #VinylTok`;
+      return `Mi review de "${albumTitle}" de ${artist} 🎵 Calificación: ${finalScore}/10 ${moodStr} #Musiclub #AlbumReview #Musica #Review`;
     }
 
     if (platform === 'instagram') {
@@ -1483,9 +1319,7 @@ export function ShareReviewModal({
         try {
           await navigator.clipboard.writeText(caption);
         } catch (_) {}
-        showToast(
-          '📸 ¡Story 9:16 descargada y texto copiado! Ábrela en tus Stories de Instagram.'
-        );
+        showToast('📸 Story descargada y texto copiado para Instagram.');
         break;
       }
 
@@ -1494,7 +1328,7 @@ export function ShareReviewModal({
         try {
           await navigator.clipboard.writeText(caption);
         } catch (_) {}
-        showToast('🎵 ¡Story descargada y hashtags copiados para TikTok!');
+        showToast('🎵 Story descargada y hashtags copiados para TikTok.');
         break;
       }
 
@@ -1537,9 +1371,7 @@ export function ShareReviewModal({
 
       case 'snapchat': {
         await handleDownloadImage();
-        showToast(
-          '👻 ¡Imagen 9:16 descargada! Lista para subir a tu Snap Story.'
-        );
+        showToast('👻 Story 9:16 descargada para Snapchat.');
         break;
       }
 
@@ -1552,7 +1384,7 @@ export function ShareReviewModal({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(albumUrl);
-      showToast('🔗 ¡Enlace del álbum copiado al portapapeles!');
+      showToast('🔗 ¡Enlace del álbum copiado!');
     } catch (_) {
       showToast('⚠️ No se pudo copiar el enlace.');
     }
@@ -1577,38 +1409,109 @@ export function ShareReviewModal({
   if (!isOpen || !album) return null;
   if (typeof document === 'undefined') return null;
 
+  const socialPlatforms = [
+    {
+      id: 'instagram',
+      name: 'Instagram',
+      bgClass: 'bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white',
+      borderClass: 'border-pink-500/30',
+      icon: <InstagramIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'whatsapp',
+      name: 'WhatsApp',
+      bgClass: 'bg-[#25D366] text-white',
+      borderClass: 'border-emerald-500/30',
+      icon: <WhatsAppIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'tiktok',
+      name: 'TikTok',
+      bgClass: 'bg-black text-white border border-white/20',
+      borderClass: 'border-white/20',
+      icon: <TikTokIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'threads',
+      name: 'Threads',
+      bgClass: 'bg-black text-white border border-white/20',
+      borderClass: 'border-white/20',
+      icon: <ThreadsIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'twitter',
+      name: 'X',
+      bgClass: 'bg-black text-white border border-white/20',
+      borderClass: 'border-white/20',
+      icon: <XTwitterIcon className="w-3.5 h-3.5 text-white" />,
+    },
+    {
+      id: 'facebook',
+      name: 'Facebook',
+      bgClass: 'bg-[#1877F2] text-white',
+      borderClass: 'border-blue-500/30',
+      icon: <FacebookIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'telegram',
+      name: 'Telegram',
+      bgClass: 'bg-[#229ED9] text-white',
+      borderClass: 'border-sky-500/30',
+      icon: <TelegramIcon className="w-4 h-4 text-white" />,
+    },
+    {
+      id: 'snapchat',
+      name: 'Snapchat',
+      bgClass: 'bg-[#FFFC00] text-black',
+      borderClass: 'border-yellow-400/30',
+      icon: <SnapchatIcon className="w-4 h-4 text-black" />,
+    },
+  ];
+
   const modalContent = (
     <div
-      className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-[9999999] flex items-center justify-center p-2.5 sm:p-4 md:p-6 bg-black/90 backdrop-blur-2xl overflow-y-auto animate-fadeIn"
+      className="fixed inset-0 top-0 left-0 right-0 bottom-0 z-[9999999] flex flex-col items-center justify-center bg-black/90 backdrop-blur-2xl p-0 sm:p-3 overflow-hidden select-none animate-fadeIn"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Contenedor Modal */}
+      {/* Contenedor Modal Ultra-Responsivo Móvil y Fijo */}
       <div
-        className="relative w-full max-w-4xl bg-[#0d0f1c] border border-white/15 rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden my-auto flex flex-col max-h-[92vh] font-sans"
+        className="relative w-full h-[100dvh] sm:h-[94dvh] sm:max-h-[860px] sm:max-w-[430px] bg-[#0b0c16] sm:border sm:border-white/15 sm:rounded-[32px] flex flex-col shadow-2xl overflow-hidden font-sans"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Toast Flotante */}
         {toastMessage && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs sm:text-sm font-bold px-4 py-2 rounded-2xl shadow-2xl border border-white/30 animate-bounce text-center">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-black px-4 py-1.5 rounded-full shadow-2xl border border-white/30 animate-fadeIn whitespace-nowrap text-center pointer-events-none">
             {toastMessage}
           </div>
         )}
 
-        {/* Header del Modal */}
-        <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-white/5 backdrop-blur-md">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white shadow-md">
-              <ShareIcon className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-white font-black text-sm sm:text-base leading-tight">
-                Compartir Review en Redes Sociales
-              </h3>
-              <p className="text-white/50 text-[11px] sm:text-xs">
-                Formato Celular / Stories 9:16 para Instagram, TikTok, WhatsApp
-                y más
+        {/* 1. Header Fijo y Limpio */}
+        <div className="flex-shrink-0 flex items-center justify-between px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-white/10 bg-white/[0.03]">
+          <div className="flex items-center gap-2.5 min-w-0">
+            {album.image_url ? (
+              <img
+                src={album.image_url}
+                alt={album.album_name}
+                className="w-9 h-9 rounded-xl object-cover border border-white/20 flex-shrink-0 shadow-md"
+              />
+            ) : (
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white flex-shrink-0 shadow-md">
+                <ShareIcon className="w-4 h-4 text-white" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <h3 className="text-white font-black text-xs sm:text-sm truncate">
+                  Compartir Review
+                </h3>
+                <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-300 text-[10px] font-black border border-pink-500/30 flex-shrink-0">
+                  ★ {finalScore}
+                </span>
+              </div>
+              <p className="text-white/50 text-[11px] truncate leading-tight">
+                {album.album_name} · {album.artist_name}
               </p>
             </div>
           </div>
@@ -1616,471 +1519,129 @@ export function ShareReviewModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
             title="Cerrar"
+            aria-label="Cerrar modal"
           >
             ✕
           </button>
         </div>
 
-        {/* Pestañas Móviles (Segmented Control para celular) */}
-        <div className="md:hidden flex items-center p-1.5 bg-black/40 border-b border-white/10 gap-1.5 flex-shrink-0">
-          <button
-            type="button"
-            onClick={() => setActiveMobileTab('preview')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeMobileTab === 'preview'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                : 'text-white/60 hover:text-white bg-white/5'
-            }`}
-          >
-            <span>📱</span>
-            <span>Vista Previa Story</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMobileTab('options')}
-            className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-              activeMobileTab === 'options'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md'
-                : 'text-white/60 hover:text-white bg-white/5'
-            }`}
-          >
-            <span>⚙️</span>
-            <span>Ajustes & Redes</span>
-          </button>
-        </div>
-
-        {/* Contenido en 2 Columnas (Responsivo para Celular y Escritorio) */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 md:grid-cols-12 gap-6 custom-scrollbar">
-          {/* COLUMNA IZQUIERDA: MOCKUP DE CELULAR */}
-          <div
-            className={`${
-              activeMobileTab === 'preview' ? 'flex' : 'hidden'
-            } md:flex md:col-span-5 flex-col items-center justify-center`}
-          >
-            <div className="text-white/60 text-xs font-bold mb-2 flex items-center gap-1.5">
-              <span>📱</span> Vista Previa Formato Story (9:16)
-            </div>
-
-            {/* Chasis de Celular Responsive */}
-            <div
-              className="relative rounded-[28px] sm:rounded-[36px] bg-[#05060a] border-[5px] sm:border-[7px] border-slate-800 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col items-center justify-center flex-shrink-0"
-              style={{
-                width: 'min(240px, 68vw)',
-                height: 'min(426px, calc(68vw * 16 / 9))',
-                boxShadow:
-                  '0 0 0 2px rgba(255,255,255,0.1), 0 20px 50px rgba(0,0,0,0.9)',
-              }}
-            >
-              {/* Notch / Dynamic Island */}
-              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-16 sm:w-22 h-3.5 sm:h-4 bg-black rounded-full z-30 flex items-center justify-center border border-white/10 shadow-sm pointer-events-none">
-                <div className="w-6 sm:w-8 h-1 rounded-full bg-slate-800 mr-2"></div>
-                <div className="w-2 sm:w-2.5 h-2 sm:h-2.5 rounded-full bg-slate-900"></div>
+        {/* 2. Área Central: Vista Previa Adaptativa al 100% del espacio */}
+        <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-3 py-2 sm:px-4 sm:py-2.5 relative overflow-hidden">
+          {/* Contenedor de la Imagen Story que escala perfectamente a cualquier alto/ancho de celular */}
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center relative">
+            {previewDataUrl ? (
+              <img
+                src={previewDataUrl}
+                alt="Story Preview"
+                className="max-h-full max-w-full aspect-[9/16] object-contain rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.85)] border border-white/20 select-none pointer-events-none transition-all duration-300"
+              />
+            ) : (
+              <div className="aspect-[9/16] max-h-full w-auto flex flex-col items-center justify-center gap-2.5 text-white/50 bg-black/40 rounded-2xl border border-white/10 p-6 text-center shadow-inner">
+                <div className="w-8 h-8 border-2 border-pink-500 border-t-transparent rounded-full animate-spin" />
+                <span className="text-xs font-bold text-white/70">
+                  Generando Story HD...
+                </span>
               </div>
+            )}
+          </div>
 
-              {/* Pantalla del Teléfono (9:16) */}
-              <div className="w-full h-full overflow-hidden relative flex items-center justify-center bg-[#0a0c16]">
-                {previewDataUrl ? (
-                  <img
-                    src={previewDataUrl}
-                    alt="Story Preview"
-                    className="w-full h-full object-cover select-none pointer-events-none"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-2 text-white/50 text-xs">
-                    <div className="w-6 h-6 border-2 border-pink-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span>Generando vista previa...</span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Selector de Temas Estéticos */}
-            <div className="mt-4 w-full flex items-center justify-center gap-1.5 flex-wrap">
-              {THEMES.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setSelectedThemeId(t.id)}
-                  className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition-all border cursor-pointer ${
-                    selectedThemeId === t.id
-                      ? 'bg-white/20 text-white border-white/40 shadow-sm scale-105'
-                      : 'bg-black/30 text-white/50 border-white/10 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {t.name}
-                </button>
-              ))}
-            </div>
-
-            {/* Acciones Rápidas en Vista Previa Móvil */}
-            <div className="md:hidden mt-4 w-full flex flex-col gap-2">
+          {/* Selector de Temas Estéticos Fijo en Píldoras Táctiles */}
+          <div className="flex-shrink-0 flex items-center justify-center gap-1.5 mt-2 py-0.5 w-full">
+            {THEMES.map((t) => (
               <button
+                key={t.id}
                 type="button"
-                disabled={isGenerating}
-                onClick={handleNativeShare}
-                className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+                onClick={() => setSelectedThemeId(t.id)}
+                className={`px-3 py-1 rounded-full text-[11px] font-black transition-all border cursor-pointer active:scale-95 ${
+                  selectedThemeId === t.id
+                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
+                    : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
+                }`}
               >
-                <ShareIcon className="w-4 h-4 text-white" />
-                <span>Compartir Nativo</span>
+                {t.name}
               </button>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={handleDownloadImage}
-                  className="flex-1 py-2 px-3 rounded-xl bg-white/10 text-white font-bold text-xs border border-white/15 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  <DownloadIcon className="w-3.5 h-3.5 text-white" />
-                  <span>Descargar HD</span>
-                </button>
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={handleCopyImage}
-                  className="flex-1 py-2 px-3 rounded-xl bg-white/5 text-white/90 font-bold text-xs border border-white/10 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
-                >
-                  <CopyImageIcon className="w-3.5 h-3.5 text-white" />
-                  <span>Copiar</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* COLUMNA DERECHA: REDES SOCIALES FAMOSAS Y ACCIONES DIRECTAS */}
-          <div
-            className={`${
-              activeMobileTab === 'options' ? 'flex' : 'hidden'
-            } md:flex md:col-span-7 flex-col justify-between space-y-5`}
-          >
-            {/* 1. OPCIONES DE PERSONALIZACIÓN RÁPIDA */}
-            <div className="bg-black/40 border border-white/10 rounded-2xl p-4 space-y-2.5">
-              <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">
-                ⚙️ Ajustes de la Story:
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-xs text-white/80">
-                <label className="flex items-center gap-2 cursor-pointer hover:text-white">
-                  <input
-                    type="checkbox"
-                    checked={showVinylDisc}
-                    onChange={(e) => setShowVinylDisc(e.target.checked)}
-                    className="accent-pink-500 rounded"
-                  />
-                  <span>Disco de Vinilo 3D</span>
-                </label>
-
-                {review?.comment && (
-                  <label className="flex items-center gap-2 cursor-pointer hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={showComment}
-                      onChange={(e) => setShowComment(e.target.checked)}
-                      className="accent-pink-500 rounded"
-                    />
-                    <span>Comentario</span>
-                  </label>
-                )}
-
-                {criteriaList.length > 0 && (
-                  <label className="flex items-center gap-2 cursor-pointer hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={showCriteria}
-                      onChange={(e) => setShowCriteria(e.target.checked)}
-                      className="accent-pink-500 rounded"
-                    />
-                    <span>6 Pilares de Crítica</span>
-                  </label>
-                )}
-
-                {topTracksList.length > 0 && (
-                  <label className="flex items-center gap-2 cursor-pointer hover:text-white">
-                    <input
-                      type="checkbox"
-                      checked={showTracks}
-                      onChange={(e) => setShowTracks(e.target.checked)}
-                      className="accent-pink-500 rounded"
-                    />
-                    <span>Canciones Calificadas</span>
-                  </label>
-                )}
-              </div>
-            </div>
-
-            {/* 2. BOTONES DE ACCIÓN PRINCIPAL (WEB SHARE + DESCARGA DIRECTA) */}
-            <div className="hidden md:block space-y-2.5">
-              <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">
-                ⚡ Acciones Rápidas:
-              </span>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={handleNativeShare}
-                  className="px-4 py-3 rounded-2xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-xl hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  title="Compartir directo a través del menú de tu teléfono o navegador"
-                >
-                  <ShareIcon className="w-4 h-4 text-white flex-shrink-0" />
-                  <span>Compartir Nativo</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={handleDownloadImage}
-                  className="px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm border border-white/15 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  title="Descargar imagen en alta definición 1080x1920 (PNG 9:16)"
-                >
-                  <DownloadIcon className="w-4 h-4 text-white flex-shrink-0" />
-                  <span>Descargar Story HD</span>
-                </button>
-
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={handleCopyImage}
-                  className="px-4 py-3 rounded-2xl bg-white/5 hover:bg-white/15 text-white/90 hover:text-white font-bold text-xs sm:text-sm border border-white/10 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                  title="Copiar imagen al portapapeles para pegarla en chats o apps"
-                >
-                  <CopyImageIcon className="w-4 h-4 text-white flex-shrink-0" />
-                  <span>Copiar Imagen</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 3. REDES SOCIALES FAMOSAS CON LOGOS OFICIALES */}
-            <div className="space-y-2.5">
-              <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">
-                🌐 Compartir en tus Redes:
-              </span>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                {/* Instagram */}
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={() => handleShareToPlatform('instagram')}
-                  className="p-2 rounded-xl bg-gradient-to-r from-purple-600/25 via-pink-600/25 to-orange-500/25 hover:from-purple-600/40 hover:to-orange-500/40 border border-pink-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <InstagramIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Instagram
-                    </div>
-                    <div className="text-[10px] text-pink-300">
-                      Story & Feed
-                    </div>
-                  </div>
-                </button>
-
-                {/* TikTok */}
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={() => handleShareToPlatform('tiktok')}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-black border border-white/20 flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <TikTokIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      TikTok
-                    </div>
-                    <div className="text-[10px] text-cyan-300">
-                      Formato 9:16
-                    </div>
-                  </div>
-                </button>
-
-                {/* WhatsApp */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('whatsapp')}
-                  className="p-2 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 border border-emerald-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#25D366] flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <WhatsAppIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      WhatsApp
-                    </div>
-                    <div className="text-[10px] text-emerald-300">
-                      Chats & Estados
-                    </div>
-                  </div>
-                </button>
-
-                {/* X / Twitter */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('twitter')}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-black border border-white/20 flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <XTwitterIcon className="w-3.5 h-3.5 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      X (Twitter)
-                    </div>
-                    <div className="text-[10px] text-white/50">
-                      Post directo
-                    </div>
-                  </div>
-                </button>
-
-                {/* Threads */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('threads')}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-black border border-white/20 flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <ThreadsIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Threads
-                    </div>
-                    <div className="text-[10px] text-white/50">
-                      Compartir hilo
-                    </div>
-                  </div>
-                </button>
-
-                {/* Facebook */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('facebook')}
-                  className="p-2 rounded-xl bg-blue-600/20 hover:bg-blue-600/35 border border-blue-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#1877F2] flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <FacebookIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Facebook
-                    </div>
-                    <div className="text-[10px] text-blue-300">
-                      Compartir post
-                    </div>
-                  </div>
-                </button>
-
-                {/* Telegram */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('telegram')}
-                  className="p-2 rounded-xl bg-sky-600/20 hover:bg-sky-600/35 border border-sky-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#229ED9] flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <TelegramIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Telegram
-                    </div>
-                    <div className="text-[10px] text-sky-300">Canal / Chat</div>
-                  </div>
-                </button>
-
-                {/* Reddit */}
-                <button
-                  type="button"
-                  onClick={() => handleShareToPlatform('reddit')}
-                  className="p-2 rounded-xl bg-orange-600/20 hover:bg-orange-600/35 border border-orange-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#FF4500] flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <RedditIcon className="w-4 h-4 text-white" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Reddit
-                    </div>
-                    <div className="text-[10px] text-orange-300">
-                      Comunidad r/
-                    </div>
-                  </div>
-                </button>
-
-                {/* Snapchat */}
-                <button
-                  type="button"
-                  disabled={isGenerating}
-                  onClick={() => handleShareToPlatform('snapchat')}
-                  className="p-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500/35 border border-yellow-500/30 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer disabled:opacity-50 group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-[#FFFC00] flex items-center justify-center flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <SnapchatIcon className="w-4 h-4 text-black" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Snapchat
-                    </div>
-                    <div className="text-[10px] text-yellow-300/80">
-                      Snap Story
-                    </div>
-                  </div>
-                </button>
-
-                {/* Copiar Link */}
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-bold flex items-center gap-2.5 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-white/10 border border-white/15 flex items-center justify-center text-white/90 flex-shrink-0 shadow-md group-hover:scale-105 transition-transform">
-                    <LinkIcon className="w-4 h-4 text-white/90" />
-                  </div>
-                  <div className="text-left truncate">
-                    <div className="font-bold text-white leading-tight">
-                      Copiar Enlace
-                    </div>
-                    <div className="text-[10px] text-white/50">
-                      Link de reseña
-                    </div>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            {/* Tip para usuarios */}
-            <div className="p-3 bg-pink-500/10 border border-pink-500/20 rounded-xl text-left flex items-center gap-2.5 text-xs text-pink-200">
-              <span className="text-lg">💡</span>
-              <span>
-                Tip: En tu celular, pulsa <strong>Compartir Nativo</strong> para
-                enviar la imagen directamente a tus{' '}
-                <strong>Instagram Stories</strong> o <strong>WhatsApp</strong>{' '}
-                sin necesidad de descargarla manualmente.
-              </span>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Barra de Acciones Móviles Fija (Sticky Bottom Bar en Celular) */}
-        <div className="md:hidden border-t border-white/10 bg-[#0c0d1c]/95 p-3 backdrop-blur-md flex items-center gap-2 flex-shrink-0">
+        {/* 3. Barra de Acciones Fija y Completa (Redes y Descarga) */}
+        <div
+          className="flex-shrink-0 border-t border-white/10 bg-[#070810]/95 backdrop-blur-md px-3 sm:px-4 pt-2.5 pb-[max(12px,env(safe-area-inset-bottom))] flex flex-col gap-2"
+        >
+          {/* Botón Principal: Compartir Nativo a Stories / Apps */}
           <button
             type="button"
             disabled={isGenerating}
             onClick={handleNativeShare}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white font-black text-xs shadow-lg flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
+            className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg hover:shadow-pink-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            title="Compartir directo a través del menú de tu teléfono"
           >
-            <ShareIcon className="w-3.5 h-3.5" />
+            <ShareIcon className="w-4 h-4 text-white flex-shrink-0" />
             <span>Compartir Story</span>
           </button>
-          <button
-            type="button"
-            disabled={isGenerating}
-            onClick={handleDownloadImage}
-            className="flex-1 py-2.5 px-3 rounded-xl bg-white/10 text-white font-bold text-xs border border-white/15 flex items-center justify-center gap-1.5 active:scale-95 transition-all disabled:opacity-50"
-          >
-            <DownloadIcon className="w-3.5 h-3.5" />
-            <span>Descargar HD</span>
-          </button>
+
+          {/* Fila de Herramientas Directas (Descargar HD, Copiar Imagen, Copiar Link) */}
+          <div className="grid grid-cols-3 gap-1.5">
+            <button
+              type="button"
+              disabled={isGenerating}
+              onClick={handleDownloadImage}
+              className="py-1.5 sm:py-2 px-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 active:scale-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+              title="Guardar imagen 1080x1920 PNG en tu galería"
+            >
+              <DownloadIcon className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="truncate">Descargar HD</span>
+            </button>
+
+            <button
+              type="button"
+              disabled={isGenerating}
+              onClick={handleCopyImage}
+              className="py-1.5 sm:py-2 px-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 active:scale-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-50"
+              title="Copiar imagen al portapapeles"
+            >
+              <CopyImageIcon className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="truncate">Copiar</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="py-1.5 sm:py-2 px-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 active:scale-95 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+              title="Copiar enlace de la reseña"
+            >
+              <LinkIcon className="w-3.5 h-3.5 text-white flex-shrink-0" />
+              <span className="truncate">Enlace</span>
+            </button>
+          </div>
+
+          {/* Carrusel Deslizable de Redes Sociales Famosas (Ultra-Touch Friendly) */}
+          <div className="pt-0.5">
+            <div
+              className="flex items-center gap-2 overflow-x-auto py-1 px-0.5"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+                WebkitOverflowScrolling: 'touch',
+              }}
+            >
+              {socialPlatforms.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  disabled={isGenerating}
+                  onClick={() => handleShareToPlatform(p.id)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold flex-shrink-0 border transition-all active:scale-95 cursor-pointer disabled:opacity-50 ${p.bgClass} ${p.borderClass}`}
+                  title={`Compartir en ${p.name}`}
+                >
+                  <div className="flex-shrink-0">{p.icon}</div>
+                  <span className="leading-none">{p.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2088,3 +1649,5 @@ export function ShareReviewModal({
 
   return createPortal(modalContent, document.body);
 }
+
+export default ShareReviewModal;
