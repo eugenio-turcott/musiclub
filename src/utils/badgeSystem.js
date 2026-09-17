@@ -747,3 +747,96 @@ export const BADGES_GUIDE_DATA = [
     ],
   },
 ];
+
+/**
+ * NIVELES DE MELÓMANO BASADOS EN XP ACUMULADA
+ */
+export const MELOMANO_LEVELS = [
+  {
+    level: 1,
+    title: '🎧 Oyente Principiante',
+    minXp: 0,
+    maxXp: 249,
+    icon: '🎧',
+    color: 'from-slate-600 to-slate-800',
+    desc: 'Dando los primeros pasos auditivos en Musiclub.',
+  },
+  {
+    level: 2,
+    title: '🥉 Explorador Musical',
+    minXp: 250,
+    maxXp: 599,
+    icon: '🥉',
+    color: 'from-amber-700 to-amber-950',
+    desc: 'Descubriendo nuevos géneros y expandiendo tu radar musical.',
+  },
+  {
+    level: 3,
+    title: '🥈 Melómano Frecuente',
+    minXp: 600,
+    maxXp: 1199,
+    icon: '🥈',
+    color: 'from-slate-400 to-slate-600',
+    desc: 'Crítico activo con oído curioso y aportes constantes al club.',
+  },
+  {
+    level: 4,
+    title: '🥇 Oído Entrenado',
+    minXp: 1200,
+    maxXp: 2499,
+    icon: '🥇',
+    color: 'from-amber-500 to-yellow-600',
+    desc: 'Evaluador riguroso con criterio analítico y oído afinado.',
+  },
+  {
+    level: 5,
+    title: '💎 Melómano Consagrado',
+    minXp: 2500,
+    maxXp: 4499,
+    icon: '💎',
+    color: 'from-cyan-500 to-blue-600',
+    desc: 'Voz influyente con gran bagaje musical y criterio respetado.',
+  },
+  {
+    level: 6,
+    title: '👑 Maestro del Catálogo',
+    minXp: 4500,
+    maxXp: 7499,
+    icon: '👑',
+    color: 'from-purple-500 to-fuchsia-600',
+    desc: 'Pilar del club con decenas de álbumes y pistas analizadas.',
+  },
+  {
+    level: 7,
+    title: '🪐 Enciclopedia Sonora',
+    minXp: 7500,
+    maxXp: 11999,
+    icon: '🪐',
+    color: 'from-indigo-600 via-purple-600 to-pink-600',
+    desc: 'Erudición auditiva total con dominio de múltiples corrientes.',
+  },
+  {
+    level: 8,
+    title: '🌌 Leyenda Melómana Suprema',
+    minXp: 12000,
+    maxXp: 999999,
+    icon: '🌌',
+    color: 'from-rose-500 via-amber-400 to-yellow-300',
+    desc: 'Máximo nivel de sabiduría musical alcanzado en la historia de Musiclub.',
+  },
+];
+
+export function getMelomanoLevel(xp) {
+  const totalXp = Math.max(0, Number(xp) || 0);
+  let current = MELOMANO_LEVELS[0];
+  for (let i = 0; i < MELOMANO_LEVELS.length; i++) {
+    if (totalXp >= MELOMANO_LEVELS[i].minXp) {
+      current = MELOMANO_LEVELS[i];
+    }
+  }
+  return {
+    ...current,
+    totalXp,
+  };
+}
+

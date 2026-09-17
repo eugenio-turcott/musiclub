@@ -14,6 +14,45 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.9',
+    title:
+      'Perfeccionamiento de Diseño en Compartir Review: Centrado Vertical de Calificación, Alineación de Fecha con Icono Vectorial, Nivel y XP de Melómano en Perfil, e Integración Armónica de Canción Favorita',
+    date: '2026-09-17',
+    sha: 'd3f8a14',
+    associatedShas: ['d3f8a14'],
+    tag: 'Stories HD & Gamification Polish',
+    tagColor: 'from-fuchsia-500 via-pink-500 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.9 que resuelve las discrepancias visuales reportadas en las imágenes de Stories para redes sociales. Se perfecciona el centrado vertical y horizontal de la calificación en su contenedor gradiente con baseline medio exacto, se alinea la píldora de fecha a la retícula principal eliminando caracteres Unicode rotos en dispositivos móviles, se muestra el Nivel de Melómano real y la XP acumulada del usuario (como 🪐 Enciclopedia Sonora) en lugar de una leyenda genérica, y se integra la Canción Favorita dentro de la tarjeta del crítico para erradicar bloques desconectados y dotar a la composición de total armonía visual y fluidez responsiva.',
+    changes: [
+      {
+        type: 'fix',
+        title: 'Centrado Milimétrico de la Calificación dentro de su Contenedor',
+        description:
+          'Se corrigió el desfase donde la calificación aparecía empujada hacia la parte inferior del contenedor gradiente. Al aplicar `textBaseline = "middle"` y calcular el anclaje exacto en `pillY + pillH / 2`, el puntaje (ej. `★ 9.6 /10` o `★ 10/10`) queda perfectamente centrado en los ejes vertical y horizontal sin sobresalir del borde.',
+      },
+      {
+        type: 'fix',
+        title: 'Alineación de Fecha a la Retícula Principal e Iconografía Vectorial Limpia',
+        description:
+          'La píldora de fecha superior derecha ahora se acopla con exactitud al límite de 1016px de la retícula general (alineada al divisor, tarjetas y pie de página). Se eliminó el emoji `🗓️` que en WebKit/iOS generaba cajas blancas no renderizadas y desplazaba la métrica de texto, sustituyéndolo por un icono vectorial nativo de calendario y tipografía centrada matemáticamente.',
+      },
+      {
+        type: 'feature',
+        title: 'Nivel de Melómano y XP Real del Usuario bajo el Nombre de Perfil',
+        description:
+          'El subtítulo del crítico ahora muestra su rango honorífico de gamificación y sus puntos de experiencia reales obtenidos en Estadísticas Detalladas (por ejemplo: "🪐 Enciclopedia Sonora · 9,450 XP"). La información se sincroniza en vivo con la tabla de clasificación de la comunidad, reconociendo el estatus y trayectoria del usuario en cada reseña compartida.',
+      },
+      {
+        type: 'improvement',
+        title: 'Integración Armónica de Canción Favorita en la Tarjeta de Impresiones',
+        description:
+          'Se eliminó la caja amarilla aislada de canción favorita que resultaba visualmente discordante con el estilo oscuro de la Story. El track favorito ahora se posiciona con elegancia dentro de la fila de impresiones del crítico junto a la emoción musical, optimizando el espacio vertical y permitiendo que la reseña respire con una jerarquía impecable y responsiva.',
+      },
+    ],
+  },
+  {
     version: 'V.8.8',
     title:
       'Perfeccionamiento Visual y Tipográfico en Compartir Review: Encabezado Dinámico de Releases, Calibración de Márgenes Seguros, Centrado de Criterios y Formato de Calificación 10/10',

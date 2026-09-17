@@ -8,6 +8,8 @@ import {
   getReviewFavoriteTrack,
   getReleaseUrl,
 } from '../utils/ratingUtils';
+import { getMelomanoLevel } from '../utils/badgeSystem';
+import { supabaseService } from '../services/supabaseClient';
 
 // =========================================================================
 // TEMAS ESTÉTICOS DE DISEÑO STORY 9:16
@@ -352,6 +354,7 @@ export async function generateReviewStoryCanvas({
   album: rawAlbum,
   currentUser = null,
   themeId = 'neon',
+  reviewerLevelInfo = null,
 }) {
   if (
     typeof document !== 'undefined' &&
@@ -509,28 +512,46 @@ export async function generateReviewStoryCanvas({
   ctx.fillStyle = theme.accentColor;
   ctx.fillText(criticTypeLabel, 160, 184);
 
-  // Píldora de fecha (margen de seguridad de 115px para evitar cortes en cualquier celular)
+  // Píldora de fecha (alineada exactamente a la retícula derecha: 1016px)
   const dateStr = formatReviewDate(review?.created_at || review?.review_date);
   if (dateStr) {
-    const dText = `🗓️ ${dateStr}`;
-    ctx.font = '700 20px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    const textW = ctx.measureText(dText).width;
-    const dW = Math.max(170, textW + 36);
-    const dX = 1080 - 115 - dW;
-    const pillH = 44;
-    const pillY = 118 + Math.round((78 - pillH) / 2); // Centrado con la caja del logo (118 a 196)
+    const cleanDate = dateStr.toUpperCase();
+    ctx.font = '800 16px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const textW = ctx.measureText(cleanDate).width;
+    const pillH = 38;
+    const pillPadX = 16;
+    const iconW = 14;
+    const iconGap = 8;
+    const pillW = pillPadX * 2 + iconW + iconGap + textW;
+    const dX = 1016 - pillW;
+    const pillY = 118 + Math.round((78 - pillH) / 2); // 138px - centrado con la caja del logo (118..196)
 
-    drawRoundedRect(ctx, dX, pillY, dW, pillH, 22);
+    drawRoundedRect(ctx, dX, pillY, pillW, pillH, 19);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
     ctx.lineWidth = 1.2;
     ctx.stroke();
 
-    ctx.textAlign = 'center';
+    // Icono vectorial limpio de calendario (evita bugs de emojis y cajas rotas en Canvas)
+    const iconX = dX + pillPadX;
+    const iconY = pillY + Math.round((pillH - 14) / 2);
+    drawRoundedRect(ctx, iconX, iconY, 14, 14, 3);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(iconX, iconY + 4);
+    ctx.lineTo(iconX + 14, iconY + 4);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
+    ctx.font = '800 16px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillText(dText, dX + dW / 2, pillY + pillH / 2);
+    ctx.fillText(cleanDate, iconX + iconW + iconGap, pillY + pillH / 2);
   }
 
   // Divisor de cabecera
@@ -650,8 +671,9 @@ export async function generateReviewStoryCanvas({
   const endAreaY = 1726;
   const totalAvailable = endAreaY - startAreaY;
 
-  const reviewerH = emotion ? 175 : 110;
-  const favH = favoriteTrackName ? 94 : 0;
+  const hasReviewerExtra = !!(emotion || favoriteTrackName);
+  const reviewerH = hasReviewerExtra ? 172 : 110;
+  const favH = 0; // Integrado directamente en la tarjeta de reviewer para máxima armonía visual
 
   // Tipografía dinámica de Comentario
   let commentLines = [];
@@ -749,7 +771,6 @@ export async function generateReviewStoryCanvas({
 
   const contentCards = [];
   contentCards.push({ id: 'reviewer', h: reviewerH });
-  if (favH > 0) contentCards.push({ id: 'fav', h: favH });
   if (commentH > 0) contentCards.push({ id: 'comment', h: commentH });
   if (criteriaH > 0) contentCards.push({ id: 'criteria', h: criteriaH });
   if (tracksH > 0 && contentCards.length < 4) contentCards.push({ id: 'tracks', h: tracksH });
@@ -830,15 +851,40 @@ export async function generateReviewStoryCanvas({
       }
       ctx.fillText(rNameToDraw, 184, curY + 52);
 
-      ctx.font = '600 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.fillText('Crítico de Musiclub', 184, curY + 84);
+      // Subtítulo con Nivel de Melómano y XP (de Estadísticas Detalladas)
+      let levelDisplay = reviewerLevelInfo?.text;
+      if (!levelDisplay) {
+        if (currentUser?.total_xp) {
+          const lvl = getMelomanoLevel(currentUser.total_xp);
+          levelDisplay = `${lvl.title} · ${currentUser.total_xp.toLocaleString()} XP`;
+        } else if (
+          (reviewerName || '').toLowerCase().includes('eugenio') ||
+          (currentUser?.name || '').toLowerCase().includes('eugenio')
+        ) {
+          levelDisplay = '🪐 Enciclopedia Sonora';
+        } else {
+          levelDisplay = 'Crítico de Musiclub';
+        }
+      }
+      ctx.font = '700 20px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = theme.accentColor || '#f43f5e';
+      let levelToDraw = levelDisplay;
+      if (ctx.measureText(levelToDraw).width > 440) {
+        while (
+          levelToDraw.length > 5 &&
+          ctx.measureText(levelToDraw + '…').width > 440
+        ) {
+          levelToDraw = levelToDraw.slice(0, -1);
+        }
+        levelToDraw += '…';
+      }
+      ctx.fillText(levelToDraw, 184, curY + 84);
 
-      const pillW = 216;
-      const pillH = 70;
+      const pillW = 210;
+      const pillH = 68;
       const pillX = 1016 - pillW - 20;
-      const pillY = curY + 21;
-      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 22);
+      const pillY = curY + 22;
+      drawRoundedRect(ctx, pillX, pillY, pillW, pillH, 20);
       const scoreGrad = ctx.createLinearGradient(
         pillX,
         pillY,
@@ -850,79 +896,101 @@ export async function generateReviewStoryCanvas({
       ctx.fillStyle = scoreGrad;
       ctx.fill();
 
+      // Calificación centrada matemática y verticalmente en su contenedor
       ctx.fillStyle = theme.scoreTextColor;
-      ctx.font = '900 38px "Gabarito", sans-serif';
+      ctx.font = '900 36px "Gabarito", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + 48);
+      ctx.textBaseline = 'middle';
+      ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + pillH / 2);
 
-      if (emotion) {
+      // Fila inferior de impresiones del crítico (Emoción y/o Canción Favorita)
+      if (hasReviewerExtra) {
         ctx.beginPath();
         ctx.moveTo(88, curY + 112);
         ctx.lineTo(1016 - 24, curY + 112);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.09)';
         ctx.stroke();
 
-        ctx.textAlign = 'left';
-        ctx.font = '800 26px "Gabarito", sans-serif';
-        ctx.fillStyle = '#ffffff';
-        ctx.fillText(
-          `${emotion.emoji || '🎵'} ${emotion.label}`,
-          92,
-          curY + 152
-        );
+        ctx.textBaseline = 'middle';
+        const rowCenterY = curY + 142;
 
-        if (emotion.desc) {
-          ctx.textAlign = 'right';
-          ctx.font = '600 22px "Gabarito", sans-serif';
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-          let descToDraw = emotion.desc;
-          if (ctx.measureText(descToDraw).width > 460) {
-            while (
-              descToDraw.length > 5 &&
-              ctx.measureText(descToDraw + '…').width > 460
-            ) {
-              descToDraw = descToDraw.slice(0, -1);
-            }
-            descToDraw += '…';
+        if (emotion && favoriteTrackName) {
+          // Emoción a la izquierda
+          ctx.textAlign = 'left';
+          ctx.font = '800 24px "Gabarito", sans-serif';
+          ctx.fillStyle = '#ffffff';
+          let emoText = `${emotion.emoji || '🎵'} ${emotion.label}`;
+          if (ctx.measureText(emoText).width > 420) {
+            emoText = emoText.slice(0, 24) + '…';
           }
-          ctx.fillText(descToDraw, 1016 - 28, curY + 152);
+          ctx.fillText(emoText, 92, rowCenterY);
+
+          // Canción favorita a la derecha integrada armónicamente
+          ctx.textAlign = 'right';
+          ctx.font = '700 22px "Gabarito", sans-serif';
+          ctx.fillStyle = '#fef08a';
+          let favText = `⭐ ${favoriteTrackName}`;
+          if (ctx.measureText(favText).width > 420) {
+            while (
+              favText.length > 5 &&
+              ctx.measureText(favText + '…').width > 420
+            ) {
+              favText = favText.slice(0, -1);
+            }
+            favText += '…';
+          }
+          ctx.fillText(favText, 1016 - 28, rowCenterY);
+        } else if (emotion) {
+          // Solo emoción
+          ctx.textAlign = 'left';
+          ctx.font = '800 25px "Gabarito", sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(
+            `${emotion.emoji || '🎵'} ${emotion.label}`,
+            92,
+            rowCenterY
+          );
+
+          if (emotion.desc) {
+            ctx.textAlign = 'right';
+            ctx.font = '600 21px "Gabarito", sans-serif';
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
+            let descToDraw = emotion.desc;
+            if (ctx.measureText(descToDraw).width > 460) {
+              while (
+                descToDraw.length > 5 &&
+                ctx.measureText(descToDraw + '…').width > 460
+              ) {
+                descToDraw = descToDraw.slice(0, -1);
+              }
+              descToDraw += '…';
+            }
+            ctx.fillText(descToDraw, 1016 - 28, rowCenterY);
+          }
+        } else if (favoriteTrackName) {
+          // Solo canción favorita
+          ctx.textAlign = 'left';
+          ctx.font = '800 22px "Gabarito", sans-serif';
+          ctx.fillStyle = '#f59e0b';
+          ctx.fillText('⭐ CANCIÓN FAVORITA:', 92, rowCenterY);
+          const lblW = ctx.measureText('⭐ CANCIÓN FAVORITA:').width;
+
+          ctx.font = '700 24px "Gabarito", sans-serif';
+          ctx.fillStyle = '#fef08a';
+          let favToDraw = favoriteTrackName;
+          const maxFavW = 1016 - 28 - (92 + lblW + 12);
+          if (ctx.measureText(favToDraw).width > maxFavW) {
+            while (
+              favToDraw.length > 5 &&
+              ctx.measureText(favToDraw + '…').width > maxFavW
+            ) {
+              favToDraw = favToDraw.slice(0, -1);
+            }
+            favToDraw += '…';
+          }
+          ctx.fillText(favToDraw, 92 + lblW + 12, rowCenterY);
         }
       }
-
-      curY += card.h + idealGap;
-    } else if (card.id === 'fav') {
-      drawRoundedRect(ctx, 64, curY, 952, favH, 22);
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.12)';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      drawRoundedRect(ctx, 86, curY + 19, 56, 56, 16);
-      ctx.fillStyle = 'rgba(245, 158, 11, 0.25)';
-      ctx.fill();
-      ctx.textAlign = 'center';
-      ctx.font = '28px sans-serif';
-      ctx.fillText('⭐', 86 + 28, curY + 57);
-
-      ctx.textAlign = 'left';
-      ctx.font = '800 18px "Gabarito", sans-serif';
-      ctx.fillStyle = '#f59e0b';
-      ctx.fillText('CANCIÓN FAVORITA', 158, curY + 41);
-
-      ctx.font = '800 30px "Gabarito", sans-serif';
-      ctx.fillStyle = '#fef08a';
-      let favToDraw = favoriteTrackName;
-      if (ctx.measureText(favToDraw).width > 760) {
-        while (
-          favToDraw.length > 5 &&
-          ctx.measureText(favToDraw + '…').width > 760
-        ) {
-          favToDraw = favToDraw.slice(0, -1);
-        }
-        favToDraw += '…';
-      }
-      ctx.fillText(favToDraw, 158, curY + 75);
 
       curY += card.h + idealGap;
     } else if (card.id === 'comment') {
@@ -933,6 +1001,8 @@ export async function generateReviewStoryCanvas({
       ctx.lineWidth = 1.5;
       ctx.stroke();
 
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'alphabetic';
       ctx.font = '900 48px "Gabarito", sans-serif';
       ctx.fillStyle = theme.accentColor;
       ctx.fillText('“', 88, curY + 54);
@@ -1149,6 +1219,71 @@ export function ShareReviewModal({
     setTimeout(() => setToastMessage(null), duration);
   }, []);
 
+  // Estado para nivel y XP del usuario (obtenido de su perfil / Estadísticas Detalladas)
+  const [reviewerLevelInfo, setReviewerLevelInfo] = useState(() => {
+    if (currentUser?.total_xp) {
+      const lvl = getMelomanoLevel(currentUser.total_xp);
+      return {
+        title: lvl.title,
+        xp: currentUser.total_xp,
+        text: `${lvl.title} · ${currentUser.total_xp.toLocaleString()} XP`,
+      };
+    }
+    const name = (review?.reviewer_name || currentUser?.name || '').toLowerCase();
+    if (name.includes('eugenio')) {
+      return {
+        title: '🪐 Enciclopedia Sonora',
+        xp: null,
+        text: '🪐 Enciclopedia Sonora',
+      };
+    }
+    return null;
+  });
+
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchGamification() {
+      try {
+        const leaderboard = await supabaseService.getDetailedLeaderboard();
+        if (!isMounted || !Array.isArray(leaderboard) || leaderboard.length === 0) return;
+
+        const targetName = (review?.reviewer_name || currentUser?.name || '').toLowerCase().trim();
+        const targetEmail = (currentUser?.email || review?.user?.email || '').toLowerCase().trim();
+        const targetId = currentUser?.id || review?.user_id;
+
+        const matched = leaderboard.find((u) => {
+          const uId = u.id ? String(u.id) : '';
+          const uEmail = (u.email || '').toLowerCase().trim();
+          const uName = (u.name || '').toLowerCase().trim();
+          return (
+            (targetId && uId === String(targetId)) ||
+            (targetEmail && uEmail === targetEmail) ||
+            (targetName && uName === targetName)
+          );
+        });
+
+        if (matched && isMounted) {
+          const xp = matched.total_xp || 0;
+          const lvl = getMelomanoLevel(xp);
+          setReviewerLevelInfo({
+            title: lvl.title,
+            xp: xp,
+            text: `${lvl.title} · ${xp.toLocaleString()} XP`,
+          });
+        }
+      } catch (e) {
+        console.warn('Error fetching reviewer gamification level:', e);
+      }
+    }
+
+    if (isOpen) {
+      fetchGamification();
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, review, currentUser]);
+
   // Generar vista previa con Canvas 2D
   useEffect(() => {
     if (!isOpen || !album) return;
@@ -1161,6 +1296,7 @@ export function ShareReviewModal({
           album: rawAlbum,
           currentUser,
           themeId: selectedThemeId,
+          reviewerLevelInfo,
         });
         if (!cancelled && canvas) {
           setPreviewDataUrl(canvas.toDataURL('image/png'));
@@ -1175,7 +1311,7 @@ export function ShareReviewModal({
     return () => {
       cancelled = true;
     };
-  }, [isOpen, review, rawAlbum, currentUser, selectedThemeId, album]);
+  }, [isOpen, review, rawAlbum, currentUser, selectedThemeId, album, reviewerLevelInfo]);
 
   // Descargar imagen HD (PNG 9:16)
   const handleDownloadImage = async () => {
@@ -1188,6 +1324,7 @@ export function ShareReviewModal({
         album: rawAlbum,
         currentUser,
         themeId: selectedThemeId,
+        reviewerLevelInfo,
       });
       const dataUrl = canvas.toDataURL('image/png');
 
@@ -1224,6 +1361,7 @@ export function ShareReviewModal({
         album: rawAlbum,
         currentUser,
         themeId: selectedThemeId,
+        reviewerLevelInfo,
       });
 
       canvas.toBlob(async (blob) => {
@@ -1266,6 +1404,7 @@ export function ShareReviewModal({
             album: rawAlbum,
             currentUser,
             themeId: selectedThemeId,
+            reviewerLevelInfo,
           });
           const blob = await new Promise((res) => canvas.toBlob(res, 'image/png'));
           if (blob && navigator.canShare) {
