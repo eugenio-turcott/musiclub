@@ -317,6 +317,32 @@ function formatReviewDate(dateStr) {
   }
 }
 
+export function formatDisplayScore(score) {
+  if (score === null || score === undefined || isNaN(Number(score))) {
+    return '10';
+  }
+  const num = Number(score);
+  if (num >= 9.95 || num === 10) {
+    return '10';
+  }
+  return num.toFixed(1);
+}
+
+export function getCriticHeaderType(releaseType) {
+  if (!releaseType || typeof releaseType !== 'string') return 'CRÍTICA DE ÁLBUM';
+  const clean = releaseType.trim().toUpperCase();
+  if (clean === 'EP') return 'CRÍTICA DE EP';
+  if (clean === 'SINGLE' || clean === 'SENCILLO') return 'CRÍTICA DE SENCILLO';
+  if (clean === 'COMPILATION' || clean === 'COMPILACIÓN' || clean === 'COMPILACION') return 'CRÍTICA DE COMPILACIÓN';
+  if (clean === 'LIVE' || clean === 'EN VIVO') return 'CRÍTICA DE EN VIVO';
+  if (clean === 'SOUNDTRACK' || clean === 'BANDA SONORA' || clean === 'OST') return 'CRÍTICA DE SOUNDTRACK';
+  if (clean === 'MIXTAPE') return 'CRÍTICA DE MIXTAPE';
+  if (clean === 'DEMO') return 'CRÍTICA DE DEMO';
+  if (clean === 'ALBUM' || clean === 'ÁLBUM') return 'CRÍTICA DE ÁLBUM';
+  if (clean.startsWith('CRÍTICA DE') || clean.startsWith('CRITICA DE')) return clean;
+  return `CRÍTICA DE ${clean}`;
+}
+
 // =========================================================================
 // GENERADOR NATIVO CANVAS 2D FULL HD 1080x1920 (FORMATO CELULAR 9:16)
 // DISEÑO FIJO, CENTRADO Y ULTRA-LIMPIO (SIN AJUSTES NI VINILO 3D)
@@ -362,12 +388,9 @@ export async function generateReviewStoryCanvas({
     currentUser?.user_metadata?.avatar_url ||
     null;
 
-  // Calificación final ponderada
-  let finalScore = '10.0';
-  const s = getWeightedReviewScore(review) ?? review?.rating_general;
-  if (s !== null && s !== undefined && !isNaN(Number(s))) {
-    finalScore = Number(s).toFixed(1);
-  }
+  // Calificación final ponderada (10 en lugar de 10.0 si es perfecta)
+  const rawScore = getWeightedReviewScore(review) ?? review?.rating_general;
+  const finalScore = formatDisplayScore(rawScore);
 
   // Sentimiento / Mood
   const emotion = review ? getEmotionFromReview(review) : null;
@@ -381,20 +404,22 @@ export async function generateReviewStoryCanvas({
     }
   }
 
-  // Criterios de evaluación (hasta 6)
-  const criteria = [
-    { icon: '🎛️', label: 'PRODUCCIÓN', val: review?.rating_produccion },
+  // Criterios de evaluación (hasta 6, normalizados sin variaciones Unicode \uFE0F)
+  const rawCriteria = [
+    { icon: '🎛', label: 'PRODUCCIÓN', val: review?.rating_produccion },
     { icon: '🎵', label: 'COMPOSICIÓN', val: review?.rating_composicion },
     { icon: '📝', label: 'LETRAS', val: review?.rating_letras },
     { icon: '💡', label: 'ORIGINALIDAD', val: review?.rating_originalidad },
     { icon: '🔗', label: 'COHESIÓN', val: review?.rating_cohesion },
     { icon: '🔄', label: 'REPLAY', val: review?.rating_replay },
-  ]
+  ];
+
+  const criteria = rawCriteria
     .filter(
       (c) => c.val !== undefined && c.val !== null && !isNaN(Number(c.val))
     )
     .map((c) => ({
-      icon: c.icon,
+      icon: (c.icon || '').replace(/\uFE0F/g, ''),
       label: c.label,
       val: `${Number(c.val).toFixed(0)}/5`,
     }));
@@ -474,22 +499,28 @@ export async function generateReviewStoryCanvas({
   }
 
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
   ctx.font = '900 38px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.fillText('Musiclub', 160, 154);
 
+  const criticTypeLabel = getCriticHeaderType(album.release_type);
   ctx.font = '800 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = theme.accentColor;
-  ctx.fillText('CRÍTICA DE ÁLBUM', 160, 184);
+  ctx.fillText(criticTypeLabel, 160, 184);
 
-  // Píldora de fecha
+  // Píldora de fecha (margen de seguridad de 115px para evitar cortes en cualquier celular)
   const dateStr = formatReviewDate(review?.created_at || review?.review_date);
   if (dateStr) {
     const dText = `🗓️ ${dateStr}`;
-    ctx.font = '700 20px "Gabarito", sans-serif';
-    const dW = ctx.measureText(dText).width + 40;
-    const dX = 1080 - 64 - dW;
-    drawRoundedRect(ctx, dX, 132, dW, 48, 24);
+    ctx.font = '700 20px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const textW = ctx.measureText(dText).width;
+    const dW = Math.max(170, textW + 36);
+    const dX = 1080 - 115 - dW;
+    const pillH = 44;
+    const pillY = 118 + Math.round((78 - pillH) / 2); // Centrado con la caja del logo (118 a 196)
+
+    drawRoundedRect(ctx, dX, pillY, dW, pillH, 22);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
@@ -497,8 +528,9 @@ export async function generateReviewStoryCanvas({
     ctx.stroke();
 
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillText(dText, dX + dW / 2, 163);
+    ctx.fillText(dText, dX + dW / 2, pillY + pillH / 2);
   }
 
   // Divisor de cabecera
@@ -510,9 +542,9 @@ export async function generateReviewStoryCanvas({
   ctx.stroke();
 
   // 4. PORTADA DE ÁLBUM (DISEÑO FIJO Y CENTRADO, SIN DISCO DE VINILO)
-  const coverSize = 430;
+  const coverSize = 415;
   const coverX = (1080 - coverSize) / 2;
-  const coverY = 240;
+  const coverY = 228;
 
   // Resplandor ambiental de la carátula
   ctx.save();
@@ -544,7 +576,8 @@ export async function generateReviewStoryCanvas({
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 48px "Gabarito", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('DISCO', coverX + coverSize / 2, coverY + coverSize / 2 + 16);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('DISCO', coverX + coverSize / 2, coverY + coverSize / 2);
   }
   ctx.restore();
 
@@ -553,43 +586,43 @@ export async function generateReviewStoryCanvas({
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  // 5. TÍTULOS DEL LANZAMIENTO (Envolvente inteligente multi-línea)
+  // 5. TÍTULOS DEL LANZAMIENTO (Con espacio generoso y elegante respecto a la carátula)
+  const coverBottom = coverY + coverSize; // 228 + 415 = 643
+  const titleGap = 36; // 36px de separación limpia para que el título no quede pegado
+  let curTitleY = coverBottom + titleGap; // 679
+
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
   const rawAlbumTitle = album.album_name || 'Álbum';
-  const titleFontSize = rawAlbumTitle.length <= 22 ? 50 : 46;
+  const titleFontSize = rawAlbumTitle.length <= 22 ? 48 : 44;
   ctx.font = `900 ${titleFontSize}px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif`;
   ctx.fillStyle = '#ffffff';
 
-  let albumTitleLines = wrapText(ctx, rawAlbumTitle, 940);
+  let albumTitleLines = wrapText(ctx, rawAlbumTitle, 920);
   if (albumTitleLines.length > 2) {
     albumTitleLines = albumTitleLines.slice(0, 2);
     albumTitleLines[1] = albumTitleLines[1] + '…';
   }
 
-  let titleY = 712;
-  if (albumTitleLines.length === 1) {
-    ctx.fillText(albumTitleLines[0], 540, titleY);
-  } else {
-    titleY = 702;
-    ctx.fillText(albumTitleLines[0], 540, titleY);
-    titleY += 50;
-    ctx.fillText(albumTitleLines[1], 540, titleY);
+  for (let i = 0; i < albumTitleLines.length; i++) {
+    ctx.fillText(albumTitleLines[i], 540, curTitleY);
+    curTitleY += titleFontSize + 6;
   }
 
-  const artistY = titleY + 42;
-  ctx.font = '700 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  const artistTop = curTitleY + 10;
+  ctx.font = '700 30px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
   let artistToDraw = album.artist_name || 'Artista';
-  if (ctx.measureText(artistToDraw).width > 940) {
+  if (ctx.measureText(artistToDraw).width > 920) {
     while (
       artistToDraw.length > 5 &&
-      ctx.measureText(artistToDraw + '…').width > 940
+      ctx.measureText(artistToDraw + '…').width > 920
     ) {
       artistToDraw = artistToDraw.slice(0, -1);
     }
     artistToDraw += '…';
   }
-  ctx.fillText(artistToDraw, 540, artistY);
+  ctx.fillText(artistToDraw, 540, artistTop);
 
   // Píldora Tipo · Año
   const typeText = [
@@ -598,18 +631,19 @@ export async function generateReviewStoryCanvas({
   ]
     .filter(Boolean)
     .join(' · ');
-  const typeY = artistY + 22;
+  const typeTop = artistTop + 30 + 16;
   ctx.font = '800 18px "Gabarito", sans-serif';
   const typeW = ctx.measureText(typeText).width + 36;
-  drawRoundedRect(ctx, 540 - typeW / 2, typeY, typeW, 36, 18);
+  drawRoundedRect(ctx, 540 - typeW / 2, typeTop, typeW, 34, 17);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.fill();
   ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
   ctx.stroke();
+  ctx.textBaseline = 'middle';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-  ctx.fillText(typeText, 540, typeY + 25);
+  ctx.fillText(typeText, 540, typeTop + 17);
 
-  const heroBottom = typeY + 36;
+  const heroBottom = typeTop + 34;
 
   // 6. CÁLCULO DE ALTURAS Y DISTRIBUCIÓN VERTICAL ADAPTATIVA
   const startAreaY = heroBottom + 24;
@@ -930,13 +964,14 @@ export async function generateReviewStoryCanvas({
         ctx.stroke();
 
         ctx.textAlign = 'center';
-        ctx.font = '700 19px "Gabarito", sans-serif';
+        ctx.textBaseline = 'middle';
+        ctx.font = '700 18px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 36);
+        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 30);
 
-        ctx.font = '900 32px "Gabarito", sans-serif';
+        ctx.font = '900 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText(c.val, bx + boxW / 2, by + 74);
+        ctx.fillText(c.val, bx + boxW / 2, by + 66);
       }
 
       curY += card.h + idealGap;
@@ -1001,21 +1036,30 @@ export async function generateReviewStoryCanvas({
     ctx.fillStyle = '#ffffff';
     ctx.font = '900 26px "Gabarito", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('M', 88, 1782);
+    ctx.textBaseline = 'middle';
+    ctx.fillText('M', 88, 1772);
   }
 
+  const brandX = 126;
   ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
   ctx.font = '900 28px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText('musiclub.org', 126, 1782);
+  ctx.fillText('musiclub.org', brandX, 1772);
+
+  const brandW = ctx.measureText('musiclub.org').width;
+  const sepX = brandX + brandW + 18;
 
   ctx.font = '300 24px "Gabarito", sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-  ctx.fillText('|', 290, 1782);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.fillText('|', sepX, 1772);
+
+  const sepW = ctx.measureText('|').width;
+  const taglineX = sepX + sepW + 18;
 
   ctx.font = '600 22px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-  ctx.fillText('Comunidad de Crítica Musical', 312, 1782);
+  ctx.fillText('Comunidad de Crítica Musical', taglineX, 1772);
 
   const tagText = '#Musiclub';
   ctx.font = '800 22px "Gabarito", sans-serif';
@@ -1028,8 +1072,9 @@ export async function generateReviewStoryCanvas({
   ctx.lineWidth = 1.5;
   ctx.stroke();
   ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
   ctx.fillStyle = '#ffffff';
-  ctx.fillText(tagText, tagX + tagW / 2, 1780);
+  ctx.fillText(tagText, tagX + tagW / 2, 1772);
 
   return canvas;
 }
@@ -1066,14 +1111,11 @@ export function ShareReviewModal({
     };
   }, [rawAlbum, review]);
 
-  // Calificación final
+  // Calificación final (10 en lugar de 10.0 si es perfecta)
   const finalScore = useMemo(() => {
-    if (!review) return '10.0';
+    if (!review) return '10';
     const s = getWeightedReviewScore(review) ?? review.rating_general;
-    if (s !== null && s !== undefined && !isNaN(Number(s))) {
-      return Number(s).toFixed(1);
-    }
-    return '10.0';
+    return formatDisplayScore(s);
   }, [review]);
 
   // Sentimiento / Emoción

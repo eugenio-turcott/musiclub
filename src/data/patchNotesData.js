@@ -14,6 +14,51 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.8',
+    title:
+      'Perfeccionamiento Visual y Tipográfico en Compartir Review: Encabezado Dinámico de Releases, Calibración de Márgenes Seguros, Centrado de Criterios y Formato de Calificación 10/10',
+    date: '2026-09-17',
+    sha: 'b9d4f21',
+    associatedShas: ['b9d4f21'],
+    tag: 'Review Stories HD & Polish',
+    tagColor: 'from-rose-500 via-pink-600 to-purple-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.8 con foco en la precisión geométrica, balance visual y detalles tipográficos en las imágenes 9:16 de Compartir Review para redes sociales. Se corrigen las distancias y alineaciones clave para garantizar una presentación impecable en cualquier modelo de celular: la cabecera superior ahora refleja dinámicamente el tipo de lanzamiento (EP, Compilación, Sencillo, Soundtrack, etc.), la fecha se ubica en una zona segura sin riesgos de recorte en pantallas 19.5:9 o solapamiento con controles de Instagram Stories, el título del álbum adquiere un margen limpio respecto a la portada, se soluciona la anomalía de centrado en el criterio de Producción causada por glifos Unicode en WebKit/iOS, se balancea el separador del pie de página y las notas perfectas se muestran de manera pulida como 10/10 en lugar de 10.0.',
+    changes: [
+      {
+        type: 'improvement',
+        title: 'Encabezado Dinámico por Tipo de Lanzamiento (EP, Compilación, Single, etc.)',
+        description:
+          'El indicador de formato en la parte superior izquierda ahora reconoce de manera automática la naturaleza del disco evaluado, mostrando con exactitud "CRÍTICA DE ÁLBUM", "CRÍTICA DE EP", "CRÍTICA DE COMPILACIÓN", "CRÍTICA DE SENCILLO", "CRÍTICA DE EN VIVO" o "CRÍTICA DE SOUNDTRACK", enriqueciendo el contexto editorial de la Story.',
+      },
+      {
+        type: 'improvement',
+        title: 'Espaciado Armónico entre Portada y Título (Separación de 36px)',
+        description:
+          'Se recalibró la distancia vertical entre la carátula centrada (415x415 px) y el título del álbum, implementando una separación libre de 36px y anclaje tipográfico superior (top baseline). Esto elimina el efecto de contacto visual donde las letras tocaban directamente la base de la imagen.',
+      },
+      {
+        type: 'fix',
+        title: 'Centrado Milimétrico en Criterio "PRODUCCIÓN" y Normalización Emoji',
+        description:
+          'Se resolvió el bug de renderizado en navegadores WebKit/iOS Safari donde el glifo de consola (🎛️) incluía un selector de variación Unicode (\\uFE0F) que alteraba el cálculo de ancho en el texto centrado, desplazando la etiqueta hacia la derecha. Al normalizar el emoji y establecer alineación vertical media (middle baseline), la caja de Producción queda con la misma simetría y centrado exacto que los otros cinco criterios.',
+      },
+      {
+        type: 'fix',
+        title: 'Zona Segura para la Fecha Superior y Margen Balanceado en Footer',
+        description:
+          'La píldora con la fecha de la reseña ahora respeta un margen de seguridad derecho de 115px para evitar cortes en pantallas móviles alargadas y prevenir que quede tapada por los botones nativos de Instagram Stories. En el footer, el separador vertical (|) se posiciona con un espaciado equidistante de 18px respecto a musiclub.org y la leyenda de la comunidad.',
+      },
+      {
+        type: 'improvement',
+        title: 'Formateo Pulido de Calificaciones Perfectas (10/10 en vez de 10.0/10)',
+        description:
+          'Las notas de 10 puntos se formatean de forma natural como "10/10" y en la cabecera como "★ 10", prescindiendo del decimal redundante (".0") en la imagen de la Story, en la vista previa del modal y en los textos predefinidos para redes sociales.',
+      },
+    ],
+  },
+  {
     version: 'V.8.7',
     title:
       'Rediseño Total de Compartir Review: Experiencia Móvil Ultra-Responsiva, Diseño Fijo sin Ajustes Manuales, Canvas 9:16 con Carátula Centrada y Barra de Acciones Nativa',
