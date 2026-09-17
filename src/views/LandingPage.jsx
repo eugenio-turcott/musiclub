@@ -556,7 +556,7 @@ export function LandingPage() {
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-rose-400">
                   MUSICLUB
                 </span>
-                , descubre, califica y debate cada disco.
+                , descubre, califica y debate cada release.
               </h1>
 
               {/* Subtitle explicitly welcoming albums, EPs, singles */}

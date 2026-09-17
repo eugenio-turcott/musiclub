@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { ShareIcon } from './ShareReviewModal';
 import ShareTierListModal from './ShareTierListModal';
+import { getMelomanoLevel } from '../utils/badgeSystem';
 
 // SVG local data URIs que nunca fallan por red ni por CORS
 export const PLACEHOLDER_COVER =
@@ -15,7 +16,7 @@ export const DEFAULT_TIERS = [
     name: 'Excelentes',
     subtitle: '9.5 - 10.0',
     minScore: 9.5,
-    maxScore: 10,
+    maxScore: 10.0,
     hexColor: '#ff4757',
     headerBg: 'bg-[#ff4757]',
     headerText: 'text-white font-black',
@@ -34,7 +35,7 @@ export const DEFAULT_TIERS = [
     name: 'Muy Buenos',
     subtitle: '8.5 - 9.4',
     minScore: 8.5,
-    maxScore: 9.499,
+    maxScore: 9.4,
     hexColor: '#ff7f50',
     headerBg: 'bg-[#ff7f50]',
     headerText: 'text-white font-black',
@@ -53,7 +54,7 @@ export const DEFAULT_TIERS = [
     name: 'Buenos',
     subtitle: '7.5 - 8.4',
     minScore: 7.5,
-    maxScore: 8.499,
+    maxScore: 8.4,
     hexColor: '#eccc68',
     headerBg: 'bg-[#eccc68]',
     headerText: 'text-slate-950 font-black',
@@ -72,7 +73,7 @@ export const DEFAULT_TIERS = [
     name: 'Regulares',
     subtitle: '6.5 - 7.4',
     minScore: 6.5,
-    maxScore: 7.499,
+    maxScore: 7.4,
     hexColor: '#2ed573',
     headerBg: 'bg-[#2ed573]',
     headerText: 'text-slate-950 font-black',
@@ -91,7 +92,7 @@ export const DEFAULT_TIERS = [
     name: 'Malos',
     subtitle: '5.0 - 6.4',
     minScore: 5.0,
-    maxScore: 6.499,
+    maxScore: 6.4,
     hexColor: '#1e90ff',
     headerBg: 'bg-[#1e90ff]',
     headerText: 'text-white font-black',
@@ -110,7 +111,7 @@ export const DEFAULT_TIERS = [
     name: 'Pésimos',
     subtitle: '< 5.0',
     minScore: 0,
-    maxScore: 4.999,
+    maxScore: 4.9,
     hexColor: '#9b59b6',
     headerBg: 'bg-[#9b59b6]',
     headerText: 'text-white font-black',
@@ -125,14 +126,26 @@ export const DEFAULT_TIERS = [
   },
 ];
 
-// Helper para calcular el Tier automático según los criterios
-function getTierFromScore(score) {
+/**
+ * Redondeo matemático estricto hacia abajo (floor) a 1 decimal.
+ * Garantiza que calificaciones como 9.48 o 9.46 NUNCA se eleven a 9.5
+ * y respeten escrupulosamente los límites de cada tier.
+ */
+export function roundDownScore(score) {
+  if (score === null || score === undefined || isNaN(score)) return 0;
+  const num = Number(score);
+  return Math.floor(num * 10 + 1e-6) / 10;
+}
+
+// Helper para calcular el Tier automático según los criterios (redondeo siempre hacia abajo)
+export function getTierFromScore(score) {
   if (score === null || score === undefined || isNaN(score)) return 'F';
-  if (score >= 9.5) return 'S';
-  if (score >= 8.5) return 'A';
-  if (score >= 7.5) return 'B';
-  if (score >= 6.5) return 'C';
-  if (score >= 5.0) return 'D';
+  const s = roundDownScore(score);
+  if (s >= 9.5) return 'S';
+  if (s >= 8.5) return 'A';
+  if (s >= 7.5) return 'B';
+  if (s >= 6.5) return 'C';
+  if (s >= 5.0) return 'D';
   return 'F';
 }
 
@@ -206,7 +219,9 @@ export async function generateTierListCanvas({
   classifiedItems = [],
   tierGroups = {},
   userName = 'Melómano',
+  user = null,
   totalCategorized = 0,
+  format = 'mobile', // 'mobile' | 'landscape'
 }) {
   // Asegurar que las fuentes web estén completamente cargadas antes de pintar
   if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
@@ -221,7 +236,13 @@ export async function generateTierListCanvas({
   const logoImgPromise = preloadCORSImage('/musiclub_logo_corchea.png').then(
     (img) => img || preloadCORSImage('/musiclub_logo_3.png')
   );
-  const albumImagesPromises = classifiedItems.map(async (item) => {
+
+  // Precargar únicamente las portadas que se van a dibujar (máximo 20 releases por tier)
+  const itemsToRender = DEFAULT_TIERS.flatMap((tier) =>
+    (tierGroups[tier.id] || []).slice(0, 20)
+  );
+
+  const albumImagesPromises = itemsToRender.map(async (item) => {
     const img = await preloadCORSImage(item.imagen);
     return { albumId: item.albumId, img };
   });
@@ -236,46 +257,76 @@ export async function generateTierListCanvas({
     if (img) imageMap.set(albumId, img);
   });
 
-  // 2. Geometría y dimensiones de exportación (1200px de ancho)
-  const CANVAS_WIDTH = 1200;
-  const PADDING_X = 36;
-  const HEADER_HEIGHT = 110;
-  const FOOTER_HEIGHT = 64;
+  // 2. Geometría y dimensiones según el formato elegido
+  const isMobile = format === 'mobile';
+  const CANVAS_WIDTH = isMobile ? 1080 : 1200;
+  const PADDING_X = isMobile ? 32 : 36;
+  const HEADER_HEIGHT = isMobile ? 140 : 110;
+  const FOOTER_HEIGHT = isMobile ? 80 : 64;
   const ROW_GAP = 14;
-  const BADGE_WIDTH = 150;
-  const TILE_SIZE = 90;
-  const TILE_GAP = 12;
+  const BADGE_WIDTH = isMobile ? 168 : 150;
   const TRAY_PADDING = 14;
+  const TILE_GAP = 12;
 
   const availableTrayWidth =
     CANVAS_WIDTH - PADDING_X * 2 - BADGE_WIDTH - TRAY_PADDING * 2;
-  const tilesPerRow = Math.max(
-    1,
-    Math.floor((availableTrayWidth + TILE_GAP) / (TILE_SIZE + TILE_GAP))
-  );
 
-  // Calcular altura por cada fila
+  // En móvil: 5 carátulas por fila de ~154px (grandes, nítidas y legibles en cualquier celular)
+  // Al limitar a máximo 20 lanzamientos por tier, 20 / 5 = exactamente 4 filas completas y ordenadas
+  // En landscape: 9 carátulas por fila de 90px
+  const tilesPerRow = isMobile
+    ? 5
+    : Math.max(
+        1,
+        Math.floor((availableTrayWidth + TILE_GAP) / (90 + TILE_GAP))
+      );
+
+  const TILE_SIZE = isMobile
+    ? Math.floor(
+        (availableTrayWidth - (tilesPerRow - 1) * TILE_GAP) / tilesPerRow
+      )
+    : 90;
+
+  // Calcular altura de cada fila limitando estrictamente a máximo 20 (Top) en cada tier
   const tierLayouts = DEFAULT_TIERS.map((tier) => {
-    const items = tierGroups[tier.id] || [];
+    const rawItems = tierGroups[tier.id] || [];
+    // Máximo 20 lanzamientos (Top 20 por calificación) por cada tier
+    const items = rawItems.slice(0, 20);
+    const totalInTier = rawItems.length;
     const rowsCount = Math.max(1, Math.ceil(items.length / tilesPerRow));
+    const minHeight = isMobile ? (items.length === 0 ? 104 : 182) : 104;
     const calculatedHeight =
       items.length === 0
-        ? 104
+        ? minHeight
         : rowsCount * TILE_SIZE +
           (rowsCount - 1) * TILE_GAP +
           TRAY_PADDING * 2;
-    const rowHeight = Math.max(104, calculatedHeight);
-    return { tier, items, rowHeight };
+    const rowHeight = Math.max(minHeight, calculatedHeight);
+    return { tier, items, totalInTier, rowHeight };
   });
 
   const totalRowsHeight = tierLayouts.reduce(
     (sum, t) => sum + t.rowHeight + ROW_GAP,
     0
   );
-  const CANVAS_HEIGHT =
-    HEADER_HEIGHT + totalRowsHeight + FOOTER_HEIGHT + 20;
 
-  // 3. Crear canvas y contexto 2D (con escala x2 para máxima definición)
+  const calculatedCanvasHeight =
+    HEADER_HEIGHT + totalRowsHeight + FOOTER_HEIGHT + 24;
+
+  // En móvil: se asegura un mínimo de 1920px (9:16 vertical story)
+  // Si hay más álbumes (máximo 20 por tier), la altura crece naturalmente (~2200-2400px),
+  // ajustándose perfectamente a la proporción 19.5:9 de pantallas de celular
+  const CANVAS_HEIGHT = isMobile
+    ? Math.max(1920, calculatedCanvasHeight)
+    : calculatedCanvasHeight;
+
+  // Espacio vertical para centrar el contenido si sobra lienzo en pantallas móviles
+  const extraVerticalSpace = isMobile
+    ? Math.max(0, CANVAS_HEIGHT - calculatedCanvasHeight)
+    : 0;
+  const verticalOffset = Math.floor(extraVerticalSpace / 2);
+
+  // 3. Crear canvas y contexto 2D (escala x2 para Retina / pantallas móviles)
   const SCALE = 2;
   const canvas = document.createElement('canvas');
   canvas.width = CANVAS_WIDTH * SCALE;
@@ -283,89 +334,104 @@ export async function generateTierListCanvas({
   const ctx = canvas.getContext('2d');
   ctx.scale(SCALE, SCALE);
 
-  // Fondo general
-  ctx.fillStyle = '#0a0c1a';
+  // Fondo general oscuro profundo
+  ctx.fillStyle = '#080914';
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-  // Sutil brillo radial de fondo
+  // Brillo radial de fondo con acento neón suave
   const gradient = ctx.createRadialGradient(
     CANVAS_WIDTH / 2,
-    HEADER_HEIGHT,
-    100,
+    HEADER_HEIGHT + verticalOffset,
+    80,
     CANVAS_WIDTH / 2,
     CANVAS_HEIGHT / 2,
     CANVAS_WIDTH
   );
-  gradient.addColorStop(0, '#151733');
-  gradient.addColorStop(1, '#090a16');
+  gradient.addColorStop(0, '#161936');
+  gradient.addColorStop(0.6, '#0c0e1e');
+  gradient.addColorStop(1, '#070810');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
 
   // 4. DIBUJAR ENCABEZADO
-  const headerY = 28;
+  const headerY = (isMobile ? 24 : 28) + verticalOffset;
+  const logoSize = isMobile ? 64 : 52;
+
   if (logoImg) {
     ctx.save();
-    ctx.shadowColor = 'rgba(245, 87, 108, 0.4)';
-    ctx.shadowBlur = 12;
-    ctx.drawImage(logoImg, PADDING_X, headerY, 52, 52);
+    ctx.shadowColor = 'rgba(245, 87, 108, 0.45)';
+    ctx.shadowBlur = 14;
+    ctx.drawImage(logoImg, PADDING_X, headerY, logoSize, logoSize);
     ctx.restore();
   }
 
-  // Título MUSICLUB TIER LIST
-  const titleX = logoImg ? PADDING_X + 66 : PADDING_X;
-  ctx.font = '900 26px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  // Título MUSICLUB TIER LIST con tipografía más grande y legible
+  const titleX = logoImg ? PADDING_X + logoSize + 16 : PADDING_X;
+  ctx.font = isMobile
+    ? '900 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '900 26px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#ffffff';
   ctx.textBaseline = 'top';
+  ctx.textAlign = 'left';
   ctx.fillText('MUSICLUB ', titleX, headerY + 4);
 
   const titleWidth = ctx.measureText('MUSICLUB ').width;
   ctx.fillStyle = '#f5576c';
   ctx.fillText('TIER LIST', titleX + titleWidth, headerY + 4);
 
-  // Subtítulo
-  ctx.font = '500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+  // Subtítulo claro y legible
+  ctx.font = isMobile
+    ? '600 16px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
   ctx.fillText(
     'Colección y ranking oficial de álbumes evaluados',
     titleX,
-    headerY + 34
+    headerY + (isMobile ? 40 : 34)
   );
 
-  // Usuario a la derecha
-  ctx.font = '800 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = '#f093fb';
+  // Info del usuario a la derecha
   ctx.textAlign = 'right';
-  ctx.fillText(userName, CANVAS_WIDTH - PADDING_X, headerY + 6);
+  ctx.font = isMobile
+    ? '900 24px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '800 18px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = '#f093fb';
+  ctx.fillText(userName, CANVAS_WIDTH - PADDING_X, headerY + 4);
 
+  // Nivel de Melómano o contador
   const countDisplay = totalCategorized || classifiedItems.length;
-  ctx.font = '600 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-  ctx.fillText(
-    `${countDisplay} álbumes calificados`,
-    CANVAS_WIDTH - PADDING_X,
-    headerY + 30
-  );
+  const melomanoLevel = user ? getMelomanoLevel(user.total_xp ?? 0) : null;
+  const userSubtext = melomanoLevel
+    ? `${melomanoLevel.title} · ${countDisplay} ${countDisplay === 1 ? 'disco' : 'discos'}`
+    : `${countDisplay} álbumes calificados`;
+
+  ctx.font = isMobile
+    ? '700 15px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '600 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
+  ctx.fillText(userSubtext, CANVAS_WIDTH - PADDING_X, headerY + (isMobile ? 36 : 30));
 
   ctx.textAlign = 'left';
 
   // Línea divisoria del header
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  const dividerY = headerY + (isMobile ? 74 : 68);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
   ctx.lineWidth = 1.5;
   ctx.beginPath();
-  ctx.moveTo(PADDING_X, headerY + 68);
-  ctx.lineTo(CANVAS_WIDTH - PADDING_X, headerY + 68);
+  ctx.moveTo(PADDING_X, dividerY);
+  ctx.lineTo(CANVAS_WIDTH - PADDING_X, dividerY);
   ctx.stroke();
 
   // 5. DIBUJAR FILAS DE TIERS
-  let currentY = HEADER_HEIGHT + 10;
+  let currentY = HEADER_HEIGHT + verticalOffset + 10;
 
-  for (const { tier, items, rowHeight } of tierLayouts) {
+  for (const { tier, items, totalInTier, rowHeight } of tierLayouts) {
     const rowX = PADDING_X;
     const rowWidth = CANVAS_WIDTH - PADDING_X * 2;
 
     // Fondo y borde de toda la fila
     drawRoundedRect(ctx, rowX, currentY, rowWidth, rowHeight, 14);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.025)';
     ctx.fill();
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
     ctx.lineWidth = 1.5;
@@ -376,37 +442,69 @@ export async function generateTierListCanvas({
     ctx.fillStyle = tier.hexColor;
     ctx.fill();
 
-    // Contenido del Badge
+    // Contenido del Badge Centrado Verticalmente en el Tier
     const isDarkText = tier.id === 'B' || tier.id === 'C';
     const badgeTextColor = isDarkText ? '#090d16' : '#ffffff';
+    const badgeCenterX = rowX + BADGE_WIDTH / 2;
+    const badgeCenterY = currentY + rowHeight / 2;
 
-    // Letra del Tier (S, A, B, C, D, F)
     ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = badgeTextColor;
-    ctx.font = '900 38px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-    ctx.fillText(tier.label, rowX + BADGE_WIDTH / 2, currentY + 14);
 
-    // Nombre del Tier (Obras Maestras, Excelentes, etc.)
-    ctx.font = '900 11px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-    ctx.fillText(
-      tier.name.toUpperCase(),
-      rowX + BADGE_WIDTH / 2,
-      currentY + 56
-    );
+    if (items.length === 0) {
+      // Tier vacío: presentación compacta
+      ctx.font = '900 42px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(tier.label, badgeCenterX, badgeCenterY - 20);
 
-    // Rango de puntuación (Pill)
-    const pillY = currentY + 74;
-    const pillWidth = 78;
-    const pillHeight = 18;
-    const pillX = rowX + (BADGE_WIDTH - pillWidth) / 2;
+      ctx.font = '900 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(tier.name.toUpperCase(), badgeCenterX, badgeCenterY + 12);
 
-    drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 8);
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-    ctx.fill();
+      ctx.font = '800 11.5px monospace, sans-serif';
+      ctx.fillText(tier.subtitle, badgeCenterX, badgeCenterY + 30);
+    } else {
+      // Letra del Tier (S, A, B, C, D, F) con tamaño grande
+      ctx.font = isMobile
+        ? '900 58px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+        : '900 40px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(tier.label, badgeCenterX, badgeCenterY - 42);
 
-    ctx.font = '700 10px monospace, sans-serif';
-    ctx.fillStyle = '#ffffff';
-    ctx.fillText(tier.subtitle, rowX + BADGE_WIDTH / 2, pillY + 3.5);
+      // Nombre del Tier (OBRAS MAESTRAS, EXCELENTES, etc.)
+      ctx.font = isMobile
+        ? '900 14px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+        : '900 11px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillText(tier.name.toUpperCase(), badgeCenterX, badgeCenterY - 2);
+
+      // Rango de puntuación (Pill)
+      const pillWidth = isMobile ? 98 : 82;
+      const pillHeight = isMobile ? 24 : 20;
+      const pillX = badgeCenterX - pillWidth / 2;
+      const pillY = badgeCenterY + 12;
+
+      drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 9);
+      ctx.fillStyle = isDarkText ? 'rgba(0, 0, 0, 0.20)' : 'rgba(0, 0, 0, 0.32)';
+      ctx.fill();
+
+      ctx.font = isMobile
+        ? '800 13px monospace, sans-serif'
+        : '700 10.5px monospace, sans-serif';
+      ctx.fillStyle = badgeTextColor;
+      ctx.fillText(tier.subtitle, badgeCenterX, pillY + pillHeight / 2);
+
+      // Contador de discos (muestra "Top 20 de X" si excede 20)
+      const countLabel =
+        totalInTier > 20
+          ? `Top 20 de ${totalInTier}`
+          : `${totalInTier} ${totalInTier === 1 ? 'disco' : 'discos'}`;
+
+      ctx.font = isMobile
+        ? '800 12.5px "Gabarito", sans-serif'
+        : '800 9.5px "Gabarito", sans-serif';
+      ctx.fillStyle = isDarkText
+        ? 'rgba(0, 0, 0, 0.75)'
+        : 'rgba(255, 255, 255, 0.85)';
+      ctx.fillText(countLabel, badgeCenterX, badgeCenterY + 48);
+    }
 
     // Bandeja de Álbumes (Derecha)
     const trayX = rowX + BADGE_WIDTH + TRAY_PADDING;
@@ -414,13 +512,15 @@ export async function generateTierListCanvas({
 
     if (items.length === 0) {
       ctx.textAlign = 'center';
-      ctx.font =
-        'italic 500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)';
+      ctx.textBaseline = 'middle';
+      ctx.font = isMobile
+        ? 'italic 600 16px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+        : 'italic 500 13px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
       ctx.fillText(
         '0 álbumes calificados',
         trayX + (rowWidth - BADGE_WIDTH - TRAY_PADDING * 2) / 2,
-        currentY + rowHeight / 2 - 6
+        currentY + rowHeight / 2
       );
     } else {
       items.forEach((item, idx) => {
@@ -430,14 +530,14 @@ export async function generateTierListCanvas({
         const tileY = trayY + row * (TILE_SIZE + TILE_GAP);
 
         // Borde y fondo del cuadro
-        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 12);
         ctx.fillStyle = '#0c0e1a';
         ctx.fill();
 
         // Dibujar carátula del álbum
         const loadedImg = imageMap.get(item.albumId);
         ctx.save();
-        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 12);
         ctx.clip();
 
         if (loadedImg) {
@@ -462,33 +562,43 @@ export async function generateTierListCanvas({
           ctx.fill();
         }
 
-        // Gradiente oscuro inferior para la estrella
+        // Gradiente oscuro inferior para la estrella y puntaje
+        const gradHeight = isMobile ? 38 : 28;
         const scoreGrad = ctx.createLinearGradient(
           tileX,
-          tileY + TILE_SIZE - 26,
+          tileY + TILE_SIZE - gradHeight,
           tileX,
           tileY + TILE_SIZE
         );
         scoreGrad.addColorStop(0, 'transparent');
-        scoreGrad.addColorStop(1, 'rgba(0, 0, 0, 0.92)');
+        scoreGrad.addColorStop(1, 'rgba(0, 0, 0, 0.95)');
         ctx.fillStyle = scoreGrad;
-        ctx.fillRect(tileX, tileY + TILE_SIZE - 26, TILE_SIZE, 26);
+        ctx.fillRect(tileX, tileY + TILE_SIZE - gradHeight, TILE_SIZE, gradHeight);
 
-        // Calificación ★ X.X
-        ctx.font = '900 11px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-        ctx.fillStyle = '#fcd34d';
+        // Calificación: Redondeada estrictamente hacia abajo (ej. 10 o 9.4)
+        const displayScore =
+          item.score === 10 ? '10' : item.score.toFixed(1);
+
+        ctx.font = isMobile
+          ? '900 17px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+          : '900 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+        ctx.fillStyle = '#fbbf24';
         ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';
+        ctx.shadowBlur = 4;
         ctx.fillText(
-          `★ ${item.score.toFixed(1)}`,
+          `★ ${displayScore}`,
           tileX + TILE_SIZE / 2,
-          tileY + TILE_SIZE - 15
+          tileY + TILE_SIZE - (isMobile ? 15 : 12)
         );
+        ctx.shadowBlur = 0;
 
         ctx.restore();
 
         // Borde final del tile
-        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 10);
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        drawRoundedRect(ctx, tileX, tileY, TILE_SIZE, TILE_SIZE, 12);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
         ctx.lineWidth = 1;
         ctx.stroke();
       });
@@ -498,8 +608,8 @@ export async function generateTierListCanvas({
   }
 
   // 6. DIBUJAR FOOTER
-  const footerY = CANVAS_HEIGHT - FOOTER_HEIGHT + 14;
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+  const footerY = CANVAS_HEIGHT - FOOTER_HEIGHT + (isMobile ? 20 : 14);
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
   ctx.lineWidth = 1;
   ctx.beginPath();
   ctx.moveTo(PADDING_X, footerY);
@@ -507,18 +617,23 @@ export async function generateTierListCanvas({
   ctx.stroke();
 
   ctx.textAlign = 'left';
-  ctx.font = '600 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.textBaseline = 'alphabetic';
+  ctx.font = isMobile
+    ? '700 15px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '600 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
   ctx.fillText(
     '✨ Musiclub • Club Oficial de Crítica de Álbumes',
     PADDING_X,
-    footerY + 16
+    footerY + (isMobile ? 24 : 18)
   );
 
   ctx.textAlign = 'right';
-  ctx.font = '800 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = isMobile
+    ? '900 16px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif'
+    : '800 12px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
   ctx.fillStyle = '#f5576c';
-  ctx.fillText('Musiclub', CANVAS_WIDTH - PADDING_X, footerY + 16);
+  ctx.fillText('musiclub.org', CANVAS_WIDTH - PADDING_X, footerY + (isMobile ? 24 : 18));
 
   return canvas;
 }
@@ -536,6 +651,7 @@ export function TierListMaker({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Lista de álbumes clasificados automáticamente desde las reseñas del usuario
+  // Con redondeo ESTRICTO hacia abajo para que ningún álbum muestre un puntaje fuera de su tier
   const classifiedItems = useMemo(() => {
     return userReviews.map((rev) => {
       const alb = albumMap.get(rev.album_id) || {
@@ -545,7 +661,8 @@ export function TierListMaker({
         imagen: rev.album_image || PLACEHOLDER_COVER,
         status: 'INDIVIDUAL',
       };
-      const score = getWeightedReviewScore(rev) ?? rev.rating_general ?? 0;
+      const rawScore = getWeightedReviewScore(rev) ?? rev.rating_general ?? 0;
+      const score = roundDownScore(rawScore);
       const tier = getTierFromScore(score);
 
       return {
@@ -554,7 +671,8 @@ export function TierListMaker({
         album: alb.album || rev.album_title || 'Álbum',
         artista: alb.artista || rev.album_artist || 'Artista',
         imagen: alb.imagen || rev.album_image || PLACEHOLDER_COVER,
-        score: Number(score),
+        rawScore: Number(rawScore),
+        score,
         tier,
       };
     });
@@ -580,7 +698,9 @@ export function TierListMaker({
     });
 
     Object.keys(groups).forEach((key) => {
-      groups[key].sort((a, b) => (b.score || 0) - (a.score || 0));
+      groups[key].sort(
+        (a, b) => (b.rawScore ?? b.score) - (a.rawScore ?? a.score)
+      );
     });
 
     return groups;
@@ -601,7 +721,9 @@ export function TierListMaker({
         classifiedItems,
         tierGroups,
         userName: resolvedUserName,
+        user,
         totalCategorized: classifiedItems.length,
+        format: 'mobile',
       });
 
       // DESCARGAR IMAGEN PNG
@@ -788,6 +910,8 @@ export function TierListMaker({
                 it.artista.toLowerCase().includes(term)
               );
             });
+            // Máximo 20 (Top) releases en cada tier
+            const displayItems = filteredItems.slice(0, 20);
 
             return (
               <div
@@ -796,73 +920,83 @@ export function TierListMaker({
               >
                 {/* Cabecera del Tier en Móvil */}
                 <div
-                  className={`flex items-center justify-between p-2.5 border-b ${tier.mobileHeaderBg}`}
+                  className={`flex items-center justify-between p-3 border-b ${tier.mobileHeaderBg}`}
                 >
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <span
-                      className={`w-8 h-8 rounded-xl flex items-center justify-center font-black text-sm shadow-md ${tier.mobileBadgeBg}`}
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base shadow-md ${tier.mobileBadgeBg}`}
                     >
                       {tier.label}
                     </span>
                     <div>
-                      <h4 className="text-white font-black text-xs leading-tight">
+                      <h4 className="text-white font-black text-sm leading-tight">
                         {tier.name}
                       </h4>
-                      <p className="text-white/50 text-[10px] font-mono">
+                      <p className="text-white/60 text-xs font-mono font-bold">
                         {tier.subtitle}
                       </p>
                     </div>
                   </div>
-                  <span className="text-[10px] bg-black/40 px-2 py-0.5 rounded-full text-white/70 font-bold border border-white/10">
-                    {items.length} {items.length === 1 ? 'disco' : 'discos'}
+                  <span className="text-xs bg-black/40 px-2.5 py-1 rounded-full text-white/80 font-bold border border-white/10">
+                    {items.length > 20
+                      ? `Top 20 de ${items.length}`
+                      : `${items.length} ${items.length === 1 ? 'disco' : 'discos'}`}
                   </span>
                 </div>
 
                 {/* Grid de Discos en Móvil (3 columnas con tamaño visual generoso) */}
-                <div className="p-2.5">
-                  {filteredItems.length === 0 ? (
-                    <div className="text-center py-3 text-white/30 text-xs italic">
+                <div className="p-2.5 space-y-2">
+                  {displayItems.length === 0 ? (
+                    <div className="text-center py-4 text-white/40 text-xs italic">
                       {searchTerm
                         ? 'Sin coincidencias en este tier'
                         : '0 álbumes en este tier'}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-3 gap-2">
-                      {filteredItems.map((item) => (
-                        <div
-                          key={item.albumId}
-                          className="bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col justify-between shadow-sm"
-                        >
-                          <div className="aspect-square relative overflow-hidden bg-black/60">
-                            <img
-                              src={item.imagen}
-                              alt={item.album}
-                              className="w-full h-full object-cover"
-                              onError={(e) => {
-                                e.target.src = PLACEHOLDER_COVER;
-                              }}
-                            />
-                            <div className="absolute top-1 right-1 bg-black/80 backdrop-blur-sm px-1.5 py-0.5 rounded-md border border-white/10 text-[9px] font-black text-amber-300">
-                              ★ {item.score.toFixed(1)}
+                    <>
+                      <div className="grid grid-cols-3 gap-2">
+                        {displayItems.map((item) => (
+                          <div
+                            key={item.albumId}
+                            className="bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col justify-between shadow-sm"
+                          >
+                            <div className="aspect-square relative overflow-hidden bg-black/60">
+                              <img
+                                src={item.imagen}
+                                alt={item.album}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = PLACEHOLDER_COVER;
+                                }}
+                              />
+                              <div className="absolute top-1 right-1 bg-black/85 backdrop-blur-sm px-2 py-0.5 rounded-lg border border-white/10 text-xs font-black text-amber-300 shadow-md">
+                                ★ {item.score === 10 ? '10' : item.score.toFixed(1)}
+                              </div>
+                            </div>
+                            <div className="p-2">
+                              <p
+                                className="text-white font-bold text-xs leading-snug truncate"
+                                title={item.album}
+                              >
+                                {item.album}
+                              </p>
+                              <p
+                                className="text-white/60 text-[11px] truncate font-medium"
+                                title={item.artista}
+                              >
+                                {item.artista}
+                              </p>
                             </div>
                           </div>
-                          <div className="p-1.5">
-                            <p
-                              className="text-white font-bold text-[10px] leading-tight truncate"
-                              title={item.album}
-                            >
-                              {item.album}
-                            </p>
-                            <p
-                              className="text-white/50 text-[8.5px] truncate"
-                              title={item.artista}
-                            >
-                              {item.artista}
-                            </p>
-                          </div>
+                        ))}
+                      </div>
+
+                      {filteredItems.length > 20 && (
+                        <div className="text-center py-1 text-white/50 text-xs font-bold">
+                          Mostrando el Top 20 de {filteredItems.length} álbumes en este tier
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -882,6 +1016,8 @@ export function TierListMaker({
                 it.artista.toLowerCase().includes(term)
               );
             });
+            // Máximo 20 (Top) releases en cada tier
+            const displayItems = filteredItems.slice(0, 20);
 
             return (
               <div
@@ -890,42 +1026,45 @@ export function TierListMaker({
               >
                 {/* Cabecera del Tier (Izquierda) */}
                 <div
-                  className={`w-28 sm:w-32 flex-shrink-0 flex flex-col items-center justify-center p-2.5 text-center select-none ${tier.headerBg} ${tier.headerText} shadow-md`}
+                  className={`w-28 sm:w-36 flex-shrink-0 flex flex-col items-center justify-center p-2.5 text-center select-none ${tier.headerBg} ${tier.headerText} shadow-md`}
                 >
                   <span className="text-2xl sm:text-3xl font-black leading-none drop-shadow-md mb-0.5">
                     {tier.label}
                   </span>
-                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider opacity-95 text-center leading-snug break-words max-w-full px-1">
+                  <span className="text-xs sm:text-sm font-black uppercase tracking-wider opacity-95 text-center leading-snug break-words max-w-full px-1">
                     {tier.name}
                   </span>
-                  <span className="text-[9px] opacity-85 font-mono font-bold mt-1 bg-black/20 px-2 py-0.5 rounded-full">
+                  <span className="text-[11px] opacity-85 font-mono font-bold mt-1 bg-black/20 px-2.5 py-0.5 rounded-full">
                     {tier.subtitle}
                   </span>
-                  <span className="text-[8.5px] mt-0.5 bg-black/30 px-1.5 py-0.2 rounded-full font-bold">
-                    {items.length} {items.length === 1 ? 'disco' : 'discos'}
+                  <span className="text-[10px] mt-1 bg-black/30 px-2 py-0.5 rounded-full font-bold">
+                    {items.length > 20
+                      ? `Top 20 de ${items.length}`
+                      : `${items.length} ${items.length === 1 ? 'disco' : 'discos'}`}
                   </span>
                 </div>
 
                 {/* Bandeja de Discos con tamaño visual ampliado y agradable */}
                 <div className="flex-1 p-2.5 flex items-center gap-2.5 flex-wrap overflow-x-auto content-center min-h-[88px]">
-                  {filteredItems.length === 0 ? (
-                    <div className="w-full text-center py-4 text-white/25 text-xs italic">
+                  {displayItems.length === 0 ? (
+                    <div className="w-full text-center py-4 text-white/30 text-xs italic">
                       {searchTerm
                         ? 'Sin coincidencias en este tier'
                         : '0 álbumes calificados en este tier'}
                     </div>
                   ) : (
-                    filteredItems.map((item) => {
-                      const isNormal = cardSize === 'normal';
-                      return (
-                        <div
-                          key={item.albumId}
-                          className={`group relative rounded-xl overflow-hidden border border-white/10 transition-all duration-200 flex-shrink-0 select-none shadow-md ${
-                            isNormal
-                              ? 'w-28 sm:w-32 aspect-square'
-                              : 'w-20 sm:w-24 aspect-square'
-                          }`}
-                          title={`${item.album} - ${item.artista} (★ ${item.score.toFixed(1)})`}
+                    <>
+                      {displayItems.map((item) => {
+                        const isNormal = cardSize === 'normal';
+                        return (
+                          <div
+                            key={item.albumId}
+                            className={`group relative rounded-xl overflow-hidden border border-white/10 transition-all duration-200 flex-shrink-0 select-none shadow-md ${
+                              isNormal
+                                ? 'w-28 sm:w-32 aspect-square'
+                                : 'w-20 sm:w-24 aspect-square'
+                            }`}
+                            title={`${item.album} - ${item.artista} (★ ${item.score === 10 ? '10' : item.score.toFixed(1)})`}
                         >
                           <img
                             src={item.imagen}
@@ -939,7 +1078,7 @@ export function TierListMaker({
                           {/* Badge de Calificación */}
                           <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 flex items-center justify-between">
                             <span className="text-[9px] sm:text-[10px] font-black text-amber-300 drop-shadow">
-                              ★ {item.score.toFixed(1)}
+                              ★ {item.score === 10 ? '10' : item.score.toFixed(1)}
                             </span>
                           </div>
 
@@ -959,7 +1098,8 @@ export function TierListMaker({
                           </div>
                         </div>
                       );
-                    })
+                    })}
+                    </>
                   )}
                 </div>
               </div>

@@ -14,6 +14,57 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.10',
+    title:
+      'Rediseño Ultra-Responsivo de Tier List: Formato Celular Story (9:16 / 19.5:9), Máximo 20 (Top) Releases por Tier, Tipografía Ampliada y Redondeo Estricto hacia Abajo',
+    date: '2026-09-17',
+    sha: 'e5c1a89',
+    associatedShas: ['e5c1a89'],
+    tag: 'Tier List Mobile & Exact Math Polish',
+    tagColor: 'from-purple-500 via-pink-500 to-rose-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización Musiclub V.8.10 que transforma integralmente la experiencia de previsualizar y compartir la Tier List en redes sociales desde dispositivos móviles. Se erradican las franjas negras en celulares mediante una geometría vertical de pantalla completa (1080px de ancho y altura adaptativa 9:16 a 19.5:9). Se limita cada tier a un máximo de 20 lanzamientos (los 20 mejores calificados), evitando la saturación visual y ordenándolos en una retícula móvil de 5 columnas con carátulas gigantes de 154px (4 filas exactas). Toda la tipografía del Canvas y de la interfaz móvil se amplió sustancialmente para garantizar total legibilidad en cualquier smartphone (título de 32px, letras de tier de 58px, píldoras de 13px y notas en portada de 17px). Se implementa un redondeo matemático estricto hacia abajo (floor) a 1 decimal en todo el sistema de tiers, asegurando que discos como 9.48 aparezcan como ★ 9.4 dentro de su rango exacto. Además, las insignias laterales se centran verticalmente y el modal ShareTierListModal adopta una arquitectura de 100dvh con selector de formato y botón de compartir nativo.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Límite de Máximo 20 (Top) Releases por Tier',
+        description:
+          'Para erradicar la saturación visual de decenas de carátulas diminutas amontonadas, cada categoría de la Tier List muestra ahora estrictamente hasta los mejores 20 álbumes evaluados (Top 20). Si un tier contiene más de 20 discos, el indicador lateral refleja con transparencia "Top 20 de X discos", priorizando la crème de la crème del usuario.',
+      },
+      {
+        type: 'improvement',
+        title: 'Tipografía Aumentada y de Alta Legibilidad en Pantallas Móviles',
+        description:
+          'Se incrementó significativamente la escala tipográfica en todo el Canvas: el encabezado sube a 32px con subtítulo de 16px; las letras de tier crecen a 58px; los nombres y píldoras de puntuación aumentan a 14px y 13px respectivamente; y el distintivo de calificación en cada carátula pasa a 17px en color oro brillante con sombra de contraste, garantizando una lectura nítida e instantánea en cualquier celular.',
+      },
+      {
+        type: 'improvement',
+        title: 'Retícula Móvil de 5 Columnas con Portadas de 154px',
+        description:
+          'La bandeja de discos para celular adopta una cuadrícula optimizada de 5 carátulas por fila de 154x154 px cada una. Con el tope de 20 álbumes, cada tier forma una retícula geométrica perfecta de hasta 4 filas completas sin huecos asimétricos, llenando la proporción 19.5:9 de pantallas de teléfono sin franjas negras.',
+      },
+      {
+        type: 'fix',
+        title: 'Redondeo Estricto Hacia Abajo (Math.floor) en Rangos de Tiers',
+        description:
+          'Se corrigió el problema donde calificaciones con decimales altos (por ejemplo, 9.48 o 9.46) se redondeaban hacia arriba con toFixed(1), mostrando "★ 9.5" dentro del Tier MUY BUENOS cuyo rango oficial es 8.5 - 9.4. Ahora, todas las calificaciones se truncan estrictamente hacia abajo al primer decimal (roundDownScore), preservando la coherencia absoluta entre el puntaje impreso y el subtítulo del tier. Las calificaciones perfectas de 10 se formatean limpiamente como "★ 10".',
+      },
+      {
+        type: 'fix',
+        title: 'Centrado Vertical Matemático de Insignias Laterales en Cada Fila',
+        description:
+          'El bloque de la insignia (letra de tier, nombre en mayúsculas, píldora de rango y contador de discos) se posiciona exactamente en el centro vertical de la fila (rowHeight / 2), eliminando el espacio vacío inferior.',
+      },
+      {
+        type: 'feature',
+        title: 'Modal ShareTierListModal Ultra-Responsivo Móvil-First (100dvh)',
+        description:
+          'El modal de compartir Tier List adopta la experiencia móvil fija (100dvh / 430px) de ShareReviewModal. Incluye cabecera con el Nivel de Melómano del usuario, previsualización interactiva con selector de formato (📱 Celular Story vs 🖥️ Panorámica), botón prominente de Compartir Nativo (Web Share API) y accesos directos a Instagram, WhatsApp, TikTok, Threads, X, Facebook y Telegram.',
+      },
+    ],
+  },
+  {
     version: 'V.8.9',
     title:
       'Perfeccionamiento de Diseño en Compartir Review: Centrado Vertical de Calificación, Alineación de Fecha con Icono Vectorial, Nivel y XP de Melómano en Perfil, e Integración Armónica de Canción Favorita',
