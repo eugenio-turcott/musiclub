@@ -1,6 +1,7 @@
 // src/hooks/useUserReviews.js
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabaseService } from '../services/supabaseClient';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function useUserReviews(user) {
   const [userReviews, setUserReviews] = useState([]);
@@ -16,6 +17,16 @@ export function useUserReviews(user) {
     try {
       const data = await supabaseService.getUserReviews(user.email, user.name);
       setUserReviews(data || []);
+      if (data && data.length > 0) {
+        registerUntranslatableEntities({
+          releases: data.map((r) => r.album_title || r.album_name).filter(Boolean),
+          artists: data.map((r) => r.album_artist || r.artist_name).filter(Boolean),
+          people: data
+            .map((r) => r.reviewer_name)
+            .concat(user?.name ? [user.name] : [])
+            .filter(Boolean),
+        });
+      }
     } catch (err) {
       console.error('Error fetching user reviews:', err);
       setUserReviews([]);

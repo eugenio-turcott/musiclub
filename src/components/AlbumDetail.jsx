@@ -32,6 +32,7 @@ import {
 import { ShareReviewModal } from './ShareReviewModal';
 import { ReviewInteractions } from './ReviewInteractions';
 import ArtistLinks from './common/ArtistLinks';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 const CRITERIA_METRICS = [
   {
@@ -300,6 +301,27 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
     // Si tenemos preloadedAlbum, sincronizamos en background sin pantalla de carga bloqueante
     loadData(Boolean(preloadedAlbum));
   }, [loadData, preloadedAlbum]);
+
+  // Blindaje universal de álbum, artista, pistas y reviewers contra traducción (V.8.11)
+  useEffect(() => {
+    if (!album) return;
+    const rels = [album.album_name, album.album].filter(Boolean);
+    const arts = [album.artist_name, album.artista].filter(Boolean);
+    const peeps = [];
+
+    (album.tracks || []).forEach((t) => {
+      if (typeof t === 'string') rels.push(t);
+      else if (t?.name) rels.push(t.name);
+    });
+    (album.track_stats || []).forEach((t) => {
+      if (t?.name) rels.push(t.name);
+    });
+    (album.reviews || []).forEach((r) => {
+      if (r.reviewer_name) peeps.push(r.reviewer_name);
+    });
+
+    registerUntranslatableEntities({ releases: rels, artists: arts, people: peeps });
+  }, [album]);
 
   // Enriquecer automáticamente metadatos desde Spotify (año, géneros, tipo de lanzamiento)
   useEffect(() => {
@@ -818,7 +840,7 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
               <div className="space-y-1.5">
                 <h1
                   translate="no"
-                  className="notranslate text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
+                  className="notranslate music-title text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
                 >
                   {album.album_name}
                 </h1>
@@ -1184,7 +1206,7 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                         <div className="min-w-0">
                           <p
                             translate="no"
-                            className={`notranslate text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
+                            className={`notranslate track-name text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
                             title={t.name}
                           >
                             {t.name}
@@ -1348,7 +1370,8 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                           </span>
                         </div>
                         <span
-                          className="font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate"
+                          translate="no"
+                          className="notranslate track-name font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate"
                           title={favTrackName}
                         >
                           {favTrackName}

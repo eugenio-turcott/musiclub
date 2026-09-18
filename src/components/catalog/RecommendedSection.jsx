@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
 import { getReleaseUrl } from '../../utils/ratingUtils';
+import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 /**
  * Sección de Releases Más Recomendados por los Usuarios del Club (V.8.5)
@@ -26,6 +27,19 @@ export function RecommendedSection({ albums = [] }) {
       })
       .slice(0, 10);
   }, [albums]);
+
+  // Blindaje universal contra traducción (V.8.11)
+  useEffect(() => {
+    if (!topRecommended.length) return;
+    const rels = [];
+    const arts = [];
+    topRecommended.forEach((a) => {
+      if (a.album_name) rels.push(a.album_name);
+      if (a.artist_name) arts.push(a.artist_name);
+      if (a.best_track?.name) rels.push(a.best_track.name);
+    });
+    registerUntranslatableEntities({ releases: rels, artists: arts });
+  }, [topRecommended]);
 
   if (topRecommended.length === 0) return null;
 
@@ -103,7 +117,8 @@ export function RecommendedSection({ albums = [] }) {
                 <div>
                   <Link
                     to={targetUrl}
-                    className="font-bold text-white text-xs sm:text-sm line-clamp-1 hover:text-amber-300 transition-colors block"
+                    translate="no"
+                    className="notranslate music-title font-bold text-white text-xs sm:text-sm line-clamp-1 hover:text-amber-300 transition-colors block"
                     title={album.album_name}
                   >
                     {album.album_name}
@@ -120,7 +135,7 @@ export function RecommendedSection({ albums = [] }) {
 
                 {album.best_track && (
                   <div className="bg-white/5 border border-white/5 rounded-xl p-1.5 text-[10px] flex items-center justify-between text-slate-300">
-                    <span className="truncate pr-1">👑 {album.best_track.name}</span>
+                    <span className="truncate pr-1">👑 <span translate="no" className="notranslate track-name">{album.best_track.name}</span></span>
                     <span className="text-amber-300 font-bold whitespace-nowrap">
                       {album.best_track.avg_rating} ⭐
                     </span>

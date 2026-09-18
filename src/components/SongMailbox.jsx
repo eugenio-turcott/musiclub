@@ -6,6 +6,7 @@ import {
   YouTubeLogo,
   DeezerLogo,
 } from './common/PlatformLogos';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function SongMailbox({ user, onOpenSendModal }) {
   const [activeSubTab, setActiveSubTab] = useState('received'); // 'received' | 'sent'
@@ -31,6 +32,22 @@ export function SongMailbox({ user, onOpenSendModal }) {
       ]);
       setReceivedList(received || []);
       setSentList(sent || []);
+
+      // Blindaje universal de canciones, artistas y personas del buzón contra traducción (V.8.11)
+      const allItems = (received || []).concat(sent || []);
+      if (allItems.length > 0) {
+        registerUntranslatableEntities({
+          releases: allItems
+            .map((x) => x.song_title)
+            .concat(allItems.map((x) => x.album_name))
+            .filter(Boolean),
+          artists: allItems.map((x) => x.artist_name).filter(Boolean),
+          people: allItems
+            .map((x) => x.sender_name)
+            .concat(allItems.map((x) => x.recipient_name))
+            .filter(Boolean),
+        });
+      }
     } catch (err) {
       console.warn('Error fetching song mailbox data:', err);
     } finally {
@@ -301,7 +318,10 @@ export function SongMailbox({ user, onOpenSendModal }) {
                     </div>
                     <div className="truncate">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-black text-white truncate">
+                        <span
+                          translate="no"
+                          className="notranslate username-tag text-xs font-black text-white truncate"
+                        >
                           {rec.sender_name || rec.sender_email}
                         </span>
                         {!rec.is_read && (
@@ -334,15 +354,24 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       <div className="text-[10px] font-bold text-cyan-400 uppercase tracking-widest mb-0.5">
                         Canción Recomendada
                       </div>
-                      <h4 className="text-sm sm:text-base font-black text-white truncate">
+                      <h4
+                        translate="no"
+                        className="notranslate track-name text-sm sm:text-base font-black text-white truncate"
+                      >
                         {rec.song_title}
                       </h4>
-                      <p className="text-xs font-semibold text-amber-300 truncate">
+                      <p
+                        translate="no"
+                        className="notranslate artist-name text-xs font-semibold text-amber-300 truncate"
+                      >
                         {rec.artist_name}
                       </p>
                       {rec.album_name && (
                         <p className="text-[10px] text-white/40 truncate">
-                          Álbum: {rec.album_name}
+                          Álbum:{' '}
+                          <span translate="no" className="notranslate album-name">
+                            {rec.album_name}
+                          </span>
                         </p>
                       )}
                     </div>
@@ -489,7 +518,13 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       </div>
                       <div className="truncate">
                         <span className="text-xs font-bold text-white truncate block">
-                          Para: {rec.recipient_name || rec.recipient_email}
+                          Para:{' '}
+                          <span
+                            translate="no"
+                            className="notranslate username-tag"
+                          >
+                            {rec.recipient_name || rec.recipient_email}
+                          </span>
                         </span>
                         <span className="text-[10px] text-white/40 block">
                           Enviada el {formatDate(rec.created_at)}
@@ -522,8 +557,18 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       </div>
                     )}
                     <div className="truncate">
-                      <h4 className="text-sm font-black text-white truncate">{rec.song_title}</h4>
-                      <p className="text-xs font-semibold text-amber-300 truncate">{rec.artist_name}</p>
+                      <h4
+                        translate="no"
+                        className="notranslate track-name text-sm font-black text-white truncate"
+                      >
+                        {rec.song_title}
+                      </h4>
+                      <p
+                        translate="no"
+                        className="notranslate artist-name text-xs font-semibold text-amber-300 truncate"
+                      >
+                        {rec.artist_name}
+                      </p>
                     </div>
                   </div>
 

@@ -10,6 +10,7 @@ import { createPortal } from 'react-dom';
 import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { gashaponSound } from '../utils/gashaponAudio';
 import { ReviewSystem } from './ReviewSystem';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 // 20 cápsulas arcade coloridas y dinámicas (definición completa de apariencia dentro y fuera del domo)
 const DOME_CAPSULES = [
@@ -467,6 +468,16 @@ export function GashaponMachine({
   // Modal / Popup épico para presentación y apertura cinematográfica
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalStage, setModalStage] = useState('DROPPING'); // 'DROPPING' | 'READY' | 'OPENING' | 'REVEALED'
+
+  // Auto-registrar cápsula actual contra traducción (V.8.11)
+  useEffect(() => {
+    if (currentCapsule?.album) {
+      registerUntranslatableEntities({
+        releases: [currentCapsule.album.album || currentCapsule.album.album_name].filter(Boolean),
+        artists: [currentCapsule.album.artista || currentCapsule.album.artist_name].filter(Boolean),
+      });
+    }
+  }, [currentCapsule]);
 
   const containerRef = useRef(null);
   const reviewSectionRef = useRef(null);
@@ -1279,13 +1290,15 @@ export function GashaponMachine({
                   <div className="flex-1 ml-0 sm:ml-4 min-w-0 text-center sm:text-left space-y-2">
                     <div>
                       <h3
-                        className="text-lg sm:text-xl font-black text-white truncate"
+                        translate="no"
+                        className="notranslate music-title text-lg sm:text-xl font-black text-white truncate"
                         title={currentCapsule.album.album}
                       >
                         {currentCapsule.album.album}
                       </h3>
                       <p
-                        className="text-sm font-bold text-white/70 truncate mt-0.5"
+                        translate="no"
+                        className="notranslate artist-name text-sm font-bold text-white/70 truncate mt-0.5"
                         title={currentCapsule.album.artista}
                       >
                         {currentCapsule.album.artista}
@@ -1416,13 +1429,15 @@ export function GashaponMachine({
                     )}
                   </div>
                   <h5
-                    className="text-white font-bold text-[11px] truncate"
+                    translate="no"
+                    className="notranslate music-title text-white font-bold text-[11px] truncate"
                     title={item.album.album}
                   >
                     {item.album.album}
                   </h5>
                   <p
-                    className="text-white/50 text-[10px] truncate"
+                    translate="no"
+                    className="notranslate artist-name text-white/50 text-[10px] truncate"
                     title={item.album.artista}
                   >
                     {item.album.artista}
@@ -1688,13 +1703,15 @@ export function GashaponMachine({
                           RELEASE DESCUBIERTO
                         </span>
                         <h3
-                          className="text-xl sm:text-2xl font-black text-white leading-tight"
+                          translate="no"
+                          className="notranslate music-title text-xl sm:text-2xl font-black text-white leading-tight"
                           title={currentCapsule.album.album}
                         >
                           {currentCapsule.album.album}
                         </h3>
                         <p
-                          className="text-base font-bold text-white/70"
+                          translate="no"
+                          className="notranslate artist-name text-base font-bold text-white/70"
                           title={currentCapsule.album.artista}
                         >
                           {currentCapsule.album.artista}

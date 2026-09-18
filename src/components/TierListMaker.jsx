@@ -1,9 +1,10 @@
 // src/components/TierListMaker.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { ShareIcon } from './ShareReviewModal';
 import ShareTierListModal from './ShareTierListModal';
 import { getMelomanoLevel } from '../utils/badgeSystem';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 // SVG local data URIs que nunca fallan por red ni por CORS
 export const PLACEHOLDER_COVER =
@@ -706,6 +707,17 @@ export function TierListMaker({
     return groups;
   }, [classifiedItems]);
 
+  // Blindaje universal de nombres de releases, artistas y usuario en Tier List (V.8.11)
+  useEffect(() => {
+    if (classifiedItems.length > 0) {
+      registerUntranslatableEntities({
+        releases: classifiedItems.map((it) => it.album).filter(Boolean),
+        artists: classifiedItems.map((it) => it.artista).filter(Boolean),
+        people: user?.name ? [user.name] : [],
+      });
+    }
+  }, [classifiedItems, user]);
+
   // =========================================================================
   // GENERADOR DE IMAGEN NATIVO EN HTML5 CANVAS (2D)
   // Reutiliza generateTierListCanvas para exportar PNG en alta resolución
@@ -893,8 +905,10 @@ export function TierListMaker({
             </span>
           </div>
           <span className="text-xs text-white/50 font-medium">
-            {user?.name || user?.email?.split('@')[0] || 'Melómano'} •{' '}
-            {totalCategorized} álbumes
+            <span translate="no" className="notranslate username-tag">
+              {user?.name || user?.email?.split('@')[0] || 'Melómano'}
+            </span>{' '}
+            • {totalCategorized} álbumes
           </span>
         </div>
 
@@ -975,13 +989,15 @@ export function TierListMaker({
                             </div>
                             <div className="p-2">
                               <p
-                                className="text-white font-bold text-xs leading-snug truncate"
+                                translate="no"
+                                className="notranslate music-title text-white font-bold text-xs leading-snug truncate"
                                 title={item.album}
                               >
                                 {item.album}
                               </p>
                               <p
-                                className="text-white/60 text-[11px] truncate font-medium"
+                                translate="no"
+                                className="notranslate artist-name text-white/60 text-[11px] truncate font-medium"
                                 title={item.artista}
                               >
                                 {item.artista}
@@ -1085,10 +1101,16 @@ export function TierListMaker({
                           {/* Hover Tooltip Overlay */}
                           <div className="absolute inset-0 bg-black/90 opacity-0 group-hover:opacity-100 transition-opacity p-1.5 flex flex-col justify-between text-left">
                             <div>
-                              <p className="text-[10px] font-bold text-white line-clamp-2 leading-tight">
+                              <p
+                                translate="no"
+                                className="notranslate music-title text-[10px] font-bold text-white line-clamp-2 leading-tight"
+                              >
                                 {item.album}
                               </p>
-                              <p className="text-[8px] text-white/60 truncate">
+                              <p
+                                translate="no"
+                                className="notranslate artist-name text-[8px] text-white/60 truncate"
+                              >
                                 {item.artista}
                               </p>
                             </div>

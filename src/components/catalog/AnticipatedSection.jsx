@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
+import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 /**
  * Sección de Releases Anticipados (Musiclub style)
@@ -11,6 +12,18 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
   const [showAll, setShowAll] = useState(false);
   const displayedReleases = showAll ? anticipatedReleases : anticipatedReleases.slice(0, 10);
   const totalCount = anticipatedReleases.length;
+
+  // Blindaje universal contra traducción (V.8.11)
+  useEffect(() => {
+    if (!anticipatedReleases.length) return;
+    const rels = [];
+    const arts = [];
+    anticipatedReleases.forEach((r) => {
+      if (r.album_name) rels.push(r.album_name);
+      if (r.artist_name) arts.push(r.artist_name);
+    });
+    registerUntranslatableEntities({ releases: rels, artists: arts });
+  }, [anticipatedReleases]);
 
   return (
     <section className="space-y-4 my-8">
@@ -118,7 +131,8 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
                     <div>
                       <Link
                         to={targetUrl}
-                        className="font-black text-white text-sm line-clamp-1 hover:text-amber-300 transition-colors block"
+                        translate="no"
+                        className="notranslate music-title font-black text-white text-sm line-clamp-1 hover:text-amber-300 transition-colors block"
                         title={item.album_name}
                       >
                         {item.album_name}

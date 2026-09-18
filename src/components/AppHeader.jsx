@@ -9,6 +9,7 @@ import { HeroMusicCanvas } from './HeroMusicCanvas';
 import { HeaderAlbumSearch } from './HeaderAlbumSearch';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { LanguageSelector } from './LanguageSelector';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function AppHeader({
   user: propUser,
@@ -68,6 +69,13 @@ export function AppHeader({
     setIsNotificationsOpen(false);
     setOpenNavDropdown(null);
   }, [location.pathname]);
+
+  // Blindaje universal del nombre de usuario contra traducción (V.8.11)
+  useEffect(() => {
+    if (user?.name) {
+      registerUntranslatableEntities({ people: [user.name] });
+    }
+  }, [user?.name]);
 
   // Cerrar menús al hacer click fuera
   useEffect(() => {
@@ -482,7 +490,10 @@ export function AppHeader({
 
                 {/* Nombre de usuario */}
                 <div className="hidden sm:flex flex-col text-left max-w-[70px] xs:max-w-[100px] sm:max-w-[130px]">
-                  <span className="text-white text-xs sm:text-sm font-semibold truncate leading-tight">
+                  <span
+                    translate="no"
+                    className="notranslate username-tag text-white text-xs sm:text-sm font-semibold truncate leading-tight"
+                  >
                     {user.name || 'Usuario'}
                   </span>
                   {isAdmin && (
@@ -547,7 +558,10 @@ export function AppHeader({
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="text-white font-bold text-sm truncate">
+                      <p
+                        translate="no"
+                        className="notranslate username-tag text-white font-bold text-sm truncate"
+                      >
                         {user.name || 'Usuario'}
                       </p>
                       <p className="text-white/40 text-xs truncate">

@@ -672,7 +672,7 @@ export function LandingPage() {
                     {/* Shared Frame for Cover + Sliding Disc */}
                     <div className="relative w-[180px] sm:w-[210px] md:w-[230px] lg:w-[245px] aspect-square flex-shrink-0">
                       {/* Vinyl Disc: out by default, tucks into sleeve ONLY when hovering over the vinyl assembly */}
-                      <div className="absolute inset-0 z-0 rounded-full shadow-2xl flex items-center justify-center transform translate-x-24 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
+                      <div className="absolute inset-0 z-0 rounded-full shadow-2xl flex items-center justify-center transform translate-x-28 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
                         <img
                           src="/musiclub_logo_3.png"
                           alt="Musiclub Vinyl Disc"

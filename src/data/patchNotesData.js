@@ -14,6 +14,57 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.11',
+    title:
+      'Blindaje Universal e Inquebrantable Contra Traducción: Preservación Lingüística Total de Nombres de Releases, Artistas y Personas',
+    date: '2026-09-18',
+    sha: 'a47f920',
+    associatedShas: ['a47f920'],
+    tag: 'Universal Translation Shield',
+    tagColor: 'from-cyan-500 via-teal-500 to-blue-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Actualización medular Musiclub V.8.11 que establece un estándar inquebrantable de integridad y preservación de contenidos musicales en toda la plataforma. Al activar la traducción a cualquier idioma (inglés, francés, alemán, portugués, japonés, italiano, etc.) mediante Google Chrome, Safari, Edge u otros traductores nativos/automáticos, los nombres de lanzamientos musicales (álbumes, EPs, sencillos, mixtapes y nombres de tracks individuales), los nombres de artistas (solistas, bandas, duetos y colaboradores) y los nombres de personas (usuarios registrados, miembros del club, críticos y remitentes/destinatarios de cartas de música) permanecen intactos, respetando fielmente su grafía y denominación original sin alteración alguna. Esta protección combina un guardián de mutaciones reactivo (setupUntranslatableObserver), un registro global de entidades en memoria (registerUntranslatableEntities) alimentado desde los hooks useAlbums y useUserReviews, y un estricto etiquetado semántico HTML5 (translate="no", notranslate, music-title, artist-name, username-tag y track-name) en cada componente del sistema.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Guardián Central y Observador Reactivo de Entidades Intraducibles',
+        description:
+          'Se implementó un sistema de registro global en memoria (registerUntranslatableEntities) y un MutationObserver reactivo de micro-tareas (setupUntranslatableObserver) en translateCrashGuard.js. Cualquier nodo del DOM generado dinámicamente que coincida con un lanzamiento, artista o usuario registrado recibe de inmediato los atributos translate="no" y las clases notranslate, evitando cualquier mutación por traductores de navegador.',
+      },
+      {
+        type: 'improvement',
+        title: 'Ingesta Reactiva Centralizada en Hooks useAlbums y useUserReviews',
+        description:
+          'Los hooks globales del catálogo y de reseñas sincronizan automáticamente en tiempo real todos los títulos de lanzamientos (album_name), nombres de artistas (artist_name), nombres de críticos (reviewer_name) y creadores (added_by) en la base de datos de entidades blindadas en cuanto se cargan o actualizan desde Supabase.',
+      },
+      {
+        type: 'security',
+        title: 'Blindaje en Detalle de Álbum, Tracklist y Sistema de Calificación',
+        description:
+          'En AlbumDetail y ReviewSystem se blindaron el título principal del release, todos los nombres de pistas en la lista de reproducción, la insignia de canción favorita comunitaria y personal, y los encabezados individuales del wizard de evaluación de canciones.',
+      },
+      {
+        type: 'improvement',
+        title: 'Blindaje en Tarjetas de Catálogo, Artistas y Secciones Curadas',
+        description:
+          'Se asignaron atributos translate="no" y clases semánticas notranslate, music-title y artist-name en todas las tarjetas del Catálogo (activas, individuales e inactivas en AlbumGrid), enlaces del componente ArtistLinks, directorio de artistas (CatalogArtistsView), y en los 84 lanzamientos semanales, sencillos anticipados y álbumes recomendados de TrendingMonthlySection, AnticipatedSection y RecommendedSection.',
+      },
+      {
+        type: 'improvement',
+        title: 'Blindaje en Tier List, Ruleta Gashapon y Buzón Musical',
+        description:
+          'En el creador de Tier Lists se aseguraron las tarjetas de álbumes y el autor. En la ruleta Gashapon se protegió la cápsula revelada, el historial y el modal cinematográfico. En SongMailbox y SendSongRecommendationModal se blindaron remitentes, destinatarios, nombres de canciones, artistas y resultados de búsqueda de Spotify.',
+      },
+      {
+        type: 'improvement',
+        title: 'Blindaje en Perfiles de Usuario y Buscadores Universales',
+        description:
+          'Se blindó el nombre de usuario en la barra de navegación superior (AppHeader), menús desplegables, ficha de Mi Perfil (UserProfile) y modal de miembro (MemberProfileModal), incluyendo artistas y álbumes favoritos. Asimismo, el buscador universal del header (HeaderAlbumSearch) y el explorador de álbumes (AlbumSearch) protegen en tiempo real todos los resultados, títulos y pistas sugeridas.',
+      },
+    ],
+  },
+  {
     version: 'V.8.10',
     title:
       'Rediseño Ultra-Responsivo de Tier List: Formato Celular Story (9:16 / 19.5:9), Máximo 20 (Top) Releases por Tier, Tipografía Ampliada y Redondeo Estricto hacia Abajo',

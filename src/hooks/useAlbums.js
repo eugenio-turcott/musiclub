@@ -1,6 +1,7 @@
 // src/hooks/useAlbums.js
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 const FALLBACK_ALBUMS = [
   {
@@ -118,6 +119,13 @@ export function useAlbums() {
       }));
 
       if (mappedAlbums.length > 0) {
+        // Blindaje universal de releases, artistas y curadores/usuarios contra traducción (V.8.11)
+        registerUntranslatableEntities({
+          releases: mappedAlbums.map((a) => a.album).filter(Boolean),
+          artists: mappedAlbums.map((a) => a.artista).filter(Boolean),
+          people: allData.map((a) => a.added_by).filter(Boolean),
+        });
+
         const winnerAlbum = mappedAlbums.find((a) => a.status === 'GANADOR');
         setAlbums(mappedAlbums);
         setWinner(winnerAlbum || null);

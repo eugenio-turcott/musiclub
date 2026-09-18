@@ -13,6 +13,7 @@ import {
   getTopRatedTrack,
 } from '../utils/ratingUtils';
 import { ShareReviewModal } from './ShareReviewModal';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 const CRITERIOS = [
   {
@@ -135,6 +136,33 @@ export function ReviewSystem({
       loadReviews();
     }
   }, [album, loadReviews]);
+
+  // Blindaje universal de álbum, artista, pistas y reviewers contra traducción (V.8.11)
+  useEffect(() => {
+    const rels = [];
+    const arts = [];
+    const peeps = [];
+
+    if (album) {
+      if (album.album_name || album.album) rels.push(album.album_name || album.album);
+      if (album.artist_name || album.artista) arts.push(album.artist_name || album.artista);
+    }
+    const effectiveTracksList = tracks && tracks.length > 0 ? tracks : (album?.tracks || []);
+    effectiveTracksList.forEach((t) => {
+      if (typeof t === 'string') rels.push(t);
+      else if (t?.name) rels.push(t.name);
+    });
+    if (reviews && reviews.length > 0) {
+      reviews.forEach((r) => {
+        if (r.reviewer_name) peeps.push(r.reviewer_name);
+      });
+    }
+    if (user?.name) peeps.push(user.name);
+
+    if (rels.length > 0 || arts.length > 0 || peeps.length > 0) {
+      registerUntranslatableEntities({ releases: rels, artists: arts, people: peeps });
+    }
+  }, [album, tracks, reviews, user?.name]);
 
   const draftKey = album?.id ? `musiclub_draft_${album.id}` : null;
   const isDraftRestoredRef = React.useRef(false);
@@ -1295,7 +1323,10 @@ export function ReviewSystem({
                                 </span>
                               )}
                             </div>
-                            <h4 className="text-white text-base sm:text-xl font-bold tracking-tight mt-1.5 break-words whitespace-normal leading-snug w-full">
+                            <h4
+                              translate="no"
+                              className="notranslate track-name text-white text-base sm:text-xl font-bold tracking-tight mt-1.5 break-words whitespace-normal leading-snug w-full"
+                            >
                               {getTrackName(currentTrack, currentTrackIndex)}
                             </h4>
                           </div>
@@ -1960,7 +1991,10 @@ export function ReviewSystem({
                               return (
                                 <div className="bg-amber-400/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm flex-shrink-0">
                                   <span>⭐ Favorita:</span>
-                                  <span className="truncate max-w-[160px]">
+                                  <span
+                                    translate="no"
+                                    className="notranslate track-name truncate max-w-[160px]"
+                                  >
                                     {favName}
                                   </span>
                                 </div>
@@ -2015,7 +2049,8 @@ export function ReviewSystem({
                                       #{t.track_number || idx + 1}
                                     </span>
                                     <span
-                                      className="text-xs sm:text-sm font-medium truncate"
+                                      translate="no"
+                                      className="notranslate track-name text-xs sm:text-sm font-medium truncate"
                                       title={tName}
                                     >
                                       {tName}

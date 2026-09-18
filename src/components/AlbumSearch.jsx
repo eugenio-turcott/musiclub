@@ -1,8 +1,8 @@
-// src/components/AlbumSearch.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function AlbumSearch({ onAlbumCreated, user }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,6 +17,45 @@ export function AlbumSearch({ onAlbumCreated, user }) {
   const [existingAlbum, setExistingAlbum] = useState(null);
   const [showTrackReviews, setShowTrackReviews] = useState(false);
   const [selectedType, setSelectedType] = useState(null);
+
+  // Blindaje universal contra traducción (V.8.11)
+  useEffect(() => {
+    const rels = [];
+    const arts = [];
+
+    if (searchResults && searchResults.length > 0) {
+      searchResults.forEach((r) => {
+        if (r.name) rels.push(r.name);
+        const art = Array.isArray(r.artists) ? r.artists.join(', ') : r.artist;
+        if (art) arts.push(art);
+      });
+    }
+
+    if (albumDetails) {
+      if (albumDetails.name) rels.push(albumDetails.name);
+      const art = Array.isArray(albumDetails.artists) ? albumDetails.artists.join(', ') : albumDetails.artist;
+      if (art) arts.push(art);
+      if (albumDetails.tracks) {
+        albumDetails.tracks.forEach((t) => {
+          if (t.name) rels.push(t.name);
+        });
+      }
+    }
+
+    if (existingAlbum) {
+      if (existingAlbum.album) rels.push(existingAlbum.album);
+      if (existingAlbum.artista) arts.push(existingAlbum.artista);
+    }
+
+    if (savedAlbum) {
+      if (savedAlbum.album) rels.push(savedAlbum.album);
+      if (savedAlbum.artista) arts.push(savedAlbum.artista);
+    }
+
+    if (rels.length || arts.length) {
+      registerUntranslatableEntities({ releases: rels, artists: arts });
+    }
+  }, [searchResults, albumDetails, existingAlbum, savedAlbum]);
 
   if (!user) return null;
 
@@ -353,10 +392,16 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                     </div>
                   </div>
                   <div>
-                    <p className="text-white/90 text-sm truncate font-semibold">
+                    <p
+                      translate="no"
+                      className="notranslate music-title text-white/90 text-sm truncate font-semibold"
+                    >
                       {album.name}
                     </p>
-                    <p className="text-white/40 text-xs truncate mt-0.5">
+                    <p
+                      translate="no"
+                      className="notranslate artist-name text-white/40 text-xs truncate mt-0.5"
+                    >
                       {artistDisplay}
                     </p>
                     <div className="flex items-center justify-between text-[10px] text-white/30 mt-1">
@@ -383,12 +428,22 @@ export function AlbumSearch({ onAlbumCreated, user }) {
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h4 className="text-white text-lg font-bold flex items-center gap-2 justify-center sm:justify-start">
-                  {existingAlbum.album}
+                  <span
+                    translate="no"
+                    className="notranslate music-title"
+                  >
+                    {existingAlbum.album}
+                  </span>
                   <span className="text-[10px] text-yellow-400 bg-yellow-400/10 px-2 py-0.5 rounded-full border border-yellow-400/20">
                     Ya existe
                   </span>
                 </h4>
-                <p className="text-white/50 text-sm">{existingAlbum.artista}</p>
+                <p
+                  translate="no"
+                  className="notranslate artist-name text-white/50 text-sm"
+                >
+                  {existingAlbum.artista}
+                </p>
                 <div className="flex items-center gap-2 mt-1 justify-center sm:justify-start">
                   <span
                     className={`text-[10px] px-2 py-0.5 rounded-full border ${
@@ -442,10 +497,16 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   )}
                 </div>
 
-                <h4 className="text-white text-xl font-black leading-tight">
+                <h4
+                  translate="no"
+                  className="notranslate music-title text-white text-xl font-black leading-tight"
+                >
                   {albumDetails.name}
                 </h4>
-                <p className="text-white/60 text-sm font-semibold mt-0.5">
+                <p
+                  translate="no"
+                  className="notranslate artist-name text-white/60 text-sm font-semibold mt-0.5"
+                >
                   {Array.isArray(albumDetails.artists)
                     ? albumDetails.artists.join(', ')
                     : albumDetails.artist || ''}
@@ -514,7 +575,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                           <span className="text-white/20 font-mono text-[11px] w-5">
                             {track.track_number || idx + 1}.
                           </span>
-                          <span className="text-white/60 truncate">{track.name}</span>
+                          <span
+                            translate="no"
+                            className="notranslate track-name text-white/60 truncate"
+                          >
+                            {track.name}
+                          </span>
                         </li>
                       ))}
                     </ul>
@@ -557,12 +623,17 @@ export function AlbumSearch({ onAlbumCreated, user }) {
               />
               <div className="flex-1 min-w-0">
                 <h4 className="text-white text-lg font-bold flex items-center gap-2">
-                  ✅ {savedAlbum.album}
+                  ✅ <span translate="no" className="notranslate music-title">{savedAlbum.album}</span>
                   <span className="text-[10px] text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full border border-blue-400/20">
                     Individual
                   </span>
                 </h4>
-                <p className="text-white/50 text-sm">{savedAlbum.artista}</p>
+                <p
+                  translate="no"
+                  className="notranslate artist-name text-white/50 text-sm"
+                >
+                  {savedAlbum.artista}
+                </p>
               </div>
               <button
                 onClick={() => {

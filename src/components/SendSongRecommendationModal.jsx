@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import { searchTracks } from '../services/spotifyApi';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 const VIBE_SUGGESTIONS = [
   '🎧 Escúchala con buenos audífonos',
@@ -66,6 +67,13 @@ export function SendSongRecommendationModal({
             return pEmail !== currentEmail && (!currentId || pId !== currentId);
           });
           setProfiles(filtered);
+          // Blindaje universal de miembros del club contra traducción (V.8.11)
+          if (filtered.length > 0) {
+            registerUntranslatableEntities({
+              people: filtered.map((p) => p.name).filter(Boolean),
+              artists: filtered.map((p) => p.favorite_artist).filter(Boolean),
+            });
+          }
 
           // Si hay destinatario por defecto
           if (defaultRecipient) {
@@ -133,6 +141,12 @@ export function SendSongRecommendationModal({
     setSpotifyLink(track.spotifyUrl || '');
     setShowSpotifyResults(false);
     setTrackSearchQuery('');
+
+    // Blindaje de la canción y artista seleccionados (V.8.11)
+    registerUntranslatableEntities({
+      releases: [track.name, track.albumName].filter(Boolean),
+      artists: [track.artistName, ...(track.artists || [])].filter(Boolean),
+    });
   };
 
   // Reset del formulario al cerrar
@@ -291,12 +305,25 @@ export function SendSongRecommendationModal({
                     </div>
                   )}
                   <div className="truncate">
-                    <p className="text-sm font-black text-white truncate">
+                    <p
+                      translate="no"
+                      className="notranslate username-tag text-sm font-black text-white truncate"
+                    >
                       {selectedRecipient.name || selectedRecipient.email}
                     </p>
                     <p className="text-[11px] text-white/50 truncate">
                       {selectedRecipient.email}
-                      {selectedRecipient.favorite_artist && ` • Fan de ${selectedRecipient.favorite_artist}`}
+                      {selectedRecipient.favorite_artist && (
+                        <>
+                          {' '}• Fan de{' '}
+                          <span
+                            translate="no"
+                            className="notranslate artist-name"
+                          >
+                            {selectedRecipient.favorite_artist}
+                          </span>
+                        </>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -357,12 +384,25 @@ export function SendSongRecommendationModal({
                             </div>
                           )}
                           <div className="truncate text-left">
-                            <span className="text-xs font-bold text-white block truncate">
+                            <span
+                              translate="no"
+                              className="notranslate username-tag text-xs font-bold text-white block truncate"
+                            >
                               {prof.name || prof.email}
                             </span>
                             <span className="text-[10px] text-white/40 block truncate">
                               {prof.email}
-                              {prof.favorite_artist && ` • ❤️ ${prof.favorite_artist}`}
+                              {prof.favorite_artist && (
+                                <>
+                                  {' '}• ❤️{' '}
+                                  <span
+                                    translate="no"
+                                    className="notranslate artist-name"
+                                  >
+                                    {prof.favorite_artist}
+                                  </span>
+                                </>
+                              )}
                             </span>
                           </div>
                         </div>
@@ -419,8 +459,16 @@ export function SendSongRecommendationModal({
                         </div>
                       )}
                       <div className="truncate flex-grow">
-                        <span className="text-xs font-bold text-white block truncate">{t.name}</span>
-                        <span className="text-[11px] text-white/60 block truncate">
+                        <span
+                          translate="no"
+                          className="notranslate track-name text-xs font-bold text-white block truncate"
+                        >
+                          {t.name}
+                        </span>
+                        <span
+                          translate="no"
+                          className="notranslate artist-name text-[11px] text-white/60 block truncate"
+                        >
                           {t.artistName} {t.albumName && `• ${t.albumName}`}
                         </span>
                       </div>
@@ -442,11 +490,12 @@ export function SendSongRecommendationModal({
               </label>
               <input
                 type="text"
+                translate="no"
                 value={songTitle}
                 onChange={(e) => setSongTitle(e.target.value)}
                 required
                 placeholder="Ej. Starman, Nangs, Bohemian Rhapsody..."
-                className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
+                className="notranslate track-name w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
               />
             </div>
 
@@ -456,11 +505,12 @@ export function SendSongRecommendationModal({
               </label>
               <input
                 type="text"
+                translate="no"
                 value={artistName}
                 onChange={(e) => setArtistName(e.target.value)}
                 required
                 placeholder="Ej. David Bowie, Tame Impala..."
-                className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
+                className="notranslate artist-name w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
               />
             </div>
           </div>
@@ -472,10 +522,11 @@ export function SendSongRecommendationModal({
               </label>
               <input
                 type="text"
+                translate="no"
                 value={albumName}
                 onChange={(e) => setAlbumName(e.target.value)}
                 placeholder="Ej. Currents, Ziggy Stardust..."
-                className="w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
+                className="notranslate music-title w-full px-3.5 py-2 rounded-xl bg-black/40 border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c]"
               />
             </div>
 

@@ -426,14 +426,14 @@ export function AlbumGrid({
                       <div className="w-full min-w-0">
                         <p
                           translate="no"
-                          className="notranslate text-white text-xs font-bold leading-tight break-words line-clamp-2"
+                          className="notranslate music-title text-white text-xs font-bold leading-tight break-words line-clamp-2"
                           title={album.album}
                         >
                           {album.album}
                         </p>
                         <p
                           translate="no"
-                          className="notranslate text-white/60 text-[10px] leading-tight break-words line-clamp-1 mt-0.5"
+                          className="notranslate artist-name text-white/60 text-[10px] leading-tight break-words line-clamp-1 mt-0.5"
                           title={album.artista}
                         >
                           {album.artista}
@@ -602,14 +602,14 @@ export function AlbumGrid({
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
                       translate="no"
-                      className="notranslate text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
+                      className="notranslate music-title text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
                       title={album.album}
                     >
                       {album.album}
                     </p>
                     <p
                       translate="no"
-                      className="notranslate text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
+                      className="notranslate artist-name text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
                       title={album.artista}
                     >
                       {album.artista}
@@ -779,14 +779,14 @@ export function AlbumGrid({
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
                       translate="no"
-                      className="notranslate text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
+                      className="notranslate music-title text-white font-bold text-xs sm:text-sm leading-snug break-words line-clamp-2 mb-1"
                       title={album.album}
                     >
                       {album.album}
                     </p>
                     <p
                       translate="no"
-                      className="notranslate text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
+                      className="notranslate artist-name text-white/60 text-[10px] sm:text-xs leading-snug break-words line-clamp-1 mb-1.5"
                       title={album.artista}
                     >
                       {album.artista}

@@ -9,6 +9,7 @@ import {
   YouTubeLogo,
   DeezerLogo,
 } from './common/PlatformLogos';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 /**
  * Generador pseudo-aleatorio determinista para una semilla entera (por ejemplo, hora actual).
@@ -178,6 +179,29 @@ export function HourlyRecommendedRelease({
   }, [currentHourSeed, effectiveCandidates.length]);
 
   const currentCandidate = effectiveCandidates[officialHourlyIndex] || null;
+  const candidateAlbum = currentCandidate?.album || null;
+  const candidateReview = currentCandidate?.review || null;
+
+  const candidateAlbumTitle = candidateAlbum?.album_name || candidateAlbum?.album || '';
+  const candidateArtistName = candidateAlbum?.artist_name || candidateAlbum?.artista || '';
+  const candidateReviewerName =
+    candidateReview?.reviewer_name ||
+    candidateReview?.author_name ||
+    (candidateReview?.reviewer_email
+      ? candidateReview.reviewer_email.split('@')[0]
+      : '');
+
+  // Blindaje universal de release, artista y crítico contra traducción (V.8.11)
+  // Incondicional al nivel superior para respetar estrictamente las Reglas de Hooks de React
+  useEffect(() => {
+    if (candidateAlbumTitle || candidateArtistName || candidateReviewerName) {
+      registerUntranslatableEntities({
+        releases: [candidateAlbumTitle].filter(Boolean),
+        artists: [candidateArtistName].filter(Boolean),
+        people: [candidateReviewerName].filter(Boolean),
+      });
+    }
+  }, [candidateAlbumTitle, candidateArtistName, candidateReviewerName]);
 
   if (!currentCandidate || !currentCandidate.album) {
     return null;
@@ -395,7 +419,10 @@ export function HourlyRecommendedRelease({
                         ? 'Única Reseña Comunitaria'
                         : 'Reseña Destacada de la Comunidad'}
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-white truncate">
+                    <span
+                      translate="no"
+                      className="notranslate username-tag text-xs sm:text-sm font-bold text-white truncate"
+                    >
                       {reviewerName}
                     </span>
                   </div>

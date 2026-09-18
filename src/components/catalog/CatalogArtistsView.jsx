@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { splitArtists, slugifyArtist } from '../../utils/ratingUtils';
 import { supabaseService } from '../../services/supabaseClient';
+import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 const ALPHABET = [
   'TODOS',
@@ -106,6 +107,14 @@ export function CatalogArtistsView({ albums = [] }) {
       return a.name.localeCompare(b.name);
     });
   }, [albums, dbArtists]);
+
+  // Blindaje universal de nombres de artistas contra traducción (V.8.11)
+  useEffect(() => {
+    if (!artistsList.length) return;
+    registerUntranslatableEntities({
+      artists: artistsList.map((a) => a.name).filter(Boolean),
+    });
+  }, [artistsList]);
 
   // Filtrado por buscador y letra
   const filteredArtists = useMemo(() => {
@@ -250,7 +259,7 @@ export function CatalogArtistsView({ albums = [] }) {
                 {/* Name */}
                 <h3
                   translate="no"
-                  className="notranslate font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1 w-full"
+                  className="notranslate artist-name font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1 w-full"
                   title={artist.name}
                 >
                   {artist.name}

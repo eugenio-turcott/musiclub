@@ -1,7 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
+import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 /**
  * Sección de Trending Releases Semanales (Musiclub Style - Popularity This Week)
@@ -27,6 +28,19 @@ export function TrendingMonthlySection({
     if (!releases.length) return 450;
     const firstPop = releases[0]?.popularity_raw;
     return typeof firstPop === 'number' && firstPop > 0 ? firstPop : 450;
+  }, [releases]);
+
+  // Blindaje universal contra traducción (V.8.11)
+  useEffect(() => {
+    if (!releases.length) return;
+    const rels = [];
+    const arts = [];
+    releases.forEach((r) => {
+      if (r.album_name) rels.push(r.album_name);
+      if (r.artist_name) arts.push(r.artist_name);
+      if (r.hit_track) rels.push(r.hit_track);
+    });
+    registerUntranslatableEntities({ releases: rels, artists: arts });
   }, [releases]);
 
   // Filtrado reactivo por texto y categoría
@@ -246,7 +260,8 @@ export function TrendingMonthlySection({
                     <div>
                       <Link
                         to={targetUrl}
-                        className="font-bold text-white text-xs sm:text-sm line-clamp-1 hover:text-pink-400 transition-colors block"
+                        translate="no"
+                        className="notranslate music-title font-bold text-white text-xs sm:text-sm line-clamp-1 hover:text-pink-400 transition-colors block"
                         title={item.album_name}
                       >
                         {item.album_name}
@@ -264,7 +279,11 @@ export function TrendingMonthlySection({
                       {item.hit_track && (
                         <div className="mt-1.5 flex items-center gap-1.5 text-[10.5px] text-pink-300/90 font-medium">
                           <span className="text-[10px] flex-shrink-0">🎵</span>
-                          <span className="truncate" title={item.hit_track}>
+                          <span
+                            translate="no"
+                            className="notranslate track-name truncate"
+                            title={item.hit_track}
+                          >
                             {item.hit_track}
                           </span>
                         </div>

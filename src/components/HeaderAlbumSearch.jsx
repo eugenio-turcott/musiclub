@@ -11,6 +11,7 @@ import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
 import { getReleaseUrl } from '../utils/ratingUtils';
+import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
   const navigate = useNavigate();
@@ -209,6 +210,18 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
     return results.slice(0, 16);
   }, [clubMatches, remoteResults, clubAlbums]);
+
+  // Blindaje universal contra traducción de resultados buscados (V.8.11)
+  useEffect(() => {
+    if (!combinedResults.length) return;
+    const rels = [];
+    const arts = [];
+    combinedResults.forEach((it) => {
+      if (it.name) rels.push(it.name);
+      if (it.artist) arts.push(it.artist);
+    });
+    registerUntranslatableEntities({ releases: rels, artists: arts });
+  }, [combinedResults]);
 
   const handleOpenSearch = (e) => {
     if (e) {
@@ -566,14 +579,22 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                         />
                         <div className="min-w-0 flex-1 text-left">
                           <p className="text-white font-bold text-xs truncate flex items-center gap-1.5">
-                            <span className="truncate">{item.name}</span>
+                            <span
+                              translate="no"
+                              className="notranslate music-title truncate"
+                            >
+                              {item.name}
+                            </span>
                             {isClubAlbum && (
                               <span className="text-[8px] bg-pink-500/20 text-pink-300 px-1 py-0.2 rounded font-semibold flex-shrink-0">
                                 Club
                               </span>
                             )}
                           </p>
-                          <p className="text-white/60 text-[10px] truncate">
+                          <p
+                            translate="no"
+                            className="notranslate artist-name text-white/60 text-[10px] truncate"
+                          >
                             {item.artist}
                             {item.releaseYear ? ` • ${item.releaseYear}` : ''}
                           </p>
@@ -780,7 +801,10 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
                       <div className="min-w-0 flex-1 text-left">
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <p className="text-white font-bold text-xs sm:text-sm truncate">
+                          <p
+                            translate="no"
+                            className="notranslate music-title text-white font-bold text-xs sm:text-sm truncate"
+                          >
                             {item.name}
                           </p>
                           {isClubAlbum && (
@@ -790,7 +814,10 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                           )}
                         </div>
 
-                        <p className="text-white/60 text-xs truncate mt-0.5">
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/60 text-xs truncate mt-0.5"
+                        >
                           {item.artist}
                           {item.releaseYear ? ` • ${item.releaseYear}` : ''}
                           {item.releaseType ? ` • ${item.releaseType}` : ''}

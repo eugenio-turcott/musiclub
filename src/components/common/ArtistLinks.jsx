@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { splitArtists, slugifyArtist } from '../../utils/ratingUtils';
 import { supabaseService } from '../../services/supabaseClient';
+import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 /**
  * Renderiza de forma separada e interactiva cada artista en lanzamientos colaborativos o con múltiples créditos.
+ * Protegido contra traducción automática en todos los idiomas del club (V.8.11).
  * Ejemplo: "piri & tommy, piri, Tommy Villiers"
  * -> 3 enlaces separados e individuales a:
  *    - /artista/piri-and-tommy
@@ -20,16 +22,25 @@ export default function ArtistLinks({
   stopPropagation = true,
   onClick,
 }) {
-  if (!artistName) return null;
+  const artists = artistName ? splitArtists(artistName) : [];
 
-  const artists = splitArtists(artistName);
+  useEffect(() => {
+    if (artistName) {
+      registerUntranslatableEntities({
+        artists: [artistName, ...(artists || []).map((a) => a.name)].filter(Boolean),
+      });
+    }
+  }, [artistName, artists]);
+
+  if (!artistName) return null;
 
   if (!artists || artists.length === 0) {
     const fallbackSlug = slugifyArtist(artistName);
     return (
       <Link
         to={`/artista/${fallbackSlug}`}
-        className={linkClassName}
+        translate="no"
+        className={`notranslate artist-name ${linkClassName}`}
         onClick={(e) => {
           if (stopPropagation) e.stopPropagation();
           supabaseService.recordArtistClick(artistName);
@@ -42,14 +53,18 @@ export default function ArtistLinks({
   }
 
   return (
-    <span className={`inline-flex flex-wrap items-center ${className}`}>
+    <span
+      translate="no"
+      className={`notranslate artist-name inline-flex flex-wrap items-center ${className}`}
+    >
       {artists.map((art, index) => {
         const isLast = index === artists.length - 1;
         return (
           <React.Fragment key={`${art.slug}-${index}`}>
             <Link
               to={`/artista/${art.slug}`}
-              className={linkClassName}
+              translate="no"
+              className={`notranslate artist-name ${linkClassName}`}
               title={`Ver discografía de ${art.name}`}
               onClick={(e) => {
                 if (stopPropagation) e.stopPropagation();
