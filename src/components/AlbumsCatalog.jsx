@@ -142,9 +142,11 @@ export function AlbumsCatalog({ isPage = false }) {
     // 1. Si ya existe en la lista de álbumes del club, navegar de inmediato sin esperar
     const existingAlbum = (albums || []).find((a) => {
       const matchName =
-        a.album_name?.trim().toLowerCase() === release.album_name?.trim().toLowerCase();
+        a.album_name?.trim().toLowerCase() ===
+        release.album_name?.trim().toLowerCase();
       const matchArtist =
-        a.artist_name?.trim().toLowerCase() === release.artist_name?.trim().toLowerCase();
+        a.artist_name?.trim().toLowerCase() ===
+        release.artist_name?.trim().toLowerCase();
       return matchName && matchArtist;
     });
 
@@ -187,8 +189,7 @@ export function AlbumsCatalog({ isPage = false }) {
           release.spotify_link ||
           release.spotify_url ||
           spotifyAlbum.external_urls?.spotify,
-        addedBy:
-          user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub',
+        addedBy: user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub',
         addedByEmail: user?.email || '',
         status: 'INDIVIDUAL',
         tracks: tracks,
@@ -271,7 +272,10 @@ export function AlbumsCatalog({ isPage = false }) {
           clubList = clubData.value || [];
           setAlbums(clubList);
         }
-        if (trendingData.status === 'fulfilled' && trendingData.value?.releases) {
+        if (
+          trendingData.status === 'fulfilled' &&
+          trendingData.value?.releases
+        ) {
           setTrendingReleases(trendingData.value.releases);
         }
         if (monthlyData.status === 'fulfilled' && monthlyData.value) {
@@ -367,7 +371,13 @@ export function AlbumsCatalog({ isPage = false }) {
   // Reset pagination on filter or sort change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, releaseTypeFilter, selectedYearFilter, sortBy, browseFilter]);
+  }, [
+    searchQuery,
+    releaseTypeFilter,
+    selectedYearFilter,
+    sortBy,
+    browseFilter,
+  ]);
 
   const isUserAlbum = (album) => {
     if (!user || !album) return false;
@@ -733,16 +743,14 @@ export function AlbumsCatalog({ isPage = false }) {
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <div className="text-center space-y-3 pt-2">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-blue-500/10 via-cyan-500/20 to-blue-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider">
-            <span>🌐</span>
-            <span>Explorador Híbrido · Música en Tiempo Real</span>
-          </div>
+        <div className="relative text-center space-y-3 pt-2">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
             Catálogo Musical
           </h1>
           <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Explora discografías completas, lanzamientos en tendencia e indaga en los álbumes calificados por los miembros del club con desglose de reseñas y canciones.
+            Explora discografías completas, lanzamientos en tendencia e indaga
+            en los álbumes calificados por los miembros del club con desglose de
+            reseñas y canciones.
           </p>
         </div>
 
@@ -802,7 +810,9 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-amber-400">
-                {loading && globalStats.totalReviews === 0 ? '...' : globalStats.totalReviews}
+                {loading && globalStats.totalReviews === 0
+                  ? '...'
+                  : globalStats.totalReviews}
               </span>
             </div>
             <p className="text-[11px] text-amber-300/80 font-medium mt-1">
@@ -816,11 +826,15 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <div className="mt-1">
               <p className="text-sm sm:text-base font-black text-yellow-300 truncate">
-                {globalStats.topRatedAlbum ? globalStats.topRatedAlbum.album_name : '—'}
+                {globalStats.topRatedAlbum
+                  ? globalStats.topRatedAlbum.album_name
+                  : '—'}
               </p>
             </div>
             <p className="text-[11px] text-yellow-200/80 font-semibold mt-1">
-              {globalStats.topRatedAlbum ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}` : 'Sin calificar'}
+              {globalStats.topRatedAlbum
+                ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}`
+                : 'Sin calificar'}
             </p>
           </div>
         </div>
@@ -907,7 +921,8 @@ export function AlbumsCatalog({ isPage = false }) {
                   Explorador de Catálogo y Colección
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-400">
-                  Filtra por formato, década y año o busca en los {unifiedAlbums.length} lanzamientos disponibles
+                  Filtra por formato, década y año o busca en los{' '}
+                  {unifiedAlbums.length} lanzamientos disponibles
                 </p>
               </div>
             </div>
@@ -916,752 +931,774 @@ export function AlbumsCatalog({ isPage = false }) {
             {/* BARRA DE AÑOS Y DÉCADAS (ESTILO ALBUMOFTHEYEAR.ORG)                        */}
             {/* ========================================================================= */}
             <div className="bg-[#151722]/95 border border-white/10 rounded-2xl p-3.5 sm:p-4 backdrop-blur-md shadow-xl relative space-y-3">
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm">📅</span>
-              <span className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">
-                Años y Décadas
-              </span>
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-sm">📅</span>
+                  <span className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">
+                    Años y Décadas
+                  </span>
 
-              {selectedYearFilter !== 'ALL' && (
+                  {selectedYearFilter !== 'ALL' && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedYearFilter('ALL')}
+                      className="text-[11px] text-pink-300 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 px-2.5 py-0.5 rounded-full font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      title="Restablecer filtro de año"
+                    >
+                      <span>
+                        Filtro:{' '}
+                        <strong className="text-white">
+                          {typeof selectedYearFilter === 'number'
+                            ? selectedYearFilter
+                            : selectedYearFilter}
+                        </strong>{' '}
+                        (
+                        <span
+                          translate="no"
+                          className="notranslate"
+                          data-stat="number"
+                        >
+                          {filteredAlbums.length}
+                        </span>{' '}
+                        {filteredAlbums.length === 1 ? 'álbum' : 'álbumes'})
+                      </span>
+                      <span className="text-pink-400 font-black">✕</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Selector rápido de Décadas */}
+                <div className="flex items-center gap-1 overflow-x-auto max-w-full scrollbar-none py-0.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 hidden sm:inline">
+                    Década:
+                  </span>
+                  {DECADES.map((dec) => {
+                    const count = yearCounts[dec] || 0;
+                    const isCurrentDecade = selectedDecade === dec;
+                    return (
+                      <button
+                        key={dec}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDecade(dec);
+                        }}
+                        className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                          isCurrentDecade
+                            ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400 font-black'
+                            : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
+                        }`}
+                      >
+                        {dec}
+                        {count > 0 && (
+                          <span className="ml-1 text-[9px] opacity-70">
+                            ({count})
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Carril Principal Estilo AlbumOfTheYear: < 2020s 2020 2021 2022 2023 2024 2025 2026 > */}
+              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 scrollbar-none w-full">
+                {/* Botón TODOS */}
                 <button
                   type="button"
                   onClick={() => setSelectedYearFilter('ALL')}
-                  className="text-[11px] text-pink-300 bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 px-2.5 py-0.5 rounded-full font-bold transition-all flex items-center gap-1.5 shadow-sm cursor-pointer"
-                  title="Restablecer filtro de año"
-                >
-                  <span>
-                    Filtro:{' '}
-                    <strong className="text-white">
-                      {typeof selectedYearFilter === 'number'
-                        ? selectedYearFilter
-                        : selectedYearFilter}
-                    </strong>{' '}
-                    (
-                    <span
-                      translate="no"
-                      className="notranslate"
-                      data-stat="number"
-                    >
-                      {filteredAlbums.length}
-                    </span>{' '}
-                    {filteredAlbums.length === 1 ? 'álbum' : 'álbumes'})
-                  </span>
-                  <span className="text-pink-400 font-black">✕</span>
-                </button>
-              )}
-            </div>
-
-            {/* Selector rápido de Décadas */}
-            <div className="flex items-center gap-1 overflow-x-auto max-w-full scrollbar-none py-0.5">
-              <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 hidden sm:inline">
-                Década:
-              </span>
-              {DECADES.map((dec) => {
-                const count = yearCounts[dec] || 0;
-                const isCurrentDecade = selectedDecade === dec;
-                return (
-                  <button
-                    key={dec}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDecade(dec);
-                    }}
-                    className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
-                      isCurrentDecade
-                        ? 'bg-purple-600 text-white shadow-sm ring-1 ring-purple-400 font-black'
-                        : 'bg-white/5 text-slate-400 hover:text-white hover:bg-white/10'
-                    }`}
-                  >
-                    {dec}
-                    {count > 0 && (
-                      <span className="ml-1 text-[9px] opacity-70">
-                        ({count})
-                      </span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Carril Principal Estilo AlbumOfTheYear: < 2020s 2020 2021 2022 2023 2024 2025 2026 > */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 scrollbar-none w-full">
-            {/* Botón TODOS */}
-            <button
-              type="button"
-              onClick={() => setSelectedYearFilter('ALL')}
-              className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none ${
-                selectedYearFilter === 'ALL'
-                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105'
-                  : 'bg-black/40 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5'
-              }`}
-            >
-              <span>Todos</span>
-              <span
-                className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                  selectedYearFilter === 'ALL'
-                    ? 'bg-black/30 text-white'
-                    : 'bg-white/10 text-slate-400'
-                }`}
-              >
-                {yearCounts.ALL || 0}
-              </span>
-            </button>
-
-            {/* Flechita Izquierda: Década Anterior */}
-            <button
-              type="button"
-              onClick={handlePrevDecade}
-              disabled={!canGoOlder}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
-                canGoOlder
-                  ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
-                  : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
-              }`}
-              title={
-                canGoOlder
-                  ? `Ir a década anterior (${DECADES[currentDecadeIndex + 1]})`
-                  : 'No hay décadas anteriores'
-              }
-            >
-              ‹
-            </button>
-
-            {/* Botón de la Década Activa (ej: 2020s) */}
-            <button
-              type="button"
-              onClick={() => selectYearOrDecade(selectedDecade)}
-              className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
-                selectedYearFilter === selectedDecade
-                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30 ring-2 ring-purple-400 scale-105 border-purple-400'
-                  : 'bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 border-purple-500/40 hover:border-purple-400'
-              }`}
-              title={`Filtrar toda la década ${selectedDecade}`}
-            >
-              <span>{selectedDecade}</span>
-              {(yearCounts[selectedDecade] || 0) > 0 && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                    selectedYearFilter === selectedDecade
-                      ? 'bg-black/40 text-white'
-                      : 'bg-purple-500/25 text-purple-200'
+                  className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none ${
+                    selectedYearFilter === 'ALL'
+                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105'
+                      : 'bg-black/40 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5'
                   }`}
                 >
-                  {yearCounts[selectedDecade]}
-                </span>
-              )}
-            </button>
-
-            {/* Años de la Década Activa en orden cronológico (2020, 2021, 2022...) */}
-            {decadeYears.map((yr) => {
-              const count = yearCounts[yr] || 0;
-              const isSelected =
-                selectedYearFilter === yr || selectedYearFilter === String(yr);
-
-              return (
-                <button
-                  key={yr}
-                  type="button"
-                  onClick={() => selectYearOrDecade(yr)}
-                  className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105 border-pink-400'
-                      : count > 0
-                        ? 'bg-black/50 text-slate-200 hover:bg-white/15 hover:text-white border-white/10'
-                        : 'bg-black/20 text-slate-500 hover:text-slate-300 border-white/5 opacity-60'
-                  }`}
-                >
-                  <span>{yr}</span>
-                  {count > 0 && (
-                    <span
-                      className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                        isSelected
-                          ? 'bg-black/30 text-white'
-                          : 'bg-white/10 text-cyan-300'
-                      }`}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-
-            {/* Flechita Derecha: Siguiente Década */}
-            <button
-              type="button"
-              onClick={handleNextDecade}
-              disabled={!canGoNewer}
-              className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
-                canGoNewer
-                  ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
-                  : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
-              }`}
-              title={
-                canGoNewer
-                  ? `Ir a siguiente década (${DECADES[currentDecadeIndex - 1]})`
-                  : 'No hay décadas más recientes'
-              }
-            >
-              ›
-            </button>
-          </div>
-        </div>
-
-        {/* Format / Tipo de Lanzamiento Bar */}
-        <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm">💽</span>
-            <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
-              Formato
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            {[
-              {
-                id: 'ALL',
-                label: 'Todos',
-                icon: '🎧',
-                count: releaseTypeCounts.ALL,
-              },
-              {
-                id: 'ALBUM',
-                label: 'Álbumes',
-                icon: '💿',
-                count: releaseTypeCounts.ALBUM,
-              },
-              {
-                id: 'EP',
-                label: 'EPs',
-                icon: '💽',
-                count: releaseTypeCounts.EP,
-              },
-              {
-                id: 'SENCILLO',
-                label: 'Sencillos',
-                icon: '🎵',
-                count: releaseTypeCounts.SENCILLO,
-              },
-              {
-                id: 'COMPILACION',
-                label: 'Compilaciones',
-                icon: '📦',
-                count: releaseTypeCounts.COMPILACION,
-              },
-              ...(releaseTypeCounts.EN_VIVO > 0
-                ? [
-                    {
-                      id: 'EN_VIVO',
-                      label: 'En Vivo',
-                      icon: '🎤',
-                      count: releaseTypeCounts.EN_VIVO,
-                    },
-                  ]
-                : []),
-              ...(releaseTypeCounts.SOUNDTRACK > 0
-                ? [
-                    {
-                      id: 'SOUNDTRACK',
-                      label: 'Soundtracks',
-                      icon: '🎬',
-                      count: releaseTypeCounts.SOUNDTRACK,
-                    },
-                  ]
-                : []),
-              ...(releaseTypeCounts.REMIX > 0
-                ? [
-                    {
-                      id: 'REMIX',
-                      label: 'Remixes',
-                      icon: '🎛️',
-                      count: releaseTypeCounts.REMIX,
-                    },
-                  ]
-                : []),
-            ].map((fmt) => {
-              const isSelected = releaseTypeFilter === fmt.id;
-              return (
-                <button
-                  key={fmt.id}
-                  type="button"
-                  onClick={() => setReleaseTypeFilter(fmt.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
-                    isSelected
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
-                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
-                  }`}
-                >
-                  <span>{fmt.icon}</span>
-                  <span>{fmt.label}</span>
+                  <span>Todos</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                      isSelected
-                        ? 'bg-black/30 text-black font-black'
+                      selectedYearFilter === 'ALL'
+                        ? 'bg-black/30 text-white'
                         : 'bg-white/10 text-slate-400'
                     }`}
                   >
-                    {fmt.count || 0}
+                    {yearCounts.ALL || 0}
                   </span>
                 </button>
-              );
-            })}
-          </div>
-        </div>
 
-        {/* Musiclub Hybrid Browse & Filter Bar */}
-        <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
-          {/* Musiclub Hybrid Browse Pills */}
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-            {[
-              { id: 'ALL', label: 'Todo el Catálogo', count: unifiedAlbums.length, icon: '🌐' },
-              { id: 'REVIEWED', label: 'Calificados en Club', count: albums.length, icon: '⭐' },
-            ].map((tab) => {
-              const active = browseFilter === tab.id;
-              return (
+                {/* Flechita Izquierda: Década Anterior */}
                 <button
-                  key={tab.id}
                   type="button"
-                  onClick={() => {
-                    setBrowseFilter(tab.id);
-                    setCurrentPage(1);
-                  }}
-                  className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
-                    active
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
-                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
+                  onClick={handlePrevDecade}
+                  disabled={!canGoOlder}
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
+                    canGoOlder
+                      ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
+                      : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
                   }`}
-                >
-                  <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                      active ? 'bg-black/30 text-black' : 'bg-white/10 text-slate-400'
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Search Input */}
-          <div className="relative flex-1 w-full min-w-[200px]">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-              🔍
-            </span>
-            <input
-              type="text"
-              placeholder="Buscar álbum, artista o curador en el catálogo..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-              >
-                ✕
-              </button>
-            )}
-          </div>
-
-          {/* Quick Pool Shortcut */}
-          <Link
-            to="/pool"
-            className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
-          >
-            <span>🗳️</span>
-            <span>Pool Musical</span>
-          </Link>
-
-          {/* Sorting */}
-          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-            <label className="text-xs text-slate-400 whitespace-nowrap">
-              Ordenar:
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
-            >
-              <option value="rating_desc">🌟 Mayor Calificación</option>
-              <option value="rating_asc">📉 Menor Calificación</option>
-              <option value="reviews_desc">📝 Más Reseñas</option>
-              <option value="newest">🕒 Más Recientes</option>
-              <option value="name_asc">🔤 Álbum (A-Z)</option>
-              <option value="artist_asc">🎤 Artista (A-Z)</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Albums Grid */}
-        {loading ? (
-          <div className="py-20 text-center space-y-4">
-            <div className="inline-block w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">
-              Cargando catálogo de álbumes y estadísticas...
-            </p>
-          </div>
-        ) : error ? (
-          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400">
-            {error}
-          </div>
-        ) : filteredAlbums.length === 0 ? (
-          <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-3">
-            <span className="text-4xl">🎵</span>
-            <h3 className="text-lg font-bold text-white">
-              No se encontraron álbumes
-            </h3>
-            <p className="text-slate-400 text-xs">
-              {selectedYearFilter !== 'ALL'
-                ? `No hay álbumes registrados para el año/década ${selectedYearFilter}.`
-                : 'Intenta cambiar los filtros o el término de búsqueda.'}
-            </p>
-            {selectedYearFilter !== 'ALL' && (
-              <button
-                type="button"
-                onClick={() => setSelectedYearFilter('ALL')}
-                className="mt-2 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-xl transition-all shadow-md inline-block"
-              >
-                Ver todos los años
-              </button>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
-              {paginatedAlbums.map((album) => {
-                const isMine = isUserAlbum(album);
-                const score =
-                  album.final_rating !== null &&
-                  album.final_rating !== undefined &&
-                  !isNaN(Number(album.final_rating))
-                    ? Number(album.final_rating)
-                    : null;
-                const albumYear = getAlbumYear(album, spotifyYearsCache);
-                const isCardInClub = album.is_in_club;
-                const clubUrl = isCardInClub ? getReleaseUrl(album) : null;
-                const isProposing =
-                  Boolean(proposingId) &&
-                  (proposingId === (album.spotify_id || album.id) ||
-                    proposingId === album.album_name);
-
-                const handleCardClick = (e) => {
-                  if (isProposing) return;
-                  if (isCardInClub && clubUrl) {
-                    navigate(clubUrl);
-                  } else {
-                    handleQuickPropose(album);
+                  title={
+                    canGoOlder
+                      ? `Ir a década anterior (${DECADES[currentDecadeIndex + 1]})`
+                      : 'No hay décadas anteriores'
                   }
-                };
+                >
+                  ‹
+                </button>
 
-                return (
-                  <div
-                    key={album.id}
-                    onClick={handleCardClick}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        handleCardClick(e);
-                      }
-                    }}
-                    className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
-                      isMine
-                        ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
-                        : album.status === 'GANADOR'
-                          ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
-                          : album.is_trending && !isCardInClub
-                            ? 'border-orange-500/30 hover:border-orange-400/80 shadow-[0_4px_25px_rgba(249,115,22,0.15)]'
-                            : 'border-white/10 hover:border-cyan-400/50 shadow-[0_4px_25px_rgba(6,182,212,0.1)]'
-                    }`}
-                  >
-                    {/* Artwork Container */}
-                    <div className="relative aspect-square overflow-hidden bg-black/50">
-                      <img
-                        src={album.image_url || PLACEHOLDER_COVER}
-                        alt={album.album_name}
-                        loading="lazy"
-                        decoding="async"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={(e) => {
-                          e.target.src = PLACEHOLDER_COVER;
-                        }}
-                      />
+                {/* Botón de la Década Activa (ej: 2020s) */}
+                <button
+                  type="button"
+                  onClick={() => selectYearOrDecade(selectedDecade)}
+                  className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
+                    selectedYearFilter === selectedDecade
+                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30 ring-2 ring-purple-400 scale-105 border-purple-400'
+                      : 'bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 border-purple-500/40 hover:border-purple-400'
+                  }`}
+                  title={`Filtrar toda la década ${selectedDecade}`}
+                >
+                  <span>{selectedDecade}</span>
+                  {(yearCounts[selectedDecade] || 0) > 0 && (
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                        selectedYearFilter === selectedDecade
+                          ? 'bg-black/40 text-white'
+                          : 'bg-purple-500/25 text-purple-200'
+                      }`}
+                    >
+                      {yearCounts[selectedDecade]}
+                    </span>
+                  )}
+                </button>
 
-                      {/* Top Badges (Musiclub style floating badges) */}
-                      <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
-                        {album.release_type && (
-                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm bg-black/80 text-cyan-300 border-cyan-500/40">
-                            {album.release_type}
-                          </span>
-                        )}
-                      </div>
+                {/* Años de la Década Activa en orden cronológico (2020, 2021, 2022...) */}
+                {decadeYears.map((yr) => {
+                  const count = yearCounts[yr] || 0;
+                  const isSelected =
+                    selectedYearFilter === yr ||
+                    selectedYearFilter === String(yr);
 
-                      <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-                        {album.is_trending && !isCardInClub && (
-                          <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
-                            🔥 Tendencia 2026
-                          </span>
-                        )}
-                        {score !== null && (
-                          <div className="flex items-center gap-1 bg-black/80 backdrop-blur-md border border-amber-500/40 px-2 py-0.5 rounded-lg shadow-sm">
-                            <span className="text-amber-400 text-xs font-black">
-                              {score.toFixed(2)}
-                            </span>
-                            <span className="text-[10px]">⭐</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Bottom overlay: Year & Status */}
-                      <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
-                        <div className="flex items-center gap-1.5">
-                          {albumYear ? (
-                            <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded">
-                              {albumYear}
-                            </span>
-                          ) : null}
-                          {Number(album.bonus) > 0 && (
-                            <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded border border-cyan-500/30">
-                              +{Number(album.bonus).toFixed(2)}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
-                          {isCardInClub
-                            ? `📝 ${album.review_count || 0}`
-                            : '⚡ En vivo'}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Info Body */}
-                    <div className="p-3 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3
-                          translate="no"
-                          className="notranslate font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1"
-                          title={album.album_name}
+                  return (
+                    <button
+                      key={yr}
+                      type="button"
+                      onClick={() => selectYearOrDecade(yr)}
+                      className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105 border-pink-400'
+                          : count > 0
+                            ? 'bg-black/50 text-slate-200 hover:bg-white/15 hover:text-white border-white/10'
+                            : 'bg-black/20 text-slate-500 hover:text-slate-300 border-white/5 opacity-60'
+                      }`}
+                    >
+                      <span>{yr}</span>
+                      {count > 0 && (
+                        <span
+                          className={`text-[9px] sm:text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                            isSelected
+                              ? 'bg-black/30 text-white'
+                              : 'bg-white/10 text-cyan-300'
+                          }`}
                         >
-                          {album.album_name}
-                        </h3>
-                        <div className="mt-1">
-                          <ArtistLinks
-                            artistName={album.artist_name}
-                            className="text-xs text-slate-400 line-clamp-1"
-                            linkClassName="hover:text-cyan-400 hover:underline transition-colors notranslate"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Best Track Highlight if available */}
-                      {album.best_track && (
-                        <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-xs flex items-center justify-between mt-auto">
-                          <div className="flex items-center gap-1 min-w-0 pr-1">
-                            <span className="text-amber-400 text-[10px]">
-                              👑
-                            </span>
-                            <span
-                              translate="no"
-                              className="notranslate track-name text-slate-300 truncate text-[10px] sm:text-[11px]"
-                            >
-                              {album.best_track.name}
-                            </span>
-                          </div>
-                          <span className="text-amber-300 font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
-                            {album.best_track.avg_rating} ⭐
-                          </span>
-                        </div>
+                          {count}
+                        </span>
                       )}
+                    </button>
+                  );
+                })}
 
-                      {/* Action Button at bottom of card */}
-                      <div className="pt-2 border-t border-white/5 mt-auto">
-                        {isCardInClub ? (
-                          <div className="w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
-                            <span>🎧</span>
-                            <span>Ver Álbum</span>
-                          </div>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleQuickPropose(album);
-                            }}
-                            disabled={isProposing}
-                            className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
-                              isProposing
-                                ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50'
-                                : 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
-                            }`}
-                          >
-                            {isProposing ? (
-                              <svg
-                                className="animate-spin h-3.5 w-3.5 text-orange-300"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                              >
-                                <circle
-                                  className="opacity-25"
-                                  cx="12"
-                                  cy="12"
-                                  r="10"
-                                  stroke="currentColor"
-                                  strokeWidth="4"
-                                />
-                                <path
-                                  className="opacity-75"
-                                  fill="currentColor"
-                                  d="M4 12a8 8 0 018-8v8H4z"
-                                />
-                              </svg>
-                            ) : (
-                              <span>✍️</span>
-                            )}
-                            <span>
-                              {isProposing
-                                ? 'Abriendo...'
-                                : 'Reseñar en Club'}
-                            </span>
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                {/* Flechita Derecha: Siguiente Década */}
+                <button
+                  type="button"
+                  onClick={handleNextDecade}
+                  disabled={!canGoNewer}
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
+                    canGoNewer
+                      ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
+                      : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
+                  }`}
+                  title={
+                    canGoNewer
+                      ? `Ir a siguiente década (${DECADES[currentDecadeIndex - 1]})`
+                      : 'No hay décadas más recientes'
+                  }
+                >
+                  ›
+                </button>
+              </div>
             </div>
 
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
-                <div className="text-xs text-slate-400">
-                  Mostrando{' '}
-                  <span
-                    translate="no"
-                    className="notranslate text-white font-bold"
-                    data-stat="number"
-                  >
-                    {(currentPage - 1) * ITEMS_PER_PAGE + 1}
-                  </span>{' '}
-                  a{' '}
-                  <span
-                    translate="no"
-                    className="notranslate text-white font-bold"
-                    data-stat="number"
-                  >
-                    {Math.min(
-                      currentPage * ITEMS_PER_PAGE,
-                      filteredAlbums.length
-                    )}
-                  </span>{' '}
-                  de{' '}
-                  <span
-                    translate="no"
-                    className="notranslate text-cyan-400 font-bold"
-                    data-stat="number"
-                  >
-                    {filteredAlbums.length}
-                  </span>{' '}
-                  álbumes
-                </div>
-
-                <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                  <button
-                    onClick={() => {
-                      setCurrentPage(1);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === 1}
-                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
-                    title="Primera Página"
-                  >
-                    «
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setCurrentPage((p) => Math.max(1, p - 1));
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === 1}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
-                  >
-                    <span>←</span> Anterior
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter((page) => {
-                      return (
-                        page === 1 ||
-                        page === totalPages ||
-                        Math.abs(page - currentPage) <= 2
-                      );
-                    })
-                    .map((page, idx, arr) => {
-                      const prev = arr[idx - 1];
-                      const showEllipsis = prev && page - prev > 1;
-
-                      return (
-                        <React.Fragment key={page}>
-                          {showEllipsis && (
-                            <span className="text-slate-600 px-1 text-xs">
-                              ...
-                            </span>
-                          )}
-                          <button
-                            onClick={() => {
-                              setCurrentPage(page);
-                              window.scrollTo({ top: 0, behavior: 'smooth' });
-                            }}
-                            className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border ${
-                              currentPage === page
-                                ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20'
-                                : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
-                            }`}
-                          >
-                            {page}
-                          </button>
-                        </React.Fragment>
-                      );
-                    })}
-
-                  <button
-                    onClick={() => {
-                      setCurrentPage((p) => Math.min(totalPages, p + 1));
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
-                  >
-                    Siguiente <span>→</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setCurrentPage(totalPages);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    disabled={currentPage === totalPages}
-                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
-                    title="Última Página"
-                  >
-                    »
-                  </button>
-                </div>
+            {/* Format / Tipo de Lanzamiento Bar */}
+            <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">💽</span>
+                <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
+                  Formato
+                </span>
               </div>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                {[
+                  {
+                    id: 'ALL',
+                    label: 'Todos',
+                    icon: '🎧',
+                    count: releaseTypeCounts.ALL,
+                  },
+                  {
+                    id: 'ALBUM',
+                    label: 'Álbumes',
+                    icon: '💿',
+                    count: releaseTypeCounts.ALBUM,
+                  },
+                  {
+                    id: 'EP',
+                    label: 'EPs',
+                    icon: '💽',
+                    count: releaseTypeCounts.EP,
+                  },
+                  {
+                    id: 'SENCILLO',
+                    label: 'Sencillos',
+                    icon: '🎵',
+                    count: releaseTypeCounts.SENCILLO,
+                  },
+                  {
+                    id: 'COMPILACION',
+                    label: 'Compilaciones',
+                    icon: '📦',
+                    count: releaseTypeCounts.COMPILACION,
+                  },
+                  ...(releaseTypeCounts.EN_VIVO > 0
+                    ? [
+                        {
+                          id: 'EN_VIVO',
+                          label: 'En Vivo',
+                          icon: '🎤',
+                          count: releaseTypeCounts.EN_VIVO,
+                        },
+                      ]
+                    : []),
+                  ...(releaseTypeCounts.SOUNDTRACK > 0
+                    ? [
+                        {
+                          id: 'SOUNDTRACK',
+                          label: 'Soundtracks',
+                          icon: '🎬',
+                          count: releaseTypeCounts.SOUNDTRACK,
+                        },
+                      ]
+                    : []),
+                  ...(releaseTypeCounts.REMIX > 0
+                    ? [
+                        {
+                          id: 'REMIX',
+                          label: 'Remixes',
+                          icon: '🎛️',
+                          count: releaseTypeCounts.REMIX,
+                        },
+                      ]
+                    : []),
+                ].map((fmt) => {
+                  const isSelected = releaseTypeFilter === fmt.id;
+                  return (
+                    <button
+                      key={fmt.id}
+                      type="button"
+                      onClick={() => setReleaseTypeFilter(fmt.id)}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                        isSelected
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
+                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
+                      }`}
+                    >
+                      <span>{fmt.icon}</span>
+                      <span>{fmt.label}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                          isSelected
+                            ? 'bg-black/30 text-black font-black'
+                            : 'bg-white/10 text-slate-400'
+                        }`}
+                      >
+                        {fmt.count || 0}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Musiclub Hybrid Browse & Filter Bar */}
+            <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
+              {/* Musiclub Hybrid Browse Pills */}
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                {[
+                  {
+                    id: 'ALL',
+                    label: 'Todo el Catálogo',
+                    count: unifiedAlbums.length,
+                    icon: '🌐',
+                  },
+                  {
+                    id: 'REVIEWED',
+                    label: 'Calificados en Club',
+                    count: albums.length,
+                    icon: '⭐',
+                  },
+                ].map((tab) => {
+                  const active = browseFilter === tab.id;
+                  return (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => {
+                        setBrowseFilter(tab.id);
+                        setCurrentPage(1);
+                      }}
+                      className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                        active
+                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
+                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
+                      }`}
+                    >
+                      <span>{tab.icon}</span>
+                      <span>{tab.label}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                          active
+                            ? 'bg-black/30 text-black'
+                            : 'bg-white/10 text-slate-400'
+                        }`}
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Search Input */}
+              <div className="relative flex-1 w-full min-w-[200px]">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                  🔍
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar álbum, artista o curador en el catálogo..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+
+              {/* Quick Pool Shortcut */}
+              <Link
+                to="/pool"
+                className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
+              >
+                <span>🗳️</span>
+                <span>Pool Musical</span>
+              </Link>
+
+              {/* Sorting */}
+              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                <label className="text-xs text-slate-400 whitespace-nowrap">
+                  Ordenar:
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
+                >
+                  <option value="rating_desc">🌟 Mayor Calificación</option>
+                  <option value="rating_asc">📉 Menor Calificación</option>
+                  <option value="reviews_desc">📝 Más Reseñas</option>
+                  <option value="newest">🕒 Más Recientes</option>
+                  <option value="name_asc">🔤 Álbum (A-Z)</option>
+                  <option value="artist_asc">🎤 Artista (A-Z)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Albums Grid */}
+            {loading ? (
+              <div className="py-20 text-center space-y-4">
+                <div className="inline-block w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-slate-400 text-sm">
+                  Cargando catálogo de álbumes y estadísticas...
+                </p>
+              </div>
+            ) : error ? (
+              <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400">
+                {error}
+              </div>
+            ) : filteredAlbums.length === 0 ? (
+              <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-3">
+                <div className="relative w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
+                  <img
+                    src="/musiclub_logo_4.png"
+                    alt="Musiclub"
+                    className="w-full h-full object-contain animate-spin-slow opacity-80 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]"
+                  />
+                </div>
+                <h3 className="text-lg font-bold text-white">
+                  No se encontraron álbumes
+                </h3>
+                <p className="text-slate-400 text-xs">
+                  {selectedYearFilter !== 'ALL'
+                    ? `No hay álbumes registrados para el año/década ${selectedYearFilter}.`
+                    : 'Intenta cambiar los filtros o el término de búsqueda.'}
+                </p>
+                {selectedYearFilter !== 'ALL' && (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedYearFilter('ALL')}
+                    className="mt-2 px-4 py-2 bg-pink-500 hover:bg-pink-600 text-white text-xs font-bold rounded-xl transition-all shadow-md inline-block"
+                  >
+                    Ver todos los años
+                  </button>
+                )}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
+                  {paginatedAlbums.map((album) => {
+                    const isMine = isUserAlbum(album);
+                    const score =
+                      album.final_rating !== null &&
+                      album.final_rating !== undefined &&
+                      !isNaN(Number(album.final_rating))
+                        ? Number(album.final_rating)
+                        : null;
+                    const albumYear = getAlbumYear(album, spotifyYearsCache);
+                    const isCardInClub = album.is_in_club;
+                    const clubUrl = isCardInClub ? getReleaseUrl(album) : null;
+                    const isProposing =
+                      Boolean(proposingId) &&
+                      (proposingId === (album.spotify_id || album.id) ||
+                        proposingId === album.album_name);
+
+                    const handleCardClick = (e) => {
+                      if (isProposing) return;
+                      if (isCardInClub && clubUrl) {
+                        navigate(clubUrl);
+                      } else {
+                        handleQuickPropose(album);
+                      }
+                    };
+
+                    return (
+                      <div
+                        key={album.id}
+                        onClick={handleCardClick}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            handleCardClick(e);
+                          }
+                        }}
+                        className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
+                          isMine
+                            ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
+                            : album.status === 'GANADOR'
+                              ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
+                              : album.is_trending && !isCardInClub
+                                ? 'border-orange-500/30 hover:border-orange-400/80 shadow-[0_4px_25px_rgba(249,115,22,0.15)]'
+                                : 'border-white/10 hover:border-cyan-400/50 shadow-[0_4px_25px_rgba(6,182,212,0.1)]'
+                        }`}
+                      >
+                        {/* Artwork Container */}
+                        <div className="relative aspect-square overflow-hidden bg-black/50">
+                          <img
+                            src={album.image_url || PLACEHOLDER_COVER}
+                            alt={album.album_name}
+                            loading="lazy"
+                            decoding="async"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              e.target.src = PLACEHOLDER_COVER;
+                            }}
+                          />
+
+                          {/* Top Badges (Musiclub style floating badges) */}
+                          <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
+                            {album.release_type && (
+                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm bg-black/80 text-cyan-300 border-cyan-500/40">
+                                {album.release_type}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
+                            {album.is_trending && !isCardInClub && (
+                              <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
+                                🔥 Tendencia 2026
+                              </span>
+                            )}
+                            {score !== null && (
+                              <div className="flex items-center gap-1 bg-black/80 backdrop-blur-md border border-amber-500/40 px-2 py-0.5 rounded-lg shadow-sm">
+                                <span className="text-amber-400 text-xs font-black">
+                                  {score.toFixed(2)}
+                                </span>
+                                <span className="text-[10px]">⭐</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Bottom overlay: Year & Status */}
+                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
+                            <div className="flex items-center gap-1.5">
+                              {albumYear ? (
+                                <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded">
+                                  {albumYear}
+                                </span>
+                              ) : null}
+                              {Number(album.bonus) > 0 && (
+                                <span className="text-[9px] text-cyan-300 font-bold bg-cyan-500/20 px-1 py-0.2 rounded border border-cyan-500/30">
+                                  +{Number(album.bonus).toFixed(2)}
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
+                              {isCardInClub
+                                ? `📝 ${album.review_count || 0}`
+                                : '⚡ En vivo'}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Info Body */}
+                        <div className="p-3 sm:p-4 space-y-2 flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3
+                              translate="no"
+                              className="notranslate font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1"
+                              title={album.album_name}
+                            >
+                              {album.album_name}
+                            </h3>
+                            <div className="mt-1">
+                              <ArtistLinks
+                                artistName={album.artist_name}
+                                className="text-xs text-slate-400 line-clamp-1"
+                                linkClassName="hover:text-cyan-400 hover:underline transition-colors notranslate"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Best Track Highlight if available */}
+                          {album.best_track && (
+                            <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-xs flex items-center justify-between mt-auto">
+                              <div className="flex items-center gap-1 min-w-0 pr-1">
+                                <span className="text-amber-400 text-[10px]">
+                                  👑
+                                </span>
+                                <span
+                                  translate="no"
+                                  className="notranslate track-name text-slate-300 truncate text-[10px] sm:text-[11px]"
+                                >
+                                  {album.best_track.name}
+                                </span>
+                              </div>
+                              <span className="text-amber-300 font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
+                                {album.best_track.avg_rating} ⭐
+                              </span>
+                            </div>
+                          )}
+
+                          {/* Action Button at bottom of card */}
+                          <div className="pt-2 border-t border-white/5 mt-auto">
+                            {isCardInClub ? (
+                              <div className="w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
+                                <span>🎧</span>
+                                <span>Ver Álbum</span>
+                              </div>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleQuickPropose(album);
+                                }}
+                                disabled={isProposing}
+                                className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
+                                  isProposing
+                                    ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50'
+                                    : 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
+                                }`}
+                              >
+                                {isProposing ? (
+                                  <svg
+                                    className="animate-spin h-3.5 w-3.5 text-orange-300"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    />
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8v8H4z"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <span>✍️</span>
+                                )}
+                                <span>
+                                  {isProposing
+                                    ? 'Abriendo...'
+                                    : 'Reseñar en Club'}
+                                </span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
+                    <div className="text-xs text-slate-400">
+                      Mostrando{' '}
+                      <span
+                        translate="no"
+                        className="notranslate text-white font-bold"
+                        data-stat="number"
+                      >
+                        {(currentPage - 1) * ITEMS_PER_PAGE + 1}
+                      </span>{' '}
+                      a{' '}
+                      <span
+                        translate="no"
+                        className="notranslate text-white font-bold"
+                        data-stat="number"
+                      >
+                        {Math.min(
+                          currentPage * ITEMS_PER_PAGE,
+                          filteredAlbums.length
+                        )}
+                      </span>{' '}
+                      de{' '}
+                      <span
+                        translate="no"
+                        className="notranslate text-cyan-400 font-bold"
+                        data-stat="number"
+                      >
+                        {filteredAlbums.length}
+                      </span>{' '}
+                      álbumes
+                    </div>
+
+                    <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                      <button
+                        onClick={() => {
+                          setCurrentPage(1);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={currentPage === 1}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                        title="Primera Página"
+                      >
+                        «
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setCurrentPage((p) => Math.max(1, p - 1));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={currentPage === 1}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                      >
+                        <span>←</span> Anterior
+                      </button>
+
+                      {Array.from({ length: totalPages }, (_, i) => i + 1)
+                        .filter((page) => {
+                          return (
+                            page === 1 ||
+                            page === totalPages ||
+                            Math.abs(page - currentPage) <= 2
+                          );
+                        })
+                        .map((page, idx, arr) => {
+                          const prev = arr[idx - 1];
+                          const showEllipsis = prev && page - prev > 1;
+
+                          return (
+                            <React.Fragment key={page}>
+                              {showEllipsis && (
+                                <span className="text-slate-600 px-1 text-xs">
+                                  ...
+                                </span>
+                              )}
+                              <button
+                                onClick={() => {
+                                  setCurrentPage(page);
+                                  window.scrollTo({
+                                    top: 0,
+                                    behavior: 'smooth',
+                                  });
+                                }}
+                                className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border ${
+                                  currentPage === page
+                                    ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20'
+                                    : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                                }`}
+                              >
+                                {page}
+                              </button>
+                            </React.Fragment>
+                          );
+                        })}
+
+                      <button
+                        onClick={() => {
+                          setCurrentPage((p) => Math.min(totalPages, p + 1));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={currentPage === totalPages}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                      >
+                        Siguiente <span>→</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          setCurrentPage(totalPages);
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        disabled={currentPage === totalPages}
+                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                        title="Última Página"
+                      >
+                        »
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
           </>
         )}
 

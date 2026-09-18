@@ -507,6 +507,18 @@ export function UserProfile({ isPage = false }) {
         <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-20 w-60 sm:w-80 h-60 sm:h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
+        {/* Spinning Musiclub Logo in Profile Banner */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
+            <img
+              src="/musiclub_logo.png"
+              alt="Musiclub Logo"
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
+            />
+          </div>
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
           {/* Avatar con aura decorativa */}
           <div className="relative group flex-shrink-0">

@@ -7,9 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { MemberProfileModal } from './MemberProfileModal';
-import { notifyContentLoaded } from '../utils/translateCrashGuard';
-
-
+import { notifyContentLoaded, registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 export function UserAvatar({ user, size = 'md', className = '' }) {
   const [imgError, setImgError] = useState(false);
@@ -65,6 +63,8 @@ export function UserAvatar({ user, size = 'md', className = '' }) {
   );
 }
 
+const USERS_PER_PAGE = 15;
+
 export function Leaderboard({ isPage = false }) {
   const { user } = useAuth();
   const [users, setUsers] = useState([]);
@@ -74,10 +74,17 @@ export function Leaderboard({ isPage = false }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('xp_desc'); // xp_desc | reviews_desc | rating_desc | rating_asc | albums_desc | tracks_desc | name_asc
   const [filterType, setFilterType] = useState('all'); // all | with_reviews | with_albums
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
   const [showBadgesGuide, setShowBadgesGuide] = useState(false);
   const [isSendSongModalOpen, setIsSendSongModalOpen] = useState(false);
   const [sendSongRecipient, setSendSongRecipient] = useState(null);
+  const [expandedBadgesUsers, setExpandedBadgesUsers] = useState({});
+
+  // Resetear paginación al cambiar búsqueda, orden o filtros
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, sortBy, filterType]);
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -96,6 +103,22 @@ export function Leaderboard({ isPage = false }) {
     }
     fetchLeaderboard();
   }, []);
+
+  // Blindaje universal de miembros, artistas favoritos y releases contra traducción (V.8.11)
+  useEffect(() => {
+    if (!users || users.length === 0) return;
+    const peeps = [];
+    const arts = [];
+    const rels = [];
+    users.forEach((u) => {
+      if (u.name) peeps.push(u.name);
+      if (u.favorite_artist) arts.push(u.favorite_artist);
+      if (u.favorite_album) rels.push(u.favorite_album);
+      if (u.highest_review?.album) rels.push(u.highest_review.album);
+      if (u.lowest_review?.album) rels.push(u.lowest_review.album);
+    });
+    registerUntranslatableEntities({ people: peeps, artists: arts, releases: rels });
+  }, [users]);
 
   // Global Club Metrics
   const globalMetrics = useMemo(() => {
@@ -203,6 +226,48 @@ export function Leaderboard({ isPage = false }) {
     return result;
   }, [users, searchQuery, sortBy, filterType]);
 
+  // Paginación: 15 usuarios por página
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (safeCurrentPage - 1) * USERS_PER_PAGE;
+    return filteredUsers.slice(startIndex, startIndex + USERS_PER_PAGE);
+  }, [filteredUsers, safeCurrentPage]);
+
+  const visiblePages = useMemo(() => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = [];
+    pages.push(1);
+    if (safeCurrentPage > 3) {
+      pages.push('ellipsis-prev');
+    }
+    const start = Math.max(2, safeCurrentPage - 1);
+    const end = Math.min(totalPages - 1, safeCurrentPage + 1);
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    if (safeCurrentPage < totalPages - 2) {
+      pages.push('ellipsis-next');
+    }
+    pages.push(totalPages);
+    return pages;
+  }, [totalPages, safeCurrentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      const listEl = document.getElementById('leaderboard-list');
+      if (listEl) {
+        listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        window.scrollTo({ top: 300, behavior: 'smooth' });
+      }
+    }
+  };
+
   // Top 3 for Podium (ordered by XP and Reviews)
   const podiumUsers = useMemo(() => {
     const sortedForPodium = [...users]
@@ -242,16 +307,30 @@ export function Leaderboard({ isPage = false }) {
         <AppHeader showTitle={false} />
 
         {/* Header Title */}
-        <div className="text-center space-y-2.5 sm:space-y-3">
+        <div className="relative text-center space-y-2.5 sm:space-y-3 pt-2">
+          {/* Spinning Musiclub Logo 2 (Gold Vinyl) */}
+          <div className="absolute top-0 right-2 sm:right-6 md:right-10 z-10 pointer-events-none select-none">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+              <div className="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse" />
+              <img
+                src="/musiclub_logo_2.png"
+                alt="Musiclub Logo"
+                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(251,191,36,0.4)]"
+              />
+            </div>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500/10 via-yellow-500/20 to-amber-500/10 border border-amber-500/30 text-amber-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
-            <span>🏆</span>
+            <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
             <span>Clasificación y Gamificación del Club</span>
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-amber-200">
             Leaderboard de Miembros
           </h1>
           <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
-            Gana puntos XP por cada reseña, análisis con comentarios y calificación pista por pista. ¡Desbloquea insignias y compite por los récords del club!
+            Gana puntos XP por cada reseña, análisis con comentarios y
+            calificación pista por pista. ¡Desbloquea insignias y compite por
+            los récords del club!
           </p>
           <div className="pt-1">
             <button
@@ -356,7 +435,14 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-gradient-to-b from-[#181a27]/90 to-[#12131e]/90 border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md relative overflow-hidden">
             <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">
               <h2 className="text-base sm:text-xl font-bold flex items-center gap-2 text-white">
-                <span>👑</span> Podio de Honor
+                <span className="relative w-5 h-5 inline-flex items-center justify-center flex-shrink-0">
+                  <img
+                    src="/musiclub_logo_2.png"
+                    alt="Musiclub Gold"
+                    className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+                  />
+                </span>
+                <span>👑 Podio de Honor</span>
               </h2>
               <span className="text-[11px] sm:text-xs text-amber-300 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 font-bold">
                 Clasificación por Puntuación XP
@@ -564,7 +650,7 @@ export function Leaderboard({ isPage = false }) {
         )}
 
         {/* Filter and Search Controls */}
-        <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
+        <div id="leaderboard-list" className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
           {/* Search Bar */}
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
@@ -648,10 +734,13 @@ export function Leaderboard({ isPage = false }) {
             </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {filteredUsers.map((itemUser, index) => {
+          <>
+            <div className="space-y-3">
+              {paginatedUsers.map((itemUser, index) => {
               const isSelf = isCurrentUser(itemUser);
-              const userRank = index + 1;
+              const userRank = (safeCurrentPage - 1) * USERS_PER_PAGE + index + 1;
+              const userKey = itemUser.id || itemUser.email || String(index);
+              const isBadgesExpanded = Boolean(expandedBadgesUsers[userKey]);
 
               return (
                 <div
@@ -687,7 +776,7 @@ export function Leaderboard({ isPage = false }) {
                         {isSelf && (
                           <span
                             className="absolute -bottom-1 -right-1 bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.2 rounded-full border border-black shadow"
-                            title="Tú"
+                            title="TÚ"
                           >
                             TÚ
                           </span>
@@ -728,8 +817,14 @@ export function Leaderboard({ isPage = false }) {
 
                         {/* Badges Flow Tray */}
                         {itemUser.badges && itemUser.badges.length > 0 && (
-                          <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                            {itemUser.badges.map((b) => (
+                          <div
+                            className="flex flex-wrap items-center gap-1.5 pt-0.5"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {(isBadgesExpanded
+                              ? itemUser.badges
+                              : itemUser.badges.slice(0, 1)
+                            ).map((b) => (
                               <span
                                 key={b.id}
                                 title={b.tooltip || b.desc || b.label}
@@ -738,6 +833,24 @@ export function Leaderboard({ isPage = false }) {
                                 {b.label}
                               </span>
                             ))}
+
+                            {itemUser.badges.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedBadgesUsers((prev) => ({
+                                    ...prev,
+                                    [userKey]: !prev[userKey],
+                                  }));
+                                }}
+                                className="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 border border-white/10 transition-colors"
+                              >
+                                {isBadgesExpanded
+                                  ? 'Ver menos'
+                                  : `+${itemUser.badges.length - 1} más`}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>
@@ -774,8 +887,8 @@ export function Leaderboard({ isPage = false }) {
                             {itemUser.total_tracks_rated || 0}
                           </p>
                         </div>
-                        <span className="text-white/10">•</span>
-                        <div>
+                        <span className="text-white/10 hidden sm:block">•</span>
+                        <div className="hidden sm:block">
                           <p className="text-[9px] text-slate-400 font-medium">
                             Comentarios
                           </p>
@@ -783,8 +896,8 @@ export function Leaderboard({ isPage = false }) {
                             {itemUser.comments_count || 0}
                           </p>
                         </div>
-                        <span className="text-white/10">•</span>
-                        <div>
+                        <span className="text-white/10 hidden sm:block">•</span>
+                        <div className="hidden sm:block">
                           <p className="text-[9px] text-slate-400 font-medium">
                             Promedio
                           </p>
@@ -861,7 +974,95 @@ export function Leaderboard({ isPage = false }) {
               );
             })}
           </div>
-        )}
+
+          {/* Controles de Paginación */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-white/10 mt-6">
+              <p className="text-xs text-slate-400 text-center sm:text-left">
+                Mostrando <strong className="text-white">{(safeCurrentPage - 1) * USERS_PER_PAGE + 1}</strong> –{' '}
+                <strong className="text-white">
+                  {Math.min(safeCurrentPage * USERS_PER_PAGE, filteredUsers.length)}
+                </strong>{' '}
+                de <strong className="text-amber-300">{filteredUsers.length}</strong> miembros (Página{' '}
+                <strong className="text-white">{safeCurrentPage}</strong> de{' '}
+                <strong className="text-white">{totalPages}</strong>)
+              </p>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                {/* Botón Primera Página */}
+                {safeCurrentPage > 2 && (
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(1)}
+                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
+                    title="Primera página"
+                  >
+                    ««
+                  </button>
+                )}
+
+                {/* Botón Anterior */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage - 1)}
+                  disabled={safeCurrentPage === 1}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  « Anterior
+                </button>
+
+                {/* Botones de Páginas */}
+                {visiblePages.map((page, idx) => {
+                  if (typeof page === 'string' && page.startsWith('ellipsis')) {
+                    return (
+                      <span key={`ellipsis-${idx}`} className="px-2 text-xs text-slate-500 font-bold select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = safeCurrentPage === page;
+                  return (
+                    <button
+                      key={page}
+                      type="button"
+                      onClick={() => handlePageChange(page)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
+                        isActive
+                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/20 font-black'
+                          : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                })}
+
+                {/* Botón Siguiente */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage + 1)}
+                  disabled={safeCurrentPage === totalPages}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                >
+                  Siguiente »
+                </button>
+
+                {/* Botón Última Página */}
+                {safeCurrentPage < totalPages - 1 && (
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(totalPages)}
+                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
+                    title="Última página"
+                  >
+                    »»
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
       </div>
 
       {/* Member Profile Modal (Estilo Mi Perfil) */}

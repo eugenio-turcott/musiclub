@@ -179,11 +179,17 @@ export function AppHeader({
         {/* Lado Izquierdo: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center overflow-hidden">
+            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
+              {/* Spinning Musiclub Logo Disc Base */}
+              <img
+                src="/musiclub_logo_4.png"
+                alt="Musiclub Vinyl"
+                className="absolute inset-0 w-full h-full object-contain animate-spin-slow opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none select-none"
+              />
               <img
                 src="/musiclub_logo_corchea.png"
                 alt="Musiclub Logo"
-                className="w-full h-full object-contain"
+                className="relative z-10 w-8 h-8 sm:w-12 sm:h-12 object-contain drop-shadow-[0_2px_8px_rgba(245,87,108,0.5)]"
               />
             </div>
           </Link>
@@ -1005,6 +1011,11 @@ export function AppHeader({
                   style={{ animationDelay: '0.2s' }}
                 ></span>
               </div>
+              <img
+                src="/musiclub_logo_corchea.png"
+                alt="Musiclub"
+                className="w-3.5 h-3.5 object-contain"
+              />
               <span className="text-[10px] sm:text-[11px] font-extrabold uppercase tracking-widest text-white/90">
                 Club de Música & Reviews
               </span>

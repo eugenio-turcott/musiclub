@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
 import { ReviewSystem } from '../components/ReviewSystem';
-import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { SEO } from '../components/SEO';
@@ -42,7 +41,6 @@ export function LandingPage() {
     winner?.reviews_enabled || false
   );
   const [togglingReviews, setTogglingReviews] = useState(false);
-  const [showFullSlotMachine, setShowFullSlotMachine] = useState(false);
 
   // Data states from Supabase
   const [topAlbums, setTopAlbums] = useState([]);
@@ -62,6 +60,9 @@ export function LandingPage() {
   // Vinyl Showcase Carousel State
   const [currentVinylIndex, setCurrentVinylIndex] = useState(0);
   const [isVinylPaused, setIsVinylPaused] = useState(false);
+
+  // En Rotación & Tendencias Slider State
+  const [isShowcaseSliderPaused, setIsShowcaseSliderPaused] = useState(false);
 
   // Synchronize reviewsEnabled with winner
   useEffect(() => {
@@ -401,7 +402,7 @@ export function LandingPage() {
   const showcaseAlbums = useMemo(() => {
     if (selectedAlbumTab === 'top') {
       if (topAlbums && topAlbums.length > 0) {
-        return topAlbums.slice(0, 8).map((a) => ({
+        return topAlbums.slice(0, 16).map((a) => ({
           id: a.id,
           album: a.album_name,
           artista: a.artist_name,
@@ -420,7 +421,7 @@ export function LandingPage() {
             (b.final_rating || b.avg_rating || 0) -
             (a.final_rating || a.avg_rating || 0)
         )
-        .slice(0, 8)
+        .slice(0, 16)
         .map((a) => ({
           id: a.id,
           album: a.album || a.album_name,
@@ -439,7 +440,7 @@ export function LandingPage() {
         .sort(
           (a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0)
         )
-        .slice(0, 8)
+        .slice(0, 16)
         .map((a) => {
           const topInfo = topMap.get(a.id);
           return {
@@ -460,7 +461,7 @@ export function LandingPage() {
     const poolItems = activePool && activePool.length > 0 ? activePool : [];
     if (poolItems.length > 0) {
       const topMap = new Map(topAlbums.map((t) => [t.id, t]));
-      return poolItems.slice(0, 8).map((a) => {
+      return poolItems.slice(0, 16).map((a) => {
         const topInfo = topMap.get(a.id);
         return {
           id: a.id,
@@ -476,7 +477,7 @@ export function LandingPage() {
         };
       });
     }
-    return activeAlbums.slice(0, 8).map((a) => ({
+    return activeAlbums.slice(0, 16).map((a) => ({
       id: a.id,
       album: a.album || a.album_name,
       artista: a.artista || a.artist_name,
@@ -488,6 +489,27 @@ export function LandingPage() {
       release_year: a.release_year,
     }));
   }, [selectedAlbumTab, activePool, activeAlbums, topAlbums, albums]);
+
+  // Lógica del Slider de "En Rotación & Tendencias":
+  // Si hay máximo 4, el slider no se mueve (estático).
+  // Si hay más de 4, se mueve constantemente como un slider automático infinito.
+  const isShowcaseSliderActive = showcaseAlbums.length > 4;
+
+  const showcaseMarqueeItems = useMemo(() => {
+    if (!isShowcaseSliderActive) return showcaseAlbums;
+    let base = [...showcaseAlbums];
+    while (base.length < 8) {
+      base = [...base, ...showcaseAlbums];
+    }
+    // Duplicamos exactamente la base para crear las mitades 50% / 50% para un bucle continuo infinito
+    return [...base, ...base];
+  }, [showcaseAlbums, isShowcaseSliderActive]);
+
+  const showcaseSliderDuration = useMemo(() => {
+    if (!isShowcaseSliderActive) return '0s';
+    const baseCount = showcaseMarqueeItems.length / 2;
+    return `${Math.max(25, Math.round(baseCount * 4.5))}s`;
+  }, [isShowcaseSliderActive, showcaseMarqueeItems.length]);
 
   // Quick Pick random album generator
   const handleQuickPick = () => {
@@ -506,8 +528,102 @@ export function LandingPage() {
     }, 100);
   };
 
+  // Renderizador unificado y responsivo de tarjetas de lanzamiento para el showcase
+  const renderShowcaseCard = (album, key, isSliderMode = false) => (
+    <Link
+      key={key}
+      to={getReleaseUrl(
+        album.album || album.album_name,
+        album.release_type || album.releaseType
+      )}
+      className={`group relative rounded-2xl bg-[#111322]/85 border border-white/10 hover:border-pink-500/50 p-3 sm:p-3.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/15 flex flex-col justify-between ${
+        isSliderMode
+          ? 'w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0'
+          : 'w-full'
+      }`}
+    >
+      {/* Artwork */}
+      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2.5">
+        {album.imagen ? (
+          <img
+            src={album.imagen}
+            alt={album.album}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 notranslate"
+            loading="lazy"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-3xl text-white/20">
+            💿
+          </div>
+        )}
+
+        {/* Format badge on top-left */}
+        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase text-white/90 tracking-wider shadow-sm">
+          {album.release_type === 'EP'
+            ? '💽 EP'
+            : album.release_type === 'SENCILLO' ||
+                album.release_type === 'SINGLE'
+              ? '🎵 Sencillo'
+              : '💿 Álbum'}
+        </div>
+
+        {/* Bottom right badge */}
+        {selectedAlbumTab === 'top' ||
+        (album.score !== undefined &&
+          album.score !== null &&
+          Number(album.score) > 0) ? (
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md border border-amber-400/40 text-[10px] sm:text-xs font-black text-amber-300 shadow-md flex items-center gap-1">
+            <span>⭐</span>
+            <span>{Number(album.score).toFixed(1)}</span>
+          </div>
+        ) : selectedAlbumTab === 'active' || album.status === 'POOL_ACTIVO' ? (
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider">
+            🔥 POOL
+          </div>
+        ) : (
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-cyan-600/80 backdrop-blur-md text-[9px] font-black text-white shadow-md uppercase tracking-wider">
+            💎 NUEVO
+          </div>
+        )}
+      </div>
+
+      {/* Info */}
+      <div className="space-y-0.5 min-w-0">
+        <h4
+          translate="no"
+          className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors truncate notranslate music-title"
+        >
+          {album.album}
+        </h4>
+        <p
+          translate="no"
+          className="text-[11px] sm:text-xs text-white/50 truncate notranslate artist-name"
+        >
+          {album.artista}
+        </p>
+        <div className="pt-1 flex items-center justify-between text-[10px] text-white/40">
+          {album.reviewCount !== undefined && album.reviewCount > 0 ? (
+            <span>
+              {album.reviewCount}{' '}
+              {album.reviewCount === 1 ? 'reseña' : 'reseñas'}
+            </span>
+          ) : album.added_by ? (
+            <span className="truncate">
+              Por:{' '}
+              <strong translate="no" className="notranslate username-tag">
+                {album.added_by}
+              </strong>
+            </span>
+          ) : album.release_year ? (
+            <span>{album.release_year}</span>
+          ) : null}
+        </div>
+      </div>
+    </Link>
+  );
+
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
+    <div className="min-h-screen cyber-grid p-4 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
         title="Musiclub — El Club Social de Álbumes, EPs y Reviews de Música"
         description="En Musiclub descubre, califica y debate cada álbum, EP y canción. Calificaciones multi-criterio, ruleta de selección, gashapon arcade, rankings y reviews de la comunidad."
@@ -542,14 +658,14 @@ export function LandingPage() {
         {/* =========================================================================
             1. HERO SECTION (Clean, Striking, Mentioning Musiclub explicitly)
             ========================================================================= */}
-        <section className="relative pt-6 sm:py-16 md:py-20">
+        <section className="relative pt-6 sm:py-16 md:pt-10 md:pb-14">
           {/* Glow Elements */}
           <div className="absolute top-1/4 -left-20 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-tr from-[#f5576c]/15 to-[#f093fb]/10 rounded-full blur-3xl pointer-events-none -z-10 animate-aura-pulse"></div>
           <div className="absolute top-1/3 -right-20 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-bl from-cyan-500/10 via-purple-600/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left Column: Headline with Musiclub & Subtitle */}
-            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 sm:space-y-6">
+            <div className="lg:col-span-7 flex flex-col items-center lg:items-start text-center lg:text-left space-y-4 sm:space-y-5">
               {/* Main Headline mentioning Musiclub */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.08]">
                 En{' '}
@@ -593,14 +709,6 @@ export function LandingPage() {
                   <span>Gashapon Arcade</span>
                 </Link>
 
-                <Link
-                  to="/portadas"
-                  className="w-full sm:w-auto px-5 py-3.5 bg-gradient-to-r from-pink-500/15 to-purple-500/15 hover:from-pink-500/25 hover:to-purple-500/25 text-pink-200 hover:text-white font-bold text-sm rounded-2xl border border-pink-500/30 hover:border-pink-500/50 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
-                >
-                  <span>🖼️</span>
-                  <span>Calificar Portadas</span>
-                </Link>
-
                 {!user && (
                   <button
                     type="button"
@@ -623,10 +731,10 @@ export function LandingPage() {
                     T
                   </div>
                   <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-[10px] text-white font-black">
-                    M
+                    C
                   </div>
                   <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-[10px] text-white font-black">
-                    V
+                    A
                   </div>
                 </div>
                 <span>
@@ -824,7 +932,7 @@ export function LandingPage() {
               </span>
             </div>
 
-            <div className="flex flex-col items-center justify-center p-3 text-center">
+            <div className="flex flex-col items-center justify-center p-3 text-center border-b md:border-b-0 border-white/10">
               <span
                 translate="no"
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight flex items-center gap-1"
@@ -846,7 +954,7 @@ export function LandingPage() {
             2. SPOTLIGHT WINNER SECTION (Featured Album with Direct Action)
             ========================================================================= */}
         {winner && (
-          <section className="my-8 sm:my-12 relative">
+          <section className="my-6 sm:my-8 relative">
             <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#161830] via-[#0d0f1f] to-[#070810] border-2 border-pink-500/30 p-6 sm:p-8 md:p-10 shadow-2xl text-left">
               <div className="absolute -top-16 -right-16 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -1093,9 +1201,9 @@ export function LandingPage() {
                   <span>🎰</span> Sorteo en Vivo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Mediante el <strong>Gashapon Arcade</strong> o la{' '}
-                  <strong>Ruleta Retro</strong>, el club elige aleatoriamente el
-                  próximo lanzamiento ganador del pool para escuchar en grupo.
+                  Mediante la <strong>Máquina Musical</strong>, el admin
+                  designado del pool elige aleatoriamente el próximo lanzamiento
+                  ganador del pool para escuchar en grupo.
                 </p>
               </div>
 
@@ -1286,7 +1394,7 @@ export function LandingPage() {
                   Buzón Musical & Playlists
                 </h3>
                 <p className="text-white/60 text-xs leading-relaxed">
-                  Envía recomendaciones de temas directas al buzón privado de
+                  Envía sugerencias de canciones directas al buzón privado de
                   tus amigos y descubre listas de reproducción curadas por la
                   comunidad.
                 </p>
@@ -1336,149 +1444,118 @@ export function LandingPage() {
         <section className="my-12 sm:my-16 text-left">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
             <div className="space-y-1">
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                En Rotación & Tendencias
-              </h2>
+              <div className="flex items-center gap-2">
+                <img
+                  src="/musiclub_logo_corchea.png"
+                  alt="Musiclub"
+                  className="w-8 h-8 object-contain"
+                />
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  En Rotación & Tendencias
+                </h2>
+              </div>
               <p className="text-white/60 text-xs sm:text-sm">
                 Una muestra de los álbumes, EPs y canciones que están sonando en
                 el club.
               </p>
             </div>
 
-            {/* Tabs switcher */}
-            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10 backdrop-blur-md self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={() => setSelectedAlbumTab('active')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedAlbumTab === 'active'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                🔥 Pool Activo ({activePool?.length || 0})
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedAlbumTab('top')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedAlbumTab === 'top'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                ⭐ Top Obras Maestras
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedAlbumTab('recent')}
-                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                  selectedAlbumTab === 'recent'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
-                    : 'text-white/60 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                💎 Recientes
-              </button>
+            {/* Controles de la derecha: Botón de Slider en Vivo + Selector de pestañas */}
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              {/* Tabs switcher */}
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAlbumTab('active');
+                    setIsShowcaseSliderPaused(false);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedAlbumTab === 'active'
+                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  🔥 Pool Activo ({activePool?.length || 0})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAlbumTab('top');
+                    setIsShowcaseSliderPaused(false);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedAlbumTab === 'top'
+                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  ⭐ Top Obras Maestras
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedAlbumTab('recent');
+                    setIsShowcaseSliderPaused(false);
+                  }}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                    selectedAlbumTab === 'recent'
+                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      : 'text-white/60 hover:text-white hover:bg-white/5'
+                  }`}
+                >
+                  💎 Recientes
+                </button>
+              </div>
             </div>
           </div>
 
-          {/* Album Cards Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-5">
-            {showcaseAlbums.map((album, idx) => (
-              <Link
-                key={album.id || idx}
-                to={getReleaseUrl(
-                  album.album || album.album_name,
-                  album.release_type || album.releaseType
-                )}
-                className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-pink-500/40 p-3 sm:p-3.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/10 flex flex-col justify-between"
+          {/* Renderizado condicional del Showcase:
+              - Si no hay lanzamientos: Estado vacío informativo.
+              - Si hay máximo 4 lanzamientos: Se muestran en fila estática (no se mueve).
+              - Si hay más de 4 lanzamientos: Slider horizontal automático en movimiento continuo. */}
+          {showcaseAlbums.length === 0 ? (
+            <div className="py-12 text-center rounded-2xl bg-white/5 border border-white/10 text-white/50 text-xs sm:text-sm">
+              No hay lanzamientos disponibles en esta categoría actualmente.
+            </div>
+          ) : !isShowcaseSliderActive ? (
+            /* CASO 1: MÁXIMO 4 ELEMENTOS -> EL SLIDER NO SE MUEVE (ESTÁTICO, SIN DESPLEGARSE HACIA ABAJO) */
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-5 w-full">
+              {showcaseAlbums.map((album, idx) =>
+                renderShowcaseCard(album, album.id || idx, false)
+              )}
+            </div>
+          ) : (
+            /* CASO 2: MÁS DE 4 ELEMENTOS -> SLIDER AUTOMÁTICO EN MOVIMIENTO CONSTANTE */
+            <div
+              className="relative w-full overflow-hidden py-2 group/showcase-slider"
+              onMouseEnter={() => setIsShowcaseSliderPaused(true)}
+              onMouseLeave={() => setIsShowcaseSliderPaused(false)}
+            >
+              {/* Gradientes laterales de desvanecimiento estético */}
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+
+              {/* Pista del slider infinito en traslación perpetua fluida */}
+              <div
+                key={selectedAlbumTab}
+                className={`mb-6 animate-continuous-slider flex gap-3 sm:gap-5 w-max will-change-transform ${
+                  isShowcaseSliderPaused ? 'slider-paused' : ''
+                }`}
+                style={{
+                  '--slider-duration': showcaseSliderDuration,
+                }}
               >
-                {/* Artwork */}
-                <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2.5">
-                  {album.imagen ? (
-                    <img
-                      src={album.imagen}
-                      alt={album.album}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 notranslate"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-3xl text-white/20">
-                      💿
-                    </div>
-                  )}
-
-                  {/* Format badge on top-left */}
-                  <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase text-white/90 tracking-wider shadow-sm">
-                    {album.release_type === 'EP'
-                      ? '💽 EP'
-                      : album.release_type === 'SENCILLO' ||
-                          album.release_type === 'SINGLE'
-                        ? '🎵 Sencillo'
-                        : '💿 Álbum'}
-                  </div>
-
-                  {/* Bottom right badge */}
-                  {selectedAlbumTab === 'top' ||
-                  (album.score !== undefined &&
-                    album.score !== null &&
-                    Number(album.score) > 0) ? (
-                    <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md border border-amber-400/40 text-[10px] sm:text-xs font-black text-amber-300 shadow-md flex items-center gap-1">
-                      <span>⭐</span>
-                      <span>{Number(album.score).toFixed(1)}</span>
-                    </div>
-                  ) : selectedAlbumTab === 'active' ||
-                    album.status === 'POOL_ACTIVO' ? (
-                    <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider">
-                      🔥 POOL
-                    </div>
-                  ) : (
-                    <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-cyan-600/80 backdrop-blur-md text-[9px] font-black text-white shadow-md uppercase tracking-wider">
-                      💎 NUEVO
-                    </div>
-                  )}
-                </div>
-
-                {/* Info */}
-                <div className="space-y-0.5 min-w-0">
-                  <h4
-                    translate="no"
-                    className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors truncate notranslate music-title"
-                  >
-                    {album.album}
-                  </h4>
-                  <p
-                    translate="no"
-                    className="text-[11px] sm:text-xs text-white/50 truncate notranslate artist-name"
-                  >
-                    {album.artista}
-                  </p>
-                  <div className="pt-1 flex items-center justify-between text-[10px] text-white/40">
-                    {album.reviewCount !== undefined &&
-                    album.reviewCount > 0 ? (
-                      <span>
-                        {album.reviewCount}{' '}
-                        {album.reviewCount === 1 ? 'reseña' : 'reseñas'}
-                      </span>
-                    ) : album.added_by ? (
-                      <span className="truncate">
-                        Por:{' '}
-                        <strong
-                          translate="no"
-                          className="notranslate username-tag"
-                        >
-                          {album.added_by}
-                        </strong>
-                      </span>
-                    ) : album.release_year ? (
-                      <span>{album.release_year}</span>
-                    ) : null}
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                {showcaseMarqueeItems.map((album, idx) =>
+                  renderShowcaseCard(
+                    album,
+                    `marquee-${selectedAlbumTab}-${album.id || idx}-${idx}`,
+                    true
+                  )
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Full Catalog Navigation CTA */}
           <div className="mt-8 text-center">
@@ -1688,21 +1765,28 @@ export function LandingPage() {
         )}
 
         {/* =========================================================================
-            7. QUICK PLAYGROUND: MINI ROULETTE / SLOT MACHINE
+            7. QUICK PLAYGROUND: MINI ROULETTE / GASHAPON ARCADE
             ========================================================================= */}
         <section className="my-12 sm:my-16 relative">
           <div className="rounded-3xl bg-gradient-to-r from-[#141528] via-[#101222] to-[#0d0f1c] border border-white/10 p-6 sm:p-8 backdrop-blur-xl text-center space-y-6">
             <div className="max-w-xl mx-auto space-y-2">
               <span className="text-xs font-bold text-pink-400 uppercase tracking-wider">
-                🎲 ¿NO SABES QUÉ ESCUCHAR HOY?
+                ¿NO SABES QUÉ ESCUCHAR HOY?
               </span>
-              <h3 className="text-2xl sm:text-3xl font-black text-white">
-                Selector Rápido del Club
-              </h3>
+              <div className="flex items-center justify-center gap-2">
+                <img
+                  src="/musiclub_logo_corchea.png"
+                  alt="Musiclub"
+                  className="w-8 h-8 object-contain"
+                />
+                <h3 className="text-2xl sm:text-3xl font-black text-white">
+                  Selector Rápido del Club
+                </h3>
+              </div>
               <p className="text-white/60 text-xs sm:text-sm">
                 Presiona el botón para elegir un lanzamiento al azar de los
-                activos o despliega la máquina tragamonedas completa para
-                sesiones oficiales.
+                activos o entra al Gashapon Arcade para sesiones oficiales con
+                cápsulas coleccionables.
               </p>
             </div>
 
@@ -1751,40 +1835,27 @@ export function LandingPage() {
                 disabled={isQuickPicking || activeAlbums.length === 0}
                 className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span>🎲</span>
+                <span className="text-xl">🎲</span>
                 <span>
                   {isQuickPicking ? 'Eligiendo...' : 'Girar Selector Rápido'}
                 </span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setShowFullSlotMachine((prev) => !prev)}
-                className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs sm:text-sm border border-white/10 transition-all flex items-center gap-2 cursor-pointer"
+              <Link
+                to="/gashapon"
+                className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-pink-500/40 hover:text-pink-200 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 shadow-md group"
               >
-                <span>🎰</span>
-                <span>
-                  {showFullSlotMachine
-                    ? 'Ocultar Máquina Arcade'
-                    : 'Abrir Tragamonedas Oficial'}
-                </span>
-              </button>
-            </div>
-
-            {/* Full Retro Slot Machine (Collapsible to keep landing page uncluttered) */}
-            {showFullSlotMachine && (
-              <div className="mt-8 pt-6 border-t border-white/10 animate-fadeIn">
-                <SlotMachine
-                  albums={albums}
-                  onSpinComplete={() => {}}
-                  isSpinning={false}
-                  onSpinStart={() => {}}
-                  markAlbumAsInactive={markAlbumAsInactive}
-                  isAdmin={isAdmin}
-                  user={user}
+                <img
+                  src="/musiclub_logo_3.png"
+                  alt="Gashapon Arcade"
+                  className="w-6 h-6 object-contain"
                 />
-              </div>
-            )}
+                <span>Gashapon Arcade</span>
+                <span className="text-pink-400 group-hover:translate-x-0.5 transition-transform text-xs">
+                  →
+                </span>
+              </Link>
+            </div>
           </div>
         </section>
 

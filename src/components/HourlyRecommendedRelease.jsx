@@ -61,7 +61,7 @@ export function HourlyRecommendedRelease({
     };
   }, [now]);
 
-  // Agrupar reseñas por album_id y ordenar para que la más completa/reciente aparezca primero
+  // Agrupar reseñas por album_id y ordenar para que la primera reseña registrada (cronológicamente más antigua) aparezca primero
   const reviewsByAlbumId = useMemo(() => {
     const map = new Map();
     (allReviews || []).forEach((rev) => {
@@ -73,14 +73,17 @@ export function HourlyRecommendedRelease({
     });
 
     map.forEach((revList) => {
+      // Orden cronológico ascendente (la primera reseña registrada en la plataforma aparece al inicio)
       revList.sort((a, b) => {
-        // Priorizar opiniones que incluyan comentario de texto
-        const aHasText =
-          a.opinion || a.comentario || a.comment || a.review ? 1 : 0;
-        const bHasText =
-          b.opinion || b.comentario || b.comment || b.review ? 1 : 0;
-        if (aHasText !== bHasText) return bHasText - aHasText;
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        if (timeA && timeB && timeA !== timeB) return timeA - timeB;
+        if (a.id && b.id && a.id !== b.id) {
+          return String(a.id).localeCompare(String(b.id), undefined, {
+            numeric: true,
+          });
+        }
+        return 0;
       });
     });
 
@@ -182,8 +185,10 @@ export function HourlyRecommendedRelease({
   const candidateAlbum = currentCandidate?.album || null;
   const candidateReview = currentCandidate?.review || null;
 
-  const candidateAlbumTitle = candidateAlbum?.album_name || candidateAlbum?.album || '';
-  const candidateArtistName = candidateAlbum?.artist_name || candidateAlbum?.artista || '';
+  const candidateAlbumTitle =
+    candidateAlbum?.album_name || candidateAlbum?.album || '';
+  const candidateArtistName =
+    candidateAlbum?.artist_name || candidateAlbum?.artista || '';
   const candidateReviewerName =
     candidateReview?.reviewer_name ||
     candidateReview?.author_name ||
@@ -294,8 +299,13 @@ export function HourlyRecommendedRelease({
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Live Hour Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-pink-500/20 border border-amber-400/40 text-amber-200 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm">
+              <img
+                src="/musiclub_logo_corchea.png"
+                alt="Musiclub"
+                className="w-3.5 h-3.5 object-contain"
+              />
               <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-              <span>⏰ Release Recomendado de la Hora</span>
+              <span>Release Recomendado de la Hora</span>
             </div>
 
             {/* Reseñas Registradas badge (1 a 3) */}
@@ -417,14 +427,29 @@ export function HourlyRecommendedRelease({
                     <span className="text-[10px] text-white/40 block font-semibold uppercase">
                       {reviewCount === 1
                         ? 'Única Reseña Comunitaria'
-                        : 'Reseña Destacada de la Comunidad'}
+                        : 'Primera Reseña Registrada (Destacada)'}
                     </span>
-                    <span
-                      translate="no"
-                      className="notranslate username-tag text-xs sm:text-sm font-bold text-white truncate"
-                    >
-                      {reviewerName}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span
+                        translate="no"
+                        className="notranslate username-tag text-xs sm:text-sm font-bold text-white truncate"
+                      >
+                        {reviewerName}
+                      </span>
+                      {review?.created_at && (
+                        <span className="text-[10px] text-white/40 flex-shrink-0">
+                          •{' '}
+                          {new Date(review.created_at).toLocaleDateString(
+                            'es-ES',
+                            {
+                              day: 'numeric',
+                              month: 'short',
+                              year: 'numeric',
+                            }
+                          )}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -445,7 +470,7 @@ export function HourlyRecommendedRelease({
                 </p>
               ) : (
                 <p className="text-xs text-white/50 italic bg-black/20 p-2.5 rounded-xl border border-white/5">
-                  El crítico otorgó su calificación sin comentarios escritos.
+                  El primer crítico otorgó su calificación sin comentarios escritos.
                   ¡Sé quien aporte una reseña más detallada!
                 </p>
               )}
@@ -533,7 +558,7 @@ export function HourlyRecommendedRelease({
                   <span>🎧</span>
                   <span>Escuchar en streaming:</span>
                 </div>
-                <div className="flex flex-wrap items-center gap-2.5">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   {spotifyUrl && (
                     <a
                       href={spotifyUrl}

@@ -767,11 +767,16 @@ export function TierListMaker({
       {/* CABECERA CON LOGO OFICIAL DE MUSICLUB */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-white/10">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-2 flex-shrink-0 shadow-lg shadow-pink-500/10">
+          <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-1.5 flex-shrink-0 shadow-lg shadow-pink-500/10 overflow-hidden">
+            <img
+              src="/musiclub_logo_2.png"
+              alt="Musiclub Disc"
+              className="absolute inset-0 w-full h-full object-contain animate-spin-slow opacity-35"
+            />
             <img
               src="/musiclub_logo_corchea.png"
               alt="Musiclub Logo"
-              className="w-full h-full object-contain drop-shadow"
+              className="relative z-10 w-full h-full object-contain drop-shadow"
               onError={(e) => {
                 e.target.src = '/musiclub_logo_3.png';
               }}

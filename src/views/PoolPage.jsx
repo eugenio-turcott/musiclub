@@ -293,11 +293,24 @@ export function PoolPage() {
         <div className="relative rounded-3xl bg-gradient-to-br from-[#161832] via-[#0e1022] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
+          {/* Spinning Musiclub Logo 4 in Pool Hero */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+              <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse" />
+              <img
+                src="/musiclub_logo_4.png"
+                alt="Musiclub Logo"
+                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
+              />
+            </div>
+          </div>
+
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
             <div className="space-y-3 max-w-2xl">
               {/* Season Live Pill & Selector */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-300 text-xs font-black tracking-wider uppercase">
+                  <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span>{season.name}</span>
                   <span className="text-white/40">&bull;</span>

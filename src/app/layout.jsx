@@ -39,7 +39,11 @@ export const metadata = {
     google: '0pLiSU5HTFvlbKZcVEg8qnt2O6lQsCFt-t5IFgTlwK8',
   },
   icons: {
-    icon: '/musiclub_logo_corchea.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/musiclub_logo_corchea.png', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/musiclub_logo_corchea.png',
   },
   openGraph: {

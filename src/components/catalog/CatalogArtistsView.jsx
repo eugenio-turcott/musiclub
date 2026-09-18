@@ -6,8 +6,32 @@ import { registerUntranslatableEntities } from '../../utils/translateCrashGuard'
 
 const ALPHABET = [
   'TODOS',
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-  'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
   '#',
 ];
 
@@ -88,7 +112,9 @@ export function CatalogArtistsView({ albums = [] }) {
           entry.image_url = album.image_url;
         }
         if (album.genres && album.genres.length > 0) {
-          entry.genres = Array.from(new Set([...entry.genres, ...album.genres]));
+          entry.genres = Array.from(
+            new Set([...entry.genres, ...album.genres])
+          );
         }
         if (!entry.clubReleases.some((r) => r.id === album.id)) {
           entry.clubReleases.push(album);
@@ -158,20 +184,18 @@ export function CatalogArtistsView({ albums = [] }) {
             <span>🎤</span>
             <span>Directorio de Artistas</span>
             <span className="text-white/40">•</span>
-            <span className="text-cyan-200">{artistsList.length} Artistas Registrados</span>
+            <span className="text-cyan-200">
+              {artistsList.length} Artistas Registrados
+            </span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight">
             Explora Artistas y Colaboradores
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Cada artista cuenta con su perfil discográfico independiente. En lanzamientos colaborativos,
-            cada integrante posee su propia página y estadísticas oficiales en el Club.
+            Cada artista cuenta con su perfil discográfico independiente. En
+            lanzamientos colaborativos, cada integrante posee su propia página y
+            estadísticas oficiales en el Club.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2 bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl text-cyan-300">
-          <span className="text-lg">✨</span>
-          <span className="text-xs font-bold">Desambiguación Precisa</span>
         </div>
       </div>
 

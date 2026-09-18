@@ -196,10 +196,22 @@ export function PatchNotes({ isPage = false }) {
         <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
 
+        {/* Spinning Musiclub Logo 3 */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
+          <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
+            <img
+              src="/musiclub_logo_3.png"
+              alt="Musiclub Logo"
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
+            />
+          </div>
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm">
-              <span>📜</span>
+              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
               <span>Historial de Desarrollo & Actualizaciones</span>
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">

@@ -14,6 +14,63 @@ export const CURATED_PATCH_NOTES = [
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.8.12',
+    title:
+      'Identidad Dinámica Musiclub: Vinilos Giratorios Continuos, Slider Infinito en Tendencias y Paginación en Leaderboard',
+    date: '2026-09-18',
+    sha: 'c812e9b',
+    associatedShas: ['c812e9b'],
+    tag: 'Dynamic Brand & Infinite Slider Showcase',
+    tagColor: 'from-pink-500 via-purple-500 to-cyan-500',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Gran actualización estética y de usabilidad Musiclub V.8.12 que potencia la identidad visual del club a través de elementos gráficos dinámicos y optimizaciones de navegación. Se integran los isotipos oficiales (musiclub_logo, musiclub_logo_2, musiclub_logo_3, musiclub_logo_4 y musiclub_logo_corchea) a lo largo de toda la plataforma con rotación suave y perpetua. La sección "En Rotación & Tendencias" evoluciona a un slider automático horizontal continuo: si hay hasta 4 álbumes se muestra una fila fija elegante sin moverse ni desplegarse hacia abajo, y si hay más de 4 se desplaza constantemente de forma infinita con pausa al posar el cursor o pulsar el control en vivo. Además, el Leaderboard incorpora paginación fluida de 15 miembros por página con aislamiento estricto de clics en medallas.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Slider Automático Continuo en "En Rotación & Tendencias"',
+        description:
+          'En vez de apilarse hacia abajo en filas múltiples, la sección presenta un slider automático inteligente: si existen hasta 4 lanzamientos (en Pool Activo, Top Obras Maestras o Recientes) permanece en una fila estática limpia y no se mueve; si existen más de 4, se activa el desplazamiento continuo infinito a 60 FPS con halo de desvanecimiento en los bordes, pausa automática al posar el cursor (hover) y botón de control de estado en vivo.',
+      },
+      {
+        type: 'feature',
+        title: 'Elementos Gráficos de Marca y Vinilos Giratorios Continuos',
+        description:
+          'Se desplegaron los isotipos oficiales musiclub_logo, musiclub_logo_2, musiclub_logo_3, musiclub_logo_4 y musiclub_logo_corchea en AppHeader, Footer, Catálogo Musical, Leaderboard, Pool Comunitario, Patch Notes, FAQ, Playlists, Reseñas, Configuración de Perfil, Ficha de Artista, Ficha de Álbum, Ruleta Gashapon y Release de la Hora. Todos los vinilos cuentan con rotación perpetua suave (animate-spin-slow), aura ambiental luminosa y escala responsiva acorde a cada vista.',
+      },
+      {
+        type: 'feature',
+        title: 'Paginación de 15 Usuarios en Leaderboard de Miembros',
+        description:
+          'El ranking de la comunidad ahora muestra hasta 15 usuarios por página con controles de paginación interactivos (anterior/siguiente y salto directo de página), indicador de rango global (ej. "Mostrando 1 - 15 de 42 miembros") y auto-scroll fluido a la cabecera del listado al cambiar de página.',
+      },
+      {
+        type: 'improvement',
+        title: 'Acceso Directo al Gashapon Arcade en Selector Rápido',
+        description:
+          'El botón de la máquina tragamonedas en el Selector Rápido del Club fue sustituido por un acceso directo al Gashapon Arcade (/gashapon) con vinilo giratorio neón musiclub_logo_3 e isotipo corchea en la cabecera.',
+      },
+      {
+        type: 'improvement',
+        title: 'Primera Reseña Histórica en Release Recomendado de la Hora',
+        description:
+          'En el componente de Release Recomendado de la Hora, la Reseña Destacada de la Comunidad ahora presenta con precisión cronológica la primera reseña que se registró históricamente en la plataforma para dicho lanzamiento, incluyendo su fecha original de registro.',
+      },
+      {
+        type: 'improvement',
+        title: 'Aislamiento de Clics en Insignias del Leaderboard',
+        description:
+          'Al hacer clic en el botón "+N más" o en las insignias de un usuario en el Leaderboard, la interacción se aísla de forma precisa para abrir la guía detallada de medallas sin activar involuntariamente el modal de perfil de usuario completo.',
+      },
+      {
+        type: 'fix',
+        title: 'Estabilidad de Hooks en Release Recomendado de la Hora',
+        description:
+          'Se corrigió el orden de ejecución de hooks en HourlyRecommendedRelease, garantizando el cumplimiento riguroso de las Reglas de Hooks de React y erradicando advertencias en la consola.',
+      },
+    ],
+  },
+  {
     version: 'V.8.11',
     title:
       'Blindaje Universal e Inquebrantable Contra Traducción: Preservación Lingüística Total de Nombres de Releases, Artistas y Personas',

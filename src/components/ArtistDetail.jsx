@@ -431,8 +431,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                 <div className="flex-1 min-w-0 text-center md:text-left space-y-3 sm:space-y-4">
                   <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                     {clubStats.total > 0 && (
-                      <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-0.5 rounded-full">
-                        ✨ En Musiclub
+                      <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                        <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
+                        <span>En Musiclub</span>
                       </span>
                     )}
                   </div>

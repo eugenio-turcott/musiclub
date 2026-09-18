@@ -513,9 +513,13 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                 autoFocus
               />
 
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none flex items-center justify-center">
                 {isSearching ? (
-                  <span className="inline-block w-3 h-3 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
+                  <img
+                    src="/musiclub_logo.png"
+                    alt=""
+                    className="w-3.5 h-3.5 object-contain animate-spin-slow"
+                  />
                 ) : (
                   '🔍'
                 )}
@@ -534,7 +538,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
             {statusMessage && (
               <div className="bg-gradient-to-r from-pink-600/90 to-purple-600/90 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                <img
+                  src="/musiclub_logo_2.png"
+                  alt=""
+                  className="w-3.5 h-3.5 object-contain animate-spin-slow"
+                />
                 <span>{statusMessage}</span>
               </div>
             )}
@@ -543,8 +551,12 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
               <div className="max-h-[300px] overflow-y-auto space-y-1 custom-scrollbar pt-1">
                 {isSearching && combinedResults.length === 0 ? (
                   <div className="p-3 text-center text-white/50 text-xs flex items-center justify-center gap-2">
-                    <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse"></span>
-                    <span>Buscando...</span>
+                    <img
+                      src="/musiclub_logo.png"
+                      alt=""
+                      className="w-4 h-4 object-contain animate-spin-slow"
+                    />
+                    <span>Buscando en Musiclub & Spotify...</span>
                   </div>
                 ) : combinedResults.length === 0 ? (
                   <div className="p-3 text-center text-white/40 text-xs">

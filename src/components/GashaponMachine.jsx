@@ -773,10 +773,23 @@ export function GashaponMachine({
         <div className="absolute top-0 right-1/4 w-80 h-80 bg-gradient-to-br from-[#f5576c]/20 via-[#f093fb]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-10 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
+        {/* Spinning Musiclub Logo 3 */}
+        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 pointer-events-none select-none opacity-80 hover:opacity-100 transition-opacity">
+          <div className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center">
+            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
+            <img
+              src="/musiclub_logo_3.png"
+              alt="Musiclub Logo"
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_15px_rgba(245,87,108,0.5)]"
+            />
+          </div>
+        </div>
+
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
           <div className="space-y-1.5 max-w-xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40 text-[#f093fb] text-xs font-black uppercase tracking-wider mb-1">
-              <span>🔮</span> Neo Gashapon Arcade
+              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
+              <span>Neo Gashapon Arcade</span>
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
               Gashapon de Releases Musicales

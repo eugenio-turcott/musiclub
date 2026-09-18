@@ -256,9 +256,21 @@ export function Reviews({ onClose, isPage = false }) {
         </div>
 
         {/* Header Title */}
-        <div className="text-center space-y-2.5 sm:space-y-3">
+        <div className="relative text-center space-y-2.5 sm:space-y-3 pt-2">
+          {/* Spinning Musiclub Logo 4 */}
+          <div className="absolute top-0 right-2 sm:right-6 md:right-10 z-10 pointer-events-none select-none">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+              <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse" />
+              <img
+                src="/musiclub_logo_4.png"
+                alt="Musiclub Logo"
+                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(244,114,182,0.4)]"
+              />
+            </div>
+          </div>
+
           <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/20 to-pink-500/10 border border-pink-500/30 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
-            <span>📝</span>
+            <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
             <span>Historial y Calificaciones de la Comunidad</span>
           </div>
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
@@ -424,7 +436,14 @@ export function Reviews({ onClose, isPage = false }) {
         {/* Reviews Feed */}
         {loading ? (
           <div className="py-20 text-center space-y-4">
-            <div className="inline-block w-10 h-10 border-4 border-pink-400 border-t-transparent rounded-full animate-spin" />
+            <div className="relative w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
+              <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse" />
+              <img
+                src="/musiclub_logo_4.png"
+                alt="Cargando..."
+                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_15px_rgba(244,114,182,0.5)]"
+              />
+            </div>
             <p className="text-slate-400 text-sm">
               Cargando reseñas de la comunidad...
             </p>

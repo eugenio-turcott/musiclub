@@ -236,6 +236,28 @@
   animation: spin-slow 20s linear infinite;
 }
 
+/* Continuous Marquee Slider for En Rotación & Tendencias */
+@keyframes continuousSlider {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-continuous-slider {
+  display: flex;
+  width: max-content;
+  animation: continuousSlider var(--slider-duration, 35s) linear infinite;
+  will-change: transform;
+}
+
+.animate-continuous-slider:hover,
+.animate-continuous-slider.slider-paused {
+  animation-play-state: paused !important;
+}
+
 /* src/index.css o src/App.css */
 .custom-scrollbar::-webkit-scrollbar {
   width: 4px;

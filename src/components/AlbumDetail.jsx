@@ -171,15 +171,20 @@ const normalizeAlbumData = (rawAlbum) => {
       rawAlbum.review_count !== undefined && rawAlbum.review_count !== null
         ? Number(rawAlbum.review_count) || 0
         : Array.isArray(rawAlbum.reviews)
-        ? rawAlbum.reviews.length
-        : 0,
+          ? rawAlbum.reviews.length
+          : 0,
     reviews: Array.isArray(rawAlbum.reviews) ? rawAlbum.reviews : [],
-    track_stats: Array.isArray(rawAlbum.track_stats) ? rawAlbum.track_stats : [],
+    track_stats: Array.isArray(rawAlbum.track_stats)
+      ? rawAlbum.track_stats
+      : [],
     criteria_averages: rawAlbum.criteria_averages || {},
   };
 };
 
-export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } = {}) {
+export function AlbumDetail({
+  preloadedAlbum: propPreloadedAlbum,
+  initialSlug,
+} = {}) {
   const params = useParams();
   const slug = initialSlug || params?.slug;
   const { user, isAdmin } = useAuth();
@@ -194,108 +199,111 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
   const [spotifyMeta, setSpotifyMeta] = useState(null);
   const [sharingReview, setSharingReview] = useState(null);
 
-  const loadData = useCallback(async (isInitialBackground = false) => {
-    if (!isInitialBackground) {
-      setLoading(true);
-    }
-    setError(null);
-    try {
-      // 1. Consulta directa y ultrarrápida por slug / id (~50ms)
-      let current = await supabaseService.getAlbumWithFullStats(slug);
-
-      // Fallback 1: si no se encontró con getAlbumWithFullStats, probar con getAllAlbums
-      if (!current) {
-        const fallbackAlbums = await supabaseService.getAllAlbums();
-        current = findAlbumBySlug(fallbackAlbums || [], slug);
-        if (current) {
-          current = {
-            ...current,
-            reviews: [],
-            track_stats: [],
-            stats: { totalReviews: 0, averageRating: null },
-            final_rating: null,
-          };
-        }
+  const loadData = useCallback(
+    async (isInitialBackground = false) => {
+      if (!isInitialBackground) {
+        setLoading(true);
       }
+      setError(null);
+      try {
+        // 1. Consulta directa y ultrarrápida por slug / id (~50ms)
+        let current = await supabaseService.getAlbumWithFullStats(slug);
 
-      // Fallback 2 (On-Demand Spotify): Si no existe en la base de datos de Musiclub, buscar en Spotify API
-      if (!current && slug) {
-        try {
-          const searchQuery = slug.replace(/-/g, ' ');
-          const searchRes = await searchAlbum(searchQuery);
-          if (
-            searchRes?.success &&
-            searchRes.albums &&
-            searchRes.albums.length > 0
-          ) {
-            const bestMatch = searchRes.albums[0];
-            const detailsRes = await getAlbumDetails(bestMatch.id);
-            if (detailsRes?.success && detailsRes.album) {
-              const spAlbum = detailsRes.album;
-              const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
-                name: t.name,
-                track_number: t.track_number || idx + 1,
-                duration_ms: t.duration_ms || null,
-                avg_rating: null,
-                votes_count: 0,
-              }));
-
-              current = {
-                id: `spotify_${spAlbum.id}`,
-                spotify_id: spAlbum.id,
-                album_name: spAlbum.name,
-                artist_name: spAlbum.artists.join(', '),
-                image_url: spAlbum.image,
-                spotify_link:
-                  spAlbum.external_urls?.spotify ||
-                  `https://open.spotify.com/album/${spAlbum.id}`,
-                release_date: spAlbum.releaseDate,
-                release_year: spAlbum.releaseYear,
-                release_type: spAlbum.release_type || 'ALBUM',
-                genres: spAlbum.genres || [],
-                label: spAlbum.label || '',
-                tracks: spAlbum.tracks.map((t) => t.name),
-                track_stats: spTracks,
-                reviews: [],
-                stats: { totalReviews: 0, averageRating: null },
-                final_rating: null,
-                is_on_demand: true,
-              };
-
-              setSpotifyMeta({
-                success: true,
-                releaseDate: spAlbum.releaseDate,
-                releaseYear: spAlbum.releaseYear,
-                releaseType: spAlbum.release_type,
-                genres: spAlbum.genres,
-                label: spAlbum.label,
-                totalTracks: spAlbum.totalTracks,
-                spotifyUrl: spAlbum.external_urls?.spotify,
-              });
-            }
+        // Fallback 1: si no se encontró con getAlbumWithFullStats, probar con getAllAlbums
+        if (!current) {
+          const fallbackAlbums = await supabaseService.getAllAlbums();
+          current = findAlbumBySlug(fallbackAlbums || [], slug);
+          if (current) {
+            current = {
+              ...current,
+              reviews: [],
+              track_stats: [],
+              stats: { totalReviews: 0, averageRating: null },
+              final_rating: null,
+            };
           }
-        } catch (spErr) {
-          console.warn(
-            'Error al resolver álbum on-demand desde Spotify:',
-            spErr
-          );
         }
-      }
 
-      if (current) {
-        setAlbum(normalizeAlbumData(current));
-      } else if (!preloadedAlbum) {
-        setError('Álbum no encontrado');
+        // Fallback 2 (On-Demand Spotify): Si no existe en la base de datos de Musiclub, buscar en Spotify API
+        if (!current && slug) {
+          try {
+            const searchQuery = slug.replace(/-/g, ' ');
+            const searchRes = await searchAlbum(searchQuery);
+            if (
+              searchRes?.success &&
+              searchRes.albums &&
+              searchRes.albums.length > 0
+            ) {
+              const bestMatch = searchRes.albums[0];
+              const detailsRes = await getAlbumDetails(bestMatch.id);
+              if (detailsRes?.success && detailsRes.album) {
+                const spAlbum = detailsRes.album;
+                const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
+                  name: t.name,
+                  track_number: t.track_number || idx + 1,
+                  duration_ms: t.duration_ms || null,
+                  avg_rating: null,
+                  votes_count: 0,
+                }));
+
+                current = {
+                  id: `spotify_${spAlbum.id}`,
+                  spotify_id: spAlbum.id,
+                  album_name: spAlbum.name,
+                  artist_name: spAlbum.artists.join(', '),
+                  image_url: spAlbum.image,
+                  spotify_link:
+                    spAlbum.external_urls?.spotify ||
+                    `https://open.spotify.com/album/${spAlbum.id}`,
+                  release_date: spAlbum.releaseDate,
+                  release_year: spAlbum.releaseYear,
+                  release_type: spAlbum.release_type || 'ALBUM',
+                  genres: spAlbum.genres || [],
+                  label: spAlbum.label || '',
+                  tracks: spAlbum.tracks.map((t) => t.name),
+                  track_stats: spTracks,
+                  reviews: [],
+                  stats: { totalReviews: 0, averageRating: null },
+                  final_rating: null,
+                  is_on_demand: true,
+                };
+
+                setSpotifyMeta({
+                  success: true,
+                  releaseDate: spAlbum.releaseDate,
+                  releaseYear: spAlbum.releaseYear,
+                  releaseType: spAlbum.release_type,
+                  genres: spAlbum.genres,
+                  label: spAlbum.label,
+                  totalTracks: spAlbum.totalTracks,
+                  spotifyUrl: spAlbum.external_urls?.spotify,
+                });
+              }
+            }
+          } catch (spErr) {
+            console.warn(
+              'Error al resolver álbum on-demand desde Spotify:',
+              spErr
+            );
+          }
+        }
+
+        if (current) {
+          setAlbum(normalizeAlbumData(current));
+        } else if (!preloadedAlbum) {
+          setError('Álbum no encontrado');
+        }
+      } catch (err) {
+        console.error('Error loading album details:', err);
+        if (!preloadedAlbum) {
+          setError('Error al cargar la información del álbum');
+        }
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error('Error loading album details:', err);
-      if (!preloadedAlbum) {
-        setError('Error al cargar la información del álbum');
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [slug, preloadedAlbum]);
+    },
+    [slug, preloadedAlbum]
+  );
 
   useEffect(() => {
     // Si tenemos preloadedAlbum, sincronizamos en background sin pantalla de carga bloqueante
@@ -320,14 +328,23 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
       if (r.reviewer_name) peeps.push(r.reviewer_name);
     });
 
-    registerUntranslatableEntities({ releases: rels, artists: arts, people: peeps });
+    registerUntranslatableEntities({
+      releases: rels,
+      artists: arts,
+      people: peeps,
+    });
   }, [album]);
 
   // Enriquecer automáticamente metadatos desde Spotify (año, géneros, tipo de lanzamiento)
   useEffect(() => {
     if (!album) return;
     // Si el álbum ya cuenta con año, géneros y tipo, evitamos peticiones de red redundantes
-    if (album.release_year && album.genres && album.genres.length > 0 && album.release_type) {
+    if (
+      album.release_year &&
+      album.genres &&
+      album.genres.length > 0 &&
+      album.release_type
+    ) {
       return;
     }
 
@@ -527,7 +544,7 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
 
   const canonicalPath = album
     ? getReleaseUrl(album, album.release_type || spotifyMeta?.releaseType)
-    : (location?.pathname || `/albumes/${slug || ''}`);
+    : location?.pathname || `/albumes/${slug || ''}`;
   const canonicalUrl = `https://www.musiclub.org${canonicalPath}`;
   const reviewCountNum = album?.reviews?.length || album?.review_count || 0;
 
@@ -538,9 +555,9 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
       : 'Detalle del Lanzamiento | Musiclub';
 
   const metaDescription = album
-    ? (score !== null
-        ? `Reviews, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub. Puntuación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Descubre canciones destacadas, opiniones y desglose pista por pista.`
-        : `Reviews, opiniones y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name} en Musiclub. Analiza sus pistas, canciones destacadas y comparte tu reseña.`)
+    ? score !== null
+      ? `Reviews, opiniones y calificaciones de "${album.album_name}" de ${album.artist_name} en Musiclub. Puntuación promedio de ${score.toFixed(1)}/10 basada en ${reviewCountNum} ${reviewCountNum === 1 ? 'reseña' : 'reseñas'}. Descubre canciones destacadas, opiniones y desglose pista por pista.`
+      : `Reviews, opiniones y calificaciones de la comunidad para "${album.album_name}" de ${album.artist_name} en Musiclub. Analiza sus pistas, canciones destacadas y comparte tu reseña.`
     : `Reviews, opiniones, calificaciones y desglose pista por pista de "${formattedSlug || 'este lanzamiento'}" en Musiclub.`;
 
   const pageKeywords = album
@@ -660,6 +677,18 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
           {/* Subtle Background Glow behind cover */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
+          {/* Spinning Musiclub Vinyl Disc in Album Banner */}
+          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
+              <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-xl animate-pulse" />
+              <img
+                src="/musiclub_logo_2.png"
+                alt="Musiclub Vinyl"
+                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+              />
+            </div>
+          </div>
+
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
             {/* LEFT / TOP: Album Artwork Container */}
             <div className="w-full sm:w-72 md:w-80 lg:w-96 flex-shrink-0 flex flex-col items-center">
@@ -726,7 +755,8 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                   </a>
                 )}
 
-                {(album.other_link || (album.album_name && album.artist_name)) && (
+                {(album.other_link ||
+                  (album.album_name && album.artist_name)) && (
                   <a
                     href={
                       album.other_link ||
@@ -972,7 +1002,13 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                     title="Este álbum aún no se ha estrenado. Se habilitará para calificar una vez disponible en plataformas."
                   >
                     <span>⏳</span>
-                    <span>Lanzamiento Anticipado (Estreno {album.release_date || spotifyMeta?.releaseDate || 'próximo'})</span>
+                    <span>
+                      Lanzamiento Anticipado (Estreno{' '}
+                      {album.release_date ||
+                        spotifyMeta?.releaseDate ||
+                        'próximo'}
+                      )
+                    </span>
                   </div>
                 ) : (
                   <button
@@ -1020,14 +1056,23 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
               <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
                 El álbum está anunciado y programado para su estreno oficial el{' '}
                 <strong className="text-amber-300">
-                  {album.release_date || spotifyMeta?.releaseDate || 'próximamente'}
+                  {album.release_date ||
+                    spotifyMeta?.releaseDate ||
+                    'próximamente'}
                 </strong>
-                . Conforme a las normas del Club, las calificaciones y reseñas comunitarias se habilitarán exactamente en su fecha de salida. ¡Puedes indexarlo, consultar sus pistas y compartirlo!
+                . Conforme a las normas del Club, las calificaciones y reseñas
+                comunitarias se habilitarán exactamente en su fecha de salida.
+                ¡Puedes indexarlo, consultar sus pistas y compartirlo!
               </p>
             </div>
             <div className="px-5 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 flex-shrink-0">
               <span>📅</span>
-              <span>Estreno: {album.release_date || spotifyMeta?.releaseDate || 'Próximamente'}</span>
+              <span>
+                Estreno:{' '}
+                {album.release_date ||
+                  spotifyMeta?.releaseDate ||
+                  'Próximamente'}
+              </span>
             </div>
           </div>
         ) : album.is_on_demand ? (
@@ -1232,7 +1277,9 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                             t.avg_rating !== null &&
                             t.avg_rating !== undefined &&
                             !isNaN(Number(t.avg_rating));
-                          const numRating = hasTrackRating ? Number(t.avg_rating) : null;
+                          const numRating = hasTrackRating
+                            ? Number(t.avg_rating)
+                            : null;
 
                           return (
                             <span
@@ -1248,7 +1295,9 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                                         : 'bg-white/5 text-slate-500 border-white/5'
                               }`}
                             >
-                              {hasTrackRating ? `${numRating.toFixed(1)} ⭐` : '—'}
+                              {hasTrackRating
+                                ? `${numRating.toFixed(1)} ⭐`
+                                : '—'}
                             </span>
                           );
                         })()}
@@ -1289,11 +1338,18 @@ export function AlbumDetail({ preloadedAlbum: propPreloadedAlbum, initialSlug } 
                   rev.track_ratings &&
                   Object.keys(rev.track_ratings).length > 0;
                 const isOwnReview = Boolean(
-                  user && (
-                    (rev.user_id && user.id && String(rev.user_id) === String(user.id)) ||
-                    (rev.reviewer_email && user.email && rev.reviewer_email.toLowerCase() === user.email.toLowerCase()) ||
-                    (rev.reviewer_name && user.name && rev.reviewer_name.toLowerCase() === user.name.toLowerCase())
-                  )
+                  user &&
+                  ((rev.user_id &&
+                    user.id &&
+                    String(rev.user_id) === String(user.id)) ||
+                    (rev.reviewer_email &&
+                      user.email &&
+                      rev.reviewer_email.toLowerCase() ===
+                        user.email.toLowerCase()) ||
+                    (rev.reviewer_name &&
+                      user.name &&
+                      rev.reviewer_name.toLowerCase() ===
+                        user.name.toLowerCase()))
                 );
 
                 return (
