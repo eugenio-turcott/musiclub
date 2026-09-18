@@ -360,7 +360,7 @@ export async function getMonthlyTrendingReleases(options = {}) {
   // 4. Si se forzó sincronización o no hay datos en BD, consultar Record Club
   try {
     const rcRes = await fetch(
-      'https://api.record.club/releases?sortBy=popularity-week&limit=84',
+      'https://api.record.club/releases?sortBy=popularity-week&limit=100',
       {
         headers: {
           'User-Agent':
@@ -409,7 +409,9 @@ export async function getMonthlyTrendingReleases(options = {}) {
             release_date: relDate,
             release_type:
               r.type === 2 ? 'SENCILLO' : r.type === 3 ? 'EP' : 'ALBUM',
-            total_tracks: matched?.total_tracks || (r.type === 2 ? 1 : 12),
+            total_tracks:
+              matched?.total_tracks ||
+              (r.type === 2 ? 1 : r.type === 3 ? 5 : null),
             trending_rank: pos,
             popularity_raw: pop,
             popularity_this_week: `${pop.toLocaleString()} pts`,
@@ -451,7 +453,7 @@ export async function getMonthlyTrendingReleases(options = {}) {
     };
   });
 
-  const finalReleases = processed.slice(0, 84);
+  const finalReleases = processed.slice(0, 100);
 
   // 6. Si la tabla en Supabase está disponible, sincronizar los datos automáticamente
   try {
@@ -745,5 +747,170 @@ export function getFamousGenresCatalog(clubAlbums = []) {
       hasFewReleases: needsRecommendations,
     };
   });
+}
+
+/**
+ * Consulta las estadísticas de la plataforma en la base de datos de Supabase (tabla record_club_stats)
+ */
+export async function getGlobalMusicStats() {
+  try {
+    const { data, error } = await supabase
+      .from('record_club_stats')
+      .select('*')
+      .eq('id', 'current_stats')
+      .maybeSingle();
+
+    if (!error && data) {
+      return {
+        success: true,
+        artists: Number(data.artists) || 2995843,
+        releases: Number(data.releases) || 4127529,
+        labels: Number(data.labels) || 344849,
+        reviews: Number(data.reviews) || 294170,
+        lists: Number(data.lists) || 18262,
+        users: Number(data.users) || 22009,
+        updatedAt: data.updated_at,
+      };
+    }
+  } catch (err) {
+    console.warn('⚠️ No se pudo consultar record_club_stats:', err);
+  }
+
+  return {
+    success: true,
+    artists: 2995843,
+    releases: 4127529,
+    labels: 344849,
+    reviews: 294170,
+    lists: 18262,
+    users: 22009,
+  };
+}
+
+/**
+ * Registra una suscripción/recordatorio para un release anticipado y envía correo de confirmación
+ */
+export async function subscribeToUpcomingRelease({
+  albumId,
+  albumName,
+  artistName,
+  releaseDate,
+  email,
+  userId = null,
+  imageUrl = null,
+  slug = null,
+}) {
+  if (!email || !email.includes('@')) {
+    throw new Error('Por favor ingresa un correo electrónico válido');
+  }
+
+  const cleanEmail = email.trim().toLowerCase();
+
+  // 1. Guardar en localStorage para disponibilidad instantánea en el cliente
+  try {
+    const storageKey = 'musiclub_upcoming_notifs';
+    const raw = localStorage.getItem(storageKey);
+    const existing = raw ? JSON.parse(raw) : [];
+    const isAlready = existing.some(
+      (item) =>
+        (item.albumId === albumId || item.albumName === albumName) &&
+        item.email === cleanEmail
+    );
+    if (!isAlready) {
+      existing.push({
+        albumId: String(albumId),
+        albumName,
+        artistName,
+        releaseDate,
+        email: cleanEmail,
+        subscribedAt: new Date().toISOString(),
+      });
+      localStorage.setItem(storageKey, JSON.stringify(existing));
+    }
+  } catch (storageErr) {
+    // Silencioso si localStorage está restringido
+  }
+
+  // 2. Persistir en la base de datos de Supabase (tabla upcoming_notifications)
+  let savedInDb = false;
+  try {
+    const { data, error } = await supabase
+      .from('upcoming_notifications')
+      .upsert(
+        {
+          album_id: String(albumId || albumName),
+          album_name: albumName,
+          artist_name: artistName,
+          release_date: releaseDate,
+          email: cleanEmail,
+          user_id: userId || null,
+          notified: false,
+          created_at: new Date().toISOString(),
+        },
+        { onConflict: 'album_id,email' }
+      )
+      .select();
+
+    if (!error) savedInDb = true;
+    else console.warn('⚠️ Guardado en cliente local; nota de base de datos:', error.message);
+  } catch (dbErr) {
+    console.warn('⚠️ Almacenado localmente en navegador:', dbErr.message);
+  }
+
+  // 3. Invocar API de correo para enviar confirmación inmediata
+  let emailSent = false;
+  let emailResult = null;
+  try {
+    const res = await fetch('/api/notifications/upcoming', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        albumId: String(albumId || albumName),
+        albumName,
+        artistName,
+        releaseDate,
+        email: cleanEmail,
+        userId: userId || null,
+        imageUrl: imageUrl || null,
+        slug: slug || null,
+      }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      emailSent = data?.success || false;
+      emailResult = data?.emailResult || null;
+    }
+  } catch (apiErr) {
+    console.warn('⚠️ No se pudo contactar endpoint de correo de notificación:', apiErr.message);
+  }
+
+  return {
+    success: true,
+    email: cleanEmail,
+    savedInDb,
+    emailSent,
+    emailResult,
+  };
+}
+
+/**
+ * Verifica si un usuario ya tiene activa la notificación para un release
+ */
+export function checkIfSubscribedToUpcomingRelease({ albumId, albumName, email = null }) {
+  try {
+    const raw = localStorage.getItem('musiclub_upcoming_notifs');
+    if (!raw) return false;
+    const list = JSON.parse(raw);
+    const cleanEmail = email ? email.trim().toLowerCase() : null;
+    return list.some((item) => {
+      const matchAlbum =
+        (albumId && item.albumId === String(albumId)) ||
+        (albumName && item.albumName?.toLowerCase() === albumName?.toLowerCase());
+      if (cleanEmail) return matchAlbum && item.email === cleanEmail;
+      return matchAlbum;
+    });
+  } catch (e) {
+    return false;
+  }
 }
 

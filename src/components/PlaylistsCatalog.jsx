@@ -429,21 +429,18 @@ export function PlaylistsCatalog({ isPage = true }) {
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#1a1235] via-[#101223] to-[#0c1829] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl">
           <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-cyan-500/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
-          {/* Spinning Musiclub Logo 2 */}
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-xl animate-pulse" />
-              <img
-                src="/musiclub_logo_2.png"
-                alt="Musiclub Logo"
-                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(168,85,247,0.4)]"
-              />
-            </div>
+          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            <img
+              src="/musiclub_logo_2.png"
+              alt=""
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(168,85,247,0.3)]"
+            />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-5 sm:gap-6">
             <div className="space-y-2 max-w-2xl text-left">
-              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-pink-400/30 text-pink-300 text-[11px] sm:text-xs font-bold tracking-wider uppercase">
+              <div className="inline-flex items-center gap-2 bg-[#131526]/90 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-pink-400/40 text-pink-300 text-[11px] sm:text-xs font-bold tracking-wider uppercase shadow-md">
                 <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
                 <span>Curaduría & Playlists</span>
               </div>

@@ -90,6 +90,12 @@ export function PatchNotes({ isPage = false }) {
     return allPatchNotes.filter((note) => {
       // Filtro de tag
       if (
+        selectedTag === 'V9' &&
+        !note.version.startsWith('V.9') &&
+        !note.version.startsWith('v.9')
+      )
+        return false;
+      if (
         selectedTag === 'V8' &&
         !note.version.startsWith('V.8') &&
         !note.version.startsWith('v.8')
@@ -196,16 +202,13 @@ export function PatchNotes({ isPage = false }) {
         <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Spinning Musiclub Logo 3 */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-          <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
-            <img
-              src="/musiclub_logo_3.png"
-              alt="Musiclub Logo"
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
-            />
-          </div>
+        {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+        <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+          <img
+            src="/musiclub_logo_3.png"
+            alt=""
+            className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
+          />
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
@@ -227,7 +230,7 @@ export function PatchNotes({ isPage = false }) {
           {/* Badges de Versiones y Botón de Sync */}
           <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
+              <div className="px-3.5 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-2 shadow-2xl">
                 <span className="text-xs">📦</span>
                 <div className="text-left">
                   <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
@@ -239,7 +242,7 @@ export function PatchNotes({ isPage = false }) {
                 </div>
               </div>
 
-              <div className="px-4 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-3 shadow-xl">
+              <div className="px-4 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-3 shadow-2xl">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <div className="text-left">
                   <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
@@ -333,6 +336,7 @@ export function PatchNotes({ isPage = false }) {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
           {[
             { id: 'ALL', label: `Todas (${allPatchNotes.length})` },
+            { id: 'V9', label: 'V9.x' },
             { id: 'V8', label: 'V8.x' },
             { id: 'V7', label: 'V7.x' },
             { id: 'V6', label: 'V6.x' },

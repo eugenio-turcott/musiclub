@@ -395,16 +395,13 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               )}
               <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-[#1db954]/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-              {/* Spinning Musiclub Logo in Artist Banner */}
-              <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-                <div className="relative w-14 h-14 sm:w-20 sm:h-20 md:w-24 md:h-24 flex items-center justify-center">
-                  <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-xl animate-pulse" />
-                  <img
-                    src="/musiclub_logo.png"
-                    alt="Musiclub Logo"
-                    className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-                  />
-                </div>
+              {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+              <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+                <img
+                  src="/musiclub_logo.png"
+                  alt=""
+                  className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
+                />
               </div>
 
               <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
@@ -463,7 +460,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       {artist.genres.map((g) => (
                         <span
                           key={g}
-                          className="text-[11px] font-semibold px-3 py-1 rounded-full bg-white/5 border border-white/10 text-cyan-200 capitalize hover:bg-white/10 transition-colors"
+                          className="text-[11px] font-semibold px-3 py-1 rounded-full bg-[#0c0e1a]/90 backdrop-blur-md border border-white/20 text-cyan-200 capitalize hover:bg-white/20 transition-colors shadow-sm"
                         >
                           #{g}
                         </span>
@@ -473,7 +470,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
                   {/* Club Quick Stats Bar */}
                   <div className="grid grid-cols-3 gap-2.5 sm:gap-3 pt-3 max-w-lg">
-                    <div className="bg-black/40 border border-white/10 rounded-2xl p-3 text-center">
+                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                         En Musiclub
                       </span>
@@ -482,7 +479,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       </span>
                     </div>
 
-                    <div className="bg-black/40 border border-white/10 rounded-2xl p-3 text-center">
+                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                         Nota Promedio
                       </span>
@@ -493,7 +490,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       </span>
                     </div>
 
-                    <div className="bg-black/40 border border-white/10 rounded-2xl p-3 text-center">
+                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
                       <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                         Total Reviews
                       </span>

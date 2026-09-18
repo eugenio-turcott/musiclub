@@ -293,16 +293,13 @@ export function PoolPage() {
         <div className="relative rounded-3xl bg-gradient-to-br from-[#161832] via-[#0e1022] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Spinning Musiclub Logo 4 in Pool Hero */}
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse" />
-              <img
-                src="/musiclub_logo_4.png"
-                alt="Musiclub Logo"
-                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
-              />
-            </div>
+          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            <img
+              src="/musiclub_logo_4.png"
+              alt=""
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
+            />
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
@@ -356,7 +353,7 @@ export function PoolPage() {
 
               {/* Banner Pool Cerrado / Abierto */}
               {!isPoolOpen && (
-                <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 text-amber-200 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+                <div className="p-4 rounded-2xl bg-[#18131d]/95 backdrop-blur-md border border-amber-500/40 text-amber-200 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl">🔒</span>
                     <span>
@@ -386,7 +383,7 @@ export function PoolPage() {
                       'El Pool de la Temporada 1 se encuentra actualmente cerrado para nuevas propuestas.'
                     )
                   }
-                  className="px-5 py-3.5 rounded-2xl bg-white/10 text-white/50 border border-white/10 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed"
+                  className="px-5 py-3.5 rounded-2xl bg-[#121426]/95 backdrop-blur-md text-white/70 border border-white/20 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed shadow-lg"
                   title="El pool está actualmente cerrado para nuevas propuestas"
                 >
                   <span>🔒</span>

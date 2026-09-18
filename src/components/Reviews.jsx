@@ -256,30 +256,32 @@ export function Reviews({ onClose, isPage = false }) {
         </div>
 
         {/* Header Title */}
-        <div className="relative text-center space-y-2.5 sm:space-y-3 pt-2">
-          {/* Spinning Musiclub Logo 4 */}
-          <div className="absolute top-0 right-2 sm:right-6 md:right-10 z-10 pointer-events-none select-none">
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <div className="absolute inset-0 bg-pink-500/20 rounded-full blur-xl animate-pulse" />
-              <img
-                src="/musiclub_logo_4.png"
-                alt="Musiclub Logo"
-                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(244,114,182,0.4)]"
-              />
-            </div>
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-gradient-to-br from-[#181226]/80 via-[#120e20]/90 to-[#090812] border border-white/10 shadow-2xl text-center space-y-3">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute -top-12 -left-12 w-60 h-60 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            <img
+              src="/musiclub_logo_4.png"
+              alt=""
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(244,114,182,0.3)]"
+            />
           </div>
 
-          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-gradient-to-r from-pink-500/10 via-purple-500/20 to-pink-500/10 border border-pink-500/30 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider">
-            <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-            <span>Historial y Calificaciones de la Comunidad</span>
+          <div className="relative z-10 space-y-2.5 sm:space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#181226]/95 backdrop-blur-md border border-pink-500/40 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider shadow-md">
+              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
+              <span>Historial y Calificaciones de la Comunidad</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
+              Reviews de Miembros
+            </h1>
+            <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
+              Explora todas las reseñas, análisis detallados y puntuaciones
+              ponderadas publicadas por el club.
+            </p>
           </div>
-          <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
-            Reviews de Miembros
-          </h1>
-          <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
-            Explora todas las reseñas, análisis detallados y puntuaciones
-            ponderadas publicadas por el club.
-          </p>
         </div>
 
         {/* Global Stats Summary Bar */}

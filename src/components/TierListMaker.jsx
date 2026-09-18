@@ -763,9 +763,18 @@ export function TierListMaker({
   const totalCategorized = classifiedItems.length;
 
   return (
-    <div className="bg-gradient-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-sans">
+    <div className="relative overflow-hidden bg-gradient-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-sans">
+      {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+      <div className="absolute -right-16 -top-16 sm:-right-20 sm:-top-20 md:-right-24 md:-top-16 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+        <img
+          src="/musiclub_logo_2.png"
+          alt=""
+          className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(251,191,36,0.25)]"
+        />
+      </div>
+
       {/* CABECERA CON LOGO OFICIAL DE MUSICLUB */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-white/10">
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-white/10">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-1.5 flex-shrink-0 shadow-lg shadow-pink-500/10 overflow-hidden">
             <img
@@ -804,7 +813,7 @@ export function TierListMaker({
         {/* CONTROLES Y HERRAMIENTAS */}
         <div className="flex items-center gap-2 flex-wrap self-start md:self-auto">
           {/* Selector de tamaño de portadas (solo en escritorio) */}
-          <div className="hidden sm:flex bg-black/40 p-1 rounded-xl border border-white/10 items-center gap-1 text-xs">
+          <div className="hidden sm:flex bg-[#0b0c16]/95 backdrop-blur-md p-1 rounded-xl border border-white/20 items-center gap-1 text-xs shadow-lg">
             <button
               type="button"
               onClick={() => setCardSize('normal')}

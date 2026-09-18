@@ -229,22 +229,29 @@ export function UserSettings() {
 
       {/* HEADER DE LA SECCIÓN */}
       <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#121428] to-[#0a0d18] border border-white/10 shadow-2xl overflow-hidden">
+        {/* Subtle Ambient Glow */}
+        <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+        {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+        <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+          <img
+            src="/musiclub_logo.png"
+            alt=""
+            className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
+          />
+        </div>
+
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            <div className="relative w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.2)] flex-shrink-0 overflow-hidden">
-              <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-md animate-pulse" />
-              <img
-                src="/musiclub_logo.png"
-                alt="Musiclub Logo"
-                className="w-9 h-9 object-contain animate-spin-slow drop-shadow-[0_0_12px_rgba(6,182,212,0.4)]"
-              />
+            <div className="relative w-12 h-12 rounded-2xl bg-[#0e1022]/95 backdrop-blur-md border border-cyan-500/40 flex items-center justify-center shadow-xl flex-shrink-0">
+              <span className="text-xl">⚙️</span>
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                   Configuración de Perfil
                 </h1>
-                <span className="inline-flex items-center gap-1.5 text-[10px] text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
+                <span className="inline-flex items-center gap-1.5 text-[10px] text-emerald-400/90 bg-[#0e1022]/95 backdrop-blur-md border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-mono shadow-md">
                   <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3 h-3 object-contain" />
                   <span>Autoguardado</span>
                 </span>

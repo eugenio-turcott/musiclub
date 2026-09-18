@@ -12,6 +12,7 @@ import {
   getTrendingReleases,
   getMonthlyTrendingReleases,
   getAnticipatedReleases,
+  getGlobalMusicStats,
 } from '../services/trendingService.js';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 import { ArtistLinks } from './common/ArtistLinks';
@@ -113,6 +114,11 @@ export function AlbumsCatalog({ isPage = false }) {
     lastFridayStr: 'Viernes',
   });
   const [anticipatedReleases, setAnticipatedReleases] = useState([]);
+  const [platformStats, setPlatformStats] = useState({
+    releases: 4127529,
+    artists: 2995843,
+    labels: 344849,
+  });
 
   const handleTabChange = (tabKey) => {
     setActiveMainTab(tabKey);
@@ -261,10 +267,11 @@ export function AlbumsCatalog({ isPage = false }) {
       setError(null);
       setLoadingTrending(true);
       try {
-        const [clubData, trendingData, monthlyData] = await Promise.allSettled([
+        const [clubData, trendingData, monthlyData, statsData] = await Promise.allSettled([
           supabaseService.getAllAlbumsWithFullStats(),
           getTrendingReleases({ limit: 50 }),
           getMonthlyTrendingReleases(),
+          getGlobalMusicStats(),
         ]);
 
         let clubList = [];
@@ -280,6 +287,9 @@ export function AlbumsCatalog({ isPage = false }) {
         }
         if (monthlyData.status === 'fulfilled' && monthlyData.value) {
           setMonthlyTrending(monthlyData.value);
+        }
+        if (statsData.status === 'fulfilled' && statsData.value) {
+          setPlatformStats(statsData.value);
         }
 
         // Obtener lanzamientos anticipados vinculando los de BD y la curaduría
@@ -743,15 +753,33 @@ export function AlbumsCatalog({ isPage = false }) {
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <div className="relative text-center space-y-3 pt-2">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
-            Catálogo Musical
-          </h1>
-          <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
-            Explora discografías completas, lanzamientos en tendencia e indaga
-            en los álbumes calificados por los miembros del club con desglose de
-            reseñas y canciones.
-          </p>
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-gradient-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
+          {/* Subtle Ambient Glow */}
+          <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            <img
+              src="/musiclub_logo_4.png"
+              alt=""
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
+            />
+          </div>
+
+          <div className="relative z-10 space-y-3">
+            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#131526]/95 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider shadow-md">
+              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
+              <span>Base de Datos Comunitaria Oficial</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
+              Catálogo Musical
+            </h1>
+            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
+              Explora discografías completas, lanzamientos en tendencia e indaga
+              en los álbumes calificados por los miembros del club con desglose de
+              reseñas y canciones.
+            </p>
+          </div>
         </div>
 
         {/* Barra superior de carga no invasiva al abrir o procesar un álbum */}
@@ -782,7 +810,7 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
-                4,113,018+
+                {platformStats.releases ? `${platformStats.releases.toLocaleString()}+` : '4,127,529+'}
               </span>
             </div>
             <p className="text-[11px] text-cyan-300 font-medium mt-1">
@@ -796,11 +824,14 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
-                2,988,705+
+                {platformStats.artists
+                  ? `${(platformStats.artists + (platformStats.labels || 0)).toLocaleString()}+`
+                  : '3,340,692+'}
               </span>
             </div>
             <p className="text-[11px] text-pink-300 font-medium mt-1">
-              Discografías oficiales y perfiles completos
+              {platformStats.artists?.toLocaleString() || '2,995,843'} artistas ·{' '}
+              {(platformStats.labels || 344849).toLocaleString()} discografías oficiales
             </p>
           </div>
 

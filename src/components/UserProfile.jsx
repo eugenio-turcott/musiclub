@@ -507,16 +507,13 @@ export function UserProfile({ isPage = false }) {
         <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-20 w-60 sm:w-80 h-60 sm:h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Spinning Musiclub Logo in Profile Banner */}
-        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-          <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
-            <img
-              src="/musiclub_logo.png"
-              alt="Musiclub Logo"
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(245,87,108,0.4)]"
-            />
-          </div>
+        {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+        <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+          <img
+            src="/musiclub_logo.png"
+            alt=""
+            className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
+          />
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
@@ -560,7 +557,7 @@ export function UserProfile({ isPage = false }) {
                   >
                     {user.name || 'Melómano de Musiclub'}
                   </h1>
-                  <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 whitespace-nowrap">
+                  <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#121426]/90 backdrop-blur-md text-white/90 border border-white/15 whitespace-nowrap shadow-sm">
                     {isAdmin ? '🛡️ Admin' : '🎧 Miembro'}
                   </span>
                 </div>
@@ -571,7 +568,7 @@ export function UserProfile({ isPage = false }) {
 
               <Link
                 to="/settings"
-                className="inline-flex items-center justify-center gap-1.5 text-xs text-white/80 hover:text-white bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium self-center sm:self-auto active:scale-95"
+                className="inline-flex items-center justify-center gap-1.5 text-xs text-white/90 hover:text-white bg-[#121426]/90 hover:bg-[#1a1e38] px-3 py-1.5 rounded-xl border border-white/20 backdrop-blur-md shadow-md transition-all font-medium self-center sm:self-auto active:scale-95"
               >
                 <span>✏️</span> Editar Perfil
               </Link>
@@ -579,7 +576,7 @@ export function UserProfile({ isPage = false }) {
 
             {/* Biografía */}
             {user.bio ? (
-              <p className="text-white/80 text-xs sm:text-sm italic w-full bg-black/30 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/5 leading-relaxed break-words text-left">
+              <p className="text-white/90 text-xs sm:text-sm italic w-full bg-black/75 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 shadow-lg leading-relaxed break-words text-left">
                 "{user.bio}"
               </p>
             ) : (

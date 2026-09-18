@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { splitArtists, slugifyArtist } from '../../utils/ratingUtils';
 import { supabaseService } from '../../services/supabaseClient';
@@ -169,6 +169,54 @@ export function CatalogArtistsView({ albums = [] }) {
     });
   }, [artistsList, searchQuery, selectedLetter]);
 
+  // Infinite Scroll: Paginación progresiva de 24 en 24 artistas
+  const INITIAL_COUNT = 24;
+  const CHUNK_SIZE = 24;
+  const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
+  const observerRef = useRef(null);
+  const sentinelRef = useRef(null);
+
+  // Reiniciar cantidad visible al buscar o filtrar por letra
+  useEffect(() => {
+    setVisibleCount(INITIAL_COUNT);
+  }, [searchQuery, selectedLetter]);
+
+  const loadMoreArtists = useCallback(() => {
+    setVisibleCount((prev) => Math.min(prev + CHUNK_SIZE, filteredArtists.length));
+  }, [filteredArtists.length]);
+
+  // Observer para carga automática al hacer scroll hasta el final
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    if (visibleCount >= filteredArtists.length) return;
+
+    if (observerRef.current) {
+      observerRef.current.disconnect();
+    }
+
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          loadMoreArtists();
+        }
+      },
+      { root: null, rootMargin: '300px', threshold: 0.1 }
+    );
+
+    observerRef.current.observe(sentinelRef.current);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [visibleCount, filteredArtists.length, loadMoreArtists]);
+
+  const visibleArtists = useMemo(() => {
+    return filteredArtists.slice(0, visibleCount);
+  }, [filteredArtists, visibleCount]);
+
   const handleArtistClick = (artist) => {
     // Registrar clic en base de datos para estadísticas y sincronización de popularidad
     supabaseService.recordArtistClick(artist.name);
@@ -251,70 +299,103 @@ export function CatalogArtistsView({ albums = [] }) {
           No se encontraron artistas con ese criterio de búsqueda.
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4.5">
-          {filteredArtists.map((artist) => {
-            const releasesCount = artist.clubReleases.length;
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3.5 sm:gap-4.5">
+            {visibleArtists.map((artist) => {
+              const releasesCount = artist.clubReleases.length;
 
-            return (
-              <div
-                key={artist.slug}
-                onClick={() => handleArtistClick(artist)}
-                className="bg-[#11131E]/95 hover:bg-[#161928] border border-white/10 hover:border-cyan-400/50 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10 cursor-pointer flex flex-col items-center text-center group select-none"
-              >
-                {/* Circular Avatar */}
-                <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gradient-to-tr from-cyan-600 to-purple-600 mb-3 shadow-lg border-2 border-white/10 group-hover:border-cyan-400 transition-all flex items-center justify-center">
-                  {artist.image_url ? (
-                    <img
-                      src={artist.image_url}
-                      alt={artist.name}
-                      loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                      }}
-                    />
-                  ) : (
-                    <span className="text-2xl font-black text-white/80 uppercase">
-                      {artist.name.substring(0, 2)}
+              return (
+                <div
+                  key={artist.slug}
+                  onClick={() => handleArtistClick(artist)}
+                  className="bg-[#11131E]/95 hover:bg-[#161928] border border-white/10 hover:border-cyan-400/50 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10 cursor-pointer flex flex-col items-center text-center group select-none"
+                >
+                  {/* Circular Avatar */}
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gradient-to-tr from-cyan-600 to-purple-600 mb-3 shadow-lg border-2 border-white/10 group-hover:border-cyan-400 transition-all flex items-center justify-center">
+                    {artist.image_url ? (
+                      <img
+                        src={artist.image_url}
+                        alt={artist.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <span className="text-2xl font-black text-white/80 uppercase">
+                        {artist.name.substring(0, 2)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Name */}
+                  <h3
+                    translate="no"
+                    className="notranslate artist-name font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1 w-full"
+                    title={artist.name}
+                  >
+                    {artist.name}
+                  </h3>
+
+                  {/* Badges */}
+                  <div className="mt-1 flex items-center gap-1 text-[11px] text-cyan-400 font-semibold">
+                    <span>💿</span>
+                    <span>
+                      {releasesCount > 0
+                        ? `${releasesCount} en el Club`
+                        : 'Ver discografía'}
                     </span>
+                  </div>
+
+                  {/* Genres */}
+                  {artist.genres && artist.genres.length > 0 && (
+                    <div className="mt-2 flex items-center justify-center gap-1 flex-wrap w-full">
+                      {artist.genres.slice(0, 2).map((g, i) => (
+                        <span
+                          key={i}
+                          className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-slate-400 truncate max-w-[90px]"
+                        >
+                          {g}
+                        </span>
+                      ))}
+                    </div>
                   )}
                 </div>
+              );
+            })}
+          </div>
 
-                {/* Name */}
-                <h3
-                  translate="no"
-                  className="notranslate artist-name font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1 w-full"
-                  title={artist.name}
-                >
-                  {artist.name}
-                </h3>
-
-                {/* Badges */}
-                <div className="mt-1 flex items-center gap-1 text-[11px] text-cyan-400 font-semibold">
-                  <span>💿</span>
-                  <span>
-                    {releasesCount > 0
-                      ? `${releasesCount} en el Club`
-                      : 'Ver discografía'}
-                  </span>
-                </div>
-
-                {/* Genres */}
-                {artist.genres && artist.genres.length > 0 && (
-                  <div className="mt-2 flex items-center justify-center gap-1 flex-wrap w-full">
-                    {artist.genres.slice(0, 2).map((g, i) => (
-                      <span
-                        key={i}
-                        className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-slate-400 truncate max-w-[90px]"
-                      >
-                        {g}
-                      </span>
-                    ))}
-                  </div>
-                )}
+          {/* Sentinel and Load More for Infinite Scroll */}
+          {visibleCount < filteredArtists.length && (
+            <div
+              ref={sentinelRef}
+              className="py-6 flex flex-col items-center justify-center gap-3 text-center"
+            >
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300">
+                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                <span>
+                  Mostrando <strong className="text-cyan-300">{visibleArtists.length}</strong> de{' '}
+                  <strong className="text-white">{filteredArtists.length}</strong> artistas
+                </span>
               </div>
-            );
-          })}
+              <button
+                type="button"
+                onClick={loadMoreArtists}
+                className="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-slate-400 hover:text-white border border-white/10 transition-all cursor-pointer"
+              >
+                Cargar más
+              </button>
+            </div>
+          )}
+
+          {visibleCount >= filteredArtists.length && filteredArtists.length > INITIAL_COUNT && (
+            <div className="py-6 text-center border-t border-white/5">
+              <span className="text-xs text-slate-500 font-medium">
+                ✨ Has explorado todos los {filteredArtists.length} artistas de esta vista
+              </span>
+            </div>
+          )}
         </div>
       )}
     </div>

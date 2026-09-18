@@ -11,6 +11,85 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   // ----------------------------------------------------
+  // V9.x (Septiembre 2026)
+  // ----------------------------------------------------
+  {
+    version: 'V.9.0',
+    title:
+      'Radar Global Automático 8:00 AM: Top 100 Tendencias, Confirmación Inmediata por Correo, Vinilos de Marca al 25% & Enlaces Multi-Plataforma',
+    date: '2026-09-18',
+    sha: 'd900a1f',
+    associatedShas: ['d900a1f'],
+    tag: 'Global Radar, Email Alerts & Dynamic Brand 9.0',
+    tagColor: 'from-amber-400 via-rose-500 to-indigo-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Llegada estelar de la Versión 9.0 de Musiclub con una arquitectura integral de automatización diaria de fondo a las 08:00 AM, nuevo sistema de alertas y confirmación inmediata por correo electrónico para próximos lanzamientos, identidad de marca con vinilos gigantes de agua al 25% de opacidad y enlaces universales a 4 plataformas. La sincronización matutina analiza el Top 100 de popularidad semanal, el Radar Anticipado de 50 estrenos mundiales y las estadísticas macro de la industria musical (+4.1M de lanzamientos y +3.3M de artistas y discografías). Los melómanos pueden ahora pre-guardar alertas y recibir al instante un correo con diseño oficial confirmando su recordatorio.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Sistema de Notificaciones Inmediatas por Correo para Próximos Estrenos',
+        description:
+          'Se implementó un motor completo de envío de correos electrónicos transaccionales que despacha una confirmación personalizada de inmediato al momento en que el usuario activa una alerta en un lanzamiento anticipado. El correo incluye diseño responsive oscuro con la estética cyberpunk de Musiclub, portada HD del álbum, fecha oficial de estreno, mensaje explicativo del recordatorio y acceso directo con enlace canónico al release.',
+      },
+      {
+        type: 'feature',
+        title: 'Vinilos de Marca Gigantes de Fondo (Watermark al 25%) y Refuerzo Frontal',
+        description:
+          'Despliegue de los isotipos y vinilos oficiales de Musiclub integrados como marca de agua en gran escala con rotación continua suave (animate-spin-slow) calibrados al 25% de opacidad en 13 vistas clave (Ficha de Álbum, Perfil, Catálogo, Leaderboard, Pool, Gashapon, Patch Notes, FAQ, Reseñas, Configuración, Tier List, Ficha de Artista y Playlists). Se reforzó la opacidad y filtros backdrop-blur de todas las tarjetas y paneles frontales para garantizar máxima nitidez y legibilidad.',
+      },
+      {
+        type: 'feature',
+        title: 'Automatización Diaria a las 08:00 AM en Segundo Plano',
+        description:
+          'Se configuró un motor de sincronización diario desatendido que se ejecuta cada mañana a las 08:00 AM. Utiliza rutas de ejecución absolutas y runner batch optimizado que garantiza la carga fiable del entorno y persistencia del estado en Supabase.',
+      },
+      {
+        type: 'feature',
+        title: 'Expansión al Top 100 Global de Popularidad & 50 Próximos Estrenos',
+        description:
+          'La consulta del ranking semanal amplía su cobertura a los 100 lanzamientos de mayor impacto mundial, complementada en paralelo con los 50 estrenos anticipados más prometedores con orden cronológico y medidores de anticipación.',
+      },
+      {
+        type: 'feature',
+        title: 'Estadísticas Globales de Catálogo en Base de Datos',
+        description:
+          'Ingesta y almacenamiento diario de métricas macro del ecosistema musical (+4,127,529 lanzamientos registrados y +3,340,692 artistas y discografías) para consulta instantánea desde la base de datos sin latencia de red.',
+      },
+      {
+        type: 'feature',
+        title: 'Enlaces Universales Garantizados: Spotify, Apple Music, YouTube Music y Deezer',
+        description:
+          'Se implementó un estándar estricto en la plataforma donde ningún álbum carece de acceso a las 4 grandes plataformas. Tanto la ingesta automática como el buscador manual y las fichas de álbum completan dinámicamente enlaces verificados de búsqueda directa hacia YouTube Music y Apple Music.',
+      },
+      {
+        type: 'feature',
+        title: 'Ingesta Inteligente al Catálogo con Portadas Oficiales y Tracklists HD',
+        description:
+          'Los lanzamientos en tendencia no registrados en el club son analizados con comparativa anti-duplicados y agregados al catálogo general con carátulas oficiales en alta resolución, conteo y lista completa de canciones, duraciones precisas y metadata canónica.',
+      },
+      {
+        type: 'improvement',
+        title: 'Protección Preventiva de Cadencia y Control Anti-Saturación',
+        description:
+          'El flujo de ingesta respeta una cadencia preventiva de 1 minuto por álbum agregado, salvaguardando la cuota de peticiones y evitando bloqueos o rate limits en los servicios de metadata oficiales.',
+      },
+      {
+        type: 'improvement',
+        title: 'Actualización Retroactiva de Enlaces en Álbumes Existentes',
+        description:
+          'Se ejecutó una revisión y actualización a todos los álbumes históricos de la base de datos, garantizando que el 100% cuente con sus enlaces operativos a YouTube Music y Apple Music.',
+      },
+      {
+        type: 'fix',
+        title: 'Ajuste de Pantalla Completa y Cobertura en Modales de Alerta',
+        description:
+          'Se corrigió el padding y posicionamiento del modal de confirmación de estrenos anticipados, asegurando que el fondo desenfocado y oscuro cubra el 100% del viewport sin franjas visibles superiores ni desajustes responsivos.',
+      },
+    ],
+  },
+
+  // ----------------------------------------------------
   // V8.x (Septiembre 2026)
   // ----------------------------------------------------
   {

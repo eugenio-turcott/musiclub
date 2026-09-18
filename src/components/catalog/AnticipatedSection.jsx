@@ -1,17 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
+const ITEMS_PER_PAGE = 10;
+
 /**
  * Sección de Releases Anticipados (Musiclub style)
  * Lanzamientos anunciados que aún no salen; no se pueden calificar pero sí indexar y consultar (V.8.5).
+ * Paginación de 10 en 10 con navegación rápida.
  */
 export function AnticipatedSection({ anticipatedReleases = [], loading = false }) {
-  const [showAll, setShowAll] = useState(false);
-  const displayedReleases = showAll ? anticipatedReleases : anticipatedReleases.slice(0, 10);
+  const sectionRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const totalCount = anticipatedReleases.length;
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  const displayedReleases = useMemo(() => {
+    const start = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+    return anticipatedReleases.slice(start, start + ITEMS_PER_PAGE);
+  }, [anticipatedReleases, safeCurrentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   // Blindaje universal contra traducción (V.8.11)
   useEffect(() => {
@@ -26,7 +45,7 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
   }, [anticipatedReleases]);
 
   return (
-    <section className="space-y-4 my-8">
+    <section ref={sectionRef} className="space-y-4 my-8">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -174,24 +193,68 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
             })}
           </div>
 
-          {/* Toggle Expand / Collapse Button */}
-          {totalCount > 10 && (
-            <div className="pt-2 flex justify-center">
-              <button
-                type="button"
-                onClick={() => setShowAll((prev) => !prev)}
-                className="inline-flex items-center gap-2.5 px-6 py-3 rounded-2xl bg-[#171926] hover:bg-[#202336] text-amber-300 border border-amber-500/30 hover:border-amber-400/60 font-black text-xs sm:text-sm tracking-wide transition-all shadow-lg hover:shadow-amber-500/10 active:scale-95 cursor-pointer"
-              >
-                <span>{showAll ? '🔼' : '🔽'}</span>
-                <span>
-                  {showAll
-                    ? 'Mostrar solo los primeros 10'
-                    : `Ver todos los ${totalCount} próximos estrenos`}
-                </span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-200 border border-amber-500/30">
-                  {showAll ? '10' : `${totalCount}`}
-                </span>
-              </button>
+          {/* Paginación interactiva de 10 en 10 */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
+              <span className="text-xs text-slate-400 font-medium">
+                Página <span className="text-amber-300 font-bold">{safeCurrentPage}</span> de{' '}
+                <span className="text-white font-bold">{totalPages}</span> ·{' '}
+                <span className="text-amber-300 font-bold">{totalCount}</span> próximos estrenos
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                {/* Botón Anterior */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage - 1)}
+                  disabled={safeCurrentPage === 1}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                    safeCurrentPage === 1
+                      ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
+                      : 'bg-[#171926] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-amber-500/40 cursor-pointer'
+                  }`}
+                >
+                  <span>←</span>
+                  <span>Anterior</span>
+                </button>
+
+                {/* Números de página */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }).map((_, idx) => {
+                    const pageNum = idx + 1;
+                    const isActive = pageNum === safeCurrentPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center ${
+                          isActive
+                            ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-lg shadow-amber-500/30 scale-105 border border-amber-300 font-black'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Botón Siguiente */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage + 1)}
+                  disabled={safeCurrentPage === totalPages}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                    safeCurrentPage === totalPages
+                      ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
+                      : 'bg-[#171926] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-amber-500/40 cursor-pointer'
+                  }`}
+                >
+                  <span>Siguiente</span>
+                  <span>→</span>
+                </button>
+              </div>
             </div>
           )}
         </div>

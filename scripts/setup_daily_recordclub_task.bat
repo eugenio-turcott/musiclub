@@ -1,30 +1,33 @@
-﻿@echo off
+@echo off
 echo ========================================================
-echo   Configurando Tarea Programada de Sincronizacion Diaria Record Club (Musiclub)
+echo   Configurando Tarea Programada de Sincronizacion Diaria (Musiclub V.9.0)
 echo ========================================================
 echo.
 
-set TASK_NAME=Musiclub_Daily_RecordClub_Sync
-set WORKDIR=%~dp0..
-set SCRIPT_PATH=%WORKDIR%\scripts\dailyRecordClubSync.mjs
+set TASK_NAME=Musiclub_Daily_Sync
+set RUNNER_PATH=%~dp0run_daily_recordclub_sync.bat
 
-echo Directorio de trabajo: %WORKDIR%
-echo Script: %SCRIPT_PATH%
-echo Hora programada: 04:00 AM todos los dias
+echo Runner batch: %RUNNER_PATH%
+echo Hora programada: 08:00 AM todos los dias
 echo.
 
-:: Crear tarea programada en Windows que corre 1 vez al dia a las 04:00 AM
-schtasks /create /tn "%TASK_NAME%" /tr "node \"%SCRIPT_PATH%\"" /sc daily /st 04:00 /f
+:: Crear o actualizar la tarea programada en Windows que corre 1 vez al dia a las 08:00 AM
+schtasks /create /tn "%TASK_NAME%" /tr "%RUNNER_PATH%" /sc daily /st 08:00 /f
 
 if %ERRORLEVEL% EQU 0 (
     echo.
     echo ========================================================
     echo [EXITO] Tarea programada '%TASK_NAME%' registrada correctamente.
-    echo Se ejecutara automaticamente cada dia a las 04:00 AM en segundo plano.
-    echo Realiza 1 sola consulta diaria por endpoint y guarda todo en Supabase.
+    echo Se ejecutara automaticamente cada dia a las 08:00 AM en segundo plano.
+    echo Realiza consultas paralelas a las APIs, actualiza tendencias, proximos estrenos,
+    echo estadisticas globales y agrega lanzamientos enriquecidos al catalogo general.
     echo.
-    echo Para ejecutarla ahora mismo manualmente:
+    echo Para ejecutarla manualmente ahora mismo:
     echo   schtasks /run /tn "%TASK_NAME%"
+    echo Para verificar su estado:
+    echo   schtasks /query /tn "%TASK_NAME%" /fo LIST
+    echo Para ver el log de ejecucion:
+    echo   type "%~dp0sync_daily.log"
     echo Para eliminarla si ya no la deseas:
     echo   schtasks /delete /tn "%TASK_NAME%" /f
     echo ========================================================

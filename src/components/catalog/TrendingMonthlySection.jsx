@@ -1,13 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
+const ITEMS_PER_PAGE = 20;
+
 /**
  * Sección de Trending Releases Semanales (Musiclub Style - Popularity This Week)
  * Sincronizado 1:1 con https://record.club/releases?sortBy=popularity-week
- * Incluye los 84 lanzamientos completos de la semana con artworks CDN de alta resolución.
+ * Incluye los 100 lanzamientos completos de la semana paginados de 20 en 20.
  */
 export function TrendingMonthlySection({
   trendingData,
@@ -19,9 +21,21 @@ export function TrendingMonthlySection({
   const monthLabel = trendingData?.monthLabel || 'Tendencias de la Semana';
   const lastFridayStr = trendingData?.lastFridayStr || 'Viernes';
 
-  const [showAll, setShowAll] = useState(false);
+  const sectionRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+
+  // Reiniciar a la página 1 cuando el usuario busca o cambia categoría
+  const handleCategoryChange = (cat) => {
+    setSelectedCategory(cat);
+    setCurrentPage(1);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
 
   // Máximo puntaje de popularidad para la escala relativa de la barra
   const maxPopularity = useMemo(() => {
@@ -71,15 +85,25 @@ export function TrendingMonthlySection({
     return list;
   }, [releases, selectedCategory, searchQuery]);
 
-  // Si no está buscando ni filtrando y no ha activado 'showAll', mostrar 25 iniciales
-  const isFiltering = searchQuery.trim().length > 0 || selectedCategory !== 'ALL';
+  // Paginación limpia de 20 en 20
+  const totalPages = Math.max(1, Math.ceil(filteredReleases.length / ITEMS_PER_PAGE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
   const visibleReleases = useMemo(() => {
-    if (showAll || isFiltering) return filteredReleases;
-    return filteredReleases.slice(0, 25);
-  }, [filteredReleases, showAll, isFiltering]);
+    const start = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
+    return filteredReleases.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredReleases, safeCurrentPage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    setCurrentPage(newPage);
+    if (sectionRef.current) {
+      sectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
-    <section className="space-y-4 my-8">
+    <section ref={sectionRef} className="space-y-4 my-8">
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-pink-500/20 via-purple-500/15 to-orange-500/15 border border-pink-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -87,7 +111,7 @@ export function TrendingMonthlySection({
             <span>🔥</span>
             <span>Tendencias de la Semana</span>
             <span className="text-white/40">•</span>
-            <span className="text-amber-300">Ranking Global ({releases.length})</span>
+            <span className="text-amber-300">Top 100 ({releases.length})</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
             <span>{monthLabel}</span>
@@ -118,7 +142,7 @@ export function TrendingMonthlySection({
             <input
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchChange}
               placeholder={`Buscar entre los ${releases.length} lanzamientos de la semana...`}
               className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 pl-9 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-pink-500/60 focus:ring-1 focus:ring-pink-500/40 transition-all"
             />
@@ -126,7 +150,10 @@ export function TrendingMonthlySection({
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery('')}
+                onClick={() => {
+                  setSearchQuery('');
+                  setCurrentPage(1);
+                }}
                 className="absolute right-2.5 top-2.5 text-xs text-slate-400 hover:text-white"
               >
                 ✕
@@ -146,7 +173,7 @@ export function TrendingMonthlySection({
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setSelectedCategory(tab.id)}
+                onClick={() => handleCategoryChange(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   selectedCategory === tab.id
                     ? 'bg-pink-500 text-black shadow-md shadow-pink-500/20'
@@ -246,7 +273,9 @@ export function TrendingMonthlySection({
                     {/* Tracks & Live Rotation indicator */}
                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2 flex items-end justify-between text-[10px] text-slate-300">
                       <span className="font-mono bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
-                        {item.total_tracks ? `${item.total_tracks} tracks` : (item.release_type || 'LP')}
+                        {item.total_tracks
+                          ? `${item.total_tracks} ${item.total_tracks === 1 ? 'track' : 'tracks'}`
+                          : (item.release_type || 'Álbum')}
                       </span>
                       <span className="text-pink-300 font-bold flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded border border-pink-500/30">
                         <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
@@ -367,24 +396,68 @@ export function TrendingMonthlySection({
             })}
           </div>
 
-          {/* Botón Expansible para ver los 84 lanzamientos completos */}
-          {!isFiltering && filteredReleases.length > 25 && (
-            <div className="flex justify-center pt-4">
-              <button
-                type="button"
-                onClick={() => setShowAll((prev) => !prev)}
-                className="px-6 py-3 rounded-2xl bg-[#11131E] hover:bg-pink-500/20 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/60 font-black text-xs sm:text-sm shadow-xl transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <span>{showAll ? '🔼' : '🔽'}</span>
-                <span>
-                  {showAll
-                    ? 'Mostrar menos (Top 25)'
-                    : `Ver todos los ${filteredReleases.length} lanzamientos de la semana`}
-                </span>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300">
-                  {showAll ? 'Top 25' : `${filteredReleases.length} de ${filteredReleases.length}`}
-                </span>
-              </button>
+          {/* Paginación interactiva de 20 en 20 */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
+              <span className="text-xs text-slate-400 font-medium">
+                Página <span className="text-white font-bold">{safeCurrentPage}</span> de{' '}
+                <span className="text-white font-bold">{totalPages}</span> ·{' '}
+                <span className="text-pink-400 font-bold">{filteredReleases.length}</span> lanzamientos
+              </span>
+
+              <div className="flex items-center gap-1.5">
+                {/* Botón Anterior */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage - 1)}
+                  disabled={safeCurrentPage === 1}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                    safeCurrentPage === 1
+                      ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
+                      : 'bg-[#11131E] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-pink-500/40 cursor-pointer'
+                  }`}
+                >
+                  <span>←</span>
+                  <span>Anterior</span>
+                </button>
+
+                {/* Números de página */}
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }).map((_, idx) => {
+                    const pageNum = idx + 1;
+                    const isActive = pageNum === safeCurrentPage;
+                    return (
+                      <button
+                        key={pageNum}
+                        type="button"
+                        onClick={() => handlePageChange(pageNum)}
+                        className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center ${
+                          isActive
+                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 scale-105 border border-pink-400'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Botón Siguiente */}
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safeCurrentPage + 1)}
+                  disabled={safeCurrentPage === totalPages}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                    safeCurrentPage === totalPages
+                      ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
+                      : 'bg-[#11131E] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-pink-500/40 cursor-pointer'
+                  }`}
+                >
+                  <span>Siguiente</span>
+                  <span>→</span>
+                </button>
+              </div>
             </div>
           )}
         </>

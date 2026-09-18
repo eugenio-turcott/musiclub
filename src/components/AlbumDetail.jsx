@@ -1,11 +1,16 @@
 'use client';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
 import { ReviewSystem } from './ReviewSystem';
-import { supabaseService } from '../services/supabaseClient';
+import { supabase, supabaseService } from '../services/supabaseClient';
+import {
+  subscribeToUpcomingRelease,
+  checkIfSubscribedToUpcomingRelease,
+} from '../services/trendingService';
 import { useAuth } from '../hooks/useAuth';
 import {
   slugifyArtist,
@@ -199,6 +204,13 @@ export function AlbumDetail({
   const [spotifyMeta, setSpotifyMeta] = useState(null);
   const [sharingReview, setSharingReview] = useState(null);
 
+  // Estados para notificación de estrenos anticipados (Musiclub Upcoming Alerts)
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showNotifyModal, setShowNotifyModal] = useState(false);
+  const [notifyEmail, setNotifyEmail] = useState('');
+  const [subscribing, setSubscribing] = useState(false);
+  const [notifySuccessMsg, setNotifySuccessMsg] = useState('');
+
   const loadData = useCallback(
     async (isInitialBackground = false) => {
       if (!isInitialBackground) {
@@ -221,6 +233,112 @@ export function AlbumDetail({
               stats: { totalReviews: 0, averageRating: null },
               final_rating: null,
             };
+          }
+        }
+
+        // Fallback 1.5: Próximos Estrenos (record_club_upcoming)
+        // NOTA: Como son upcoming, NO deben insertarse aún en la tabla de albums
+        if (!current && slug) {
+          try {
+            let upcomingRow = null;
+            const { data: directUpcoming } = await supabase
+              .from('record_club_upcoming')
+              .select('*')
+              .eq('slug', slug)
+              .maybeSingle();
+
+            upcomingRow = directUpcoming;
+
+            if (!upcomingRow) {
+              const { data: allUpcoming } = await supabase
+                .from('record_club_upcoming')
+                .select('*');
+              upcomingRow = (allUpcoming || []).find(
+                (u) =>
+                  u.slug === slug ||
+                  (u.slug && slug.includes(u.slug)) ||
+                  (u.album_name && slug.includes(slugifyArtist(u.album_name)))
+              );
+            }
+
+            if (upcomingRow) {
+              current = {
+                id: upcomingRow.id,
+                album_name: upcomingRow.album_name,
+                artist_name: upcomingRow.artist_name,
+                image_url: upcomingRow.image_url,
+                release_date: upcomingRow.release_date,
+                release_type: upcomingRow.release_type || 'ALBUM',
+                genres: [upcomingRow.genre || 'POP / ALTERNATIVE'],
+                description: upcomingRow.description,
+                record_club_url: upcomingRow.record_club_url,
+                slug: upcomingRow.slug,
+                status: 'ANTICIPADO',
+                is_anticipated: true,
+                is_upcoming: true,
+                can_rate: false,
+                reviews_enabled: false,
+                reviews: [],
+                track_stats: [],
+                tracks: [],
+                stats: { totalReviews: 0, averageRating: null },
+                final_rating: null,
+                is_on_demand: false, // NO mostrar on-demand para un upcoming
+              };
+            }
+          } catch (upcErr) {
+            console.warn('Error al buscar en record_club_upcoming:', upcErr);
+          }
+        }
+
+        // Fallback 1.6: Tendencias semanales (record_club_releases)
+        if (!current && slug) {
+          try {
+            let releaseRow = null;
+            const { data: directRelease } = await supabase
+              .from('record_club_releases')
+              .select('*')
+              .eq('slug', slug)
+              .maybeSingle();
+
+            releaseRow = directRelease;
+
+            if (!releaseRow) {
+              const { data: allReleases } = await supabase
+                .from('record_club_releases')
+                .select('*');
+              releaseRow = (allReleases || []).find(
+                (r) =>
+                  r.slug === slug ||
+                  (r.slug && slug.includes(r.slug)) ||
+                  (r.album_name && slug.includes(slugifyArtist(r.album_name)))
+              );
+            }
+
+            if (releaseRow) {
+              current = {
+                id: releaseRow.id,
+                album_name: releaseRow.album_name,
+                artist_name: releaseRow.artist_name,
+                image_url: releaseRow.image_url,
+                release_date: releaseRow.release_date,
+                release_type: releaseRow.release_type || 'ALBUM',
+                total_tracks: releaseRow.total_tracks,
+                genres: [releaseRow.genre_category || 'POP'],
+                record_club_url: releaseRow.record_club_url,
+                spotify_id: releaseRow.spotify_id,
+                spotify_link: releaseRow.spotify_url,
+                slug: releaseRow.slug,
+                reviews: [],
+                track_stats: [],
+                tracks: [],
+                stats: { totalReviews: 0, averageRating: null },
+                final_rating: null,
+                is_on_demand: true,
+              };
+            }
+          } catch (relErr) {
+            console.warn('Error al buscar en record_club_releases:', relErr);
           }
         }
 
@@ -397,7 +515,14 @@ export function AlbumDetail({
   // Identificar si es un lanzamiento anticipado (estreno futuro no calificable aún)
   const isAnticipated = useMemo(() => {
     if (!album) return false;
-    if (album.status === 'ANTICIPADO') return true;
+    if (
+      album.status === 'ANTICIPADO' ||
+      album.is_anticipated ||
+      album.is_upcoming ||
+      album.can_rate === false
+    ) {
+      return true;
+    }
     const dateStr = album.release_date || spotifyMeta?.releaseDate;
     if (dateStr) {
       const releaseTime = new Date(dateStr).getTime();
@@ -408,6 +533,84 @@ export function AlbumDetail({
     }
     return false;
   }, [album, spotifyMeta]);
+
+  // Verificar suscripción activa para el álbum anticipado actual
+  useEffect(() => {
+    if (album && isAnticipated) {
+      const emailToCheck =
+        user?.email ||
+        (typeof window !== 'undefined'
+          ? localStorage.getItem('musiclub_user_email')
+          : null);
+      const sub = checkIfSubscribedToUpcomingRelease({
+        albumId: album.id,
+        albumName: album.album_name,
+        email: emailToCheck,
+      });
+      setIsSubscribed(sub);
+      if (user?.email) {
+        setNotifyEmail(user.email);
+      } else {
+        const savedEmail =
+          typeof window !== 'undefined'
+            ? localStorage.getItem('musiclub_user_email')
+            : null;
+        setNotifyEmail(savedEmail || 'eugenioturcott@gmail.com');
+      }
+    }
+  }, [album, isAnticipated, user]);
+
+  // Bloquear scroll de fondo cuando el modal de notificación esté abierto
+  useEffect(() => {
+    if (showNotifyModal && typeof document !== 'undefined') {
+      const prevOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = prevOverflow;
+      };
+    }
+  }, [showNotifyModal]);
+
+  const handleOpenNotifyModal = () => {
+    setShowNotifyModal(true);
+  };
+
+  const handleConfirmNotification = async (e) => {
+    if (e) e.preventDefault();
+    if (!notifyEmail || !notifyEmail.includes('@')) {
+      alert('Por favor ingresa un correo electrónico válido');
+      return;
+    }
+    setSubscribing(true);
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('musiclub_user_email', notifyEmail);
+      }
+      const subResult = await subscribeToUpcomingRelease({
+        albumId: album.id,
+        albumName: album.album_name,
+        artistName: album.artist_name,
+        releaseDate: album.release_date || spotifyMeta?.releaseDate,
+        email: notifyEmail,
+        userId: user?.id || null,
+        imageUrl: album.image_url || spotifyMeta?.coverUrl,
+        slug: album.slug || slug,
+      });
+      setIsSubscribed(true);
+      setShowNotifyModal(false);
+      setNotifySuccessMsg(
+        subResult?.emailSent
+          ? `¡Notificación activada y correo de confirmación enviado a ${notifyEmail}! Te avisaremos el día exacto del estreno oficial.`
+          : `¡Notificación programada para ${notifyEmail}! Te avisaremos por correo y en Musiclub el día del estreno oficial.`
+      );
+      setTimeout(() => setNotifySuccessMsg(''), 7000);
+    } catch (err) {
+      console.error('Error al programar notificación:', err);
+      alert('Hubo un error al programar la notificación. Intenta de nuevo.');
+    } finally {
+      setSubscribing(false);
+    }
+  };
 
   const toggleReviewExpanded = (reviewId) => {
     setExpandedReviews((prev) => ({
@@ -677,16 +880,13 @@ export function AlbumDetail({
           {/* Subtle Background Glow behind cover */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
-          {/* Spinning Musiclub Vinyl Disc in Album Banner */}
-          <div className="absolute top-4 right-4 sm:top-6 sm:right-6 md:top-8 md:right-8 z-20 pointer-events-none select-none">
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-xl animate-pulse" />
-              <img
-                src="/musiclub_logo_2.png"
-                alt="Musiclub Vinyl"
-                className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-              />
-            </div>
+          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            <img
+              src="/musiclub_logo_2.png"
+              alt=""
+              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
+            />
           </div>
 
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
@@ -731,9 +931,15 @@ export function AlbumDetail({
                   </a>
                 )}
 
-                {album.apple_music_link && (
+                {(album.apple_music_link ||
+                  (album.album_name && album.artist_name)) && (
                   <a
-                    href={album.apple_music_link}
+                    href={
+                      album.apple_music_link ||
+                      `https://music.apple.com/search?term=${encodeURIComponent(
+                        album.artist_name + ' ' + album.album_name
+                      )}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#fc3c44]/15 hover:bg-[#fc3c44]/25 text-[#fc3c44] border border-[#fc3c44]/30 font-bold text-xs transition-all shadow-sm group"
@@ -743,15 +949,21 @@ export function AlbumDetail({
                   </a>
                 )}
 
-                {album.youtube_link && (
+                {(album.youtube_link ||
+                  (album.album_name && album.artist_name)) && (
                   <a
-                    href={album.youtube_link}
+                    href={
+                      album.youtube_link ||
+                      `https://music.youtube.com/search?q=${encodeURIComponent(
+                        album.artist_name + ' ' + album.album_name
+                      )}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 font-bold text-xs transition-all shadow-sm group"
                   >
                     <YouTubeLogo className="w-4 h-4 fill-current group-hover:scale-110 transition-transform" />
-                    <span>YouTube</span>
+                    <span>YouTube Music</span>
                   </a>
                 )}
 
@@ -910,7 +1122,7 @@ export function AlbumDetail({
               {/* Score Highlight Box */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2">
                 {/* Score Card */}
-                <div className="col-span-2 sm:col-span-1 bg-black/40 border border-white/10 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between">
+                <div className="col-span-2 sm:col-span-1 bg-[#0c0e1a]/90 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
                   <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Calificación Final
                   </span>
@@ -942,7 +1154,7 @@ export function AlbumDetail({
                 </div>
 
                 {/* Crown / Top Track Box */}
-                <div className="col-span-2 sm:col-span-1 bg-gradient-to-br from-amber-500/10 via-yellow-500/5 to-transparent border border-amber-400/30 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between">
+                <div className="col-span-2 sm:col-span-1 bg-[#14111d]/90 backdrop-blur-md border border-amber-400/40 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
                   <div className="flex items-center justify-center md:justify-start gap-1 text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider">
                     <span>👑</span>
                     <span>Canción Top</span>
@@ -997,19 +1209,26 @@ export function AlbumDetail({
               {/* Action Buttons */}
               <div className="flex items-center justify-center md:justify-start gap-3 pt-2 flex-wrap">
                 {isAnticipated ? (
-                  <div
-                    className="px-6 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-300 font-extrabold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed select-none shadow-lg"
-                    title="Este álbum aún no se ha estrenado. Se habilitará para calificar una vez disponible en plataformas."
+                  <button
+                    type="button"
+                    onClick={handleOpenNotifyModal}
+                    className={`px-6 py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer ${
+                      isSubscribed
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border border-emerald-400/40 shadow-emerald-500/20'
+                        : 'bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-black border border-amber-300 shadow-amber-500/25'
+                    }`}
+                    title="Programa un recordatorio por correo y notificación en la plataforma el día de su estreno oficial"
                   >
-                    <span>⏳</span>
+                    <span>{isSubscribed ? '✅' : '🔔'}</span>
                     <span>
-                      Lanzamiento Anticipado (Estreno{' '}
-                      {album.release_date ||
-                        spotifyMeta?.releaseDate ||
-                        'próximo'}
-                      )
+                      {isSubscribed
+                        ? 'Notificación Programada'
+                        : 'Notificarme'}
                     </span>
-                  </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/20 font-mono font-bold">
+                      {album.release_date || spotifyMeta?.releaseDate || 'Próximo'}
+                    </span>
+                  </button>
                 ) : (
                   <button
                     onClick={() => setShowReviewSystem((prev) => !prev)}
@@ -1043,6 +1262,96 @@ export function AlbumDetail({
           </div>
         </div>
 
+        {/* Notificación Toast Programada */}
+        {notifySuccessMsg && (
+          <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 animate-fadeIn shadow-xl">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🎉</span>
+              <span>{notifySuccessMsg}</span>
+            </div>
+            <button
+              onClick={() => setNotifySuccessMsg('')}
+              className="text-emerald-300 hover:text-white text-xs px-2 py-1"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* Modal Interactivo: Notificarme en el Estreno vía createPortal (Viewport Completo) */}
+        {showNotifyModal &&
+          typeof document !== 'undefined' &&
+          createPortal(
+            <div
+              className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-screen h-screen min-h-screen z-[99999] m-0 p-3 sm:p-4 bg-black/90 backdrop-blur-xl flex items-center justify-center overflow-y-auto"
+              onClick={() => setShowNotifyModal(false)}
+            >
+              <div
+                className="bg-[#121422] border border-amber-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl relative space-y-5 my-auto animate-scaleUp"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowNotifyModal(false)}
+                  className="absolute top-4 right-4 text-slate-400 hover:text-white text-lg w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all cursor-pointer"
+                >
+                  ✕
+                </button>
+
+                <div className="text-center space-y-2">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
+                    🔔
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-white">
+                    Notificarme en el Estreno
+                  </h3>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Recibe un correo y una notificación en Musiclub el día que salga{' '}
+                    <strong className="text-amber-300">{album.album_name}</strong> de{' '}
+                    <strong className="text-white">{album.artist_name}</strong> ({album.release_date || 'próximamente'}).
+                  </p>
+                </div>
+
+                <form onSubmit={handleConfirmNotification} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-slate-300 block">
+                      Correo electrónico
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      value={notifyEmail}
+                      onChange={(e) => setNotifyEmail(e.target.value)}
+                      placeholder="ejemplo: eugenioturcott@gmail.com"
+                      className="w-full bg-black/50 border border-white/15 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 rounded-xl px-4 py-2.5 text-sm text-white placeholder-slate-500 transition-all outline-none"
+                    />
+                    <p className="text-[11px] text-slate-400">
+                      Solo te contactaremos cuando el álbum esté disponible para calificar.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowNotifyModal(false)}
+                      className="flex-1 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 font-bold text-xs transition-all border border-white/10 cursor-pointer"
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={subscribing}
+                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-black font-extrabold text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                    >
+                      <span>{subscribing ? 'Guardando...' : '🔔 Activar Notificación'}</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>,
+            document.body
+          )}
+
         {/* ANTICIPATED OR ON-DEMAND BANNER */}
         {isAnticipated ? (
           <div className="rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
@@ -1062,17 +1371,31 @@ export function AlbumDetail({
                 </strong>
                 . Conforme a las normas del Club, las calificaciones y reseñas
                 comunitarias se habilitarán exactamente en su fecha de salida.
-                ¡Puedes indexarlo, consultar sus pistas y compartirlo!
+                ¡Puedes programar una notificación para escucharlo y calificarlo primero!
               </p>
             </div>
-            <div className="px-5 py-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-extrabold text-xs sm:text-sm flex items-center gap-2 flex-shrink-0">
-              <span>📅</span>
-              <span>
-                Estreno:{' '}
-                {album.release_date ||
-                  spotifyMeta?.releaseDate ||
-                  'Próximamente'}
-              </span>
+            <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap justify-center sm:justify-end">
+              <button
+                type="button"
+                onClick={handleOpenNotifyModal}
+                className={`px-4 py-2.5 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 shadow-lg transition-all ${
+                  isSubscribed
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                    : 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-500/25 cursor-pointer hover:scale-105 active:scale-95'
+                }`}
+              >
+                <span>{isSubscribed ? '✅' : '🔔'}</span>
+                <span>{isSubscribed ? 'Notificación activa' : 'Notificarme al Estrenar'}</span>
+              </button>
+              <div className="px-4 py-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-extrabold text-xs sm:text-sm flex items-center gap-2">
+                <span>📅</span>
+                <span>
+                  Estreno:{' '}
+                  {album.release_date ||
+                    spotifyMeta?.releaseDate ||
+                    'Próximamente'}
+                </span>
+              </div>
             </div>
           </div>
         ) : album.is_on_demand ? (

@@ -773,16 +773,13 @@ export function GashaponMachine({
         <div className="absolute top-0 right-1/4 w-80 h-80 bg-gradient-to-br from-[#f5576c]/20 via-[#f093fb]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-10 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Spinning Musiclub Logo 3 */}
-        <div className="absolute top-3 right-3 sm:top-5 sm:right-5 z-20 pointer-events-none select-none opacity-80 hover:opacity-100 transition-opacity">
-          <div className="relative w-10 h-10 sm:w-14 sm:h-14 md:w-16 md:h-16 flex items-center justify-center">
-            <div className="absolute inset-0 bg-[#f5576c]/20 rounded-full blur-xl animate-pulse" />
-            <img
-              src="/musiclub_logo_3.png"
-              alt="Musiclub Logo"
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_15px_rgba(245,87,108,0.5)]"
-            />
-          </div>
+        {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
+        <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+          <img
+            src="/musiclub_logo_3.png"
+            alt=""
+            className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
+          />
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
@@ -802,7 +799,7 @@ export function GashaponMachine({
           </div>
 
           {/* Barra de Controles Rápidos (Sonido, Modo Rápido, Monedas) */}
-          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-3 bg-black/40 p-2 sm:p-3 rounded-2xl border border-white/10">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-3 bg-[#0b0c16]/95 backdrop-blur-xl p-2 sm:p-3 rounded-2xl border border-white/20 shadow-2xl">
             {/* Toggle de Sonido */}
             <button
               type="button"

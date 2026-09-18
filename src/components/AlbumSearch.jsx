@@ -192,8 +192,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
           (albumDetails.id && !String(albumDetails.id).startsWith('deezer_')
             ? `https://open.spotify.com/album/${albumDetails.id}`
             : null),
-        youtubeLink: albumDetails.youtube_link || null,
-        appleMusicLink: albumDetails.apple_music_link || null,
+        youtubeLink:
+          albumDetails.youtube_link ||
+          `https://music.youtube.com/search?q=${encodeURIComponent(artistName + ' ' + (albumDetails.album_name || albumDetails.name))}`,
+        appleMusicLink:
+          albumDetails.apple_music_link ||
+          `https://music.apple.com/search?term=${encodeURIComponent(artistName + ' ' + (albumDetails.album_name || albumDetails.name))}`,
         otherLink:
           albumDetails.other_link ||
           albumDetails.external_urls?.deezer ||

@@ -382,8 +382,13 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
             rawRemote?.external_urls?.spotify ||
             item.rawRemoteAlbum?.external_urls?.spotify ||
             null,
-          youtubeLink: mbData?.youtube_link || null,
-          appleMusicLink: mbData?.apple_music_link || rawRemote?.external_urls?.itunes || null,
+          youtubeLink:
+            mbData?.youtube_link ||
+            `https://music.youtube.com/search?q=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
+          appleMusicLink:
+            mbData?.apple_music_link ||
+            rawRemote?.external_urls?.itunes ||
+            `https://music.apple.com/search?term=${encodeURIComponent(canonicalArtist + ' ' + canonicalTitle)}`,
           otherLink:
             item.rawRemoteAlbum?.external_urls?.deezer ||
             rawRemote?.external_urls?.deezer ||
