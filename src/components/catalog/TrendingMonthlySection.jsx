@@ -64,10 +64,28 @@ export function TrendingMonthlySection({
     if (selectedCategory !== 'ALL') {
       list = list.filter((item) => {
         const cat = (item.genre_category || '').toUpperCase();
-        if (selectedCategory === 'POP') return cat.includes('POP') || cat.includes('HYPERPOP');
-        if (selectedCategory === 'ROCK') return cat.includes('ROCK') || cat.includes('PUNK') || cat.includes('INDIE') || cat.includes('SLUDGE');
-        if (selectedCategory === 'HIPHOP') return cat.includes('HIP-HOP') || cat.includes('RAP') || cat.includes('SOUL');
-        if (selectedCategory === 'ELECTRONIC') return cat.includes('ELECTRO') || cat.includes('HOUSE') || cat.includes('AMBIENT') || cat.includes('IDM');
+        if (selectedCategory === 'POP')
+          return cat.includes('POP') || cat.includes('HYPERPOP');
+        if (selectedCategory === 'ROCK')
+          return (
+            cat.includes('ROCK') ||
+            cat.includes('PUNK') ||
+            cat.includes('INDIE') ||
+            cat.includes('SLUDGE')
+          );
+        if (selectedCategory === 'HIPHOP')
+          return (
+            cat.includes('HIP-HOP') ||
+            cat.includes('RAP') ||
+            cat.includes('SOUL')
+          );
+        if (selectedCategory === 'ELECTRONIC')
+          return (
+            cat.includes('ELECTRO') ||
+            cat.includes('HOUSE') ||
+            cat.includes('AMBIENT') ||
+            cat.includes('IDM')
+          );
         return true;
       });
     }
@@ -86,7 +104,10 @@ export function TrendingMonthlySection({
   }, [releases, selectedCategory, searchQuery]);
 
   // Paginación limpia de 20 en 20
-  const totalPages = Math.max(1, Math.ceil(filteredReleases.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredReleases.length / ITEMS_PER_PAGE)
+  );
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const visibleReleases = useMemo(() => {
@@ -111,13 +132,14 @@ export function TrendingMonthlySection({
             <span>🔥</span>
             <span>Tendencias de la Semana</span>
             <span className="text-white/40">•</span>
-            <span className="text-amber-300">Top 100 ({releases.length})</span>
+            <span className="text-amber-300">Top 100</span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
             <span>{monthLabel}</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Los {releases.length} lanzamientos más populares y destacados de la semana ordenados por rotación, reproducciones e impacto global.
+            Los {releases.length} lanzamientos más populares y destacados de la
+            semana ordenados por rotación, reproducciones e impacto global.
           </p>
         </div>
 
@@ -146,7 +168,9 @@ export function TrendingMonthlySection({
               placeholder={`Buscar entre los ${releases.length} lanzamientos de la semana...`}
               className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 pl-9 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-pink-500/60 focus:ring-1 focus:ring-pink-500/40 transition-all"
             />
-            <span className="absolute left-3 top-2.5 text-xs text-slate-400">🔍</span>
+            <span className="absolute left-3 top-2.5 text-xs text-slate-400">
+              🔍
+            </span>
             {searchQuery && (
               <button
                 type="button"
@@ -275,11 +299,11 @@ export function TrendingMonthlySection({
                       <span className="font-mono bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
                         {item.total_tracks
                           ? `${item.total_tracks} ${item.total_tracks === 1 ? 'track' : 'tracks'}`
-                          : (item.release_type || 'Álbum')}
-                      </span>
-                      <span className="text-pink-300 font-bold flex items-center gap-1 bg-black/60 px-1.5 py-0.5 rounded border border-pink-500/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-pulse" />
-                        Sonando
+                          : item.release_type === 'SENCILLO'
+                            ? '1 track'
+                            : item.release_type === 'EP'
+                              ? 'EP'
+                              : 'Álbum'}
                       </span>
                     </div>
                   </Link>
@@ -303,37 +327,6 @@ export function TrendingMonthlySection({
                           className="text-xs text-slate-300 line-clamp-1"
                           linkClassName="hover:text-cyan-300 transition-colors"
                         />
-                      </div>
-
-                      {item.hit_track && (
-                        <div className="mt-1.5 flex items-center gap-1.5 text-[10.5px] text-pink-300/90 font-medium">
-                          <span className="text-[10px] flex-shrink-0">🎵</span>
-                          <span
-                            translate="no"
-                            className="notranslate track-name truncate"
-                            title={item.hit_track}
-                          >
-                            {item.hit_track}
-                          </span>
-                        </div>
-                      )}
-
-                      {/* Popularity this week (Musiclub feature) */}
-                      <div className="pt-2 mt-1 space-y-1">
-                        <div className="flex items-center justify-between text-[11px]">
-                          <span className="text-slate-400 font-semibold tracking-tight">Popularity this week</span>
-                          <span className="font-mono text-pink-400 font-bold">
-                            {item.popularity_this_week || `${rawPop.toLocaleString()} pts`}
-                          </span>
-                        </div>
-                        <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-gradient-to-r from-pink-500 via-rose-500 to-amber-400 rounded-full transition-all duration-500"
-                            style={{
-                              width: `${popPercent}%`,
-                            }}
-                          />
-                        </div>
                       </div>
                     </div>
 
@@ -378,7 +371,9 @@ export function TrendingMonthlySection({
                           ) : (
                             <span>✍️</span>
                           )}
-                          <span>{isProposing ? 'Abriendo...' : 'Reseñar en Club'}</span>
+                          <span>
+                            {isProposing ? 'Abriendo...' : 'Reseñar en Club'}
+                          </span>
                         </button>
                       ) : (
                         <Link
@@ -400,9 +395,13 @@ export function TrendingMonthlySection({
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
               <span className="text-xs text-slate-400 font-medium">
-                Página <span className="text-white font-bold">{safeCurrentPage}</span> de{' '}
-                <span className="text-white font-bold">{totalPages}</span> ·{' '}
-                <span className="text-pink-400 font-bold">{filteredReleases.length}</span> lanzamientos
+                Página{' '}
+                <span className="text-white font-bold">{safeCurrentPage}</span>{' '}
+                de <span className="text-white font-bold">{totalPages}</span> ·{' '}
+                <span className="text-pink-400 font-bold">
+                  {filteredReleases.length}
+                </span>{' '}
+                lanzamientos
               </span>
 
               <div className="flex items-center gap-1.5">

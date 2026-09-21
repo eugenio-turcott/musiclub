@@ -267,12 +267,13 @@ export function AlbumsCatalog({ isPage = false }) {
       setError(null);
       setLoadingTrending(true);
       try {
-        const [clubData, trendingData, monthlyData, statsData] = await Promise.allSettled([
-          supabaseService.getAllAlbumsWithFullStats(),
-          getTrendingReleases({ limit: 50 }),
-          getMonthlyTrendingReleases(),
-          getGlobalMusicStats(),
-        ]);
+        const [clubData, trendingData, monthlyData, statsData] =
+          await Promise.allSettled([
+            supabaseService.getAllAlbumsWithFullStats(),
+            getTrendingReleases({ limit: 50 }),
+            getMonthlyTrendingReleases(),
+            getGlobalMusicStats(),
+          ]);
 
         let clubList = [];
         if (clubData.status === 'fulfilled' && clubData.value) {
@@ -767,17 +768,13 @@ export function AlbumsCatalog({ isPage = false }) {
           </div>
 
           <div className="relative z-10 space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#131526]/95 backdrop-blur-md border border-cyan-500/40 text-cyan-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider shadow-md">
-              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-              <span>Base de Datos Comunitaria Oficial</span>
-            </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
               Catálogo Musical
             </h1>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
               Explora discografías completas, lanzamientos en tendencia e indaga
-              en los álbumes calificados por los miembros del club con desglose de
-              reseñas y canciones.
+              en los álbumes calificados por los miembros del club con desglose
+              de reseñas y canciones.
             </p>
           </div>
         </div>
@@ -810,7 +807,9 @@ export function AlbumsCatalog({ isPage = false }) {
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
-                {platformStats.releases ? `${platformStats.releases.toLocaleString()}+` : '4,127,529+'}
+                {platformStats.releases
+                  ? `${platformStats.releases.toLocaleString()}+`
+                  : '4,127,529+'}
               </span>
             </div>
             <p className="text-[11px] text-cyan-300 font-medium mt-1">
@@ -830,8 +829,9 @@ export function AlbumsCatalog({ isPage = false }) {
               </span>
             </div>
             <p className="text-[11px] text-pink-300 font-medium mt-1">
-              {platformStats.artists?.toLocaleString() || '2,995,843'} artistas ·{' '}
-              {(platformStats.labels || 344849).toLocaleString()} discografías oficiales
+              {platformStats.artists?.toLocaleString() || '2,995,843'} artistas
+              · {(platformStats.labels || 344849).toLocaleString()} discografías
+              oficiales
             </p>
           </div>
 
@@ -1436,7 +1436,7 @@ export function AlbumsCatalog({ isPage = false }) {
                             handleCardClick(e);
                           }
                         }}
-                        className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
+                        className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border transition-all duration-300 hover:shadow-2xl cursor-pointer flex flex-col group relative select-none ${
                           isMine
                             ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
                             : album.status === 'GANADOR'

@@ -1,4 +1,4 @@
-﻿import 'dotenv/config';
+import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { RECORD_CLUB_FALLBACK_RELEASES } from '../src/services/recordClubData.js';
 import { slugifyArtist, slugifyRelease } from '../src/utils/ratingUtils.js';
@@ -112,8 +112,8 @@ async function syncRecordClubToSupabase() {
       artist_name: item.artist_name,
       image_url: item.image_url,
       release_date: item.release_date || '2026-09-01',
-      release_type: item.release_type || 'ALBUM',
-      total_tracks: item.total_tracks || 12,
+      release_type: item.release_type || (item.total_tracks === 1 ? 'SENCILLO' : item.total_tracks <= 6 ? 'EP' : 'ALBUM'),
+      total_tracks: item.total_tracks || null,
       trending_rank: item.trending_rank || index + 1,
       popularity_raw: item.popularity_raw || 50,
       popularity_this_week: item.popularity_this_week || `${item.popularity_raw || 50} pts`,

@@ -1,0 +1,51 @@
+========================================================
+🔄 MUSICLUB V.9.0 - SINCRONIZADOR DIARIO GLOBAL
+📅 Fecha de ejecución: 2026-09-21
+⚙️ Modo forzado: NO (Idempotente diario)
+⏱️ Intervalo Spotify: 60s por álbum agregado
+========================================================
+
+⚡ Iniciando consultas paralelas a las APIs...
+📡 [1/3] Consultando https://api.record.club/releases?sortBy=popularity-week&limit=100 ...
+📡 [2/3] Consultando https://api.record.club/releases?releaseDate=upcoming&sortBy=popularity&limit=50 ...
+📡 [3/3] Consultando https://api.record.club/stats ...
+(node:4044) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/eturc/musiclub-albumes/src/services/recordClubData.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\eturc\musiclub-albumes\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+--- 📊 ESTADÍSTICAS GLOBALES ---
+  Artistas: 2,998,324
+  Lanzamientos: 4,132,903
+  Sellos: 345,219
+  Reseñas: 297,375
+  Listas: 18,393
+  Usuarios: 22,101
+  💾 Estadísticas globales guardadas exitosamente en record_club_stats.
+
+--- 🔥 TENDENCIAS SEMANALES (100 Lanzamientos) ---
+  💾 Almacenando 100 registros en [record_club_releases]...
+  🗑️ Eliminando 17 releases que salieron del Top 100 de Record Club...
+  ✅ Base de datos sincronizada: quedan exactamente los 100 del Top 100.
+  🎉 [weekly_trending] Sincronización exitosa (100 álbumes en Supabase).
+
+--- ⏳ PRÓXIMOS LANZAMIENTOS (50 Lanzamientos) ---
+  💾 Almacenando 50 registros en [record_club_upcoming]...
+  🎉 [upcoming] Sincronización exitosa (50 lanzamientos en Supabase).
+
+--- 💿 ENRIQUECIMIENTO E INGESTA AL CATÁLOGO GENERAL (Tabla: albums) ---
+  📦 Total de álbumes actuales en catálogo: 177
+  🎯 Nuevos lanzamientos detectados para agregar a [albums]: 90
+  ⚙️ Procesando 90 de 90 nuevos álbumes en esta corrida.
+  ⏳ Regla preventiva anti rate-limit de Spotify: esperando 60s entre cada álbum agregado.
+
+[1/90] Enriqueciendo: "Pylon" de beabadoobee...
+  ✅ [1] Agregado con éxito a Supabase (ID: 78e713ab-ffba-4167-8f29-78073a2588d1):
+     - Portada: HD Oficial
+     - Tracks: 14 canciones con duración
+     - Spotify: Sí
+     - YouTube Music: https://music.youtube.com/search?q=beabadoobee%20Pylon
+     - Apple Music: https://music.apple.com/search?term=beabadoobee%20Pylon
+     - Deezer: https://www.deezer.com/search/beabadoobee%20Pylon
+  ⏳ Pausando 60s para respetar el límite de peticiones de Spotify...
+^C

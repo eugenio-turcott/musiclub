@@ -506,6 +506,10 @@ export const supabaseService = {
     return data;
   },
 
+  getAlbumByNameAndArtist: async (albumName, artistName, mbid = null) => {
+    return supabaseService.findAlbum(albumName, artistName, mbid);
+  },
+
   createAlbum: async (albumData) => {
     const rawAlbum = albumData.albumName || albumData.album_name || '';
     const rawArtist = albumData.artistName || albumData.artist_name || '';

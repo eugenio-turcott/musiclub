@@ -14,6 +14,69 @@ export const CURATED_PATCH_NOTES = [
   // V9.x (Septiembre 2026)
   // ----------------------------------------------------
   {
+    version: 'V.9.1',
+    title:
+      'Ingesta Canónica de 21 Columnas, Enriquecimiento Multi-API (Spotify + MusicBrainz + Deezer), Sincronización Bidireccional y Corrección Integral de Metadatos',
+    date: '2026-09-21',
+    sha: 'a910f2c',
+    associatedShas: ['a910f2c'],
+    tag: 'Multi-API Canonical Pipeline & Bidirectional Sync 9.1',
+    tagColor: 'from-emerald-400 via-cyan-500 to-blue-600',
+    authorName: 'Eugenio Turcott',
+    summary:
+      'Llegada de la versión Musiclub V.9.1 con un robusto pipeline de enriquecimiento canónico de 21 columnas e ingesta automática multi-fuente (Record Club, Spotify, MusicBrainz y Deezer). Se erradicaron los conteos de pistas por defecto artificiales (12 tracks falsos), se implementó tipado dinámico para Sencillos (1 track), EPs (2 a 6 tracks) y Álbumes (7+ tracks), se añadió sincronización bidireccional continua entre la tabla de tendencias (record_club_releases) y la tabla del catálogo (albums), y se resolvió la ingesta en vivo on-demand al hacer click en cualquier lanzamiento.',
+    changes: [
+      {
+        type: 'feature',
+        title: 'Servicio Centralizado de Enriquecimiento Canónico de 21 Columnas (albumEnrichmentService)',
+        description:
+          'Se implementó un servicio centralizado que orquesta la consulta cruzada a Spotify, MusicBrainz y Deezer para construir y persistir en la base de datos de Supabase las 21 columnas exactas de cada álbum: id, album_name, artist_name, image_url, spotify_link, youtube_link, apple_music_link, other_link, created_at, tracks, spotify_verified, reviews_enabled, release_date, release_year, mbid, release_type, genres, label, country, barcode y total_tracks.',
+      },
+      {
+        type: 'feature',
+        title: 'Ingesta On-Click en Ficha de Álbum y Endpoint Serverless (/api/albums/enrich)',
+        description:
+          'Al hacer click en cualquier tarjeta de la sección "Tendencias del mes" en Catálogo, el sistema verifica si el álbum ya existe en la base de datos. Si está ausente, ejecuta en segundo plano el enriquecimiento automático multi-API, lo inserta en Supabase con todas sus columnas y lo enlaza directamente con su nuevo UUID oficial, habilitando de inmediato el reproductor, tracklist y sistema de reseñas.',
+      },
+      {
+        type: 'feature',
+        title: 'Sincronización Bidireccional en el Pipeline Diario Global (scripts/dailyRecordClubSync.mjs)',
+        description:
+          'Nuevo paso automatizado al final del ciclo de sincronización que actualiza de vuelta la tabla record_club_releases con los conteos de canciones y tipos verificados en la tabla albums, garantizando consistencia absoluta 1:1 entre lo que ve el usuario en el feed de tendencias y la información canónica del catálogo.',
+      },
+      {
+        type: 'improvement',
+        title: 'Aceleración Anti Rate-Limit de 60s a 1.2s en la Automatización Diaria',
+        description:
+          'Se optimizó el intervalo de pausa preventiva entre adiciones de 60 segundos a 1.2 segundos (1200ms), cumpliendo con la directiva oficial de MusicBrainz de 1 req/s. Esto redujo el tiempo total de procesamiento diario de más de 90 minutos a únicamente 2 minutos para los 100 lanzamientos.',
+      },
+      {
+        type: 'fix',
+        title: 'Erradicación del Fallback Artificial de 12 Tracks',
+        description:
+          'Se eliminó el valor por defecto arbitrario de 12 canciones que se aplicaba automáticamente a los lanzamientos de Record Club cuando la API pública no entregaba el conteo de pistas, reemplazándolo por validación cruzada con tracks reales de Spotify y MusicBrainz.',
+      },
+      {
+        type: 'fix',
+        title: 'Tipificación Dinámica de Release (SENCILLO, EP, ALBUM) y Fin de Etiquetas Crudas',
+        description:
+          'Se implementó categorización dinámica: lanzamientos de 1 pista se clasifican estrictamente como SENCILLO (como "Bass Persuades" de MILEY o "Ride Lonesome" de Beck), de 2 a 6 pistas como EP y de 7 en adelante como ALBUM. Además, se refinó el componente TrendingMonthlySection para no mostrar la cadena cruda en mayúsculas "ALBUM" cuando un conteo esté en proceso de carga.',
+      },
+      {
+        type: 'fix',
+        title: 'Desambiguación Flexible de Títulos (Soporte para Versiones Deluxe y Remasters)',
+        description:
+          'El normalizador ahora filtra automáticamente sufijos entre paréntesis o corchetes como "(Rare N\' Deluxe)" o "[Remastered]", permitiendo que álbumes con títulos expandidos (como "Detour" de Kim Petras) hagan match de inmediato con sus registros correspondientes y reciban sus 13 pistas reales.',
+      },
+      {
+        type: 'fix',
+        title: 'Corrección de Integridad en el Método getAlbumByNameAndArtist de Supabase',
+        description:
+          'Se añadió el alias getAlbumByNameAndArtist en el cliente de Supabase apuntando a findAlbum, solucionando una excepción que interrumpía llamadas de creación directa de álbumes.',
+      },
+    ],
+  },
+  {
     version: 'V.9.0',
     title:
       'Radar Global Automático 8:00 AM: Top 100 Tendencias, Confirmación Inmediata por Correo, Vinilos de Marca al 25% & Enlaces Multi-Plataforma',

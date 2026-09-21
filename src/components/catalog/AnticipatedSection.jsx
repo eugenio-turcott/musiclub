@@ -11,7 +11,10 @@ const ITEMS_PER_PAGE = 10;
  * Lanzamientos anunciados que aún no salen; no se pueden calificar pero sí indexar y consultar (V.8.5).
  * Paginación de 10 en 10 con navegación rápida.
  */
-export function AnticipatedSection({ anticipatedReleases = [], loading = false }) {
+export function AnticipatedSection({
+  anticipatedReleases = [],
+  loading = false,
+}) {
   const sectionRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const totalCount = anticipatedReleases.length;
@@ -53,15 +56,18 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
             <span>⏳</span>
             <span>Releases Anticipados</span>
             <span className="text-white/40">•</span>
-            <span className="text-amber-200">{totalCount} Próximos Estrenos</span>
+            <span className="text-amber-200">
+              {totalCount} Próximos Estrenos
+            </span>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
             <span>Lanzamientos Próximos a Salir</span>
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Álbumes y EPs anunciados oficialmente por los artistas ordenados por expectativa y popularidad. Puedes indexarlos en el club,
-            explorar sus detalles y compartir su ficha técnica; la calificación y reseñas se habilitan
-            el día oficial de su estreno.
+            Álbumes y EPs anunciados oficialmente por los artistas ordenados por
+            expectativa y popularidad. Puedes indexarlos en el club, explorar
+            sus detalles y compartir su ficha técnica; la calificación y reseñas
+            se habilitan el día oficial de su estreno.
           </p>
         </div>
 
@@ -126,7 +132,7 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
                     {/* Hype Rank Badge */}
                     <div className="absolute top-2 right-2 z-10">
                       <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-black/85 border border-amber-500/40 text-amber-300 backdrop-blur-md">
-                        #{rank} Hype
+                        #{rank}
                       </span>
                     </div>
 
@@ -137,11 +143,6 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
                           📅 {item.release_date || 'Próximamente'}
                         </span>
                       </div>
-                      {item.popularity_raw > 0 && (
-                        <span className="text-[9px] font-bold text-amber-200/80 bg-black/60 px-1.5 py-0.5 rounded">
-                          {item.popularity_raw} pts
-                        </span>
-                      )}
                     </div>
                   </div>
 
@@ -164,12 +165,6 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
                           linkClassName="hover:text-amber-200 transition-colors"
                         />
                       </div>
-
-                      {item.description && (
-                        <p className="text-[11px] text-slate-400 line-clamp-2 mt-2 leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
                     </div>
 
                     {/* Locked Rating notice & CTA */}
@@ -184,7 +179,7 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
                         className="w-full py-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
                       >
                         <span>🔍</span>
-                        <span>Ver Ficha Técnica</span>
+                        <span>Ver Release</span>
                       </Link>
                     </div>
                   </div>
@@ -197,9 +192,13 @@ export function AnticipatedSection({ anticipatedReleases = [], loading = false }
           {totalPages > 1 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
               <span className="text-xs text-slate-400 font-medium">
-                Página <span className="text-amber-300 font-bold">{safeCurrentPage}</span> de{' '}
-                <span className="text-white font-bold">{totalPages}</span> ·{' '}
-                <span className="text-amber-300 font-bold">{totalCount}</span> próximos estrenos
+                Página{' '}
+                <span className="text-amber-300 font-bold">
+                  {safeCurrentPage}
+                </span>{' '}
+                de <span className="text-white font-bold">{totalPages}</span> ·{' '}
+                <span className="text-amber-300 font-bold">{totalCount}</span>{' '}
+                próximos estrenos
               </span>
 
               <div className="flex items-center gap-1.5">

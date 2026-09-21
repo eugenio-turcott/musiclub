@@ -7,6 +7,7 @@ import {
   RECORD_CLUB_FALLBACK_UPCOMING,
 } from '../src/services/recordClubData.js';
 import { slugifyArtist, slugifyRelease } from '../src/utils/ratingUtils.js';
+import { enrichAndInsertAlbum } from '../src/services/albumEnrichmentService.js';
 
 // Cargar variables de entorno siempre de forma absoluta desde la raíz del proyecto
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -39,8 +40,8 @@ const isForced = process.argv.includes('--force');
 const delayArg = process.argv.find((a) => a.startsWith('--delay='));
 const limitAddArg = process.argv.find((a) => a.startsWith('--limit-add='));
 
-// Por defecto 60 segundos (1 minuto) de espera por álbum agregado para proteger contra rate-limits de Spotify
-const ALBUM_DELAY_MS = delayArg ? parseInt(delayArg.split('=')[1], 10) : 60000;
+// Por defecto 1.2 segundos de espera por álbum agregado para proteger contra rate-limits de MusicBrainz (1 req/s)
+const ALBUM_DELAY_MS = delayArg ? parseInt(delayArg.split('=')[1], 10) : 1200;
 const MAX_ALBUMS_TO_ADD = limitAddArg ? parseInt(limitAddArg.split('=')[1], 10) : Infinity;
 
 const USER_AGENT = 'MusiclubApp/9.0 ( contact@musiclub.app ; https://musiclub.app )';
@@ -377,17 +378,25 @@ async function processTrending(apiReleases, todayDate) {
     if (r.id) fallbackMap.set(r.id, r);
   });
 
-  // Consultar álbumes existentes en Supabase para obtener el total_tracks real validado
-  const albumTracksMap = new Map();
+  // Consultar álbumes existentes en Supabase para obtener el total_tracks y release_type real validado
+  const albumInfoMap = new Map();
+  const albumCleanMap = new Map();
   try {
     const { data: dbAlbums } = await supabase
       .from('albums')
-      .select('album_name, artist_name, total_tracks, tracks');
+      .select('album_name, artist_name, total_tracks, tracks, release_type');
     if (dbAlbums && Array.isArray(dbAlbums)) {
       dbAlbums.forEach((a) => {
-        const key = normalizeKey(a.artist_name, a.album_name);
         const count = a.total_tracks || (Array.isArray(a.tracks) ? a.tracks.length : null);
-        if (count) albumTracksMap.set(key, count);
+        const info = {
+          total_tracks: count,
+          release_type: a.release_type,
+        };
+        const kExact = normalizeKey(a.artist_name, a.album_name);
+        const cleanAlb = (a.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+        const kClean = normalizeKey(a.artist_name, cleanAlb);
+        albumInfoMap.set(kExact, info);
+        albumCleanMap.set(kClean, info);
       });
     }
   } catch (err) {
@@ -403,7 +412,9 @@ async function processTrending(apiReleases, todayDate) {
       const pos = r.popularityByWeek?.position || index + 1;
 
       const normKey = normalizeKey(artist, title);
-      const realTracksFromClub = albumTracksMap.get(normKey);
+      const cleanTitle = (title || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+      const cleanKey = normalizeKey(artist, cleanTitle);
+      const dbInfo = albumInfoMap.get(normKey) || albumCleanMap.get(cleanKey);
 
       const artworkUrl = r.artwork?.releaseVersionId
         ? `https://cdn.rcrd.club/releases/${r.id}/${r.artwork.releaseVersionId}.webp?v=${r.artwork.artworkVersionId || ''}&width=500`
@@ -415,10 +426,22 @@ async function processTrending(apiReleases, todayDate) {
 
       const isNew = r.id === '05golqe1nj9l1j23' || (r.releaseDate?.year === 2026 && r.releaseDate?.month >= 8);
 
+      // Pistas reales: desde la BD albums si ya existe, o según el tipo de release
       const realTracks =
-        realTracksFromClub ||
-        matched?.total_tracks ||
+        dbInfo?.total_tracks ||
         (r.type === 2 ? 1 : r.type === 3 ? 5 : null);
+
+      // Tipo canónico de release: de la BD o inferido de las pistas
+      let canonicalType = dbInfo?.release_type;
+      if (!canonicalType) {
+        if (realTracks === 1 || r.type === 2) {
+          canonicalType = 'SENCILLO';
+        } else if ((realTracks >= 2 && realTracks <= 6) || r.type === 3) {
+          canonicalType = 'EP';
+        } else {
+          canonicalType = 'ALBUM';
+        }
+      }
 
       return {
         id: r.id || `rc_${index + 1}`,
@@ -426,7 +449,7 @@ async function processTrending(apiReleases, todayDate) {
         artist_name: artist,
         image_url: artworkUrl,
         release_date: relDate,
-        release_type: r.type === 2 ? 'SENCILLO' : r.type === 3 ? 'EP' : 'ALBUM',
+        release_type: canonicalType,
         total_tracks: realTracks,
         trending_rank: pos,
         popularity_raw: pop,
@@ -649,98 +672,44 @@ async function enrichAndAddAlbums(trendingItems) {
 
   for (let i = 0; i < itemsToProcess.length; i++) {
     const item = itemsToProcess[i];
-    const isUpcoming = !!item.is_anticipated;
-    console.log(`[${i + 1}/${itemsToProcess.length}] Enriqueciendo: "${item.album_name}" de ${item.artist_name}...`);
+    console.log(`[${i + 1}/${itemsToProcess.length}] Enriqueciendo (Spotify + MusicBrainz + Deezer): "${item.album_name}" de ${item.artist_name}...`);
 
-    // 1. Consultar Spotify de forma oficial (imágenes HD + tracklist)
-    const spotifyData = await fetchSpotifyAlbumDetails(item.artist_name, item.album_name);
-
-    // 2. Consultar Deezer si Spotify no devolvió tracklist o para enlace de Deezer
-    let deezerData = null;
-    if (!spotifyData || !spotifyData.tracks || spotifyData.tracks.length === 0) {
-      deezerData = await fetchDeezerAlbumDetails(item.artist_name, item.album_name);
+    try {
+      const result = await enrichAndInsertAlbum(item);
+      if (result.success) {
+        if (result.alreadyExists) {
+          console.log(`  ℹ️ Ya se encontraba en [albums] (ID: ${result.album?.id}). Omitido.`);
+        } else if (result.newlyCreated) {
+          addedCount++;
+          const a = result.album;
+          existingKeySet.add(normalizeKey(item.artist_name, item.album_name));
+          console.log(`  ✅ [${addedCount}] Agregado con éxito a Supabase con las 21 columnas completas:`);
+          console.log(`     - ID: ${a.id}`);
+          console.log(`     - Nombre: "${a.album_name}" | Artista: "${a.artist_name}"`);
+          console.log(`     - Portada: ${a.image_url ? 'HD Oficial' : 'Sin imagen'}`);
+          console.log(`     - Tracks: ${(a.tracks || []).length} pistas con duración`);
+          console.log(`     - Spotify: ${a.spotify_link || 'N/A'}`);
+          console.log(`     - YouTube: ${a.youtube_link || 'N/A'}`);
+          console.log(`     - Apple Music: ${a.apple_music_link || 'N/A'}`);
+          console.log(`     - Deezer: ${a.other_link || 'N/A'}`);
+          console.log(`     - MBID: ${a.mbid || 'N/A'}`);
+          console.log(`     - Tipo: ${a.release_type || 'ALBUM'}`);
+          console.log(`     - Sello: ${a.label || 'N/A'}`);
+          console.log(`     - País: ${a.country || 'XW'}`);
+          console.log(`     - Barcode: ${a.barcode || 'N/A'}`);
+          console.log(`     - Total Tracks: ${a.total_tracks || (a.tracks || []).length}`);
+          console.log(`     - Fecha: ${a.release_date || 'N/A'} (${a.release_year || 'N/A'})`);
+        }
+      } else {
+        console.error(`  ❌ Error al procesar "${item.album_name}":`, result.error);
+      }
+    } catch (err) {
+      console.error(`  ❌ Error inesperado en "${item.album_name}":`, err.message);
     }
 
-    // 3. Consultar MusicBrainz para MBID y metadata de género
-    const mbData = await fetchMusicBrainzDetails(item.artist_name, item.album_name);
-
-    // Construir datos canónicos consolidados
-    const cleanArtist = item.artist_name;
-    const cleanAlbum = item.album_name;
-    const searchParam = encodeURIComponent(`${cleanArtist} ${cleanAlbum}`);
-
-    // Portada oficial: Spotify HD > Deezer HD > Imagen de plataforma
-    const finalImageUrl =
-      spotifyData?.image_url ||
-      deezerData?.image_url ||
-      item.image_url;
-
-    // Tracklist oficial
-    const finalTracks =
-      spotifyData?.tracks && spotifyData.tracks.length > 0
-        ? spotifyData.tracks
-        : deezerData?.tracks && deezerData.tracks.length > 0
-          ? deezerData.tracks
-          : [];
-
-    // Enlaces a las 4 plataformas
-    const spotifyLink = spotifyData?.spotify_url || item.spotify_url || null;
-    const youtubeLink = `https://music.youtube.com/search?q=${searchParam}`;
-    const appleMusicLink = `https://music.apple.com/search?term=${searchParam}`;
-    const otherLink = deezerData?.deezer_url || `https://www.deezer.com/search/${searchParam}`;
-
-    const relDate = spotifyData?.release_date || deezerData?.release_date || item.release_date || null;
-    const relYear = relDate ? parseInt(relDate.slice(0, 4), 10) : new Date().getFullYear();
-
-    const genresList = [
-      ...(spotifyData?.genres || []),
-      ...(deezerData?.genres || []),
-      ...(mbData?.tags || []),
-    ].filter(Boolean);
-
-    const newAlbumPayload = {
-      album_name: cleanAlbum,
-      artist_name: cleanArtist,
-      image_url: finalImageUrl,
-      spotify_link: spotifyLink,
-      youtube_link: youtubeLink,
-      apple_music_link: appleMusicLink,
-      other_link: otherLink,
-      tracks: finalTracks,
-      spotify_verified: !!spotifyData,
-      reviews_enabled: !isUpcoming,
-      release_date: relDate,
-      release_year: relYear,
-      mbid: mbData?.mbid || null,
-      release_type: item.release_type || 'ALBUM',
-      genres: genresList.length > 0 ? Array.from(new Set(genresList)) : ['POP', 'ALTERNATIVE'],
-      label: spotifyData?.label || deezerData?.label || null,
-      total_tracks: finalTracks.length || spotifyData?.total_tracks || item.total_tracks || 12,
-    };
-
-    const { data: inserted, error: insertErr } = await supabase
-      .from('albums')
-      .insert([newAlbumPayload])
-      .select('id, album_name')
-      .single();
-
-    if (insertErr) {
-      console.error(`  ❌ Error al insertar "${cleanAlbum}" en albums:`, insertErr.message);
-    } else {
-      addedCount++;
-      existingKeySet.add(normalizeKey(cleanArtist, cleanAlbum));
-      console.log(`  ✅ [${addedCount}] Agregado con éxito a Supabase (ID: ${inserted.id}):`);
-      console.log(`     - Portada: ${finalImageUrl ? 'HD Oficial' : 'Sin imagen'}`);
-      console.log(`     - Tracks: ${finalTracks.length} canciones con duración`);
-      console.log(`     - Spotify: ${spotifyLink ? 'Sí' : 'No'}`);
-      console.log(`     - YouTube Music: ${youtubeLink}`);
-      console.log(`     - Apple Music: ${appleMusicLink}`);
-      console.log(`     - Deezer: ${otherLink}`);
-    }
-
-    // Esperar 1 minuto (60s) antes del siguiente álbum para cumplir la política de Spotify
+    // Esperar intervalo seguro para respetar límite de MusicBrainz (1 req/s)
     if (i < itemsToProcess.length - 1) {
-      console.log(`  ⏳ Pausando ${ALBUM_DELAY_MS / 1000}s para respetar el límite de peticiones de Spotify...`);
+      console.log(`  ⏳ Pausando ${ALBUM_DELAY_MS / 1000}s para respetar límite de APIs...`);
       await sleep(ALBUM_DELAY_MS);
     }
   }
@@ -749,12 +718,79 @@ async function enrichAndAddAlbums(trendingItems) {
 }
 
 // =========================================================================
+// 5. RE-SINCRONIZACIÓN DE RECORD_CLUB_RELEASES CON ALBUMS (Bidireccional)
+// =========================================================================
+async function syncRecordClubReleasesWithAlbums() {
+  console.log('\n--- 🔄 RE-SINCRONIZACIÓN DE METADATOS CON [record_club_releases] ---');
+  try {
+    const { data: rcList, error: rcErr } = await supabase
+      .from('record_club_releases')
+      .select('id, album_name, artist_name, total_tracks, release_type');
+    const { data: albList, error: albErr } = await supabase
+      .from('albums')
+      .select('album_name, artist_name, total_tracks, tracks, release_type');
+
+    if (rcErr || albErr || !rcList || !albList) return;
+
+    const exactMap = new Map();
+    const cleanMap = new Map();
+
+    albList.forEach((a) => {
+      const count = a.total_tracks || (Array.isArray(a.tracks) ? a.tracks.length : null);
+      const info = {
+        total_tracks: count,
+        release_type: a.release_type,
+      };
+      exactMap.set(normalizeKey(a.artist_name, a.album_name), info);
+      const cleanAlb = (a.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+      cleanMap.set(normalizeKey(a.artist_name, cleanAlb), info);
+    });
+
+    let updatedCount = 0;
+    for (const rc of rcList) {
+      const kExact = normalizeKey(rc.artist_name, rc.album_name);
+      const cleanAlb = (rc.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
+      const kClean = normalizeKey(rc.artist_name, cleanAlb);
+      const matched = exactMap.get(kExact) || cleanMap.get(kClean);
+
+      if (matched) {
+        const targetTracks = matched.total_tracks;
+        let targetType = matched.release_type;
+        if (!targetType) {
+          if (targetTracks === 1) targetType = 'SENCILLO';
+          else if (targetTracks >= 2 && targetTracks <= 6) targetType = 'EP';
+          else targetType = 'ALBUM';
+        }
+
+        if (rc.total_tracks !== targetTracks || rc.release_type !== targetType) {
+          const { error: upErr } = await supabase
+            .from('record_club_releases')
+            .update({
+              total_tracks: targetTracks,
+              release_type: targetType,
+            })
+            .eq('id', rc.id);
+
+          if (!upErr) {
+            updatedCount++;
+          }
+        }
+      }
+    }
+
+    console.log(`  ✅ ${updatedCount} registros en record_club_releases actualizados con total_tracks y release_type reales.`);
+  } catch (err) {
+    console.warn('  ⚠️ Error re-sincronizando record_club_releases:', err.message);
+  }
+}
+
+// =========================================================================
 // FUNCIÓN PRINCIPAL
 // =========================================================================
 async function main() {
   const todayDate = new Date().toISOString().split('T')[0];
   console.log(`========================================================`);
-  console.log(`🔄 MUSICLUB V.9.0 - SINCRONIZADOR DIARIO GLOBAL`);
+  console.log(`🔄 MUSICLUB V.9.1 - SINCRONIZADOR DIARIO GLOBAL`);
   console.log(`📅 Fecha de ejecución: ${todayDate}`);
   console.log(`⚙️ Modo forzado: ${isForced ? 'SÍ (--force)' : 'NO (Idempotente diario)'}`);
   console.log(`⏱️ Intervalo Spotify: ${ALBUM_DELAY_MS / 1000}s por álbum agregado`);
@@ -792,8 +828,11 @@ async function main() {
   // 4. Enriquecer con Spotify y agregar al catálogo general (albums)
   await enrichAndAddAlbums(savedTrending);
 
+  // 5. Re-sincronizar total_tracks y release_type verificados en record_club_releases
+  await syncRecordClubReleasesWithAlbums();
+
   console.log(`\n========================================================`);
-  console.log(`✨ Sincronización diaria Musiclub V.9.0 completada exitosamente.`);
+  console.log(`✨ Sincronización diaria Musiclub V.9.1 completada exitosamente.`);
   console.log(`========================================================\n`);
 }
 

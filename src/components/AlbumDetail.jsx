@@ -28,6 +28,7 @@ import {
   searchAlbum,
   getAlbumDetails,
 } from '../services/spotifyApi';
+import { enrichAndInsertAlbum } from '../services/albumEnrichmentService';
 import {
   SpotifyLogo,
   AppleMusicLogo,
@@ -316,26 +317,39 @@ export function AlbumDetail({
             }
 
             if (releaseRow) {
-              current = {
-                id: releaseRow.id,
-                album_name: releaseRow.album_name,
-                artist_name: releaseRow.artist_name,
-                image_url: releaseRow.image_url,
-                release_date: releaseRow.release_date,
-                release_type: releaseRow.release_type || 'ALBUM',
-                total_tracks: releaseRow.total_tracks,
-                genres: [releaseRow.genre_category || 'POP'],
-                record_club_url: releaseRow.record_club_url,
-                spotify_id: releaseRow.spotify_id,
-                spotify_link: releaseRow.spotify_url,
-                slug: releaseRow.slug,
-                reviews: [],
-                track_stats: [],
-                tracks: [],
-                stats: { totalReviews: 0, averageRating: null },
-                final_rating: null,
-                is_on_demand: true,
-              };
+              // 1. Comprobar si ya existe en la tabla "albums"
+              let albumRecord = await supabaseService.findAlbum(
+                releaseRow.album_name,
+                releaseRow.artist_name,
+                releaseRow.mbid
+              );
+
+              // 2. Si no existe, enriquecer de forma COMPLETA (Spotify + MusicBrainz + Deezer) e insertar en "albums"
+              if (!albumRecord) {
+                try {
+                  const enrichRes = await enrichAndInsertAlbum(releaseRow);
+                  if (enrichRes?.success && enrichRes.album) {
+                    albumRecord = enrichRes.album;
+                  }
+                } catch (enrichErr) {
+                  console.warn('Error al enriquecer release de tendencias:', enrichErr);
+                }
+              }
+
+              // 3. Vincular y cargar directamente desde la tabla "albums" con todas sus métricas y reviews
+              if (albumRecord?.id) {
+                current = await supabaseService.getAlbumWithFullStats(albumRecord.id);
+              }
+
+              if (!current && albumRecord) {
+                current = {
+                  ...albumRecord,
+                  reviews: [],
+                  track_stats: [],
+                  stats: { totalReviews: 0, averageRating: null },
+                  final_rating: null,
+                };
+              }
             }
           } catch (relErr) {
             console.warn('Error al buscar en record_club_releases:', relErr);
@@ -356,35 +370,67 @@ export function AlbumDetail({
               const detailsRes = await getAlbumDetails(bestMatch.id);
               if (detailsRes?.success && detailsRes.album) {
                 const spAlbum = detailsRes.album;
-                const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
-                  name: t.name,
-                  track_number: t.track_number || idx + 1,
-                  duration_ms: t.duration_ms || null,
-                  avg_rating: null,
-                  votes_count: 0,
-                }));
 
-                current = {
-                  id: `spotify_${spAlbum.id}`,
-                  spotify_id: spAlbum.id,
-                  album_name: spAlbum.name,
-                  artist_name: spAlbum.artists.join(', '),
-                  image_url: spAlbum.image,
-                  spotify_link:
-                    spAlbum.external_urls?.spotify ||
-                    `https://open.spotify.com/album/${spAlbum.id}`,
-                  release_date: spAlbum.releaseDate,
-                  release_year: spAlbum.releaseYear,
-                  release_type: spAlbum.release_type || 'ALBUM',
-                  genres: spAlbum.genres || [],
-                  label: spAlbum.label || '',
-                  tracks: spAlbum.tracks.map((t) => t.name),
-                  track_stats: spTracks,
-                  reviews: [],
-                  stats: { totalReviews: 0, averageRating: null },
-                  final_rating: null,
-                  is_on_demand: true,
-                };
+                // Enriquecer e insertar en la tabla "albums" de forma permanente
+                let albumRecord = await supabaseService.findAlbum(
+                  spAlbum.name,
+                  (spAlbum.artists || []).join(', ')
+                );
+
+                if (!albumRecord) {
+                  try {
+                    const enrichRes = await enrichAndInsertAlbum({
+                      album_name: spAlbum.name,
+                      artist_name: (spAlbum.artists || []).join(', '),
+                      spotify_id: spAlbum.id,
+                      image_url: spAlbum.image,
+                      release_date: spAlbum.releaseDate,
+                      release_type: spAlbum.release_type,
+                      total_tracks: spAlbum.totalTracks,
+                    });
+                    if (enrichRes?.success && enrichRes.album) {
+                      albumRecord = enrichRes.album;
+                    }
+                  } catch (eErr) {
+                    console.warn('Error enriqueciendo álbum on-demand:', eErr);
+                  }
+                }
+
+                if (albumRecord?.id) {
+                  current = await supabaseService.getAlbumWithFullStats(albumRecord.id);
+                }
+
+                if (!current) {
+                  const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
+                    name: t.name,
+                    track_number: t.track_number || idx + 1,
+                    duration_ms: t.duration_ms || null,
+                    avg_rating: null,
+                    votes_count: 0,
+                  }));
+
+                  current = {
+                    id: albumRecord?.id || `spotify_${spAlbum.id}`,
+                    spotify_id: spAlbum.id,
+                    album_name: spAlbum.name,
+                    artist_name: (spAlbum.artists || []).join(', '),
+                    image_url: spAlbum.image,
+                    spotify_link:
+                      spAlbum.external_urls?.spotify ||
+                      `https://open.spotify.com/album/${spAlbum.id}`,
+                    release_date: spAlbum.releaseDate,
+                    release_year: spAlbum.releaseYear,
+                    release_type: spAlbum.release_type || 'ALBUM',
+                    genres: spAlbum.genres || [],
+                    label: spAlbum.label || '',
+                    tracks: spAlbum.tracks.map((t) => t.name),
+                    track_stats: spTracks,
+                    reviews: [],
+                    stats: { totalReviews: 0, averageRating: null },
+                    final_rating: null,
+                    is_on_demand: true,
+                  };
+                }
 
                 setSpotifyMeta({
                   success: true,
