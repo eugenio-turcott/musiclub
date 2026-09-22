@@ -355,7 +355,7 @@ export function CatalogGenresView({
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5">
                     {genre.recommendations.map((rec, i) => {
-                      const isProposing = proposingId === rec.album_name;
+                      const isProposing = Boolean(proposingId) && proposingId === rec.album_name;
 
                       return (
                         <div

@@ -287,7 +287,7 @@ let inMemoryRecordClubExpires = 0;
  * Prioriza la API en vivo de Record Club con fallback de alta fidelidad verificado (V.8.5).
  */
 export async function getMonthlyTrendingReleases(options = {}) {
-  const { forceRefresh = false } = options;
+  const { forceRefresh = false, limit = 100 } = options;
   const now = new Date();
   const monthName = MONTH_NAMES_ES[now.getMonth()];
   const currentYear = now.getFullYear();
@@ -338,22 +338,68 @@ export async function getMonthlyTrendingReleases(options = {}) {
     if (!error && data && data.length > 0) {
       dbData = data;
       if (!forceRefresh) {
+        const formattedData = data.map((item, index) => {
+          const weeklyPopularity = Math.max(
+            30,
+            Math.min(99, Math.round(99 - index * 0.8))
+          );
+          return {
+            ...item,
+            popularity_score: item.popularity_score || weeklyPopularity,
+            slug: item.slug || slugifyRelease(item.artist_name, item.album_name),
+            artist_slug: item.artist_slug || slugifyArtist(item.artist_name),
+          };
+        });
+
         const response = {
           success: true,
           source: 'supabase_db',
           monthLabel,
           lastFridayStr,
           updateCycle: 'Almacenado y consultado directamente desde tu base de datos en Supabase',
-          releases: data,
+          releases: formattedData,
         };
         inMemoryRecordClub = response;
-        inMemoryRecordClubExpires = Date.now() + 60 * 60 * 1000; // 1 hora de caché en memoria
+        inMemoryRecordClubExpires = Date.now() + 60 * 1000; // 1 minuto de caché en memoria
         return response;
       }
     }
   } catch (dbErr) {
-    // Tabla no creada aún en Supabase; continuará con el flujo
+    console.warn('⚠️ Error consultando record_club_releases en Supabase:', dbErr?.message);
   }
+
+  const existingDbMap = new Map();
+  const albumTracksMap = new Map();
+
+  try {
+    const { data: allDbRc } = await supabase
+      .from('record_club_releases')
+      .select('id, album_name, artist_name, total_tracks, release_type');
+    if (allDbRc && Array.isArray(allDbRc)) {
+      allDbRc.forEach((d) => {
+        if (d.id) existingDbMap.set(d.id, d);
+        if (d.album_name) {
+          existingDbMap.set(d.album_name.toLowerCase().trim(), d);
+          const clean = d.album_name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').toLowerCase().trim();
+          existingDbMap.set(clean, d);
+        }
+      });
+    }
+
+    const { data: dbAlbums } = await supabase
+      .from('albums')
+      .select('album_name, artist_name, total_tracks, tracks, release_type');
+    if (dbAlbums && Array.isArray(dbAlbums)) {
+      dbAlbums.forEach((a) => {
+        const count = a.total_tracks || (Array.isArray(a.tracks) ? a.tracks.length : null);
+        if (count) {
+          albumTracksMap.set(a.album_name.toLowerCase().trim(), { count, type: a.release_type });
+          const clean = a.album_name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').toLowerCase().trim();
+          albumTracksMap.set(clean, { count, type: a.release_type });
+        }
+      });
+    }
+  } catch {}
 
   let finalItems = [...RECORD_CLUB_FALLBACK_RELEASES];
 
@@ -379,7 +425,9 @@ export async function getMonthlyTrendingReleases(options = {}) {
       if (rcJson.success && Array.isArray(rcJson.data) && rcJson.data.length > 0) {
         const fallbackMap = new Map();
         RECORD_CLUB_FALLBACK_RELEASES.forEach((r) => {
-          fallbackMap.set(r.album_name.toLowerCase(), r);
+          fallbackMap.set(r.album_name.toLowerCase().trim(), r);
+          const clean = r.album_name.replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').toLowerCase().trim();
+          fallbackMap.set(clean, r);
           if (r.id) fallbackMap.set(r.id, r);
         });
 
@@ -387,7 +435,11 @@ export async function getMonthlyTrendingReleases(options = {}) {
           const artist =
             r.artists?.map((a) => a.name).join(' & ') || 'Varios Artistas';
           const title = r.title;
-          const matched = fallbackMap.get(title.toLowerCase()) || fallbackMap.get(r.id);
+          const cleanTitle = (title || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').toLowerCase().trim();
+          const matched = fallbackMap.get(title.toLowerCase().trim()) || fallbackMap.get(cleanTitle) || fallbackMap.get(r.id);
+          const existing = existingDbMap.get(r.id) || existingDbMap.get(title.toLowerCase().trim()) || existingDbMap.get(cleanTitle);
+          const albumMatch = albumTracksMap.get(title.toLowerCase().trim()) || albumTracksMap.get(cleanTitle);
+
           const pop = r.popularityByWeek?.popularity || r.popularity?.popularity || (450 - index * 4);
           const pos = r.popularityByWeek?.position || index + 1;
 
@@ -401,17 +453,26 @@ export async function getMonthlyTrendingReleases(options = {}) {
 
           const isNew = r.id === '05golqe1nj9l1j23' || (r.releaseDate?.year === 2026 && r.releaseDate?.month >= 8);
 
+          const totalTracks =
+            existing?.total_tracks ||
+            albumMatch?.count ||
+            matched?.total_tracks ||
+            (r.type === 2 ? 1 : r.type === 3 ? 5 : null);
+
+          const releaseType =
+            existing?.release_type ||
+            albumMatch?.type ||
+            matched?.release_type ||
+            (totalTracks === 1 || r.type === 2 ? 'SENCILLO' : (totalTracks && totalTracks <= 6) || r.type === 3 ? 'EP' : 'ALBUM');
+
           return {
             id: r.id || `rc_${index + 1}`,
             album_name: title,
             artist_name: artist,
             image_url: artworkUrl,
             release_date: relDate,
-            release_type:
-              r.type === 2 ? 'SENCILLO' : r.type === 3 ? 'EP' : 'ALBUM',
-            total_tracks:
-              matched?.total_tracks ||
-              (r.type === 2 ? 1 : r.type === 3 ? 5 : null),
+            release_type: releaseType,
+            total_tracks: totalTracks,
             trending_rank: pos,
             popularity_raw: pop,
             popularity_this_week: `${pop.toLocaleString()} pts`,

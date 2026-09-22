@@ -1651,6 +1651,14 @@ export async function sendPatchNotesEmail({
   patchNotesUrl,
   lang = 'es',
 }) {
+  // DESACTIVADO TEMPORALMENTE PARA LA VERSIÓN 9.3 A PETICIÓN DEL USUARIO
+  console.info('ℹ️ [v9.3] Envío de correos de Patch Notes temporalmente desactivado.');
+  return {
+    success: true,
+    disabled: true,
+    message: 'Envío de correos de Patch Notes temporalmente desactivado para la versión 9.3.',
+  };
+
   if (!recipients || recipients.length === 0) {
     throw new Error(
       'No se proporcionaron destinatarios para el correo de novedades.'

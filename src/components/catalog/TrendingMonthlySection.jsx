@@ -232,9 +232,10 @@ export function TrendingMonthlySection({
               const rank = item.trending_rank || index + 1;
               const targetUrl = `/albumes/${item.slug}`;
               const isProposing =
-                proposingId === item.id ||
-                proposingId === item.spotify_id ||
-                proposingId === item.album_name;
+                Boolean(proposingId) &&
+                ((item.id && proposingId === item.id) ||
+                  (item.spotify_id && proposingId === item.spotify_id) ||
+                  (item.album_name && proposingId === item.album_name));
 
               // Cálculo relativo de la barra de popularidad según el puntaje de la semana
               const rawPop = item.popularity_raw || 50;
@@ -295,15 +296,21 @@ export function TrendingMonthlySection({
                     )}
 
                     {/* Tracks & Live Rotation indicator */}
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent p-2 flex items-end justify-between text-[10px] text-slate-300">
-                      <span className="font-mono bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
-                        {item.total_tracks
-                          ? `${item.total_tracks} ${item.total_tracks === 1 ? 'track' : 'tracks'}`
-                          : item.release_type === 'SENCILLO'
-                            ? '1 track'
-                            : item.release_type === 'EP'
-                              ? 'EP'
-                              : 'Álbum'}
+                    <div className="absolute bottom-2 right-2 z-10">
+                      <span className="text-[10px] font-mono bg-black/60 px-1.5 py-0.5 rounded border border-white/10 text-slate-200">
+                        {(() => {
+                          const count =
+                            item.total_tracks ??
+                            item.totalTracks ??
+                            (Array.isArray(item.tracks) ? item.tracks.length : null);
+                          if (count) {
+                            return `${count} ${count === 1 ? 'track' : 'tracks'}`;
+                          }
+                          const relType = (item.release_type || '').toUpperCase();
+                          if (relType === 'SENCILLO' || relType === 'SINGLE') return '1 track';
+                          if (relType === 'EP') return 'EP';
+                          return 'Álbum';
+                        })()}
                       </span>
                     </div>
                   </Link>

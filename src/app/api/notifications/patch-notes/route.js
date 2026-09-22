@@ -24,6 +24,13 @@ function getSupabaseServerClient() {
 
 export async function POST(request) {
   try {
+    // DESACTIVADO TEMPORALMENTE PARA LA VERSIÓN 9.3 A PETICIÓN DEL USUARIO
+    return NextResponse.json({
+      success: true,
+      disabled: true,
+      message: 'Envío de correos de Patch Notes temporalmente desactivado para la versión 9.3',
+    });
+
     const body = await request.json().catch(() => ({}));
     const {
       version,

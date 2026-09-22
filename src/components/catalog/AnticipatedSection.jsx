@@ -123,24 +123,29 @@ export function AnticipatedSection({
                     />
 
                     {/* Anticipated Badge */}
-                    <div className="absolute top-2 left-2 z-10 flex items-center gap-1.5">
+                    <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
                       <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-500 text-black border border-amber-400 shadow-md">
                         ⏳ Próximo
                       </span>
-                    </div>
-
-                    {/* Hype Rank Badge */}
-                    <div className="absolute top-2 right-2 z-10">
                       <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-black/85 border border-amber-500/40 text-amber-300 backdrop-blur-md">
                         #{rank}
                       </span>
                     </div>
 
                     {/* Estreno Date Badge Overlay */}
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-2.5 flex items-end justify-between">
+                    <div className="absolute bottom-2 left-2 z-10">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold text-amber-300 bg-amber-500/20 px-2 py-0.5 rounded border border-amber-500/40">
-                          📅 {item.release_date || 'Próximamente'}
+                        <span className="text-[10px] font-mono font-bold text-amber-200 bg-amber-800/70 px-2 py-0.5 rounded border border-amber-500/40">
+                          📅{' '}
+                          {item.release_date
+                            ? new Date(
+                                `${item.release_date}T00:00:00`
+                              ).toLocaleDateString('en-US', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })
+                            : 'Próximamente'}
                         </span>
                       </div>
                     </div>

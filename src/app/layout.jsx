@@ -1,13 +1,20 @@
 import '../styles/global.css';
 import '../index.css';
-import { Gabarito } from 'next/font/google';
+import localFont from 'next/font/local';
 import Script from 'next/script';
 import { ClientProviders } from './ClientProviders';
 
-const gabarito = Gabarito({
-  subsets: ['latin'],
+const gabarito = localFont({
+  src: [
+    {
+      path: '../fonts/Gabarito-Variable.woff2',
+      weight: '400 900',
+      style: 'normal',
+    },
+  ],
   display: 'swap',
   variable: '--font-gabarito',
+  fallback: ['system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
 });
 
 export const viewport = {

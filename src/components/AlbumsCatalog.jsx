@@ -166,6 +166,12 @@ export function AlbumsCatalog({ isPage = false }) {
       return;
     }
 
+    // 2. Si el lanzamiento ya cuenta con slug canónico (lanzamientos de tendencias), navegar directamente
+    if (release.slug) {
+      navigate(`/albumes/${release.slug}`);
+      return;
+    }
+
     const rawId =
       release.spotify_id ||
       (typeof release.id === 'string' && release.id.startsWith('trend_')

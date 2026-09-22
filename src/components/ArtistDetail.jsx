@@ -783,14 +783,14 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                 e.stopPropagation();
                                 handleQuickPropose(release);
                               }}
-                              disabled={proposingId === release.id}
+                              disabled={Boolean(proposingId) && release.id && proposingId === release.id}
                               className={`w-full py-2 px-3 rounded-xl font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-60 ${
-                                proposingId === release.id
+                                Boolean(proposingId) && release.id && proposingId === release.id
                                   ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/40'
                                   : 'bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30'
                               }`}
                             >
-                              {proposingId === release.id ? (
+                              {Boolean(proposingId) && release.id && proposingId === release.id ? (
                                 <svg
                                   className="animate-spin h-3.5 w-3.5 text-cyan-300"
                                   xmlns="http://www.w3.org/2000/svg"
@@ -815,7 +815,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                 <span>✍️</span>
                               )}
                               <span>
-                                {proposingId === release.id
+                                {Boolean(proposingId) && release.id && proposingId === release.id
                                   ? 'Abriendo...'
                                   : 'Reseñar en Club'}
                               </span>

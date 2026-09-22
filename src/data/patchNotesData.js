@@ -11,6 +11,56 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    "version": "V.9.3",
+    "title": "Perfeccionamiento del Pool Musical, Calificaciones en el Historial y Tendencias Musicales al Día",
+    "date": "2026-09-22",
+    "sha": "9c3b81a",
+    "associatedShas": [
+      "9c3b81a"
+    ],
+    "tag": "Mejoras de Experiencia y Pool 9.3",
+    "tagColor": "from-emerald-500 via-teal-600 to-cyan-700",
+    "authorName": "Eugenio Turcott",
+    "summary": "Una actualización pensada en hacer tu experiencia mucho más clara y placentera. Ahora el Historial de Ganadores del Pool te muestra de un vistazo la calificación final de la comunidad directamente sobre la portada. Además, el ganador de la semana cuenta con botones directos para escucharlo en Spotify, Apple Music, YouTube Music o Deezer. Las Tendencias ahora muestran exactamente la cantidad real de canciones de cada disco y responden al instante al querer reseñarlas.",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Calificación Visible en el Historial de Ganadores del Pool",
+        "description": "Ahora, al explorar la lista de álbumes que han triunfado en semanas pasadas, verás una insignia con la calificación final que le otorgó la comunidad en la esquina de cada portada, facilitando descubrir los discos mejor evaluados por el club."
+      },
+      {
+        "type": "feature",
+        "title": "Escucha Directa en tu Plataforma Favorita para el Ganador del Pool",
+        "description": "El álbum ganador de la semana ahora incluye accesos directos con sus logotipos oficiales a Spotify, Apple Music, YouTube Music y Deezer, para que puedas ponerlo a sonar con un solo clic en la aplicación que prefieras."
+      },
+      {
+        "type": "improvement",
+        "title": "Indicador Claro de Nominaciones Cerradas en el Pool",
+        "description": "Si la ronda de propuestas de la semana ha concluido, el botón para nominar álbumes se atenúa de forma clara y elegante, evitando confusiones y mostrando con precisión cuándo se abrirá la siguiente oportunidad."
+      },
+      {
+        "type": "fix",
+        "title": "Graduación Fluida de los Discos Ganadores",
+        "description": "Se resolvió el detalle que impedía cerrar y archivar con normalidad la semana de escucha del disco ganador, asegurando que sus notas y reseñas pasen al salón de la fama del club sin pausas."
+      },
+      {
+        "type": "improvement",
+        "title": "Conteo Preciso de Canciones en Lanzamientos Populares",
+        "description": "Se perfeccionó la información de cada disco en la sección de Tendencias: ahora verás siempre el número exacto de pistas que contiene cada producción, distinguiendo con claridad entre canciones individuales, EPs y álbumes completos."
+      },
+      {
+        "type": "improvement",
+        "title": "Apertura Instantánea al Reseñar Lanzamientos en Tendencia",
+        "description": "Se corrigió el mensaje de espera en las tarjetas de lanzamientos populares para que los botones respondan al instante y puedas pasar directamente a escuchar, calificar y escribir tu opinión sin demoras."
+      },
+      {
+        "type": "performance",
+        "title": "Textos y Tipografía Más Rápidos y Definidos",
+        "description": "La letra y estilo visual distintivo de Musiclub ahora se encuentran incorporados dentro de la misma aplicación, permitiendo que todas las pantallas y portadas se vean nítidas y abran de forma ultrarrápida desde cualquier dispositivo."
+      }
+    ]
+  },
+  {
     "version": "V.9.2",
     "title": "¡Llegan los Correos Oficiales de Musiclub! Avisos de Nuevos Estrenos a Medianoche, Novedades del Pool y Buzón de Canciones",
     "date": "2026-09-22",

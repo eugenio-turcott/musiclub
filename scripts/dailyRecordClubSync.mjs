@@ -382,6 +382,7 @@ async function processTrending(apiReleases, todayDate) {
   // Consultar álbumes existentes en Supabase para obtener el total_tracks y release_type real validado
   const albumInfoMap = new Map();
   const albumCleanMap = new Map();
+  const existingRcMap = new Map();
   try {
     const { data: dbAlbums } = await supabase
       .from('albums')
@@ -400,8 +401,19 @@ async function processTrending(apiReleases, todayDate) {
         albumCleanMap.set(kClean, info);
       });
     }
+
+    const { data: dbRc } = await supabase
+      .from('record_club_releases')
+      .select('id, album_name, artist_name, total_tracks, release_type');
+    if (dbRc && Array.isArray(dbRc)) {
+      dbRc.forEach((rc) => {
+        if (rc.id) existingRcMap.set(rc.id, rc);
+        const k = normalizeKey(rc.artist_name, rc.album_name);
+        existingRcMap.set(k, rc);
+      });
+    }
   } catch (err) {
-    console.warn('  ⚠️ No se pudo pre-cargar catálogo de albums para track count:', err.message);
+    console.warn('  ⚠️ No se pudo pre-cargar catálogo para track count:', err.message);
   }
 
   if (apiReleases && apiReleases.length > 0) {
@@ -416,6 +428,7 @@ async function processTrending(apiReleases, todayDate) {
       const cleanTitle = (title || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
       const cleanKey = normalizeKey(artist, cleanTitle);
       const dbInfo = albumInfoMap.get(normKey) || albumCleanMap.get(cleanKey);
+      const existingRc = existingRcMap.get(r.id) || existingRcMap.get(normKey) || existingRcMap.get(cleanKey);
 
       const artworkUrl = r.artwork?.releaseVersionId
         ? `https://cdn.rcrd.club/releases/${r.id}/${r.artwork.releaseVersionId}.webp?v=${r.artwork.artworkVersionId || ''}&width=500`
@@ -427,9 +440,11 @@ async function processTrending(apiReleases, todayDate) {
 
       const isNew = r.id === '05golqe1nj9l1j23' || (r.releaseDate?.year === 2026 && r.releaseDate?.month >= 8);
 
-      // Pistas reales: desde la BD albums si ya existe, o según el tipo de release
+      // Pistas reales: desde la BD albums, record_club_releases o fallback verificado
       const realTracks =
         dbInfo?.total_tracks ||
+        existingRc?.total_tracks ||
+        matched?.total_tracks ||
         (r.type === 2 ? 1 : r.type === 3 ? 5 : null);
 
       // Tipo canónico de release: de la BD o inferido de las pistas

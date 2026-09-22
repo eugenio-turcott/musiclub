@@ -6,14 +6,15 @@ import {
 } from '../../../services/trendingService';
 
 export const dynamic = 'force-dynamic';
-export const revalidate = 1800; // 30 minutos de caché en edge
+export const revalidate = 0;
 
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'catalog';
     const forceRefresh = searchParams.get('refresh') === 'true';
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const defaultLimit = (type === 'weekly' || type === 'monthly' || type === 'recordclub') ? '100' : '50';
+    const limit = parseInt(searchParams.get('limit') || defaultLimit, 10);
 
     let result;
     if (type === 'weekly' || type === 'monthly' || type === 'recordclub') {
@@ -33,7 +34,7 @@ export async function GET(request) {
       {
         headers: {
           'Cache-Control':
-            'public, s-maxage=1800, stale-while-revalidate=86400',
+            'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
         },
       }
     );
