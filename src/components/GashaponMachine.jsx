@@ -473,8 +473,12 @@ export function GashaponMachine({
   useEffect(() => {
     if (currentCapsule?.album) {
       registerUntranslatableEntities({
-        releases: [currentCapsule.album.album || currentCapsule.album.album_name].filter(Boolean),
-        artists: [currentCapsule.album.artista || currentCapsule.album.artist_name].filter(Boolean),
+        releases: [
+          currentCapsule.album.album || currentCapsule.album.album_name,
+        ].filter(Boolean),
+        artists: [
+          currentCapsule.album.artista || currentCapsule.album.artist_name,
+        ].filter(Boolean),
       });
     }
   }, [currentCapsule]);
@@ -731,18 +735,14 @@ export function GashaponMachine({
 
   const epCount = useMemo(() => {
     return eligibleAlbums.filter((alb) => {
-      const t = String(
-        alb.release_type || alb.releaseType || ''
-      ).toUpperCase();
+      const t = String(alb.release_type || alb.releaseType || '').toUpperCase();
       return t === 'EP';
     }).length;
   }, [eligibleAlbums]);
 
   const singleCount = useMemo(() => {
     return eligibleAlbums.filter((alb) => {
-      const t = String(
-        alb.release_type || alb.releaseType || ''
-      ).toUpperCase();
+      const t = String(alb.release_type || alb.releaseType || '').toUpperCase();
       return t === 'SENCILLO' || t === 'SINGLE';
     }).length;
   }, [eligibleAlbums]);
@@ -783,18 +783,15 @@ export function GashaponMachine({
         </div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
-          <div className="space-y-1.5 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40 text-[#f093fb] text-xs font-black uppercase tracking-wider mb-1">
-              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-              <span>Neo Gashapon Arcade</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+          <div className="space-y-1.5 max-w-3xl">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
               Gashapon de Releases Musicales
             </h2>
-            <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
+            <p className="text-white/60 text-sm sm:text-base leading-relaxed">
               Gira la manivela para extraer una cápsula sorpresa entre todos los{' '}
               <strong className="text-purple-300">releases del catálogo</strong>{' '}
-              (álbumes, EPs y más). ¡Descúbrelo y califícalo con el sistema oficial!
+              (álbumes, EPs y más). ¡Descúbrelo y califícalo con el sistema
+              oficial!
             </p>
           </div>
 

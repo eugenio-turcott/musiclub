@@ -83,7 +83,10 @@ function AdminPagination({
 
           {getPageNumbers().map((p, idx) =>
             typeof p === 'string' ? (
-              <span key={`dots-${idx}`} className="px-1 text-slate-600 select-none">
+              <span
+                key={`dots-${idx}`}
+                className="px-1 text-slate-600 select-none"
+              >
                 ...
               </span>
             ) : (
@@ -220,11 +223,16 @@ export function AdminPanel({ onClose, isPage = true }) {
       // 1. Cargar Seasons
       const seasonsData = await poolService.getSeasons();
       setSeasons(seasonsData);
-      const active = seasonsData.find((s) => s.is_active) || seasonsData[0] || DEFAULT_SEASON;
+      const active =
+        seasonsData.find((s) => s.is_active) ||
+        seasonsData[0] ||
+        DEFAULT_SEASON;
       setActiveSeasonState(active);
 
       // 2. Cargar datos del Pool de la temporada seleccionada
-      const poolData = await poolService.getPoolData(selectedSeasonId || active.id);
+      const poolData = await poolService.getPoolData(
+        selectedSeasonId || active.id
+      );
       setPoolActive(poolData.active || []);
       setPoolWinner(poolData.winner || null);
       setIsPoolOpen(poolService.isPoolOpen());
@@ -295,7 +303,10 @@ export function AdminPanel({ onClose, isPage = true }) {
   // SEASONS ACTIONS
   // =========================================================================
   const handleOpenCreateSeason = () => {
-    const nextNumber = seasons.length > 0 ? Math.max(...seasons.map((s) => s.season_number || 1)) + 1 : 1;
+    const nextNumber =
+      seasons.length > 0
+        ? Math.max(...seasons.map((s) => s.season_number || 1)) + 1
+        : 1;
     setSeasonFormData({
       season_number: nextNumber,
       name: `Temporada ${nextNumber}`,
@@ -384,7 +395,9 @@ export function AdminPanel({ onClose, isPage = true }) {
   const handleSetWinner = async (albumId) => {
     try {
       await poolService.selectWinner(albumId, selectedSeasonId);
-      showToast('🏆 Álbum seleccionado como Ganador Semanal con reseñas habilitadas.');
+      showToast(
+        '🏆 Álbum seleccionado como Ganador Semanal con reseñas habilitadas.'
+      );
       await loadAllData();
     } catch (err) {
       alert(`Error al coronar ganador: ${err.message}`);
@@ -394,7 +407,9 @@ export function AdminPanel({ onClose, isPage = true }) {
   const handleArchiveWinner = async (albumId) => {
     try {
       await poolService.archiveCurrentWinner(albumId, selectedSeasonId);
-      showToast('🎓 Ganador archivado y graduado al historial de la temporada.');
+      showToast(
+        '🎓 Ganador archivado y graduado al historial de la temporada.'
+      );
       await loadAllData();
     } catch (err) {
       alert(`Error al archivar: ${err.message}`);
@@ -424,10 +439,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       return;
     try {
       try {
-        await supabase
-          .from('pool_entries')
-          .delete()
-          .eq('album_id', albumId);
+        await supabase.from('pool_entries').delete().eq('album_id', albumId);
       } catch (e) {}
 
       showToast('📥 Álbum removido del Pool activo.');
@@ -494,7 +506,9 @@ export function AdminPanel({ onClose, isPage = true }) {
 
       if (error) throw new Error(error.message);
 
-      showToast(`✏️ Álbum "${editingAlbum.album_name}" actualizado exitosamente.`);
+      showToast(
+        `✏️ Álbum "${editingAlbum.album_name}" actualizado exitosamente.`
+      );
       setEditingAlbum(null);
       await loadAllData();
     } catch (err) {
@@ -538,13 +552,9 @@ export function AdminPanel({ onClose, isPage = true }) {
             top.release_type ||
             prev.release_type,
           release_year:
-            details.releaseYear ||
-            top.releaseYear ||
-            prev.release_year,
+            details.releaseYear || top.releaseYear || prev.release_year,
           release_date:
-            details.releaseDate ||
-            top.releaseDate ||
-            prev.release_date,
+            details.releaseDate || top.releaseDate || prev.release_date,
           tracks: tracks.length > 0 ? tracks : prev.tracks,
         }));
         showToast('✨ Metadatos oficiales sincronizados desde Spotify.');
@@ -813,15 +823,12 @@ export function AdminPanel({ onClose, isPage = true }) {
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-black uppercase tracking-wider mb-2">
-                <span>🛡️</span>
-                <span>PANEL DE CONTROL DE ADMINISTRADOR</span>
-              </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
                 Centro de Mando Musiclub
               </h1>
-              <p className="text-slate-400 text-xs sm:text-sm mt-1">
-                Gestión completa de Temporadas (Seasons), Pool de votación, Catálogo Universal, Moderación y Roles.
+              <p className="text-slate-400 text-xs sm:text-sm md:text-base mt-1">
+                Gestión completa de Temporadas (Seasons), Pool de votación,
+                Catálogo Universal, Moderación y Roles.
               </p>
             </div>
 
@@ -838,7 +845,9 @@ export function AdminPanel({ onClose, isPage = true }) {
               >
                 <span>{isPoolOpen ? '🔓' : '🔒'}</span>
                 <span>
-                  {isPoolOpen ? 'Pool Abierto (Clic para Cerrar)' : 'Pool Cerrado (Clic para Abrir)'}
+                  {isPoolOpen
+                    ? 'Pool Abierto (Clic para Cerrar)'
+                    : 'Pool Cerrado (Clic para Abrir)'}
                 </span>
               </button>
 
@@ -1005,11 +1014,10 @@ export function AdminPanel({ onClose, isPage = true }) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">
-                      {isPoolOpen ? '🔓' : '🔒'}
-                    </span>
+                    <span className="text-xl">{isPoolOpen ? '🔓' : '🔒'}</span>
                     <h2 className="text-lg font-black text-white">
-                      Estado de Recepción del Pool: {isPoolOpen ? 'ABIERTO' : 'CERRADO'}
+                      Estado de Recepción del Pool:{' '}
+                      {isPoolOpen ? 'ABIERTO' : 'CERRADO'}
                     </h2>
                   </div>
                   <p className="text-xs text-slate-400">
@@ -1028,7 +1036,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                       : 'bg-emerald-500 hover:bg-emerald-600 text-black'
                   }`}
                 >
-                  <span>{isPoolOpen ? '🔒 Pausar Recepción' : '🔓 Abrir Recepción'}</span>
+                  <span>
+                    {isPoolOpen ? '🔒 Pausar Recepción' : '🔓 Abrir Recepción'}
+                  </span>
                 </button>
               </div>
 
@@ -1041,7 +1051,14 @@ export function AdminPanel({ onClose, isPage = true }) {
                       Temporada en Foco: {activeSeason.name}
                     </span>
                     <p className="text-slate-400 mt-0.5">
-                      Inicio: <strong>{activeSeason.start_date || 'Sin fecha'}</strong> &bull; Estado: <strong>{activeSeason.is_active ? 'Activa Oficial' : 'Histórica'}</strong>
+                      Inicio:{' '}
+                      <strong>{activeSeason.start_date || 'Sin fecha'}</strong>{' '}
+                      &bull; Estado:{' '}
+                      <strong>
+                        {activeSeason.is_active
+                          ? 'Activa Oficial'
+                          : 'Histórica'}
+                      </strong>
                     </p>
                   </div>
                 </div>
@@ -1097,7 +1114,8 @@ export function AdminPanel({ onClose, isPage = true }) {
                         {poolWinner.artista}
                       </p>
                       <p className="text-[11px] text-slate-400">
-                        Sugerido por: <strong>{poolWinner.added_by || 'Comunidad'}</strong>
+                        Sugerido por:{' '}
+                        <strong>{poolWinner.added_by || 'Comunidad'}</strong>
                       </p>
                     </div>
                   </div>
@@ -1118,7 +1136,11 @@ export function AdminPanel({ onClose, isPage = true }) {
                           : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
                       }`}
                     >
-                      <span>{poolWinner.reviews_enabled ? '🔒 Pausar Reseñas' : '✅ Habilitar Reseñas'}</span>
+                      <span>
+                        {poolWinner.reviews_enabled
+                          ? '🔒 Pausar Reseñas'
+                          : '✅ Habilitar Reseñas'}
+                      </span>
                     </button>
 
                     <button
@@ -1136,7 +1158,8 @@ export function AdminPanel({ onClose, isPage = true }) {
                     No hay ningún álbum seleccionado como Ganador actualmente.
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    Puedes elegir un ganador desde la lista de candidatos abajo o usar la ruleta en la página del Pool.
+                    Puedes elegir un ganador desde la lista de candidatos abajo
+                    o usar la ruleta en la página del Pool.
                   </p>
                 </div>
               )}
@@ -1147,7 +1170,8 @@ export function AdminPanel({ onClose, isPage = true }) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-black text-white flex items-center gap-2">
-                    <span>🗳️</span> Candidatos Activos en el Pool ({poolActive.length})
+                    <span>🗳️</span> Candidatos Activos en el Pool (
+                    {poolActive.length})
                   </h3>
                   <p className="text-xs text-slate-400">
                     Propuestas en espera para {activeSeason.name}
@@ -1234,7 +1258,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                   <span>🏆</span> Control de Temporadas de Musiclub
                 </h3>
                 <p className="text-xs text-slate-400">
-                  Crea, edita o elimina temporadas. Administra cuál es la temporada activa donde se reciben y juegan los pools semanales.
+                  Crea, edita o elimina temporadas. Administra cuál es la
+                  temporada activa donde se reciben y juegan los pools
+                  semanales.
                 </p>
               </div>
 
@@ -1301,14 +1327,19 @@ export function AdminPanel({ onClose, isPage = true }) {
                   </div>
 
                   <p className="text-xs text-slate-300 leading-relaxed bg-black/30 p-3 rounded-2xl border border-white/5">
-                    {s.description || 'Sin descripción detallada para esta temporada.'}
+                    {s.description ||
+                      'Sin descripción detallada para esta temporada.'}
                   </p>
 
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/5 text-[11px] text-slate-400">
                     <div>
-                      <span>Fecha Inicio: <strong>{s.start_date || 'N/A'}</strong></span>
+                      <span>
+                        Fecha Inicio: <strong>{s.start_date || 'N/A'}</strong>
+                      </span>
                       {s.end_date && (
-                        <span className="ml-3">Fin: <strong>{s.end_date}</strong></span>
+                        <span className="ml-3">
+                          Fin: <strong>{s.end_date}</strong>
+                        </span>
                       )}
                     </div>
 
@@ -1344,7 +1375,11 @@ export function AdminPanel({ onClose, isPage = true }) {
                   <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <h3 className="text-lg font-black text-white flex items-center gap-2">
                       <span>🏆</span>
-                      <span>{isCreatingSeason ? 'Crear Nueva Temporada' : 'Editar Temporada'}</span>
+                      <span>
+                        {isCreatingSeason
+                          ? 'Crear Nueva Temporada'
+                          : 'Editar Temporada'}
+                      </span>
                     </h3>
                     <button
                       type="button"
@@ -1358,7 +1393,10 @@ export function AdminPanel({ onClose, isPage = true }) {
                     </button>
                   </div>
 
-                  <form onSubmit={handleSaveSeason} className="space-y-4 text-xs">
+                  <form
+                    onSubmit={handleSaveSeason}
+                    className="space-y-4 text-xs"
+                  >
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-slate-400 font-bold mb-1">
@@ -1467,7 +1505,10 @@ export function AdminPanel({ onClose, isPage = true }) {
                         }
                         className="w-4 h-4 rounded text-pink-500 focus:ring-pink-500"
                       />
-                      <label htmlFor="is_active_checkbox" className="text-white font-bold cursor-pointer">
+                      <label
+                        htmlFor="is_active_checkbox"
+                        className="text-white font-bold cursor-pointer"
+                      >
                         Marcar como Temporada Activa Oficial
                       </label>
                     </div>
@@ -1487,7 +1528,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                         type="submit"
                         className="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black transition-all shadow-lg"
                       >
-                        {isCreatingSeason ? 'Crear Temporada' : 'Guardar Cambios'}
+                        {isCreatingSeason
+                          ? 'Crear Temporada'
+                          : 'Guardar Cambios'}
                       </button>
                     </div>
                   </form>
@@ -1504,7 +1547,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                     ¿Eliminar esta temporada?
                   </h3>
                   <p className="text-xs text-slate-300">
-                    Estás a punto de eliminar <strong>"{showDeleteSeasonConfirm.name}"</strong>. Esta acción quitará la temporada del sistema.
+                    Estás a punto de eliminar{' '}
+                    <strong>"{showDeleteSeasonConfirm.name}"</strong>. Esta
+                    acción quitará la temporada del sistema.
                   </p>
 
                   <div className="flex items-center justify-center gap-3 pt-2">
@@ -1517,7 +1562,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleDeleteSeason(showDeleteSeasonConfirm.id)}
+                      onClick={() =>
+                        handleDeleteSeason(showDeleteSeasonConfirm.id)
+                      }
                       className="px-5 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-xs font-black shadow-lg transition-all"
                     >
                       Sí, Eliminar Temporada
@@ -1708,7 +1755,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                 className="bg-black/40 border border-white/10 rounded-xl text-xs text-white px-3 py-2 focus:outline-none"
               >
                 <option value="ALL">Todas las Reseñas</option>
-                <option value="WITH_COMMENT">💬 Con Comentarios Escritos</option>
+                <option value="WITH_COMMENT">
+                  💬 Con Comentarios Escritos
+                </option>
                 <option value="TOP">🌟 Calificaciones Altas (≥ 8.5)</option>
                 <option value="LOW">📉 Calificaciones Bajas (≤ 6.0)</option>
               </select>
@@ -1739,7 +1788,11 @@ export function AdminPanel({ onClose, isPage = true }) {
                             </span>
                           </p>
                           <p className="text-[11px] text-pink-400">
-                            Álbum: <strong>{rev.album?.album_name || 'Álbum del Club'}</strong> &bull; {rev.album?.artist_name}
+                            Álbum:{' '}
+                            <strong>
+                              {rev.album?.album_name || 'Álbum del Club'}
+                            </strong>{' '}
+                            &bull; {rev.album?.artist_name}
                           </p>
                         </div>
                       </div>
@@ -1765,13 +1818,17 @@ export function AdminPanel({ onClose, isPage = true }) {
                           </span>
                         )}
                         {(() => {
-                          const favKey = rev.favorite_track || rev.favoriteTrack;
+                          const favKey =
+                            rev.favorite_track || rev.favoriteTrack;
                           if (!favKey) return null;
                           const albumTracks =
                             rev.album?.tracks ||
                             albums.find((a) => a.id === rev.album_id)?.tracks ||
                             [];
-                          const trackName = getTrackDisplayName(favKey, albumTracks);
+                          const trackName = getTrackDisplayName(
+                            favKey,
+                            albumTracks
+                          );
                           return (
                             <span
                               className="text-pink-300 font-semibold"
@@ -1794,10 +1851,14 @@ export function AdminPanel({ onClose, isPage = true }) {
                     <button
                       type="button"
                       disabled={deletingReviewId === rev.id}
-                      onClick={() => handleDeleteReview(rev.id, rev.reviewer_name)}
+                      onClick={() =>
+                        handleDeleteReview(rev.id, rev.reviewer_name)
+                      }
                       className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold transition-all flex-shrink-0"
                     >
-                      {deletingReviewId === rev.id ? 'Eliminando...' : '🗑️ Eliminar Reseña'}
+                      {deletingReviewId === rev.id
+                        ? 'Eliminando...'
+                        : '🗑️ Eliminar Reseña'}
                     </button>
                   </div>
                 ))
@@ -1897,7 +1958,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                             >
                               <option value="user">Usuario (User)</option>
                               <option value="critic">Crítico (Critic)</option>
-                              <option value="admin">Administrador (Admin)</option>
+                              <option value="admin">
+                                Administrador (Admin)
+                              </option>
                             </select>
                           </td>
                         </tr>
@@ -1938,7 +2001,10 @@ export function AdminPanel({ onClose, isPage = true }) {
                 </button>
               </div>
 
-              <form onSubmit={handleSaveAlbumEdit} className="space-y-4 text-xs">
+              <form
+                onSubmit={handleSaveAlbumEdit}
+                className="space-y-4 text-xs"
+              >
                 {/* Image Preview & Sync Button */}
                 <div className="flex items-center gap-4 p-3 rounded-2xl bg-black/30 border border-white/10">
                   <img
@@ -2231,7 +2297,10 @@ export function AdminPanel({ onClose, isPage = true }) {
                 ¿Eliminar permanentemente este álbum?
               </h3>
               <p className="text-xs text-slate-300">
-                Estás a punto de eliminar <strong>"{selectedAlbumForAction.album_name}"</strong>. Esta acción borrará también todas sus reseñas y calificaciones asociadas.
+                Estás a punto de eliminar{' '}
+                <strong>"{selectedAlbumForAction.album_name}"</strong>. Esta
+                acción borrará también todas sus reseñas y calificaciones
+                asociadas.
               </p>
 
               <div className="flex items-center justify-center gap-3 pt-2">

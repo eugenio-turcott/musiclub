@@ -17,6 +17,7 @@ export async function POST(request) {
       imageUrl,
       slug,
       userId,
+      lang = 'es',
     } = body;
 
     if (!email || !email.includes('@')) {
@@ -86,6 +87,7 @@ export async function POST(request) {
       releaseDate,
       imageUrl,
       albumUrl,
+      lang,
     });
 
     return NextResponse.json({

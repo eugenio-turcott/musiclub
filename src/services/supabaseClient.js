@@ -2083,13 +2083,17 @@ export const supabaseService = {
     spotifyLink = null,
     youtubeLink = null,
     appleMusicLink = null,
+    deezerLink = null,
+    otherLink = null,
     message = null,
   }) => {
     if (!senderEmail || !recipientEmail || !songTitle || !artistName) {
       throw new Error('Faltan campos obligatorios: correo del emisor, destinatario, título de la canción y artista.');
     }
 
-    const payload = {
+    const cleanDeezer = (deezerLink || otherLink || '').trim() || null;
+
+    const basePayload = {
       sender_id: senderId || null,
       sender_name: (senderName || 'Miembro del Club').trim(),
       sender_email: senderEmail.toLowerCase().trim(),
@@ -2107,9 +2111,26 @@ export const supabaseService = {
       is_read: false,
     };
 
+    // Intentar primero con deezer_link / other_link
+    try {
+      const payloadWithDeezer = {
+        ...basePayload,
+        ...(cleanDeezer ? { deezer_link: cleanDeezer, other_link: cleanDeezer } : {}),
+      };
+      const { data, error } = await supabase
+        .from('song_recommendations')
+        .insert([payloadWithDeezer])
+        .select();
+
+      if (!error && data && data.length > 0) {
+        return data[0];
+      }
+    } catch (ignore) {}
+
+    // Fallback estándar si las columnas deezer_link/other_link aún no existen en la BD
     const { data, error } = await supabase
       .from('song_recommendations')
-      .insert([payload])
+      .insert([basePayload])
       .select();
 
     if (error) {

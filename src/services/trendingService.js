@@ -857,9 +857,22 @@ export async function subscribeToUpcomingRelease({
     console.warn('⚠️ Almacenado localmente en navegador:', dbErr.message);
   }
 
-  // 3. Invocar API de correo para enviar confirmación inmediata
+  // 3. Invocar API de correo para enviar confirmación inmediata en el idioma del usuario
   let emailSent = false;
   let emailResult = null;
+  let userLang = 'es';
+  if (typeof window !== 'undefined') {
+    userLang =
+      localStorage.getItem('musiclub_selected_lang') ||
+      (navigator.language && navigator.language.startsWith('en')
+        ? 'en'
+        : navigator.language && navigator.language.startsWith('pt')
+        ? 'pt'
+        : navigator.language && navigator.language.startsWith('fr')
+        ? 'fr'
+        : 'es');
+  }
+
   try {
     const res = await fetch('/api/notifications/upcoming', {
       method: 'POST',
@@ -873,6 +886,7 @@ export async function subscribeToUpcomingRelease({
         userId: userId || null,
         imageUrl: imageUrl || null,
         slug: slug || null,
+        lang: userLang,
       }),
     });
     if (res.ok) {

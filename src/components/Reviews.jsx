@@ -56,9 +56,7 @@ export function Reviews({ onClose, isPage = false }) {
           `
           )
           .order('created_at', { ascending: false }),
-        supabase
-          .from('profiles')
-          .select('email, name, avatar_url'),
+        supabase.from('profiles').select('email, name, avatar_url'),
       ]);
 
       if (reviewsRes.error) throw new Error(reviewsRes.error.message);
@@ -87,7 +85,9 @@ export function Reviews({ onClose, isPage = false }) {
           (emailKey && profileAvatarByEmail.get(emailKey)) ||
           (nameKey && profileAvatarByName.get(nameKey)) ||
           null;
-        return fallbackAvatar ? { ...rev, reviewer_avatar: fallbackAvatar } : rev;
+        return fallbackAvatar
+          ? { ...rev, reviewer_avatar: fallbackAvatar }
+          : rev;
       });
 
       setReviews(enrichedReviews);
@@ -270,14 +270,10 @@ export function Reviews({ onClose, isPage = false }) {
           </div>
 
           <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#181226]/95 backdrop-blur-md border border-pink-500/40 text-pink-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider shadow-md">
-              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-              <span>Historial y Calificaciones de la Comunidad</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
               Reviews de Miembros
             </h1>
-            <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
+            <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-2 leading-relaxed">
               Explora todas las reseñas, análisis detallados y puntuaciones
               ponderadas publicadas por el club.
             </p>
@@ -367,7 +363,7 @@ export function Reviews({ onClose, isPage = false }) {
                   className="notranslate text-lg sm:text-2xl font-black text-purple-400"
                   data-stat="number"
                 >
-                  {loading ? '...' : (totalMembers || 21)}
+                  {loading ? '...' : totalMembers || 21}
                 </p>
               </div>
             </div>
@@ -483,11 +479,18 @@ export function Reviews({ onClose, isPage = false }) {
                 weightedScore !== null ? weightedScore : review.rating_general;
               const trackRatings = review.track_ratings || {};
               const isOwnReview = Boolean(
-                user && (
-                  (review.user_id && user.id && String(review.user_id) === String(user.id)) ||
-                  (review.reviewer_email && user.email && review.reviewer_email.toLowerCase() === user.email.toLowerCase()) ||
-                  (review.reviewer_name && user.name && review.reviewer_name.toLowerCase() === user.name.toLowerCase())
-                )
+                user &&
+                ((review.user_id &&
+                  user.id &&
+                  String(review.user_id) === String(user.id)) ||
+                  (review.reviewer_email &&
+                    user.email &&
+                    review.reviewer_email.toLowerCase() ===
+                      user.email.toLowerCase()) ||
+                  (review.reviewer_name &&
+                    user.name &&
+                    review.reviewer_name.toLowerCase() ===
+                      user.name.toLowerCase()))
               );
 
               return (
@@ -522,7 +525,8 @@ export function Reviews({ onClose, isPage = false }) {
                             >
                               {album?.album_name || 'Álbum desconocido'}
                             </h4>
-                            {album?.release_type && getReleaseTypeBadge(album.release_type)}
+                            {album?.release_type &&
+                              getReleaseTypeBadge(album.release_type)}
                           </div>
                           <p
                             translate="no"

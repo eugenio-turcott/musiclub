@@ -1,6 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShareReviewModal, InstagramIcon, SpotifyIcon } from './ShareReviewModal';
+import {
+  ShareReviewModal,
+  InstagramIcon,
+  SpotifyIcon,
+} from './ShareReviewModal';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { ReviewInteractions } from './ReviewInteractions';
 import {
@@ -60,8 +64,10 @@ export function MemberProfileModal({
   // Cálculo del nivel de melómano
   const currentMelomanoLevel = useMemo(() => {
     const sortedLevels = [...MELOMANO_LEVELS].reverse();
-    const current = sortedLevels.find((lvl) => totalXp >= lvl.minXp) || MELOMANO_LEVELS[0];
-    const next = MELOMANO_LEVELS.find((lvl) => lvl.level === current.level + 1) || null;
+    const current =
+      sortedLevels.find((lvl) => totalXp >= lvl.minXp) || MELOMANO_LEVELS[0];
+    const next =
+      MELOMANO_LEVELS.find((lvl) => lvl.level === current.level + 1) || null;
 
     let progressPercent = 100;
     let xpRemaining = 0;
@@ -69,7 +75,10 @@ export function MemberProfileModal({
     if (next) {
       const xpInCurrent = totalXp - current.minXp;
       const xpNeeded = next.minXp - current.minXp;
-      progressPercent = Math.min(100, Math.max(0, Math.round((xpInCurrent / xpNeeded) * 100)));
+      progressPercent = Math.min(
+        100,
+        Math.max(0, Math.round((xpInCurrent / xpNeeded) * 100))
+      );
       xpRemaining = Math.max(0, next.minXp - totalXp);
     }
 
@@ -87,10 +96,14 @@ export function MemberProfileModal({
     if (!memberUser?.reviews || !Array.isArray(memberUser.reviews)) return [];
     return memberUser.reviews.map((rev) => {
       const alb = rev.albums || {};
-      const weightedScore = getWeightedReviewScore(rev) ?? rev.rating_general ?? 0;
+      const weightedScore =
+        getWeightedReviewScore(rev) ?? rev.rating_general ?? 0;
       return {
         ...rev,
-        weightedScore: typeof weightedScore === 'number' ? weightedScore : parseFloat(weightedScore) || 0,
+        weightedScore:
+          typeof weightedScore === 'number'
+            ? weightedScore
+            : parseFloat(weightedScore) || 0,
         album: {
           album: alb.album_name || rev.album_name || 'Álbum',
           album_name: alb.album_name || rev.album_name || 'Álbum',
@@ -137,7 +150,8 @@ export function MemberProfileModal({
   }, [normalizedReviews, searchTerm, sortBy]);
 
   // Paginación de reviews
-  const totalReviewPages = Math.ceil(filteredReviews.length / reviewsPerPage) || 1;
+  const totalReviewPages =
+    Math.ceil(filteredReviews.length / reviewsPerPage) || 1;
   const paginatedReviews = useMemo(() => {
     const start = (reviewsPage - 1) * reviewsPerPage;
     return filteredReviews.slice(start, start + reviewsPerPage);
@@ -156,10 +170,13 @@ export function MemberProfileModal({
   const isCurrentUser =
     currentUser &&
     memberUser.email &&
-    currentUser.email?.toLowerCase().trim() === memberUser.email.toLowerCase().trim();
+    currentUser.email?.toLowerCase().trim() ===
+      memberUser.email.toLowerCase().trim();
 
   const isAdmin = memberUser.role === 'admin';
-  const initialLetter = ((memberUser.name || memberUser.email || 'U').trim()[0] || 'U').toUpperCase();
+  const initialLetter = (
+    (memberUser.name || memberUser.email || 'U').trim()[0] || 'U'
+  ).toUpperCase();
 
   return (
     <div
@@ -175,7 +192,8 @@ export function MemberProfileModal({
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] animate-pulse"></span>
             <span className="text-xs sm:text-sm font-bold text-white/80 tracking-wide">
-              Perfil de Miembro • <strong className="text-white">Musiclub</strong>
+              Perfil de Miembro •{' '}
+              <strong className="text-white">Musiclub</strong>
             </span>
           </div>
 
@@ -245,7 +263,7 @@ export function MemberProfileModal({
                     <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
                       <h1
                         translate="no"
-                        className="notranslate username-tag text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight truncate max-w-full"
+                        className="notranslate username-tag text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight truncate max-w-full"
                       >
                         {memberUser.name || 'Melómano de Musiclub'}
                       </h1>
@@ -389,7 +407,10 @@ export function MemberProfileModal({
                   Promedio Dado
                 </span>
                 <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400">
-                  ★ {(memberUser.avg_score || 0) > 0 ? (memberUser.avg_score).toFixed(1) : '—'}
+                  ★{' '}
+                  {(memberUser.avg_score || 0) > 0
+                    ? memberUser.avg_score.toFixed(1)
+                    : '—'}
                 </span>
               </div>
 
@@ -425,7 +446,8 @@ export function MemberProfileModal({
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
-              <span>🎖️</span> Insignias & Niveles ({memberUser.badges?.length || 0})
+              <span>🎖️</span> Insignias & Niveles (
+              {memberUser.badges?.length || 0})
             </button>
 
             <button
@@ -442,7 +464,10 @@ export function MemberProfileModal({
 
           {/* CONTENIDO DE PESTAÑA: REVIEWS */}
           {activeTab === 'reviews' && (
-            <div id="member-reviews-section" className="space-y-4 sm:space-y-6 scroll-mt-24">
+            <div
+              id="member-reviews-section"
+              className="space-y-4 sm:space-y-6 scroll-mt-24"
+            >
               {/* Barra de Filtro y Búsqueda */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-black/40 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-white/10">
                 <div className="relative w-full sm:w-72 md:w-80">
@@ -503,7 +528,8 @@ export function MemberProfileModal({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                     {paginatedReviews.map((item, idx) => {
                       const hasTrackRatings =
-                        item.track_ratings && Object.keys(item.track_ratings).length > 0;
+                        item.track_ratings &&
+                        Object.keys(item.track_ratings).length > 0;
                       const isExpanded = expandedReviewId === item.id;
 
                       return (
@@ -550,7 +576,9 @@ export function MemberProfileModal({
                               <div className="flex items-center gap-2 flex-wrap mt-1.5 sm:mt-2">
                                 <p className="text-white/30 text-[10px] font-mono">
                                   {item.created_at
-                                    ? new Date(item.created_at).toLocaleDateString('es-ES', {
+                                    ? new Date(
+                                        item.created_at
+                                      ).toLocaleDateString('es-ES', {
                                         day: 'numeric',
                                         month: 'short',
                                         year: 'numeric',
@@ -584,8 +612,12 @@ export function MemberProfileModal({
                           {(() => {
                             const favTrack = getReviewFavoriteTrack(item);
                             if (!favTrack) return null;
-                            const tracksSource = item.albums?.tracks || item.album?.tracks;
-                            const favName = getTrackDisplayName(favTrack, tracksSource);
+                            const tracksSource =
+                              item.albums?.tracks || item.album?.tracks;
+                            const favName = getTrackDisplayName(
+                              favTrack,
+                              tracksSource
+                            );
                             return (
                               <div className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
                                 <span className="text-sm">⭐</span>
@@ -606,10 +638,26 @@ export function MemberProfileModal({
                           {/* Mini Desglose de Criterios (4 columnas responsivas) */}
                           <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-2 border-t border-white/5">
                             {[
-                              { label: '🎛️ Prod', val: item.rating_produccion, max: 5 },
-                              { label: '🎵 Comp', val: item.rating_composicion, max: 5 },
-                              { label: '📝 Letras', val: item.rating_letras, max: 5 },
-                              { label: '⭐ Gral', val: item.rating_general, max: 10 },
+                              {
+                                label: '🎛️ Prod',
+                                val: item.rating_produccion,
+                                max: 5,
+                              },
+                              {
+                                label: '🎵 Comp',
+                                val: item.rating_composicion,
+                                max: 5,
+                              },
+                              {
+                                label: '📝 Letras',
+                                val: item.rating_letras,
+                                max: 5,
+                              },
+                              {
+                                label: '⭐ Gral',
+                                val: item.rating_general,
+                                max: 10,
+                              },
                             ].map((crit, cIdx) => (
                               <div
                                 key={cIdx}
@@ -631,12 +679,15 @@ export function MemberProfileModal({
                               <button
                                 type="button"
                                 onClick={() =>
-                                  setExpandedReviewId(isExpanded ? null : item.id)
+                                  setExpandedReviewId(
+                                    isExpanded ? null : item.id
+                                  )
                                 }
                                 className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
                               >
                                 <span>
-                                  🎵 {Object.keys(item.track_ratings).length} canciones evaluadas
+                                  🎵 {Object.keys(item.track_ratings).length}{' '}
+                                  canciones evaluadas
                                 </span>
                                 <span className="text-[10px] text-white/40">
                                   {isExpanded ? 'Ocultar ▲' : 'Ver tracks ▼'}
@@ -648,7 +699,8 @@ export function MemberProfileModal({
                                   {Object.entries(item.track_ratings).map(
                                     ([trackKey, score], tIdx) => {
                                       const tracksSource =
-                                        item.albums?.tracks || item.album?.tracks;
+                                        item.albums?.tracks ||
+                                        item.album?.tracks;
                                       const trackName = getTrackDisplayName(
                                         trackKey,
                                         tracksSource
@@ -687,10 +739,10 @@ export function MemberProfileModal({
                                               isFav
                                                 ? 'text-amber-300'
                                                 : score >= 8
-                                                ? 'text-emerald-400'
-                                                : score >= 6
-                                                ? 'text-cyan-400'
-                                                : 'text-amber-400'
+                                                  ? 'text-emerald-400'
+                                                  : score >= 6
+                                                    ? 'text-cyan-400'
+                                                    : 'text-amber-400'
                                             }`}
                                           >
                                             {score}/10
@@ -709,8 +761,12 @@ export function MemberProfileModal({
                             reviewId={item.id}
                             albumId={item.album_id || item.album?.id}
                             currentUser={currentUser}
-                            reviewerEmail={item.reviewer_email || memberUser?.email}
-                            reviewerName={item.reviewer_name || memberUser?.name}
+                            reviewerEmail={
+                              item.reviewer_email || memberUser?.email
+                            }
+                            reviewerName={
+                              item.reviewer_name || memberUser?.name
+                            }
                           />
 
                           {/* Acciones de la Review: Compartir Story y Ver Álbum */}
@@ -739,7 +795,9 @@ export function MemberProfileModal({
                               className="inline-flex items-center justify-center gap-1 px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
                               title="Ir a la página del lanzamiento"
                             >
-                              <span className="hidden xs:inline">Ver Álbum</span>
+                              <span className="hidden xs:inline">
+                                Ver Álbum
+                              </span>
                               <span>➔</span>
                             </Link>
                           </div>
@@ -758,7 +816,10 @@ export function MemberProfileModal({
                         </span>{' '}
                         a{' '}
                         <span className="text-white font-bold">
-                          {Math.min(reviewsPage * reviewsPerPage, filteredReviews.length)}
+                          {Math.min(
+                            reviewsPage * reviewsPerPage,
+                            filteredReviews.length
+                          )}
                         </span>{' '}
                         de{' '}
                         <span className="text-[#f093fb] font-bold">
@@ -779,7 +840,9 @@ export function MemberProfileModal({
 
                         <button
                           onClick={() =>
-                            handleReviewsPageChange(Math.max(1, reviewsPage - 1))
+                            handleReviewsPageChange(
+                              Math.max(1, reviewsPage - 1)
+                            )
                           }
                           disabled={reviewsPage === 1}
                           className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1 cursor-pointer"
@@ -804,7 +867,9 @@ export function MemberProfileModal({
                         </button>
 
                         <button
-                          onClick={() => handleReviewsPageChange(totalReviewPages)}
+                          onClick={() =>
+                            handleReviewsPageChange(totalReviewPages)
+                          }
                           disabled={reviewsPage === totalReviewPages}
                           className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all cursor-pointer"
                           title="Última Página"
@@ -819,7 +884,9 @@ export function MemberProfileModal({
                 <div className="text-center py-12 sm:py-16 bg-black/30 rounded-2xl sm:rounded-3xl border border-white/10 p-6 sm:p-8">
                   <div className="text-3xl sm:text-4xl mb-3">🎧</div>
                   <h3 className="text-white font-bold text-sm sm:text-base">
-                    {searchTerm ? 'No se encontraron reseñas con ese filtro' : 'Aún no ha publicado reseñas'}
+                    {searchTerm
+                      ? 'No se encontraron reseñas con ese filtro'
+                      : 'Aún no ha publicado reseñas'}
                   </h3>
                   <p className="text-white/40 text-xs mt-1">
                     {searchTerm
@@ -859,7 +926,9 @@ export function MemberProfileModal({
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
                     <span className="text-base">🎧</span>
-                    <p className="text-xs text-slate-400 mt-1 font-medium">Actividad Base</p>
+                    <p className="text-xs text-slate-400 mt-1 font-medium">
+                      Actividad Base
+                    </p>
                     <p className="text-lg font-black text-white mt-0.5">
                       +{memberUser.activity_xp || 0} XP
                     </p>
@@ -870,7 +939,9 @@ export function MemberProfileModal({
 
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
                     <span className="text-base">⚡</span>
-                    <p className="text-xs text-slate-400 mt-1 font-medium">Insignias y Tiers</p>
+                    <p className="text-xs text-slate-400 mt-1 font-medium">
+                      Insignias y Tiers
+                    </p>
                     <p className="text-lg font-black text-amber-300 mt-0.5">
                       +{memberUser.badges_xp || 0} XP
                     </p>
@@ -881,7 +952,9 @@ export function MemberProfileModal({
 
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
                     <span className="text-base">👑</span>
-                    <p className="text-xs text-slate-400 mt-1 font-medium">Récords #1</p>
+                    <p className="text-xs text-slate-400 mt-1 font-medium">
+                      Récords #1
+                    </p>
                     <p className="text-lg font-black text-cyan-300 mt-0.5">
                       +{memberUser.record_xp || 0} XP
                     </p>
@@ -897,10 +970,12 @@ export function MemberProfileModal({
                 <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
                   <div>
                     <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                      <span>🎖️</span> Insignias Activas ({memberUser.badges?.length || 0})
+                      <span>🎖️</span> Insignias Activas (
+                      {memberUser.badges?.length || 0})
                     </h3>
                     <p className="text-white/40 text-xs mt-0.5">
-                      Las insignias multinivel evolucionan visualmente al nivel más alto alcanzado.
+                      Las insignias multinivel evolucionan visualmente al nivel
+                      más alto alcanzado.
                     </p>
                   </div>
                 </div>
@@ -938,69 +1013,78 @@ export function MemberProfileModal({
               </div>
 
               {/* Barras de Progreso hacia los Siguientes Tiers */}
-              {memberUser.badges_progress && memberUser.badges_progress.length > 0 && (
-                <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
-                  <div>
-                    <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                      <span>📈</span> Progreso y Próximos Desbloqueos
-                    </h3>
-                    <p className="text-white/40 text-xs mt-0.5">
-                      Avance hacia el siguiente rango de cada categoría para sumar más puntos XP.
-                    </p>
-                  </div>
+              {memberUser.badges_progress &&
+                memberUser.badges_progress.length > 0 && (
+                  <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+                    <div>
+                      <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
+                        <span>📈</span> Progreso y Próximos Desbloqueos
+                      </h3>
+                      <p className="text-white/40 text-xs mt-0.5">
+                        Avance hacia el siguiente rango de cada categoría para
+                        sumar más puntos XP.
+                      </p>
+                    </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                    {memberUser.badges_progress.map((bp) => {
-                      const hasNext = Boolean(bp.nextTier);
-                      return (
-                        <div
-                          key={bp.badgeId}
-                          className="bg-black/40 border border-white/5 rounded-2xl p-4 space-y-2.5"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                              <span>{bp.icon}</span>
-                              <span>{bp.categoryName}</span>
-                            </span>
-                            <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
-                              {bp.unlockedTier ? bp.unlockedTier.name : 'Nivel Inicial'}
-                            </span>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                      {memberUser.badges_progress.map((bp) => {
+                        const hasNext = Boolean(bp.nextTier);
+                        return (
+                          <div
+                            key={bp.badgeId}
+                            className="bg-black/40 border border-white/5 rounded-2xl p-4 space-y-2.5"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-bold text-white flex items-center gap-1.5">
+                                <span>{bp.icon}</span>
+                                <span>{bp.categoryName}</span>
+                              </span>
+                              <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
+                                {bp.unlockedTier
+                                  ? bp.unlockedTier.name
+                                  : 'Nivel Inicial'}
+                              </span>
+                            </div>
+
+                            <p className="text-xs text-slate-400 leading-snug">
+                              {bp.description}
+                            </p>
+
+                            {hasNext ? (
+                              <div className="space-y-1.5 pt-1">
+                                <div className="flex items-center justify-between text-[11px] text-slate-300">
+                                  <span>
+                                    Próximo:{' '}
+                                    <strong className="text-amber-300">
+                                      {bp.nextTier.name}
+                                    </strong>{' '}
+                                    (+
+                                    {bp.nextTier.xp} XP)
+                                  </span>
+                                  <span className="font-semibold text-white">
+                                    {bp.currentValue} / {bp.nextTier.req} (
+                                    {bp.progressPercent}%)
+                                  </span>
+                                </div>
+                                <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
+                                  <div
+                                    className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
+                                    style={{ width: `${bp.progressPercent}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
+                                <span>👑</span> ¡Nivel Máximo Alcanzado en esta
+                                categoría!
+                              </div>
+                            )}
                           </div>
-
-                          <p className="text-xs text-slate-400 leading-snug">
-                            {bp.description}
-                          </p>
-
-                          {hasNext ? (
-                            <div className="space-y-1.5 pt-1">
-                              <div className="flex items-center justify-between text-[11px] text-slate-300">
-                                <span>
-                                  Próximo:{' '}
-                                  <strong className="text-amber-300">{bp.nextTier.name}</strong> (+
-                                  {bp.nextTier.xp} XP)
-                                </span>
-                                <span className="font-semibold text-white">
-                                  {bp.currentValue} / {bp.nextTier.req} ({bp.progressPercent}%)
-                                </span>
-                              </div>
-                              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
-                                <div
-                                  className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
-                                  style={{ width: `${bp.progressPercent}%` }}
-                                />
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
-                              <span>👑</span> ¡Nivel Máximo Alcanzado en esta categoría!
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
           )}
 
@@ -1014,13 +1098,17 @@ export function MemberProfileModal({
                     <span>🎛️</span> Promedio Otorgado por Criterio
                   </h3>
                   <p className="text-white/40 text-xs">
-                    Muestra la exigencia y tendencia de sus calificaciones según cada aspecto del álbum.
+                    Muestra la exigencia y tendencia de sus calificaciones según
+                    cada aspecto del álbum.
                   </p>
 
                   <div className="space-y-3 pt-1">
                     {CRITERIA_METRICS.map((crit) => {
                       const avg = memberUser.criteria_averages?.[crit.key] || 0;
-                      const pct = Math.min(100, Math.round((avg / crit.max) * 100));
+                      const pct = Math.min(
+                        100,
+                        Math.round((avg / crit.max) * 100)
+                      );
                       return (
                         <div key={crit.key} className="space-y-1">
                           <div className="flex justify-between items-center text-xs">
@@ -1053,7 +1141,10 @@ export function MemberProfileModal({
                     {memberUser.highest_review ? (
                       <div className="flex items-center gap-3 sm:gap-4">
                         <img
-                          src={memberUser.highest_review.image_url || PLACEHOLDER_COVER}
+                          src={
+                            memberUser.highest_review.image_url ||
+                            PLACEHOLDER_COVER
+                          }
                           alt="Highest"
                           className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
                           onError={(e) => {
@@ -1077,7 +1168,9 @@ export function MemberProfileModal({
                         </div>
                       </div>
                     ) : (
-                      <p className="text-white/30 text-xs">Sin reviews suficientes</p>
+                      <p className="text-white/30 text-xs">
+                        Sin reviews suficientes
+                      </p>
                     )}
                   </div>
 
@@ -1089,7 +1182,10 @@ export function MemberProfileModal({
                     {memberUser.lowest_review ? (
                       <div className="flex items-center gap-3 sm:gap-4">
                         <img
-                          src={memberUser.lowest_review.image_url || PLACEHOLDER_COVER}
+                          src={
+                            memberUser.lowest_review.image_url ||
+                            PLACEHOLDER_COVER
+                          }
                           alt="Lowest"
                           className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
                           onError={(e) => {
@@ -1119,7 +1215,9 @@ export function MemberProfileModal({
                         </div>
                       </div>
                     ) : (
-                      <p className="text-white/30 text-xs">Sin reviews suficientes</p>
+                      <p className="text-white/30 text-xs">
+                        Sin reviews suficientes
+                      </p>
                     )}
                   </div>
 
@@ -1167,13 +1265,16 @@ export function MemberProfileModal({
                             </strong>
                           </span>
                           <span className="text-white font-semibold flex-shrink-0">
-                            +{currentMelomanoLevel.xpRemaining} XP ({currentMelomanoLevel.progressPercent}%)
+                            +{currentMelomanoLevel.xpRemaining} XP (
+                            {currentMelomanoLevel.progressPercent}%)
                           </span>
                         </div>
                         <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden border border-white/10">
                           <div
                             className="h-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
-                            style={{ width: `${currentMelomanoLevel.progressPercent}%` }}
+                            style={{
+                              width: `${currentMelomanoLevel.progressPercent}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -1228,6 +1329,8 @@ export function MemberProfileModal({
         <SendSongRecommendationModal
           isOpen={isSendSongModalOpen}
           onClose={() => setIsSendSongModalOpen(false)}
+          currentUser={currentUser}
+          defaultRecipient={memberUser}
           targetRecipient={memberUser}
         />
       )}

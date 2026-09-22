@@ -55,21 +55,24 @@ export function PlaylistsCatalog({ isPage = true }) {
 
   const userEmail = user?.email || null;
 
-  const loadPlaylists = useCallback(async (isInitial = false) => {
-    if (isInitial) {
-      setLoading(true);
-    }
-    try {
-      const data = await supabaseService.getPlaylists(userEmail);
-      // No usar fallbacks ni datos default
-      setPlaylists(Array.isArray(data) ? data : []);
-    } catch (err) {
-      console.error('Error fetching playlists:', err);
-      setPlaylists([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [userEmail]);
+  const loadPlaylists = useCallback(
+    async (isInitial = false) => {
+      if (isInitial) {
+        setLoading(true);
+      }
+      try {
+        const data = await supabaseService.getPlaylists(userEmail);
+        // No usar fallbacks ni datos default
+        setPlaylists(Array.isArray(data) ? data : []);
+      } catch (err) {
+        console.error('Error fetching playlists:', err);
+        setPlaylists([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [userEmail]
+  );
 
   useEffect(() => {
     loadPlaylists(true);
@@ -129,9 +132,12 @@ export function PlaylistsCatalog({ isPage = true }) {
               title: meta.title || prev.title,
               imageUrl: meta.imageUrl || prev.imageUrl,
               description: meta.description || prev.description,
-              spotifyLink: meta.platform === 'spotify' ? meta.url : prev.spotifyLink,
-              appleMusicLink: meta.platform === 'apple' ? meta.url : prev.appleMusicLink,
-              youtubeMusicLink: meta.platform === 'youtube' ? meta.url : prev.youtubeMusicLink,
+              spotifyLink:
+                meta.platform === 'spotify' ? meta.url : prev.spotifyLink,
+              appleMusicLink:
+                meta.platform === 'apple' ? meta.url : prev.appleMusicLink,
+              youtubeMusicLink:
+                meta.platform === 'youtube' ? meta.url : prev.youtubeMusicLink,
               otherLink: meta.platform === 'other' ? meta.url : prev.otherLink,
             };
             return updated;
@@ -147,7 +153,8 @@ export function PlaylistsCatalog({ isPage = true }) {
 
   // Manejador de Voto Sí/No
   const handleVote = async (playlist, liked) => {
-    const reviewerName = user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub';
+    const reviewerName =
+      user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub';
     const reviewerEmail = user?.email || '';
 
     if (!reviewerEmail) {
@@ -190,9 +197,12 @@ export function PlaylistsCatalog({ isPage = true }) {
 
           const updatedReviews = [newVote, ...filtered];
           const likes = updatedReviews.filter((r) => r.liked === true).length;
-          const dislikes = updatedReviews.filter((r) => r.liked === false).length;
+          const dislikes = updatedReviews.filter(
+            (r) => r.liked === false
+          ).length;
           const totalVotes = likes + dislikes;
-          const approvalRate = totalVotes > 0 ? Math.round((likes / totalVotes) * 100) : null;
+          const approvalRate =
+            totalVotes > 0 ? Math.round((likes / totalVotes) * 100) : null;
 
           return {
             ...item,
@@ -225,7 +235,8 @@ export function PlaylistsCatalog({ isPage = true }) {
     const playlist = commentModalPlaylist;
     const liked = pendingVoteLiked;
     const comment = voteCommentText.trim();
-    const reviewerName = user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub';
+    const reviewerName =
+      user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub';
     const reviewerEmail = user?.email || '';
 
     if (!reviewerEmail) {
@@ -264,9 +275,12 @@ export function PlaylistsCatalog({ isPage = true }) {
           };
           const updatedReviews = [newVote, ...filtered];
           const likes = updatedReviews.filter((r) => r.liked === true).length;
-          const dislikes = updatedReviews.filter((r) => r.liked === false).length;
+          const dislikes = updatedReviews.filter(
+            (r) => r.liked === false
+          ).length;
           const totalVotes = likes + dislikes;
-          const approvalRate = totalVotes > 0 ? Math.round((likes / totalVotes) * 100) : null;
+          const approvalRate =
+            totalVotes > 0 ? Math.round((likes / totalVotes) * 100) : null;
 
           return {
             ...item,
@@ -308,13 +322,19 @@ export function PlaylistsCatalog({ isPage = true }) {
     }
 
     const plat = detectPlatform(finalUrl);
-    const spotifyLink = plat?.platform === 'spotify' ? finalUrl : formData.spotifyLink;
-    const appleMusicLink = plat?.platform === 'apple' ? finalUrl : formData.appleMusicLink;
-    const youtubeMusicLink = plat?.platform === 'youtube' ? finalUrl : formData.youtubeMusicLink;
-    const otherLink = plat?.platform === 'other' ? finalUrl : formData.otherLink;
+    const spotifyLink =
+      plat?.platform === 'spotify' ? finalUrl : formData.spotifyLink;
+    const appleMusicLink =
+      plat?.platform === 'apple' ? finalUrl : formData.appleMusicLink;
+    const youtubeMusicLink =
+      plat?.platform === 'youtube' ? finalUrl : formData.youtubeMusicLink;
+    const otherLink =
+      plat?.platform === 'other' ? finalUrl : formData.otherLink;
 
     if (!spotifyLink && !appleMusicLink && !youtubeMusicLink && !otherLink) {
-      setFormError('Debes agregar un enlace válido (Spotify, Apple Music o YouTube Music).');
+      setFormError(
+        'Debes agregar un enlace válido (Spotify, Apple Music o YouTube Music).'
+      );
       return;
     }
 
@@ -392,9 +412,12 @@ export function PlaylistsCatalog({ isPage = true }) {
         const matchesMood =
           selectedMood === 'all' ||
           mood.includes(selectedMood.toLowerCase()) ||
-          (selectedMood === 'chill' && (mood.includes('chill') || mood.includes('focus'))) ||
-          (selectedMood === 'energia' && (mood.includes('energ') || mood.includes('fiesta'))) ||
-          (selectedMood === 'melancolia' && (mood.includes('melan') || mood.includes('nostal')));
+          (selectedMood === 'chill' &&
+            (mood.includes('chill') || mood.includes('focus'))) ||
+          (selectedMood === 'energia' &&
+            (mood.includes('energ') || mood.includes('fiesta'))) ||
+          (selectedMood === 'melancolia' &&
+            (mood.includes('melan') || mood.includes('nostal')));
 
         return matchesSearch && matchesMood;
       })
@@ -440,19 +463,21 @@ export function PlaylistsCatalog({ isPage = true }) {
 
           <div className="relative z-10 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-5 sm:gap-6">
             <div className="space-y-2 max-w-2xl text-left">
-              <div className="inline-flex items-center gap-2 bg-[#131526]/90 backdrop-blur-md px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full border border-pink-400/40 text-pink-300 text-[11px] sm:text-xs font-bold tracking-wider uppercase shadow-md">
-                <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-                <span>Curaduría & Playlists</span>
-              </div>
-              <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                 Playlists de la Comunidad
               </h1>
-              <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                Descubre selecciones recomendadas por miembros del club con enlaces a{' '}
+              <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
+                Descubre selecciones recomendadas por miembros del club con
+                enlaces a{' '}
                 <span className="text-emerald-400 font-semibold">Spotify</span>,{' '}
-                <span className="text-rose-400 font-semibold">Apple Music</span> y{' '}
-                <span className="text-red-400 font-semibold">YouTube Music</span>. Califica con una sola pregunta:{' '}
-                <strong className="text-white">¿Te gustó? (Sí / No)</strong> para medir el porcentaje de aprobación.
+                <span className="text-rose-400 font-semibold">Apple Music</span>{' '}
+                y{' '}
+                <span className="text-red-400 font-semibold">
+                  YouTube Music
+                </span>
+                . Califica con una sola pregunta:{' '}
+                <strong className="text-white">¿Te gustó? (Sí / No)</strong>{' '}
+                para medir el porcentaje de aprobación.
               </p>
             </div>
 
@@ -533,7 +558,9 @@ export function PlaylistsCatalog({ isPage = true }) {
         {loading ? (
           <div className="py-20 text-center space-y-4">
             <div className="inline-block w-10 h-10 border-4 border-pink-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">Cargando playlists recomendadas...</p>
+            <p className="text-slate-400 text-sm">
+              Cargando playlists recomendadas...
+            </p>
           </div>
         ) : filteredPlaylists.length === 0 ? (
           <div className="p-8 sm:p-12 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl text-center space-y-4 max-w-xl mx-auto my-6 sm:my-8">
@@ -564,7 +591,9 @@ export function PlaylistsCatalog({ isPage = true }) {
             {filteredPlaylists.map((playlist) => {
               const stats = getPlaylistApprovalStats(playlist);
               const isVoting = votingMap[playlist.id];
-              const commentsList = (playlist.reviews || []).filter((r) => r.comment && r.comment.trim());
+              const commentsList = (playlist.reviews || []).filter(
+                (r) => r.comment && r.comment.trim()
+              );
               const isCommentsExpanded = expandedCommentsId === playlist.id;
 
               return (
@@ -618,7 +647,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                             translate="no"
                             className="notranslate username-tag text-slate-200"
                           >
-                            {playlist.added_by || playlist.curator_name || 'Miembro del Club'}
+                            {playlist.added_by ||
+                              playlist.curator_name ||
+                              'Miembro del Club'}
                           </strong>
                         </p>
                       </div>
@@ -642,7 +673,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                               rel="noopener noreferrer"
                               className="px-2.5 py-1 bg-[#1DB954]/20 hover:bg-[#1DB954] text-[#1ed760] hover:text-black border border-[#1DB954]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <SpotifyLogo className="w-3.5 h-3.5 fill-current" /> Spotify
+                              <SpotifyLogo className="w-3.5 h-3.5 fill-current" />{' '}
+                              Spotify
                             </a>
                           )}
                           {playlist.apple_music_link && (
@@ -652,7 +684,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                               rel="noopener noreferrer"
                               className="px-2.5 py-1 bg-[#fc3c44]/20 hover:bg-[#fc3c44] text-rose-300 hover:text-white border border-[#fc3c44]/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <AppleMusicLogo className="w-3.5 h-3.5 fill-current" /> Apple Music
+                              <AppleMusicLogo className="w-3.5 h-3.5 fill-current" />{' '}
+                              Apple Music
                             </a>
                           )}
                           {playlist.youtube_music_link && (
@@ -662,7 +695,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                               rel="noopener noreferrer"
                               className="px-2.5 py-1 bg-red-600/20 hover:bg-red-600 text-red-300 hover:text-white border border-red-500/40 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5"
                             >
-                              <YouTubeLogo className="w-3.5 h-3.5 fill-current" /> YouTube Music
+                              <YouTubeLogo className="w-3.5 h-3.5 fill-current" />{' '}
+                              YouTube Music
                             </a>
                           )}
                           {playlist.other_link && (
@@ -678,7 +712,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                             >
                               {playlist.other_link.includes('deezer') ? (
                                 <>
-                                  <DeezerLogo className="w-3.5 h-3.5 fill-current" /> Deezer
+                                  <DeezerLogo className="w-3.5 h-3.5 fill-current" />{' '}
+                                  Deezer
                                 </>
                               ) : (
                                 <>
@@ -701,7 +736,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                           <span>📊</span> Aprobación:
                         </span>
                         <span className="text-slate-300 font-mono text-[11px]">
-                          {stats.likes} 👍 · {stats.dislikes} 👎 ({stats.totalVotes} votos)
+                          {stats.likes} 👍 · {stats.dislikes} 👎 (
+                          {stats.totalVotes} votos)
                         </span>
                       </div>
 
@@ -732,11 +768,12 @@ export function PlaylistsCatalog({ isPage = true }) {
                         <span className="font-bold text-slate-200">
                           ¿Te gustó esta playlist?
                         </span>
-                        {playlist.user_vote !== null && playlist.user_vote !== undefined && (
-                          <span className="text-[10px] text-pink-300 bg-pink-500/15 px-2 py-0.5 rounded-md font-semibold">
-                            Tu voto: {playlist.user_vote ? '👍 Sí' : '👎 No'}
-                          </span>
-                        )}
+                        {playlist.user_vote !== null &&
+                          playlist.user_vote !== undefined && (
+                            <span className="text-[10px] text-pink-300 bg-pink-500/15 px-2 py-0.5 rounded-md font-semibold">
+                              Tu voto: {playlist.user_vote ? '👍 Sí' : '👎 No'}
+                            </span>
+                          )}
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
@@ -774,13 +811,17 @@ export function PlaylistsCatalog({ isPage = true }) {
                           onClick={() =>
                             handleOpenVoteWithComment(
                               playlist,
-                              playlist.user_vote !== null ? playlist.user_vote : true
+                              playlist.user_vote !== null
+                                ? playlist.user_vote
+                                : true
                             )
                           }
                           className="text-pink-300/80 hover:text-pink-200 hover:underline flex items-center gap-1 font-medium"
                         >
                           <span>💬</span>{' '}
-                          {playlist.user_comment ? 'Editar mi comentario' : 'Dejar comentario'}
+                          {playlist.user_comment
+                            ? 'Editar mi comentario'
+                            : 'Dejar comentario'}
                         </button>
 
                         {commentsList.length > 0 && (
@@ -813,10 +854,13 @@ export function PlaylistsCatalog({ isPage = true }) {
                                   translate="no"
                                   className="notranslate username-tag font-bold text-slate-200"
                                 >
-                                  {c.liked ? '👍' : '👎'} {c.reviewer_name || 'Miembro'}
+                                  {c.liked ? '👍' : '👎'}{' '}
+                                  {c.reviewer_name || 'Miembro'}
                                 </span>
                               </div>
-                              <p className="text-slate-300 mt-0.5 italic">"{c.comment}"</p>
+                              <p className="text-slate-300 mt-0.5 italic">
+                                "{c.comment}"
+                              </p>
                             </div>
                           ))}
                         </div>
@@ -883,7 +927,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                       )}
                     </div>
                     <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                      <span>✨</span> Autocompleta automáticamente la portada y el título.
+                      <span>✨</span> Autocompleta automáticamente la portada y
+                      el título.
                     </p>
                   </div>
 
@@ -928,12 +973,17 @@ export function PlaylistsCatalog({ isPage = true }) {
                           )}
                         </div>
                         <h4 className="text-xs sm:text-sm font-bold text-white line-clamp-2">
-                          {formData.title || (isFetchingMeta ? 'Cargando título...' : 'Sin título aún')}
+                          {formData.title ||
+                            (isFetchingMeta
+                              ? 'Cargando título...'
+                              : 'Sin título aún')}
                         </h4>
                         <p className="text-[11px] text-slate-400 truncate">
                           Sugerida por:{' '}
                           <span className="text-slate-200">
-                            {formData.curatorName || user?.name || (user ? 'Tú' : 'Sin especificar')}
+                            {formData.curatorName ||
+                              user?.name ||
+                              (user ? 'Tú' : 'Sin especificar')}
                           </span>
                         </p>
                       </div>
@@ -949,7 +999,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                       type="text"
                       required
                       value={formData.title}
-                      onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, title: e.target.value })
+                      }
                       placeholder="Ej. Midnight Melancholy & Late Night Drives"
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-500/60"
                     />
@@ -961,12 +1013,16 @@ export function PlaylistsCatalog({ isPage = true }) {
                       <label className="text-xs text-slate-300 font-semibold">
                         URL de Portada (Imagen)
                       </label>
-                      <span className="text-[10px] text-slate-400">Autocompletada o enlace personalizado</span>
+                      <span className="text-[10px] text-slate-400">
+                        Autocompletada o enlace personalizado
+                      </span>
                     </div>
                     <input
                       type="url"
                       value={formData.imageUrl}
-                      onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, imageUrl: e.target.value })
+                      }
                       placeholder="https://... enlace de imagen o portada"
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-500/60"
                     />
@@ -980,17 +1036,28 @@ export function PlaylistsCatalog({ isPage = true }) {
                       <input
                         type="text"
                         value={formData.curatorName}
-                        onChange={(e) => setFormData({ ...formData, curatorName: e.target.value })}
-                        placeholder={user ? (user.name || user.email?.split('@')[0]) : "Tu nombre o apodo"}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            curatorName: e.target.value,
+                          })
+                        }
+                        placeholder={
+                          user
+                            ? user.name || user.email?.split('@')[0]
+                            : 'Tu nombre o apodo'
+                        }
                         className="w-full bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-pink-500/60"
                       />
                       {user ? (
                         <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1 truncate">
-                          <span>🟢</span> Conectado como {user.name || user.email?.split('@')[0]}
+                          <span>🟢</span> Conectado como{' '}
+                          {user.name || user.email?.split('@')[0]}
                         </p>
                       ) : (
                         <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                          <span>💡</span> Inicia sesión con Google para autocompletar.
+                          <span>💡</span> Inicia sesión con Google para
+                          autocompletar.
                         </p>
                       )}
                     </div>
@@ -1001,15 +1068,30 @@ export function PlaylistsCatalog({ isPage = true }) {
                       </label>
                       <select
                         value={formData.genreOrMood}
-                        onChange={(e) => setFormData({ ...formData, genreOrMood: e.target.value })}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            genreOrMood: e.target.value,
+                          })
+                        }
                         className="w-full bg-black/50 border border-white/10 text-white text-xs sm:text-sm rounded-xl px-3.5 py-2 focus:outline-none focus:border-pink-500/60 cursor-pointer"
                       >
                         <option value="Chill & Focus">☕ Chill & Focus</option>
-                        <option value="Energía & Fiesta">⚡ Energía & Fiesta</option>
-                        <option value="Nostalgia & Melancolía">🌙 Nostalgia & Melancolía</option>
-                        <option value="Roadtrip & Viaje">🚗 Roadtrip & Viaje</option>
-                        <option value="Indie, Rock & Alt">🎸 Indie, Rock & Alt</option>
-                        <option value="Electrónica & Beat">🎛️ Electrónica & Beat</option>
+                        <option value="Energía & Fiesta">
+                          ⚡ Energía & Fiesta
+                        </option>
+                        <option value="Nostalgia & Melancolía">
+                          🌙 Nostalgia & Melancolía
+                        </option>
+                        <option value="Roadtrip & Viaje">
+                          🚗 Roadtrip & Viaje
+                        </option>
+                        <option value="Indie, Rock & Alt">
+                          🎸 Indie, Rock & Alt
+                        </option>
+                        <option value="Electrónica & Beat">
+                          🎛️ Electrónica & Beat
+                        </option>
                         <option value="Joyas Ocultas">💎 Joyas Ocultas</option>
                         <option value="General">✨ General</option>
                       </select>
@@ -1022,7 +1104,12 @@ export function PlaylistsCatalog({ isPage = true }) {
                     </label>
                     <textarea
                       value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
                       placeholder="Cuéntale a la comunidad qué canciones o vibra destacan en esta playlist..."
                       rows="2"
                       className="w-full bg-black/50 border border-white/10 rounded-xl px-3.5 py-2 text-white text-xs focus:outline-none focus:border-pink-500/60 resize-none"
@@ -1053,7 +1140,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                       disabled={formSubmitting || isFetchingMeta}
                       className="w-full sm:w-1/2 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
-                      {formSubmitting ? 'Publicando...' : 'Publicar Playlist 🚀'}
+                      {formSubmitting
+                        ? 'Publicando...'
+                        : 'Publicar Playlist 🚀'}
                     </button>
                   </div>
                 </form>
@@ -1084,7 +1173,11 @@ export function PlaylistsCatalog({ isPage = true }) {
 
                 <div className="space-y-3">
                   <p className="text-xs text-slate-300">
-                    ¿Qué opinas de <strong className="text-white">"{commentModalPlaylist.title}"</strong>?
+                    ¿Qué opinas de{' '}
+                    <strong className="text-white">
+                      "{commentModalPlaylist.title}"
+                    </strong>
+                    ?
                   </p>
 
                   <div className="grid grid-cols-2 gap-2">
@@ -1145,4 +1238,3 @@ export function PlaylistsCatalog({ isPage = true }) {
     </div>
   );
 }
-

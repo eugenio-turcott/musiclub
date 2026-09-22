@@ -12,14 +12,22 @@ import { usePool } from '../hooks/usePool';
 import { useAuth } from '../hooks/useAuth';
 import { useAlbums } from '../hooks/useAlbums';
 import { getReleaseUrl } from '../utils/ratingUtils';
+import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import {
-  searchAlbum,
-  getAlbumDetails,
-} from '../services/spotifyApi';
+  SpotifyLogo,
+  AppleMusicLogo,
+  YouTubeLogo,
+  DeezerLogo,
+} from '../components/common/PlatformLogos';
 
 export function PoolPage() {
-  const { user, isAdmin, loginWithGoogle, logout, loading: authLoading } =
-    useAuth();
+  const {
+    user,
+    isAdmin,
+    loginWithGoogle,
+    logout,
+    loading: authLoading,
+  } = useAuth();
   const {
     season,
     activePool,
@@ -196,6 +204,10 @@ export function PoolPage() {
 
   // Submit nomination
   const handleConfirmNomination = async () => {
+    if (!isPoolOpen) {
+      alert('El Pool se encuentra actualmente cerrado para nuevas propuestas.');
+      return;
+    }
     if (!selectedAlbumToNominate) return;
     setSubmittingNomination(true);
     try {
@@ -307,11 +319,26 @@ export function PoolPage() {
               {/* Season Live Pill & Selector */}
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-300 text-xs font-black tracking-wider uppercase">
-                  <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
+                  <img
+                    src="/musiclub_logo_corchea.png"
+                    alt="Musiclub"
+                    className="w-3.5 h-3.5 object-contain"
+                  />
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                   <span>{season.name}</span>
                   <span className="text-white/40">&bull;</span>
-                  <span className="text-white/70">Inició: 11 Jul 2026</span>
+                  <span className="text-white/70">
+                    Inició:{' '}
+                    {season.start_date
+                      ? new Date(
+                          `${season.start_date}T00:00:00`
+                        ).toLocaleDateString('en-US', {
+                          day: 'numeric',
+                          month: 'short',
+                          year: 'numeric',
+                        })
+                      : '11 Jul 2026'}
+                  </span>
                 </div>
 
                 {isPoolOpen ? (
@@ -324,20 +351,6 @@ export function PoolPage() {
                     🔒 Pool Cerrado
                   </span>
                 )}
-
-                {isAdmin && (
-                  <button
-                    type="button"
-                    onClick={() => setPoolOpenStatus(!isPoolOpen)}
-                    className={`px-3 py-1 rounded-full text-xs font-bold border transition-all flex items-center gap-1 ${
-                      isPoolOpen
-                        ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
-                        : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                    }`}
-                  >
-                    <span>{isPoolOpen ? '🔒 Cerrar Pool (Admin)' : '🔓 Abrir Pool (Admin)'}</span>
-                  </button>
-                )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
@@ -346,9 +359,9 @@ export function PoolPage() {
 
               <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
                 El motor social de Musiclub. Aquí los miembros proponen sus{' '}
-                <strong>álbumes, EPs y canciones</strong> favoritos para la temporada.
-                Cada semana se sortea el disco en foco mediante la ruleta/gashapon
-                para escucharlo y calificarlo en comunidad.
+                <strong>álbumes, EPs y canciones</strong> favoritos para la
+                temporada. Cada semana se sortea el disco en foco mediante la
+                ruleta/gashapon para escucharlo y calificarlo en comunidad.
               </p>
 
               {/* Banner Pool Cerrado / Abierto */}
@@ -357,7 +370,13 @@ export function PoolPage() {
                   <div className="flex items-center gap-2.5">
                     <span className="text-xl">🔒</span>
                     <span>
-                      <strong>El Pool se encuentra actualmente cerrado para nuevas propuestas.</strong> Puedes explorar los discos propuestos por la comunidad, participar en el sorteo semanal y calificar el disco en foco.
+                      <strong>
+                        El Pool se encuentra actualmente cerrado para nuevas
+                        propuestas.
+                      </strong>{' '}
+                      Puedes explorar los discos propuestos por la comunidad,
+                      participar en el sorteo semanal y calificar el disco en
+                      foco.
                     </span>
                   </div>
                   {isAdmin && (
@@ -375,18 +394,14 @@ export function PoolPage() {
 
             {/* Quick Action Buttons */}
             <div className="flex flex-wrap items-center gap-3">
-              {!isPoolOpen && !isAdmin ? (
+              {!isPoolOpen ? (
                 <button
                   type="button"
-                  onClick={() =>
-                    alert(
-                      'El Pool de la Temporada 1 se encuentra actualmente cerrado para nuevas propuestas.'
-                    )
-                  }
-                  className="px-5 py-3.5 rounded-2xl bg-[#121426]/95 backdrop-blur-md text-white/70 border border-white/20 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed shadow-lg"
-                  title="El pool está actualmente cerrado para nuevas propuestas"
+                  disabled
+                  className="px-5 py-3.5 rounded-2xl bg-white/[0.04] text-slate-500 border border-white/5 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed opacity-60 select-none shadow-none"
+                  title="El Pool se encuentra actualmente cerrado para nuevas propuestas"
                 >
-                  <span>🔒</span>
+                  <span className="opacity-70">🔒</span>
                   <span>Proponer al Pool (Cerrado)</span>
                 </button>
               ) : (
@@ -424,7 +439,9 @@ export function PoolPage() {
                 className="notranslate text-xl sm:text-2xl font-black text-pink-400"
                 data-stat="number"
               >
-                {poolLoading && activePool.length === 0 ? '...' : activePool.length}
+                {poolLoading && activePool.length === 0
+                  ? '...'
+                  : activePool.length}
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
                 En Espera en el Pool
@@ -462,7 +479,15 @@ export function PoolPage() {
                 className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
                 data-stat="date"
               >
-                11 Jul 2026
+                {season.start_date
+                  ? new Date(
+                      `${season.start_date}T00:00:00`
+                    ).toLocaleDateString('en-US', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                    })
+                  : '11 Jul 2026'}
               </p>
               <p className="text-[11px] text-slate-400 uppercase font-semibold">
                 Fecha de Lanzamiento
@@ -526,36 +551,95 @@ export function PoolPage() {
                     {winner.artista}
                   </p>
 
-                  {/* Links */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-1">
-                    {winner.spotifyLink && (
+                  {/* Enlaces Oficiales de Streaming con Logos */}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
+                    {(winner.spotifyLink || winner.spotify_link) && (
                       <a
-                        href={winner.spotifyLink}
+                        href={winner.spotifyLink || winner.spotify_link}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 hover:text-white transition-all flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#1db954]/15 hover:bg-[#1db954]/25 text-[#1db954] border border-[#1db954]/30 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 group hover:scale-105"
+                        title="Escuchar en Spotify"
                       >
-                        <span>🎵</span>
+                        <SpotifyLogo className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
                         <span>Spotify</span>
                       </a>
                     )}
-                    {winner.youtubeLink && (
+
+                    {(winner.appleMusicLink ||
+                      winner.apple_music_link ||
+                      (winner.album && winner.artista)) && (
                       <a
-                        href={winner.youtubeLink}
+                        href={
+                          winner.appleMusicLink ||
+                          winner.apple_music_link ||
+                          `https://music.apple.com/search?term=${encodeURIComponent(
+                            winner.artista + ' ' + winner.album
+                          )}`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-200 hover:text-white transition-all flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#fc3c44]/15 hover:bg-[#fc3c44]/25 text-[#fc3c44] border border-[#fc3c44]/30 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 group hover:scale-105"
+                        title="Escuchar en Apple Music"
                       >
-                        <span>▶️</span>
-                        <span>YouTube</span>
+                        <AppleMusicLogo className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
+                        <span>Apple Music</span>
                       </a>
                     )}
+
+                    {(winner.youtubeLink ||
+                      winner.youtube_link ||
+                      (winner.album && winner.artista)) && (
+                      <a
+                        href={
+                          winner.youtubeLink ||
+                          winner.youtube_link ||
+                          `https://music.youtube.com/search?q=${encodeURIComponent(
+                            winner.artista + ' ' + winner.album
+                          )}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 group hover:scale-105"
+                        title="Escuchar en YouTube Music"
+                      >
+                        <YouTubeLogo className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
+                        <span>YouTube Music</span>
+                      </a>
+                    )}
+
+                    {(winner.deezerLink ||
+                      winner.otherLink ||
+                      winner.other_link ||
+                      (winner.album && winner.artista)) && (
+                      <a
+                        href={
+                          winner.deezerLink ||
+                          winner.otherLink ||
+                          winner.other_link ||
+                          `https://www.deezer.com/search/${encodeURIComponent(
+                            winner.artista + ' ' + winner.album
+                          )}`
+                        }
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-1.5 rounded-xl bg-[#a238ff]/15 hover:bg-[#a238ff]/25 text-[#c77dff] border border-[#a238ff]/30 text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 group hover:scale-105"
+                        title="Escuchar en Deezer"
+                      >
+                        <DeezerLogo className="w-3.5 h-3.5 fill-current group-hover:scale-110 transition-transform" />
+                        <span>Deezer</span>
+                      </a>
+                    )}
+
                     <Link
-                      to={getReleaseUrl(winner.album, winner.release_type || winner.releaseType)}
-                      className="px-3.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-xs font-bold text-pink-300 transition-all flex items-center gap-1.5"
+                      to={getReleaseUrl(
+                        winner.album,
+                        winner.release_type || winner.releaseType
+                      )}
+                      className="px-3.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-xs font-bold text-pink-300 transition-all flex items-center gap-1.5 hover:scale-105"
                     >
                       <span>🔍</span>
-                      <span>Ver Ficha en Catálogo</span>
+                      <span>Ver Release</span>
                     </Link>
                   </div>
 
@@ -591,7 +675,8 @@ export function PoolPage() {
 
                     {!winner.reviews_enabled && (
                       <span className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
-                        🔒 Las calificaciones para este disco no están habilitadas por la administración.
+                        🔒 Las calificaciones para este disco no están
+                        habilitadas por la administración.
                       </span>
                     )}
 
@@ -678,8 +763,8 @@ export function PoolPage() {
               No hay un disco ganador seleccionado actualmente
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
-              Usa la Ruleta o el Gashapon Arcade para sortear el próximo álbum de
-              los{' '}
+              Usa la Ruleta o el Gashapon Arcade para sortear el próximo álbum
+              de los{' '}
               <span
                 translate="no"
                 className="notranslate font-bold text-pink-400"
@@ -707,17 +792,14 @@ export function PoolPage() {
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Candidatos del Pool Activo (
-                <span
-                  translate="no"
-                  className="notranslate"
-                  data-stat="number"
-                >
+                <span translate="no" className="notranslate" data-stat="number">
                   {poolLoading ? '...' : activePool.length}
                 </span>
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                Propuestas de la comunidad listas para los próximos sorteos semanales.
+                Propuestas de la comunidad listas para los próximos sorteos
+                semanales.
               </p>
             </div>
 
@@ -727,7 +809,11 @@ export function PoolPage() {
                 { id: 'ALL', label: 'Todos', count: formatCounts.ALL },
                 { id: 'ALBUM', label: 'Álbumes', count: formatCounts.ALBUM },
                 { id: 'EP', label: 'EPs', count: formatCounts.EP },
-                { id: 'SENCILLO', label: 'Sencillos', count: formatCounts.SENCILLO },
+                {
+                  id: 'SENCILLO',
+                  label: 'Sencillos',
+                  count: formatCounts.SENCILLO,
+                },
               ].map((tab) => {
                 const isSelected = selectedFormatFilter === tab.id;
                 return (
@@ -744,7 +830,9 @@ export function PoolPage() {
                     <span>{tab.label}</span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full ${
-                        isSelected ? 'bg-black/30 text-white' : 'bg-white/10 text-slate-400'
+                        isSelected
+                          ? 'bg-black/30 text-white'
+                          : 'bg-white/10 text-slate-400'
                       }`}
                     >
                       {tab.count}
@@ -777,20 +865,34 @@ export function PoolPage() {
                 className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span>🎰</span>
-                <span>{showSlotMachine ? 'Ocultar Ruleta' : 'Ruleta del Pool'}</span>
+                <span>
+                  {showSlotMachine ? 'Ocultar Ruleta' : 'Ruleta del Pool'}
+                </span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => {
-                  if (!user) setShowLoginModal(true);
-                  else setShowNominateModal(true);
-                }}
-                className="px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-black transition-all flex items-center gap-1.5 shadow-md hover:scale-105 cursor-pointer"
-              >
-                <span>➕</span>
-                <span>Proponer</span>
-              </button>
+              {!isPoolOpen ? (
+                <button
+                  type="button"
+                  disabled
+                  className="px-4 py-2.5 rounded-xl bg-white/[0.04] text-slate-500 border border-white/5 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-60 select-none shadow-none"
+                  title="El Pool se encuentra actualmente cerrado para nuevas propuestas"
+                >
+                  <span className="opacity-70">🔒</span>
+                  <span>Proponer (Cerrado)</span>
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!user) setShowLoginModal(true);
+                    else setShowNominateModal(true);
+                  }}
+                  className="px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-black transition-all flex items-center gap-1.5 shadow-md hover:scale-105 cursor-pointer"
+                >
+                  <span>➕</span>
+                  <span>Proponer</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -803,7 +905,8 @@ export function PoolPage() {
                     <span>🎰</span> Máquina Musical del Pool Activo
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Sorteo interactivo con los {slotMachinePool.length} discos actualmente en la tabla de pool entries.
+                    Sorteo interactivo con los {slotMachinePool.length} discos
+                    actualmente en la tabla de pool entries.
                   </p>
                 </div>
                 <button
@@ -822,7 +925,8 @@ export function PoolPage() {
                     No hay candidatos en el Pool para sortear
                   </p>
                   <p className="text-xs text-slate-400">
-                    Propón o añade nuevos discos al Pool para activar la ruleta musical.
+                    Propón o añade nuevos discos al Pool para activar la ruleta
+                    musical.
                   </p>
                 </div>
               ) : (
@@ -834,7 +938,10 @@ export function PoolPage() {
                         await selectWinner(winningCandidate.id);
                         refetch();
                       } catch (err) {
-                        console.error('Error al seleccionar ganador desde la ruleta:', err);
+                        console.error(
+                          'Error al seleccionar ganador desde la ruleta:',
+                          err
+                        );
                       }
                     }
                   }}
@@ -874,7 +981,7 @@ export function PoolPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       loading="lazy"
                     />
-                    <div className="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-black text-pink-300">
+                    <div className="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-black text-pink-300">
                       POOL ACTIVO
                     </div>
                   </div>
@@ -906,25 +1013,104 @@ export function PoolPage() {
                     )}
                   </div>
 
-                  {/* Actions */}
-                  <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between text-[11px]">
-                    <Link
-                      to={getReleaseUrl(alb.album, alb.release_type || alb.releaseType)}
-                      className="text-slate-400 hover:text-white transition-colors"
-                    >
-                      Ver ficha →
-                    </Link>
+                  {/* Actions & Platform Badges */}
+                  <div className="pt-2 mt-2 border-t border-white/5 flex flex-col gap-1.5">
+                    {/* Quick Streaming Logos */}
+                    <div className="flex items-center gap-1.5">
+                      {(alb.spotifyLink || alb.spotify_link) && (
+                        <a
+                          href={alb.spotifyLink || alb.spotify_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded-md bg-[#1db954]/10 hover:bg-[#1db954]/25 text-[#1db954] transition-all hover:scale-110"
+                          title="Spotify"
+                        >
+                          <SpotifyLogo className="w-3 h-3 fill-current" />
+                        </a>
+                      )}
+                      {(alb.appleMusicLink ||
+                        alb.apple_music_link ||
+                        (alb.album && alb.artista)) && (
+                        <a
+                          href={
+                            alb.appleMusicLink ||
+                            alb.apple_music_link ||
+                            `https://music.apple.com/search?term=${encodeURIComponent(
+                              alb.artista + ' ' + alb.album
+                            )}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded-md bg-[#fc3c44]/10 hover:bg-[#fc3c44]/25 text-[#fc3c44] transition-all hover:scale-110"
+                          title="Apple Music"
+                        >
+                          <AppleMusicLogo className="w-3 h-3 fill-current" />
+                        </a>
+                      )}
+                      {(alb.youtubeLink ||
+                        alb.youtube_link ||
+                        (alb.album && alb.artista)) && (
+                        <a
+                          href={
+                            alb.youtubeLink ||
+                            alb.youtube_link ||
+                            `https://music.youtube.com/search?q=${encodeURIComponent(
+                              alb.artista + ' ' + alb.album
+                            )}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded-md bg-red-500/10 hover:bg-red-500/25 text-red-400 transition-all hover:scale-110"
+                          title="YouTube Music"
+                        >
+                          <YouTubeLogo className="w-3 h-3 fill-current" />
+                        </a>
+                      )}
+                      {(alb.deezerLink ||
+                        alb.otherLink ||
+                        alb.other_link ||
+                        (alb.album && alb.artista)) && (
+                        <a
+                          href={
+                            alb.deezerLink ||
+                            alb.otherLink ||
+                            alb.other_link ||
+                            `https://www.deezer.com/search/${encodeURIComponent(
+                              alb.artista + ' ' + alb.album
+                            )}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1 rounded-md bg-[#a238ff]/10 hover:bg-[#a238ff]/25 text-[#c77dff] transition-all hover:scale-110"
+                          title="Deezer"
+                        >
+                          <DeezerLogo className="w-3 h-3 fill-current" />
+                        </a>
+                      )}
+                    </div>
 
-                    {isAdmin && (
-                      <button
-                        type="button"
-                        onClick={() => selectWinner(alb.id)}
-                        className="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white transition-colors font-bold"
-                        title="Seleccionar como ganador semanal"
+                    <div className="flex items-center justify-between text-[11px] pt-0.5">
+                      <Link
+                        to={getReleaseUrl(
+                          alb.album,
+                          alb.release_type || alb.releaseType
+                        )}
+                        className="text-slate-400 hover:text-white transition-colors"
                       >
-                        👑 Elegir
-                      </button>
-                    )}
+                        Ver Release →
+                      </Link>
+
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => selectWinner(alb.id)}
+                          className="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white transition-colors font-bold cursor-pointer"
+                          title="Seleccionar como ganador semanal"
+                        >
+                          👑 Elegir
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -940,18 +1126,14 @@ export function PoolPage() {
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Historial de Ganadores (
-                <span
-                  translate="no"
-                  className="notranslate"
-                  data-stat="number"
-                >
+                <span translate="no" className="notranslate" data-stat="number">
                   {poolLoading ? '...' : poolHistory.length}
                 </span>
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                Lanzamientos que ganaron en el Pool de la Temporada 1 y ya fueron
-                evaluados por la comunidad.
+                Lanzamientos que ganaron en el Pool de la Temporada 1 y ya
+                fueron evaluados por la comunidad.
               </p>
             </div>
 
@@ -959,7 +1141,10 @@ export function PoolPage() {
               {poolHistory.map((alb) => (
                 <Link
                   key={alb.id}
-                  to={getReleaseUrl(alb.album, alb.release_type || alb.releaseType)}
+                  to={getReleaseUrl(
+                    alb.album,
+                    alb.release_type || alb.releaseType
+                  )}
                   className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between"
                 >
                   <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
@@ -970,8 +1155,19 @@ export function PoolPage() {
                       loading="lazy"
                     />
                     {alb.final_rating || alb.avg_rating ? (
-                      <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[10px] font-black text-amber-300 border border-amber-400/30">
-                        ⭐ {alb.final_rating || alb.avg_rating}
+                      <div
+                        className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[11px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
+                        title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
+                      >
+                        <span className="text-amber-400 text-xs">★</span>
+                        <span
+                          translate="no"
+                          className="notranslate tracking-tight"
+                        >
+                          {Number(alb.final_rating || alb.avg_rating).toFixed(
+                            1
+                          )}
+                        </span>
                       </div>
                     ) : null}
                   </div>
@@ -1030,7 +1226,8 @@ export function PoolPage() {
                     ¡Propuesta Registrada Exitosamente!
                   </h4>
                   <p className="text-xs text-slate-300">
-                    El lanzamiento ya forma parte del Pool Activo de la temporada.
+                    El lanzamiento ya forma parte del Pool Activo de la
+                    temporada.
                   </p>
                 </div>
               ) : !selectedAlbumToNominate ? (
@@ -1062,11 +1259,16 @@ export function PoolPage() {
                         className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-pink-500/20 border border-white/5 hover:border-pink-500/40 cursor-pointer transition-all"
                       >
                         <img
-                          src={item.imageUrl || item.imagen || 'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'}
+                          src={
+                            item.imageUrl ||
+                            item.imagen ||
+                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                          }
                           alt={item.albumName || item.album}
                           className="w-12 h-12 rounded-lg object-cover border border-white/10"
                           onError={(e) => {
-                            e.target.src = 'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                            e.target.src =
+                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
                           }}
                         />
                         <div className="min-w-0 flex-1">
@@ -1089,8 +1291,8 @@ export function PoolPage() {
 
                     {spotifyResults.length === 0 && !searchingRemote && (
                       <p className="text-center text-xs text-slate-500 py-6">
-                        Escribe el nombre de un artista o disco para buscar en el
-                        catálogo oficial de Spotify.
+                        Escribe el nombre de un artista o disco para buscar en
+                        el catálogo oficial de Spotify.
                       </p>
                     )}
                   </div>

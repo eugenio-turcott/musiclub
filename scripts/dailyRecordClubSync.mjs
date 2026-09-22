@@ -8,6 +8,7 @@ import {
 } from '../src/services/recordClubData.js';
 import { slugifyArtist, slugifyRelease } from '../src/utils/ratingUtils.js';
 import { enrichAndInsertAlbum } from '../src/services/albumEnrichmentService.js';
+import { sendUpcomingReleaseDayEmail } from '../src/services/emailService.js';
 
 // Cargar variables de entorno siempre de forma absoluta desde la raíz del proyecto
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -831,9 +832,71 @@ async function main() {
   // 5. Re-sincronizar total_tracks y release_type verificados en record_club_releases
   await syncRecordClubReleasesWithAlbums();
 
+  // 6. Verificar y notificar estrenos de hoy a los usuarios (12 AM / Diario)
+  await checkAndNotifyTodayReleases(todayDate);
+
   console.log(`\n========================================================`);
-  console.log(`✨ Sincronización diaria Musiclub V.9.1 completada exitosamente.`);
+  console.log(`✨ Sincronización diaria Musiclub V.9.2 completada exitosamente.`);
   console.log(`========================================================\n`);
+}
+
+async function checkAndNotifyTodayReleases(todayDate) {
+  console.log(`\n🔔 [PASO 6] Verificando álbumes estrenados hoy (${todayDate}) para notificaciones a usuarios...`);
+  try {
+    const { data: pending, error } = await supabase
+      .from('upcoming_notifications')
+      .select('*')
+      .eq('notified', false)
+      .lte('release_date', todayDate);
+
+    if (error) {
+      console.warn(`⚠️ Error consultando upcoming_notifications: ${error.message}`);
+      return;
+    }
+
+    if (!pending || pending.length === 0) {
+      console.log('✨ No hay notificaciones pendientes para estrenos de hoy.');
+      return;
+    }
+
+    console.log(`📨 Enviando ${pending.length} notificaciones de estreno...`);
+    for (const item of pending) {
+      try {
+        let imageUrl = null;
+        if (item.album_id) {
+          const { data: alb } = await supabase
+            .from('albums')
+            .select('image_url')
+            .eq('id', item.album_id)
+            .maybeSingle();
+          if (alb?.image_url) imageUrl = alb.image_url;
+        }
+
+        const albumUrl = item.album_id
+          ? `https://www.musiclub.org/albumes/${item.album_id}`
+          : 'https://www.musiclub.org/catalogo';
+
+        await sendUpcomingReleaseDayEmail({
+          to: item.email,
+          albumName: item.album_name,
+          artistName: item.artist_name,
+          imageUrl,
+          albumUrl,
+        });
+
+        await supabase
+          .from('upcoming_notifications')
+          .update({ notified: true })
+          .eq('id', item.id);
+
+        console.log(`  ✅ Notificado a ${item.email} para "${item.album_name}"`);
+      } catch (err) {
+        console.warn(`  ⚠️ Error notificando a ${item.email}: ${err.message}`);
+      }
+    }
+  } catch (err) {
+    console.warn(`⚠️ Error general en paso 6 de notificaciones: ${err.message}`);
+  }
 }
 
 main().catch((err) => {

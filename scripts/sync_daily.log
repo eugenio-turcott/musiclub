@@ -48,4 +48,18 @@ To eliminate this warning, add "type": "module" to C:\Users\eturc\musiclub-album
      - Apple Music: https://music.apple.com/search?term=beabadoobee%20Pylon
      - Deezer: https://www.deezer.com/search/beabadoobee%20Pylon
   ⏳ Pausando 60s para respetar el límite de peticiones de Spotify...
-^C
+^C⚠️ Faltan variables de entorno de Supabase
+file:///C:/Users/eturc/musiclub-albumes/node_modules/@supabase/supabase-js/dist/index.mjs:431
+	if (!trimmedUrl) throw new Error("supabaseUrl is required.");
+	                       ^
+
+Error: supabaseUrl is required.
+    at validateSupabaseUrl (file:///C:/Users/eturc/musiclub-albumes/node_modules/@supabase/supabase-js/dist/index.mjs:431:25)
+    at new SupabaseClient (file:///C:/Users/eturc/musiclub-albumes/node_modules/@supabase/supabase-js/dist/index.mjs:672:19)
+    at createClient (file:///C:/Users/eturc/musiclub-albumes/node_modules/@supabase/supabase-js/dist/index.mjs:911:9)
+    at file:///C:/Users/eturc/musiclub-albumes/src/services/supabaseClient.js:25:25
+    at ModuleJob.run (node:internal/modules/esm/module_job:345:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:651:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
+
+Node.js v22.19.0

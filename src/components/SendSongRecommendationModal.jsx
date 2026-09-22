@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import { searchTracks } from '../services/spotifyApi';
+import { searchDeezerTrack } from '../services/deezerApi';
+import { useAuth } from '../hooks/useAuth';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 const VIBE_SUGGESTIONS = [
@@ -17,13 +19,24 @@ export function SendSongRecommendationModal({
   onClose,
   currentUser,
   defaultRecipient = null,
+  targetRecipient = null,
   onSuccess,
 }) {
+  const auth = useAuth();
+  const effectiveUser =
+    currentUser ||
+    auth?.user ||
+    (typeof window !== 'undefined'
+      ? JSON.parse(localStorage.getItem('maquina_musical_user') || 'null')
+      : null);
+
+  const initialRecipient = defaultRecipient || targetRecipient || null;
+
   const [profiles, setProfiles] = useState([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
 
   // Form State
-  const [selectedRecipient, setSelectedRecipient] = useState(null);
+  const [selectedRecipient, setSelectedRecipient] = useState(initialRecipient);
   const [recipientSearch, setRecipientSearch] = useState('');
   const [isRecipientDropdownOpen, setIsRecipientDropdownOpen] = useState(false);
 
@@ -31,6 +44,7 @@ export function SendSongRecommendationModal({
   const [spotifyResults, setSpotifyResults] = useState([]);
   const [isSearchingSpotify, setIsSearchingSpotify] = useState(false);
   const [showSpotifyResults, setShowSpotifyResults] = useState(false);
+  const [isSongLocked, setIsSongLocked] = useState(false);
 
   const [songTitle, setSongTitle] = useState('');
   const [artistName, setArtistName] = useState('');
@@ -39,6 +53,7 @@ export function SendSongRecommendationModal({
   const [spotifyLink, setSpotifyLink] = useState('');
   const [youtubeLink, setYoutubeLink] = useState('');
   const [appleMusicLink, setAppleMusicLink] = useState('');
+  const [deezerLink, setDeezerLink] = useState('');
   const [message, setMessage] = useState('');
 
   const [submitting, setSubmitting] = useState(false);
@@ -47,6 +62,24 @@ export function SendSongRecommendationModal({
 
   const searchTimeoutRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Bloquear scroll de la página de fondo para que el popup quede 100% fijo
+  useEffect(() => {
+    if (!isOpen) return;
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
+
+  // Sincronizar destinatario recibido por props
+  useEffect(() => {
+    const target = defaultRecipient || targetRecipient;
+    if (target) {
+      setSelectedRecipient(target);
+    }
+  }, [defaultRecipient, targetRecipient]);
 
   // Cargar lista de miembros del club
   useEffect(() => {
@@ -58,16 +91,15 @@ export function SendSongRecommendationModal({
       try {
         const data = await supabaseService.getAllProfiles();
         if (isMounted) {
-          // Filtrar para no mostrar al usuario actual
-          const currentEmail = (currentUser?.email || '').toLowerCase().trim();
-          const currentId = currentUser?.id ? String(currentUser.id) : null;
+          const currentEmail = (effectiveUser?.email || '').toLowerCase().trim();
+          const currentId = effectiveUser?.id ? String(effectiveUser.id) : null;
           const filtered = (data || []).filter((p) => {
             const pEmail = (p.email || '').toLowerCase().trim();
             const pId = p.id ? String(p.id) : null;
             return pEmail !== currentEmail && (!currentId || pId !== currentId);
           });
           setProfiles(filtered);
-          // Blindaje universal de miembros del club contra traducción (V.8.11)
+
           if (filtered.length > 0) {
             registerUntranslatableEntities({
               people: filtered.map((p) => p.name).filter(Boolean),
@@ -75,16 +107,15 @@ export function SendSongRecommendationModal({
             });
           }
 
-          // Si hay destinatario por defecto
-          if (defaultRecipient) {
+          const target = defaultRecipient || targetRecipient;
+          if (target) {
             const matched = filtered.find(
               (p) =>
-                (defaultRecipient.email &&
-                  p.email?.toLowerCase().trim() === defaultRecipient.email?.toLowerCase().trim()) ||
-                (defaultRecipient.id && String(p.id) === String(defaultRecipient.id)) ||
-                (defaultRecipient.name && p.name?.toLowerCase().trim() === defaultRecipient.name?.toLowerCase().trim())
+                (target.email && p.email?.toLowerCase().trim() === target.email?.toLowerCase().trim()) ||
+                (target.id && String(p.id) === String(target.id)) ||
+                (target.name && p.name?.toLowerCase().trim() === target.name?.toLowerCase().trim())
             );
-            setSelectedRecipient(matched || defaultRecipient);
+            setSelectedRecipient(matched || target);
           }
         }
       } catch (err) {
@@ -98,10 +129,11 @@ export function SendSongRecommendationModal({
     return () => {
       isMounted = false;
     };
-  }, [isOpen, currentUser, defaultRecipient]);
+  }, [isOpen, effectiveUser, defaultRecipient, targetRecipient]);
 
   // Búsqueda en Spotify con debounce
   const handleSpotifySearchChange = (e) => {
+    if (isSongLocked) return;
     const val = e.target.value;
     setTrackSearchQuery(val);
     setShowSpotifyResults(true);
@@ -132,27 +164,51 @@ export function SendSongRecommendationModal({
     }, 350);
   };
 
-  // Seleccionar track de Spotify
+  // Seleccionar track de Spotify y autocompletar todas las plataformas
   const handleSelectTrack = (track) => {
-    setSongTitle(track.name || '');
-    setArtistName(track.artistName || (track.artists && track.artists.join(', ')) || '');
+    const rawArtist = track.artistName || (track.artists && track.artists.join(', ')) || '';
+    const cleanTrackTitle = track.name || '';
+
+    setSongTitle(cleanTrackTitle);
+    setArtistName(rawArtist);
     setAlbumName(track.albumName || '');
     setImageUrl(track.imageUrl || '');
     setSpotifyLink(track.spotifyUrl || '');
-    setShowSpotifyResults(false);
-    setTrackSearchQuery('');
 
-    // Blindaje de la canción y artista seleccionados (V.8.11)
+    // Bloquear campo de búsqueda y mostrar canción seleccionada con tachita
+    setTrackSearchQuery(`${cleanTrackTitle} - ${rawArtist}`);
+    setIsSongLocked(true);
+    setShowSpotifyResults(false);
+    setSpotifyResults([]);
+
+    // 1. YouTube Music
+    const ytQuery = encodeURIComponent(`${rawArtist} ${cleanTrackTitle}`.trim());
+    setYoutubeLink(`https://music.youtube.com/search?q=${ytQuery}`);
+
+    // 2. Apple Music
+    const amQuery = encodeURIComponent(`${rawArtist} ${cleanTrackTitle}`.trim());
+    setAppleMusicLink(`https://music.apple.com/search?term=${amQuery}`);
+
+    // 3. Deezer (búsqueda directa inicial + resolución exacta asíncrona)
+    const dzQuery = encodeURIComponent(`${rawArtist} ${cleanTrackTitle}`.trim());
+    setDeezerLink(`https://www.deezer.com/search/${dzQuery}`);
+    searchDeezerTrack(rawArtist, cleanTrackTitle).then((exactLink) => {
+      if (exactLink) setDeezerLink(exactLink);
+    });
+
+    // Blindaje de traducción
     registerUntranslatableEntities({
       releases: [track.name, track.albumName].filter(Boolean),
-      artists: [track.artistName, ...(track.artists || [])].filter(Boolean),
+      artists: [rawArtist, ...(track.artists || [])].filter(Boolean),
     });
   };
 
-  // Reset del formulario al cerrar
-  const handleClose = () => {
-    setErrorMsg('');
-    setSuccessMsg('');
+  // Eliminar selección de canción (Tachita ✕) y limpiar campos
+  const handleClearSelectedTrack = () => {
+    setIsSongLocked(false);
+    setTrackSearchQuery('');
+    setSpotifyResults([]);
+    setShowSpotifyResults(false);
     setSongTitle('');
     setArtistName('');
     setAlbumName('');
@@ -160,9 +216,26 @@ export function SendSongRecommendationModal({
     setSpotifyLink('');
     setYoutubeLink('');
     setAppleMusicLink('');
+    setDeezerLink('');
+  };
+
+  // Reset del formulario al cerrar
+  const handleClose = () => {
+    setErrorMsg('');
+    setSuccessMsg('');
+    setIsSongLocked(false);
+    setSongTitle('');
+    setArtistName('');
+    setAlbumName('');
+    setImageUrl('');
+    setSpotifyLink('');
+    setYoutubeLink('');
+    setAppleMusicLink('');
+    setDeezerLink('');
     setMessage('');
     setTrackSearchQuery('');
     setSpotifyResults([]);
+    setShowSpotifyResults(false);
     setSelectedRecipient(null);
     onClose();
   };
@@ -183,7 +256,7 @@ export function SendSongRecommendationModal({
       return;
     }
 
-    if (!currentUser || !currentUser.email) {
+    if (!effectiveUser || !effectiveUser.email) {
       setErrorMsg('Debes iniciar sesión para enviar una recomendación.');
       return;
     }
@@ -191,9 +264,9 @@ export function SendSongRecommendationModal({
     setSubmitting(true);
     try {
       const payload = {
-        senderId: currentUser.id || null,
-        senderName: currentUser.name || currentUser.email?.split('@')[0] || 'Miembro de Musiclub',
-        senderEmail: currentUser.email,
+        senderId: effectiveUser.id || null,
+        senderName: effectiveUser.name || effectiveUser.email?.split('@')[0] || 'Miembro de Musiclub',
+        senderEmail: effectiveUser.email,
         recipientId: selectedRecipient.id || null,
         recipientName: selectedRecipient.name || selectedRecipient.email?.split('@')[0] || 'Compañero',
         recipientEmail: selectedRecipient.email,
@@ -204,12 +277,31 @@ export function SendSongRecommendationModal({
         spotifyLink: spotifyLink.trim() || null,
         youtubeLink: youtubeLink.trim() || null,
         appleMusicLink: appleMusicLink.trim() || null,
+        deezerLink: deezerLink.trim() || null,
+        otherLink: deezerLink.trim() || null,
         message: message.trim() || null,
+        lang:
+          typeof window !== 'undefined'
+            ? localStorage.getItem('musiclub_selected_lang') ||
+              (navigator.language && navigator.language.startsWith('en') ? 'en' : 'es')
+            : 'es',
       };
 
+      // 1. Guardar en base de datos Supabase
       await supabaseService.sendSongRecommendation(payload);
 
-      setSuccessMsg('¡Cartita musical enviada con éxito! 💌✨');
+      // 2. Despachar correo de notificación transaccional al destinatario
+      try {
+        await fetch('/api/notifications/recommendation', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } catch (mailErr) {
+        console.warn('Aviso notificando correo de recomendación:', mailErr);
+      }
+
+      setSuccessMsg('¡Cartita musical y correo enviados con éxito! 💌✨');
       setTimeout(() => {
         if (onSuccess) onSuccess();
         handleClose();
@@ -235,7 +327,12 @@ export function SendSongRecommendationModal({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) handleClose();
+      }}
+    >
       <div
         className="relative w-full max-w-2xl bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-white/20 rounded-3xl shadow-2xl p-5 sm:p-7 overflow-hidden my-auto animate-fadeIn max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -264,6 +361,7 @@ export function SendSongRecommendationModal({
             type="button"
             onClick={handleClose}
             className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-sm font-bold transition-all"
+            title="Cerrar"
           >
             ✕
           </button>
@@ -282,7 +380,7 @@ export function SendSongRecommendationModal({
           </div>
         )}
 
-        {/* Contenido scrolleable */}
+        {/* Contenido con scroll interno bloqueado para mantener fija la ventana */}
         <form onSubmit={handleSubmit} className="overflow-y-auto space-y-4 sm:space-y-5 pt-4 pr-1 flex-grow">
           {/* 1. SELECCIÓN DE DESTINATARIO */}
           <div className="space-y-1.5" ref={dropdownRef}>
@@ -354,55 +452,46 @@ export function SendSongRecommendationModal({
                 />
 
                 {isRecipientDropdownOpen && (
-                  <div className="absolute top-full left-0 right-0 mt-1.5 max-h-48 overflow-y-auto bg-[#141528] border border-white/20 rounded-2xl shadow-2xl z-30 divide-y divide-white/5">
+                  <div className="absolute top-full left-0 right-0 mt-1.5 max-h-52 overflow-y-auto bg-[#101226] border border-white/15 rounded-2xl shadow-2xl z-30 divide-y divide-white/5">
                     {loadingProfiles ? (
-                      <div className="p-4 text-center text-xs text-white/50">Cargando miembros...</div>
+                      <div className="p-4 text-center text-xs text-white/50">
+                        Cargando compañeros...
+                      </div>
                     ) : filteredProfiles.length === 0 ? (
-                      <div className="p-4 text-center text-xs text-white/50 italic">
+                      <div className="p-4 text-center text-xs text-white/50">
                         No se encontraron miembros con ese nombre.
                       </div>
                     ) : (
-                      filteredProfiles.map((prof) => (
+                      filteredProfiles.map((p) => (
                         <div
-                          key={prof.id || prof.email}
+                          key={p.id || p.email}
                           onClick={() => {
-                            setSelectedRecipient(prof);
+                            setSelectedRecipient(p);
                             setIsRecipientDropdownOpen(false);
                             setRecipientSearch('');
                           }}
-                          className="p-2.5 hover:bg-white/10 cursor-pointer flex items-center gap-3 transition-colors"
+                          className="p-2.5 hover:bg-white/10 cursor-pointer flex items-center gap-3 transition-colors text-left"
                         >
-                          {prof.avatar_url ? (
+                          {p.avatar_url ? (
                             <img
-                              src={prof.avatar_url}
-                              alt={prof.name}
+                              src={p.avatar_url}
+                              alt={p.name}
                               className="w-8 h-8 rounded-full object-cover border border-white/10 flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                              {(prof.name || prof.email || 'U')[0].toUpperCase()}
+                            <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs flex-shrink-0">
+                              {(p.name || p.email || 'U')[0].toUpperCase()}
                             </div>
                           )}
-                          <div className="truncate text-left">
+                          <div className="truncate">
                             <span
                               translate="no"
                               className="notranslate username-tag text-xs font-bold text-white block truncate"
                             >
-                              {prof.name || prof.email}
+                              {p.name || p.email}
                             </span>
                             <span className="text-[10px] text-white/40 block truncate">
-                              {prof.email}
-                              {prof.favorite_artist && (
-                                <>
-                                  {' '}• ❤️{' '}
-                                  <span
-                                    translate="no"
-                                    className="notranslate artist-name"
-                                  >
-                                    {prof.favorite_artist}
-                                  </span>
-                                </>
-                              )}
+                              {p.email}
                             </span>
                           </div>
                         </div>
@@ -414,13 +503,15 @@ export function SendSongRecommendationModal({
             )}
           </div>
 
-          {/* 2. BUSCADOR DE CANCIONES EN SPOTIFY */}
+          {/* 2. BUSCADOR DE CANCIONES EN SPOTIFY (BLOQUEABLE CON TACHITA) */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
                 <span>🔍</span> Buscar Canción en Spotify (Autocompletar)
               </span>
-              <span className="text-[10px] text-[#1DB954] font-medium lowercase">Powered by Spotify</span>
+              <span className="text-[10px] text-[#1DB954] font-medium lowercase">
+                {isSongLocked ? 'Canción Seleccionada 🔒' : 'Powered by Spotify'}
+              </span>
             </label>
 
             <div className="relative">
@@ -428,18 +519,36 @@ export function SendSongRecommendationModal({
                 type="text"
                 value={trackSearchQuery}
                 onChange={handleSpotifySearchChange}
-                placeholder="Escribe el nombre de la canción o artista..."
-                className="w-full px-4 py-2.5 rounded-2xl bg-black/40 border border-[#1DB954]/40 text-white text-xs sm:text-sm placeholder-white/40 focus:outline-none focus:border-[#1DB954] focus:ring-1 focus:ring-[#1DB954]/50 transition-all"
+                readOnly={isSongLocked}
+                placeholder={
+                  isSongLocked
+                    ? ''
+                    : 'Escribe el nombre de la canción o artista...'
+                }
+                className={`w-full pl-4 pr-10 py-2.5 rounded-2xl text-xs sm:text-sm transition-all ${
+                  isSongLocked
+                    ? 'bg-[#1DB954]/15 border-2 border-[#1DB954] text-[#1DB954] font-bold cursor-default shadow-sm shadow-[#1DB954]/20'
+                    : 'bg-black/40 border border-[#1DB954]/40 text-white placeholder-white/40 focus:outline-none focus:border-[#1DB954] focus:ring-1 focus:ring-[#1DB954]/50'
+                }`}
               />
 
-              {isSearchingSpotify && (
+              {isSongLocked ? (
+                <button
+                  type="button"
+                  onClick={handleClearSelectedTrack}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-white/10 hover:bg-red-500/30 text-white/70 hover:text-red-300 flex items-center justify-center text-xs font-bold transition-all"
+                  title="Eliminar selección y buscar otra canción"
+                >
+                  ✕
+                </button>
+              ) : isSearchingSpotify ? (
                 <div className="absolute right-3.5 top-3 text-xs text-[#1DB954] animate-spin">
                   ⏳
                 </div>
-              )}
+              ) : null}
 
               {/* Resultados de Búsqueda de Spotify */}
-              {showSpotifyResults && spotifyResults.length > 0 && (
+              {showSpotifyResults && !isSongLocked && spotifyResults.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1.5 max-h-56 overflow-y-auto bg-[#101226] border border-[#1DB954]/40 rounded-2xl shadow-2xl z-30 divide-y divide-white/5">
                   {spotifyResults.map((t) => (
                     <div
@@ -544,8 +653,8 @@ export function SendSongRecommendationModal({
             </div>
           </div>
 
-          {/* Links de Streaming */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
+          {/* Links de Streaming (Spotify, YouTube Music, Apple Music, Deezer) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             <div>
               <label className="text-[11px] font-bold text-[#1DB954] block mb-1 flex items-center gap-1">
                 <span>🎵</span> Spotify URL:
@@ -554,27 +663,27 @@ export function SendSongRecommendationModal({
                 type="url"
                 value={spotifyLink}
                 onChange={(e) => setSpotifyLink(e.target.value)}
-                placeholder="https://open.spotify.com/track/..."
+                placeholder="https://open.spotify.com/..."
                 className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-[#1DB954]/30 text-white text-xs focus:outline-none focus:border-[#1DB954]"
               />
             </div>
 
             <div>
               <label className="text-[11px] font-bold text-red-400 block mb-1 flex items-center gap-1">
-                <span>▶️</span> YouTube URL:
+                <span>▶️</span> YouTube Music:
               </label>
               <input
                 type="url"
                 value={youtubeLink}
                 onChange={(e) => setYoutubeLink(e.target.value)}
-                placeholder="https://youtube.com/watch?v=..."
+                placeholder="https://music.youtube.com/..."
                 className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-red-500/30 text-white text-xs focus:outline-none focus:border-red-400"
               />
             </div>
 
             <div>
               <label className="text-[11px] font-bold text-pink-300 block mb-1 flex items-center gap-1">
-                <span>🍎</span> Apple Music URL:
+                <span>🍎</span> Apple Music:
               </label>
               <input
                 type="url"
@@ -582,6 +691,19 @@ export function SendSongRecommendationModal({
                 onChange={(e) => setAppleMusicLink(e.target.value)}
                 placeholder="https://music.apple.com/..."
                 className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-pink-400/30 text-white text-xs focus:outline-none focus:border-pink-300"
+              />
+            </div>
+
+            <div>
+              <label className="text-[11px] font-bold text-purple-400 block mb-1 flex items-center gap-1">
+                <span>🟣</span> Deezer:
+              </label>
+              <input
+                type="url"
+                value={deezerLink}
+                onChange={(e) => setDeezerLink(e.target.value)}
+                placeholder="https://www.deezer.com/..."
+                className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-purple-500/30 text-white text-xs focus:outline-none focus:border-purple-400"
               />
             </div>
           </div>
@@ -701,4 +823,5 @@ export function SendSongRecommendationModal({
     </div>
   );
 }
+
 export default SendSongRecommendationModal;

@@ -132,7 +132,8 @@ const FAQ_DATA = [
   {
     id: 'perfil-otros-miembros',
     category: 'leaderboard',
-    question: '¿Puedo consultar las estadísticas, XP y gustos de otros miembros?',
+    question:
+      '¿Puedo consultar las estadísticas, XP y gustos de otros miembros?',
     answer:
       '¡Sí! En el Leaderboard puedes hacer clic en cualquier miembro para abrir una tarjeta con su biografía musical, su artista y álbum favoritos, su desglose de puntuación XP, progreso hacia sus siguientes tiers, y el listado de todas sus reseñas y promedios por criterio.',
   },
@@ -141,7 +142,8 @@ const FAQ_DATA = [
   {
     id: 'estados-albumes-catalogo',
     category: 'catalogo',
-    question: '¿Qué significan los estados ACTIVO, INDIVIDUAL, GANADOR e INACTIVO?',
+    question:
+      '¿Qué significan los estados ACTIVO, INDIVIDUAL, GANADOR e INACTIVO?',
     answer:
       'En el catálogo encontrarás álbumes clasificados con diferentes etiquetas de color:\n\n• 🟢 **ACTIVO**: El disco forma parte de la bolsa de sorteos de la ruleta.\n• 🟣 **INDIVIDUAL**: Álbum añadido para escucha libre personal o voluntaria fuera del sorteo semanal.\n• 🟡 **GANADOR**: El álbum seleccionado en el sorteo vigente de la semana.\n• ⚪ **INACTIVO**: Álbum que ya fue escuchado o que ha sido retirado de la ruleta.',
   },
@@ -196,7 +198,9 @@ const FAQ_DATA = [
 export function FAQ({ isPage = false }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
-  const [expandedItems, setExpandedItems] = useState({ 'que-es-musiclub': true });
+  const [expandedItems, setExpandedItems] = useState({
+    'que-es-musiclub': true,
+  });
 
   const toggleItem = (id) => {
     setExpandedItems((prev) => ({
@@ -263,15 +267,14 @@ export function FAQ({ isPage = false }) {
 
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm">
-                <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-                <span>Centro de Ayuda & Guía del Club</span>
-              </div>
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 Preguntas Frecuentes
               </h1>
               <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
-                Descubre cómo funciona la Ruleta Cyberpunk, el sistema de calificaciones ponderadas, el cálculo de probabilidades, el Leaderboard con insignias y toda la dinámica comunitaria de Musiclub.
+                Descubre cómo funciona la Ruleta Cyberpunk, el sistema de
+                calificaciones ponderadas, el cálculo de probabilidades, el
+                Leaderboard con insignias y toda la dinámica comunitaria de
+                Musiclub.
               </p>
             </div>
 
@@ -328,23 +331,39 @@ export function FAQ({ isPage = false }) {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-white/10">
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1">🎰</div>
-              <div className="text-white font-bold text-xs sm:text-sm">Ruleta Ponderada</div>
-              <div className="text-white/40 text-[11px]">+40% peso por antigüedad</div>
+              <div className="text-white font-bold text-xs sm:text-sm">
+                Ruleta Ponderada
+              </div>
+              <div className="text-white/40 text-[11px]">
+                +40% peso por antigüedad
+              </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1">📝</div>
-              <div className="text-white font-bold text-xs sm:text-sm">Reseñas Ponderadas</div>
-              <div className="text-white/40 text-[11px]">50% Tracks · 30% Crit. · 20% Gen.</div>
+              <div className="text-white font-bold text-xs sm:text-sm">
+                Reseñas Ponderadas
+              </div>
+              <div className="text-white/40 text-[11px]">
+                50% Tracks · 30% Crit. · 20% Gen.
+              </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1">🏆</div>
-              <div className="text-white font-bold text-xs sm:text-sm">Leaderboard & Badges</div>
-              <div className="text-white/40 text-[11px]">7 Insignias automáticas</div>
+              <div className="text-white font-bold text-xs sm:text-sm">
+                Leaderboard & Badges
+              </div>
+              <div className="text-white/40 text-[11px]">
+                7 Insignias automáticas
+              </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1">🎧</div>
-              <div className="text-white font-bold text-xs sm:text-sm">Spotify Sync</div>
-              <div className="text-white/40 text-[11px]">Catálogo y pistas oficiales</div>
+              <div className="text-white font-bold text-xs sm:text-sm">
+                Spotify Sync
+              </div>
+              <div className="text-white/40 text-[11px]">
+                Catálogo y pistas oficiales
+              </div>
             </div>
           </div>
         </div>
@@ -352,7 +371,9 @@ export function FAQ({ isPage = false }) {
         {/* Buscador y Controles */}
         <div className="bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 backdrop-blur-md flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">🔍</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
+              🔍
+            </span>
             <input
               type="text"
               value={searchQuery}
@@ -412,9 +433,12 @@ export function FAQ({ isPage = false }) {
           {filteredFAQs.length === 0 ? (
             <div className="bg-black/60 border border-white/10 rounded-2xl p-10 text-center text-white/50">
               <div className="text-4xl mb-2">🔎</div>
-              <p className="font-bold text-white/80">No se encontraron preguntas coincidentes</p>
+              <p className="font-bold text-white/80">
+                No se encontraron preguntas coincidentes
+              </p>
               <p className="text-xs text-white/40 mt-1">
-                Prueba con otros términos de búsqueda o selecciona otra categoría.
+                Prueba con otros términos de búsqueda o selecciona otra
+                categoría.
               </p>
             </div>
           ) : (
@@ -465,20 +489,32 @@ export function FAQ({ isPage = false }) {
 
         {/* Footer del FAQ */}
         <div className="mt-12 bg-black/40 border border-white/10 rounded-2xl p-6 text-center text-white/50 text-xs sm:text-sm">
-          <p className="mb-2 text-white/80 font-bold">¿Tienes alguna otra duda o sugerencia para el club?</p>
+          <p className="mb-2 text-white/80 font-bold">
+            ¿Tienes alguna otra duda o sugerencia para el club?
+          </p>
           <p className="text-white/40 mb-4">
-            Puedes proponer nuevas dinámicas, consultar el código o contactar al administrador del club.
+            Puedes proponer nuevas dinámicas, consultar el código o contactar al
+            administrador del club.
           </p>
           <div className="flex justify-center gap-4 text-xs">
-            <Link to="/" className="text-[#f5576c] hover:underline font-semibold">
+            <Link
+              to="/"
+              className="text-[#f5576c] hover:underline font-semibold"
+            >
               🎧 Ir al Inicio de Musiclub
             </Link>
             <span className="text-white/20">·</span>
-            <Link to="/leaderboard" className="text-[#f5576c] hover:underline font-semibold">
+            <Link
+              to="/leaderboard"
+              className="text-[#f5576c] hover:underline font-semibold"
+            >
               🏆 Ver Leaderboard
             </Link>
             <span className="text-white/20">·</span>
-            <Link to="/catalogo" className="text-[#f5576c] hover:underline font-semibold">
+            <Link
+              to="/catalogo"
+              className="text-[#f5576c] hover:underline font-semibold"
+            >
               💿 Explorar Catálogo
             </Link>
           </div>

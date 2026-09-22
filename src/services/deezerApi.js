@@ -218,9 +218,34 @@ export async function getDeezerAlbumDetails(deezerId) {
   }
 }
 
+/**
+ * Busca una canción específica en Deezer y devuelve su enlace directo o búsqueda
+ * @param {string} artist - Nombre del artista
+ * @param {string} trackTitle - Título de la pista
+ */
+export async function searchDeezerTrack(artist, trackTitle) {
+  const cleanA = (artist || '').replace(/\([^)]*\)/g, '').trim();
+  const cleanT = (trackTitle || '').replace(/\([^)]*\)/g, '').trim();
+  const query = `${cleanA} ${cleanT}`.trim();
+  if (!query) return null;
+
+  try {
+    const data = await fetchDeezer(`/search?q=${encodeURIComponent(query)}&limit=1`);
+    if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+      const match = data.data[0];
+      if (match.link) return match.link;
+    }
+  } catch (err) {
+    console.warn('Deezer track search fallback:', err.message);
+  }
+
+  return `https://www.deezer.com/search/${encodeURIComponent(query)}`;
+}
+
 export const deezerApi = {
   searchDeezerAlbums,
   getDeezerAlbumDetails,
+  searchDeezerTrack,
   mapDeezerRecordType,
   fetchDeezer,
 };

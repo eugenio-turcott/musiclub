@@ -275,10 +275,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
           <div className="space-y-2.5 text-center md:text-left max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40 text-[#f5576c] text-xs font-bold">
-              <span>🧠</span> Algoritmo de Afinidad Musical
-            </div>
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
               Para Ti,{' '}
               <span
                 translate="no"
@@ -288,7 +285,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 {user.name || 'Melómano'}
               </span>
             </h1>
-            <p className="text-white/60 text-xs sm:text-sm leading-relaxed">
+            <p className="text-white/60 text-sm sm:text-base leading-relaxed">
               Álbumes seleccionados analizando tus calificaciones más altas,
               criterios técnicos preferidos y afinidad con la comunidad de
               Musiclub.
@@ -1112,7 +1109,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     )} inline-block mb-1`}
                     data-stat="score"
                   >
-                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible Contigo
+                    ⚡ {selectedAlbumForDetail.compatibilityScore}% Compatible
+                    Contigo
                   </span>
                   <h3
                     translate="no"
@@ -1250,7 +1248,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     rel="noopener noreferrer"
                     className="py-3 px-4 rounded-xl bg-[#fc3c44]/20 text-[#fc3c44] hover:bg-[#fc3c44]/30 border border-[#fc3c44]/30 font-bold text-xs transition-all flex items-center gap-1.5"
                   >
-                    <AppleMusicLogo className="w-3.5 h-3.5 fill-current" /> Apple Music
+                    <AppleMusicLogo className="w-3.5 h-3.5 fill-current" />{' '}
+                    Apple Music
                   </a>
                 )}
 

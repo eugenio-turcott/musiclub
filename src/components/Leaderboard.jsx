@@ -7,7 +7,10 @@ import { useAuth } from '../hooks/useAuth';
 import { BADGES_GUIDE_DATA, XP_CONFIG } from '../utils/badgeSystem';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { MemberProfileModal } from './MemberProfileModal';
-import { notifyContentLoaded, registerUntranslatableEntities } from '../utils/translateCrashGuard';
+import {
+  notifyContentLoaded,
+  registerUntranslatableEntities,
+} from '../utils/translateCrashGuard';
 
 export function UserAvatar({ user, size = 'md', className = '' }) {
   const [imgError, setImgError] = useState(false);
@@ -117,7 +120,11 @@ export function Leaderboard({ isPage = false }) {
       if (u.highest_review?.album) rels.push(u.highest_review.album);
       if (u.lowest_review?.album) rels.push(u.lowest_review.album);
     });
-    registerUntranslatableEntities({ people: peeps, artists: arts, releases: rels });
+    registerUntranslatableEntities({
+      people: peeps,
+      artists: arts,
+      releases: rels,
+    });
   }, [users]);
 
   // Global Club Metrics
@@ -227,7 +234,10 @@ export function Leaderboard({ isPage = false }) {
   }, [users, searchQuery, sortBy, filterType]);
 
   // Paginación: 15 usuarios por página
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredUsers.length / USERS_PER_PAGE)
+  );
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
   const paginatedUsers = useMemo(() => {
@@ -321,11 +331,7 @@ export function Leaderboard({ isPage = false }) {
           </div>
 
           <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-[#181a28]/95 backdrop-blur-md border border-amber-500/40 text-amber-300 text-[11px] sm:text-xs font-semibold uppercase tracking-wider shadow-md">
-              <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-              <span>Clasificación y Gamificación del Club</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-amber-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-amber-200">
               Leaderboard de Miembros
             </h1>
             <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
@@ -339,7 +345,9 @@ export function Leaderboard({ isPage = false }) {
                 className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-[#181a28]/95 backdrop-blur-md border border-amber-400/50 hover:border-amber-400 text-amber-300 hover:text-white font-bold text-xs sm:text-sm transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
               >
                 <span>📖</span>
-                <span>¿Cómo funciona el Score XP y las Insignias? Ver Guía</span>
+                <span>
+                  ¿Cómo funciona el Score XP y las Insignias? Ver Guía
+                </span>
               </button>
             </div>
           </div>
@@ -652,7 +660,10 @@ export function Leaderboard({ isPage = false }) {
         )}
 
         {/* Filter and Search Controls */}
-        <div id="leaderboard-list" className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
+        <div
+          id="leaderboard-list"
+          className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center"
+        >
           {/* Search Bar */}
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
@@ -739,332 +750,354 @@ export function Leaderboard({ isPage = false }) {
           <>
             <div className="space-y-3">
               {paginatedUsers.map((itemUser, index) => {
-              const isSelf = isCurrentUser(itemUser);
-              const userRank = (safeCurrentPage - 1) * USERS_PER_PAGE + index + 1;
-              const userKey = itemUser.id || itemUser.email || String(index);
-              const isBadgesExpanded = Boolean(expandedBadgesUsers[userKey]);
+                const isSelf = isCurrentUser(itemUser);
+                const userRank =
+                  (safeCurrentPage - 1) * USERS_PER_PAGE + index + 1;
+                const userKey = itemUser.id || itemUser.email || String(index);
+                const isBadgesExpanded = Boolean(expandedBadgesUsers[userKey]);
 
-              return (
-                <div
-                  key={itemUser.id || itemUser.email || index}
-                  onClick={() => setSelectedUserDetail(itemUser)}
-                  className={`bg-[#141624]/90 border transition-all duration-300 rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#191c2e] cursor-pointer relative overflow-hidden group shadow-md hover:shadow-xl ${
-                    isSelf
-                      ? 'border-amber-400/80 ring-2 ring-amber-400/30 shadow-[0_0_20px_rgba(251,191,36,0.15)]'
-                      : 'border-white/5 hover:border-white/20'
-                  }`}
-                >
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
-                    {/* Left: Rank + Avatar + Name + Artist/Email + Badges */}
-                    <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
-                      {/* Rank Badge */}
-                      <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-slate-300 group-hover:border-amber-400/40 group-hover:text-amber-300 transition-colors mt-0.5 sm:mt-0">
-                        {userRank === 1
-                          ? '🥇'
-                          : userRank === 2
-                            ? '🥈'
-                            : userRank === 3
-                              ? '🥉'
-                              : `#${userRank}`}
-                      </div>
+                return (
+                  <div
+                    key={itemUser.id || itemUser.email || index}
+                    onClick={() => setSelectedUserDetail(itemUser)}
+                    className={`bg-[#141624]/90 border transition-all duration-300 rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#191c2e] cursor-pointer relative overflow-hidden group shadow-md hover:shadow-xl ${
+                      isSelf
+                        ? 'border-amber-400/80 ring-2 ring-amber-400/30 shadow-[0_0_20px_rgba(251,191,36,0.15)]'
+                        : 'border-white/5 hover:border-white/20'
+                    }`}
+                  >
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3.5 sm:gap-4">
+                      {/* Left: Rank + Avatar + Name + Artist/Email + Badges */}
+                      <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                        {/* Rank Badge */}
+                        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-slate-300 group-hover:border-amber-400/40 group-hover:text-amber-300 transition-colors mt-0.5 sm:mt-0">
+                          {userRank === 1
+                            ? '🥇'
+                            : userRank === 2
+                              ? '🥈'
+                              : userRank === 3
+                                ? '🥉'
+                                : `#${userRank}`}
+                        </div>
 
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        <UserAvatar
-                          user={itemUser}
-                          size="md"
-                          className="border-2 border-white/10 group-hover:border-amber-400/60 transition-colors shadow-md"
-                        />
-                        {isSelf && (
-                          <span
-                            className="absolute -bottom-1 -right-1 bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.2 rounded-full border border-black shadow"
-                            title="TÚ"
-                          >
-                            TÚ
-                          </span>
-                        )}
-                      </div>
-
-                      {/* User Info & Badges */}
-                      <div className="min-w-0 flex-1 space-y-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <h3
-                            translate="no"
-                            className="notranslate username-tag text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full"
-                          >
-                            {itemUser.name}
-                          </h3>
-                          {itemUser.role === 'admin' && (
-                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 font-semibold px-2 py-0.2 rounded-full">
-                              Admin
+                        {/* Avatar */}
+                        <div className="relative flex-shrink-0">
+                          <UserAvatar
+                            user={itemUser}
+                            size="md"
+                            className="border-2 border-white/10 group-hover:border-amber-400/60 transition-colors shadow-md"
+                          />
+                          {isSelf && (
+                            <span
+                              className="absolute -bottom-1 -right-1 bg-amber-400 text-black text-[9px] font-black px-1.5 py-0.2 rounded-full border border-black shadow"
+                              title="TÚ"
+                            >
+                              TÚ
                             </span>
                           )}
                         </div>
 
-                        <p className="text-[11px] sm:text-xs text-slate-400 truncate">
-                          {itemUser.favorite_artist ? (
-                            <span>
-                              <span>Artista:</span>{' '}
-                              <strong
-                                translate="no"
-                                className="notranslate artist-name text-slate-300 font-medium"
-                              >
-                                {itemUser.favorite_artist}
-                              </strong>
-                            </span>
-                          ) : (
-                            itemUser.email || 'Miembro del Club'
-                          )}
-                        </p>
-
-                        {/* Badges Flow Tray */}
-                        {itemUser.badges && itemUser.badges.length > 0 && (
-                          <div
-                            className="flex flex-wrap items-center gap-1.5 pt-0.5"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            {(isBadgesExpanded
-                              ? itemUser.badges
-                              : itemUser.badges.slice(0, 1)
-                            ).map((b) => (
-                              <span
-                                key={b.id}
-                                title={b.tooltip || b.desc || b.label}
-                                className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
-                              >
-                                {b.label}
+                        {/* User Info & Badges */}
+                        <div className="min-w-0 flex-1 space-y-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3
+                              translate="no"
+                              className="notranslate username-tag text-sm sm:text-base font-bold text-white group-hover:text-amber-300 transition-colors truncate max-w-full"
+                            >
+                              {itemUser.name}
+                            </h3>
+                            {itemUser.role === 'admin' && (
+                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/30 font-semibold px-2 py-0.2 rounded-full">
+                                Admin
                               </span>
-                            ))}
-
-                            {itemUser.badges.length > 1 && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setExpandedBadgesUsers((prev) => ({
-                                    ...prev,
-                                    [userKey]: !prev[userKey],
-                                  }));
-                                }}
-                                className="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 border border-white/10 transition-colors"
-                              >
-                                {isBadgesExpanded
-                                  ? 'Ver menos'
-                                  : `+${itemUser.badges.length - 1} más`}
-                              </button>
                             )}
+                          </div>
+
+                          <p className="text-[11px] sm:text-xs text-slate-400 truncate">
+                            {itemUser.favorite_artist ? (
+                              <span>
+                                <span>Artista:</span>{' '}
+                                <strong
+                                  translate="no"
+                                  className="notranslate artist-name text-slate-300 font-medium"
+                                >
+                                  {itemUser.favorite_artist}
+                                </strong>
+                              </span>
+                            ) : (
+                              itemUser.email || 'Miembro del Club'
+                            )}
+                          </p>
+
+                          {/* Badges Flow Tray */}
+                          {itemUser.badges && itemUser.badges.length > 0 && (
+                            <div
+                              className="flex flex-wrap items-center gap-1.5 pt-0.5"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              {(isBadgesExpanded
+                                ? itemUser.badges
+                                : itemUser.badges.slice(0, 1)
+                              ).map((b) => (
+                                <span
+                                  key={b.id}
+                                  title={b.tooltip || b.desc || b.label}
+                                  className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
+                                >
+                                  {b.label}
+                                </span>
+                              ))}
+
+                              {itemUser.badges.length > 1 && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setExpandedBadgesUsers((prev) => ({
+                                      ...prev,
+                                      [userKey]: !prev[userKey],
+                                    }));
+                                  }}
+                                  className="text-[10px] sm:text-[11px] font-semibold px-2 py-0.5 rounded-full bg-white/10 hover:bg-white/20 text-slate-300 border border-white/10 transition-colors"
+                                >
+                                  {isBadgesExpanded
+                                    ? 'Ver menos'
+                                    : `+${itemUser.badges.length - 1} más`}
+                                </button>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right: XP Score Box + Numerical Metrics + View Action */}
+                      <div className="flex items-center justify-between lg:justify-end gap-2.5 sm:gap-4 pt-2.5 lg:pt-0 border-t lg:border-t-0 border-white/5 flex-wrap sm:flex-nowrap">
+                        {/* XP Score Box */}
+                        <div className="bg-gradient-to-r from-amber-400/10 via-yellow-400/15 to-amber-500/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-amber-400/35 text-center sm:text-right flex-shrink-0">
+                          <p className="text-[9px] text-amber-300/80 font-bold uppercase tracking-wider leading-tight">
+                            Score XP
+                          </p>
+                          <p className="text-sm sm:text-base font-black text-amber-300 leading-tight">
+                            ✨ {(itemUser.total_xp || 0).toLocaleString()}
+                          </p>
+                        </div>
+
+                        {/* Quick Metrics Strip */}
+                        <div className="flex items-center gap-2 sm:gap-3 bg-black/30 px-3 py-1.5 rounded-xl border border-white/5 text-center flex-1 sm:flex-initial justify-around sm:justify-start">
+                          <div>
+                            <p className="text-[9px] text-slate-400 font-medium">
+                              Reviews
+                            </p>
+                            <p className="text-xs sm:text-sm font-black text-white">
+                              {itemUser.review_count}
+                            </p>
+                          </div>
+                          <span className="text-white/10">•</span>
+                          <div>
+                            <p className="text-[9px] text-slate-400 font-medium">
+                              Tracks
+                            </p>
+                            <p className="text-xs sm:text-sm font-black text-cyan-400">
+                              {itemUser.total_tracks_rated || 0}
+                            </p>
+                          </div>
+                          <span className="text-white/10 hidden sm:block">
+                            •
+                          </span>
+                          <div className="hidden sm:block">
+                            <p className="text-[9px] text-slate-400 font-medium">
+                              Comentarios
+                            </p>
+                            <p className="text-xs sm:text-sm font-black text-purple-400">
+                              {itemUser.comments_count || 0}
+                            </p>
+                          </div>
+                          <span className="text-white/10 hidden sm:block">
+                            •
+                          </span>
+                          <div className="hidden sm:block">
+                            <p className="text-[9px] text-slate-400 font-medium">
+                              Promedio
+                            </p>
+                            <p className="text-xs sm:text-sm font-black text-emerald-400">
+                              {itemUser.avg_score > 0
+                                ? `${itemUser.avg_score.toFixed(1)} ⭐`
+                                : '—'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Detail Chevron / Button */}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedUserDetail(itemUser);
+                          }}
+                          className="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-amber-400 hover:text-black text-slate-300 text-xs font-semibold border border-white/10 transition-all flex-shrink-0 active:scale-95"
+                          title="Ver detalle del miembro"
+                        >
+                          ➜
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Highlights Bar (Optional) */}
+                    {(itemUser.highest_review || itemUser.lowest_review) && (
+                      <div className="mt-2.5 pt-2 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                        {itemUser.highest_review && (
+                          <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
+                            <span>🌟</span>
+                            <span className="text-slate-400 whitespace-nowrap">
+                              Favorito:
+                            </span>
+                            <span
+                              translate="no"
+                              className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
+                            >
+                              {itemUser.highest_review.album}
+                            </span>
+                            <span className="text-amber-400 font-bold whitespace-nowrap">
+                              (
+                              {typeof itemUser.highest_review.score === 'number'
+                                ? itemUser.highest_review.score.toFixed(1)
+                                : itemUser.highest_review.score}{' '}
+                              ⭐)
+                            </span>
+                          </div>
+                        )}
+                        {itemUser.lowest_review && (
+                          <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
+                            <span>📉</span>
+                            <span className="text-slate-400 whitespace-nowrap">
+                              Más severo:
+                            </span>
+                            <span
+                              translate="no"
+                              className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
+                            >
+                              {itemUser.lowest_review.album}
+                            </span>
+                            <span className="text-red-400 font-bold whitespace-nowrap">
+                              (
+                              {typeof itemUser.lowest_review.score === 'number'
+                                ? itemUser.lowest_review.score.toFixed(1)
+                                : itemUser.lowest_review.score}{' '}
+                              ⭐)
+                            </span>
                           </div>
                         )}
                       </div>
-                    </div>
-
-                    {/* Right: XP Score Box + Numerical Metrics + View Action */}
-                    <div className="flex items-center justify-between lg:justify-end gap-2.5 sm:gap-4 pt-2.5 lg:pt-0 border-t lg:border-t-0 border-white/5 flex-wrap sm:flex-nowrap">
-                      {/* XP Score Box */}
-                      <div className="bg-gradient-to-r from-amber-400/10 via-yellow-400/15 to-amber-500/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-amber-400/35 text-center sm:text-right flex-shrink-0">
-                        <p className="text-[9px] text-amber-300/80 font-bold uppercase tracking-wider leading-tight">
-                          Score XP
-                        </p>
-                        <p className="text-sm sm:text-base font-black text-amber-300 leading-tight">
-                          ✨ {(itemUser.total_xp || 0).toLocaleString()}
-                        </p>
-                      </div>
-
-                      {/* Quick Metrics Strip */}
-                      <div className="flex items-center gap-2 sm:gap-3 bg-black/30 px-3 py-1.5 rounded-xl border border-white/5 text-center flex-1 sm:flex-initial justify-around sm:justify-start">
-                        <div>
-                          <p className="text-[9px] text-slate-400 font-medium">
-                            Reviews
-                          </p>
-                          <p className="text-xs sm:text-sm font-black text-white">
-                            {itemUser.review_count}
-                          </p>
-                        </div>
-                        <span className="text-white/10">•</span>
-                        <div>
-                          <p className="text-[9px] text-slate-400 font-medium">
-                            Tracks
-                          </p>
-                          <p className="text-xs sm:text-sm font-black text-cyan-400">
-                            {itemUser.total_tracks_rated || 0}
-                          </p>
-                        </div>
-                        <span className="text-white/10 hidden sm:block">•</span>
-                        <div className="hidden sm:block">
-                          <p className="text-[9px] text-slate-400 font-medium">
-                            Comentarios
-                          </p>
-                          <p className="text-xs sm:text-sm font-black text-purple-400">
-                            {itemUser.comments_count || 0}
-                          </p>
-                        </div>
-                        <span className="text-white/10 hidden sm:block">•</span>
-                        <div className="hidden sm:block">
-                          <p className="text-[9px] text-slate-400 font-medium">
-                            Promedio
-                          </p>
-                          <p className="text-xs sm:text-sm font-black text-emerald-400">
-                            {itemUser.avg_score > 0
-                              ? `${itemUser.avg_score.toFixed(1)} ⭐`
-                              : '—'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Detail Chevron / Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedUserDetail(itemUser);
-                        }}
-                        className="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-amber-400 hover:text-black text-slate-300 text-xs font-semibold border border-white/10 transition-all flex-shrink-0 active:scale-95"
-                        title="Ver detalle del miembro"
-                      >
-                        ➜
-                      </button>
-                    </div>
+                    )}
                   </div>
+                );
+              })}
+            </div>
 
-                  {/* Highlights Bar (Optional) */}
-                  {(itemUser.highest_review || itemUser.lowest_review) && (
-                    <div className="mt-2.5 pt-2 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                      {itemUser.highest_review && (
-                        <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
-                          <span>🌟</span>
-                          <span className="text-slate-400 whitespace-nowrap">
-                            Favorito:
-                          </span>
-                          <span
-                            translate="no"
-                            className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
-                          >
-                            {itemUser.highest_review.album}
-                          </span>
-                          <span className="text-amber-400 font-bold whitespace-nowrap">
-                            (
-                            {typeof itemUser.highest_review.score === 'number'
-                              ? itemUser.highest_review.score.toFixed(1)
-                              : itemUser.highest_review.score}{' '}
-                            ⭐)
-                          </span>
-                        </div>
-                      )}
-                      {itemUser.lowest_review && (
-                        <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
-                          <span>📉</span>
-                          <span className="text-slate-400 whitespace-nowrap">
-                            Más severo:
-                          </span>
-                          <span
-                            translate="no"
-                            className="notranslate music-title text-white font-medium truncate max-w-[150px] sm:max-w-xs"
-                          >
-                            {itemUser.lowest_review.album}
-                          </span>
-                          <span className="text-red-400 font-bold whitespace-nowrap">
-                            (
-                            {typeof itemUser.lowest_review.score === 'number'
-                              ? itemUser.lowest_review.score.toFixed(1)
-                              : itemUser.lowest_review.score}{' '}
-                            ⭐)
-                          </span>
-                        </div>
-                      )}
-                    </div>
+            {/* Controles de Paginación */}
+            {totalPages > 1 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-white/10 mt-6">
+                <p className="text-xs text-slate-400 text-center sm:text-left">
+                  Mostrando{' '}
+                  <strong className="text-white">
+                    {(safeCurrentPage - 1) * USERS_PER_PAGE + 1}
+                  </strong>{' '}
+                  –{' '}
+                  <strong className="text-white">
+                    {Math.min(
+                      safeCurrentPage * USERS_PER_PAGE,
+                      filteredUsers.length
+                    )}
+                  </strong>{' '}
+                  de{' '}
+                  <strong className="text-amber-300">
+                    {filteredUsers.length}
+                  </strong>{' '}
+                  miembros (Página{' '}
+                  <strong className="text-white">{safeCurrentPage}</strong> de{' '}
+                  <strong className="text-white">{totalPages}</strong>)
+                </p>
+
+                <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                  {/* Botón Primera Página */}
+                  {safeCurrentPage > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(1)}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
+                      title="Primera página"
+                    >
+                      ««
+                    </button>
+                  )}
+
+                  {/* Botón Anterior */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(safeCurrentPage - 1)}
+                    disabled={safeCurrentPage === 1}
+                    className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                  >
+                    « Anterior
+                  </button>
+
+                  {/* Botones de Páginas */}
+                  {visiblePages.map((page, idx) => {
+                    if (
+                      typeof page === 'string' &&
+                      page.startsWith('ellipsis')
+                    ) {
+                      return (
+                        <span
+                          key={`ellipsis-${idx}`}
+                          className="px-2 text-xs text-slate-500 font-bold select-none"
+                        >
+                          ...
+                        </span>
+                      );
+                    }
+                    const isActive = safeCurrentPage === page;
+                    return (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => handlePageChange(page)}
+                        className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
+                          isActive
+                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/20 font-black'
+                            : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    );
+                  })}
+
+                  {/* Botón Siguiente */}
+                  <button
+                    type="button"
+                    onClick={() => handlePageChange(safeCurrentPage + 1)}
+                    disabled={safeCurrentPage === totalPages}
+                    className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
+                  >
+                    Siguiente »
+                  </button>
+
+                  {/* Botón Última Página */}
+                  {safeCurrentPage < totalPages - 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handlePageChange(totalPages)}
+                      className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
+                      title="Última página"
+                    >
+                      »»
+                    </button>
                   )}
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Controles de Paginación */}
-          {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 pb-2 border-t border-white/10 mt-6">
-              <p className="text-xs text-slate-400 text-center sm:text-left">
-                Mostrando <strong className="text-white">{(safeCurrentPage - 1) * USERS_PER_PAGE + 1}</strong> –{' '}
-                <strong className="text-white">
-                  {Math.min(safeCurrentPage * USERS_PER_PAGE, filteredUsers.length)}
-                </strong>{' '}
-                de <strong className="text-amber-300">{filteredUsers.length}</strong> miembros (Página{' '}
-                <strong className="text-white">{safeCurrentPage}</strong> de{' '}
-                <strong className="text-white">{totalPages}</strong>)
-              </p>
-
-              <div className="flex items-center gap-1.5 flex-wrap justify-center">
-                {/* Botón Primera Página */}
-                {safeCurrentPage > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => handlePageChange(1)}
-                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
-                    title="Primera página"
-                  >
-                    ««
-                  </button>
-                )}
-
-                {/* Botón Anterior */}
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(safeCurrentPage - 1)}
-                  disabled={safeCurrentPage === 1}
-                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  « Anterior
-                </button>
-
-                {/* Botones de Páginas */}
-                {visiblePages.map((page, idx) => {
-                  if (typeof page === 'string' && page.startsWith('ellipsis')) {
-                    return (
-                      <span key={`ellipsis-${idx}`} className="px-2 text-xs text-slate-500 font-bold select-none">
-                        ...
-                      </span>
-                    );
-                  }
-                  const isActive = safeCurrentPage === page;
-                  return (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => handlePageChange(page)}
-                      className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
-                        isActive
-                          ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/20 font-black'
-                          : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  );
-                })}
-
-                {/* Botón Siguiente */}
-                <button
-                  type="button"
-                  onClick={() => handlePageChange(safeCurrentPage + 1)}
-                  disabled={safeCurrentPage === totalPages}
-                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all disabled:opacity-30 disabled:pointer-events-none"
-                >
-                  Siguiente »
-                </button>
-
-                {/* Botón Última Página */}
-                {safeCurrentPage < totalPages - 1 && (
-                  <button
-                    type="button"
-                    onClick={() => handlePageChange(totalPages)}
-                    className="px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-xs font-bold transition-all"
-                    title="Última página"
-                  >
-                    »»
-                  </button>
-                )}
               </div>
-            </div>
-          )}
-        </>
-      )}
+            )}
+          </>
+        )}
       </div>
 
       {/* Member Profile Modal (Estilo Mi Perfil) */}

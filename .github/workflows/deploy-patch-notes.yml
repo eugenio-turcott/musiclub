@@ -1,0 +1,43 @@
+name: Send Patch Notes Email on Deploy
+
+on:
+  push:
+    branches:
+      - master
+      - main
+    paths:
+      - 'src/data/patchNotesData.js'
+  workflow_dispatch:
+    inputs:
+      sendToAll:
+        description: 'Enviar a todos los miembros (true/false)'
+        required: true
+        default: 'true'
+
+jobs:
+  notify-patch-notes:
+    name: Notify Community of New Patch Notes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wait for Vercel Deployment to Finish
+        run: |
+          echo "⏳ Esperando 75 segundos a que Vercel complete la compilación y despliegue a producción..."
+          sleep 75
+
+      - name: Verify Production URL is Healthy
+        run: |
+          echo "🌐 Verificando disponibilidad de https://www.musiclub.org..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://www.musiclub.org)
+          echo "HTTP Status: $STATUS"
+          if [ "$STATUS" -ne 200 ] && [ "$STATUS" -ne 308 ] && [ "$STATUS" -ne 301 ]; then
+            echo "⚠️ El sitio aún está desplegando, esperando 30 segundos adicionales..."
+            sleep 30
+          fi
+
+      - name: Dispatch Patch Notes Email Notification
+        run: |
+          echo "🚀 Enviando correo de novedades a todos los miembros de Musiclub..."
+          RESPONSE=$(curl -s -X POST "https://www.musiclub.org/api/notifications/patch-notes" \
+            -H "Content-Type: application/json" \
+            -d '{"sendToAll": true}')
+          echo "Respuesta del servidor: $RESPONSE"

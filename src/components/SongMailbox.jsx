@@ -427,9 +427,9 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       </a>
                     )}
 
-                    {rec.other_link && (
+                    {(rec.other_link || rec.deezer_link) && (
                       <a
-                        href={rec.other_link}
+                        href={rec.other_link || rec.deezer_link}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 rounded-xl bg-[#a238ff]/20 hover:bg-[#a238ff]/30 border border-[#a238ff]/40 text-[#c77dff] text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95"
