@@ -11,6 +11,96 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    "version": "V.9.4",
+    "title": "Sliders Continuos en el Pool y Recomendados, Enriquecimiento de Lanzamientos Anticipados y Navegación Mejorada en Catálogo",
+    "date": "2026-09-23",
+    "sha": "940a1b2",
+    "associatedShas": [
+      "940a1b2"
+    ],
+    "tag": "Sliders, Catálogo y Anticipados 9.4",
+    "tagColor": "from-amber-500 via-orange-600 to-rose-700",
+    "authorName": "Eugenio Turcott",
+    "summary": "Una versión repleta de dinamismo visual y mejoras de navegación. El Historial de Ganadores del Pool y la sección de Más Recomendados por la Comunidad ahora cuentan con un slider infinito continuo cuando superan los 4 lanzamientos, ordenados rigurosamente de mayor a menor calificación. Los Lanzamientos Anticipados ahora incluyen enlace directo a Spotify y un contador inteligente de canciones que consulta Spotify, MusicBrainz y Deezer. Además, la navegación desde los detalles de un disco ahora enfoca directamente el Explorador de Catálogo con scroll suave, y se corrigió la traducción de 'Discografía'.",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Slider Continuo en el Historial de Ganadores del Pool",
+        "description": "El Historial de Ganadores del Pool ahora se convierte automáticamente en un slider infinito continuo y fluido cuando hay más de 4 lanzamientos (al estilo de En Rotación & Tendencias de la Landing Page). Los álbumes ganadores están ordenados estrictamente de mayor a menor puntuación y el carrusel se pausa suavemente al pasar el cursor."
+      },
+      {
+        "type": "feature",
+        "title": "Slider Continuo y Orden Descendente en Más Recomendados por la Comunidad",
+        "description": "La sección de Más Recomendados por la Comunidad en el Catálogo ahora también adopta el diseño de slider continuo al tener más de 4 álbumes recomendados, ordenados de forma descendente por calificación comunitaria verificada."
+      },
+      {
+        "type": "feature",
+        "title": "Enlace Directo a Spotify y Conteo Inteligente de Canciones en Lanzamientos Anticipados",
+        "description": "Cada tarjeta de lanzamiento anticipado ahora cuenta con acceso directo a Spotify (con búsqueda automática de respaldo). El indicador de canciones muestra la cantidad confirmada de pistas y, si aún no se anuncian, muestra 'Por anunciar' en lugar de '0'. Si ya se encuentran disponibles en Spotify, MusicBrainz o Deezer, se sincronizan y descubren automáticamente."
+      },
+      {
+        "type": "improvement",
+        "title": "Navegación Fluida y Enfoque Directo al Explorador de Catálogo",
+        "description": "Al hacer clic en un formato o categoría (EPs, Sencillos, Compilaciones, Álbumes, etc.) desde la vista de un release, la página viaja de forma suave directamente hasta el 'Explorador de Catálogo y Colección' con el filtro seleccionado activo."
+      },
+      {
+        "type": "fix",
+        "title": "Paginación Inteligente en el Explorador de Catálogo",
+        "description": "Se corrigió el desplazamiento al cambiar de página en el catálogo: al hacer clic en otra página (ej. página 2, 3 o siguiente), la vista te sitúa suavemente al inicio del Explorador de Catálogo en lugar de enviarte al tope superior de toda la web."
+      },
+      {
+        "type": "fix",
+        "title": "Corrección de Traducción en el Botón de Discografía",
+        "description": "Se solucionó el bloqueo en el motor de traducción del navegador que mantenía la palabra 'Discografía' en español al traducir la página de detalle de un release a otros idiomas."
+      },
+      {
+        "type": "feature",
+        "title": "Sincronización Diaria Inteligente y Enlace Bidireccional de Tendencias con la Base de Datos",
+        "description": "Se perfeccionó el flujo de sincronización diaria entre las tablas record_club_releases, record_club_upcoming y albums. Se resolvió la discrepancia donde álbumes vigentes aparecían catalogados como sencillos de una sola pista a pesar de que el LP completo ya se encontraba disponible en el mercado (como Bass Persuades de MILEY, actualizado a Álbum de 10 canciones). Ahora el sistema re-consulta exactamente cada lanzamiento en múltiples APIs (Spotify, Record Club, MusicBrainz y Deezer), prioriza álbumes completos sobre sencillos y sincroniza de forma bidireccional los metadatos y tracks con la tabla principal de albums."
+      },
+      {
+        "type": "feature",
+        "title": "Tracklist Confirmado y Pistas Anunciadas en Releases Anticipados",
+        "description": "Los lanzamientos anticipados ahora extraen y exhiben de inmediato su listado de canciones oficial anunciado (por ejemplo, Popstar de Tinashe con sus 5 canciones confirmadas: Too Easy, Melatonin, I’d Rather Be Alone, Crash Out y Pillow Fight, con un total de 14 minutos). Se reemplazó el valor genérico de 0 tracks por el conteo real y se habilitó la visualización completa de canciones y duraciones tanto en el Catálogo como en el Detalle del Álbum."
+      },
+      {
+        "type": "improvement",
+        "title": "Navegación Fluida Garantizada Post-Carga de Información",
+        "description": "Se perfeccionó el scroll suave hacia el Explorador de Catálogo para que se ejecute una vez que toda la información asíncrona de álbumes, estadísticas y tendencias ha terminado de renderizarse por completo. Esto elimina cualquier salto o desajuste de scroll cuando se viaja desde un formato o link directo (como /catalogo?tipo=EP)."
+      },
+      {
+        "type": "feature",
+        "title": "Portadas Clicables en Lanzamientos Anticipados",
+        "description": "Ahora hacer clic en la carátula o portada de cualquier lanzamiento anticipado te traslada de inmediato al detalle del release, brindando una experiencia más ágil e interactiva."
+      },
+      {
+        "type": "feature",
+        "title": "Diseño Móvil Ultra-Optimizado (Tendencias, Anticipados y Explorador)",
+        "description": "En smartphones y pantallas reducidas: Tendencias, Anticipados y el Explorador de Catálogo ahora se despliegan de 1 en 1 hacia abajo con un límite dinámico de 10 lanzamientos por página. Los controles de paginación se reorganizaron con ancho flexible sin desbordes fuera de la pantalla. Además, se integró un botón desplegable de filtros y formato para celular y una barra táctil exclusiva e intuitiva para navegar Años y Décadas sin complicaciones."
+      },
+      {
+        "type": "improvement",
+        "title": "Calificaciones del Club y Distintivo NEW Inteligente en Tendencias",
+        "description": "En la sección de Tendencias, aquellos lanzamientos que ya cuentan con reseñas comunitarias muestran su calificación dorada en la esquina superior derecha (top-2 right-2). Si el lanzamiento aún no cuenta con reseñas y es un nuevo lanzamiento, se exhibe el distintivo NEW en dicha esquina superior derecha; una vez que reciba reseñas en el club, la calificación toma su lugar de forma prioritaria."
+      },
+      {
+        "type": "improvement",
+        "title": "Normalización y Llenado Estricto del 100% de Géneros Musicales en la Base de Datos",
+        "description": "Se realizó una auditoría y curación exhaustiva en la tabla de albums: el 100% de los lanzamientos (307/307) cuenta ahora con su lista de géneros musicales completa, precisa y estandarizada a un máximo de 3 géneros canónicos depurados. Se eliminaron etiquetas ruidosas o temporales y se integró un normalizador automático para garantizar la consistencia en todas las sincronizaciones futuras."
+      },
+      {
+        "type": "fix",
+        "title": "Depuración de Caché en Releases Anticipados",
+        "description": "Se eliminaron definitivamente los 5 lanzamientos fantasma de prueba que persistían en caché (Blossoms, Johnny Marr, Greta Van Fleet, Cordae & Anderson .Paak, Lana Del Rey). La sección ahora se nutre única y exclusivamente de los 50 estrenos confirmados y vigentes de Supabase y Record Club."
+      },
+      {
+        "type": "fix",
+        "title": "Saneamiento de Caché en el Explorador de Catálogo y Colección",
+        "description": "Se limpiaron los álbumes no indexados o inexistentes que se inyectaban en el catálogo desde feeds externos de tendencias. El Explorador ahora exhibe estrictamente los 307 lanzamientos oficiales que forman parte de la base de datos del club, con conteos exactos y navegación directa a las fichas oficiales."
+      }
+    ]
+  },
+  {
     "version": "V.9.3",
     "title": "Perfeccionamiento del Pool Musical, Calificaciones en el Historial y Tendencias Musicales al Día",
     "date": "2026-09-22",

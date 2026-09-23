@@ -28,7 +28,17 @@ import {
   searchAlbum,
   getAlbumDetails,
 } from '../services/spotifyApi';
-import { enrichAndInsertAlbum } from '../services/albumEnrichmentService';
+import {
+  enrichAndInsertAlbum,
+  fetchSpotifyDetails,
+  fetchMusicBrainzDetails,
+  fetchDeezerDetails,
+  fetchRecordClubTracks,
+} from '../services/albumEnrichmentService';
+import {
+  CURATED_ANTICIPATED_RELEASES,
+  RECORD_CLUB_FALLBACK_UPCOMING,
+} from '../services/recordClubData';
 import {
   SpotifyLogo,
   AppleMusicLogo,
@@ -237,7 +247,7 @@ export function AlbumDetail({
           }
         }
 
-        // Fallback 1.5: Próximos Estrenos (record_club_upcoming)
+        // Fallback 1.5: Próximos Estrenos (record_club_upcoming & Curaduría de Anticipados)
         // NOTA: Como son upcoming, NO deben insertarse aún en la tabla de albums
         if (!current && slug) {
           try {
@@ -262,7 +272,54 @@ export function AlbumDetail({
               );
             }
 
+            // Si aún no se encontró, buscar en el listado de curaduría de lanzamientos anticipados
+            if (!upcomingRow) {
+              const curatedList = [
+                ...CURATED_ANTICIPATED_RELEASES,
+                ...RECORD_CLUB_FALLBACK_UPCOMING,
+              ];
+              upcomingRow = curatedList.find((u) => {
+                const uSlug = u.slug || slugifyRelease(u.artist_name, u.album_name);
+                return (
+                  uSlug === slug ||
+                  slug === slugifyRelease(u.artist_name, u.album_name) ||
+                  (u.album_name && slug.includes(slugifyArtist(u.album_name)))
+                );
+              });
+            }
+
             if (upcomingRow) {
+              const rowTracks = Array.isArray(upcomingRow.tracks)
+                ? upcomingRow.tracks
+                : [];
+              const rawTotal =
+                upcomingRow.total_tracks ??
+                upcomingRow.expected_tracks ??
+                (rowTracks.length > 0 ? rowTracks.length : null);
+
+              const rowTrackStats = Array.isArray(upcomingRow.track_stats)
+                ? upcomingRow.track_stats
+                : rowTracks.map((t, idx) => ({
+                    id: t.id || `track-${idx + 1}`,
+                    name: t.name || t.track_name || `Track ${idx + 1}`,
+                    track_name: t.name || t.track_name || `Track ${idx + 1}`,
+                    track_number: t.track_number || idx + 1,
+                    duration_ms: t.duration_ms || null,
+                  }));
+
+              const cleanArtist = upcomingRow.artist_name || 'Artista';
+              const cleanAlbum = upcomingRow.album_name || 'Lanzamiento';
+
+              const spLink =
+                upcomingRow.spotify_link ||
+                upcomingRow.spotify_url ||
+                (upcomingRow.spotify_id
+                  ? `https://open.spotify.com/album/${upcomingRow.spotify_id}`
+                  : null) ||
+                `https://open.spotify.com/search/${encodeURIComponent(
+                  `${cleanArtist} ${cleanAlbum}`
+                )}`;
+
               current = {
                 id: upcomingRow.id,
                 album_name: upcomingRow.album_name,
@@ -270,22 +327,82 @@ export function AlbumDetail({
                 image_url: upcomingRow.image_url,
                 release_date: upcomingRow.release_date,
                 release_type: upcomingRow.release_type || 'ALBUM',
-                genres: [upcomingRow.genre || 'POP / ALTERNATIVE'],
+                genres:
+                  Array.isArray(upcomingRow.genres) &&
+                  upcomingRow.genres.length > 0
+                    ? upcomingRow.genres
+                    : [upcomingRow.genre || 'POP / ALTERNATIVE'],
                 description: upcomingRow.description,
                 record_club_url: upcomingRow.record_club_url,
-                slug: upcomingRow.slug,
+                slug: upcomingRow.slug || slug,
                 status: 'ANTICIPADO',
                 is_anticipated: true,
                 is_upcoming: true,
                 can_rate: false,
                 reviews_enabled: false,
                 reviews: [],
-                track_stats: [],
-                tracks: [],
+                total_tracks: rawTotal,
+                expected_tracks: upcomingRow.expected_tracks || rawTotal,
+                track_stats: rowTrackStats,
+                tracks: rowTracks,
+                spotify_link: spLink,
                 stats: { totalReviews: 0, averageRating: null },
                 final_rating: null,
                 is_on_demand: false, // NO mostrar on-demand para un upcoming
               };
+
+              // Si el release anticipado aún no tiene tracks en el registro local,
+              // consultar Spotify, MusicBrainz y Deezer para ver si ya fueron publicados
+              if (!current.tracks || current.tracks.length === 0) {
+                try {
+                  const [spRes, mbRes, dzRes, rcRes] = await Promise.allSettled([
+                    fetchSpotifyDetails(current.artist_name, current.album_name, upcomingRow.spotify_id),
+                    fetchMusicBrainzDetails(current.artist_name, current.album_name),
+                    fetchDeezerDetails(current.artist_name, current.album_name),
+                    upcomingRow.id ? fetchRecordClubTracks(upcomingRow.id) : Promise.resolve([]),
+                  ]);
+
+                  const sp = spRes.status === 'fulfilled' ? spRes.value : null;
+                  const mb = mbRes.status === 'fulfilled' ? mbRes.value : null;
+                  const dz = dzRes.status === 'fulfilled' ? dzRes.value : null;
+                  const rcTracks = rcRes.status === 'fulfilled' ? rcRes.value : [];
+
+                  let discoveredTracks = [];
+                  if (sp?.tracks && sp.tracks.length > 0) {
+                    discoveredTracks = sp.tracks;
+                  } else if (mb?.tracks && mb.tracks.length > 0) {
+                    discoveredTracks = mb.tracks;
+                  } else if (dz?.tracks && dz.tracks.length > 0) {
+                    discoveredTracks = dz.tracks;
+                  } else if (rcTracks && rcTracks.length > 0) {
+                    discoveredTracks = rcTracks;
+                  }
+
+                  if (discoveredTracks.length > 0) {
+                    current.tracks = discoveredTracks;
+                    current.track_stats = discoveredTracks.map((t, idx) => ({
+                      id: t.id || `track-${idx + 1}`,
+                      name: t.name || t.track_name || `Track ${idx + 1}`,
+                      track_name: t.name || t.track_name || `Track ${idx + 1}`,
+                      track_number: t.track_number || idx + 1,
+                      duration_ms: t.duration_ms || null,
+                    }));
+                    current.total_tracks = discoveredTracks.length;
+                  } else {
+                    const discoveredTotal =
+                      sp?.total_tracks || mb?.total_tracks || dz?.total_tracks;
+                    if (discoveredTotal && Number(discoveredTotal) > 0) {
+                      current.total_tracks = Number(discoveredTotal);
+                    }
+                  }
+
+                  if (sp?.spotify_url) {
+                    current.spotify_link = sp.spotify_url;
+                  }
+                } catch (resErr) {
+                  console.warn('Error resolviendo tracks de anticipado:', resErr);
+                }
+              }
             }
           } catch (upcErr) {
             console.warn('Error al buscar en record_club_upcoming:', upcErr);
@@ -905,8 +1022,8 @@ export function AlbumDetail({
           <Link
             to={
               releaseTypeCategory.routePrefix === 'albumes'
-                ? '/catalogo'
-                : `/catalogo?tipo=${releaseTypeCategory.catalogFilter || releaseTypeCategory.routePrefix}`
+                ? '/catalogo#explorador-catalogo'
+                : `/catalogo?tipo=${releaseTypeCategory.catalogFilter || releaseTypeCategory.routePrefix}#explorador-catalogo`
             }
             className="hover:text-cyan-400 transition-colors font-medium"
           >
@@ -965,9 +1082,14 @@ export function AlbumDetail({
 
               {/* Streaming Links below cover */}
               <div className="flex grid grid-cols-2  items-center justify-center gap-2.5 w-full mt-4 flex-wrap">
-                {album.spotify_link && (
+                {(album.spotify_link || (album.album_name && album.artist_name)) && (
                   <a
-                    href={album.spotify_link}
+                    href={
+                      album.spotify_link ||
+                      `https://open.spotify.com/search/${encodeURIComponent(
+                        `${album.artist_name} ${album.album_name}`
+                      )}`
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-[#1db954]/15 hover:bg-[#1db954]/25 text-[#1db954] border border-[#1db954]/30 font-bold text-xs transition-all shadow-sm group"
@@ -1241,7 +1363,25 @@ export function AlbumDetail({
                     Pistas
                   </span>
                   <div className="text-2xl sm:text-3xl font-black text-white mt-1">
-                    {album.tracks?.length || album.track_stats?.length || 0} 🎵
+                    {(() => {
+                      const count =
+                        (album.tracks && album.tracks.length > 0 ? album.tracks.length : null) ??
+                        (album.track_stats && album.track_stats.length > 0 ? album.track_stats.length : null) ??
+                        album.total_tracks ??
+                        album.expected_tracks ??
+                        0;
+                      if (count > 0) {
+                        return `${count} 🎵`;
+                      }
+                      if (isAnticipated) {
+                        return (
+                          <span className="text-base sm:text-lg text-amber-300 font-bold">
+                            Por anunciar 🎵
+                          </span>
+                        );
+                      }
+                      return '0 🎵';
+                    })()}
                   </div>
                   <span className="text-[10px] text-slate-500 mt-1">
                     Estado:{' '}
@@ -1290,14 +1430,15 @@ export function AlbumDetail({
 
                 <Link
                   to={`/artista/${slugifyArtist(album.artist_name)}`}
+                  data-translatable="true"
                   className="px-5 py-3 rounded-2xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 font-bold text-xs sm:text-sm border border-cyan-500/30 transition-all flex items-center gap-2"
                 >
-                  <span>🎤</span>
-                  <span>Discografía</span>
+                  <span aria-hidden="true">🎤</span>
+                  <span translate="yes" data-translatable="true">Discografía</span>
                 </Link>
 
                 <Link
-                  to="/catalogo"
+                  to="/catalogo#explorador-catalogo"
                   className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white font-bold text-xs sm:text-sm border border-white/10 transition-all flex items-center gap-2"
                 >
                   <span>←</span>
@@ -1592,94 +1733,126 @@ export function AlbumDetail({
           </div>
 
           <div className="bg-[#121422]/90 border border-white/5 rounded-3xl p-3.5 sm:p-5 shadow-xl overflow-hidden">
-            {album.track_stats && album.track_stats.length > 0 ? (
-              <div className="divide-y divide-white/5 space-y-1">
-                {album.track_stats.map((t, idx) => {
-                  const isTop =
-                    topTrack &&
-                    (t.id === topTrack.id ||
-                      t.name.trim().toLowerCase() ===
-                        topTrack.name.trim().toLowerCase());
+            {(() => {
+              const renderedTracks =
+                album.track_stats && album.track_stats.length > 0
+                  ? album.track_stats
+                  : album.tracks && album.tracks.length > 0
+                    ? album.tracks.map((t, idx) => ({
+                        id: t.id || `track-${idx + 1}`,
+                        name: t.name || t.track_name || `Track ${idx + 1}`,
+                        track_name: t.name || t.track_name || `Track ${idx + 1}`,
+                        track_number: t.track_number || idx + 1,
+                        duration_ms: t.duration_ms || null,
+                        rating_count: 0,
+                        avg_rating: null,
+                      }))
+                    : [];
 
-                  return (
-                    <div
-                      key={t.id || idx}
-                      className={`flex items-center justify-between py-2.5 px-3 sm:px-4 rounded-xl transition-all ${
-                        isTop
-                          ? 'bg-amber-500/15 border border-amber-400/30 shadow-md my-1 text-amber-200'
-                          : 'hover:bg-white/5 text-slate-300'
-                      }`}
-                    >
-                      {/* Track Number & Name */}
-                      <div className="flex items-center gap-3 min-w-0 pr-2">
-                        <span
-                          className={`text-xs font-mono w-6 text-center ${isTop ? 'text-amber-400 font-black' : 'text-slate-500'}`}
-                        >
-                          {isTop ? '👑' : `#${t.track_number || idx + 1}`}
-                        </span>
-                        <div className="min-w-0">
-                          <p
-                            translate="no"
-                            className={`notranslate track-name text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
-                            title={t.name}
-                          >
-                            {t.name}
-                          </p>
-                          {t.duration_ms && (
-                            <p className="text-[10px] text-slate-500">
-                              {formatDuration(t.duration_ms)}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Track Rating Score */}
-                      <div className="flex items-center gap-3 flex-shrink-0">
-                        {t.rating_count > 0 && (
-                          <span className="hidden sm:inline text-[10px] text-slate-400">
-                            {t.rating_count}{' '}
-                            {t.rating_count === 1 ? 'voto' : 'votos'}
-                          </span>
-                        )}
-                        {(() => {
-                          const hasTrackRating =
-                            t.avg_rating !== null &&
-                            t.avg_rating !== undefined &&
-                            !isNaN(Number(t.avg_rating));
-                          const numRating = hasTrackRating
-                            ? Number(t.avg_rating)
-                            : null;
-
-                          return (
-                            <span
-                              className={`font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg border ${
-                                isTop
-                                  ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
-                                  : hasTrackRating && numRating >= 8
-                                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                                    : hasTrackRating && numRating >= 6
-                                      ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
-                                      : hasTrackRating
-                                        ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                                        : 'bg-white/5 text-slate-500 border-white/5'
-                              }`}
-                            >
-                              {hasTrackRating
-                                ? `${numRating.toFixed(1)} ⭐`
-                                : '—'}
-                            </span>
-                          );
-                        })()}
-                      </div>
+              return renderedTracks.length > 0 ? (
+                <div>
+                  {isAnticipated && (
+                    <div className="mb-3 px-3.5 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium flex items-center gap-2">
+                      <span>🎵</span>
+                      <span>Tracklist confirmado para el estreno oficial ({renderedTracks.length} canciones).</span>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-slate-500 text-xs">
-                No hay lista de canciones registrada para este álbum.
-              </div>
-            )}
+                  )}
+                  <div className="divide-y divide-white/5 space-y-1">
+                    {renderedTracks.map((t, idx) => {
+                      const isTop =
+                        topTrack &&
+                        (t.id === topTrack.id ||
+                          t.name.trim().toLowerCase() ===
+                            topTrack.name.trim().toLowerCase());
+
+                      return (
+                        <div
+                          key={t.id || idx}
+                          className={`flex items-center justify-between py-2.5 px-3 sm:px-4 rounded-xl transition-all ${
+                            isTop
+                              ? 'bg-amber-500/15 border border-amber-400/30 shadow-md my-1 text-amber-200'
+                              : 'hover:bg-white/5 text-slate-300'
+                          }`}
+                        >
+                          {/* Track Number & Name */}
+                          <div className="flex items-center gap-3 min-w-0 pr-2">
+                            <span
+                              className={`text-xs font-mono w-6 text-center ${isTop ? 'text-amber-400 font-black' : 'text-slate-500'}`}
+                            >
+                              {isTop ? '👑' : `#${t.track_number || idx + 1}`}
+                            </span>
+                            <div className="min-w-0">
+                              <p
+                                translate="no"
+                                className={`notranslate track-name text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
+                                title={t.name}
+                              >
+                                {t.name}
+                              </p>
+                              {t.duration_ms && (
+                                <p className="text-[10px] text-slate-500">
+                                  {formatDuration(t.duration_ms)}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Track Rating Score */}
+                          <div className="flex items-center gap-3 flex-shrink-0">
+                            {t.rating_count > 0 && (
+                              <span className="hidden sm:inline text-[10px] text-slate-400">
+                                {t.rating_count}{' '}
+                                {t.rating_count === 1 ? 'voto' : 'votos'}
+                              </span>
+                            )}
+                            {(() => {
+                              const hasTrackRating =
+                                t.avg_rating !== null &&
+                                t.avg_rating !== undefined &&
+                                !isNaN(Number(t.avg_rating));
+                              const numRating = hasTrackRating
+                                ? Number(t.avg_rating)
+                                : null;
+
+                              return (
+                                <span
+                                  className={`font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-lg border ${
+                                    isTop
+                                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/40'
+                                      : hasTrackRating && numRating >= 8
+                                        ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                                        : hasTrackRating && numRating >= 6
+                                          ? 'bg-cyan-500/15 text-cyan-400 border-cyan-500/30'
+                                          : hasTrackRating
+                                            ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                                            : 'bg-white/5 text-slate-500 border-white/5'
+                                  }`}
+                                >
+                                  {hasTrackRating
+                                    ? `${numRating.toFixed(1)} ⭐`
+                                    : '—'}
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ) : isAnticipated ? (
+                <div className="text-center py-8 text-amber-300/80 text-xs font-medium space-y-1.5">
+                  <p className="text-sm font-bold">⏳ Lista de canciones por anunciar</p>
+                  <p className="text-slate-400 text-[11px] max-w-md mx-auto">
+                    El tracklist oficial se sincronizará automáticamente conforme sea anunciado o publicado por el artista.
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-500 text-xs">
+                  No hay lista de canciones registrada para este álbum.
+                </div>
+              );
+            })()}
           </div>
         </div>
 

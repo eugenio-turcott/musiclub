@@ -3,6 +3,7 @@ import { supabase } from './supabaseClient.js';
 import { searchAlbum, getAlbumDetails } from './spotifyApi.js';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
 import { normalizeReleaseType } from './musicBrainzService.js';
+import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
 
 const USER_AGENT = 'Musiclub/1.0 ( https://www.musiclub.org ; contact@musiclub.org )';
 const MUSICBRAINZ_API_BASE = 'https://musicbrainz.org/ws/2';
@@ -200,6 +201,39 @@ export async function fetchDeezerDetails(artistName, albumName) {
 }
 
 /**
+ * Consulta la API pública de Record Club para obtener las pistas anunciadas u oficiales.
+ * https://api.record.club/releases/${rcId}/tracks
+ */
+export async function fetchRecordClubTracks(rcId) {
+  if (!rcId) return [];
+  try {
+    const cleanId = String(rcId).replace(/^rc_/, '').trim();
+    const url = `https://api.record.club/releases/${cleanId}/tracks`;
+    const res = await fetch(url, {
+      headers: {
+        'User-Agent': USER_AGENT,
+        Accept: 'application/json',
+      },
+      signal: typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(6000) : undefined,
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    if (!json.success || !Array.isArray(json.data)) return [];
+    return json.data.map((t, idx) => ({
+      id: t.id || `rc_${idx + 1}`,
+      name: t.name,
+      track_name: t.name,
+      disc_number: t.mediumPosition || 1,
+      duration_ms: t.length || null,
+      track_number: parseInt(t.number, 10) || t.position || idx + 1,
+    }));
+  } catch (err) {
+    console.warn(`[RecordClub] Error consultando tracks de "${rcId}":`, err.message);
+    return [];
+  }
+}
+
+/**
  * Consulta la API de Spotify para obtener:
  * Portada oficial en máxima resolución (images[0]), tracklist oficial con duraciones,
  * enlace directo a Spotify, sello y géneros.
@@ -219,7 +253,14 @@ export async function fetchSpotifyDetails(artistName, albumName, spotifyId = nul
 
     const searchRes = await searchAlbum(query);
     if (searchRes?.success && searchRes.albums?.length > 0) {
-      const best = searchRes.albums[0];
+      // Priorizar lanzamientos tipo 'album' y con mayor número de tracks sobre sencillos
+      const best = [...searchRes.albums].sort((a, b) => {
+        const aIsAlb = (a.album_type === 'album' || a.release_type === 'ALBUM') ? 2 : (a.album_type === 'ep' ? 1 : 0);
+        const bIsAlb = (b.album_type === 'album' || b.release_type === 'ALBUM') ? 2 : (b.album_type === 'ep' ? 1 : 0);
+        if (bIsAlb !== aIsAlb) return bIsAlb - aIsAlb;
+        return (b.totalTracks || b.total_tracks || 0) - (a.totalTracks || a.total_tracks || 0);
+      })[0];
+
       const details = await getAlbumDetails(best.id);
       if (details?.success && details.album) {
         return formatSpotifyAlbum(details.album);
@@ -266,6 +307,7 @@ export function build21ColumnPayload({
   spotifyData = null,
   mbData = null,
   deezerData = null,
+  rcTracks = [],
 }) {
   const cleanAlbum = rawItem.album_name || spotifyData?.name || deezerData?.name || 'Álbum Desconocido';
   const cleanArtist = rawItem.artist_name || spotifyData?.artist || deezerData?.artist || 'Artista Desconocido';
@@ -279,7 +321,7 @@ export function build21ColumnPayload({
     null;
 
   // 2. Tracklist oficial con duración y track_number
-  // MusicBrainz > Spotify > Deezer
+  // MusicBrainz > Spotify > Deezer > Record Club > Raw
   let finalTracks = [];
   if (mbData?.tracks && mbData.tracks.length > 0) {
     finalTracks = mbData.tracks;
@@ -287,6 +329,10 @@ export function build21ColumnPayload({
     finalTracks = spotifyData.tracks;
   } else if (deezerData?.tracks && deezerData.tracks.length > 0) {
     finalTracks = deezerData.tracks;
+  } else if (Array.isArray(rcTracks) && rcTracks.length > 0) {
+    finalTracks = rcTracks;
+  } else if (Array.isArray(rawItem.tracks) && rawItem.tracks.length > 0) {
+    finalTracks = rawItem.tracks;
   }
 
   // 3. Enlaces a las 4 plataformas de streaming
@@ -353,14 +399,15 @@ export function build21ColumnPayload({
   const country = mbData?.country || 'XW';
   const label = mbData?.label || spotifyData?.label || deezerData?.label || null;
 
-  // 7. Géneros
-  const genresSet = new Set([
+  // 7. Géneros (Canónicos y concisos, máximo 3)
+  const candidateGenres = [
     ...(rawItem.genre_category ? [rawItem.genre_category] : []),
+    ...(rawItem.genre ? [rawItem.genre] : []),
     ...(spotifyData?.genres || []),
     ...(deezerData?.genres || []),
     ...(mbData?.tags || []),
-  ]);
-  const genres = Array.from(genresSet).filter(Boolean);
+  ];
+  const genres = normalizeCanonicalGenres(candidateGenres, 3);
 
   const totalTracks =
     finalTracks.length ||
@@ -453,9 +500,10 @@ export async function findAlbumInDatabase(albumName, artistName, mbid = null) {
 }
 
 /**
- * Realiza el proceso completo de consulta a Spotify, MusicBrainz y Deezer,
+ * Realiza el proceso completo de consulta a Spotify, MusicBrainz, Deezer y Record Club,
  * y agrega el lanzamiento a la tabla "albums" de forma COMPLETA con las 21 columnas.
- * Comprueba primero si ya existe en "albums" para no hacer consultas redundantes.
+ * Si el álbum ya existía pero era un SENCILLO y ahora se detecta como ÁLBUM o con más pistas,
+ * actualiza el registro en la BD para mantenerlo 100% al día.
  */
 export async function enrichAndInsertAlbum(releaseItem) {
   if (!releaseItem || !releaseItem.album_name) {
@@ -465,9 +513,25 @@ export async function enrichAndInsertAlbum(releaseItem) {
   const artistName = releaseItem.artist_name || '';
   const albumName = releaseItem.album_name;
 
-  // 1. COMPROBACIÓN PREVIA: Si ya está en "albums", no consultar ni actualizar
+  // 1. COMPROBACIÓN PREVIA: Si ya está en "albums", comprobar si amerita actualización
   const existing = await findAlbumInDatabase(albumName, artistName, releaseItem.mbid);
-  if (existing) {
+  const existingTracksCount = existing
+    ? (existing.total_tracks || (Array.isArray(existing.tracks) ? existing.tracks.length : 0))
+    : 0;
+  const isExistingSingle =
+    existing &&
+    ((existing.release_type || '').toUpperCase() === 'SENCILLO' || existingTracksCount <= 1);
+  const incomingIsAlbum =
+    (releaseItem.release_type || '').toUpperCase() === 'ALBUM' ||
+    (releaseItem.total_tracks || 0) >= 3;
+
+  const shouldUpgrade =
+    existing &&
+    ((isExistingSingle && incomingIsAlbum) ||
+      ((releaseItem.total_tracks || 0) > existingTracksCount && (releaseItem.total_tracks || 0) >= 2) ||
+      (!existing.tracks || existing.tracks.length === 0));
+
+  if (existing && !shouldUpgrade) {
     return {
       success: true,
       album: existing,
@@ -475,16 +539,18 @@ export async function enrichAndInsertAlbum(releaseItem) {
     };
   }
 
-  // 2. Consultas a Spotify, MusicBrainz y Deezer
-  const [spotifyData, mbData, deezerData] = await Promise.allSettled([
+  // 2. Consultas a Spotify, MusicBrainz, Deezer y Record Club
+  const [spotifyData, mbData, deezerData, rcTracksData] = await Promise.allSettled([
     fetchSpotifyDetails(artistName, albumName, releaseItem.spotify_id),
     fetchMusicBrainzDetails(artistName, albumName),
     fetchDeezerDetails(artistName, albumName),
+    releaseItem.id ? fetchRecordClubTracks(releaseItem.id) : Promise.resolve([]),
   ]);
 
   const sp = spotifyData.status === 'fulfilled' ? spotifyData.value : null;
   const mb = mbData.status === 'fulfilled' ? mbData.value : null;
   const dz = deezerData.status === 'fulfilled' ? deezerData.value : null;
+  const rcTracks = rcTracksData.status === 'fulfilled' ? rcTracksData.value : [];
 
   // 3. Construir payload con las 21 columnas canónicas
   const payload = build21ColumnPayload({
@@ -492,9 +558,42 @@ export async function enrichAndInsertAlbum(releaseItem) {
     spotifyData: sp,
     mbData: mb,
     deezerData: dz,
+    rcTracks,
   });
 
-  // 4. Doble comprobación antes de insertar (prevenir race condition)
+  // 4. Si ya existía y necesitaba actualización (graduación de single a álbum completo)
+  if (existing) {
+    const finalTracks = payload.tracks && payload.tracks.length > 0 ? payload.tracks : existing.tracks;
+    const finalTotalTracks = payload.total_tracks || (finalTracks ? finalTracks.length : existing.total_tracks);
+    const { data: updated, error: updateError } = await supabase
+      .from('albums')
+      .update({
+        release_type: payload.release_type,
+        total_tracks: finalTotalTracks,
+        tracks: finalTracks,
+        spotify_link: payload.spotify_link || existing.spotify_link,
+        image_url: payload.image_url || existing.image_url,
+        release_date: payload.release_date || existing.release_date,
+        release_year: payload.release_year || existing.release_year,
+        spotify_verified: true,
+      })
+      .eq('id', existing.id)
+      .select('*')
+      .single();
+
+    if (updateError) {
+      console.error(`Error actualizando "${payload.album_name}" en albums:`, updateError.message);
+      return { success: false, error: updateError.message };
+    }
+
+    return {
+      success: true,
+      album: updated,
+      wasUpdated: true,
+    };
+  }
+
+  // 5. Doble comprobación antes de insertar (prevenir race condition)
   const doubleCheck = await findAlbumInDatabase(payload.album_name, payload.artist_name, payload.mbid);
   if (doubleCheck) {
     return {
@@ -504,7 +603,7 @@ export async function enrichAndInsertAlbum(releaseItem) {
     };
   }
 
-  // 5. Inserción a la tabla "albums"
+  // 6. Inserción a la tabla "albums"
   const { data: inserted, error: insertError } = await supabase
     .from('albums')
     .insert([payload])

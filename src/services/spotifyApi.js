@@ -268,8 +268,17 @@ export const searchAlbum = async (query, options = {}) => {
   const seenKeys = new Set();
   const mergedAlbums = [];
 
-  // Priorizar Spotify si está disponible para este álbum
-  for (const alb of spotifyAlbums) {
+  // Priorizar Spotify si está disponible para este álbum (ordenando para preferir álbum completo sobre sencillo)
+  const sortedSpotify = [...spotifyAlbums].sort((a, b) => {
+    const aType = (a.album_type || a.release_type || '').toLowerCase();
+    const bType = (b.album_type || b.release_type || '').toLowerCase();
+    const aIsAlb = aType === 'album' || aType === 'compilation' ? 2 : (aType === 'ep' ? 1 : 0);
+    const bIsAlb = bType === 'album' || bType === 'compilation' ? 2 : (bType === 'ep' ? 1 : 0);
+    if (bIsAlb !== aIsAlb) return bIsAlb - aIsAlb;
+    return (b.totalTracks || 0) - (a.totalTracks || 0);
+  });
+
+  for (const alb of sortedSpotify) {
     const key = `${(alb.artist || '').toLowerCase().trim()}:::${(alb.name || '').toLowerCase().trim()}`;
     if (!seenKeys.has(key)) {
       seenKeys.add(key);

@@ -1,5 +1,4 @@
-'use client';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
@@ -133,8 +132,48 @@ export function AlbumsCatalog({ isPage = false }) {
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
-  const [sortBy, setSortBy] = useState('rating_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
+  const [sortBy, setSortBy] = useState('reviews_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Referencia para scroll suave directo al Explorador de Catálogo (V.9.4)
+  const catalogExplorerRef = useRef(null);
+  const pendingScrollToExplorerRef = useRef(false);
+
+  // Detección reactiva de dispositivo móvil (< 640px)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Límite de álbumes por página: 10 en celular, 20 en pantallas medianas y grandes
+  const itemsPerPage = isMobile ? 10 : 20;
+
+  // Estado para colapsar/abrir filtros en celular
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  const scrollToExplorer = useCallback(() => {
+    if (catalogExplorerRef.current) {
+      catalogExplorerRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    } else {
+      const el = document.getElementById('explorador-catalogo');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, []);
 
   // Filtro de exploración híbrida estilo Musiclub: ALL | TRENDING | REVIEWED
   const [browseFilter, setBrowseFilter] = useState('ALL');
@@ -233,11 +272,13 @@ export function AlbumsCatalog({ isPage = false }) {
     }
   };
 
-  // Sync with URL query param ?tipo=... and ?tab=...
+  // Sync with URL query param ?tipo=... and ?tab=... and auto-scroll to explorer (V.9.4)
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tipo =
       params.get('tipo') || params.get('type') || params.get('formato');
+    const hasTipo = Boolean(tipo);
+
     if (tipo) {
       const upper = tipo.toUpperCase();
       if (
@@ -264,7 +305,30 @@ export function AlbumsCatalog({ isPage = false }) {
     } else if (tab === 'releases' || tab === 'lanzamientos') {
       setActiveMainTab('releases');
     }
-  }, [location.search]);
+
+    // Si viene con filtro tipo o con el ancla de explorador, programar scroll suave directo al Explorador
+    if (hasTipo || location.hash === '#explorador-catalogo') {
+      pendingScrollToExplorerRef.current = true;
+      if (!loading && albums.length > 0) {
+        const timer = setTimeout(() => {
+          scrollToExplorer();
+          pendingScrollToExplorerRef.current = false;
+        }, 150);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [location.search, location.hash, loading, albums.length, scrollToExplorer]);
+
+  // Ejecutar scroll suave al Explorador una vez cargada TODA la información del catálogo (V.9.4)
+  useEffect(() => {
+    if (!loading && !loadingTrending && albums.length > 0 && pendingScrollToExplorerRef.current) {
+      const timer = setTimeout(() => {
+        scrollToExplorer();
+        pendingScrollToExplorerRef.current = false;
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [loading, loadingTrending, albums.length, scrollToExplorer]);
 
   // Carga simultánea y unificada: Álbumes en BD de Supabase + Novedades + Tendencias del Mes + Anticipados
   useEffect(() => {
@@ -409,58 +473,37 @@ export function AlbumsCatalog({ isPage = false }) {
     return false;
   };
 
-  // Fusión híbrida de lanzamientos estilo Musiclub (BD Club + Novedades de Spotify)
-  const unifiedAlbums = useMemo(() => {
-    const list = [];
-    const seenMap = new Map();
+  // Conteo de álbumes con reseñas o calificaciones en el Club
+  const reviewedCount = useMemo(() => {
+    return (albums || []).filter(
+      (a) =>
+        (a.review_count || 0) > 0 ||
+        (a.final_rating !== null && a.final_rating !== undefined)
+    ).length;
+  }, [albums]);
 
-    // 1. Añadir álbumes oficiales del Club
-    (albums || []).forEach((alb) => {
+  // Catálogo oficial de Musiclub decorado con estado de tendencias y reviews
+  const unifiedAlbums = useMemo(() => {
+    const trendingSet = new Set(
+      (trendingReleases || []).map((t) =>
+        `${(t.album_name || '').toLowerCase().trim()}|${(t.artist_name || '').toLowerCase().trim()}`
+      )
+    );
+
+    return (albums || []).map((alb) => {
       const key = `${(alb.album_name || '').toLowerCase().trim()}|${(alb.artist_name || '').toLowerCase().trim()}`;
-      const decorated = {
+      const isTrending = trendingSet.has(key);
+      const isReviewed =
+        (alb.review_count || 0) > 0 ||
+        (alb.final_rating !== null && alb.final_rating !== undefined);
+
+      return {
         ...alb,
         is_in_club: true,
-        is_reviewed:
-          (alb.review_count || 0) > 0 ||
-          (alb.final_rating !== null && alb.final_rating !== undefined),
-        is_trending: false,
+        is_reviewed: isReviewed,
+        is_trending: isTrending,
       };
-      seenMap.set(key, decorated);
-      list.push(decorated);
     });
-
-    // 2. Fusionar novedades y tendencias en vivo
-    (trendingReleases || []).forEach((trend) => {
-      const key = `${(trend.album_name || '').toLowerCase().trim()}|${(trend.artist_name || '').toLowerCase().trim()}`;
-      if (seenMap.has(key)) {
-        const existing = seenMap.get(key);
-        existing.is_trending = true;
-      } else {
-        list.push({
-          id: `trend_${trend.id}`,
-          spotify_id: trend.id,
-          album_name: trend.album_name,
-          artist_name: trend.artist_name,
-          image_url: trend.image_url,
-          spotify_link: trend.spotify_url,
-          release_date: trend.release_date,
-          release_year: trend.release_date
-            ? parseInt(trend.release_date.substring(0, 4), 10)
-            : null,
-          release_type: trend.release_type || 'ALBUM',
-          total_tracks: trend.total_tracks || 1,
-          is_trending: true,
-          is_in_club: false,
-          is_reviewed: false,
-          review_count: 0,
-          final_rating: null,
-          created_at: trend.updated_at || new Date().toISOString(),
-          genres: trend.genres || [],
-        });
-      }
-    });
-
-    return list;
   }, [albums, trendingReleases]);
 
   // Conteo de lanzamientos por tipo de formato (Álbum, EP, Sencillo, Compilación, En Vivo, Soundtrack, Remix)
@@ -624,7 +667,7 @@ export function AlbumsCatalog({ isPage = false }) {
     if (browseFilter === 'TRENDING') {
       result = result.filter((a) => a.is_trending);
     } else if (browseFilter === 'REVIEWED') {
-      result = result.filter((a) => a.is_in_club || a.is_reviewed);
+      result = result.filter((a) => a.is_reviewed);
     }
 
     // Release Type Filter (Álbumes, EPs, Sencillos/Canciones, Compilaciones, En Vivo, Bandas Sonoras, Remixes)
@@ -745,13 +788,13 @@ export function AlbumsCatalog({ isPage = false }) {
     spotifyYearsCache,
   ]);
 
-  const totalPages = Math.ceil(filteredAlbums.length / ITEMS_PER_PAGE) || 1;
+  const totalPages = Math.ceil(filteredAlbums.length / itemsPerPage) || 1;
   const paginatedAlbums = useMemo(() => {
     return filteredAlbums.slice(
-      (currentPage - 1) * ITEMS_PER_PAGE,
-      currentPage * ITEMS_PER_PAGE
+      (currentPage - 1) * itemsPerPage,
+      currentPage * itemsPerPage
     );
-  }, [filteredAlbums, currentPage]);
+  }, [filteredAlbums, currentPage, itemsPerPage]);
 
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans">
@@ -936,6 +979,7 @@ export function AlbumsCatalog({ isPage = false }) {
             {/* 1. SECCIÓN DE TRENDING RELEASES MENSUALES (Top 20, mayoría POP, corte semanal viernes) */}
             <TrendingMonthlySection
               trendingData={monthlyTrending}
+              clubAlbums={albums}
               loading={loadingTrending}
               onQuickPropose={handleQuickPropose}
               proposingId={proposingId}
@@ -951,7 +995,11 @@ export function AlbumsCatalog({ isPage = false }) {
             <RecommendedSection albums={albums} />
 
             {/* 4. SECCIÓN DE CATÁLOGO COMPLETO Y EXPLORADOR */}
-            <div className="flex items-center gap-3 pt-6 border-t border-white/10">
+            <div
+              id="explorador-catalogo"
+              ref={catalogExplorerRef}
+              className="flex items-center gap-3 pt-6 border-t border-white/10 scroll-mt-24"
+            >
               <span className="text-2xl">📚</span>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
@@ -1004,9 +1052,9 @@ export function AlbumsCatalog({ isPage = false }) {
                   )}
                 </div>
 
-                {/* Selector rápido de Décadas */}
-                <div className="flex items-center gap-1 overflow-x-auto max-w-full scrollbar-none py-0.5">
-                  <span className="text-[10px] uppercase font-bold text-slate-400 mr-1 hidden sm:inline">
+                {/* Selector rápido de Décadas para Desktop */}
+                <div className="hidden sm:flex items-center gap-1 overflow-x-auto max-w-full scrollbar-none py-0.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 mr-1">
                     Década:
                   </span>
                   {DECADES.map((dec) => {
@@ -1037,8 +1085,96 @@ export function AlbumsCatalog({ isPage = false }) {
                 </div>
               </div>
 
-              {/* Carril Principal Estilo AlbumOfTheYear: < 2020s 2020 2021 2022 2023 2024 2025 2026 > */}
-              <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 scrollbar-none w-full">
+              {/* VISTA EXCLUSIVA DE CELULAR: Intuitiva, táctil y sin desbordes */}
+              <div className="sm:hidden space-y-2.5 pt-1">
+                {/* 1. Selector de Décadas en cuadrícula táctil */}
+                <div className="grid grid-cols-4 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedYearFilter('ALL')}
+                    className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all border ${
+                      selectedYearFilter === 'ALL'
+                        ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md border-pink-400/50'
+                        : 'bg-white/5 text-slate-300 border-white/5'
+                    }`}
+                  >
+                    Todos
+                  </button>
+                  {DECADES.map((dec) => {
+                    const isDecActive = selectedDecade === dec;
+                    const isDecFilterActive = selectedYearFilter === dec;
+                    return (
+                      <button
+                        key={dec}
+                        type="button"
+                        onClick={() => {
+                          setSelectedDecade(dec);
+                          selectYearOrDecade(dec);
+                        }}
+                        className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all border ${
+                          isDecFilterActive
+                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black shadow-md border-purple-400 ring-1 ring-purple-400'
+                            : isDecActive
+                              ? 'bg-purple-950/60 text-purple-200 border-purple-500/40'
+                              : 'bg-white/5 text-slate-400 border-white/5'
+                        }`}
+                      >
+                        {dec}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* 2. Sub-carril táctil de Años de la década activa */}
+                {selectedDecade && (
+                  <div className="bg-black/40 p-2.5 rounded-xl border border-white/5 space-y-1.5">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="text-slate-400 font-medium">
+                        Años en <strong className="text-purple-300 font-bold">{selectedDecade}</strong>:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => selectYearOrDecade(selectedDecade)}
+                        className="text-[10px] text-purple-300 hover:text-white underline font-bold"
+                      >
+                        Toda la década ({yearCounts[selectedDecade] || 0})
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+                      {decadeYears.map((yr) => {
+                        const isSelected =
+                          selectedYearFilter === yr || selectedYearFilter === String(yr);
+                        const count = yearCounts[yr] || 0;
+                        return (
+                          <button
+                            key={yr}
+                            type="button"
+                            onClick={() => selectYearOrDecade(yr)}
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0 transition-all border ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-black shadow-sm border-pink-400'
+                                : count > 0
+                                  ? 'bg-white/10 text-slate-200 border-white/10'
+                                  : 'bg-white/5 text-slate-600 border-white/5 opacity-50'
+                            }`}
+                          >
+                            <span>{yr}</span>
+                            {count > 0 && (
+                              <span className="ml-1 text-[10px] opacity-70">
+                                ({count})
+                              </span>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* VISTA DESKTOP: Carril Horizontal Original Estilo AlbumOfTheYear */}
+              <div className="hidden sm:flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1 scrollbar-none w-full">
                 {/* Botón TODOS */}
                 <button
                   type="button"
@@ -1162,204 +1298,236 @@ export function AlbumsCatalog({ isPage = false }) {
               </div>
             </div>
 
-            {/* Format / Tipo de Lanzamiento Bar */}
-            <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span className="text-sm">💽</span>
-                <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
-                  Formato
+            {/* Botón de Filtros Colapsable para Celular (Formato y Filtros Secundarios) */}
+            <div className="sm:hidden">
+              <button
+                type="button"
+                onClick={() => setMobileFiltersOpen((prev) => !prev)}
+                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#17192b] via-[#1b1e33] to-[#17192b] border border-cyan-500/40 text-cyan-200 text-xs font-black flex items-center justify-between shadow-xl active:scale-[0.98] transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-base">🎛️</span>
+                  <span className="text-white font-black tracking-wide">
+                    {mobileFiltersOpen ? 'Ocultar Filtros de Catálogo' : 'Filtros y Formato del Catálogo'}
+                  </span>
+                  {releaseTypeFilter !== 'ALL' && (
+                    <span className="px-2 py-0.5 rounded-full bg-cyan-400 text-black text-[10px] font-black uppercase">
+                      {releaseTypeFilter}
+                    </span>
+                  )}
+                  {browseFilter !== 'ALL' && (
+                    <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-black">
+                      ⭐ Club
+                    </span>
+                  )}
+                </div>
+                <span className="text-cyan-400 text-xs font-bold bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-1 rounded-xl">
+                  {mobileFiltersOpen ? '▲ Cerrar' : '▼ Abrir'}
                 </span>
-              </div>
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                {[
-                  {
-                    id: 'ALL',
-                    label: 'Todos',
-                    icon: '🎧',
-                    count: releaseTypeCounts.ALL,
-                  },
-                  {
-                    id: 'ALBUM',
-                    label: 'Álbumes',
-                    icon: '💿',
-                    count: releaseTypeCounts.ALBUM,
-                  },
-                  {
-                    id: 'EP',
-                    label: 'EPs',
-                    icon: '💽',
-                    count: releaseTypeCounts.EP,
-                  },
-                  {
-                    id: 'SENCILLO',
-                    label: 'Sencillos',
-                    icon: '🎵',
-                    count: releaseTypeCounts.SENCILLO,
-                  },
-                  {
-                    id: 'COMPILACION',
-                    label: 'Compilaciones',
-                    icon: '📦',
-                    count: releaseTypeCounts.COMPILACION,
-                  },
-                  ...(releaseTypeCounts.EN_VIVO > 0
-                    ? [
-                        {
-                          id: 'EN_VIVO',
-                          label: 'En Vivo',
-                          icon: '🎤',
-                          count: releaseTypeCounts.EN_VIVO,
-                        },
-                      ]
-                    : []),
-                  ...(releaseTypeCounts.SOUNDTRACK > 0
-                    ? [
-                        {
-                          id: 'SOUNDTRACK',
-                          label: 'Soundtracks',
-                          icon: '🎬',
-                          count: releaseTypeCounts.SOUNDTRACK,
-                        },
-                      ]
-                    : []),
-                  ...(releaseTypeCounts.REMIX > 0
-                    ? [
-                        {
-                          id: 'REMIX',
-                          label: 'Remixes',
-                          icon: '🎛️',
-                          count: releaseTypeCounts.REMIX,
-                        },
-                      ]
-                    : []),
-                ].map((fmt) => {
-                  const isSelected = releaseTypeFilter === fmt.id;
-                  return (
-                    <button
-                      key={fmt.id}
-                      type="button"
-                      onClick={() => setReleaseTypeFilter(fmt.id)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
-                        isSelected
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
-                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
-                      }`}
-                    >
-                      <span>{fmt.icon}</span>
-                      <span>{fmt.label}</span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                          isSelected
-                            ? 'bg-black/30 text-black font-black'
-                            : 'bg-white/10 text-slate-400'
-                        }`}
-                      >
-                        {fmt.count || 0}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
+              </button>
             </div>
 
-            {/* Musiclub Hybrid Browse & Filter Bar */}
-            <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
-              {/* Musiclub Hybrid Browse Pills */}
-              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                {[
-                  {
-                    id: 'ALL',
-                    label: 'Todo el Catálogo',
-                    count: unifiedAlbums.length,
-                    icon: '🌐',
-                  },
-                  {
-                    id: 'REVIEWED',
-                    label: 'Calificados en Club',
-                    count: albums.length,
-                    icon: '⭐',
-                  },
-                ].map((tab) => {
-                  const active = browseFilter === tab.id;
-                  return (
-                    <button
-                      key={tab.id}
-                      type="button"
-                      onClick={() => {
-                        setBrowseFilter(tab.id);
-                        setCurrentPage(1);
-                      }}
-                      className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
-                        active
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
-                          : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
-                      }`}
-                    >
-                      <span>{tab.icon}</span>
-                      <span>{tab.label}</span>
-                      <span
-                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
-                          active
-                            ? 'bg-black/30 text-black'
-                            : 'bg-white/10 text-slate-400'
+            {/* Contenedor de Formato y Filtros: en celular se muestra condicionado, en desktop siempre visible */}
+            <div className={`${mobileFiltersOpen ? 'block' : 'hidden'} sm:block space-y-3`}>
+              {/* Format / Tipo de Lanzamiento Bar */}
+              <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm">💽</span>
+                  <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
+                    Formato
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  {[
+                    {
+                      id: 'ALL',
+                      label: 'Todos',
+                      icon: '🎧',
+                      count: releaseTypeCounts.ALL,
+                    },
+                    {
+                      id: 'ALBUM',
+                      label: 'Álbumes',
+                      icon: '💿',
+                      count: releaseTypeCounts.ALBUM,
+                    },
+                    {
+                      id: 'EP',
+                      label: 'EPs',
+                      icon: '💽',
+                      count: releaseTypeCounts.EP,
+                    },
+                    {
+                      id: 'SENCILLO',
+                      label: 'Sencillos',
+                      icon: '🎵',
+                      count: releaseTypeCounts.SENCILLO,
+                    },
+                    {
+                      id: 'COMPILACION',
+                      label: 'Compilaciones',
+                      icon: '📦',
+                      count: releaseTypeCounts.COMPILACION,
+                    },
+                    ...(releaseTypeCounts.EN_VIVO > 0
+                      ? [
+                          {
+                            id: 'EN_VIVO',
+                            label: 'En Vivo',
+                            icon: '🎤',
+                            count: releaseTypeCounts.EN_VIVO,
+                          },
+                        ]
+                      : []),
+                    ...(releaseTypeCounts.SOUNDTRACK > 0
+                      ? [
+                          {
+                            id: 'SOUNDTRACK',
+                            label: 'Soundtracks',
+                            icon: '🎬',
+                            count: releaseTypeCounts.SOUNDTRACK,
+                          },
+                        ]
+                      : []),
+                    ...(releaseTypeCounts.REMIX > 0
+                      ? [
+                          {
+                            id: 'REMIX',
+                            label: 'Remixes',
+                            icon: '🎛️',
+                            count: releaseTypeCounts.REMIX,
+                          },
+                        ]
+                      : []),
+                  ].map((fmt) => {
+                    const isSelected = releaseTypeFilter === fmt.id;
+                    return (
+                      <button
+                        key={fmt.id}
+                        type="button"
+                        onClick={() => setReleaseTypeFilter(fmt.id)}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                         }`}
                       >
-                        {tab.count}
-                      </span>
+                        <span>{fmt.icon}</span>
+                        <span>{fmt.label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                            isSelected
+                              ? 'bg-black/30 text-black font-black'
+                              : 'bg-white/10 text-slate-400'
+                          }`}
+                        >
+                          {fmt.count || 0}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Musiclub Hybrid Browse & Filter Bar */}
+              <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
+                {/* Musiclub Hybrid Browse Pills */}
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                  {[
+                    {
+                      id: 'ALL',
+                      label: 'Todo el Catálogo',
+                      count: unifiedAlbums.length,
+                      icon: '🌐',
+                    },
+                    {
+                      id: 'REVIEWED',
+                      label: 'Calificados en Club',
+                      count: reviewedCount,
+                      icon: '⭐',
+                    },
+                  ].map((tab) => {
+                    const active = browseFilter === tab.id;
+                    return (
+                      <button
+                        key={tab.id}
+                        type="button"
+                        onClick={() => {
+                          setBrowseFilter(tab.id);
+                          setCurrentPage(1);
+                        }}
+                        className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
+                          active
+                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
+                            : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
+                        }`}
+                      >
+                        <span>{tab.icon}</span>
+                        <span>{tab.label}</span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
+                            active
+                              ? 'bg-black/30 text-black'
+                              : 'bg-white/10 text-slate-400'
+                          }`}
+                        >
+                          {tab.count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Search Input */}
+                <div className="relative flex-1 w-full min-w-[200px]">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                    🔍
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="Buscar álbum, artista o curador en el catálogo..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                    >
+                      ✕
                     </button>
-                  );
-                })}
-              </div>
+                  )}
+                </div>
 
-              {/* Search Input */}
-              <div className="relative flex-1 w-full min-w-[200px]">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                  🔍
-                </span>
-                <input
-                  type="text"
-                  placeholder="Buscar álbum, artista o curador en el catálogo..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
-                />
-                {searchQuery && (
-                  <button
-                    type="button"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-
-              {/* Quick Pool Shortcut */}
-              <Link
-                to="/pool"
-                className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
-              >
-                <span>🗳️</span>
-                <span>Pool Musical</span>
-              </Link>
-
-              {/* Sorting */}
-              <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-                <label className="text-xs text-slate-400 whitespace-nowrap">
-                  Ordenar:
-                </label>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
+                {/* Quick Pool Shortcut */}
+                <Link
+                  to="/pool"
+                  className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
                 >
-                  <option value="rating_desc">🌟 Mayor Calificación</option>
-                  <option value="rating_asc">📉 Menor Calificación</option>
-                  <option value="reviews_desc">📝 Más Reseñas</option>
-                  <option value="newest">🕒 Más Recientes</option>
-                  <option value="name_asc">🔤 Álbum (A-Z)</option>
-                  <option value="artist_asc">🎤 Artista (A-Z)</option>
-                </select>
+                  <span>🗳️</span>
+                  <span>Pool Musical</span>
+                </Link>
+
+                {/* Sorting */}
+                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  <label className="text-xs text-slate-400 whitespace-nowrap">
+                    Ordenar:
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
+                  >
+                    <option value="rating_desc">🌟 Mayor Calificación</option>
+                    <option value="rating_asc">📉 Menor Calificación</option>
+                    <option value="reviews_desc">📝 Más Reseñas</option>
+                    <option value="newest">🕒 Más Recientes</option>
+                    <option value="name_asc">🔤 Álbum (A-Z)</option>
+                    <option value="artist_asc">🎤 Artista (A-Z)</option>
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -1404,7 +1572,7 @@ export function AlbumsCatalog({ isPage = false }) {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                   {paginatedAlbums.map((album) => {
                     const isMine = isUserAlbum(album);
                     const score =
@@ -1447,7 +1615,7 @@ export function AlbumsCatalog({ isPage = false }) {
                             ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.25)] hover:border-yellow-300'
                             : album.status === 'GANADOR'
                               ? 'border-[#f5576c] shadow-[0_0_20px_rgba(245,87,108,0.2)]'
-                              : album.is_trending && !isCardInClub
+                              : album.is_trending
                                 ? 'border-orange-500/30 hover:border-orange-400/80 shadow-[0_4px_25px_rgba(249,115,22,0.15)]'
                                 : 'border-white/10 hover:border-cyan-400/50 shadow-[0_4px_25px_rgba(6,182,212,0.1)]'
                         }`}
@@ -1475,7 +1643,7 @@ export function AlbumsCatalog({ isPage = false }) {
                           </div>
 
                           <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
-                            {album.is_trending && !isCardInClub && (
+                            {album.is_trending && score === null && (
                               <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
                                 🔥 Tendencia 2026
                               </span>
@@ -1614,15 +1782,15 @@ export function AlbumsCatalog({ isPage = false }) {
 
                 {/* Pagination Controls */}
                 {totalPages > 1 && (
-                  <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10">
-                    <div className="text-xs text-slate-400">
+                  <div className="pt-6 pb-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 px-1">
+                    <div className="text-xs text-slate-400 text-center sm:text-left">
                       Mostrando{' '}
                       <span
                         translate="no"
                         className="notranslate text-white font-bold"
                         data-stat="number"
                       >
-                        {(currentPage - 1) * ITEMS_PER_PAGE + 1}
+                        {(currentPage - 1) * itemsPerPage + 1}
                       </span>{' '}
                       a{' '}
                       <span
@@ -1631,7 +1799,7 @@ export function AlbumsCatalog({ isPage = false }) {
                         data-stat="number"
                       >
                         {Math.min(
-                          currentPage * ITEMS_PER_PAGE,
+                          currentPage * itemsPerPage,
                           filteredAlbums.length
                         )}
                       </span>{' '}
@@ -1646,14 +1814,14 @@ export function AlbumsCatalog({ isPage = false }) {
                       álbumes
                     </div>
 
-                    <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                    <div className="flex items-center justify-center gap-1.5 w-full sm:w-auto">
                       <button
                         onClick={() => {
                           setCurrentPage(1);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          scrollToExplorer();
                         }}
                         disabled={currentPage === 1}
-                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                        className="hidden sm:inline-flex px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all cursor-pointer"
                         title="Primera Página"
                       >
                         «
@@ -1662,60 +1830,65 @@ export function AlbumsCatalog({ isPage = false }) {
                       <button
                         onClick={() => {
                           setCurrentPage((p) => Math.max(1, p - 1));
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          scrollToExplorer();
                         }}
                         disabled={currentPage === 1}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                        className="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold bg-[#11131E] hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer"
                       >
                         <span>←</span> Anterior
                       </button>
 
-                      {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter((page) => {
-                          return (
-                            page === 1 ||
-                            page === totalPages ||
-                            Math.abs(page - currentPage) <= 2
-                          );
-                        })
-                        .map((page, idx, arr) => {
-                          const prev = arr[idx - 1];
-                          const showEllipsis = prev && page - prev > 1;
+                      {/* Números de página en pantallas medianas y grandes */}
+                      <div className="hidden sm:flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1)
+                          .filter((page) => {
+                            return (
+                              page === 1 ||
+                              page === totalPages ||
+                              Math.abs(page - currentPage) <= 2
+                            );
+                          })
+                          .map((page, idx, arr) => {
+                            const prev = arr[idx - 1];
+                            const showEllipsis = prev && page - prev > 1;
 
-                          return (
-                            <React.Fragment key={page}>
-                              {showEllipsis && (
-                                <span className="text-slate-600 px-1 text-xs">
-                                  ...
-                                </span>
-                              )}
-                              <button
-                                onClick={() => {
-                                  setCurrentPage(page);
-                                  window.scrollTo({
-                                    top: 0,
-                                    behavior: 'smooth',
-                                  });
-                                }}
-                                className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border ${
-                                  currentPage === page
-                                    ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20'
-                                    : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
-                                }`}
-                              >
-                                {page}
-                              </button>
-                            </React.Fragment>
-                          );
-                        })}
+                            return (
+                              <React.Fragment key={page}>
+                                {showEllipsis && (
+                                  <span className="text-slate-600 px-1 text-xs">
+                                    ...
+                                  </span>
+                                )}
+                                <button
+                                  onClick={() => {
+                                    setCurrentPage(page);
+                                    scrollToExplorer();
+                                  }}
+                                  className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                                    currentPage === page
+                                      ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20 font-black'
+                                      : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
+                                  }`}
+                                >
+                                  {page}
+                                </button>
+                              </React.Fragment>
+                            );
+                          })}
+                      </div>
+
+                      {/* Contador compacto central en celular */}
+                      <div className="sm:hidden px-3 py-1 bg-white/5 rounded-xl border border-white/10 text-xs font-bold text-cyan-400">
+                        {currentPage} / {totalPages}
+                      </div>
 
                       <button
                         onClick={() => {
                           setCurrentPage((p) => Math.min(totalPages, p + 1));
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          scrollToExplorer();
                         }}
                         disabled={currentPage === totalPages}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center gap-1"
+                        className="flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold bg-[#11131E] hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all flex items-center justify-center gap-1 shadow-md cursor-pointer"
                       >
                         Siguiente <span>→</span>
                       </button>
@@ -1723,10 +1896,10 @@ export function AlbumsCatalog({ isPage = false }) {
                       <button
                         onClick={() => {
                           setCurrentPage(totalPages);
-                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                          scrollToExplorer();
                         }}
                         disabled={currentPage === totalPages}
-                        className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all"
+                        className="hidden sm:inline-flex px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white/5 hover:bg-white/10 disabled:opacity-30 disabled:pointer-events-none text-slate-300 border border-white/10 transition-all cursor-pointer"
                         title="Última Página"
                       >
                         »

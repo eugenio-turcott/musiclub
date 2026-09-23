@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
 import { PLACEHOLDER_COVER } from '../TierListMaker';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
+import { SpotifyLogo } from '../common/PlatformLogos';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -105,18 +106,51 @@ export function AnticipatedSection({
               const targetUrl = `/albumes/${item.slug}`;
               const rank = item.popularity_rank || index + 1;
 
+              const rawTracksCount =
+                item.total_tracks ??
+                item.expected_tracks ??
+                item.totalTracks ??
+                (Array.isArray(item.tracks) && item.tracks.length > 0
+                  ? item.tracks.length
+                  : null) ??
+                (Array.isArray(item.track_stats) && item.track_stats.length > 0
+                  ? item.track_stats.length
+                  : null);
+
+              const hasTracks =
+                rawTracksCount !== null &&
+                rawTracksCount !== undefined &&
+                Number(rawTracksCount) > 0;
+
+              const cleanArtist = item.artist_name || 'Artista';
+              const cleanAlbum = item.album_name || 'Lanzamiento';
+
+              const spotifyUrl =
+                item.spotify_link ||
+                item.spotify_url ||
+                (item.spotify_id
+                  ? `https://open.spotify.com/album/${item.spotify_id}`
+                  : null) ||
+                `https://open.spotify.com/search/${encodeURIComponent(
+                  `${cleanArtist} ${cleanAlbum}`
+                )}`;
+
               return (
                 <div
                   key={item.id || item.slug}
                   className="bg-[#12131F]/95 rounded-2xl overflow-hidden border border-amber-500/25 hover:border-amber-400/60 shadow-lg hover:shadow-amber-500/15 transition-all duration-300 flex flex-col group relative"
                 >
-                  {/* Artwork */}
-                  <div className="relative aspect-square overflow-hidden bg-black/60">
+                  {/* Artwork - Link directo a la ficha del release */}
+                  <Link
+                    to={targetUrl}
+                    className="relative aspect-square overflow-hidden bg-black/60 block group/cover cursor-pointer"
+                    title={`Ver ${item.album_name}`}
+                  >
                     <img
                       src={item.image_url || PLACEHOLDER_COVER}
                       alt={item.album_name}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover/cover:scale-105 transition-transform duration-500"
                       onError={(e) => {
                         e.target.src = PLACEHOLDER_COVER;
                       }}
@@ -149,7 +183,7 @@ export function AnticipatedSection({
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Info */}
                   <div className="p-3.5 space-y-2 flex-1 flex flex-col justify-between">
@@ -172,20 +206,38 @@ export function AnticipatedSection({
                       </div>
                     </div>
 
-                    {/* Locked Rating notice & CTA */}
+                    {/* Locked Rating notice, Tracks info & Spotify / Ver Actions */}
                     <div className="pt-2 border-t border-white/5 mt-auto space-y-2">
-                      <div className="text-[10px] text-amber-300/80 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1.5">
-                        <span>🔒</span>
-                        <span>Calificación en su estreno</span>
+                      <div className="flex items-center justify-between gap-2 text-[10px]">
+                        <div className="text-amber-300/80 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1.5 flex-1 min-w-0">
+                          <span>🔒</span>
+                          <span className="truncate">Estreno oficial</span>
+                        </div>
+                        <div className="bg-black/50 border border-white/10 px-2 py-1 rounded-lg text-slate-300 font-mono whitespace-nowrap">
+                          <span className="text-slate-400">Tracks:</span>{' '}
+                          <strong
+                            className={
+                              hasTracks
+                                ? 'text-white font-bold'
+                                : 'text-amber-300 font-bold'
+                            }
+                          >
+                            {hasTracks ? rawTracksCount : 'Por anunciar'}
+                          </strong>
+                        </div>
                       </div>
 
-                      <Link
-                        to={targetUrl}
-                        className="w-full py-1.5 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-                      >
-                        <span>🔍</span>
-                        <span>Ver Release</span>
-                      </Link>
+                      <div className="flex items-center gap-2">
+                        <Link
+                          to={targetUrl}
+                          className={`py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                            spotifyUrl ? 'flex-1' : 'w-full'
+                          }`}
+                        >
+                          <span>🔍</span>
+                          <span>Ver Release</span>
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -195,8 +247,8 @@ export function AnticipatedSection({
 
           {/* Paginación interactiva de 10 en 10 */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
-              <span className="text-xs text-slate-400 font-medium">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-white/10 mt-6 px-1">
+              <span className="text-xs text-slate-400 font-medium text-center sm:text-left">
                 Página{' '}
                 <span className="text-amber-300 font-bold">
                   {safeCurrentPage}
@@ -206,13 +258,13 @@ export function AnticipatedSection({
                 próximos estrenos
               </span>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-center gap-1.5 w-full sm:w-auto">
                 {/* Botón Anterior */}
                 <button
                   type="button"
                   onClick={() => handlePageChange(safeCurrentPage - 1)}
                   disabled={safeCurrentPage === 1}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
                     safeCurrentPage === 1
                       ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
                       : 'bg-[#171926] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-amber-500/40 cursor-pointer'
@@ -222,8 +274,8 @@ export function AnticipatedSection({
                   <span>Anterior</span>
                 </button>
 
-                {/* Números de página */}
-                <div className="flex items-center gap-1">
+                {/* Números de página en pantallas medianas/grandes */}
+                <div className="hidden sm:flex items-center gap-1">
                   {Array.from({ length: totalPages }).map((_, idx) => {
                     const pageNum = idx + 1;
                     const isActive = pageNum === safeCurrentPage;
@@ -244,12 +296,17 @@ export function AnticipatedSection({
                   })}
                 </div>
 
+                {/* Indicador de página central en móvil */}
+                <div className="sm:hidden px-3 py-1 bg-white/5 rounded-xl border border-white/10 text-xs font-bold text-amber-300">
+                  {safeCurrentPage} / {totalPages}
+                </div>
+
                 {/* Botón Siguiente */}
                 <button
                   type="button"
                   onClick={() => handlePageChange(safeCurrentPage + 1)}
                   disabled={safeCurrentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
                     safeCurrentPage === totalPages
                       ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
                       : 'bg-[#171926] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-amber-500/40 cursor-pointer'

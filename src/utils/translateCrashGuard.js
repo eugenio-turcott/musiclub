@@ -165,8 +165,10 @@ const UNTRANSLATABLE_SELECTORS = [
   '.band-name',
   '[data-artist]',
   '[data-artist-name]',
-  'a[href^="/artista/"]',
-  'a[href^="/artist/"]',
+  'a[href^="/artista/"].artist-name',
+  'a[href^="/artist/"].artist-name',
+  'a[href^="/artista/"][data-artist]',
+  'a[href^="/artist/"][data-artist]',
 
   // People / Users / Members / Critics / Authors / Curators / Senders / Recipients
   '.username-tag',
@@ -213,6 +215,12 @@ export function protectMusicAndStatsElements(root = null) {
 
   try {
     targetRoot.querySelectorAll(UNTRANSLATABLE_SELECTORS).forEach((el) => {
+      if (
+        el.getAttribute('data-translatable') === 'true' ||
+        el.getAttribute('translate') === 'yes'
+      ) {
+        return;
+      }
       if (el.getAttribute('translate') !== 'no') {
         el.setAttribute('translate', 'no');
       }

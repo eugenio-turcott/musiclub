@@ -3,7 +3,6 @@ import { slugifyRelease, slugifyArtist } from '../utils/ratingUtils.js';
 import {
   RECORD_CLUB_FALLBACK_RELEASES,
   RECORD_CLUB_FALLBACK_UPCOMING,
-  CURATED_ANTICIPATED_RELEASES,
 } from './recordClubData.js';
 
 let cachedToken = null;
@@ -571,10 +570,11 @@ export async function getAnticipatedReleases(clubAlbums = []) {
     // Si la tabla no está creada aún, continuará con el fallback
   }
 
-  // Si no hay datos en Supabase, usar el fallback verificado de Record Club y los curados
+  // Si no hay datos en Supabase, usar el fallback verificado de Record Club
   const upcomingSource = upcomingFromDb.length > 0 ? upcomingFromDb : RECORD_CLUB_FALLBACK_UPCOMING;
 
-  // 3. Combinar los de BD con los curados, evitando duplicados
+  // 3. Combinar los lanzamientos de BD y Record Club asegurando fechas futuras y evitando duplicados
+  const todayStr = now.toISOString().split('T')[0];
   const combined = [...fromDb];
   const seenSlugs = new Set(
     combined.map((a) =>
@@ -583,21 +583,8 @@ export async function getAnticipatedReleases(clubAlbums = []) {
   );
 
   upcomingSource.forEach((ca) => {
+    if (ca.release_date && ca.release_date < todayStr) return;
     const slug = ca.slug || slugifyRelease(ca.artist_name, ca.album_name);
-    if (!seenSlugs.has(slug)) {
-      seenSlugs.add(slug);
-      combined.push({
-        ...ca,
-        slug,
-        is_anticipated: true,
-        can_rate: false,
-      });
-    }
-  });
-
-  // Asegurar que los lanzamientos curados clave también estén presentes si no están duplicados
-  CURATED_ANTICIPATED_RELEASES.forEach((ca) => {
-    const slug = slugifyRelease(ca.artist_name, ca.album_name);
     if (!seenSlugs.has(slug)) {
       seenSlugs.add(slug);
       combined.push({

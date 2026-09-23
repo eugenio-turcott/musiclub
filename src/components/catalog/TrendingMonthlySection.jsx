@@ -13,18 +13,51 @@ const ITEMS_PER_PAGE = 20;
  */
 export function TrendingMonthlySection({
   trendingData,
+  clubAlbums = [],
   loading = false,
   onQuickPropose,
   proposingId = null,
 }) {
   const releases = trendingData?.releases || [];
   const monthLabel = trendingData?.monthLabel || 'Tendencias de la Semana';
-  const lastFridayStr = trendingData?.lastFridayStr || 'Viernes';
 
   const sectionRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+
+  // Detección reactiva de vista móvil (< 640px)
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 640;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Límite responsivo: 10 en celular, 20 en pantallas medianas y grandes
+  const itemsPerPage = isMobile ? 10 : 20;
+
+  // Mapa de álbumes del club para emparejar calificaciones existentes
+  const clubAlbumMap = useMemo(() => {
+    const map = new Map();
+    (clubAlbums || []).forEach((alb) => {
+      if (alb.slug) map.set(alb.slug, alb);
+      const kExact = `${(alb.artist_name || '').toLowerCase().trim()}:::${(alb.album_name || '').toLowerCase().trim()}`;
+      map.set(kExact, alb);
+      const cleanAlb = (alb.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim().toLowerCase();
+      const kClean = `${(alb.artist_name || '').toLowerCase().trim()}:::${cleanAlb}`;
+      map.set(kClean, alb);
+    });
+    return map;
+  }, [clubAlbums]);
 
   // Reiniciar a la página 1 cuando el usuario busca o cambia categoría
   const handleCategoryChange = (cat) => {
@@ -103,17 +136,17 @@ export function TrendingMonthlySection({
     return list;
   }, [releases, selectedCategory, searchQuery]);
 
-  // Paginación limpia de 20 en 20
+  // Paginación dinámica: 10 en celular, 20 en pantallas medianas y grandes
   const totalPages = Math.max(
     1,
-    Math.ceil(filteredReleases.length / ITEMS_PER_PAGE)
+    Math.ceil(filteredReleases.length / itemsPerPage)
   );
   const safeCurrentPage = Math.min(currentPage, totalPages);
 
   const visibleReleases = useMemo(() => {
-    const start = (safeCurrentPage - 1) * ITEMS_PER_PAGE;
-    return filteredReleases.slice(start, start + ITEMS_PER_PAGE);
-  }, [filteredReleases, safeCurrentPage]);
+    const start = (safeCurrentPage - 1) * itemsPerPage;
+    return filteredReleases.slice(start, start + itemsPerPage);
+  }, [filteredReleases, safeCurrentPage, itemsPerPage]);
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -148,9 +181,6 @@ export function TrendingMonthlySection({
           <div className="text-left">
             <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">
               Ciclo Semanal
-            </span>
-            <span className="text-xs font-black text-pink-300">
-              Corte: {lastFridayStr}
             </span>
           </div>
         </div>
@@ -227,7 +257,7 @@ export function TrendingMonthlySection({
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4.5">
             {visibleReleases.map((item, index) => {
               const rank = item.trending_rank || index + 1;
               const targetUrl = `/albumes/${item.slug}`;
@@ -236,6 +266,31 @@ export function TrendingMonthlySection({
                 ((item.id && proposingId === item.id) ||
                   (item.spotify_id && proposingId === item.spotify_id) ||
                   (item.album_name && proposingId === item.album_name));
+
+              // Match con álbum en el club para calificacion
+              const clubMatch =
+                clubAlbumMap.get(item.slug) ||
+                clubAlbumMap.get(
+                  `${(item.artist_name || '').toLowerCase().trim()}:::${(item.album_name || '').toLowerCase().trim()}`
+                ) ||
+                clubAlbumMap.get(
+                  `${(item.artist_name || '').toLowerCase().trim()}:::${(item.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim().toLowerCase()}`
+                );
+
+              const finalScore =
+                clubMatch?.final_rating ??
+                clubMatch?.rating ??
+                clubMatch?.score ??
+                null;
+              const reviewCount =
+                clubMatch?.review_count ??
+                (Array.isArray(clubMatch?.reviews) ? clubMatch.reviews.length : 0);
+              const hasClubRating =
+                (finalScore !== null &&
+                  finalScore !== undefined &&
+                  !isNaN(Number(finalScore)) &&
+                  Number(finalScore) > 0) ||
+                reviewCount > 0;
 
               // Cálculo relativo de la barra de popularidad según el puntaje de la semana
               const rawPop = item.popularity_raw || 50;
@@ -287,13 +342,21 @@ export function TrendingMonthlySection({
                       </span>
                     </div>
 
-                    {item.is_new && (
+                    {/* Calificación del Club en la esquina superior derecha o Distintivo NEW (solo si aún no tiene reviews) */}
+                    {hasClubRating ? (
                       <div className="absolute top-2 right-2 z-10">
-                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-400 text-black shadow-lg tracking-wider animate-pulse">
+                        <span className="bg-[#12131F]/90 text-amber-300 font-black text-xs px-2 py-0.5 rounded-lg border border-amber-400/50 shadow-xl flex items-center gap-1 backdrop-blur-md">
+                          <span>⭐</span>
+                          <span>{Number(finalScore).toFixed(1)}</span>
+                        </span>
+                      </div>
+                    ) : item.is_new ? (
+                      <div className="absolute top-2 right-2 z-10">
+                        <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-emerald-400 text-black shadow-md tracking-wider">
                           NEW
                         </span>
                       </div>
-                    )}
+                    ) : null}
 
                     {/* Tracks & Live Rotation indicator */}
                     <div className="absolute bottom-2 right-2 z-10">
@@ -302,12 +365,17 @@ export function TrendingMonthlySection({
                           const count =
                             item.total_tracks ??
                             item.totalTracks ??
-                            (Array.isArray(item.tracks) ? item.tracks.length : null);
+                            (Array.isArray(item.tracks)
+                              ? item.tracks.length
+                              : null);
                           if (count) {
                             return `${count} ${count === 1 ? 'track' : 'tracks'}`;
                           }
-                          const relType = (item.release_type || '').toUpperCase();
-                          if (relType === 'SENCILLO' || relType === 'SINGLE') return '1 track';
+                          const relType = (
+                            item.release_type || ''
+                          ).toUpperCase();
+                          if (relType === 'SENCILLO' || relType === 'SINGLE')
+                            return '1 track';
                           if (relType === 'EP') return 'EP';
                           return 'Álbum';
                         })()}
@@ -316,7 +384,7 @@ export function TrendingMonthlySection({
                   </Link>
 
                   {/* Body info */}
-                  <div className="p-3 space-y-2.5 flex-1 flex flex-col justify-between">
+                  <div className="p-3 space-y-2.5 flex-1 flex flex-col justify-between relative">
                     <div>
                       <Link
                         to={targetUrl}
@@ -398,10 +466,10 @@ export function TrendingMonthlySection({
             })}
           </div>
 
-          {/* Paginación interactiva de 20 en 20 */}
+          {/* Paginación interactiva */}
           {totalPages > 1 && (
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-6 border-t border-white/10 mt-6">
-              <span className="text-xs text-slate-400 font-medium">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-6 border-t border-white/10 mt-6 px-1">
+              <span className="text-xs text-slate-400 font-medium text-center sm:text-left">
                 Página{' '}
                 <span className="text-white font-bold">{safeCurrentPage}</span>{' '}
                 de <span className="text-white font-bold">{totalPages}</span> ·{' '}
@@ -411,13 +479,13 @@ export function TrendingMonthlySection({
                 lanzamientos
               </span>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center justify-center gap-1.5 w-full sm:w-auto">
                 {/* Botón Anterior */}
                 <button
                   type="button"
                   onClick={() => handlePageChange(safeCurrentPage - 1)}
                   disabled={safeCurrentPage === 1}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
                     safeCurrentPage === 1
                       ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
                       : 'bg-[#11131E] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-pink-500/40 cursor-pointer'
@@ -427,8 +495,8 @@ export function TrendingMonthlySection({
                   <span>Anterior</span>
                 </button>
 
-                {/* Números de página */}
-                <div className="flex items-center gap-1">
+                {/* Números de página en pantallas medianas y grandes */}
+                <div className="hidden sm:flex items-center gap-1">
                   {Array.from({ length: totalPages }).map((_, idx) => {
                     const pageNum = idx + 1;
                     const isActive = pageNum === safeCurrentPage;
@@ -449,12 +517,17 @@ export function TrendingMonthlySection({
                   })}
                 </div>
 
+                {/* Indicador de página central en celular */}
+                <div className="sm:hidden px-3 py-1 bg-white/5 rounded-xl border border-white/10 text-xs font-bold text-pink-400">
+                  {safeCurrentPage} / {totalPages}
+                </div>
+
                 {/* Botón Siguiente */}
                 <button
                   type="button"
                   onClick={() => handlePageChange(safeCurrentPage + 1)}
                   disabled={safeCurrentPage === totalPages}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center gap-1 ${
+                  className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-xl text-xs font-bold border transition-all flex items-center justify-center gap-1 ${
                     safeCurrentPage === totalPages
                       ? 'bg-white/5 text-slate-500 border-white/5 cursor-not-allowed'
                       : 'bg-[#11131E] hover:bg-white/10 text-slate-300 hover:text-white border-white/15 shadow-md hover:border-pink-500/40 cursor-pointer'

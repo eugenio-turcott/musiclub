@@ -54,11 +54,11 @@ export const RECORD_CLUB_FALLBACK_RELEASES = [
     "artist_name": "MILEY",
     "image_url": "https://cdn.rcrd.club/releases/mv6nkn1wy5n8qxod.webp?width=500",
     "release_date": "2026-09-18",
-    "release_type": "SENCILLO",
-    "total_tracks": 1,
+    "release_type": "ALBUM",
+    "total_tracks": 10,
     "trending_rank": 3,
-    "popularity_raw": 240,
-    "popularity_this_week": "240 pts",
+    "popularity_raw": 311,
+    "popularity_this_week": "311 pts",
     "genre_category": "POP / ALTERNATIVE",
     "badge": "Top 3 Global",
     "hit_track": "Bass Persuades",
@@ -66,9 +66,9 @@ export const RECORD_CLUB_FALLBACK_RELEASES = [
     "record_club_url": "https://record.club/releases/albums/miley-bass-persuades",
     "slug": "miley-bass-persuades",
     "artist_slug": "miley",
-    "spotify_id": null,
-    "spotify_url": null,
-    "updated_at": "2026-09-21 23:00:38.305+00"
+    "spotify_id": "6x7zk5GeCgqRn0Yujq135L",
+    "spotify_url": "https://open.spotify.com/album/6x7zk5GeCgqRn0Yujq135L",
+    "updated_at": "2026-09-23 18:04:21.730+00"
   },
   {
     "id": "3qe68y0657wlrv01",
@@ -2206,116 +2206,7 @@ export const RECORD_CLUB_FALLBACK_RELEASES = [
   }
 ];
 
-export const CURATED_ANTICIPATED_RELEASES = [
-  {
-    "id": "ant_blossoms_2026",
-    "album_name": "Songs from the Wedding Cake",
-    "artist_name": "Blossoms",
-    "image_url": "https://cdn-images.dzcdn.net/images/cover/e8c55456e7f24da86601ebd4d96067aa/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-02",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Indie Pop / Rock",
-    "description": "Nuevo álbum de estudio de la aclamada banda británica grabado en Stockport y Manchester.",
-    "expected_tracks": 12
-  },
-  {
-    "id": "ant_johnny_marr_2026",
-    "album_name": "The Age Of Everything",
-    "artist_name": "Johnny Marr",
-    "image_url": "https://cdn-images.dzcdn.net/images/artist/318e533e6129c1c6eb838e0f823/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-02",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Alternative Rock / Post-Punk",
-    "description": "El legendario cofundador y guitarrista de The Smiths presenta su nuevo trabajo solista.",
-    "expected_tracks": 10
-  },
-  {
-    "id": "ant_troye_sivan_2026",
-    "album_name": "She’s the Best",
-    "artist_name": "Troye Sivan",
-    "image_url": "https://cdn-images.dzcdn.net/images/artist/968460c08486bc17aafc1d4398e/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-09",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Dance-Pop / Synthpop",
-    "description": "El esperado siguiente LP tras el fenómeno global de Something to Give Each Other y Rush.",
-    "expected_tracks": 11
-  },
-  {
-    "id": "ant_greta_van_fleet_2026",
-    "album_name": "Palace for the People",
-    "artist_name": "Greta Van Fleet",
-    "image_url": "https://cdn-images.dzcdn.net/images/artist/06db73a10aa714ae6a0ed2787d0/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-09",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Hard Rock / Classic Rock",
-    "description": "Nuevo despliegue de guitarras abrasadoras y virtuosismo vocal por los hermanos Kiszka.",
-    "expected_tracks": 11
-  },
-  {
-    "id": "ant_fontaines_dc_2026",
-    "album_name": "Dopamine Chamber",
-    "artist_name": "Fontaines D.C.",
-    "image_url": "https://cdn-images.dzcdn.net/images/cover/8fd422a840884ba1dfaccc3bb42ad67d/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-16",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Post-Punk / Alternative",
-    "description": "Nuevo proyecto de estudio de la banda irlandesa tras la masiva aclamación crítica de Romance.",
-    "expected_tracks": 11
-  },
-  {
-    "id": "ant_cordae_paak_2026",
-    "album_name": "Heavy is The Crown",
-    "artist_name": "Cordae & Anderson .Paak",
-    "image_url": "https://cdn-images.dzcdn.net/images/cover/00dd0da365a94b1829/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-10-23",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Hip-Hop / Neo-Soul",
-    "description": "Álbum colaborativo completo entre dos de las voces más creativas del rap y soul contemporáneo.",
-    "expected_tracks": 14
-  },
-  {
-    "id": "ant_la_roux_2026",
-    "album_name": "Old Flames",
-    "artist_name": "La Roux",
-    "image_url": "https://cdn-images.dzcdn.net/images/cover/91f8ab3d5dace0f93a4de460a9c5c10b/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-11-06",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Synthpop / Electro-Pop",
-    "description": "El regreso de Elly Jackson con sintetizadores analógicos y grooves bailables electrizantes.",
-    "expected_tracks": 10
-  },
-  {
-    "id": "ant_royal_blood_2026",
-    "album_name": "Dead Company",
-    "artist_name": "Royal Blood",
-    "image_url": "https://cdn-images.dzcdn.net/images/artist/dd47ec0db2813508d1a7a14fbe1/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-11-13",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Hard Rock / Alternative",
-    "description": "El nuevo arsenal de riffs distorsionados y potencia rítmica del poderoso dúo británico.",
-    "expected_tracks": 10
-  },
-  {
-    "id": "ant_lana_del_rey_2026",
-    "album_name": "Stove",
-    "artist_name": "Lana Del Rey",
-    "image_url": "https://cdn-images.dzcdn.net/images/cover/c0f4f022fa51f13e877aae2e758e241d/1000x1000-000000-80-0-0.jpg",
-    "release_date": "2026-11-27",
-    "release_type": "ALBUM",
-    "status": "ANTICIPADO",
-    "genre": "Americana / Country Pop",
-    "description": "El esperado álbum con sonido acústico y raíces sureñas anunciado por Lana Del Rey con Jack Antonoff y Luke Laird.",
-    "expected_tracks": 13
-  }
-];
+export const CURATED_ANTICIPATED_RELEASES = [];
 
 export const RECORD_CLUB_FALLBACK_UPCOMING = [
   {
@@ -2367,12 +2258,19 @@ export const RECORD_CLUB_FALLBACK_UPCOMING = [
     "image_url": "https://cdn.rcrd.club/releases/z59oke9ooqqlv6wq.webp?width=500",
     "release_date": "2026-09-25",
     "release_type": "ALBUM",
-    "total_tracks": 10,
+    "total_tracks": 5,
     "popularity_rank": 4,
     "popularity_raw": 175,
     "genre": "POP / ALTERNATIVE",
-    "description": "Lanzamiento anunciado oficialmente.",
-    "record_club_url": "https://record.club/releases/albums/tinashe-popstar"
+    "description": "Track listing confirmado: 5 canciones, 14 minutos (Too Easy, Melatonin, I’d Rather Be Alone, Crash Out, Pillow Fight).",
+    "record_club_url": "https://record.club/releases/albums/tinashe-popstar",
+    "tracks": [
+      { "id": "kd8j0v2zww4my7eq", "name": "Too Easy", "track_name": "Too Easy", "track_number": 2, "duration_ms": 114868, "disc_number": 1 },
+      { "id": "l4geyq9j28kg38wm", "name": "Melatonin", "track_name": "Melatonin", "track_number": 3, "duration_ms": 222000, "disc_number": 1 },
+      { "id": "8og20xepgepj3pvq", "name": "I’d Rather Be Alone", "track_name": "I’d Rather Be Alone", "track_number": 7, "duration_ms": 194000, "disc_number": 1 },
+      { "id": "xjlgy2dndkw40p7e", "name": "Crash Out", "track_name": "Crash Out", "track_number": 8, "duration_ms": 190895, "disc_number": 1 },
+      { "id": "x6pqykzx2zxlyer2", "name": "Pillow Fight", "track_name": "Pillow Fight", "track_number": 9, "duration_ms": 141000, "disc_number": 1 }
+    ]
   },
   {
     "id": "ry7v83wgzmjlx9z0",

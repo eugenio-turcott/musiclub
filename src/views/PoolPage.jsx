@@ -68,6 +68,48 @@ export function PoolPage() {
   const [selectedFormatFilter, setSelectedFormatFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
   const [togglingReviews, setTogglingReviews] = useState(false);
+  const [isPoolSliderPaused, setIsPoolSliderPaused] = useState(false);
+
+  // Historial de Ganadores ordenados de mayor a menor calificación (V.9.4)
+  const sortedPoolHistory = useMemo(() => {
+    return [...poolHistory].sort((a, b) => {
+      const scoreA = Number(
+        a.final_rating ?? a.avg_rating ?? a.puntuacion ?? 0
+      );
+      const scoreB = Number(
+        b.final_rating ?? b.avg_rating ?? b.puntuacion ?? 0
+      );
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
+      const reviewsA = Number(
+        a.review_count ?? (Array.isArray(a.reviews) ? a.reviews.length : 0)
+      );
+      const reviewsB = Number(
+        b.review_count ?? (Array.isArray(b.reviews) ? b.reviews.length : 0)
+      );
+      if (reviewsB !== reviewsA) {
+        return reviewsB - reviewsA;
+      }
+      return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+    });
+  }, [poolHistory]);
+
+  const isPoolSliderActive = sortedPoolHistory.length > 4;
+
+  const poolMarqueeItems = useMemo(() => {
+    if (!isPoolSliderActive) return [];
+    let base = [...sortedPoolHistory];
+    while (base.length < 8) {
+      base = [...base, ...sortedPoolHistory];
+    }
+    return [...base, ...base];
+  }, [isPoolSliderActive, sortedPoolHistory]);
+
+  const poolSliderDuration = useMemo(() => {
+    const baseCount = poolMarqueeItems.length / 2;
+    return `${Math.max(25, Math.round(baseCount * 4.5))}s`;
+  }, [poolMarqueeItems.length]);
 
   // Nomination Modal States
   const [nominationSearch, setNominationSearch] = useState('');
@@ -1121,74 +1163,150 @@ export function PoolPage() {
         {/* =========================================================================
             4. POOL GRADUATION HISTORY (HISTORIAL DE LA TEMPORADA)
             ========================================================================= */}
-        {poolHistory.length > 0 && (
+        {sortedPoolHistory.length > 0 && (
           <section className="space-y-6 text-left pt-6 border-t border-white/10">
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
                 Historial de Ganadores (
                 <span translate="no" className="notranslate" data-stat="number">
-                  {poolLoading ? '...' : poolHistory.length}
+                  {poolLoading ? '...' : sortedPoolHistory.length}
                 </span>
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
                 Lanzamientos que ganaron en el Pool de la Temporada 1 y ya
-                fueron evaluados por la comunidad.
+                fueron evaluados por la comunidad, ordenados de mayor a menor
+                calificación.
               </p>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              {poolHistory.map((alb) => (
-                <Link
-                  key={alb.id}
-                  to={getReleaseUrl(
-                    alb.album,
-                    alb.release_type || alb.releaseType
-                  )}
-                  className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between"
-                >
-                  <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
-                    <img
-                      src={alb.imagen}
-                      alt={alb.album}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    {alb.final_rating || alb.avg_rating ? (
-                      <div
-                        className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[11px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
-                        title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
-                      >
-                        <span className="text-amber-400 text-xs">★</span>
-                        <span
-                          translate="no"
-                          className="notranslate tracking-tight"
+            {!isPoolSliderActive ? (
+              /* CASO 1: MÁXIMO 4 ELEMENTOS -> CUADRÍCULA ESTÁTICA */
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                {sortedPoolHistory.map((alb, idx) => (
+                  <Link
+                    key={alb.id || idx}
+                    to={getReleaseUrl(
+                      alb.album,
+                      alb.release_type || alb.releaseType
+                    )}
+                    className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between w-full"
+                  >
+                    <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
+                      <img
+                        src={alb.imagen}
+                        alt={alb.album}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                      />
+                      {alb.final_rating || alb.avg_rating ? (
+                        <div
+                          className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[11px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
+                          title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
                         >
-                          {Number(alb.final_rating || alb.avg_rating).toFixed(
-                            1
-                          )}
-                        </span>
-                      </div>
-                    ) : null}
-                  </div>
+                          <span className="text-amber-400 text-xs">★</span>
+                          <span
+                            translate="no"
+                            className="notranslate tracking-tight"
+                          >
+                            {Number(alb.final_rating || alb.avg_rating).toFixed(
+                              1
+                            )}
+                          </span>
+                        </div>
+                      ) : null}
+                    </div>
 
-                  <div className="space-y-0.5 min-w-0">
-                    <h4
-                      translate="no"
-                      className="notranslate music-title text-xs font-bold text-white group-hover:text-amber-300 transition-colors truncate"
+                    <div className="space-y-0.5 min-w-0">
+                      <h4
+                        translate="no"
+                        className="notranslate music-title text-xs font-bold text-white group-hover:text-amber-300 transition-colors truncate"
+                      >
+                        {alb.album}
+                      </h4>
+                      <p
+                        translate="no"
+                        className="notranslate artist-name text-[10px] text-slate-400 truncate"
+                      >
+                        {alb.artista}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              /* CASO 2: MÁS DE 4 ELEMENTOS -> SLIDER HORIZONTAL CONTINUO */
+              <div
+                className="relative w-full overflow-hidden py-2 group/pool-slider"
+                onMouseEnter={() => setIsPoolSliderPaused(true)}
+                onMouseLeave={() => setIsPoolSliderPaused(false)}
+              >
+                {/* Gradientes laterales de desvanecimiento estético */}
+                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+
+                {/* Pista del slider infinito en traslación perpetua */}
+                <div
+                  className={`mb-6 animate-continuous-slider flex gap-3 sm:gap-5 w-max will-change-transform ${
+                    isPoolSliderPaused ? 'slider-paused' : ''
+                  }`}
+                  style={{
+                    '--slider-duration': poolSliderDuration,
+                  }}
+                >
+                  {poolMarqueeItems.map((alb, idx) => (
+                    <Link
+                      key={`pool-marquee-${alb.id || idx}-${idx}`}
+                      to={getReleaseUrl(
+                        alb.album,
+                        alb.release_type || alb.releaseType
+                      )}
+                      className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0"
                     >
-                      {alb.album}
-                    </h4>
-                    <p
-                      translate="no"
-                      className="notranslate artist-name text-[10px] text-slate-400 truncate"
-                    >
-                      {alb.artista}
-                    </p>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                      <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
+                        <img
+                          src={alb.imagen}
+                          alt={alb.album}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                        />
+                        {alb.final_rating || alb.avg_rating ? (
+                          <div
+                            className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[14px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
+                            title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
+                          >
+                            <span className="text-amber-400 text-xs">★</span>
+                            <span
+                              translate="no"
+                              className="notranslate tracking-tight"
+                            >
+                              {Number(
+                                alb.final_rating || alb.avg_rating
+                              ).toFixed(1)}
+                            </span>
+                          </div>
+                        ) : null}
+                      </div>
+
+                      <div className="space-y-0.5 min-w-0">
+                        <h4
+                          translate="no"
+                          className="notranslate music-title text-xs font-bold text-white group-hover:text-amber-300 transition-colors truncate"
+                        >
+                          {alb.album}
+                        </h4>
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-[10px] text-slate-400 truncate"
+                        >
+                          {alb.artista}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
 

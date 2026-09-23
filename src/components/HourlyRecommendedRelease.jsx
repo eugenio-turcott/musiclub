@@ -470,8 +470,8 @@ export function HourlyRecommendedRelease({
                 </p>
               ) : (
                 <p className="text-xs text-white/50 italic bg-black/20 p-2.5 rounded-xl border border-white/5">
-                  El primer crítico otorgó su calificación sin comentarios escritos.
-                  ¡Sé quien aporte una reseña más detallada!
+                  El primer crítico otorgó su calificación sin comentarios
+                  escritos. ¡Sé quien aporte una reseña más detallada!
                 </p>
               )}
 

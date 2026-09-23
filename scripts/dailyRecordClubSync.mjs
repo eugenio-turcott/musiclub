@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
@@ -9,9 +10,11 @@ import {
 import { slugifyArtist, slugifyRelease } from '../src/utils/ratingUtils.js';
 import { enrichAndInsertAlbum } from '../src/services/albumEnrichmentService.js';
 import { sendUpcomingReleaseDayEmail } from '../src/services/emailService.js';
+import { normalizeCanonicalGenres } from '../src/utils/genreNormalizer.js';
 
 // Cargar variables de entorno siempre de forma absoluta desde la raíz del proyecto
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
 const supabaseUrl =
@@ -52,7 +55,32 @@ function sleep(ms) {
 }
 
 // =========================================================================
-// SPOTIFY TOKEN & CLIENTE
+// Consultar tracks directamente de Record Club API
+async function fetchRecordClubTracks(releaseId) {
+  if (!releaseId) return [];
+  try {
+    const cleanId = String(releaseId).replace(/^rc_/, '').trim();
+    const res = await fetch(`https://api.record.club/releases/${cleanId}/tracks`, {
+      headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!res.ok) return [];
+    const json = await res.json();
+    if (!json.success || !Array.isArray(json.data)) return [];
+    return json.data.map((t, idx) => ({
+      id: t.id || `rc_${idx + 1}`,
+      name: t.name,
+      track_name: t.name,
+      disc_number: t.mediumPosition || 1,
+      duration_ms: t.length || null,
+      track_number: parseInt(t.number, 10) || t.position || idx + 1,
+    }));
+  } catch (err) {
+    return [];
+  }
+}
+
+// // SPOTIFY TOKEN & CLIENTE
 // =========================================================================
 let spotifyToken = null;
 let spotifyTokenExpiry = 0;
@@ -108,7 +136,13 @@ async function fetchSpotifyAlbumDetails(artistName, albumName) {
     const items = searchJson.albums?.items || [];
     if (items.length === 0) return null;
 
-    const matchedAlbum = items[0];
+    // Priorizar versión tipo 'album' y con más canciones sobre sencillos
+    const matchedAlbum = [...items].sort((a, b) => {
+      const aIsAlb = (a.album_type === 'album' || a.album_type === 'compilation') ? 2 : (a.album_type === 'ep' ? 1 : 0);
+      const bIsAlb = (b.album_type === 'album' || b.album_type === 'compilation') ? 2 : (b.album_type === 'ep' ? 1 : 0);
+      if (bIsAlb !== aIsAlb) return bIsAlb - aIsAlb;
+      return (b.total_tracks || 0) - (a.total_tracks || 0);
+    })[0];
 
     // 2. Obtener detalles completos (tracklist oficial con duraciones)
     const detailUrl = `https://api.spotify.com/v1/albums/${matchedAlbum.id}`;
@@ -536,37 +570,55 @@ async function processUpcoming(apiUpcoming, todayDate) {
   let upcomingList = [];
 
   if (apiUpcoming && apiUpcoming.length > 0) {
-    upcomingList = apiUpcoming.map((item, index) => {
-      const artist = item.artists?.map((a) => a.name).join(' & ') || 'Varios Artistas';
-      const title = item.title;
-      const artworkUrl = item.artwork?.releaseVersionId
-        ? `https://cdn.rcrd.club/releases/${item.id}/${item.artwork.releaseVersionId}.webp?v=${item.artwork.artworkVersionId || ''}&width=500`
-        : `https://cdn.rcrd.club/releases/${item.id}.webp?width=500`;
+    console.log(`  🔍 Consultando tracks anunciados para los ${apiUpcoming.length} lanzamientos anticipados...`);
+    const upcomingWithTracks = await Promise.all(
+      apiUpcoming.map(async (item, index) => {
+        const artist = item.artists?.map((a) => a.name).join(' & ') || 'Varios Artistas';
+        const title = item.title;
+        const artworkUrl = item.artwork?.releaseVersionId
+          ? `https://cdn.rcrd.club/releases/${item.id}/${item.artwork.releaseVersionId}.webp?v=${item.artwork.artworkVersionId || ''}&width=500`
+          : `https://cdn.rcrd.club/releases/${item.id}.webp?width=500`;
 
-      const relDate = item.releaseDate
-        ? `${item.releaseDate.year}-${String((item.releaseDate.month ?? 0) + 1).padStart(2, '0')}-${String(item.releaseDate.day || 1).padStart(2, '0')}`
-        : '2026-10-01';
+        const relDate = item.releaseDate
+          ? `${item.releaseDate.year}-${String((item.releaseDate.month ?? 0) + 1).padStart(2, '0')}-${String(item.releaseDate.day || 1).padStart(2, '0')}`
+          : '2026-10-01';
 
-      return {
-        id: item.id || `upc_${index + 1}`,
-        album_name: title,
-        artist_name: artist,
-        image_url: artworkUrl,
-        release_date: relDate,
-        release_type: item.type === 2 ? 'SENCILLO' : item.type === 3 ? 'EP' : 'ALBUM',
-        total_tracks: item.type === 2 ? 1 : item.type === 3 ? 5 : null,
-        popularity_rank: index + 1,
-        popularity_raw: item.popularity?.popularity || 50,
-        genre: 'POP / ALTERNATIVE',
-        description: 'Lanzamiento anunciado oficialmente.',
-        record_club_url: `https://record.club${item.uri || ''}`,
-        slug: slugifyRelease(artist, title),
-        artist_slug: slugifyArtist(artist),
-        can_rate: false,
-        is_anticipated: true,
-        updated_at: new Date().toISOString(),
-      };
-    });
+        // Consultar pistas anunciadas en Record Club
+        const tracks = await fetchRecordClubTracks(item.id);
+        const trackCount = tracks.length > 0 ? tracks.length : (item.type === 2 ? 1 : item.type === 3 ? 5 : null);
+
+        let finalType = 'ALBUM';
+        if (trackCount === 1 || item.type === 2) finalType = 'SENCILLO';
+        else if ((trackCount >= 2 && trackCount <= 6) || item.type === 3) finalType = 'EP';
+
+        let description = 'Lanzamiento anunciado oficialmente.';
+        if (tracks.length > 0) {
+          const trackPreview = tracks.map((t) => t.name).slice(0, 4).join(', ');
+          description = `Track listing confirmado: ${tracks.length} canciones (${trackPreview}${tracks.length > 4 ? '...' : ''}).`;
+        }
+
+        return {
+          id: item.id || `upc_${index + 1}`,
+          album_name: title,
+          artist_name: artist,
+          image_url: artworkUrl,
+          release_date: relDate,
+          release_type: finalType,
+          total_tracks: trackCount,
+          popularity_rank: index + 1,
+          popularity_raw: item.popularity?.popularity || 50,
+          genre: 'POP / ALTERNATIVE',
+          description,
+          record_club_url: `https://record.club${item.uri || ''}`,
+          slug: slugifyRelease(artist, title),
+          artist_slug: slugifyArtist(artist),
+          can_rate: false,
+          is_anticipated: true,
+          updated_at: new Date().toISOString(),
+        };
+      })
+    );
+    upcomingList = upcomingWithTracks;
   } else {
     upcomingList = RECORD_CLUB_FALLBACK_UPCOMING;
   }
@@ -737,64 +789,78 @@ async function enrichAndAddAlbums(trendingItems) {
 // 5. RE-SINCRONIZACIÓN DE RECORD_CLUB_RELEASES CON ALBUMS (Bidireccional)
 // =========================================================================
 async function syncRecordClubReleasesWithAlbums() {
-  console.log('\n--- 🔄 RE-SINCRONIZACIÓN DE METADATOS CON [record_club_releases] ---');
+  console.log('\n--- 🔄 RE-SINCRONIZACIÓN INTELIGENTE BIDIRECCIONAL ENTRE [record_club_releases] Y [albums] ---');
   try {
     const { data: rcList, error: rcErr } = await supabase
       .from('record_club_releases')
-      .select('id, album_name, artist_name, total_tracks, release_type');
+      .select('id, album_name, artist_name, total_tracks, release_type, spotify_url, spotify_id');
     const { data: albList, error: albErr } = await supabase
       .from('albums')
-      .select('album_name, artist_name, total_tracks, tracks, release_type');
+      .select('id, album_name, artist_name, total_tracks, tracks, release_type, spotify_link, image_url');
 
     if (rcErr || albErr || !rcList || !albList) return;
 
-    const exactMap = new Map();
-    const cleanMap = new Map();
-
+    const albumMap = new Map();
     albList.forEach((a) => {
-      const count = a.total_tracks || (Array.isArray(a.tracks) ? a.tracks.length : null);
-      const info = {
-        total_tracks: count,
-        release_type: a.release_type,
-      };
-      exactMap.set(normalizeKey(a.artist_name, a.album_name), info);
+      const kExact = normalizeKey(a.artist_name, a.album_name);
+      albumMap.set(kExact, a);
       const cleanAlb = (a.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
-      cleanMap.set(normalizeKey(a.artist_name, cleanAlb), info);
+      albumMap.set(normalizeKey(a.artist_name, cleanAlb), a);
     });
 
-    let updatedCount = 0;
+    let updatedRcCount = 0;
+    let updatedAlbumsCount = 0;
+
     for (const rc of rcList) {
       const kExact = normalizeKey(rc.artist_name, rc.album_name);
       const cleanAlb = (rc.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
       const kClean = normalizeKey(rc.artist_name, cleanAlb);
-      const matched = exactMap.get(kExact) || cleanMap.get(kClean);
+      const matchedAlb = albumMap.get(kExact) || albumMap.get(kClean);
 
-      if (matched) {
-        const targetTracks = matched.total_tracks;
-        let targetType = matched.release_type;
-        if (!targetType) {
-          if (targetTracks === 1) targetType = 'SENCILLO';
-          else if (targetTracks >= 2 && targetTracks <= 6) targetType = 'EP';
-          else targetType = 'ALBUM';
-        }
+      if (matchedAlb) {
+        const albTracksCount = matchedAlb.total_tracks || (Array.isArray(matchedAlb.tracks) ? matchedAlb.tracks.length : 0);
+        const rcTracksCount = rc.total_tracks || 0;
 
-        if (rc.total_tracks !== targetTracks || rc.release_type !== targetType) {
-          const { error: upErr } = await supabase
+        // Caso A: albums tiene más pistas o es álbum completo y rc_releases no
+        if (albTracksCount > rcTracksCount || (matchedAlb.release_type === 'ALBUM' && rc.release_type === 'SENCILLO')) {
+          await supabase
             .from('record_club_releases')
             .update({
-              total_tracks: targetTracks,
-              release_type: targetType,
+              total_tracks: albTracksCount,
+              release_type: matchedAlb.release_type || 'ALBUM',
             })
             .eq('id', rc.id);
-
-          if (!upErr) {
-            updatedCount++;
+          updatedRcCount++;
+        }
+        // Caso B: rc_releases tiene más pistas o es álbum completo y albums sigue como sencillo
+        else if (rcTracksCount > albTracksCount || (rc.release_type === 'ALBUM' && matchedAlb.release_type === 'SENCILLO')) {
+          const tracks = await fetchRecordClubTracks(rc.id);
+          const updatePayload = {
+            total_tracks: rcTracksCount,
+            release_type: rc.release_type || 'ALBUM',
+          };
+          if (tracks.length > 0) {
+            updatePayload.tracks = tracks;
           }
+          if (rc.spotify_url && !matchedAlb.spotify_link) {
+            updatePayload.spotify_link = rc.spotify_url;
+          }
+          if (!matchedAlb.genres || matchedAlb.genres.length === 0 || (rc.genre_category && matchedAlb.genres.length > 3)) {
+            updatePayload.genres = normalizeCanonicalGenres([
+              ...(rc.genre_category ? [rc.genre_category] : []),
+              ...(Array.isArray(matchedAlb.genres) ? matchedAlb.genres : [])
+            ], 3);
+          }
+          await supabase
+            .from('albums')
+            .update(updatePayload)
+            .eq('id', matchedAlb.id);
+          updatedAlbumsCount++;
         }
       }
     }
 
-    console.log(`  ✅ ${updatedCount} registros en record_club_releases actualizados con total_tracks y release_type reales.`);
+    console.log(`  ✅ Re-sincronización bidireccional finalizada: ${updatedRcCount} en record_club_releases, ${updatedAlbumsCount} en albums actualizados.`);
   } catch (err) {
     console.warn('  ⚠️ Error re-sincronizando record_club_releases:', err.message);
   }
