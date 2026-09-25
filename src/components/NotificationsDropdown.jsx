@@ -99,7 +99,7 @@ export function NotificationsDropdown({
               )}
             </div>
             <p className="text-[11px] text-white/40 truncate">
-              Buzón, reseñas y ganadores del club
+              Estrenos, buzón, reseñas y ganadores
             </p>
           </div>
         </div>
@@ -155,7 +155,7 @@ export function NotificationsDropdown({
               No tienes notificaciones pendientes
             </span>
             <p className="text-[11px] text-white/40 max-w-xs">
-              Te avisaremos cuando recibas canciones en tu buzón, califiquen tus
+              Te avisaremos cuando se estrenen tus álbumes suscritos, recibas canciones en tu buzón, califiquen tus
               álbumes o haya un ganador.
             </p>
           </div>
@@ -215,11 +215,13 @@ export function NotificationsDropdown({
                   <div className="flex items-center gap-1.5 flex-wrap mb-0.5">
                     <span
                       className={`text-[9px] font-extrabold uppercase tracking-wider px-1.5 py-0.2 rounded-md ${
-                        item.type === 'mailbox'
-                          ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30'
-                          : item.type === 'review'
-                            ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
-                            : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
+                        item.type === 'upcoming_release'
+                          ? 'bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30'
+                          : item.type === 'mailbox'
+                            ? 'bg-pink-500/20 text-pink-300 border border-pink-500/30'
+                            : item.type === 'review'
+                              ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              : 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30'
                       }`}
                     >
                       {item.category}

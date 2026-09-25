@@ -575,10 +575,134 @@ export const getAlbumDetails = async (albumId) => {
     }
   }
 
+  // 3. Fallback Spotify Embed (sin límite de cuota ni token)
+  try {
+    const embedAlbum = await fetchSpotifyEmbedAlbum(albumId);
+    if (embedAlbum) {
+      return {
+        success: true,
+        album: embedAlbum,
+      };
+    }
+  } catch (embedErr) {
+    console.warn('Fallback Spotify Embed getAlbumDetails error:', embedErr);
+  }
+
   return { success: false, error: 'No se pudo obtener la información del álbum' };
 };
 
+/**
+ * Extrae datos canónicos y lista de canciones directamente desde la página embed pública de Spotify
+ * No consume cuota de desarrollador ni requiere access_token.
+ */
+export async function fetchSpotifyEmbedAlbum(albumId) {
+  if (!albumId || String(albumId).startsWith('deezer_') || String(albumId).startsWith('itunes_')) {
+    return null;
+  }
+  try {
+    const cleanId = String(albumId).trim();
+    // En el navegador, consultar a través de la ruta interna para evitar bloqueos por CORS
+    if (typeof window !== 'undefined') {
+      try {
+        const apiRes = await fetch(`/api/spotify/embed?id=${encodeURIComponent(cleanId)}`);
+        if (apiRes.ok) {
+          const data = await apiRes.json();
+          if (data.success && data.album) return data.album;
+        }
+      } catch (clientErr) {
+        // En navegador, silenciar fallo si la ruta no está disponible
+      }
+      return null;
+    }
+
+    // En Node.js (servidor, SSR, crons, scripts)
+    const res = await fetch(`https://open.spotify.com/embed/album/${cleanId}`, {
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      },
+    });
+    if (!res.ok) return null;
+    const htmlText = await res.text();
+    const marker = 'id="__NEXT_DATA__"';
+    const idx = htmlText.indexOf(marker);
+    if (idx === -1) return null;
+
+    const start = htmlText.indexOf('>', idx) + 1;
+    const end = htmlText.indexOf('</script>', start);
+    const json = JSON.parse(htmlText.substring(start, end));
+    const entity = json?.props?.pageProps?.state?.data?.entity;
+    if (!entity) return null;
+
+    const rawTracks = entity.trackList || [];
+    const tracks = rawTracks.map((t, i) => ({
+      id: t.uri ? t.uri.split(':')[2] : (t.id || `sp_${i + 1}`),
+      name: t.title,
+      duration_ms: t.duration || 0,
+      track_number: i + 1,
+    }));
+
+    const images = entity.visualIdentity?.image || [];
+    const bestImage =
+      images.find((img) => img.maxHeight >= 600)?.url ||
+      images[0]?.url ||
+      '';
+
+    let releaseYear = null;
+    if (entity.releaseDate) {
+      const y = parseInt(entity.releaseDate.substring(0, 4), 10);
+      if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
+    }
+
+    let releaseType = 'ALBUM';
+    if (tracks.length <= 2) releaseType = 'SENCILLO';
+    else if (tracks.length <= 7) releaseType = 'EP';
+
+    const artistName = entity.subtitle || 'Artista';
+
+    return {
+      id: cleanId,
+      name: entity.name,
+      artists: [artistName],
+      artists_data: [{ id: null, name: artistName }],
+      primaryArtistId: null,
+      image: bestImage,
+      releaseDate: entity.releaseDate || null,
+      releaseYear: releaseYear,
+      album_type: releaseType.toLowerCase(),
+      release_type: releaseType,
+      genres: [],
+      label: '',
+      popularity: null,
+      totalTracks: tracks.length,
+      tracks: tracks,
+      external_urls: {
+        spotify: `https://open.spotify.com/album/${cleanId}`,
+      },
+      source: 'SPOTIFY_EMBED',
+    };
+  } catch (err) {
+    console.warn('fetchSpotifyEmbedAlbum error:', err);
+    return null;
+  }
+};
+
 export const getAlbumTracksById = async (albumId) => {
+  // 0. Si es un ID de Deezer
+  if (albumId && (String(albumId).startsWith('deezer_') || /^\d+$/.test(String(albumId)))) {
+    try {
+      const dzAlbum = await getDeezerAlbumDetails(albumId);
+      if (dzAlbum?.tracks && dzAlbum.tracks.length > 0) {
+        return {
+          success: true,
+          tracks: dzAlbum.tracks,
+        };
+      }
+    } catch (dzErr) {
+      console.warn('Error obteniendo tracks desde Deezer:', dzErr);
+    }
+  }
+
   // 1. Si es un ID de iTunes generado por el fallback
   if (albumId && String(albumId).startsWith('itunes_')) {
     const rawId = String(albumId).replace('itunes_', '');
@@ -636,6 +760,19 @@ export const getAlbumTracksById = async (albumId) => {
     } catch (error) {
       console.error('Error en getAlbumTracksById:', error);
     }
+  }
+
+  // 3. Fallback Spotify Embed si la API de Spotify falló o está en 429
+  try {
+    const embedAlbum = await fetchSpotifyEmbedAlbum(albumId);
+    if (embedAlbum?.tracks && embedAlbum.tracks.length > 0) {
+      return {
+        success: true,
+        tracks: embedAlbum.tracks,
+      };
+    }
+  } catch (embedTracksErr) {
+    console.warn('Fallback Spotify Embed getAlbumTracksById error:', embedTracksErr);
   }
 
   return { success: false, error: 'No se encontraron tracks' };

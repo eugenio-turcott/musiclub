@@ -944,20 +944,39 @@ async function checkAndNotifyTodayReleases(todayDate) {
     for (const item of pending) {
       try {
         let imageUrl = null;
+        let targetAlbumId = item.album_id;
+
         if (item.album_id) {
           const { data: alb } = await supabase
             .from('albums')
-            .select('image_url')
+            .select('id, image_url')
             .eq('id', item.album_id)
             .maybeSingle();
-          if (alb?.image_url) imageUrl = alb.image_url;
+          if (alb?.image_url) {
+            imageUrl = alb.image_url;
+            targetAlbumId = alb.id;
+          }
         }
 
-        const albumUrl = item.album_id
-          ? `https://www.musiclub.org/albumes/${item.album_id}`
+        // Búsqueda de respaldo por nombre de álbum y artista si el ID era de Record Club
+        if (!imageUrl && item.album_name) {
+          const { data: alb } = await supabase
+            .from('albums')
+            .select('id, image_url')
+            .ilike('album_name', item.album_name)
+            .ilike('artist_name', item.artist_name)
+            .maybeSingle();
+          if (alb) {
+            imageUrl = alb.image_url;
+            targetAlbumId = alb.id;
+          }
+        }
+
+        const albumUrl = targetAlbumId
+          ? `https://www.musiclub.org/albumes/${targetAlbumId}`
           : 'https://www.musiclub.org/catalogo';
 
-        await sendUpcomingReleaseDayEmail({
+        const emailResult = await sendUpcomingReleaseDayEmail({
           to: item.email,
           albumName: item.album_name,
           artistName: item.artist_name,
@@ -965,12 +984,17 @@ async function checkAndNotifyTodayReleases(todayDate) {
           albumUrl,
         });
 
-        await supabase
-          .from('upcoming_notifications')
-          .update({ notified: true })
-          .eq('id', item.id);
+        // Solo marcar como notificado en BD si se envió por un servidor SMTP real
+        if (!emailResult.isTest && emailResult.provider !== 'ethereal') {
+          await supabase
+            .from('upcoming_notifications')
+            .update({ notified: true })
+            .eq('id', item.id);
 
-        console.log(`  ✅ Notificado a ${item.email} para "${item.album_name}"`);
+          console.log(`  ✅ Notificado a ${item.email} para "${item.album_name}"`);
+        } else {
+          console.warn(`  ⚠️ Envío a ${item.email} omitido o en sandbox Ethereal (sin SMTP configurado). No se marcará como notificado.`);
+        }
       } catch (err) {
         console.warn(`  ⚠️ Error notificando a ${item.email}: ${err.message}`);
       }

@@ -303,8 +303,9 @@ async function enrichAllAlbums() {
 
               if (parsedTracks.length > 0) {
                 totalTracks = count;
-                // Si no había tracks o los de MusicBrainz son más completos
-                if (!tracks || tracks.length === 0 || tracks.length < parsedTracks.length) {
+                // Solo asignar tracks de MusicBrainz si el álbum NO tenía tracks previamente
+                // Para álbumes que ya tienen tracks con IDs de Spotify, NUNCA sobreescribirlos
+                if (!tracks || tracks.length === 0) {
                   tracks = parsedTracks;
                 }
               }

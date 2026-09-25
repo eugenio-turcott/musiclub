@@ -47,17 +47,35 @@ async function checkUpcomingReleases() {
   for (const item of pending) {
     try {
       let imageUrl = null;
+      let targetAlbumId = item.album_id;
+
       if (item.album_id) {
         const { data: alb } = await supabase
           .from('albums')
           .select('image_url, id')
           .eq('id', item.album_id)
           .maybeSingle();
-        if (alb?.image_url) imageUrl = alb.image_url;
+        if (alb?.image_url) {
+          imageUrl = alb.image_url;
+          targetAlbumId = alb.id;
+        }
       }
 
-      const albumUrl = item.album_id
-        ? `https://www.musiclub.org/albumes/${item.album_id}`
+      if (!imageUrl && item.album_name) {
+        const { data: alb } = await supabase
+          .from('albums')
+          .select('image_url, id')
+          .ilike('album_name', item.album_name)
+          .ilike('artist_name', item.artist_name)
+          .maybeSingle();
+        if (alb) {
+          imageUrl = alb.image_url;
+          targetAlbumId = alb.id;
+        }
+      }
+
+      const albumUrl = targetAlbumId
+        ? `https://www.musiclub.org/albumes/${targetAlbumId}`
         : 'https://www.musiclub.org/catalogo';
 
       console.log(`📤 Enviando correo de estreno a ${item.email} para "${item.album_name}"...`);
@@ -70,12 +88,16 @@ async function checkUpcomingReleases() {
         albumUrl,
       });
 
-      await supabase
-        .from('upcoming_notifications')
-        .update({ notified: true })
-        .eq('id', item.id);
+      if (!res.isTest && res.provider !== 'ethereal') {
+        await supabase
+          .from('upcoming_notifications')
+          .update({ notified: true })
+          .eq('id', item.id);
 
-      console.log(`✅ Notificado exitosamente a ${item.email} (Id: ${res.messageId || 'ok'})`);
+        console.log(`✅ Notificado exitosamente a ${item.email} (Id: ${res.messageId || 'ok'})`);
+      } else {
+        console.warn(`⚠️ Envío a ${item.email} en modo test/sandbox Ethereal. No se marcará como notificado.`);
+      }
     } catch (err) {
       console.error(`❌ Error enviando a ${item.email}:`, err.message);
     }

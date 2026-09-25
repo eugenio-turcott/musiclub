@@ -63,3 +63,124 @@ Error: supabaseUrl is required.
     at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)
 
 Node.js v22.19.0
+========================================================
+🔄 MUSICLUB V.9.1 - SINCRONIZADOR DIARIO GLOBAL
+📅 Fecha de ejecución: 2026-09-24
+⚙️ Modo forzado: NO (Idempotente diario)
+⏱️ Intervalo Spotify: 1.2s por álbum agregado
+========================================================
+
+⚡ Iniciando consultas paralelas a las APIs...
+📡 [1/3] Consultando https://api.record.club/releases?sortBy=popularity-week&limit=100 ...
+📡 [2/3] Consultando https://api.record.club/releases?releaseDate=upcoming&sortBy=popularity&limit=50 ...
+📡 [3/3] Consultando https://api.record.club/stats ...
+(node:16336) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/eturc/musiclub-albumes/src/services/recordClubData.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\eturc\musiclub-albumes\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+--- 📊 ESTADÍSTICAS GLOBALES ---
+  Artistas: 3,001,406
+  Lanzamientos: 4,145,368
+  Sellos: 345,567
+  Reseñas: 300,545
+  Listas: 18,531
+  Usuarios: 22,226
+  💾 Estadísticas globales guardadas exitosamente en record_club_stats.
+
+--- 🔥 TENDENCIAS SEMANALES (100 Lanzamientos) ---
+  💾 Almacenando 100 registros en [record_club_releases]...
+  🎉 [weekly_trending] Sincronización exitosa (100 álbumes en Supabase).
+
+--- ⏳ PRÓXIMOS LANZAMIENTOS (50 Lanzamientos) ---
+  🔍 Consultando tracks anunciados para los 50 lanzamientos anticipados...
+  💾 Almacenando 50 registros en [record_club_upcoming]...
+  🎉 [upcoming] Sincronización exitosa (50 lanzamientos en Supabase).
+
+--- 💿 ENRIQUECIMIENTO E INGESTA AL CATÁLOGO GENERAL (Tabla: albums) ---
+  📦 Total de álbumes actuales en catálogo: 313
+  🎯 Nuevos lanzamientos detectados para agregar a [albums]: 1
+  ⚙️ Procesando 1 de 1 nuevos álbumes en esta corrida.
+  ⏳ Regla preventiva anti rate-limit de Spotify: esperando 1.2s entre cada álbum agregado.
+
+[1/1] Enriqueciendo (Spotify + MusicBrainz + Deezer): "Detour (Rare N' Deluxe)" de Kim Petras...
+  ✅ [1] Agregado con éxito a Supabase con las 21 columnas completas:
+     - ID: f3b615c6-b3e6-45ee-a63d-3ed6b219ee16
+     - Nombre: "Detour (Rare N' Deluxe)" | Artista: "Kim Petras"
+     - Portada: HD Oficial
+     - Tracks: 18 pistas con duración
+     - Spotify: https://open.spotify.com/album/5z3r0mH5guiXBrN8z3iEWh
+     - YouTube: https://www.youtube.com/results?search_query=Kim%20Petras%20Detour%20(Rare%20N'%20Deluxe)
+     - Apple Music: https://music.apple.com/search?term=Kim%20Petras%20Detour%20(Rare%20N'%20Deluxe)
+     - Deezer: https://www.deezer.com/album/1030872462
+     - MBID: N/A
+     - Tipo: ALBUM
+     - Sello: vltqssrcrd
+     - País: XW
+     - Barcode: 9362531542765
+     - Total Tracks: 18
+     - Fecha: 2026-09-18 (2026)
+
+🎉 Ingesta al catálogo finalizada: 1 nuevos álbumes agregados y enriquecidos.
+
+--- 🔄 RE-SINCRONIZACIÓN INTELIGENTE BIDIRECCIONAL ENTRE [record_club_releases] Y [albums] ---
+  ✅ Re-sincronización bidireccional finalizada: 1 en record_club_releases, 0 en albums actualizados.
+
+🔔 [PASO 6] Verificando álbumes estrenados hoy (2026-09-24) para notificaciones a usuarios...
+✨ No hay notificaciones pendientes para estrenos de hoy.
+
+========================================================
+✨ Sincronización diaria Musiclub V.9.2 completada exitosamente.
+========================================================
+
+========================================================
+🔄 MUSICLUB V.9.1 - SINCRONIZADOR DIARIO GLOBAL
+📅 Fecha de ejecución: 2026-09-25
+⚙️ Modo forzado: NO (Idempotente diario)
+⏱️ Intervalo Spotify: 1.2s por álbum agregado
+========================================================
+
+⚡ Iniciando consultas paralelas a las APIs...
+📡 [1/3] Consultando https://api.record.club/releases?sortBy=popularity-week&limit=100 ...
+📡 [2/3] Consultando https://api.record.club/releases?releaseDate=upcoming&sortBy=popularity&limit=50 ...
+📡 [3/3] Consultando https://api.record.club/stats ...
+(node:10708) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///C:/Users/eturc/musiclub-albumes/src/services/recordClubData.js is not specified and it doesn't parse as CommonJS.
+Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+To eliminate this warning, add "type": "module" to C:\Users\eturc\musiclub-albumes\package.json.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+--- 📊 ESTADÍSTICAS GLOBALES ---
+  Artistas: 3,002,740
+  Lanzamientos: 4,147,347
+  Sellos: 345,694
+  Reseñas: 301,461
+  Listas: 18,639
+  Usuarios: 22,272
+  💾 Estadísticas globales guardadas exitosamente en record_club_stats.
+
+--- 🔥 TENDENCIAS SEMANALES (100 Lanzamientos) ---
+  💾 Almacenando 100 registros en [record_club_releases]...
+  🎉 [weekly_trending] Sincronización exitosa (100 álbumes en Supabase).
+
+--- ⏳ PRÓXIMOS LANZAMIENTOS (50 Lanzamientos) ---
+  🔍 Consultando tracks anunciados para los 50 lanzamientos anticipados...
+  💾 Almacenando 50 registros en [record_club_upcoming]...
+  🗑️ Eliminando 2 upcoming releases no vigentes de Supabase...
+  ✅ Base de datos de upcoming sincronizada: quedan exactamente los 50 lanzamientos.
+  🎉 [upcoming] Sincronización exitosa (50 lanzamientos en Supabase).
+
+--- 💿 ENRIQUECIMIENTO E INGESTA AL CATÁLOGO GENERAL (Tabla: albums) ---
+  📦 Total de álbumes actuales en catálogo: 325
+  🎯 Nuevos lanzamientos detectados para agregar a [albums]: 0
+  ✨ El catálogo general ya está 100% al día. No se requieren llamadas adicionales a las APIs.
+
+--- 🔄 RE-SINCRONIZACIÓN INTELIGENTE BIDIRECCIONAL ENTRE [record_club_releases] Y [albums] ---
+  ✅ Re-sincronización bidireccional finalizada: 0 en record_club_releases, 0 en albums actualizados.
+
+🔔 [PASO 6] Verificando álbumes estrenados hoy (2026-09-25) para notificaciones a usuarios...
+✨ No hay notificaciones pendientes para estrenos de hoy.
+
+========================================================
+✨ Sincronización diaria Musiclub V.9.2 completada exitosamente.
+========================================================
+

@@ -1441,6 +1441,7 @@ export async function sendUpcomingReleaseDayEmail({
     messageId: info.messageId,
     previewUrl: isTest ? nodemailer.getTestMessageUrl(info) : null,
     provider,
+    isTest,
     recipient: to,
   };
 }

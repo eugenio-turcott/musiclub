@@ -48,17 +48,35 @@ async function processReleaseNotifications() {
     try {
       // Intentar obtener la portada desde la tabla albums si no la tiene
       let imageUrl = null;
+      let targetAlbumId = item.album_id;
+
       if (item.album_id) {
         const { data: alb } = await supabase
           .from('albums')
           .select('image_url, id')
           .eq('id', item.album_id)
           .maybeSingle();
-        if (alb?.image_url) imageUrl = alb.image_url;
+        if (alb?.image_url) {
+          imageUrl = alb.image_url;
+          targetAlbumId = alb.id;
+        }
       }
 
-      const albumUrl = item.album_id
-        ? `https://www.musiclub.org/albumes/${item.album_id}`
+      if (!imageUrl && item.album_name) {
+        const { data: alb } = await supabase
+          .from('albums')
+          .select('image_url, id')
+          .ilike('album_name', item.album_name)
+          .ilike('artist_name', item.artist_name)
+          .maybeSingle();
+        if (alb) {
+          imageUrl = alb.image_url;
+          targetAlbumId = alb.id;
+        }
+      }
+
+      const albumUrl = targetAlbumId
+        ? `https://www.musiclub.org/albumes/${targetAlbumId}`
         : 'https://www.musiclub.org/catalogo';
 
       const emailRes = await sendUpcomingReleaseDayEmail({
@@ -69,17 +87,20 @@ async function processReleaseNotifications() {
         albumUrl,
       });
 
-      // Marcar como notificado
-      await supabase
-        .from('upcoming_notifications')
-        .update({ notified: true })
-        .eq('id', item.id);
+      // Solo marcar como notificado si se envió con un proveedor SMTP real
+      if (!emailRes.isTest && emailRes.provider !== 'ethereal') {
+        await supabase
+          .from('upcoming_notifications')
+          .update({ notified: true })
+          .eq('id', item.id);
+      }
 
       results.push({
         id: item.id,
         email: item.email,
         album: item.album_name,
-        success: true,
+        success: !emailRes.isTest && emailRes.provider !== 'ethereal',
+        isTest: emailRes.isTest,
         emailRes,
       });
     } catch (sendErr) {

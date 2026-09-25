@@ -22,7 +22,36 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('⚠️ Faltan variables de entorno de Supabase');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Singleton para garantizar una única instancia de Supabase/GoTrue en toda la aplicación
+function getSupabaseClient() {
+  const isBrowser = typeof window !== 'undefined';
+  const globalObj = isBrowser ? window : globalThis;
+
+  if (globalObj.__musiclub_supabase_client__) {
+    return globalObj.__musiclub_supabase_client__;
+  }
+
+  const client = createClient(
+    supabaseUrl,
+    supabaseAnonKey,
+    {
+      auth: {
+        persistSession: isBrowser,
+        autoRefreshToken: isBrowser,
+        detectSessionInUrl: isBrowser,
+      },
+    }
+  );
+
+  globalObj.__musiclub_supabase_client__ = client;
+  if (isBrowser) {
+    globalThis.__musiclub_supabase_client__ = client;
+  }
+
+  return client;
+}
+
+export const supabase = getSupabaseClient();
 
 // ============================================
 // FUNCIONES DE RESPALDO - USANDO rating_general

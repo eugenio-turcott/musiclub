@@ -724,9 +724,20 @@ export async function getFullMusicBrainzAlbumData(artistName, albumName, coverIm
         if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
       }
 
-      const tracks = (details?.tracks && details.tracks.length > 0)
-        ? details.tracks
-        : (fallbackData?.tracks || []);
+      // PRESERVAR TRACKS DE STREAMING (Spotify / Deezer):
+      // Si el lanzamiento seleccionado por el usuario en streaming ya contiene pistas,
+      // estas deben prevalecer sobre MusicBrainz, ya que MusicBrainz frecuentemente
+      // agrupa ediciones extendidas/deluxe con pistas que no corresponden a la edición deseada.
+      const hasFallbackTracks = Array.isArray(fallbackData?.tracks) && fallbackData.tracks.length > 0;
+      const tracks = hasFallbackTracks
+        ? fallbackData.tracks
+        : (details?.tracks && details.tracks.length > 0)
+          ? details.tracks
+          : [];
+
+      const totalTracks = hasFallbackTracks
+        ? fallbackData.tracks.length
+        : (details?.totalTracks || fallbackData?.totalTracks || fallbackData?.total_tracks || tracks.length || null);
 
       const genres = (details?.genres && details.genres.length > 0)
         ? details.genres
@@ -746,7 +757,7 @@ export async function getFullMusicBrainzAlbumData(artistName, albumName, coverIm
         label: details?.label || fallbackData?.label || null,
         country: details?.country || fallbackData?.country || null,
         barcode: details?.barcode || fallbackData?.barcode || null,
-        total_tracks: details?.totalTracks || tracks.length || fallbackData?.total_tracks || null,
+        total_tracks: totalTracks,
         tracks: tracks,
         // REQUERIMIENTO CLAVE: Conservar la portada de Spotify o Deezer HD
         image_url: coverImageUrl || fallbackData?.image_url || fallbackData?.image || null,

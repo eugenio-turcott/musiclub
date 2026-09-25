@@ -138,6 +138,15 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         return;
       }
 
+      const hasBaseTracks = Array.isArray(baseDetails?.tracks) && baseDetails.tracks.length > 0;
+      const resolvedTracks = hasBaseTracks
+        ? baseDetails.tracks
+        : (mbData?.tracks || []);
+
+      const resolvedTotalTracks = hasBaseTracks
+        ? baseDetails.tracks.length
+        : (baseDetails?.totalTracks || mbData?.total_tracks || resolvedTracks.length || null);
+
       setAlbumDetails({
         ...baseDetails,
         ...mbData,
@@ -145,6 +154,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         name: targetTitle,
         artist: targetArtist,
         image: album.image || baseDetails.image, // PRESERVADO DE SPOTIFY/DEEZER
+        tracks: resolvedTracks,
+        total_tracks: resolvedTotalTracks,
+        totalTracks: resolvedTotalTracks,
         release_type: mbData?.release_type || baseDetails.release_type || 'ALBUM',
       });
       setSearchResults([]);

@@ -198,7 +198,100 @@ export function useNotifications(user) {
       } catch (revQueryErr) {
         console.warn('Error fetching review notifications:', revQueryErr);
       }
-    }
+
+      // C. ESTRENOS DE ÁLBUMES SUSCRITOS (Upcoming Releases estrenados)
+      try {
+          const todayStr = new Date().toISOString().split('T')[0];
+          let query = supabase
+            .from('upcoming_notifications')
+            .select('*')
+            .lte('release_date', todayStr);
+
+          const orFilters = [];
+          if (user.id) orFilters.push(`user_id.eq.${user.id}`);
+          if (uEmail) orFilters.push(`email.eq.${uEmail}`);
+
+          if (orFilters.length > 0) {
+            query = query.or(orFilters.join(','));
+            const { data: upcomingReleases, error: upErr } = await query;
+
+            if (!upErr && Array.isArray(upcomingReleases) && upcomingReleases.length > 0) {
+              const albumNames = upcomingReleases.map((r) => r.album_name).filter(Boolean);
+
+              const { data: matchedAlbums } = await supabase
+                .from('albums')
+                .select('id, album_name, artist_name, image_url')
+                .in('album_name', albumNames);
+
+              const albumsByName = new Map();
+              if (Array.isArray(matchedAlbums)) {
+                matchedAlbums.forEach((a) => {
+                  if (a.album_name) albumsByName.set(a.album_name.toLowerCase(), a);
+                });
+              }
+
+              upcomingReleases.forEach((item) => {
+                const matched = albumsByName.get(item.album_name?.toLowerCase());
+                const targetId = matched?.id || item.album_id;
+                const targetImage = matched?.image_url || null;
+
+                notifs.push({
+                  id: `upcoming_${item.id}`,
+                  type: 'upcoming_release',
+                  category: 'Estreno Oficial',
+                  title: `🎉 ¡"${item.album_name}" ya se estrenó!`,
+                  description: `El álbum de ${item.artist_name} que estabas esperando ya está disponible. ¡Escúchalo y califícalo en Musiclub!`,
+                  timestamp: new Date(item.release_date || item.created_at || Date.now()).getTime(),
+                  dateFormatted: item.release_date || new Date().toISOString(),
+                  icon: '🎉',
+                  image: targetImage,
+                  badgeColor: 'from-fuchsia-500 to-pink-500',
+                  link: targetId ? `/albumes/${targetId}` : '/catalogo',
+                  itemData: { upcoming: item, album: matched },
+                });
+              });
+            }
+          }
+        } catch (upNotifErr) {
+          console.warn('Error fetching upcoming notifications:', upNotifErr);
+        }
+      }
+
+      // 3. ESTRENOS SUSCRITOS EN ALMACENAMIENTO LOCAL (Navegador)
+      try {
+        if (typeof window !== 'undefined') {
+          const rawLocal = localStorage.getItem('musiclub_upcoming_notifs');
+          if (rawLocal) {
+            const localList = JSON.parse(rawLocal);
+            const todayStr = new Date().toISOString().split('T')[0];
+            const dueList = Array.isArray(localList)
+              ? localList.filter((item) => item.releaseDate && item.releaseDate <= todayStr)
+              : [];
+
+            dueList.forEach((item) => {
+              const notifId = `upcoming_local_${item.albumId || item.albumName}`;
+              if (!notifs.some((n) => n.id === notifId || n.title?.includes(item.albumName))) {
+                notifs.push({
+                  id: notifId,
+                  type: 'upcoming_release',
+                  category: 'Estreno Oficial',
+                  title: `🎉 ¡"${item.albumName}" ya se estrenó!`,
+                  description: `El álbum de ${item.artistName} que estabas esperando ya está disponible. ¡Escúchalo y califícalo en Musiclub!`,
+                  timestamp: new Date(item.releaseDate).getTime(),
+                  dateFormatted: item.releaseDate,
+                  icon: '🎉',
+                  image: item.imageUrl || null,
+                  badgeColor: 'from-fuchsia-500 to-pink-500',
+                  link: item.albumId ? `/albumes/${item.albumId}` : '/catalogo',
+                  itemData: item,
+                });
+              }
+            });
+          }
+        }
+      } catch (localUpErr) {
+        console.warn('Error checking local upcoming subscriptions:', localUpErr);
+      }
 
       // Ordenar cronológicamente descendente (más recientes primero)
       notifs.sort((a, b) => b.timestamp - a.timestamp);

@@ -208,7 +208,11 @@ export async function fetchRecordClubTracks(rcId) {
   if (!rcId) return [];
   try {
     const cleanId = String(rcId).replace(/^rc_/, '').trim();
-    const url = `https://api.record.club/releases/${cleanId}/tracks`;
+    // En el navegador, usar la ruta interna para no violar CORS hacia api.record.club
+    const url = typeof window !== 'undefined'
+      ? `/api/record-club/tracks?id=${encodeURIComponent(cleanId)}`
+      : `https://api.record.club/releases/${cleanId}/tracks`;
+
     const res = await fetch(url, {
       headers: {
         'User-Agent': USER_AGENT,
@@ -321,14 +325,16 @@ export function build21ColumnPayload({
     null;
 
   // 2. Tracklist oficial con duración y track_number
-  // MusicBrainz > Spotify > Deezer > Record Club > Raw
+  // Prioridad: Tracks existentes (si ya tienen IDs de Spotify/reseñas) > Spotify > Deezer > MusicBrainz > Record Club
   let finalTracks = [];
-  if (mbData?.tracks && mbData.tracks.length > 0) {
-    finalTracks = mbData.tracks;
+  if (Array.isArray(rawItem.tracks) && rawItem.tracks.length > 0 && typeof rawItem.tracks[0] === 'object' && rawItem.tracks[0].id) {
+    finalTracks = rawItem.tracks;
   } else if (spotifyData?.tracks && spotifyData.tracks.length > 0) {
     finalTracks = spotifyData.tracks;
   } else if (deezerData?.tracks && deezerData.tracks.length > 0) {
     finalTracks = deezerData.tracks;
+  } else if (mbData?.tracks && mbData.tracks.length > 0) {
+    finalTracks = mbData.tracks;
   } else if (Array.isArray(rcTracks) && rcTracks.length > 0) {
     finalTracks = rcTracks;
   } else if (Array.isArray(rawItem.tracks) && rawItem.tracks.length > 0) {

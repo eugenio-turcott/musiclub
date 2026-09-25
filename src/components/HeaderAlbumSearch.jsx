@@ -356,11 +356,16 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       if (!finalAlbum) {
         setStatusMessage('Registrando álbum en el Club...');
 
-        const tracksToSave = (mbData?.tracks && mbData.tracks.length > 0)
-          ? mbData.tracks
-          : (rawRemote?.tracks && rawRemote.tracks.length > 0)
-            ? rawRemote.tracks
+        const hasRemoteTracks = Array.isArray(rawRemote?.tracks) && rawRemote.tracks.length > 0;
+        const tracksToSave = hasRemoteTracks
+          ? rawRemote.tracks
+          : (mbData?.tracks && mbData.tracks.length > 0)
+            ? mbData.tracks
             : [];
+
+        const totalTracksToSave = hasRemoteTracks
+          ? rawRemote.tracks.length
+          : (rawRemote?.totalTracks || mbData?.total_tracks || tracksToSave.length || null);
 
         const albumPayload = {
           albumName: canonicalTitle,
@@ -374,8 +379,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           label: mbData?.label || rawRemote?.label || null,
           country: mbData?.country || null,
           barcode: mbData?.barcode || null,
-          totalTracks:
-            mbData?.total_tracks || tracksToSave.length || rawRemote?.totalTracks || null,
+          totalTracks: totalTracksToSave,
           tracks: tracksToSave,
           spotifyLink:
             mbData?.spotify_link ||

@@ -11,6 +11,51 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    "version": "V.9.5",
+    "title": "Unificación de IDs de Canciones, Notificaciones de Lanzamientos y Blindaje de Ingesta Streaming",
+    "date": "2026-09-25",
+    "sha": "950f1a3",
+    "associatedShas": [
+      "950f1a3"
+    ],
+    "tag": "Estabilidad, Tracks y Notificaciones 9.5",
+    "tagColor": "from-purple-500 via-indigo-600 to-cyan-600",
+    "authorName": "Eugenio Turcott",
+    "summary": "Una actualización crucial de estabilidad, consistencia de datos y sincronización musical. Se llevó a cabo una auditoría completa en la base de datos para unificar los IDs de canciones entre álbumes y calificaciones comunitarias (reviews), corrigiendo 12 álbumes icónicos sin perder ninguna reseña. Se activó el sistema de notificaciones automáticas (in-app y por correo) para lanzamientos anticipados. Además, se blindó la ingesta de canciones priorizando siempre las versiones oficiales de Spotify/Deezer sobre expansiones de MusicBrainz, y se crearon proxies de servidor para eliminar errores de red y advertencias en el navegador.",
+    "changes": [
+      {
+        "type": "fix",
+        "title": "Unificación Total de IDs de Canciones en la Base de Datos",
+        "description": "Se detectaron y corrigieron discrepancias históricas de IDs de canciones entre la tabla de 'albums' y las calificaciones de tracks en 'reviews'. Se estandarizaron 12 álbumes con tracks desfasados (incluyendo Dawn FM, 1989, AM, Brat, SOS, Happier Than Ever, Harry's House, emails i can't send, etc.) hacia los IDs canónicos de Spotify, preservando intactas las 228 calificaciones comunitarias existentes."
+      },
+      {
+        "type": "feature",
+        "title": "Activación Integral de Notificaciones de Lanzamientos Anticipados",
+        "description": "Se perfeccionó el flujo de detección de lanzamientos anticipados: el cron diario ahora identifica con precisión la fecha de estreno del día, disparando las notificaciones en la campana de la plataforma (in-app) y enviando el correo de aviso de estreno con diseño enriquecido para todos los usuarios suscritos en upcoming_notifications."
+      },
+      {
+        "type": "improvement",
+        "title": "Prioridad Estricta de Tracklist Streaming (Spotify / Deezer)",
+        "description": "Al agregar nuevos lanzamientos a la plataforma, el sistema ahora otorga prioridad absoluta al listado oficial de canciones de Spotify y Deezer (evitando que ediciones extendidas o no oficiales de MusicBrainz inyecten canciones de más, como las 14 canciones oficiales de House of LION BABE en lugar de 20). MusicBrainz se utiliza exclusivamente para códigos de barras, sellos y año de lanzamiento."
+      },
+      {
+        "type": "feature",
+        "title": "Scraper de Respaldo Spotify Embed Anti-Cuota (HTTP 429)",
+        "description": "Se implementó un mecanismo de respaldo que extrae directamente la información oficial y lista de canciones de Spotify Embed. Si las credenciales de desarrollador de Spotify alcanzan el límite de cuota (HTTP 429), la plataforma sigue obteniendo portadas en máxima resolución e identificadores de canciones sin interrupciones."
+      },
+      {
+        "type": "fix",
+        "title": "Rutas Proxy de Servidor para Evitar Bloqueos CORS",
+        "description": "Se implementaron las rutas internas /api/spotify/embed y /api/record-club/tracks en el servidor de Next.js. Esto permite que el navegador consulte información y canciones de lanzamientos anticipados y embeds de Spotify de forma fluida, eliminando permanentemente los errores de red 'TypeError: Failed to fetch'."
+      },
+      {
+        "type": "improvement",
+        "title": "Blindaje Singleton del Cliente Supabase en Navegador",
+        "description": "Se refactorizó la inicialización del cliente de Supabase para utilizar un Singleton global. Esto erradica por completo la advertencia 'Multiple GoTrueClient instances detected' durante la navegación y recarga en caliente de Next.js, garantizando la consistencia del token de sesión."
+      }
+    ]
+  },
+  {
     "version": "V.9.4",
     "title": "Sliders Continuos en el Pool y Recomendados, Enriquecimiento de Lanzamientos Anticipados y Navegación Mejorada en Catálogo",
     "date": "2026-09-23",
