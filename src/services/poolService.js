@@ -1,5 +1,6 @@
 // src/services/poolService.js
 import { supabase } from './supabaseClient.js';
+import { authenticatedFetch } from './authenticatedFetch.js';
 import { getAlbumWeightedAverage } from '../utils/ratingUtils.js';
 
 /**
@@ -198,7 +199,7 @@ export const poolService = {
     try {
       // 1. Intentar consultar tabla dedicada `pool_entries` si existe
       const { data: poolEntries, error: poolError } = await supabase
-        .from('pool_entries')
+        .from('public_pool_entries')
         .select(
           `
           *,
@@ -477,7 +478,7 @@ export const poolService = {
     // 4. Disparar notificación por correo a todos los miembros sobre el nuevo ganador
     if (typeof window !== 'undefined') {
       try {
-        fetch('/api/notifications/pool-winner', {
+        authenticatedFetch('/api/notifications/pool-winner', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ albumId, seasonId }),
@@ -517,7 +518,7 @@ export const poolService = {
     // 3. Disparar notificación por correo a todos los miembros sobre la graduación y resultados
     if (typeof window !== 'undefined') {
       try {
-        fetch('/api/notifications/pool-graduated', {
+        authenticatedFetch('/api/notifications/pool-graduated', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ albumId, seasonId }),

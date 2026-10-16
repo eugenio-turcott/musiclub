@@ -10,6 +10,44 @@ export const GITHUB_REPO_NAME = 'musiclub-albumes';
 export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
+{
+  "version": "V.9.6",
+  "title": "Contenido público, navegación canónica y protección de integraciones",
+  "date": "2026-10-16",
+  "sha": "",
+  "associatedShas": [],
+  "tag": "Seguridad, SEO y estabilidad",
+  "tagColor": "from-purple-500 via-indigo-600 to-cyan-600",
+  "authorName": "Eugenio Turcott",
+  "summary": "Musiclub entrega contenido musical desde el servidor, unifica las direcciones de sus fichas y actualiza sus sitemaps a partir del catálogo real. Las integraciones privadas se resuelven en el servidor y las operaciones sensibles requieren una sesión válida.",
+  "changes": [
+    {
+      "type": "security",
+      "title": "Integraciones y datos públicos protegidos",
+      "description": "Las consultas de Spotify utilizan un proxy de servidor; las fichas públicas reciben datos sin correos personales y las notificaciones verifican la identidad y permisos de quien las solicita."
+    },
+    {
+      "type": "improvement",
+      "title": "Contenido disponible desde la primera respuesta",
+      "description": "Inicio, Catálogo, Reseñas y artistas reciben contenido musical precargado, con enlaces navegables hacia los lanzamientos."
+    },
+    {
+      "type": "fix",
+      "title": "Direcciones consistentes y errores reales",
+      "description": "Las direcciones anteriores se redirigen a la ficha principal cuando hay una coincidencia inequívoca; las fichas inexistentes devuelven 404. Se conservan los próximos estrenos registrados."
+    },
+    {
+      "type": "improvement",
+      "title": "Sitemaps actualizados desde el catálogo real",
+      "description": "Los sitemaps consultan registros existentes, excluyen nombres vacíos y duplicados y utilizan fechas reales de contenido."
+    },
+    {
+      "type": "fix",
+      "title": "Metadatos y movimiento reducido",
+      "description": "Se evita repetir Musiclub en los títulos y duplicar el marcado de las fichas. Las animaciones respetan la preferencia de movimiento reducido."
+    }
+  ]
+},
   {
     "version": "V.9.5",
     "title": "Unificación de IDs de Canciones, Notificaciones de Lanzamientos y Blindaje de Ingesta Streaming",

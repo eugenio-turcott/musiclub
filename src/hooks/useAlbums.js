@@ -61,10 +61,10 @@ const FALLBACK_ALBUMS = [
   },
 ];
 
-export function useAlbums() {
-  const [albums, setAlbums] = useState([]);
-  const [winner, setWinner] = useState(null);
-  const [loading, setLoading] = useState(true);
+export function useAlbums(initialAlbums = []) {
+  const [albums, setAlbums] = useState(initialAlbums);
+  const [winner, setWinner] = useState(() => initialAlbums.find(a => a.status === 'GANADOR') || null);
+  const [loading, setLoading] = useState(initialAlbums.length === 0);
   const [error, setError] = useState(null);
 
   const fetchAlbums = useCallback(async () => {

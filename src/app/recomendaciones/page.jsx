@@ -2,7 +2,7 @@ import React from 'react';
 import { RecommendationsPage } from '../../views/RecommendationsPage';
 
 export const metadata = {
-  title: 'Recomendaciones Musicales Inteligentes | Musiclub',
+  title: 'Recomendaciones Musicales Inteligentes',
   description:
     'Descubre álbumes y artistas afines a tus gustos musicales con el motor de recomendaciones personalizadas de Musiclub.',
   alternates: {

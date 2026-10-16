@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
+import { jsonLd } from '../utils/publicData';
 
 export function SEO({
   title = 'Musiclub - Reviews From & For Music Lovers',
@@ -11,26 +12,13 @@ export function SEO({
   keywords = 'musica, albumes, reviews, calificaciones, club de musica, reseñas musicales, discografia, canciones',
   schemaData = null,
 }) {
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      if (title) document.title = title;
-      if (description) {
-        let metaDesc = document.querySelector('meta[name="description"]');
-        if (!metaDesc) {
-          metaDesc = document.createElement('meta');
-          metaDesc.name = 'description';
-          document.head.appendChild(metaDesc);
-        }
-        metaDesc.setAttribute('content', description);
-      }
-    }
-  }, [title, description]);
+  // Next's Metadata API owns document metadata. Do not overwrite it after hydration.
 
   if (schemaData) {
     return (
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+        dangerouslySetInnerHTML={{ __html: jsonLd(schemaData) }}
       />
     );
   }

@@ -1,8 +1,11 @@
 import React from 'react';
 import { ReviewsPage } from '../../views/ReviewsPage';
+import { getPublicCatalog } from '../../server/catalog';
+
+export const revalidate = 300;
 
 export const metadata = {
-  title: 'Reseñas y Opiniones de Álbumes de la Comunidad | Musiclub',
+  title: 'Reseñas y Opiniones de Álbumes de la Comunidad',
   description:
     'Lee las últimas reseñas, opiniones y calificaciones de álbumes de música publicadas por los miembros de la comunidad de Musiclub.',
   alternates: {
@@ -13,7 +16,7 @@ export const metadata = {
     follow: true,
   },
   openGraph: {
-    title: 'Reseñas y Opiniones de Álbumes de la Comunidad | Musiclub',
+    title: 'Reseñas y Opiniones de Álbumes de la Comunidad',
     description:
       'Lee las últimas reseñas, opiniones y calificaciones de álbumes de música publicadas por los miembros de la comunidad de Musiclub.',
     url: 'https://www.musiclub.org/reviews',
@@ -22,6 +25,7 @@ export const metadata = {
   },
 };
 
-export default function ReviewsRoutePage() {
-  return <ReviewsPage />;
+export default async function ReviewsRoutePage() {
+  const { reviews } = await getPublicCatalog();
+  return <ReviewsPage initialReviews={reviews} />;
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import { searchTracks } from '../services/spotifyApi';
+import { authenticatedFetch } from '../services/authenticatedFetch';
 import { searchDeezerTrack } from '../services/deezerApi';
 import { useAuth } from '../hooks/useAuth';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
@@ -288,14 +289,14 @@ export function SendSongRecommendationModal({
       };
 
       // 1. Guardar en base de datos Supabase
-      await supabaseService.sendSongRecommendation(payload);
+      const savedRecommendation = await supabaseService.sendSongRecommendation(payload);
 
       // 2. Despachar correo de notificación transaccional al destinatario
       try {
-        await fetch('/api/notifications/recommendation', {
+        await authenticatedFetch('/api/notifications/recommendation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ recommendationId: savedRecommendation?.id }),
         });
       } catch (mailErr) {
         console.warn('Aviso notificando correo de recomendación:', mailErr);

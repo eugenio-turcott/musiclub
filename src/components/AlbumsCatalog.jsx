@@ -75,12 +75,12 @@ const DECADES = [
   '1950s',
 ];
 
-export function AlbumsCatalog({ isPage = false }) {
+export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage = 1 }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const [albums, setAlbums] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [albums, setAlbums] = useState(initialAlbums);
+  const [loading, setLoading] = useState(initialAlbums.length === 0);
   const [error, setError] = useState(null);
   const [spotifyYearsCache, setSpotifyYearsCache] = useState({});
 
@@ -133,30 +133,27 @@ export function AlbumsCatalog({ isPage = false }) {
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
   const [sortBy, setSortBy] = useState('reviews_desc'); // rating_desc | rating_asc | reviews_desc | newest | name_asc | artist_asc
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  const firstFilterRender = useRef(true);
 
   // Referencia para scroll suave directo al Explorador de Catálogo (V.9.4)
   const catalogExplorerRef = useRef(null);
   const pendingScrollToExplorerRef = useRef(false);
 
   // Detección reactiva de dispositivo móvil (< 640px)
-  const [isMobile, setIsMobile] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 640;
-    }
-    return false;
-  });
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 640);
     };
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Límite de álbumes por página: 10 en celular, 20 en pantallas medianas y grandes
-  const itemsPerPage = isMobile ? 10 : 20;
+  const itemsPerPage = 20;
 
   // Estado para colapsar/abrir filtros en celular
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -333,7 +330,7 @@ export function AlbumsCatalog({ isPage = false }) {
   // Carga simultánea y unificada: Álbumes en BD de Supabase + Novedades + Tendencias del Mes + Anticipados
   useEffect(() => {
     async function loadCatalog() {
-      setLoading(true);
+      if (!initialAlbums.length) setLoading(true);
       setError(null);
       setLoadingTrending(true);
       try {
@@ -451,6 +448,7 @@ export function AlbumsCatalog({ isPage = false }) {
 
   // Reset pagination on filter or sort change
   useEffect(() => {
+    if (firstFilterRender.current) { firstFilterRender.current = false; return; }
     setCurrentPage(1);
   }, [
     searchQuery,
@@ -1689,7 +1687,7 @@ export function AlbumsCatalog({ isPage = false }) {
                               className="notranslate font-bold text-white text-sm sm:text-base group-hover:text-cyan-300 transition-colors line-clamp-1"
                               title={album.album_name}
                             >
-                              {album.album_name}
+                              {clubUrl ? <Link to={clubUrl} onClick={e => e.stopPropagation()}>{album.album_name}</Link> : album.album_name}
                             </h3>
                             <div className="mt-1">
                               <ArtistLinks
@@ -1859,11 +1857,8 @@ export function AlbumsCatalog({ isPage = false }) {
                                     ...
                                   </span>
                                 )}
-                                <button
-                                  onClick={() => {
-                                    setCurrentPage(page);
-                                    scrollToExplorer();
-                                  }}
+                                <Link to={`/catalogo${page > 1 ? `?page=${page}` : ''}#explorador-catalogo`}
+                                  aria-current={currentPage === page ? 'page' : undefined}
                                   className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                                     currentPage === page
                                       ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20 font-black'
@@ -1871,7 +1866,7 @@ export function AlbumsCatalog({ isPage = false }) {
                                   }`}
                                 >
                                   {page}
-                                </button>
+                                </Link>
                               </React.Fragment>
                             );
                           })}

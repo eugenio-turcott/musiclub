@@ -22,10 +22,8 @@ const supabaseUrl =
   process.env.REACT_APP_SUPABASE_URL ||
   process.env.SUPABASE_URL;
 
-const supabaseKey =
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.REACT_APP_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.REACT_APP_SUPABASE_SERVICE_KEY;
+if (!supabaseKey) throw new Error("Configura SUPABASE_SERVICE_ROLE_KEY para ejecutar tareas de mantenimiento");
 
 const SPOTIFY_CLIENT_ID = process.env.REACT_APP_SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.REACT_APP_SPOTIFY_CLIENT_SECRET;
@@ -743,7 +741,7 @@ async function enrichAndAddAlbums(trendingItems) {
     console.log(`[${i + 1}/${itemsToProcess.length}] Enriqueciendo (Spotify + MusicBrainz + Deezer): "${item.album_name}" de ${item.artist_name}...`);
 
     try {
-      const result = await enrichAndInsertAlbum(item);
+      const result = await enrichAndInsertAlbum(item, supabase);
       if (result.success) {
         if (result.alreadyExists) {
           console.log(`  ℹ️ Ya se encontraba en [albums] (ID: ${result.album?.id}). Omitido.`);

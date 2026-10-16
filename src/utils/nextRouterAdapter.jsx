@@ -1,10 +1,9 @@
 'use client';
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import {
   useRouter,
   usePathname,
-  useSearchParams as useNextSearchParams,
   useParams as useNextParams,
 } from 'next/navigation';
 
@@ -13,12 +12,17 @@ import {
  * and Next.js ('href' prop).
  */
 export const Link = forwardRef(function Link(
-  { to, href, replace, children, ...props },
+  { to, href, replace, children, onClick, state, ...props },
   ref
 ) {
   const target = href || to || '#';
   return (
-    <NextLink ref={ref} href={target} replace={replace} {...props}>
+    <NextLink ref={ref} href={target} replace={replace} {...props} onClick={event => {
+      onClick?.(event);
+      if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && typeof target === 'string') {
+        window.dispatchEvent(new CustomEvent('musiclub:navigate', { detail: target }));
+      }
+    }}>
       {children}
     </NextLink>
   );
@@ -67,6 +71,7 @@ export function useNavigate() {
     } else {
       router.push(target);
     }
+    window.dispatchEvent(new CustomEvent('musiclub:navigate', { detail: target }));
   };
 }
 
@@ -75,13 +80,27 @@ export function useNavigate() {
  */
 export function useLocation() {
   const pathname = usePathname();
-  const searchParams = useNextSearchParams();
-  const searchStr = searchParams?.toString();
+  const [location, setLocation] = useState({ search: '', hash: '' });
+  useEffect(() => {
+    const update = event => {
+      const url = new URL(typeof event?.detail === 'string' ? event.detail : window.location.href, window.location.origin);
+      setLocation({ search: url.search, hash: url.hash });
+    };
+    update();
+    window.addEventListener('popstate', update);
+    window.addEventListener('hashchange', update);
+    window.addEventListener('musiclub:navigate', update);
+    return () => {
+      window.removeEventListener('popstate', update);
+      window.removeEventListener('hashchange', update);
+      window.removeEventListener('musiclub:navigate', update);
+    };
+  }, [pathname]);
 
   return {
     pathname: pathname || '/',
-    search: searchStr ? `?${searchStr}` : '',
-    hash: typeof window !== 'undefined' ? window.location.hash : '',
+    search: location.search,
+    hash: location.hash,
     state: {},
   };
 }
@@ -98,7 +117,8 @@ export function useParams() {
  * Emulates react-router-dom useSearchParams()
  */
 export function useSearchParams() {
-  const searchParams = useNextSearchParams();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
   const router = useRouter();
   const pathname = usePathname();
 

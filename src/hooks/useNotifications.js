@@ -131,7 +131,7 @@ export function useNotifications(user) {
         try {
           if (user.id) {
             const { data: userEntries, error: poolErr } = await supabase
-              .from('pool_entries')
+              .from('public_pool_entries')
               .select('album_id')
               .eq('user_id', user.id);
 
@@ -149,7 +149,7 @@ export function useNotifications(user) {
                 const albumsMap = new Map(userAlbums.map((a) => [a.id, a]));
 
                 const { data: reviews, error: revErr } = await supabase
-                  .from('reviews')
+                  .from('public_reviews')
                   .select('*')
                   .in('album_id', userAlbumIds)
                   .order('created_at', { ascending: false })

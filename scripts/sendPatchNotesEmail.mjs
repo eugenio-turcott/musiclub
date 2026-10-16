@@ -8,11 +8,7 @@ const supabaseUrl =
   process.env.REACT_APP_SUPABASE_URL ||
   process.env.SUPABASE_URL;
 
-const supabaseKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.REACT_APP_SUPABASE_ANON_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  process.env.SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.REACT_APP_SUPABASE_SERVICE_KEY;
 
 const targetArg = process.argv[2] ? process.argv[2].trim() : '';
 const testEmailArg = process.argv[3] ? process.argv[3].trim() : '';

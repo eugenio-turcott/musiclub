@@ -2,7 +2,7 @@ import React from 'react';
 import { SettingsPage } from '../../views/SettingsPage';
 
 export const metadata = {
-  title: 'Configuración de Cuenta | Musiclub',
+  title: 'Configuración de Cuenta',
   description: 'Configura tu perfil de usuario y preferencias en Musiclub.',
   robots: {
     index: false,

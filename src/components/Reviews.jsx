@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
+import { Link } from 'react-router-dom';
 import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -8,6 +9,7 @@ import { ShareReviewModal } from './ShareReviewModal';
 import { ReviewInteractions } from './ReviewInteractions';
 import {
   getWeightedReviewScore,
+  getReleaseUrl,
   getAlbumWeightedAverage,
   getTrackDisplayName,
   getEmotionFromReview,
@@ -16,11 +18,11 @@ import {
 } from '../utils/ratingUtils';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
-export function Reviews({ onClose, isPage = false }) {
+export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
   const { user } = useAuth();
   const [sharingReview, setSharingReview] = useState(null);
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState(initialReviews);
+  const [loading, setLoading] = useState(initialReviews.length === 0);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterAlbum, setFilterAlbum] = useState('todos');
@@ -29,35 +31,20 @@ export function Reviews({ onClose, isPage = false }) {
   const [itemsPerPage] = useState(20);
 
   // Estadísticas básicas
-  const [totalReviews, setTotalReviews] = useState(0);
-  const [avgRating, setAvgRating] = useState('...');
+  const [totalReviews, setTotalReviews] = useState(initialReviews.length);
+  const [avgRating, setAvgRating] = useState(() => getAlbumWeightedAverage(initialReviews) || '0.0');
   const [totalMembers, setTotalMembers] = useState(21);
 
   const loadReviews = useCallback(async () => {
-    setLoading(true);
+    if (!initialReviews.length) setLoading(true);
     setError(null);
 
     try {
-      const [reviewsRes, profilesRes] = await Promise.all([
-        supabase
-          .from('reviews')
-          .select(
-            `
-            *,
-            albums:album_id (
-              id,
-              album_name,
-              artist_name,
-              image_url,
-              release_type,
-              release_year,
-              tracks
-            )
-          `
-          )
-          .order('created_at', { ascending: false }),
-        supabase.from('profiles').select('email, name, avatar_url'),
-      ]);
+      const response = await fetch('/api/catalog', { cache: 'no-store' });
+      if (!response.ok) throw new Error('No se pudieron cargar las reseñas');
+      const catalog = await response.json();
+      const reviewsRes = { data: catalog.reviews };
+      const profilesRes = { data: [] };
 
       if (reviewsRes.error) throw new Error(reviewsRes.error.message);
 
@@ -523,7 +510,7 @@ export function Reviews({ onClose, isPage = false }) {
                               translate="no"
                               className="notranslate music-title text-white font-black text-base sm:text-lg truncate group-hover:text-pink-300 transition-colors"
                             >
-                              {album?.album_name || 'Álbum desconocido'}
+                              {album ? <Link to={getReleaseUrl(album)}>{album.album_name}</Link> : 'Álbum desconocido'}
                             </h4>
                             {album?.release_type &&
                               getReleaseTypeBadge(album.release_type)}

@@ -2,6 +2,7 @@
 import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication.js';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
 import { slugifyArtist } from '../utils/ratingUtils.js';
+import { spotifyFetch as fetch } from '../utils/spotifyFetch.js';
 
 
 
@@ -11,7 +12,6 @@ const SPOTIFY_CLIENT_ID =
   process.env.REACT_APP_SPOTIFY_CLIENT_ID ||
   process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET =
-  process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET ||
   process.env.REACT_APP_SPOTIFY_CLIENT_SECRET ||
   process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
@@ -30,6 +30,7 @@ const checkCredentials = () => {
 };
 
 const getSpotifyToken = async () => {
+  if (typeof window !== 'undefined') return 'server-proxy';
   if (accessToken && tokenExpiration && Date.now() < tokenExpiration) {
     return accessToken;
   }
@@ -780,7 +781,9 @@ export const getAlbumTracksById = async (albumId) => {
 
 export const testSpotifyConnection = async () => {
   try {
-    await getSpotifyToken();
+    const token = await getSpotifyToken();
+    const response = await fetch(`${SPOTIFY_SEARCH_URL}?q=music&type=album&limit=1`, { headers: { Authorization: `Bearer ${token}` } });
+    if (!response.ok) throw new Error('Spotify no está disponible');
     return { success: true, message: 'Conexión exitosa' };
   } catch (error) {
     return { success: false, error: error.message };

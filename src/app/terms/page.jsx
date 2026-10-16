@@ -2,7 +2,7 @@ import React from 'react';
 import { TermsOfService } from '../../views/TermsOfService';
 
 export const metadata = {
-  title: 'Términos de Servicio | Musiclub',
+  title: 'Términos de Servicio',
   description:
     'Consulta los términos, normas de convivencia comunitaria y condiciones de uso de la plataforma colaborativa de música Musiclub.',
   alternates: {

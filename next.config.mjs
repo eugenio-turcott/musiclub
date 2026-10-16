@@ -49,10 +49,6 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ||
       process.env.REACT_APP_SPOTIFY_CLIENT_ID ||
       process.env.SPOTIFY_CLIENT_ID,
-    REACT_APP_SPOTIFY_CLIENT_SECRET:
-      process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET ||
-      process.env.REACT_APP_SPOTIFY_CLIENT_SECRET ||
-      process.env.SPOTIFY_CLIENT_SECRET,
   },
   async rewrites() {
     return [

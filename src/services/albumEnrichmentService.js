@@ -511,7 +511,7 @@ export async function findAlbumInDatabase(albumName, artistName, mbid = null) {
  * Si el álbum ya existía pero era un SENCILLO y ahora se detecta como ÁLBUM o con más pistas,
  * actualiza el registro en la BD para mantenerlo 100% al día.
  */
-export async function enrichAndInsertAlbum(releaseItem) {
+export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
   if (!releaseItem || !releaseItem.album_name) {
     return { success: false, error: 'Datos de lanzamiento inválidos' };
   }
@@ -571,8 +571,8 @@ export async function enrichAndInsertAlbum(releaseItem) {
   if (existing) {
     const finalTracks = payload.tracks && payload.tracks.length > 0 ? payload.tracks : existing.tracks;
     const finalTotalTracks = payload.total_tracks || (finalTracks ? finalTracks.length : existing.total_tracks);
-    const { data: updated, error: updateError } = await supabase
-      .from('albums')
+    const { data: updated, error: updateError } = await db
+    .from('albums')
       .update({
         release_type: payload.release_type,
         total_tracks: finalTotalTracks,
@@ -610,7 +610,7 @@ export async function enrichAndInsertAlbum(releaseItem) {
   }
 
   // 6. Inserción a la tabla "albums"
-  const { data: inserted, error: insertError } = await supabase
+  const { data: inserted, error: insertError } = await db
     .from('albums')
     .insert([payload])
     .select('*')

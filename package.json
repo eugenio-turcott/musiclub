@@ -1,6 +1,6 @@
 {
   "name": "musiclub-albums",
-  "version": "0.1.0",
+  "version": "9.6.0",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
@@ -20,7 +20,6 @@
   },
   "scripts": {
     "dev": "next dev",
-    "prebuild": "node scripts/generate-sitemap.js",
     "build": "next build",
     "start": "next start",
     "sitemap": "node scripts/generate-sitemap.js",
@@ -32,7 +31,8 @@
     "sync:recordclub:daily": "node scripts/dailyRecordClubSync.mjs",
     "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force",
     "check:releases": "node scripts/checkUpcomingReleasesCron.mjs",
-    "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs"
+    "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs",
+    "test:critical": "node --test tests/critical.test.mjs"
   },
   "eslintConfig": {
     "extends": [

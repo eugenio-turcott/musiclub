@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../utils/translateCrashGuard';
 
@@ -38,9 +38,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      <Suspense fallback={<div className="min-h-screen bg-[#0a0a12] flex items-center justify-center text-white/50">Cargando...</div>}>
-        {children}
-      </Suspense>
+      {children}
     </ErrorBoundary>
   );
 }

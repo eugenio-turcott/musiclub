@@ -4,7 +4,7 @@ import React from 'react';
 import { Reviews as ReviewsComponent } from '../components/Reviews';
 import { SEO } from '../components/SEO';
 
-export function ReviewsPage() {
+export function ReviewsPage({ initialReviews = [] } = {}) {
   return (
     <>
       <SEO
@@ -13,7 +13,7 @@ export function ReviewsPage() {
         url="https://www.musiclub.org/reviews"
         keywords="reseñas de musica, reviews de albumes, criticas de discos, calificaciones musicales, opiniones de musica, musiclub"
       />
-      <ReviewsComponent isPage={true} onClose={() => {}} />
+      <ReviewsComponent isPage={true} initialReviews={initialReviews} onClose={() => {}} />
     </>
   );
 }
