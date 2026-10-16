@@ -11,6 +11,13 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7.1', title: 'Comprobación privada de la renovación de claves', date: '2026-10-16',
+    sha: '', associatedShas: [], tag: 'Mantenimiento',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Una comprobación manual de solo lectura permite validar las claves nuevas de Supabase y el aislamiento de los datos antes de retirar las credenciales anteriores.',
+    changes: [{ type: 'security', title: 'Verificación sin publicar claves ni registros', description: 'El flujo de administración comprueba la lectura pública, el acceso reservado al servidor y el aislamiento de reseñas, perfiles y entregas. No modifica datos ni envía correos. La revocación de claves antiguas sigue siendo un paso separado.' }],
+  },
+  {
     version: 'V.9.7', title: 'Una primera reseña más fácil y mejor seguimiento del club', date: '2026-10-16',
     sha: '', associatedShas: [], tag: 'Experiencia y mantenimiento',
     tagColor: 'from-pink-500 via-purple-600 to-cyan-600', authorName: 'Eugenio Turcott',
