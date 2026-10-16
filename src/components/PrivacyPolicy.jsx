@@ -24,7 +24,7 @@ export function PrivacyPolicy({ onClose }) {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm mb-3">
                 <span>🔒</span> Transparencia & Protección de Datos
               </div>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 POLÍTICA DE PRIVACIDAD
               </h1>
               <p className="text-white/60 text-xs sm:text-sm mt-1">

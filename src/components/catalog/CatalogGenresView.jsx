@@ -38,7 +38,7 @@ export function CatalogGenresView({
   return (
     <div className="space-y-8 my-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-purple-500/15 via-pink-500/10 to-cyan-500/10 border border-purple-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-purple-500/15 via-pink-500/10 to-cyan-500/10 border border-purple-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-500/20 border border-purple-500/30 text-purple-300 text-xs font-black uppercase tracking-wider">
             <span>🏷️</span>
@@ -69,7 +69,7 @@ export function CatalogGenresView({
           onClick={() => setSelectedGenreId('ALL')}
           className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer whitespace-nowrap border flex items-center gap-1.5 ${
             selectedGenreId === 'ALL'
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
+              ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
               : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
           }`}
         >
@@ -86,7 +86,7 @@ export function CatalogGenresView({
               onClick={() => setSelectedGenreId(genre.id)}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap border flex items-center gap-1.5 ${
                 isSelected
-                  ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
+                  ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
                   : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
               }`}
             >
@@ -288,7 +288,7 @@ export function CatalogGenresView({
                                   onClick={() => setGenrePage(genre.id, page)}
                                   className={`min-w-[28px] h-7 px-2 rounded-lg text-xs font-bold transition-all border cursor-pointer ${
                                     currentPage === page
-                                      ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
+                                      ? 'bg-linear-to-r from-purple-500 to-pink-500 text-white border-purple-400 shadow-md shadow-purple-500/25 scale-105'
                                       : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5 hover:border-white/10'
                                   }`}
                                 >

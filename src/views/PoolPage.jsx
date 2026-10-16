@@ -344,8 +344,8 @@ export function PoolPage() {
         {/* =========================================================================
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-[#161832] via-[#0e1022] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative rounded-3xl bg-linear-to-br from-[#161832] via-[#0e1022] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
@@ -360,7 +360,7 @@ export function PoolPage() {
             <div className="space-y-3 max-w-2xl">
               {/* Season Live Pill & Selector */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-300 text-xs font-black tracking-wider uppercase">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-linear-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-300 text-xs font-black tracking-wider uppercase">
                   <img
                     src="/musiclub_logo_corchea.png"
                     alt="Musiclub"
@@ -425,7 +425,7 @@ export function PoolPage() {
                     <button
                       type="button"
                       onClick={() => setPoolOpenStatus(true)}
-                      className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs shadow transition-all flex items-center gap-1.5 flex-shrink-0"
+                      className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs shadow transition-all flex items-center gap-1.5 shrink-0"
                     >
                       <span>🔓 Abrir Pool Ahora</span>
                     </button>
@@ -456,7 +456,7 @@ export function PoolPage() {
                       setShowNominateModal(true);
                     }
                   }}
-                  className="px-5 py-3.5 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                  className="px-5 py-3.5 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>➕</span>
                   <span>Proponer al Pool</span>
@@ -543,12 +543,12 @@ export function PoolPage() {
             ========================================================================= */}
         {winner ? (
           <section className="relative text-left">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1b1e3d] via-[#101226] to-[#0a0a14] border-2 border-pink-500/40 p-6 sm:p-8 md:p-10 shadow-2xl">
+            <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#1b1e3d] via-[#101226] to-[#0a0a14] border-2 border-pink-500/40 p-6 sm:p-8 md:p-10 shadow-2xl">
               <div className="absolute top-0 right-0 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
               <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 relative z-10">
                 {/* Artwork */}
-                <div className="relative flex-shrink-0 group">
+                <div className="relative shrink-0 group">
                   <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-2xl shadow-pink-500/30">
                     <img
                       src={winner.imagen}
@@ -556,7 +556,7 @@ export function PoolPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-full shadow-lg border border-white/20">
+                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-full shadow-lg border border-white/20">
                     🏆 EN FOCO SEMANAL
                   </div>
                 </div>
@@ -694,7 +694,7 @@ export function PoolPage() {
                           if (!user) setShowLoginModal(true);
                           else setShowWinnerReviewModal((prev) => !prev);
                         }}
-                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <span>⭐</span>
                         <span>
@@ -750,10 +750,10 @@ export function PoolPage() {
                 </div>
 
                 {/* Spinning Vinyl Disc on the Right */}
-                <div className="hidden md:flex flex-shrink-0 items-center justify-center relative p-2 self-center">
+                <div className="hidden md:flex shrink-0 items-center justify-center relative p-2 self-center">
                   <div className="relative w-32 h-32 lg:w-44 lg:h-44 xl:w-52 xl:h-52 group">
                     {/* Ambient Glow behind disc */}
-                    <div className="absolute -inset-3 bg-gradient-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+                    <div className="absolute -inset-3 bg-linear-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
 
                     {/* Disc Frame & Shadow */}
                     <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
@@ -818,7 +818,7 @@ export function PoolPage() {
             </p>
             <Link
               to="/gashapon"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-all"
             >
               <span>🎲</span>
               <span>Sortear Ganador en Gashapon</span>
@@ -865,7 +865,7 @@ export function PoolPage() {
                     onClick={() => setSelectedFormatFilter(tab.id)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                       isSelected
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white border-pink-400 shadow-md font-black'
+                        ? 'bg-linear-to-r from-pink-500 to-purple-500 text-white border-pink-400 shadow-md font-black'
                         : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                     }`}
                   >
@@ -1242,8 +1242,8 @@ export function PoolPage() {
                 onMouseLeave={() => setIsPoolSliderPaused(false)}
               >
                 {/* Gradientes laterales de desvanecimiento estético */}
-                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
-                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+                <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+                <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
 
                 {/* Pista del slider infinito en traslación perpetua */}
                 <div
@@ -1261,7 +1261,7 @@ export function PoolPage() {
                         alb.album,
                         alb.release_type || alb.releaseType
                       )}
-                      className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0"
+                      className="group relative rounded-2xl bg-[#111322]/80 border border-white/10 hover:border-amber-400/40 p-2.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-lg flex flex-col justify-between w-[200px] sm:w-[230px] md:w-[260px] shrink-0"
                     >
                       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
                         <img
@@ -1471,7 +1471,7 @@ export function PoolPage() {
                       type="button"
                       onClick={handleConfirmNomination}
                       disabled={submittingNomination}
-                      className="px-6 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-xs font-black shadow-lg"
+                      className="px-6 py-2 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-xs font-black shadow-lg"
                     >
                       {submittingNomination
                         ? 'Registrando...'

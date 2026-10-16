@@ -355,7 +355,7 @@ export default function ShareTierListModal({
     {
       id: 'instagram',
       name: 'Instagram',
-      bgClass: 'bg-gradient-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white',
+      bgClass: 'bg-linear-to-tr from-[#f09433] via-[#e6683c] to-[#bc1888] text-white',
       borderClass: 'border-pink-500/30',
       icon: <InstagramIcon className="w-4 h-4 text-white" />,
     },
@@ -431,15 +431,15 @@ export default function ShareTierListModal({
       >
         {/* Toast Flotante */}
         {toastMessage && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-gradient-to-r from-pink-500 to-purple-600 text-white text-xs font-black px-4 py-1.5 rounded-full shadow-2xl border border-white/30 animate-fadeIn whitespace-nowrap text-center pointer-events-none">
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-50 bg-linear-to-r from-pink-500 to-purple-600 text-white text-xs font-black px-4 py-1.5 rounded-full shadow-2xl border border-white/30 animate-fadeIn whitespace-nowrap text-center pointer-events-none">
             {toastMessage}
           </div>
         )}
 
         {/* 1. Header Fijo y Limpio */}
-        <div className="flex-shrink-0 flex items-center justify-between px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-white/10 bg-white/[0.03]">
+        <div className="shrink-0 flex items-center justify-between px-3.5 py-2.5 sm:px-4 sm:py-3 border-b border-white/10 bg-white/[0.03]">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center p-2 text-white flex-shrink-0 shadow-md">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center p-2 text-white shrink-0 shadow-md">
               <img
                 src="/musiclub_logo_corchea.png"
                 alt="Musiclub Logo"
@@ -454,7 +454,7 @@ export default function ShareTierListModal({
                 <h3 className="text-white font-black text-xs sm:text-sm truncate">
                   Compartir Tier List
                 </h3>
-                <span className="px-1.5 py-0.5 rounded-md bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-300 text-[10px] font-black border border-pink-500/30 flex-shrink-0">
+                <span className="px-1.5 py-0.5 rounded-md bg-linear-to-r from-pink-500/20 to-purple-500/20 text-pink-300 text-[10px] font-black border border-pink-500/30 shrink-0">
                   HD · {totalCategorized} discos
                 </span>
               </div>
@@ -467,7 +467,7 @@ export default function ShareTierListModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer flex-shrink-0"
+            className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white/70 hover:text-white flex items-center justify-center transition-all cursor-pointer shrink-0"
             title="Cerrar"
             aria-label="Cerrar modal"
           >
@@ -496,14 +496,14 @@ export default function ShareTierListModal({
           </div>
 
           {/* Selector de Formato (📱 Celular / Story vs 🖥️ Panorámica) */}
-          <div className="flex-shrink-0 flex items-center justify-center gap-1.5 mt-2 py-0.5 w-full">
+          <div className="shrink-0 flex items-center justify-center gap-1.5 mt-2 py-0.5 w-full">
             <button
               type="button"
               disabled={isGenerating}
               onClick={() => handleFormatChange('mobile')}
               className={`px-3 py-1 rounded-full text-[11px] font-black transition-all border cursor-pointer active:scale-95 ${
                 selectedFormat === 'mobile'
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
+                  ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
                   : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -515,7 +515,7 @@ export default function ShareTierListModal({
               onClick={() => handleFormatChange('landscape')}
               className={`px-3 py-1 rounded-full text-[11px] font-black transition-all border cursor-pointer active:scale-95 ${
                 selectedFormat === 'landscape'
-                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
+                  ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
                   : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -525,13 +525,13 @@ export default function ShareTierListModal({
         </div>
 
         {/* 3. Barra de Acciones Fija y Completa */}
-        <div className="flex-shrink-0 border-t border-white/10 bg-[#070810]/95 backdrop-blur-md px-3 sm:px-4 pt-2.5 pb-[max(12px,env(safe-area-inset-bottom))] flex flex-col gap-2">
+        <div className="shrink-0 border-t border-white/10 bg-[#070810]/95 backdrop-blur-md px-3 sm:px-4 pt-2.5 pb-[max(12px,env(safe-area-inset-bottom))] flex flex-col gap-2">
           {/* Botón Principal: Compartir Nativo a Stories / Apps */}
           <button
             type="button"
             disabled={isGenerating}
             onClick={handleNativeShare}
-            className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg hover:shadow-pink-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            className="w-full py-2.5 sm:py-3 px-4 rounded-xl bg-linear-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-400 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg hover:shadow-pink-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             title="Compartir directo a través del menú de tu teléfono"
           >
             <ShareIcon className="w-4 h-4 text-white" />

@@ -754,7 +754,7 @@ export function GashaponMachine({
     >
       {/* Toast flotante de XP Ganado */}
       {xpToast && (
-        <div className="fixed top-20 right-4 z-50 animate-xp-bounce bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-white/60 flex items-center gap-3 font-black">
+        <div className="fixed top-20 right-4 z-50 animate-xp-bounce bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-white/60 flex items-center gap-3 font-black">
           <span className="text-2xl animate-spin-slow">✨</span>
           <div>
             <p className="text-xs uppercase tracking-wider font-bold opacity-80">
@@ -768,9 +768,9 @@ export function GashaponMachine({
       )}
 
       {/* CABECERA ARCADE DE LA MÁQUINA */}
-      <div className="relative overflow-hidden rounded-3xl p-5 sm:p-7 md:p-8 bg-gradient-to-br from-[#18112e] via-[#101024] to-[#090814] border border-white/10 shadow-2xl backdrop-blur-xl">
+      <div className="relative overflow-hidden rounded-3xl p-5 sm:p-7 md:p-8 bg-linear-to-br from-[#18112e] via-[#101024] to-[#090814] border border-white/10 shadow-2xl backdrop-blur-xl">
         {/* Luces de neón ambientales */}
-        <div className="absolute top-0 right-1/4 w-80 h-80 bg-gradient-to-br from-[#f5576c]/20 via-[#f093fb]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute top-0 right-1/4 w-80 h-80 bg-linear-to-br from-[#f5576c]/20 via-[#f093fb]/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-10 w-80 h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
@@ -834,7 +834,7 @@ export function GashaponMachine({
             </button>
 
             {/* Token Badge */}
-            <div className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center gap-1.5">
+            <div className="px-3.5 py-2 rounded-xl bg-linear-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center gap-1.5">
               <span>🪙</span>
               <span>Monedas: ∞</span>
             </div>
@@ -852,7 +852,7 @@ export function GashaponMachine({
             onClick={() => setActiveFilter('pending')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border active:scale-95 ${
               activeFilter === 'pending'
-                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-lg shadow-[#f5576c]/30 font-black'
+                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-lg shadow-[#f5576c]/30 font-black'
                 : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
             }`}
           >
@@ -864,7 +864,7 @@ export function GashaponMachine({
             onClick={() => setActiveFilter('all')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border active:scale-95 ${
               activeFilter === 'all'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg shadow-cyan-500/30 font-black'
+                ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white border-transparent shadow-lg shadow-cyan-500/30 font-black'
                 : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
             }`}
           >
@@ -877,7 +877,7 @@ export function GashaponMachine({
               onClick={() => setActiveFilter('ALBUM')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border active:scale-95 ${
                 activeFilter === 'ALBUM'
-                  ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white border-transparent shadow-lg shadow-purple-500/30 font-black'
+                  ? 'bg-linear-to-r from-purple-500 to-indigo-600 text-white border-transparent shadow-lg shadow-purple-500/30 font-black'
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
@@ -891,7 +891,7 @@ export function GashaponMachine({
               onClick={() => setActiveFilter('EP')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border active:scale-95 ${
                 activeFilter === 'EP'
-                  ? 'bg-gradient-to-r from-cyan-500 to-teal-600 text-white border-transparent shadow-lg shadow-cyan-500/30 font-black'
+                  ? 'bg-linear-to-r from-cyan-500 to-teal-600 text-white border-transparent shadow-lg shadow-cyan-500/30 font-black'
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
@@ -905,7 +905,7 @@ export function GashaponMachine({
               onClick={() => setActiveFilter('SENCILLO')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 border active:scale-95 ${
                 activeFilter === 'SENCILLO'
-                  ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border-transparent shadow-lg shadow-emerald-500/30 font-black'
+                  ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white border-transparent shadow-lg shadow-emerald-500/30 font-black'
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
@@ -919,7 +919,7 @@ export function GashaponMachine({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* COLUMNA IZQUIERDA: GASHAPON MACHINE DOME & CRANK (5 COLUMNAS EN LG) */}
         <div className="lg:col-span-4 flex flex-col items-center">
-          <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-gradient-to-b from-[#1b1933] via-[#121226] to-[#0a0a14] rounded-3xl p-5 sm:p-6 border-2 border-white/15 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
+          <div className="relative w-full max-w-[340px] sm:max-w-[380px] bg-linear-to-b from-[#1b1933] via-[#121226] to-[#0a0a14] rounded-3xl p-5 sm:p-6 border-2 border-white/15 shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden">
             {/* Iluminación de marquesina arcade */}
             <div className="absolute top-2 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-80">
               <span className="w-1.5 h-1.5 rounded-full bg-pink-400 animate-ping"></span>
@@ -929,13 +929,13 @@ export function GashaponMachine({
 
             {/* CÚPULA DE CRISTAL TRANSPARENTE (DOME) */}
             <div
-              className={`relative w-56 h-56 sm:w-64 sm:h-64 mx-auto rounded-full bg-gradient-to-br from-white/15 via-white/5 to-transparent border-4 border-white/30 shadow-[inset_0_0_35px_rgba(255,255,255,0.2),0_15px_35px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden flex items-center justify-center ${
+              className={`relative w-56 h-56 sm:w-64 sm:h-64 mx-auto rounded-full bg-linear-to-br from-white/15 via-white/5 to-transparent border-4 border-white/30 shadow-[inset_0_0_35px_rgba(255,255,255,0.2),0_15px_35px_rgba(0,0,0,0.6)] backdrop-blur-md overflow-hidden flex items-center justify-center ${
                 machineState === 'CRANKING' ? 'animate-gashapon-shake' : ''
               }`}
             >
               {/* Reflejos de cristal hiperrealistas */}
-              <div className="absolute top-3 left-6 w-20 h-10 bg-gradient-to-b from-white/40 to-transparent rounded-full -rotate-45 blur-[1px] pointer-events-none"></div>
-              <div className="absolute bottom-4 right-6 w-16 h-8 bg-gradient-to-t from-white/20 to-transparent rounded-full -rotate-45 blur-[2px] pointer-events-none"></div>
+              <div className="absolute top-3 left-6 w-20 h-10 bg-linear-to-b from-white/40 to-transparent rounded-full -rotate-45 blur-[1px] pointer-events-none"></div>
+              <div className="absolute bottom-4 right-6 w-16 h-8 bg-linear-to-t from-white/20 to-transparent rounded-full -rotate-45 blur-[2px] pointer-events-none"></div>
 
               {/* Mecanismo giratorio interno */}
               <div
@@ -963,7 +963,7 @@ export function GashaponMachine({
                   >
                     {/* Mitad superior colorida con gradiente vivo */}
                     <div
-                      className={`h-1/2 bg-gradient-to-r ${cap.topGrad} relative`}
+                      className={`h-1/2 bg-linear-to-r ${cap.topGrad} relative`}
                     >
                       {/* Reflejo de brillo esférico */}
                       <div className="absolute top-0.5 left-1 w-2.5 h-1 bg-white/70 rounded-full blur-[0.3px] pointer-events-none"></div>
@@ -972,7 +972,7 @@ export function GashaponMachine({
                     <div className="h-[1.5px] bg-white/90 shadow-[0_0_3px_rgba(255,255,255,0.9)]"></div>
                     {/* Mitad inferior translúcida con sticker/icono arcade */}
                     <div
-                      className={`h-1/2 bg-gradient-to-r ${cap.botGrad} flex items-center justify-center relative`}
+                      className={`h-1/2 bg-linear-to-r ${cap.botGrad} flex items-center justify-center relative`}
                     >
                       <span className="text-[9px] sm:text-[11px] leading-none select-none opacity-90 filter drop-shadow-sm">
                         {cap.icon}
@@ -984,7 +984,7 @@ export function GashaponMachine({
             </div>
 
             {/* BASE METÁLICA DEL GASHAPON & MANIVELA ROTATORIA */}
-            <div className="mt-4 bg-gradient-to-b from-[#201d36] to-[#0f0e1c] rounded-2xl p-4 border border-white/10 shadow-inner flex flex-col items-center space-y-3">
+            <div className="mt-4 bg-linear-to-b from-[#201d36] to-[#0f0e1c] rounded-2xl p-4 border border-white/10 shadow-inner flex flex-col items-center space-y-3">
               {/* Manivela Interactiva (Crank Handle) */}
               <div className="flex items-center justify-center gap-4">
                 <button
@@ -995,18 +995,18 @@ export function GashaponMachine({
                     filteredPool.length === 0
                   }
                   onClick={handleSpinGashapon}
-                  className={`relative group w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-slate-700 via-slate-400 to-slate-200 border-4 border-amber-400/80 shadow-[0_8px_20px_rgba(0,0,0,0.6),inset_0_2px_6px_rgba(255,255,255,0.8)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60 cursor-pointer ${
+                  className={`relative group w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-linear-to-tr from-slate-700 via-slate-400 to-slate-200 border-4 border-amber-400/80 shadow-[0_8px_20px_rgba(0,0,0,0.6),inset_0_2px_6px_rgba(255,255,255,0.8)] flex items-center justify-center active:scale-95 transition-transform disabled:opacity-60 cursor-pointer ${
                     isCrankAnimating ? 'animate-crank-turn' : 'hover:scale-105'
                   }`}
                   title="¡Haz click para girar la manivela!"
                 >
                   {/* Centro metálico con estrías */}
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-amber-400 to-yellow-600 border-2 border-white/40 shadow-inner flex items-center justify-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-amber-400 to-yellow-600 border-2 border-white/40 shadow-inner flex items-center justify-center">
                     <span className="text-sm sm:text-base font-black">🎵</span>
                   </div>
 
                   {/* Mango de la perilla */}
-                  <div className="absolute top-1 right-2 w-4 h-8 bg-gradient-to-r from-amber-400 to-yellow-500 rounded-full border border-black/30 shadow-md transform rotate-45"></div>
+                  <div className="absolute top-1 right-2 w-4 h-8 bg-linear-to-r from-amber-400 to-yellow-500 rounded-full border border-black/30 shadow-md transform rotate-45"></div>
 
                   {/* Indicador de giro */}
                   <span className="absolute -bottom-1 text-[9px] font-black text-amber-300 bg-black/80 px-2 py-0.5 rounded-full border border-amber-400/40">
@@ -1028,8 +1028,8 @@ export function GashaponMachine({
                   filteredPool.length === 0
                     ? 'bg-slate-800 border-white/10 opacity-60 cursor-not-allowed'
                     : machineState === 'CRANKING'
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 border-amber-400/50 animate-pulse'
-                      : 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 border-white/20 shadow-[#f5576c]/30 hover:scale-[1.02]'
+                      ? 'bg-linear-to-r from-amber-500 to-orange-500 border-amber-400/50 animate-pulse'
+                      : 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 border-white/20 shadow-[#f5576c]/30 hover:scale-[1.02]'
                 }`}
               >
                 <span>
@@ -1080,7 +1080,7 @@ export function GashaponMachine({
                       >
                         {/* Mitad superior con gradiente y reflejo esférico idéntico */}
                         <div
-                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad} relative`}
+                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad} relative`}
                         >
                           <div className="absolute top-1 left-2 w-4 h-1.5 bg-white/70 rounded-full blur-[0.4px] pointer-events-none"></div>
                         </div>
@@ -1088,7 +1088,7 @@ export function GashaponMachine({
                         <div className="h-[2px] bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.9)]"></div>
                         {/* Mitad inferior translúcida con el sticker exacto */}
                         <div
-                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
+                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
                         >
                           <span className="text-sm font-black select-none drop-shadow">
                             {currentCapsule.theme.icon}
@@ -1153,7 +1153,7 @@ export function GashaponMachine({
           {(!currentCapsule ||
             machineState === 'IDLE' ||
             machineState === 'CRANKING') && (
-            <div className="rounded-3xl p-8 sm:p-12 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 text-center flex flex-col items-center justify-center min-h-[380px] space-y-4">
+            <div className="rounded-3xl p-8 sm:p-12 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 text-center flex flex-col items-center justify-center min-h-[380px] space-y-4">
               <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl shadow-2xl animate-float-slow">
                 🎰
               </div>
@@ -1175,7 +1175,7 @@ export function GashaponMachine({
                 type="button"
                 onClick={handleSpinGashapon}
                 disabled={filteredPool.length === 0}
-                className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
               >
                 <span>🪙</span> ¡Probar Suerte Ahora!
               </button>
@@ -1186,9 +1186,9 @@ export function GashaponMachine({
           {machineState === 'REVEALED' && currentCapsule?.album && (
             <div className="space-y-5 animate-card-reveal">
               {/* TARJETA DEL ÁLBUM REVELADO */}
-              <div className="relative rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-[#16172d] via-[#101324] to-[#090b16] border-2 border-white/20 shadow-2xl overflow-hidden backdrop-blur-xl">
+              <div className="relative rounded-3xl p-5 sm:p-7 bg-linear-to-br from-[#16172d] via-[#101324] to-[#090b16] border-2 border-white/20 shadow-2xl overflow-hidden backdrop-blur-xl">
                 {/* Rayos de luz decorativos de apertura */}
-                <div className="absolute -top-12 -right-12 w-64 h-64 bg-gradient-to-bl from-amber-400/20 via-pink-500/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+                <div className="absolute -top-12 -right-12 w-64 h-64 bg-linear-to-bl from-amber-400/20 via-pink-500/15 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
                 {/* Partículas de chispa al abrir */}
                 {sparks.map((spark) => (
@@ -1211,14 +1211,14 @@ export function GashaponMachine({
                   <div className="flex items-center gap-2.5">
                     {/* Mini réplica idéntica de la bola abierta */}
                     <div
-                      className={`w-8 h-8 rounded-full border ${currentCapsule.theme.ring} shadow-[0_0_12px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col flex-shrink-0`}
+                      className={`w-8 h-8 rounded-full border ${currentCapsule.theme.ring} shadow-[0_0_12px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
                     >
                       <div
-                        className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad}`}
+                        className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
                       ></div>
                       <div className="h-[1px] bg-white/80"></div>
                       <div
-                        className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
+                        className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                       >
                         <span className="text-[10px] leading-none">
                           {currentCapsule.theme.icon}
@@ -1269,7 +1269,7 @@ export function GashaponMachine({
                 {/* Contenido del Álbum: Portada de Vinilo + Metadatos */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                   {/* Portada con efecto de Vinilo saliente */}
-                  <div className="relative group flex-shrink-0">
+                  <div className="relative group shrink-0">
                     {/* Disco de vinilo detrás */}
                     <div className="absolute top-0 -right-4 sm:-right-6 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-white/20 shadow-xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
                       <img
@@ -1341,7 +1341,7 @@ export function GashaponMachine({
               {/* SISTEMA DE CALIFICACIÓN OFICIAL */}
               <div
                 ref={reviewSectionRef}
-                className="rounded-3xl p-5 sm:p-7 bg-gradient-to-br from-[#131427] to-[#0b0d18] border border-white/15 shadow-2xl space-y-4"
+                className="rounded-3xl p-5 sm:p-7 bg-linear-to-br from-[#131427] to-[#0b0d18] border border-white/15 shadow-2xl space-y-4"
               >
                 <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2 flex-wrap">
                   <div className="flex items-center gap-2">
@@ -1410,7 +1410,7 @@ export function GashaponMachine({
                   key={item.album.id || idx}
                   type="button"
                   onClick={() => handleInspectCapsule(item)}
-                  className={`flex-shrink-0 w-36 sm:w-40 rounded-2xl p-2.5 text-left border transition-all active:scale-95 flex flex-col justify-between cursor-pointer ${
+                  className={`shrink-0 w-36 sm:w-40 rounded-2xl p-2.5 text-left border transition-all active:scale-95 flex flex-col justify-between cursor-pointer ${
                     isCurrent
                       ? 'bg-white/15 border-[#f5576c] shadow-lg shadow-[#f5576c]/20'
                       : 'bg-white/5 hover:bg-white/10 border-white/5'
@@ -1501,7 +1501,7 @@ export function GashaponMachine({
             ))}
 
             {/* Tarjeta Contenedora del Modal */}
-            <div className="relative z-10 w-full max-w-2xl bg-gradient-to-b from-[#1b1933] via-[#121327] to-[#090a16] rounded-3xl p-5 sm:p-8 border-2 border-white/20 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col items-center max-h-[92vh] overflow-y-auto no-scrollbar my-auto">
+            <div className="relative z-10 w-full max-w-2xl bg-linear-to-b from-[#1b1933] via-[#121327] to-[#090a16] rounded-3xl p-5 sm:p-8 border-2 border-white/20 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col items-center max-h-[92vh] overflow-y-auto no-scrollbar my-auto">
               {/* Botón de Cerrar */}
               <button
                 type="button"
@@ -1555,7 +1555,7 @@ export function GashaponMachine({
                     {/* Explosión de rayos luminosos al abrir */}
                     {modalStage === 'OPENING' && (
                       <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                        <div className="w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-gradient-to-r from-amber-300 via-white to-pink-300 animate-burst-rays blur-md"></div>
+                        <div className="w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-linear-to-r from-amber-300 via-white to-pink-300 animate-burst-rays blur-md"></div>
                       </div>
                     )}
 
@@ -1576,7 +1576,7 @@ export function GashaponMachine({
                     >
                       {/* MITAD SUPERIOR DE LA CÁPSULA */}
                       <div
-                        className={`relative w-full h-1/2 rounded-t-full bg-gradient-to-br ${
+                        className={`relative w-full h-1/2 rounded-t-full bg-linear-to-br ${
                           currentCapsule.theme.topGrad
                         } border-t-4 border-x-4 border-white/40 shadow-[inset_0_-8px_16px_rgba(0,0,0,0.35)] overflow-hidden transition-all duration-700 ease-out z-10 ${
                           modalStage === 'OPENING'
@@ -1585,13 +1585,13 @@ export function GashaponMachine({
                         }`}
                       >
                         {/* Reflejo curvado hiperrealista */}
-                        <div className="absolute top-2 left-6 sm:top-3 sm:left-8 w-24 sm:w-32 h-8 sm:h-12 bg-gradient-to-b from-white/80 to-transparent rounded-full -rotate-25 blur-[1px] pointer-events-none"></div>
+                        <div className="absolute top-2 left-6 sm:top-3 sm:left-8 w-24 sm:w-32 h-8 sm:h-12 bg-linear-to-b from-white/80 to-transparent rounded-full -rotate-25 blur-[1px] pointer-events-none"></div>
                         <div className="absolute top-8 right-6 w-8 h-4 bg-white/20 rounded-full rotate-45 blur-[1px] pointer-events-none"></div>
                       </div>
 
                       {/* BANDA METÁLICA CENTRAL (DIVISIÓN) */}
                       <div
-                        className={`relative z-20 w-[102%] h-4 sm:h-5 bg-gradient-to-r from-slate-200 via-white to-slate-300 border-y-2 border-black/30 shadow-[0_0_15px_rgba(255,255,255,0.9)] flex items-center justify-center transition-all duration-500 ${
+                        className={`relative z-20 w-[102%] h-4 sm:h-5 bg-linear-to-r from-slate-200 via-white to-slate-300 border-y-2 border-black/30 shadow-[0_0_15px_rgba(255,255,255,0.9)] flex items-center justify-center transition-all duration-500 ${
                           modalStage === 'OPENING' ? 'scale-0 opacity-0' : ''
                         }`}
                       >
@@ -1600,7 +1600,7 @@ export function GashaponMachine({
 
                       {/* MITAD INFERIOR TRANSLÚCIDA CON EL ICONO */}
                       <div
-                        className={`relative w-full h-1/2 rounded-b-full bg-gradient-to-b ${
+                        className={`relative w-full h-1/2 rounded-b-full bg-linear-to-b ${
                           currentCapsule.theme.botGrad
                         } border-b-4 border-x-4 border-white/40 shadow-[inset_0_8px_16px_rgba(0,0,0,0.25)] overflow-hidden flex items-center justify-center transition-all duration-700 ease-out z-10 ${
                           modalStage === 'OPENING'
@@ -1625,7 +1625,7 @@ export function GashaponMachine({
                       <button
                         type="button"
                         onClick={() => handleOpenCapsule(currentCapsule)}
-                        className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider shadow-[0_0_35px_rgba(251,191,36,0.6)] border-2 border-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer mx-auto"
+                        className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-2xl bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider shadow-[0_0_35px_rgba(251,191,36,0.6)] border-2 border-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer mx-auto"
                       >
                         <span>✨</span>
                         <span>¡TOCA PARA ABRIR LA CÁPSULA!</span>
@@ -1647,14 +1647,14 @@ export function GashaponMachine({
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full pb-4 border-b border-white/10">
                     <div className="flex items-center gap-2.5">
                       <div
-                        className={`w-9 h-9 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_15px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col flex-shrink-0`}
+                        className={`w-9 h-9 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_15px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
                       >
                         <div
-                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.topGrad}`}
+                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
                         ></div>
                         <div className="h-[1px] bg-white"></div>
                         <div
-                          className={`h-1/2 bg-gradient-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
+                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                         >
                           <span className="text-xs">
                             {currentCapsule.theme.icon}
@@ -1679,7 +1679,7 @@ export function GashaponMachine({
                   {/* Contenido Principal: Portada + Vinilo Girando + Metadatos */}
                   <div className="w-full flex flex-col sm:flex-row items-center gap-6 py-2">
                     {/* Portada del Álbum con Vinilo 3D saliente */}
-                    <div className="relative group flex-shrink-0">
+                    <div className="relative group shrink-0">
                       {/* Vinilo saliente rotando detrás */}
                       <div className="absolute top-0 -right-6 sm:-right-8 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 border-white/20 shadow-2xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
                         <img
@@ -1785,7 +1785,7 @@ export function GashaponMachine({
                     <button
                       type="button"
                       onClick={handleGoToReviewFromModal}
-                      className="w-full sm:w-auto px-6 py-3 rounded-xl bg-gradient-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:brightness-110 text-white font-black text-xs sm:text-sm shadow-xl shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full sm:w-auto px-6 py-3 rounded-xl bg-linear-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:brightness-110 text-white font-black text-xs sm:text-sm shadow-xl shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>⭐</span>
                       <span>¡Calificar Este Release Ahora!</span>

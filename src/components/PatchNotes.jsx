@@ -198,7 +198,7 @@ export function PatchNotes({ isPage = false }) {
       />
 
       {/* Hero Header de Patch Notes */}
-      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-linear-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
         {/* Orbes decorativos */}
         <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -214,7 +214,7 @@ export function PatchNotes({ isPage = false }) {
 
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
               Patch Notes Musiclub
             </h1>
             <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
@@ -225,7 +225,7 @@ export function PatchNotes({ isPage = false }) {
           </div>
 
           {/* Badges de Versiones y Botón de Sync */}
-          <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+          <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="px-3.5 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-2 shadow-2xl">
                 <span className="text-xs">📦</span>
@@ -343,7 +343,7 @@ export function PatchNotes({ isPage = false }) {
               onClick={() => setSelectedTag(tab.id)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 selectedTag === tab.id
-                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-pink-500/20'
+                  ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-pink-500/20'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
               }`}
             >
@@ -384,7 +384,7 @@ export function PatchNotes({ isPage = false }) {
             return (
               <div
                 key={release.version + '-' + (release.sha || idx)}
-                className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f1122] via-[#15172e] to-[#0a0c1a] border ${
+                className={`relative overflow-hidden rounded-3xl bg-linear-to-br from-[#0f1122] via-[#15172e] to-[#0a0c1a] border ${
                   isPending
                     ? 'border-pink-500/40 shadow-pink-500/10'
                     : 'border-white/15'
@@ -393,12 +393,12 @@ export function PatchNotes({ isPage = false }) {
                 {/* Header de la Tarjeta de Versión */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
                   <div className="flex items-center gap-3 flex-wrap">
-                    <span className="px-3.5 py-1 rounded-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-black text-sm sm:text-base shadow-md">
+                    <span className="px-3.5 py-1 rounded-full bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-black text-sm sm:text-base shadow-md">
                       {release.version}
                     </span>
                     {release.tag && (
                       <span
-                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${release.tagColor || 'from-blue-500 to-indigo-500'} text-white shadow-sm`}
+                        className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${release.tagColor || 'from-blue-500 to-indigo-500'} text-white shadow-sm`}
                       >
                         {release.tag}
                       </span>
@@ -503,7 +503,7 @@ export function PatchNotes({ isPage = false }) {
                             className="flex items-start gap-3 p-3 rounded-2xl bg-white/5 border border-white/5 hover:border-white/15 transition-all"
                           >
                             <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 flex-shrink-0 mt-0.5 ${badgeStyle}`}
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shrink-0 mt-0.5 ${badgeStyle}`}
                             >
                               <span>{badgeIcon}</span>
                               <span>{badgeLabel}</span>
@@ -556,7 +556,7 @@ export function PatchNotes({ isPage = false }) {
                 onClick={() => handlePageChange(page)}
                 className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
                   currentPage === page
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-pink-500/20'
+                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md shadow-pink-500/20'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                 }`}
               >

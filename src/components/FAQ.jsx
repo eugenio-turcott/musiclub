@@ -251,7 +251,7 @@ export function FAQ({ isPage = false }) {
         )}
 
         {/* Hero Header estilo Patch Notes */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl mb-8">
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-linear-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl mb-8">
           {/* Orbes decorativos */}
           <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
@@ -267,7 +267,7 @@ export function FAQ({ isPage = false }) {
 
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 Preguntas Frecuentes
               </h1>
               <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
@@ -279,7 +279,7 @@ export function FAQ({ isPage = false }) {
             </div>
 
             {/* Badges de Preguntas y Controles rápidos */}
-            <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+            <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="px-3.5 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-2 shadow-2xl">
                   <span className="text-xs">💡</span>
@@ -417,7 +417,7 @@ export function FAQ({ isPage = false }) {
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 border ${
                   isSelected
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-lg shadow-[#f5576c]/20 scale-105'
+                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-lg shadow-[#f5576c]/20 scale-105'
                     : 'bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -458,7 +458,7 @@ export function FAQ({ isPage = false }) {
                     className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left group transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-[#f5576c] flex-shrink-0 group-hover:scale-110 transition-transform">
+                      <span className="w-7 h-7 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-bold text-[#f5576c] shrink-0 group-hover:scale-110 transition-transform">
                         {idx + 1}
                       </span>
                       <h3 className="text-sm sm:text-base font-bold text-white/90 group-hover:text-white transition-colors">
@@ -466,7 +466,7 @@ export function FAQ({ isPage = false }) {
                       </h3>
                     </div>
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-transform duration-300 flex-shrink-0 ${
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-transform duration-300 shrink-0 ${
                         isOpen
                           ? 'bg-[#f5576c] text-white rotate-180'
                           : 'bg-white/10 text-white/60 group-hover:bg-white/20'

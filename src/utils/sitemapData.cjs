@@ -1,6 +1,6 @@
 const { slugify, releasePath } = require('./releaseIdentity.cjs');
 const BASE = 'https://www.musiclub.org';
-const CORE = ['/', '/catalogo', '/pool', '/leaderboard', '/reviews', '/portadas', '/playlists', '/gashapon', '/faq', '/patch-notes', '/privacy', '/terms'];
+const CORE = ['/', '/catalogo', '/pool', '/leaderboard', '/reviews', '/portadas', '/playlists', '/gashapon', '/faq', '/guias', '/guias/como-calificamos', '/guias/escribir-primera-resena', '/guias/descubrir-discos-en-comunidad', '/patch-notes', '/privacy', '/terms'];
 function buildSitemapGroups(albums, reviews = []) {
   const reviewed = new Map(), catalog = new Map(), artists = new Map();
   for (const album of albums) {

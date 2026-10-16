@@ -1,3 +1,4 @@
+import { deliverNotificationOnce } from '../src/services/notificationDelivery.js';
 import 'dotenv/config';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -974,27 +975,27 @@ async function checkAndNotifyTodayReleases(todayDate) {
           ? `https://www.musiclub.org/albumes/${targetAlbumId}`
           : 'https://www.musiclub.org/catalogo';
 
-        const emailResult = await sendUpcomingReleaseDayEmail({
+        const emailResult = await deliverNotificationOnce(supabase, `release-day:${item.id}`, () => sendUpcomingReleaseDayEmail({
           to: item.email,
           albumName: item.album_name,
           artistName: item.artist_name,
           imageUrl,
           albumUrl,
-        });
+        }));
 
         // Solo marcar como notificado en BD si se envió por un servidor SMTP real
-        if (!emailResult.isTest && emailResult.provider !== 'ethereal') {
+        if (!emailResult.skipped && !emailResult.isTest && emailResult.provider !== 'ethereal') {
           await supabase
             .from('upcoming_notifications')
             .update({ notified: true })
             .eq('id', item.id);
 
-          console.log(`  ✅ Notificado a ${item.email} para "${item.album_name}"`);
+          console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
         } else {
-          console.warn(`  ⚠️ Envío a ${item.email} omitido o en sandbox Ethereal (sin SMTP configurado). No se marcará como notificado.`);
+          console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
         }
       } catch (err) {
-        console.warn(`  ⚠️ Error notificando a ${item.email}: ${err.message}`);
+        console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
       }
     }
   } catch (err) {

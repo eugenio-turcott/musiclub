@@ -1,3 +1,4 @@
+import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
 import {
   getWeightedReviewScore,
@@ -827,6 +828,15 @@ export const supabaseService = {
   // REVIEWS
   // ==========================================
 
+  getOwnReview: async (albumId) => {
+    if (typeof window === 'undefined') return null;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.email) return null;
+    const { data, error } = await supabase.from('reviews').select('*').eq('album_id', albumId).eq('reviewer_email', session.user.email).maybeSingle();
+    if (error) throw error;
+    return data;
+  },
+
   getReviews: async (albumId) => {
     const { data, error } = await supabase
       .from('public_reviews')
@@ -1500,6 +1510,7 @@ export const supabaseService = {
   // ============================================
 
   getAllAlbums: async () => {
+    if (typeof window !== 'undefined') return (await publicCatalog()).albums;
     const { data, error } = await supabase
       .from('albums')
       .select('*')
@@ -1784,10 +1795,11 @@ export const supabaseService = {
   getAlbumWithFullStats: async (slugOrId) => {
     if (!slugOrId) return null;
     if (typeof window !== 'undefined') {
-      const response = await fetch(`/api/catalog?slug=${encodeURIComponent(slugOrId)}`, { cache: 'no-store' });
-      if (response.status === 404) return null;
-      if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
-      return response.json();
+      const album = await publicCatalog(slugOrId);
+      if (!album) return null;
+      const own = await supabaseService.getOwnReview(album.id);
+      if (own) album.reviews = album.reviews.map(r => r.id === own.id ? { ...r, ...own } : r);
+      return album;
     }
     try {
       let album = null;
@@ -1872,11 +1884,7 @@ export const supabaseService = {
   },
 
   getAllAlbumsWithFullStats: async () => {
-    if (typeof window !== 'undefined') {
-      const response = await fetch('/api/catalog', { cache: 'no-store' });
-      if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
-      return (await response.json()).albums;
-    }
+    if (typeof window !== 'undefined') return (await publicCatalog()).albums;
     try {
       // Recuperar álbumes paginados para garantizar que catálogos mayores a 1,000 filas no se corten
       const step = 1000;

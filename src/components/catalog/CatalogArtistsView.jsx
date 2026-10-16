@@ -226,7 +226,7 @@ export function CatalogArtistsView({ albums = [] }) {
   return (
     <div className="space-y-6 my-6">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-cyan-500/15 via-blue-500/10 to-indigo-500/10 border border-cyan-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-cyan-500/15 via-blue-500/10 to-indigo-500/10 border border-cyan-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-black uppercase tracking-wider">
             <span>🎤</span>
@@ -311,7 +311,7 @@ export function CatalogArtistsView({ albums = [] }) {
                   className="bg-[#11131E]/95 hover:bg-[#161928] border border-white/10 hover:border-cyan-400/50 rounded-2xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-cyan-500/10 cursor-pointer flex flex-col items-center text-center group select-none"
                 >
                   {/* Circular Avatar */}
-                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-gradient-to-tr from-cyan-600 to-purple-600 mb-3 shadow-lg border-2 border-white/10 group-hover:border-cyan-400 transition-all flex items-center justify-center">
+                  <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden bg-linear-to-tr from-cyan-600 to-purple-600 mb-3 shadow-lg border-2 border-white/10 group-hover:border-cyan-400 transition-all flex items-center justify-center">
                     {artist.image_url ? (
                       <img
                         src={artist.image_url}

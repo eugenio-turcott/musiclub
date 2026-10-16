@@ -73,7 +73,7 @@ export function RecommendedSection({ albums = [] }) {
         key={key}
         className={`bg-[#11131E]/95 rounded-2xl overflow-hidden border border-amber-500/30 hover:border-amber-400 shadow-lg hover:shadow-amber-500/15 transition-all duration-300 flex flex-col group relative ${
           isSliderMode
-            ? 'w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0'
+            ? 'w-[200px] sm:w-[230px] md:w-[260px] shrink-0'
             : 'w-full'
         }`}
       >
@@ -98,7 +98,7 @@ export function RecommendedSection({ albums = [] }) {
           </div>
 
           {/* Bottom Overlay: Reviews count */}
-          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2 flex items-end justify-between text-[10px] text-slate-300">
+          <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/90 via-black/50 to-transparent p-2 flex items-end justify-between text-[10px] text-slate-300">
             <span className="bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
               📝 {album.review_count || (album.reviews && album.reviews.length) || 0} reseñas
             </span>
@@ -157,7 +157,7 @@ export function RecommendedSection({ albums = [] }) {
   return (
     <section className="space-y-4 my-8">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider">
             <span>⭐</span>
@@ -193,8 +193,8 @@ export function RecommendedSection({ albums = [] }) {
           onMouseLeave={() => setIsSliderPaused(false)}
         >
           {/* Gradientes laterales de desvanecimiento estético */}
-          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
-          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
 
           {/* Pista del slider infinito en traslación perpetua */}
           <div

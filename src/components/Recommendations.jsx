@@ -240,7 +240,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
           </div>
         )}
 
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(245,87,108,0.2)]">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-4xl shadow-[0_0_30px_rgba(245,87,108,0.2)]">
           ✨
         </div>
         <div className="space-y-2 max-w-lg mx-auto">
@@ -255,7 +255,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
         </div>
         <button
           onClick={loginWithGoogle}
-          className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold rounded-2xl shadow-lg shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all text-sm"
+          className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold rounded-2xl shadow-lg shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all text-sm"
         >
           Iniciar Sesión con Google
         </button>
@@ -269,8 +269,8 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
       {isPage && <AppHeader user={user} showTitle={false} />}
 
       {/* HEADER PRINCIPAL DE LA SECCIÓN DE RECOMENDACIONES */}
-      <div className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-gradient-to-br from-[#14142b] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
-        <div className="absolute top-0 right-0 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-bl from-[#f5576c]/20 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+      <div className="relative rounded-2xl sm:rounded-3xl p-5 sm:p-8 bg-linear-to-br from-[#14142b] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div className="absolute top-0 right-0 w-80 sm:w-96 h-80 sm:h-96 bg-linear-to-bl from-[#f5576c]/20 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-20 w-72 sm:w-80 h-72 sm:h-80 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-6">
@@ -279,7 +279,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
               Para Ti,{' '}
               <span
                 translate="no"
-                className="notranslate username-tag text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]"
+                className="notranslate username-tag text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]"
                 data-username={user.name || 'Melómano'}
               >
                 {user.name || 'Melómano'}
@@ -294,7 +294,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
           {/* Tarjeta Resumen de Arquetipo Musical */}
           {tasteProfile.hasHistory ? (
-            <div className="w-full md:w-auto flex-shrink-0 bg-black/40 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl text-center md:text-left min-w-[260px]">
+            <div className="w-full md:w-auto shrink-0 bg-black/40 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl text-center md:text-left min-w-[260px]">
               <div className="text-[10px] uppercase tracking-wider font-bold text-white/40 mb-1">
                 Tu ADN de Crítico
               </div>
@@ -340,9 +340,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
         <div className="flex items-center gap-2 mt-6 pt-6 border-t border-white/10 overflow-x-auto no-scrollbar">
           <button
             onClick={() => setActiveSection('club')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeSection === 'club'
-                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/25'
+                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/25'
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
@@ -354,9 +354,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
           <button
             onClick={() => setActiveSection('dna')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeSection === 'dna'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
+                ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/25'
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
@@ -365,9 +365,9 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
           <button
             onClick={() => setActiveSection('discoveries')}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap flex-shrink-0 ${
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${
               activeSection === 'discoveries'
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25'
+                ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25'
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
@@ -412,7 +412,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 onClick={() => setFilterCategory('top90')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   filterCategory === 'top90'
-                    ? 'bg-gradient-to-r from-emerald-400 to-teal-500 text-slate-950 font-black shadow-md'
+                    ? 'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 font-black shadow-md'
                     : 'text-white/50 hover:text-white bg-white/5'
                 }`}
               >
@@ -543,13 +543,13 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 return (
                   <div
                     key={album.id}
-                    className="group relative rounded-3xl p-4 sm:p-5 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/25 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between space-y-4"
+                    className="group relative rounded-3xl p-4 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/25 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between space-y-4"
                   >
                     {/* Badge de compatibilidad superior */}
                     <div className="flex items-center justify-between gap-2">
                       <span
                         translate="no"
-                        className={`notranslate px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
+                        className={`notranslate px-3 py-1 rounded-full text-xs bg-linear-to-r ${getCompatibilityColor(
                           compatScore
                         )} shadow-md`}
                         data-stat="score"
@@ -570,7 +570,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
 
                     {/* Portada e Información Básica */}
                     <div className="flex items-start gap-4">
-                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden flex-shrink-0 border border-white/15 shadow-xl group-hover:scale-105 transition-transform duration-300">
+                      <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border border-white/15 shadow-xl group-hover:scale-105 transition-transform duration-300">
                         <img
                           src={
                             album.image_url ||
@@ -634,7 +634,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                           {badges.map((b, idx) => (
                             <span
                               key={idx}
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${b.color} text-white shadow-sm flex items-center gap-1`}
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} text-white shadow-sm flex items-center gap-1`}
                             >
                               <span>{b.emoji}</span> {b.label}
                             </span>
@@ -647,7 +647,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
                       <button
                         onClick={() => setSelectedAlbumForReview(album)}
-                        className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-1.5"
+                        className="w-full py-2 px-3 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-1.5"
                       >
                         <span>⭐</span> Calificar
                       </button>
@@ -692,7 +692,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
       {activeSection === 'dna' && (
         <div className="space-y-6 animate-fadeIn">
           {/* Desglose de Criterios Ponderados */}
-          <div className="rounded-3xl p-6 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-6">
+          <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
@@ -720,7 +720,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     key={crit.key}
                     className={`rounded-2xl p-4 border transition-all ${
                       isTop
-                        ? 'bg-gradient-to-br from-white/10 to-white/5 border-amber-400/40 shadow-lg shadow-amber-400/10'
+                        ? 'bg-linear-to-br from-white/10 to-white/5 border-amber-400/40 shadow-lg shadow-amber-400/10'
                         : 'bg-black/30 border-white/5'
                     }`}
                   >
@@ -742,7 +742,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     {/* Barra de progreso */}
                     <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden mb-2">
                       <div
-                        className={`h-full rounded-full bg-gradient-to-r ${
+                        className={`h-full rounded-full bg-linear-to-r ${
                           isTop
                             ? 'from-amber-400 to-yellow-500'
                             : 'from-cyan-400 to-blue-500'
@@ -763,7 +763,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
           {/* Artistas Pilares y Melómanos Afines */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Artistas con mayor afinidad */}
-            <div className="rounded-3xl p-6 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
+            <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                 <span>👑</span> Tus Artistas de Mayor Calificación
               </h3>
@@ -809,7 +809,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
             </div>
 
             {/* Melómanos Afines (Taste Twins) */}
-            <div className="rounded-3xl p-6 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
+            <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
                 <span>🤝</span> Melómanos Afines de Musiclub
               </h3>
@@ -836,7 +836,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                         ) : (
                           <div
                             translate="no"
-                            className="notranslate w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center"
+                            className="notranslate w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-pink-500 text-white font-black text-sm flex items-center justify-center"
                           >
                             {(twin.name || 'U')[0].toUpperCase()}
                           </div>
@@ -928,7 +928,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                 return (
                   <div
                     key={alb.id}
-                    className="rounded-3xl p-4 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-emerald-500/50 transition-all shadow-xl flex flex-col justify-between space-y-3"
+                    className="rounded-3xl p-4 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-emerald-500/50 transition-all shadow-xl flex flex-col justify-between space-y-3"
                   >
                     <div className="space-y-3">
                       <div className="relative aspect-square w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
@@ -972,7 +972,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                       <button
                         onClick={() => handleAddToIndividualList(alb)}
                         disabled={isProposing}
-                        className="w-full py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 text-xs font-black rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 flex items-center justify-center gap-1.5"
+                        className="w-full py-2.5 bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 text-xs font-black rounded-xl hover:opacity-95 active:scale-95 transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 flex items-center justify-center gap-1.5"
                       >
                         {isProposing ? (
                           <>
@@ -1098,13 +1098,13 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     selectedAlbumForDetail.album_name ||
                     selectedAlbumForDetail.album
                   }
-                  className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-2 border-white/15 shadow-2xl flex-shrink-0"
+                  className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover border-2 border-white/15 shadow-2xl shrink-0"
                 />
 
                 <div className="flex-1 min-w-0 space-y-2 text-center sm:text-left">
                   <span
                     translate="no"
-                    className={`notranslate px-3 py-1 rounded-full text-xs bg-gradient-to-r ${getCompatibilityColor(
+                    className={`notranslate px-3 py-1 rounded-full text-xs bg-linear-to-r ${getCompatibilityColor(
                       selectedAlbumForDetail.compatibilityScore || 75
                     )} inline-block mb-1`}
                     data-stat="score"
@@ -1225,7 +1225,7 @@ export function Recommendations({ isPage = false, user: propUser = null }) {
                     setSelectedAlbumForDetail(null);
                     setSelectedAlbumForReview(target);
                   }}
-                  className="flex-1 py-3 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs hover:opacity-90 transition-all shadow-lg"
+                  className="flex-1 py-3 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs hover:opacity-90 transition-all shadow-lg"
                 >
                   ⭐ Calificar Este Álbum Ahora
                 </button>

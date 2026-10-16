@@ -1,6 +1,8 @@
 'use client';
+import { publicCatalog } from '../services/publicCatalog';
 // src/pages/LandingPage.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import { CoverImage } from '../components/CoverImage';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
@@ -73,13 +75,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
   }, [winner]);
 
   // Load complementary data (top albums, reviews with full album relations, stats)
+  const loadedInitialSnapshot = useRef(false);
   useEffect(() => {
     let isMounted = true;
     const fetchLandingData = async () => {
       try {
-        const response = await fetch('/api/catalog', { cache: 'no-store' });
-        if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
-        const data = await response.json();
+        const data = await publicCatalog();
         const topData = data.albums.filter(a => a.review_count > 0).map(a => ({ ...a, avg_rating: a.final_rating })).sort((a,b) => b.avg_rating-a.avg_rating);
         const reviewsRes = { data: data.reviews };
         const statsData = data.stats;
@@ -167,7 +168,9 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
       }
     };
 
-    fetchLandingData();
+    // The server already supplied this snapshot. Avoid downloading the entire catalog again on mount.
+    if (!initialStats || loadedInitialSnapshot.current) fetchLandingData();
+    loadedInitialSnapshot.current = true;
     return () => {
       isMounted = false;
     };
@@ -511,14 +514,14 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
       to={getReleaseUrl(album)}
       className={`group relative rounded-2xl bg-[#111322]/85 border border-white/10 hover:border-pink-500/50 p-3 sm:p-3.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/15 flex flex-col justify-between ${
         isSliderMode
-          ? 'w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0'
+          ? 'w-[200px] sm:w-[230px] md:w-[260px] shrink-0'
           : 'w-full'
       }`}
     >
       {/* Artwork */}
       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2.5">
         {album.imagen ? (
-          <img
+          <CoverImage
             src={album.imagen}
             alt={album.album}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 notranslate"
@@ -550,7 +553,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             <span>{Number(album.score).toFixed(1)}</span>
           </div>
         ) : selectedAlbumTab === 'active' || album.status === 'POOL_ACTIVO' ? (
-          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-gradient-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider">
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-linear-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider">
             🔥 POOL
           </div>
         ) : (
@@ -562,12 +565,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
       {/* Info */}
       <div className="space-y-0.5 min-w-0">
-        <h4
+        <h3
           translate="no"
           className="text-xs sm:text-sm font-bold text-white group-hover:text-pink-300 transition-colors truncate notranslate music-title"
         >
           {album.album}
-        </h4>
+        </h3>
         <p
           translate="no"
           className="text-[11px] sm:text-xs text-white/50 truncate notranslate artist-name"
@@ -633,8 +636,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             ========================================================================= */}
         <section className="relative pt-6 sm:py-16 md:pt-10 md:pb-14">
           {/* Glow Elements */}
-          <div className="absolute top-1/4 -left-20 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-tr from-[#f5576c]/15 to-[#f093fb]/10 rounded-full blur-3xl pointer-events-none -z-10 animate-aura-pulse"></div>
-          <div className="absolute top-1/3 -right-20 w-80 sm:w-96 h-80 sm:h-96 bg-gradient-to-bl from-cyan-500/10 via-purple-600/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+          <div className="absolute top-1/4 -left-20 w-80 sm:w-96 h-80 sm:h-96 bg-linear-to-tr from-[#f5576c]/15 to-[#f093fb]/10 rounded-full blur-3xl pointer-events-none -z-10 animate-aura-pulse"></div>
+          <div className="absolute top-1/3 -right-20 w-80 sm:w-96 h-80 sm:h-96 bg-linear-to-bl from-cyan-500/10 via-purple-600/10 to-pink-500/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
             {/* Left Column: Headline with Musiclub & Subtitle */}
@@ -642,7 +645,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               {/* Main Headline mentioning Musiclub */}
               <h1 className="text-4xl sm:text-5xl md:text-6xl xl:text-7xl font-black text-white tracking-tight leading-[1.08]">
                 En{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-rose-400">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 via-purple-300 to-rose-400">
                   MUSICLUB
                 </span>
                 , descubre, califica y debate cada release.
@@ -651,16 +654,19 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               {/* Subtitle explicitly welcoming albums, EPs, singles */}
               <p className="text-white/70 text-sm sm:text-base md:text-lg max-w-xl font-normal leading-relaxed">
                 El club social donde cada lanzamiento cuenta:{' '}
-                <strong>álbumes, EPs, sencillos y canciones</strong>. Propón
-                discos al Pool Activo, gira la ruleta arcade semanal, reseña con
-                criterios profundos y descubre tu próxima obsesión musical.
+                <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.
               </p>
 
+              <form action="/catalogo" className="flex gap-2 w-full max-w-xl" role="search">
+                <label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>
+                <input id="home-search" name="q" required placeholder="Busca un álbum o artista" className="min-w-0 flex-1 rounded-xl border border-white/25 bg-black/40 p-3 text-white" />
+                <button className="rounded-xl bg-pink-600 px-5 py-3 font-bold text-white">Buscar</button>
+              </form>
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2 w-full sm:w-auto">
                 <Link
                   to="/catalogo"
-                  className="w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-sm rounded-2xl shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-6 py-3.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-sm rounded-2xl shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <span>💿</span>
                   <span>Explorar Catálogo</span>
@@ -697,16 +703,16 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               {/* Community Proof */}
               <div className="pt-2 flex items-center gap-3 text-xs text-white/50">
                 <div className="flex -space-x-2 overflow-hidden">
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] text-white font-black">
+                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] text-white font-black">
                     E
                   </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-[10px] text-white font-black">
+                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-[10px] text-white font-black">
                     T
                   </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-[10px] text-white font-black">
+                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-[10px] text-white font-black">
                     C
                   </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-[10px] text-white font-black">
+                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-[10px] text-white font-black">
                     A
                   </div>
                 </div>
@@ -724,10 +730,10 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             >
               <div className="relative group w-full max-w-[360px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px]">
                 {/* Ambient Glow */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-[#f5576c]/25 via-purple-600/25 to-amber-500/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-95 transition-opacity duration-700 pointer-events-none"></div>
+                <div className="absolute -inset-4 bg-linear-to-r from-[#f5576c]/25 via-purple-600/25 to-amber-500/20 rounded-3xl blur-2xl opacity-60 group-hover:opacity-95 transition-opacity duration-700 pointer-events-none"></div>
 
                 {/* Main 3D Sleeve Card */}
-                <div className="relative bg-gradient-to-br from-[#131528]/95 via-[#0e1022]/90 to-[#070814]/95 border border-white/15 rounded-3xl p-5 sm:p-7 backdrop-blur-2xl shadow-2xl overflow-hidden text-left hover:border-pink-500/40 transition-all duration-500">
+                <div className="relative bg-linear-to-br from-[#131528]/95 via-[#0e1022]/90 to-[#070814]/95 border border-white/15 rounded-3xl p-5 sm:p-7 backdrop-blur-2xl shadow-2xl overflow-hidden text-left hover:border-pink-500/40 transition-all duration-500">
                   {/* Floating Carousel Header */}
                   <div className="flex items-center justify-between mb-4 gap-2">
                     <div className="flex items-center gap-2">
@@ -751,10 +757,10 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   {/* Vinyl Disc & Sleeve Container (Hover isolated exclusively to this area) */}
                   <div className="relative group/vinyl w-full my-2 flex items-center justify-start overflow-visible py-1">
                     {/* Shared Frame for Cover + Sliding Disc */}
-                    <div className="relative w-[180px] sm:w-[210px] md:w-[230px] lg:w-[245px] aspect-square flex-shrink-0">
+                    <div className="relative w-[180px] sm:w-[210px] md:w-[230px] lg:w-[245px] aspect-square shrink-0">
                       {/* Vinyl Disc: out by default, tucks into sleeve ONLY when hovering over the vinyl assembly */}
                       <div className="absolute inset-0 z-0 rounded-full shadow-2xl flex items-center justify-center transform translate-x-28 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
-                        <img
+                        <CoverImage
                           src="/musiclub_logo_3.png"
                           alt="Musiclub Vinyl Disc"
                           className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none border-2 border-white/25 shadow-2xl"
@@ -765,7 +771,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       <div className="relative z-10 w-full h-full rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-[#151728] group-hover/vinyl:shadow-pink-500/20 transition-all duration-500">
                         {currentVinylAlbum?.imagen ||
                         currentVinylAlbum?.image_url ? (
-                          <img
+                          <CoverImage
                             key={currentVinylAlbum.id || currentVinylIndex}
                             src={
                               currentVinylAlbum.imagen ||
@@ -779,7 +785,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                             className="w-full h-full object-cover animate-fadeIn notranslate"
                           />
                         ) : (
-                          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-tr from-[#1b1c38] to-[#121324] text-white/40">
+                          <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-tr from-[#1b1c38] to-[#121324] text-white/40">
                             <span className="text-4xl mb-2">💿</span>
                             <span className="text-xs font-bold">
                               Musiclub Pick
@@ -787,21 +793,21 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                           </div>
                         )}
                         {/* Subtle sleeve reflection */}
-                        <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/15 pointer-events-none"></div>
+                        <div className="absolute inset-0 bg-linear-to-tr from-black/20 via-transparent to-white/15 pointer-events-none"></div>
                       </div>
                     </div>
                   </div>
 
                   {/* Album Info */}
                   <div className="relative z-20 space-y-1.5">
-                    <h3
+                    <h2
                       translate="no"
                       className="text-lg sm:text-xl font-black text-white truncate leading-tight notranslate music-title"
                     >
                       {currentVinylAlbum?.album ||
                         currentVinylAlbum?.album_name ||
                         'Álbum Seleccionado'}
-                    </h3>
+                    </h2>
                     <p
                       translate="no"
                       className="text-white/70 text-xs sm:text-sm truncate notranslate artist-name"
@@ -838,7 +844,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         currentVinylAlbum?.album_name) && (
                         <Link
                           to={getReleaseUrl(currentVinylAlbum)}
-                          className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs shadow-md shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
+                          className="px-3.5 py-1.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs shadow-md shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
                         >
                           <span>Ver Más</span>
                           <span>→</span>
@@ -874,7 +880,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             <div className="flex flex-col items-center justify-center p-3 text-center border-r-0 md:border-r border-b md:border-b-0 border-white/10">
               <span
                 translate="no"
-                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400 tracking-tight"
+                className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-rose-400 tracking-tight"
                 data-stat="number"
               >
                 +
@@ -923,20 +929,20 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             ========================================================================= */}
         {winner && (
           <section className="my-6 sm:my-8 relative">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#161830] via-[#0d0f1f] to-[#070810] border-2 border-pink-500/30 p-6 sm:p-8 md:p-10 shadow-2xl text-left">
+            <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#161830] via-[#0d0f1f] to-[#070810] border-2 border-pink-500/30 p-6 sm:p-8 md:p-10 shadow-2xl text-left">
               <div className="absolute -top-16 -right-16 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
               <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
                 {/* Album Cover */}
-                <div className="relative flex-shrink-0 group">
+                <div className="relative shrink-0 group">
                   <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-pink-500/40 shadow-2xl shadow-pink-500/20">
-                    <img
+                    <CoverImage
                       src={winner.imagen}
                       alt={winner.album}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -top-3 -right-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
+                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
                     🏆 GANADOR
                   </div>
                 </div>
@@ -1011,7 +1017,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       <button
                         type="button"
                         onClick={() => setShowReviewModal((prev) => !prev)}
-                        className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                        className="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <span>
                           {showReviewModal
@@ -1051,14 +1057,14 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 </div>
 
                 {/* Spinning Vinyl Disc on the Right */}
-                <div className="hidden md:flex flex-shrink-0 items-center justify-center relative p-2 self-center">
+                <div className="hidden md:flex shrink-0 items-center justify-center relative p-2 self-center">
                   <div className="relative w-32 h-32 lg:w-44 lg:h-44 xl:w-52 xl:h-52 group">
                     {/* Ambient Glow behind disc */}
-                    <div className="absolute -inset-3 bg-gradient-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
+                    <div className="absolute -inset-3 bg-linear-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
 
                     {/* Disc Frame & Shadow */}
                     <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
-                      <img
+                      <CoverImage
                         src="/musiclub_logo_3.png"
                         alt="Disco de la semana"
                         className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"
@@ -1121,8 +1127,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             3. ¿CÓMO FUNCIONA MUSICLUB? EL POOL Y EL CICLO MUSICAL
             ========================================================================= */}
         <section className="mb-14 sm:mb-20 text-left">
-          <div className="relative rounded-3xl bg-gradient-to-br from-[#131528] via-[#0d0f1e] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-xl shadow-2xl overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+          <div className="relative rounded-3xl bg-linear-to-br from-[#131528] via-[#0d0f1e] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-xs font-bold uppercase tracking-wider">
@@ -1212,13 +1218,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 </span>
                 <p className="text-xs text-slate-300 text-center sm:text-left">
                   ✦ <strong>Temporada 1 en curso:</strong> Iniciada el 11 de
-                  julio de 2026. Explora las propuestas de la comunidad y vota
-                  en la ruleta.
+                  julio de 2026. Puedes escuchar y valorar cualquier álbum hoy, aunque las propuestas estén cerradas. Consulta el estado actual en el Pool.
                 </p>
               </div>
               <Link
                 to="/pool"
-                className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2 flex-shrink-0 hover:scale-105"
+                className="px-5 py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2 shrink-0 hover:scale-105"
               >
                 <span>🗳️</span>
                 <span>Entrar al Pool de la Temporada 1 →</span>
@@ -1234,7 +1239,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           <div className="text-center max-w-2xl mx-auto mb-8 sm:mb-12 space-y-2">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
               Todo lo que puedes hacer en{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-purple-400">
                 Musiclub
               </span>
             </h2>
@@ -1246,7 +1251,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Bento Card 1: Pool Musical por Temporadas */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-pink-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-pink-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-2xl">
                   🗳️
@@ -1272,7 +1277,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
 
             {/* Bento Card 2: Reviews Multi-Criterio */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-rose-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-rose-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl">
                   📝
@@ -1298,7 +1303,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
 
             {/* Bento Card 3: Recomendaciones 'Para Ti' */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-indigo-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-indigo-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
                   ✨
@@ -1324,7 +1329,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
 
             {/* Bento Card 4: Leaderboard & Salón de la Fama */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-amber-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-amber-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl">
                   🏆
@@ -1350,7 +1355,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
 
             {/* Bento Card 5: Buzón & Playlists */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-cyan-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-cyan-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl">
                   📬
@@ -1376,7 +1381,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
 
             {/* Bento Card 6: Buscador Universal con Spotify */}
-            <div className="group relative rounded-3xl bg-gradient-to-br from-emerald-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
+            <div className="group relative rounded-3xl bg-linear-to-br from-emerald-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
                 <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
                   🔍
@@ -1410,7 +1415,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <img
+                <CoverImage
                   src="/musiclub_logo_corchea.png"
                   alt="Musiclub"
                   className="w-8 h-8 object-contain"
@@ -1437,7 +1442,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     selectedAlbumTab === 'active'
-                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -1451,7 +1456,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     selectedAlbumTab === 'top'
-                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -1465,7 +1470,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   }}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                     selectedAlbumTab === 'recent'
-                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                      ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
                 >
@@ -1498,8 +1503,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               onMouseLeave={() => setIsShowcaseSliderPaused(false)}
             >
               {/* Gradientes laterales de desvanecimiento estético */}
-              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-gradient-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-r from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 sm:w-20 bg-linear-to-l from-[#0a0a12] via-[#0a0a12]/80 to-transparent opacity-70 z-10" />
 
               {/* Pista del slider infinito en traslación perpetua fluida */}
               <div
@@ -1529,7 +1534,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-pink-500/30 transition-all hover:scale-105"
             >
               <span>
-                Ver Catálogo Completo (+{albums.length || 0} Lanzamientos)
+                Ver Catálogo Completo ({globalStats.total_albums || 0} Lanzamientos)
               </span>
               <span>→</span>
             </Link>
@@ -1591,17 +1596,17 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2.5 min-w-0">
                         {review.reviewer_avatar ? (
-                          <img
+                          <CoverImage
                             src={review.reviewer_avatar}
                             alt={review.reviewer_name || 'U'}
-                            className="w-8 h-8 rounded-full object-cover border border-white/20 flex-shrink-0"
+                            className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
                             onError={(e) => {
                               e.target.style.display = 'none';
                             }}
                           />
                         ) : null}
                         <div
-                          className={`w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-black flex-shrink-0 ${
+                          className={`w-8 h-8 rounded-full bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-black shrink-0 ${
                             review.reviewer_avatar ? 'hidden' : 'flex'
                           }`}
                         >
@@ -1619,6 +1624,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                               ? new Date(review.created_at).toLocaleDateString(
                                   'es-ES',
                                   {
+                                    timeZone: 'UTC',
                                     month: 'short',
                                     day: 'numeric',
                                   }
@@ -1646,13 +1652,13 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       className="flex items-center gap-3 p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
                     >
                       {albumCover ? (
-                        <img
+                        <CoverImage
                           src={albumCover}
                           alt={albumTitle}
-                          className="w-10 h-10 rounded-lg object-cover border border-white/10 flex-shrink-0"
+                          className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg flex-shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg shrink-0">
                           💿
                         </div>
                       )}
@@ -1723,13 +1729,13 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             7. QUICK PLAYGROUND: MINI ROULETTE / GASHAPON ARCADE
             ========================================================================= */}
         <section className="my-12 sm:my-16 relative">
-          <div className="rounded-3xl bg-gradient-to-r from-[#141528] via-[#101222] to-[#0d0f1c] border border-white/10 p-6 sm:p-8 backdrop-blur-xl text-center space-y-6">
+          <div className="rounded-3xl bg-linear-to-r from-[#141528] via-[#101222] to-[#0d0f1c] border border-white/10 p-6 sm:p-8 backdrop-blur-xl text-center space-y-6">
             <div className="max-w-xl mx-auto space-y-2">
               <span className="text-xs font-bold text-pink-400 uppercase tracking-wider">
                 ¿NO SABES QUÉ ESCUCHAR HOY?
               </span>
               <div className="flex items-center justify-center gap-2">
-                <img
+                <CoverImage
                   src="/musiclub_logo_corchea.png"
                   alt="Musiclub"
                   className="w-8 h-8 object-contain"
@@ -1748,7 +1754,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Quick Pick Result Card */}
             {quickPickAlbum && (
               <div className="max-w-md mx-auto p-4 rounded-2xl bg-white/5 border border-pink-500/30 flex items-center gap-4 animate-fadeIn text-left">
-                <img
+                <CoverImage
                   src={quickPickAlbum.imagen}
                   alt={quickPickAlbum.album}
                   className="w-16 h-16 rounded-xl object-cover border border-white/20"
@@ -1775,7 +1781,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                     quickPickAlbum.album,
                     quickPickAlbum.release_type || quickPickAlbum.releaseType
                   )}
-                  className="px-3 py-1.5 rounded-xl bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white text-xs font-bold transition-all flex-shrink-0"
+                  className="px-3 py-1.5 rounded-xl bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white text-xs font-bold transition-all shrink-0"
                 >
                   Ver →
                 </Link>
@@ -1788,7 +1794,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 type="button"
                 onClick={handleQuickPick}
                 disabled={isQuickPicking || activeAlbums.length === 0}
-                className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
+                className="px-6 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
                 <span className="text-xl">🎲</span>
                 <span>
@@ -1800,7 +1806,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 to="/gashapon"
                 className="px-5 py-3 rounded-2xl bg-white/5 hover:bg-white/10 text-white font-bold text-xs sm:text-sm border border-white/10 hover:border-pink-500/40 hover:text-pink-200 transition-all flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 shadow-md group"
               >
-                <img
+                <CoverImage
                   src="/musiclub_logo_3.png"
                   alt="Gashapon Arcade"
                   className="w-6 h-6 object-contain"
@@ -1818,7 +1824,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             8. CALL TO ACTION BANNER (Join the Community)
             ========================================================================= */}
         <section className="my-12 sm:my-16 relative">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-pink-600/30 via-purple-600/30 to-indigo-600/30 border border-white/20 p-8 sm:p-12 backdrop-blur-2xl text-center space-y-6">
+          <div className="relative overflow-hidden rounded-3xl bg-linear-to-r from-pink-600/30 via-purple-600/30 to-indigo-600/30 border border-white/20 p-8 sm:p-12 backdrop-blur-2xl text-center space-y-6">
             <div className="max-w-2xl mx-auto space-y-3">
               <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                 Sé parte del debate musical en Musiclub.

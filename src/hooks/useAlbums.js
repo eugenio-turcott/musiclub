@@ -180,7 +180,7 @@ export function useAlbums(initialAlbums = []) {
   }, [fetchAlbums]);
 
   useEffect(() => {
-    fetchAlbums();
+    if (initialAlbums.length === 0) fetchAlbums();
   }, [fetchAlbums]);
 
   return {

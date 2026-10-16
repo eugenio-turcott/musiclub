@@ -16,19 +16,19 @@ export function WinnerFullscreen({ winner, onClose, isOpen = true }) {
       className="fixed inset-0 bg-black/95 backdrop-blur-2xl flex items-center justify-center z-[9999] p-4"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-gradient-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 animate-pulse"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 animate-pulse"></div>
 
       <div
         className="relative w-full max-w-[95vw] sm:max-w-[500px] md:max-w-[600px] flex flex-col items-center justify-center p-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="inline-block bg-gradient-to-r from-[#f5576c] to-[#f093fb] px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] text-white mb-4 sm:mb-6 shadow-[0_0_30px_rgba(245,87,108,0.3)]">
+        <div className="inline-block bg-linear-to-r from-[#f5576c] to-[#f093fb] px-4 sm:px-6 py-1.5 sm:py-2 rounded-full text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.3em] text-white mb-4 sm:mb-6 shadow-[0_0_30px_rgba(245,87,108,0.3)]">
           🏆 ÁLBUM GANADOR
         </div>
 
         <div className="relative w-full max-w-[280px] sm:max-w-[400px] mx-auto">
-          <div className="absolute -inset-4 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-3xl blur-xl opacity-20 animate-spin-slow"></div>
-          <div className="absolute -inset-2 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 rounded-3xl blur-lg"></div>
+          <div className="absolute -inset-4 bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-3xl blur-xl opacity-20 animate-spin-slow"></div>
+          <div className="absolute -inset-2 bg-linear-to-r from-[#f5576c]/20 to-[#f093fb]/20 rounded-3xl blur-lg"></div>
 
           <img
             src={winner.imagen}

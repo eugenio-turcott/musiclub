@@ -449,8 +449,8 @@ export function PlaylistsCatalog({ isPage = true }) {
         <AppHeader user={user} showTitle={false} />
 
         {/* Hero Section */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-[#1a1235] via-[#101223] to-[#0c1829] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl">
-          <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-br from-pink-500/15 via-purple-500/10 to-cyan-500/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-linear-to-br from-[#1a1235] via-[#101223] to-[#0c1829] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl">
+          <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-linear-to-br from-pink-500/15 via-purple-500/10 to-cyan-500/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
@@ -483,7 +483,7 @@ export function PlaylistsCatalog({ isPage = true }) {
 
             <button
               onClick={openProposeModal}
-              className="w-full md:w-auto px-5 py-3 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-pink-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm flex-shrink-0"
+              className="w-full md:w-auto px-5 py-3 bg-linear-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-pink-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm shrink-0"
             >
               <span>➕</span> Recomendar Playlist
             </button>
@@ -540,9 +540,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                 <button
                   key={mood.id}
                   onClick={() => setSelectedMood(mood.id)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 flex-shrink-0 ${
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 shrink-0 ${
                     isSelected
-                      ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20 scale-[1.02]'
+                      ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/20 scale-[1.02]'
                       : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
                   }`}
                 >
@@ -581,7 +581,7 @@ export function PlaylistsCatalog({ isPage = true }) {
             </div>
             <button
               onClick={openProposeModal}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-lg shadow-pink-500/25"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-lg shadow-pink-500/25"
             >
               <span>➕</span> Recomendar Playlist
             </button>
@@ -616,7 +616,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                             'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80';
                         }}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#141624] via-transparent to-black/30" />
+                      <div className="absolute inset-0 bg-linear-to-t from-[#141624] via-transparent to-black/30" />
 
                       {/* Mood Badge */}
                       {playlist.genre_or_mood && (
@@ -747,12 +747,12 @@ export function PlaylistsCatalog({ isPage = true }) {
                           <>
                             <div
                               style={{ width: `${stats.rate}%` }}
-                              className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
+                              className="h-full bg-linear-to-r from-emerald-500 to-teal-400 transition-all duration-500"
                               title={`${stats.rate}% Likes`}
                             />
                             <div
                               style={{ width: `${100 - stats.rate}%` }}
-                              className="h-full bg-gradient-to-r from-rose-500 to-pink-600 transition-all duration-500"
+                              className="h-full bg-linear-to-r from-rose-500 to-pink-600 transition-all duration-500"
                               title={`${100 - stats.rate}% Dislikes`}
                             />
                           </>
@@ -763,7 +763,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                     </div>
 
                     {/* Binary Review Question (True / False - Sí / No) */}
-                    <div className="bg-gradient-to-r from-purple-950/20 to-pink-950/20 p-3 rounded-xl border border-pink-500/20 space-y-2">
+                    <div className="bg-linear-to-r from-purple-950/20 to-pink-950/20 p-3 rounded-xl border border-pink-500/20 space-y-2">
                       <div className="flex items-center justify-between text-xs">
                         <span className="font-bold text-slate-200">
                           ¿Te gustó esta playlist?
@@ -935,7 +935,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                   {/* Previsualización en Tiempo Real de la Portada y Título */}
                   {(formData.title || formData.imageUrl || isFetchingMeta) && (
                     <div className="p-3 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3 animate-fadeIn">
-                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-800 flex-shrink-0 relative border border-white/10">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden bg-slate-800 shrink-0 relative border border-white/10">
                         {formData.imageUrl ? (
                           <img
                             src={formData.imageUrl}
@@ -1138,7 +1138,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                     <button
                       type="submit"
                       disabled={formSubmitting || isFetchingMeta}
-                      className="w-full sm:w-1/2 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
+                      className="w-full sm:w-1/2 py-2.5 bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
                       {formSubmitting
                         ? 'Publicando...'
@@ -1224,7 +1224,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                     <button
                       type="button"
                       onClick={handleConfirmVoteWithComment}
-                      className="w-full sm:w-1/2 py-2 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg"
+                      className="w-full sm:w-1/2 py-2 bg-linear-to-r from-pink-500 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg"
                     >
                       Guardar Voto ✨
                     </button>

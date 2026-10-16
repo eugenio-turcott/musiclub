@@ -489,7 +489,7 @@ export function UserProfile({ isPage = false }) {
         </p>
         <button
           onClick={() => navigate('/')}
-          className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl font-bold shadow-lg shadow-[#f5576c]/20 active:scale-95 hover:scale-105 transition-all text-xs sm:text-sm"
+          className="w-full sm:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl font-bold shadow-lg shadow-[#f5576c]/20 active:scale-95 hover:scale-105 transition-all text-xs sm:text-sm"
         >
           Ir al Inicio / Iniciar Sesión
         </button>
@@ -503,8 +503,8 @@ export function UserProfile({ isPage = false }) {
       <AppHeader showTitle={false} />
 
       {/* TARJETA DE PRESENTACIÓN DEL PERFIL */}
-      <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-gradient-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
-        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+      <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-linear-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-linear-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -bottom-20 -left-20 w-60 sm:w-80 h-60 sm:h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
@@ -518,8 +518,8 @@ export function UserProfile({ isPage = false }) {
 
         <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
           {/* Avatar con aura decorativa */}
-          <div className="relative group flex-shrink-0">
-            <div className="absolute -inset-1.5 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="relative group shrink-0">
+            <div className="absolute -inset-1.5 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/20 bg-black/60 shadow-2xl flex items-center justify-center">
               {user.avatar ? (
                 <img
@@ -531,14 +531,14 @@ export function UserProfile({ isPage = false }) {
                   }}
                 />
               ) : (
-                <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-tr from-[#f5576c] to-[#f093fb] bg-clip-text text-transparent">
+                <span className="text-3xl sm:text-4xl font-bold bg-linear-to-tr from-[#f5576c] to-[#f093fb] bg-clip-text text-transparent">
                   {(user.name || 'U')[0].toUpperCase()}
                 </span>
               )}
             </div>
             {isAdmin && (
               <div
-                className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full border border-white/20 shadow-lg"
+                className="absolute -bottom-1 -right-1 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full border border-white/20 shadow-lg"
                 title="Administrador"
               >
                 ADMIN
@@ -587,7 +587,7 @@ export function UserProfile({ isPage = false }) {
 
             {/* Badges & XP Header Pill */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
-              <span className="text-xs bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
+              <span className="text-xs bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
                 <span>✨</span> {(userGamification.totalXp || 0).toLocaleString()} XP de Club
               </span>
 
@@ -595,7 +595,7 @@ export function UserProfile({ isPage = false }) {
                 <span
                   key={b.id}
                   title={b.tooltip || b.desc || b.label}
-                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                 >
                   {b.label}
                 </span>
@@ -681,7 +681,7 @@ export function UserProfile({ isPage = false }) {
             <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
               Reviews Totales
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]">
               {stats.totalReviews}
             </span>
           </div>
@@ -710,10 +710,10 @@ export function UserProfile({ isPage = false }) {
       <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
         <button
           onClick={() => setActiveTab('mailbox')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
             activeTab === 'mailbox'
-              ? 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
-              : 'text-white/80 hover:text-white bg-gradient-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
+              ? 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
+              : 'text-white/80 hover:text-white bg-linear-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
           }`}
         >
           <span>💌</span> Buzón de Canciones
@@ -726,9 +726,9 @@ export function UserProfile({ isPage = false }) {
 
         <button
           onClick={() => setActiveTab('recommendations')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
             activeTab === 'recommendations'
-              ? 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
+              ? 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
               : 'text-white/80 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
@@ -737,9 +737,9 @@ export function UserProfile({ isPage = false }) {
 
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
             activeTab === 'reviews'
-              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+              ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
@@ -748,9 +748,9 @@ export function UserProfile({ isPage = false }) {
 
         <button
           onClick={() => setActiveTab('badges')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
             activeTab === 'badges'
-              ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20 font-black'
+              ? 'bg-linear-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20 font-black'
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
@@ -759,9 +759,9 @@ export function UserProfile({ isPage = false }) {
 
         <button
           onClick={() => setActiveTab('stats')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 ${
+          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
             activeTab === 'stats'
-              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
+              ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
@@ -839,11 +839,11 @@ export function UserProfile({ isPage = false }) {
                 return (
                   <div
                     key={item.id || idx}
-                    className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between space-y-3 sm:space-y-4"
+                    className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between space-y-3 sm:space-y-4"
                   >
                     {/* Encabezado del Álbum */}
                     <div className="flex items-start gap-3 sm:gap-4">
-                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 border border-white/10 shadow-lg group">
+                      <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg group">
                         <img
                           src={item.album.imagen}
                           alt={item.album.album}
@@ -866,7 +866,7 @@ export function UserProfile({ isPage = false }) {
                           >
                             {item.album.album}
                           </h3>
-                          <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex-shrink-0">
+                          <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0">
                             ★ {item.weightedScore.toFixed(1)}
                           </span>
                         </div>
@@ -917,7 +917,7 @@ export function UserProfile({ isPage = false }) {
                       const tracksSource = item.albums?.tracks || albumMap.get(item.album_id)?.tracks;
                       const favName = getTrackDisplayName(favTrack, tracksSource);
                       return (
-                        <div className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
+                        <div className="flex items-center gap-1.5 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
                           <span className="text-sm">⭐</span>
                           <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                             Canción Favorita:
@@ -998,7 +998,7 @@ export function UserProfile({ isPage = false }) {
                                     </span>
                                   </div>
                                   <span
-                                    className={`font-black text-[11px] sm:text-xs flex-shrink-0 ${
+                                    className={`font-black text-[11px] sm:text-xs shrink-0 ${
                                       isFav
                                         ? 'text-amber-300'
                                         : score >= 8
@@ -1022,7 +1022,7 @@ export function UserProfile({ isPage = false }) {
                       <button
                         type="button"
                         onClick={() => setEditingReviewItem(item)}
-                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                         title="Editar las calificaciones y comentario de esta review"
                       >
                         <span>✏️</span>
@@ -1033,7 +1033,7 @@ export function UserProfile({ isPage = false }) {
                       <button
                         type="button"
                         onClick={() => setSharingReviewItem({ review: item, album: item.album })}
-                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                        className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                         title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
                       >
                         <span>📱</span>
@@ -1115,7 +1115,7 @@ export function UserProfile({ isPage = false }) {
                             onClick={() => handleReviewsPageChange(page)}
                             className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                               reviewsPage === page
-                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-[#f5576c]/50 shadow-md shadow-[#f5576c]/20 font-black'
+                                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-[#f5576c]/50 shadow-md shadow-[#f5576c]/20 font-black'
                                 : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
                             }`}
                           >
@@ -1158,7 +1158,7 @@ export function UserProfile({ isPage = false }) {
               </p>
               <Link
                 to="/"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-xl shadow-lg shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-xl shadow-lg shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all"
               >
                 <span>🎵</span> Explorar Álbumes
               </Link>
@@ -1178,7 +1178,7 @@ export function UserProfile({ isPage = false }) {
                 {/* Header del modal */}
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg flex-shrink-0">
+                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg shrink-0">
                       ✏️
                     </div>
                     <div className="min-w-0">
@@ -1244,7 +1244,7 @@ export function UserProfile({ isPage = false }) {
       {activeTab === 'badges' && (
         <div className="space-y-6">
           {/* Tarjeta de Resumen XP */}
-          <div className="bg-gradient-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
+          <div className="bg-linear-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div>
                 <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -1294,7 +1294,7 @@ export function UserProfile({ isPage = false }) {
           </div>
 
           {/* Insignias Desbloqueadas Actualmente */}
-          <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+          <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
               <div>
                 <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
@@ -1321,7 +1321,7 @@ export function UserProfile({ isPage = false }) {
                   >
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`text-xs font-black px-2.5 py-1 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
+                        className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
                       >
                         {b.label}
                       </span>
@@ -1345,7 +1345,7 @@ export function UserProfile({ isPage = false }) {
           </div>
 
           {/* Barras de Progreso hacia los Siguientes Tiers */}
-          <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+          <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
             <div>
               <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
                 <span>📈</span> Progreso y Próximos Desbloqueos
@@ -1389,7 +1389,7 @@ export function UserProfile({ isPage = false }) {
                         </div>
                         <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
                           <div
-                            className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
+                            className="h-full bg-linear-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
                             style={{ width: `${bp.progressPercent}%` }}
                           />
                         </div>
@@ -1421,7 +1421,7 @@ export function UserProfile({ isPage = false }) {
           {/* 2. ESTADÍSTICAS, CRITERIOS Y NIVEL */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             {/* Desglose por Criterios */}
-            <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
+            <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
               <h3 className="text-white font-bold text-sm sm:text-base flex items-center gap-2">
                 <span>🎛️</span> Promedio Otorgado por Criterio
               </h3>
@@ -1445,7 +1445,7 @@ export function UserProfile({ isPage = false }) {
                       </div>
                       <div className="w-full bg-black/40 rounded-full h-1.5 sm:h-2 overflow-hidden border border-white/5">
                         <div
-                          className={`h-full bg-gradient-to-r ${crit.color} rounded-full transition-all duration-1000`}
+                          className={`h-full bg-linear-to-r ${crit.color} rounded-full transition-all duration-1000`}
                           style={{ width: `${pct}%` }}
                         />
                       </div>
@@ -1458,7 +1458,7 @@ export function UserProfile({ isPage = false }) {
             {/* Álbumes Destacados y Nivel de Melómano */}
             <div className="space-y-3 sm:space-y-4">
               {/* Más Alto */}
-              <div className="bg-gradient-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
+              <div className="bg-linear-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
                 <div className="flex items-center gap-1.5 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                   <span>🏆</span> Tu Álbum Mejor Calificado
                 </div>
@@ -1476,7 +1476,7 @@ export function UserProfile({ isPage = false }) {
                       <img
                         src={coverImg}
                         alt="Highest"
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 shrink-0"
                         onError={(e) => {
                           e.target.src = PLACEHOLDER_COVER;
                         }}
@@ -1500,7 +1500,7 @@ export function UserProfile({ isPage = false }) {
               </div>
 
               {/* Más Exigente / Bajo */}
-              <div className="bg-gradient-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
+              <div className="bg-linear-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
                 <div className="flex items-center gap-1.5 text-rose-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                   <span>⚡</span> Calificación Más Exigente
                 </div>
@@ -1518,7 +1518,7 @@ export function UserProfile({ isPage = false }) {
                       <img
                         src={coverImg}
                         alt="Lowest"
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 shrink-0"
                         onError={(e) => {
                           e.target.src = PLACEHOLDER_COVER;
                         }}
@@ -1548,11 +1548,11 @@ export function UserProfile({ isPage = false }) {
               </div>
 
               {/* Nivel de Melómano Modernizado & Gamificado */}
-              <div className="bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b18] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-pink-500/30 shadow-2xl space-y-3">
+              <div className="bg-linear-to-br from-[#181935] via-[#101226] to-[#0a0b18] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-pink-500/30 shadow-2xl space-y-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div
-                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 shadow-lg`}
+                      className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                     >
                       {currentMelomanoLevel.icon}
                     </div>
@@ -1570,8 +1570,8 @@ export function UserProfile({ isPage = false }) {
                       </p>
                     </div>
                   </div>
-                  <div className="text-right flex-shrink-0">
-                    <span className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+                  <div className="text-right shrink-0">
+                    <span className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]">
                       {currentMelomanoLevel.currentXp.toLocaleString()} XP
                     </span>
                     <p className="text-[9px] text-white/40 uppercase tracking-wider font-bold">
@@ -1587,13 +1587,13 @@ export function UserProfile({ isPage = false }) {
                       <span className="text-white/60 truncate pr-2">
                         Siguiente: <strong className="text-pink-300 font-bold">{currentMelomanoLevel.next.title}</strong>
                       </span>
-                      <span className="text-white font-semibold flex-shrink-0">
+                      <span className="text-white font-semibold shrink-0">
                         +{currentMelomanoLevel.xpRemaining} XP ({currentMelomanoLevel.progressPercent}%)
                       </span>
                     </div>
                     <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden border border-white/10">
                       <div
-                        className="h-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
+                        className="h-full bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
                         style={{ width: `${currentMelomanoLevel.progressPercent}%` }}
                       />
                     </div>

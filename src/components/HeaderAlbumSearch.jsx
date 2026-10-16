@@ -546,7 +546,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
             </div>
 
             {statusMessage && (
-              <div className="bg-gradient-to-r from-pink-600/90 to-purple-600/90 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
+              <div className="bg-linear-to-r from-pink-600/90 to-purple-600/90 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
                 <img
                   src="/musiclub_logo_2.png"
                   alt=""
@@ -592,7 +592,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                             'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
                           }
                           alt={item.name}
-                          className="w-9 h-9 rounded-lg object-cover flex-shrink-0 border border-white/10"
+                          className="w-9 h-9 rounded-lg object-cover shrink-0 border border-white/10"
                           onError={(e) => {
                             e.target.src =
                               'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
@@ -607,7 +607,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                               {item.name}
                             </span>
                             {isClubAlbum && (
-                              <span className="text-[8px] bg-pink-500/20 text-pink-300 px-1 py-0.2 rounded font-semibold flex-shrink-0">
+                              <span className="text-[8px] bg-pink-500/20 text-pink-300 px-1 py-0.2 rounded font-semibold shrink-0">
                                 Club
                               </span>
                             )}
@@ -620,12 +620,12 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                             {item.releaseYear ? ` • ${item.releaseYear}` : ''}
                           </p>
                         </div>
-                        <div className="flex-shrink-0">
+                        <div className="shrink-0">
                           <span
                             className={`text-[9px] px-2 py-0.5 rounded-lg font-bold ${
                               isClubAlbum
-                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                                : 'bg-gradient-to-r from-pink-500 to-purple-600 text-white'
+                                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white'
+                                : 'bg-linear-to-r from-pink-500 to-purple-600 text-white'
                             }`}
                           >
                             {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}
@@ -686,7 +686,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           {/* Cabecera del Dropdown */}
           <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm flex-shrink-0 shadow-inner">
+              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner">
                 🔍
               </div>
               <div className="min-w-0">
@@ -746,7 +746,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
 
           {/* Notificación de acción / proceso */}
           {statusMessage && (
-            <div className="mx-3 mt-2.5 bg-gradient-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/20">
+            <div className="mx-3 mt-2.5 bg-linear-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/20">
               <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
               <span>{statusMessage}</span>
             </div>
@@ -801,11 +801,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                         isSelectingThis
                           ? 'bg-pink-500/20 border border-pink-500/50 opacity-80 pointer-events-none'
                           : isHighlighted
-                            ? 'bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40'
+                            ? 'bg-linear-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/40'
                             : 'hover:bg-white/5 border border-transparent'
                       }`}
                     >
-                      <div className="relative w-11 h-11 flex-shrink-0">
+                      <div className="relative w-11 h-11 shrink-0">
                         <img
                           src={
                             item.image ||
@@ -829,7 +829,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                             {item.name}
                           </p>
                           {isClubAlbum && (
-                            <span className="text-[9px] bg-pink-500/20 text-pink-300 px-1.5 py-0.2 rounded border border-pink-500/30 font-bold flex-shrink-0">
+                            <span className="text-[9px] bg-pink-500/20 text-pink-300 px-1.5 py-0.2 rounded border border-pink-500/30 font-bold shrink-0">
                               Musiclub ({item.reviewCount || 0} reviews)
                             </span>
                           )}
@@ -845,7 +845,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                         </p>
                       </div>
 
-                      <div className="flex-shrink-0">
+                      <div className="shrink-0">
                         {isClubAlbum &&
                         item.rating !== null &&
                         item.rating !== undefined ? (
@@ -857,8 +857,8 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
                           <span
                             className={`text-[10px] sm:text-xs px-2.5 py-1 rounded-lg font-bold shadow-sm transition-transform group-hover:scale-105 inline-block ${
                               isClubAlbum
-                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white'
-                                : 'bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold'
+                                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white'
+                                : 'bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-extrabold'
                             }`}
                           >
                             {isClubAlbum ? 'Ver ➔' : 'Calificar ➔'}

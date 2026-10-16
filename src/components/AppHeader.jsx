@@ -177,7 +177,7 @@ export function AppHeader({
     <header className="w-full backdrop-blur-xl sticky top-0 z-50">
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
         {/* Lado Izquierdo: Logo */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
               {/* Spinning Musiclub Logo Disc Base */}
@@ -221,7 +221,7 @@ export function AppHeader({
                   '/temporadas',
                   '/season',
                 ])
-                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
+                  ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-[0_0_15px_rgba(245,87,108,0.4)]'
                   : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/25'
               }`}
             >
@@ -236,7 +236,7 @@ export function AppHeader({
               to="/gashapon"
               className={`relative text-xs font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-full transition-all duration-200 whitespace-nowrap ${
                 isPathActive(['/gashapon', '/gacha'])
-                  ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 shadow-[0_0_18px_rgba(251,191,36,0.5)] font-black'
+                  ? 'bg-linear-to-r from-amber-400 to-amber-500 text-slate-950 shadow-[0_0_18px_rgba(251,191,36,0.5)] font-black'
                   : 'text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
               }`}
             >
@@ -384,7 +384,7 @@ export function AppHeader({
         </div>
 
         {/* Lado Derecho: Buscador Global Directo, Selector de Idiomas, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
-        <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0 ml-auto">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
           {/* Selector de Idiomas Global (Oculto en celular, visible en sm y superior) */}
           <div className="hidden sm:inline-block">
             <LanguageSelector variant="header" />
@@ -413,7 +413,7 @@ export function AppHeader({
                   ? `Tienes ${unreadCount} ${unreadCount === 1 ? 'notificación nueva' : 'notificaciones nuevas'}`
                   : 'Notificaciones'
               }
-              aria-label="Abrir centro de notificaciones"
+              aria-label={`Abrir centro de notificaciones${unreadCount > 0 ? `, ${unreadCount} nuevas` : ''}`}
               aria-expanded={isNotificationsOpen}
             >
               <svg
@@ -434,7 +434,7 @@ export function AppHeader({
               {unreadCount > 0 && (
                 <span
                   translate="no"
-                  className="notranslate badge-count absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse border border-[#0c0e1a]"
+                  className="notranslate badge-count absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black rounded-full flex items-center justify-center shadow-lg shadow-pink-500/50 animate-pulse border border-[#0c0e1a]"
                   data-count="unread"
                 >
                   {unreadCount > 99 ? '99+' : unreadCount}
@@ -482,14 +482,14 @@ export function AppHeader({
                   <img
                     src={user.avatar}
                     alt={user.name || 'Usuario'}
-                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 object-cover flex-shrink-0"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 object-cover shrink-0"
                     onError={(e) => {
                       e.target.src =
                         'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
                     }}
                   />
                 ) : (
-                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center flex-shrink-0 shadow-sm">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-sm">
                     {(user.name || 'U')[0].toUpperCase()}
                   </div>
                 )}
@@ -552,14 +552,14 @@ export function AppHeader({
                       <img
                         src={user.avatar}
                         alt={user.name || 'Usuario'}
-                        className="w-10 h-10 rounded-full border border-pink-500/40 object-cover flex-shrink-0"
+                        className="w-10 h-10 rounded-full border border-pink-500/40 object-cover shrink-0"
                         onError={(e) => {
                           e.target.src =
                             'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
                         }}
                       />
                     ) : (
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center shrink-0">
                         {(user.name || 'U')[0].toUpperCase()}
                       </div>
                     )}
@@ -684,7 +684,7 @@ export function AppHeader({
             <button
               onClick={handleLoginClick}
               disabled={!mounted || loading}
-              className="px-3.5 sm:px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 sm:px-4 py-1.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
             >
               <span>👤</span>
               <span>{!mounted || loading ? '...' : 'Iniciar sesión'}</span>
@@ -764,7 +764,7 @@ export function AppHeader({
                     '/temporadas',
                     '/season',
                   ])
-                    ? 'bg-gradient-to-r from-[#f5576c]/30 to-[#f093fb]/30 border-pink-500/50 text-white shadow-lg shadow-pink-500/20'
+                    ? 'bg-linear-to-r from-[#f5576c]/30 to-[#f093fb]/30 border-pink-500/50 text-white shadow-lg shadow-pink-500/20'
                     : 'bg-pink-500/10 hover:bg-pink-500/20 border-pink-500/20 text-pink-300'
                 }`}
               >
@@ -788,7 +788,7 @@ export function AppHeader({
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex flex-col p-3 rounded-2xl border transition-all ${
                   isPathActive(['/gashapon', '/gacha'])
-                    ? 'bg-gradient-to-r from-amber-500/30 to-yellow-500/30 border-amber-400/50 text-white shadow-lg shadow-amber-500/20'
+                    ? 'bg-linear-to-r from-amber-500/30 to-yellow-500/30 border-amber-400/50 text-white shadow-lg shadow-amber-500/20'
                     : 'bg-amber-500/10 hover:bg-amber-500/20 border-amber-500/25 text-amber-300'
                 }`}
               >
@@ -930,7 +930,7 @@ export function AppHeader({
                 {unreadCount > 0 && (
                   <span
                     translate="no"
-                    className="notranslate badge-count px-1.5 py-0.2 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full"
+                    className="notranslate badge-count px-1.5 py-0.2 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] font-bold rounded-full"
                     data-count="unread"
                   >
                     {unreadCount}
@@ -954,19 +954,19 @@ export function AppHeader({
       {showTitle && (
         <div
           ref={heroContainerRef}
-          className="relative overflow-hidden my-3 mx-2 sm:mx-4 rounded-3xl border border-white/10 bg-gradient-to-b from-[#151730] via-[#0d0e1c] to-[#070810] shadow-[0_15px_50px_rgba(0,0,0,0.7)] text-center py-6 sm:py-8 px-4 sm:px-6 cursor-default select-none"
+          className="relative overflow-hidden my-3 mx-2 sm:mx-4 rounded-3xl border border-white/10 bg-linear-to-b from-[#151730] via-[#0d0e1c] to-[#070810] shadow-[0_15px_50px_rgba(0,0,0,0.7)] text-center py-6 sm:py-8 px-4 sm:px-6 cursor-default select-none"
         >
           <HeroMusicCanvas containerRef={heroContainerRef} />
 
           <div
-            className="absolute -top-16 -left-16 w-56 sm:w-72 h-56 sm:h-72 bg-gradient-to-tr from-[#f5576c]/25 to-[#f093fb]/15 rounded-full blur-2xl pointer-events-none animate-aura-pulse"
+            className="absolute -top-16 -left-16 w-56 sm:w-72 h-56 sm:h-72 bg-linear-to-tr from-[#f5576c]/25 to-[#f093fb]/15 rounded-full blur-2xl pointer-events-none animate-aura-pulse"
             style={{
               willChange: 'transform, opacity',
               transform: 'translate3d(0,0,0)',
             }}
           ></div>
           <div
-            className="absolute -top-16 -right-16 w-56 sm:w-72 h-56 sm:h-72 bg-gradient-to-bl from-cyan-500/20 via-indigo-500/15 to-purple-600/15 rounded-full blur-2xl pointer-events-none animate-aura-pulse"
+            className="absolute -top-16 -right-16 w-56 sm:w-72 h-56 sm:h-72 bg-linear-to-bl from-cyan-500/20 via-indigo-500/15 to-purple-600/15 rounded-full blur-2xl pointer-events-none animate-aura-pulse"
             style={{
               animationDelay: '3s',
               willChange: 'transform, opacity',
@@ -1023,7 +1023,7 @@ export function AppHeader({
             </div>
 
             <h1
-              className="title-albumes text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] animate-gradient-text my-0 leading-none"
+              className="title-albumes text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] animate-gradient-text my-0 leading-none"
               style={{
                 textShadow:
                   '0 0 10px rgba(245,87,108,0.3), 0 0 25px rgba(245,87,108,0.2), 0 0 45px rgba(240,147,251,0.15)',

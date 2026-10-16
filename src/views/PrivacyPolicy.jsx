@@ -3,6 +3,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
+import { MetricsPreference } from '../components/SiteMetrics';
 import { Footer } from '../components/Footer';
 import { SEO } from '../components/SEO';
 
@@ -20,14 +21,14 @@ export function PrivacyPolicy() {
         <AppHeader showTitle={false} />
 
         {/* Hero Header estilo Patch Notes */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-gradient-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-10 bg-linear-to-br from-[#121426] via-[#1a1738] to-[#0c0d1e] border border-white/10 shadow-2xl">
           {/* Orbes decorativos */}
           <div className="absolute -top-12 -right-12 w-60 h-60 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute -bottom-12 -left-12 w-60 h-60 bg-[#f093fb]/15 rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <div className="space-y-2">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 Política de Privacidad
               </h1>
               <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
@@ -38,7 +39,7 @@ export function PrivacyPolicy() {
             </div>
 
             {/* Badges estilo Patch Notes */}
-            <div className="flex flex-col items-start md:items-end gap-3 flex-shrink-0">
+            <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
                   <span className="text-xs">🛡️</span>
@@ -70,6 +71,12 @@ export function PrivacyPolicy() {
 
         <div className="bg-black/85 border border-[#f5576c]/30 rounded-3xl p-6 sm:p-10 shadow-2xl backdrop-blur-xl">
           <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/10">
+              <h2 className="text-white font-bold text-base mb-2">Medición de uso y rendimiento</h2>
+              <p>Usamos Vercel Web Analytics y Speed Insights, del proveedor que aloja Musiclub, para conocer las páginas visitadas, el origen del tráfico, el tipo de dispositivo y las métricas de carga. La integración no usa cookies de analítica y excluye las páginas privadas y los parámetros de las direcciones. No enviamos eventos personalizados, correos, comentarios, títulos buscados ni contenido de las reseñas.</p>
+              <p>Respetamos la señal Do Not Track del navegador. Puedes desactivar esta medición en este dispositivo sin perder funciones del club. Vercel procesa datos técnicos de las solicitudes conforme a su <a href="https://vercel.com/docs/analytics/privacy-policy" className="underline">información de privacidad</a>.</p>
+              <MetricsPreference />
+            </section>
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
               <h2 className="text-white font-bold text-base mb-2 flex items-center gap-2">
                 <span className="text-[#f5576c]">1.</span> Introducción y

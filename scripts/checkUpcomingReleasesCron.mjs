@@ -1,3 +1,4 @@
+import { deliverNotificationOnce } from '../src/services/notificationDelivery.js';
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 import { sendUpcomingReleaseDayEmail } from '../src/services/emailService.js';
@@ -74,28 +75,28 @@ async function checkUpcomingReleases() {
         ? `https://www.musiclub.org/albumes/${targetAlbumId}`
         : 'https://www.musiclub.org/catalogo';
 
-      console.log(`📤 Enviando correo de estreno a ${item.email} para "${item.album_name}"...`);
+      console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
 
-      const res = await sendUpcomingReleaseDayEmail({
+      const res = await deliverNotificationOnce(supabase, `release-day:${item.id}`, () => sendUpcomingReleaseDayEmail({
         to: item.email,
         albumName: item.album_name,
         artistName: item.artist_name,
         imageUrl,
         albumUrl,
-      });
+      }));
 
-      if (!res.isTest && res.provider !== 'ethereal') {
+      if (!res.skipped && !res.isTest && res.provider !== 'ethereal') {
         await supabase
           .from('upcoming_notifications')
           .update({ notified: true })
           .eq('id', item.id);
 
-        console.log(`✅ Notificado exitosamente a ${item.email} (Id: ${res.messageId || 'ok'})`);
+        console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
       } else {
-        console.warn(`⚠️ Envío a ${item.email} en modo test/sandbox Ethereal. No se marcará como notificado.`);
+        console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
       }
     } catch (err) {
-      console.error(`❌ Error enviando a ${item.email}:`, err.message);
+      console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
     }
   }
 

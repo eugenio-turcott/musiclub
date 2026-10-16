@@ -622,14 +622,14 @@ export function CoverRatingsPage() {
             ========================================================================= */}
         <section className="relative pt-4 sm:pt-8 pb-6 text-left">
           {/* Ambient Glows */}
-          <div className="absolute top-10 -left-10 w-96 h-96 bg-gradient-to-tr from-pink-500/15 via-purple-600/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
-          <div className="absolute top-20 -right-10 w-96 h-96 bg-gradient-to-bl from-cyan-500/15 via-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+          <div className="absolute top-10 -left-10 w-96 h-96 bg-linear-to-tr from-pink-500/15 via-purple-600/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+          <div className="absolute top-20 -right-10 w-96 h-96 bg-linear-to-bl from-cyan-500/15 via-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
 
           <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
             <div className="space-y-3 max-w-2xl">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
                 Califica las Portadas de los{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-300 to-rose-400">
+                <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 via-purple-300 to-rose-400">
                   Releases
                 </span>
               </h1>
@@ -689,7 +689,7 @@ export function CoverRatingsPage() {
                 onClick={() => setActiveTab('curator')}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                   activeTab === 'curator'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
+                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -702,7 +702,7 @@ export function CoverRatingsPage() {
                 onClick={() => setActiveTab('hall')}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                   activeTab === 'hall'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
+                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -720,7 +720,7 @@ export function CoverRatingsPage() {
                 onClick={() => setActiveTab('my-ratings')}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer flex items-center gap-2 ${
                   activeTab === 'my-ratings'
-                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
+                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/20'
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
@@ -828,7 +828,7 @@ export function CoverRatingsPage() {
                     setOnlyUnrated(false);
                     setSearchFilter('');
                   }}
-                  className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold hover:scale-105 transition-all"
+                  className="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold hover:scale-105 transition-all"
                 >
                   Ver Todas las Portadas
                 </button>
@@ -839,7 +839,7 @@ export function CoverRatingsPage() {
                 <div className="lg:col-span-7 flex flex-col items-center">
                   <div className="relative w-full max-w-[540px] group">
                     {/* Dynamic Ambient Colored Glow behind artwork */}
-                    <div className="absolute -inset-4 bg-gradient-to-tr from-pink-500/25 via-purple-600/20 to-cyan-500/25 rounded-3xl blur-3xl opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+                    <div className="absolute -inset-4 bg-linear-to-tr from-pink-500/25 via-purple-600/20 to-cyan-500/25 rounded-3xl blur-3xl opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
                     {/* Contenedor Gigante de la Carátula */}
                     <div className="relative aspect-square w-full rounded-3xl overflow-hidden border-2 border-white/20 shadow-2xl bg-black/60 backdrop-blur-md group-hover:border-pink-500/40 transition-all duration-500 flex items-center justify-center">
@@ -851,7 +851,7 @@ export function CoverRatingsPage() {
                       />
 
                       {/* Subtle Sheen Gradient Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-black/40 via-transparent to-white/10 pointer-events-none"></div>
+                      <div className="absolute inset-0 bg-linear-to-tr from-black/40 via-transparent to-white/10 pointer-events-none"></div>
 
                       {/* Badges superiores sobre la portada */}
                       <div className="absolute top-4 left-4 flex items-center gap-2">
@@ -946,7 +946,7 @@ export function CoverRatingsPage() {
                                 type="button"
                                 onClick={() => setSelectedAlbumIndex(realIdx)}
                                 title={title}
-                                className={`relative aspect-square w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 transition-all cursor-pointer border ${
+                                className={`relative aspect-square w-12 h-12 rounded-xl overflow-hidden shrink-0 transition-all cursor-pointer border ${
                                   isSelected
                                     ? 'border-pink-500 scale-105 shadow-md shadow-pink-500/30 ring-2 ring-pink-500/40'
                                     : 'border-white/10 opacity-60 hover:opacity-100 hover:border-white/30'
@@ -1037,7 +1037,7 @@ export function CoverRatingsPage() {
                   {/* Formulario de Calificación */}
                   <form
                     onSubmit={handleSubmitRating}
-                    className="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#161830]/95 via-[#101224]/90 to-[#0c0d1e]/95 border border-pink-500/30 backdrop-blur-2xl space-y-5 shadow-2xl"
+                    className="p-5 sm:p-6 rounded-3xl bg-linear-to-br from-[#161830]/95 via-[#101224]/90 to-[#0c0d1e]/95 border border-pink-500/30 backdrop-blur-2xl space-y-5 shadow-2xl"
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
@@ -1068,7 +1068,7 @@ export function CoverRatingsPage() {
                         <span className="text-xs text-white/70 font-semibold">
                           Puntaje Visual (1 al 10):
                         </span>
-                        <span className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-400">
+                        <span className="text-2xl font-black text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-rose-400">
                           {Number(ratingInput).toFixed(1)}
                         </span>
                       </div>
@@ -1084,7 +1084,7 @@ export function CoverRatingsPage() {
                               onClick={() => setRatingInput(num)}
                               className={`py-2 rounded-xl text-xs font-black transition-all cursor-pointer ${
                                 isSelected
-                                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md scale-105'
+                                  ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md scale-105'
                                   : 'bg-white/5 hover:bg-white/15 text-white/70 hover:text-white border border-white/5'
                               }`}
                             >
@@ -1140,7 +1140,7 @@ export function CoverRatingsPage() {
                               title={tag.desc}
                               className={`px-2.5 py-1 rounded-xl text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1 ${
                                 active
-                                  ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-sm border border-pink-400/50 scale-105'
+                                  ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-sm border border-pink-400/50 scale-105'
                                   : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10'
                               }`}
                             >
@@ -1187,7 +1187,7 @@ export function CoverRatingsPage() {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                        className="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
                         <span>✨</span>
                         <span>
@@ -1283,7 +1283,7 @@ export function CoverRatingsPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('curator')}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold"
                 >
                   Ir al Taller de Calificación →
                 </button>
@@ -1378,7 +1378,7 @@ export function CoverRatingsPage() {
                 <button
                   type="button"
                   onClick={() => setShowLoginModal(true)}
-                  className="px-6 py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-black shadow-lg hover:scale-105 transition-all"
+                  className="px-6 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-black shadow-lg hover:scale-105 transition-all"
                 >
                   Iniciar Sesión con Google
                 </button>
@@ -1396,7 +1396,7 @@ export function CoverRatingsPage() {
                 <button
                   type="button"
                   onClick={() => setActiveTab('curator')}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold"
+                  className="px-4 py-2 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold"
                 >
                   Comenzar a Calificar →
                 </button>
@@ -1427,7 +1427,7 @@ export function CoverRatingsPage() {
                         <img
                           src={cover}
                           alt={title}
-                          className="w-16 h-16 rounded-xl object-cover border border-white/15 flex-shrink-0 notranslate"
+                          className="w-16 h-16 rounded-xl object-cover border border-white/15 shrink-0 notranslate"
                         />
                         <div className="min-w-0 flex-1">
                           <h4

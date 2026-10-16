@@ -268,9 +268,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
   if (!isOpen) {
     return (
       <div className="mt-8 pt-6 border-t border-white/5">
-        <div className="bg-gradient-to-r from-[#17192f]/95 via-[#1e1b38]/95 to-[#121426]/95 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 sm:gap-4 shadow-xl hover:border-pink-500/30 transition-all">
+        <div className="bg-linear-to-r from-[#17192f]/95 via-[#1e1b38]/95 to-[#121426]/95 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 sm:gap-4 shadow-xl hover:border-pink-500/30 transition-all">
           <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30 flex-shrink-0 mt-0.5 sm:mt-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30 shrink-0 mt-0.5 sm:mt-0">
               💿
             </div>
             <div className="min-w-0 flex-1">
@@ -291,7 +291,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="w-full md:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-pink-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-lg shadow-[#f5576c]/25 hover:shadow-[#f5576c]/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 flex-shrink-0"
+            className="w-full md:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-pink-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-lg shadow-[#f5576c]/25 hover:shadow-[#f5576c]/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 shrink-0"
           >
             <span className="text-base">➕</span>
             <span>Proponer Álbum</span>
@@ -307,7 +307,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {/* Cabecera cuando está expandido */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm shadow-md flex-shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm shadow-md shrink-0">
               🎵
             </div>
             <div className="min-w-0">
@@ -323,7 +323,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
           <button
             type="button"
             onClick={handleClose}
-            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/60 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0"
+            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/15 text-white/60 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 shrink-0"
           >
             <span>✕</span>
             <span className="hidden sm:inline">Cerrar</span>
@@ -345,7 +345,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 whitespace-nowrap shadow-lg shadow-[#f5576c]/20 cursor-pointer"
+            className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 whitespace-nowrap shadow-lg shadow-[#f5576c]/20 cursor-pointer"
           >
             {loading ? '🔍 Buscando...' : '🔍 Buscar'}
           </button>
@@ -432,9 +432,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
         {/* Álbum ya existe */}
         {existingAlbum && (
-          <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl p-4 border border-yellow-500/30">
+          <div className="bg-linear-to-br from-yellow-500/10 to-orange-500/10 rounded-2xl p-4 border border-yellow-500/30">
             <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="relative flex-shrink-0">
+              <div className="relative shrink-0">
                 <img
                   src={existingAlbum.imagen}
                   alt={existingAlbum.album}
@@ -482,7 +482,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   setSearchResults([]);
                   setSearchQuery('');
                 }}
-                className="text-white/30 hover:text-white/60 text-sm transition-colors flex-shrink-0"
+                className="text-white/30 hover:text-white/60 text-sm transition-colors shrink-0"
               >
                 ✕ Cerrar
               </button>
@@ -492,9 +492,9 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
         {/* Detalles del álbum seleccionado */}
         {albumDetails && !savedAlbum && (
-          <div className="bg-gradient-to-br from-white/5 to-white/0 rounded-2xl p-4 sm:p-5 border border-white/10">
+          <div className="bg-linear-to-br from-white/5 to-white/0 rounded-2xl p-4 sm:p-5 border border-white/10">
             <div className="flex flex-col sm:flex-row gap-5">
-              <div className="relative w-full sm:w-48 aspect-square flex-shrink-0">
+              <div className="relative w-full sm:w-48 aspect-square shrink-0">
                 <img
                   src={albumDetails.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'}
                   alt={albumDetails.name}
@@ -548,7 +548,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                           onClick={() => setSelectedType(t.id)}
                           className={`px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
                             isCurrent
-                              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-md scale-105'
+                              ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent shadow-md scale-105'
                               : 'bg-white/5 hover:bg-white/10 text-white/60 border-white/10'
                           }`}
                         >
@@ -607,7 +607,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   <button
                     onClick={handleCreateAlbum}
                     disabled={creating}
-                    className="px-6 py-2.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-[#f5576c]/20 flex items-center gap-2"
+                    className="px-6 py-2.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-[#f5576c]/20 flex items-center gap-2"
                   >
                     <span>{creating ? '🔄 Guardando...' : '✅ Confirmar y Proponer'}</span>
                   </button>
@@ -630,12 +630,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
         {/* Álbum creado exitosamente */}
         {savedAlbum && (
-          <div className="bg-gradient-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl p-4 border border-blue-500/20">
+          <div className="bg-linear-to-br from-blue-500/5 to-cyan-500/5 rounded-2xl p-4 border border-blue-500/20">
             <div className="flex flex-col sm:flex-row gap-4 items-start">
               <img
                 src={savedAlbum.imagen}
                 alt={savedAlbum.album}
-                className="w-24 h-24 object-cover rounded-xl shadow-lg flex-shrink-0"
+                className="w-24 h-24 object-cover rounded-xl shadow-lg shrink-0"
               />
               <div className="flex-1 min-w-0">
                 <h4 className="text-white text-lg font-bold flex items-center gap-2">
@@ -657,7 +657,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   setSearchResults([]);
                   if (onAlbumCreated) onAlbumCreated();
                 }}
-                className="text-white/30 hover:text-white/60 text-sm transition-colors flex-shrink-0"
+                className="text-white/30 hover:text-white/60 text-sm transition-colors shrink-0"
               >
                 ✕ Cerrar
               </button>

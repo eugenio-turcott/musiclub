@@ -403,7 +403,7 @@ export function SlotMachine({
   return (
     <div className="py-6">
       <div className="relative max-w-3xl mx-auto">
-        <div className="absolute -inset-1 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-[#f5576c] rounded-3xl blur-xl opacity-50 animate-pulse"></div>
+        <div className="absolute -inset-1 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-[#f5576c] rounded-3xl blur-xl opacity-50 animate-pulse"></div>
 
         <div className="relative bg-black/70 backdrop-blur-xl rounded-3xl p-4 sm:p-6 border-2 border-[#f5576c]/30">
           <div className="text-center mb-4 flex flex-col sm:flex-row justify-between items-center gap-2">
@@ -453,7 +453,7 @@ export function SlotMachine({
                     />
 
                     {isWinnerReel && (
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#f5576c]/30 via-transparent to-transparent flex items-end justify-center pb-2 sm:pb-3">
+                      <div className="absolute inset-0 bg-linear-to-t from-[#f5576c]/30 via-transparent to-transparent flex items-end justify-center pb-2 sm:pb-3">
                         <span className="text-[#f5576c] text-[10px] sm:text-xs font-bold animate-pulse flex items-center gap-2 bg-black/80 px-2 sm:px-3 py-1 rounded-full backdrop-blur-sm border border-[#f5576c]/30">
                           ⚡ JACKPOT ⚡
                         </span>
@@ -513,12 +513,12 @@ export function SlotMachine({
                   ${
                     isSpinningLocal || isSpinning
                       ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white hover:scale-105 hover:shadow-[0_0_40px_rgba(245,87,108,0.5)] active:scale-95'
+                      : 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white hover:scale-105 hover:shadow-[0_0_40px_rgba(245,87,108,0.5)] active:scale-95'
                   }
                 `}
               >
                 {!isSpinningLocal && !isSpinning && (
-                  <span className="absolute -inset-0.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full blur opacity-50 animate-pulse"></span>
+                  <span className="absolute -inset-0.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-full blur opacity-50 animate-pulse"></span>
                 )}
                 <span className="relative flex items-center justify-center gap-1.5 sm:gap-3">
                   <span className="text-lg sm:text-2xl">🎰</span>

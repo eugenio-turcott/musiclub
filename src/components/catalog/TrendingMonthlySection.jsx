@@ -155,7 +155,7 @@ export function TrendingMonthlySection({
   return (
     <section ref={sectionRef} className="space-y-4 my-8">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-pink-500/20 via-purple-500/15 to-orange-500/15 border border-pink-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-pink-500/20 via-purple-500/15 to-orange-500/15 border border-pink-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-black uppercase tracking-wider">
             <span>🔥</span>
@@ -172,7 +172,7 @@ export function TrendingMonthlySection({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0 self-start md:self-auto bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl">
+        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl">
           <span className="text-sm">🗓️</span>
           <div className="text-left">
             <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">
@@ -325,9 +325,9 @@ export function TrendingMonthlySection({
                       <span
                         className={`text-[11px] font-black px-2 py-0.5 rounded-lg shadow-md border backdrop-blur-md ${
                           rank === 1
-                            ? 'bg-gradient-to-r from-amber-400 to-yellow-300 text-black border-amber-300 ring-2 ring-amber-400/50'
+                            ? 'bg-linear-to-r from-amber-400 to-yellow-300 text-black border-amber-300 ring-2 ring-amber-400/50'
                             : rank <= 3
-                              ? 'bg-gradient-to-r from-pink-400 to-rose-400 text-black border-pink-300 shadow-pink-500/30'
+                              ? 'bg-linear-to-r from-pink-400 to-rose-400 text-black border-pink-300 shadow-pink-500/30'
                               : 'bg-black/80 text-white border-white/20'
                         }`}
                       >
@@ -503,7 +503,7 @@ export function TrendingMonthlySection({
                         onClick={() => handlePageChange(pageNum)}
                         className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center ${
                           isActive
-                            ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 scale-105 border border-pink-400'
+                            ? 'bg-linear-to-r from-pink-500 to-rose-500 text-white shadow-lg shadow-pink-500/30 scale-105 border border-pink-400'
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10'
                         }`}
                       >

@@ -190,7 +190,7 @@ export function MemberProfileModal({
         {/* Barra Superior Decorativa del Modal */}
         <div className="flex items-center justify-between px-4 sm:px-6 pt-4 pb-2 border-b border-white/5 bg-[#101222]/80 backdrop-blur-md sticky top-0 z-20">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-linear-to-r from-[#f5576c] to-[#f093fb] animate-pulse"></span>
             <span className="text-xs sm:text-sm font-bold text-white/80 tracking-wide">
               Perfil de Miembro •{' '}
               <strong className="text-white">Musiclub</strong>
@@ -202,7 +202,7 @@ export function MemberProfileModal({
               <button
                 type="button"
                 onClick={() => setIsSendSongModalOpen(true)}
-                className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/20 transition-all cursor-pointer"
+                className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/20 transition-all cursor-pointer"
               >
                 <span>💌</span>
                 <span>Recomendar Canción</span>
@@ -223,15 +223,15 @@ export function MemberProfileModal({
         {/* CONTENEDOR PRINCIPAL */}
         <div className="px-3 sm:px-6 pb-6 space-y-5 sm:space-y-6">
           {/* TARJETA DE PRESENTACIÓN DEL PERFIL (Idéntica a Mi Perfil) */}
-          <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-gradient-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
+          <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-linear-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
             {/* Orbes de brillo ambiental */}
-            <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-gradient-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-linear-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
             <div className="absolute -bottom-20 -left-20 w-60 sm:w-80 h-60 sm:h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
               {/* Avatar con aura decorativa de gradiente */}
-              <div className="relative group flex-shrink-0">
-                <div className="absolute -inset-1.5 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
+              <div className="relative group shrink-0">
+                <div className="absolute -inset-1.5 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
                 <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/20 bg-black/60 shadow-2xl flex items-center justify-center">
                   {memberUser.avatar_url && !avatarImgError ? (
                     <img
@@ -241,14 +241,14 @@ export function MemberProfileModal({
                       onError={() => setAvatarImgError(true)}
                     />
                   ) : (
-                    <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-tr from-[#f5576c] to-[#f093fb] bg-clip-text text-transparent select-none">
+                    <span className="text-3xl sm:text-4xl font-bold bg-linear-to-tr from-[#f5576c] to-[#f093fb] bg-clip-text text-transparent select-none">
                       {initialLetter}
                     </span>
                   )}
                 </div>
                 {isAdmin && (
                   <div
-                    className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full border border-white/20 shadow-lg"
+                    className="absolute -bottom-1 -right-1 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full border border-white/20 shadow-lg"
                     title="Administrador"
                   >
                     ADMIN
@@ -282,7 +282,7 @@ export function MemberProfileModal({
                     <button
                       type="button"
                       onClick={() => setIsSendSongModalOpen(true)}
-                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/25 transition-all self-center sm:self-auto cursor-pointer"
+                      className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/25 transition-all self-center sm:self-auto cursor-pointer"
                     >
                       <span>💌</span> Recomendarle Canción
                     </button>
@@ -302,7 +302,7 @@ export function MemberProfileModal({
 
                 {/* Badges & XP Header Pill */}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
-                  <span className="text-xs bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
+                  <span className="text-xs bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
                     <span>✨</span> {totalXp.toLocaleString()} XP de Club
                   </span>
 
@@ -310,7 +310,7 @@ export function MemberProfileModal({
                     <span
                       key={b.id}
                       title={b.tooltip || b.desc || b.label}
-                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                     >
                       {b.label}
                     </span>
@@ -397,7 +397,7 @@ export function MemberProfileModal({
                 <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
                   Reviews Totales
                 </span>
-                <span className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+                <span className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]">
                   {memberUser.review_count || normalizedReviews.length}
                 </span>
               </div>
@@ -429,9 +429,9 @@ export function MemberProfileModal({
           <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 cursor-pointer ${
+              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 cursor-pointer ${
                 activeTab === 'reviews'
-                  ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
+                  ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
@@ -440,9 +440,9 @@ export function MemberProfileModal({
 
             <button
               onClick={() => setActiveTab('badges')}
-              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 cursor-pointer ${
+              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 cursor-pointer ${
                 activeTab === 'badges'
-                  ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20'
+                  ? 'bg-linear-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20'
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
@@ -452,9 +452,9 @@ export function MemberProfileModal({
 
             <button
               onClick={() => setActiveTab('stats')}
-              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap flex-shrink-0 snap-start active:scale-95 cursor-pointer ${
+              className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 cursor-pointer ${
                 activeTab === 'stats'
-                  ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
+                  ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
@@ -535,11 +535,11 @@ export function MemberProfileModal({
                       return (
                         <div
                           key={item.id || idx}
-                          className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-gradient-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between space-y-3 sm:space-y-4"
+                          className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between space-y-3 sm:space-y-4"
                         >
                           {/* Encabezado del Álbum */}
                           <div className="flex items-start gap-3 sm:gap-4">
-                            <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl overflow-hidden flex-shrink-0 border border-white/10 shadow-lg group">
+                            <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-xl sm:rounded-2xl overflow-hidden shrink-0 border border-white/10 shadow-lg group">
                               <img
                                 src={item.album.imagen}
                                 alt={item.album.album}
@@ -562,7 +562,7 @@ export function MemberProfileModal({
                                 >
                                   {item.album.album}
                                 </h3>
-                                <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex-shrink-0">
+                                <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0">
                                   ★ {item.weightedScore.toFixed(1)}
                                 </span>
                               </div>
@@ -619,7 +619,7 @@ export function MemberProfileModal({
                               tracksSource
                             );
                             return (
-                              <div className="flex items-center gap-1.5 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
+                              <div className="flex items-center gap-1.5 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
                                 <span className="text-sm">⭐</span>
                                 <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                                   Canción Favorita:
@@ -735,7 +735,7 @@ export function MemberProfileModal({
                                             </span>
                                           </div>
                                           <span
-                                            className={`font-black text-[11px] sm:text-xs flex-shrink-0 ${
+                                            className={`font-black text-[11px] sm:text-xs shrink-0 ${
                                               isFav
                                                 ? 'text-amber-300'
                                                 : score >= 8
@@ -779,7 +779,7 @@ export function MemberProfileModal({
                                   album: item.album,
                                 })
                               }
-                              className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                              className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                               title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
                             >
                               <span>📱</span>
@@ -902,7 +902,7 @@ export function MemberProfileModal({
           {activeTab === 'badges' && (
             <div className="space-y-6">
               {/* Tarjeta de Resumen XP */}
-              <div className="bg-gradient-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
+              <div className="bg-linear-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div>
                     <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
@@ -966,7 +966,7 @@ export function MemberProfileModal({
               </div>
 
               {/* Insignias Desbloqueadas Actualmente */}
-              <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+              <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
                   <div>
                     <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
@@ -989,7 +989,7 @@ export function MemberProfileModal({
                       >
                         <div className="flex items-center justify-between gap-2">
                           <span
-                            className={`text-xs font-black px-2.5 py-1 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
+                            className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
                           >
                             {b.label}
                           </span>
@@ -1015,7 +1015,7 @@ export function MemberProfileModal({
               {/* Barras de Progreso hacia los Siguientes Tiers */}
               {memberUser.badges_progress &&
                 memberUser.badges_progress.length > 0 && (
-                  <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
+                  <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
                     <div>
                       <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
                         <span>📈</span> Progreso y Próximos Desbloqueos
@@ -1068,7 +1068,7 @@ export function MemberProfileModal({
                                 </div>
                                 <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
                                   <div
-                                    className="h-full bg-gradient-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
+                                    className="h-full bg-linear-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
                                     style={{ width: `${bp.progressPercent}%` }}
                                   />
                                 </div>
@@ -1093,7 +1093,7 @@ export function MemberProfileModal({
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {/* Desglose por Criterios */}
-                <div className="bg-gradient-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
+                <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
                   <h3 className="text-white font-bold text-sm sm:text-base flex items-center gap-2">
                     <span>🎛️</span> Promedio Otorgado por Criterio
                   </h3>
@@ -1121,7 +1121,7 @@ export function MemberProfileModal({
                           </div>
                           <div className="w-full bg-black/40 rounded-full h-1.5 sm:h-2 overflow-hidden border border-white/5">
                             <div
-                              className={`h-full bg-gradient-to-r ${crit.color} rounded-full transition-all duration-1000`}
+                              className={`h-full bg-linear-to-r ${crit.color} rounded-full transition-all duration-1000`}
                               style={{ width: `${pct}%` }}
                             />
                           </div>
@@ -1134,7 +1134,7 @@ export function MemberProfileModal({
                 {/* Álbumes Destacados y Nivel de Melómano */}
                 <div className="space-y-3 sm:space-y-4">
                   {/* Más Alto */}
-                  <div className="bg-gradient-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
+                  <div className="bg-linear-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
                     <div className="flex items-center gap-1.5 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                       <span>🏆</span> Álbum Mejor Calificado
                     </div>
@@ -1146,7 +1146,7 @@ export function MemberProfileModal({
                             PLACEHOLDER_COVER
                           }
                           alt="Highest"
-                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 flex-shrink-0"
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-emerald-500/40 shrink-0"
                           onError={(e) => {
                             e.target.src = PLACEHOLDER_COVER;
                           }}
@@ -1175,7 +1175,7 @@ export function MemberProfileModal({
                   </div>
 
                   {/* Más Exigente / Bajo */}
-                  <div className="bg-gradient-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
+                  <div className="bg-linear-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
                     <div className="flex items-center gap-1.5 text-rose-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
                       <span>⚡</span> Calificación Más Exigente
                     </div>
@@ -1187,7 +1187,7 @@ export function MemberProfileModal({
                             PLACEHOLDER_COVER
                           }
                           alt="Lowest"
-                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 flex-shrink-0"
+                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-rose-500/40 shrink-0"
                           onError={(e) => {
                             e.target.src = PLACEHOLDER_COVER;
                           }}
@@ -1222,11 +1222,11 @@ export function MemberProfileModal({
                   </div>
 
                   {/* Nivel de Melómano Gamificado */}
-                  <div className="bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b18] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-pink-500/30 shadow-2xl space-y-3">
+                  <div className="bg-linear-to-br from-[#181935] via-[#101226] to-[#0a0b18] rounded-2xl sm:rounded-3xl p-4 sm:p-5 border border-pink-500/30 shadow-2xl space-y-3">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2.5 min-w-0">
                         <div
-                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl flex-shrink-0 shadow-lg`}
+                          className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                         >
                           {currentMelomanoLevel.icon}
                         </div>
@@ -1244,8 +1244,8 @@ export function MemberProfileModal({
                           </p>
                         </div>
                       </div>
-                      <div className="text-right flex-shrink-0">
-                        <span className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-[#f5576c] to-[#f093fb]">
+                      <div className="text-right shrink-0">
+                        <span className="text-xs sm:text-sm font-black text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]">
                           {totalXp.toLocaleString()} XP
                         </span>
                         <p className="text-[9px] text-white/40 uppercase tracking-wider font-bold">
@@ -1264,14 +1264,14 @@ export function MemberProfileModal({
                               {currentMelomanoLevel.next.title}
                             </strong>
                           </span>
-                          <span className="text-white font-semibold flex-shrink-0">
+                          <span className="text-white font-semibold shrink-0">
                             +{currentMelomanoLevel.xpRemaining} XP (
                             {currentMelomanoLevel.progressPercent}%)
                           </span>
                         </div>
                         <div className="w-full h-2 bg-black/50 rounded-full overflow-hidden border border-white/10">
                           <div
-                            className="h-full bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
+                            className="h-full bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-full transition-all duration-700 shadow-[0_0_10px_rgba(245,87,108,0.5)]"
                             style={{
                               width: `${currentMelomanoLevel.progressPercent}%`,
                             }}

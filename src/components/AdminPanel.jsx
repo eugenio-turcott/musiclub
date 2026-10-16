@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
+import { ParticipationMetrics } from './ParticipationMetrics';
 import { supabase } from '../services/supabaseClient';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
@@ -96,7 +97,7 @@ function AdminPagination({
                 onClick={() => onPageChange(p)}
                 className={`min-w-[28px] h-7 px-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center cursor-pointer ${
                   currentPage === p
-                    ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/25 scale-105'
+                    ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-md shadow-pink-500/25 scale-105'
                     : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
                 }`}
               >
@@ -263,30 +264,21 @@ export function AdminPanel({ onClose, isPage = true }) {
       }
       setAlbums(allAlbums);
 
-      // 4. Cargar Reseñas para Moderación (con tracks para resolución de canción favorita)
-      const { data: reviewsData, error: reviewsError } = await supabase
-        .from('reviews')
-        .select(
-          `
-          *,
-          album:album_id (id, album_name, artist_name, image_url, tracks)
-        `
-        )
-        .order('created_at', { ascending: false });
-
-      if (!reviewsError) {
-        setReviews(reviewsData || []);
-      }
-
-      // 5. Cargar Perfiles de Usuarios
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (!profilesError) {
-        setProfiles(profilesData || []);
-      }
+      // Read every page so participation totals and moderation are not truncated at 1,000 rows.
+      const readAll = async (table, fields) => {
+        const rows = [];
+        for (let offset = 0; ; offset += 1000) {
+          const result = await supabase.from(table).select(fields).order('id').range(offset, offset + 999);
+          if (result.error) throw new Error(result.error.message);
+          rows.push(...result.data);
+          if (result.data.length < 1000) return rows.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+        }
+      };
+      const [reviewsData, profilesData] = await Promise.all([
+        readAll('reviews', '*,album:album_id(id,album_name,artist_name,image_url,tracks)'), readAll('profiles', '*'),
+      ]);
+      setReviews(reviewsData);
+      setProfiles(profilesData);
     } catch (err) {
       console.error('Error cargando datos de administración:', err);
       setError(err.message);
@@ -808,6 +800,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       <div className="max-w-7xl mx-auto space-y-6 w-full">
         {/* Navigation Header */}
         {isPage && <AppHeader showTitle={false} />}
+        {!loading && !error && <ParticipationMetrics reviews={reviews} />}
 
         {/* Toast Feedback */}
         {actionSuccess && (
@@ -818,8 +811,8 @@ export function AdminPanel({ onClose, isPage = true }) {
         )}
 
         {/* Master Control Header */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative rounded-3xl bg-linear-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
             <div>
@@ -930,7 +923,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             onClick={() => setActiveTab('pool')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'pool'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
+                ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
@@ -946,7 +939,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             onClick={() => setActiveTab('seasons')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'seasons'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
+                ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
@@ -962,7 +955,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             onClick={() => setActiveTab('catalog')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'catalog'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
+                ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
@@ -978,7 +971,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             onClick={() => setActiveTab('reviews')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'reviews'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
+                ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
@@ -994,7 +987,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             onClick={() => setActiveTab('users')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'users'
-                ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
+                ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
@@ -1104,7 +1097,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                     <img
                       src={poolWinner.imagen}
                       alt={poolWinner.album}
-                      className="w-20 h-20 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                      className="w-20 h-20 rounded-xl object-cover border border-white/10 shrink-0"
                     />
                     <div className="space-y-1">
                       <h4 className="text-base font-black text-white">
@@ -1195,7 +1188,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                           <img
                             src={item.imagen}
                             alt={item.album}
-                            className="w-14 h-14 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                            className="w-14 h-14 rounded-xl object-cover border border-white/10 shrink-0"
                           />
                           <div className="min-w-0">
                             <h4 className="text-xs sm:text-sm font-bold text-white truncate">
@@ -1210,7 +1203,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <button
                             type="button"
                             onClick={() => handleSetWinner(item.id)}
@@ -1267,7 +1260,7 @@ export function AdminPanel({ onClose, isPage = true }) {
               <button
                 type="button"
                 onClick={handleOpenCreateSeason}
-                className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-xs sm:text-sm shadow-lg transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+                className="px-5 py-2.5 rounded-2xl bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-xs sm:text-sm shadow-lg transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
               >
                 <span>➕</span>
                 <span>Crear Nueva Temporada</span>
@@ -1281,7 +1274,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   key={s.id}
                   className={`p-6 rounded-3xl border transition-all space-y-4 ${
                     s.is_active
-                      ? 'bg-gradient-to-br from-[#181d38] to-[#121528] border-pink-500/40 shadow-xl shadow-pink-500/10'
+                      ? 'bg-linear-to-br from-[#181d38] to-[#121528] border-pink-500/40 shadow-xl shadow-pink-500/10'
                       : 'bg-[#14172a] border-white/10 hover:border-white/20'
                   }`}
                 >
@@ -1526,7 +1519,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                       </button>
                       <button
                         type="submit"
-                        className="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black transition-all shadow-lg"
+                        className="px-5 py-2 rounded-xl bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black transition-all shadow-lg"
                       >
                         {isCreatingSeason
                           ? 'Crear Temporada'
@@ -1647,7 +1640,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                             <img
                               src={album.image_url}
                               alt={album.album_name}
-                              className="w-10 h-10 rounded-lg object-cover border border-white/10 flex-shrink-0"
+                              className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
                             />
                             <div className="min-w-0">
                               <p className="font-bold text-white truncate max-w-xs">
@@ -1777,7 +1770,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   >
                     <div className="space-y-2 flex-1 min-w-0">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 flex items-center justify-center text-xs font-black text-white flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-tr from-pink-500 to-purple-500 flex items-center justify-center text-xs font-black text-white shrink-0">
                           {(rev.reviewer_name || 'U')[0].toUpperCase()}
                         </div>
                         <div>
@@ -1854,7 +1847,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                       onClick={() =>
                         handleDeleteReview(rev.id, rev.reviewer_name)
                       }
-                      className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold transition-all flex-shrink-0"
+                      className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold transition-all shrink-0"
                     >
                       {deletingReviewId === rev.id
                         ? 'Eliminando...'
@@ -1924,7 +1917,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                           className="hover:bg-white/5 transition-colors"
                         >
                           <td className="p-3.5 flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white flex-shrink-0">
+                            <div className="w-9 h-9 rounded-full bg-linear-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shrink-0">
                               {(prof.name || 'U')[0].toUpperCase()}
                             </div>
                             <span className="font-bold text-white">
@@ -2010,7 +2003,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   <img
                     src={editingAlbum.image_url}
                     alt={editingAlbum.album_name}
-                    className="w-16 h-16 rounded-xl object-cover border border-white/10 flex-shrink-0"
+                    className="w-16 h-16 rounded-xl object-cover border border-white/10 shrink-0"
                   />
                   <div className="space-y-1 flex-1">
                     <p className="font-bold text-white truncate">
@@ -2278,7 +2271,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   <button
                     type="submit"
                     disabled={isSavingEdit}
-                    className="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black transition-all shadow-lg"
+                    className="px-5 py-2 rounded-xl bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black transition-all shadow-lg"
                   >
                     {isSavingEdit ? 'Guardando...' : 'Guardar Cambios'}
                   </button>
