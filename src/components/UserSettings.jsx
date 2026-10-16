@@ -214,7 +214,7 @@ export function UserSettings() {
         </p>
         <button
           onClick={() => navigate('/')}
-          className="px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl font-bold shadow-lg shadow-[#f5576c]/20 hover:scale-105 transition-all text-sm"
+          className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl font-bold shadow-lg shadow-[#f5576c]/20 hover:scale-105 transition-all text-sm"
         >
           Ir al Inicio / Iniciar Sesión
         </button>
@@ -228,7 +228,7 @@ export function UserSettings() {
       <AppHeader showTitle={false} />
 
       {/* HEADER DE LA SECCIÓN */}
-      <div className="relative rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-[#121428] to-[#0a0d18] border border-white/10 shadow-2xl overflow-hidden">
+      <div className="relative rounded-3xl p-6 sm:p-8 bg-linear-to-br from-[#121428] to-[#0a0d18] border border-white/10 shadow-2xl overflow-hidden">
         {/* Subtle Ambient Glow */}
         <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -243,7 +243,7 @@ export function UserSettings() {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12 rounded-2xl bg-[#0e1022]/95 backdrop-blur-md border border-cyan-500/40 flex items-center justify-center shadow-xl flex-shrink-0">
+            <div className="relative w-12 h-12 rounded-2xl bg-[#0e1022]/95 backdrop-blur-md border border-cyan-500/40 flex items-center justify-center shadow-xl shrink-0">
               <span className="text-xl">⚙️</span>
             </div>
             <div>
@@ -280,7 +280,7 @@ export function UserSettings() {
       {/* FORMULARIO DE EDICIÓN */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* SECCIÓN 1: FOTO DE PERFIL / AVATAR */}
-        <div className="rounded-3xl p-6 bg-gradient-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-5">
+        <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-5">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
             <span>👤</span> Foto de Perfil / Avatar
           </h2>
@@ -329,7 +329,7 @@ export function UserSettings() {
         </div>
 
         {/* SECCIÓN 2: INFORMACIÓN PERSONAL BÁSICA */}
-        <div className="rounded-3xl p-6 bg-gradient-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
+        <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
             <span>📝</span> Información Básica
           </h2>
@@ -377,7 +377,7 @@ export function UserSettings() {
         </div>
 
         {/* SECCIÓN 3: PREFERENCIAS Y GUSTOS MUSICALES */}
-        <div className="rounded-3xl p-6 bg-gradient-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
+        <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
             <span>🎧</span> Gustos e Identidad Musical
           </h2>
@@ -424,7 +424,7 @@ export function UserSettings() {
                     onClick={() => toggleGenre(genre)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
                       isSelected
-                        ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
+                        ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white border-cyan-400/50 shadow-[0_0_10px_rgba(6,182,212,0.3)]'
                         : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -456,7 +456,7 @@ export function UserSettings() {
         </div>
 
         {/* SECCIÓN 4: ENLACES SOCIALES Y STREAMING */}
-        <div className="rounded-3xl p-6 bg-gradient-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
+        <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
             <span>🔗</span> Enlaces de Redes y Música
           </h2>
@@ -530,7 +530,7 @@ export function UserSettings() {
             <button
               type="submit"
               disabled={saving}
-              className={`w-full sm:w-auto px-8 py-3 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-cyan-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 ${
+              className={`w-full sm:w-auto px-8 py-3 rounded-xl bg-linear-to-r from-cyan-500 via-blue-600 to-cyan-500 text-white text-xs sm:text-sm font-bold shadow-lg shadow-cyan-500/25 transition-all flex items-center justify-center gap-2 ${
                 saving ? 'opacity-60 cursor-not-allowed' : 'hover:scale-105'
               }`}
             >

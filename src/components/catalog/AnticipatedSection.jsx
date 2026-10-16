@@ -51,7 +51,7 @@ export function AnticipatedSection({
   return (
     <section ref={sectionRef} className="space-y-4 my-8">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-linear-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider">
             <span>⏳</span>
@@ -72,7 +72,7 @@ export function AnticipatedSection({
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-shrink-0 self-start md:self-auto bg-amber-500/10 border border-amber-500/25 px-4 py-2.5 rounded-2xl text-amber-200">
+        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto bg-amber-500/10 border border-amber-500/25 px-4 py-2.5 rounded-2xl text-amber-200">
           <span className="text-base">🔒</span>
           <div className="text-left">
             <span className="block text-[10px] uppercase font-bold tracking-wider text-amber-400">
@@ -286,7 +286,7 @@ export function AnticipatedSection({
                         onClick={() => handlePageChange(pageNum)}
                         className={`w-8 h-8 rounded-xl text-xs font-black transition-all flex items-center justify-center ${
                           isActive
-                            ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black shadow-lg shadow-amber-500/30 scale-105 border border-amber-300 font-black'
+                            ? 'bg-linear-to-r from-amber-500 to-yellow-500 text-black shadow-lg shadow-amber-500/30 scale-105 border border-amber-300 font-black'
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10'
                         }`}
                       >

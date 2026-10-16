@@ -40,7 +40,7 @@ export function LoginModal({
       onClick={onClose}
     >
       <div
-        className="relative bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-[#f5576c]/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center my-auto overflow-hidden"
+        className="relative bg-linear-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-[#f5576c]/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center my-auto overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Glow de fondo decorativo */}
@@ -58,7 +58,7 @@ export function LoginModal({
         </button>
 
         <div className="relative z-10 text-center mb-6">
-          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,87,108,0.2)]">
+          <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,87,108,0.2)]">
             🎵
           </div>
           <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">

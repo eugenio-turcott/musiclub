@@ -1,3 +1,4 @@
+import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -75,7 +76,7 @@ const DECADES = [
   '1950s',
 ];
 
-export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage = 1 }) {
+export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage = 1, initialQuery = '' }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
@@ -128,7 +129,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     navigate(`${path}?${qs}`, { replace: true });
   };
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [releaseTypeFilter, setReleaseTypeFilter] = useState('ALL'); // ALL | ALBUM | EP | SENCILLO | COMPILACION
   const [selectedDecade, setSelectedDecade] = useState('2020s');
   const [selectedYearFilter, setSelectedYearFilter] = useState('ALL'); // ALL | '2020s' | 2024 | etc.
@@ -336,7 +337,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
       try {
         const [clubData, trendingData, monthlyData, statsData] =
           await Promise.allSettled([
-            supabaseService.getAllAlbumsWithFullStats(),
+            initialAlbums.length ? Promise.resolve(initialAlbums) : supabaseService.getAllAlbumsWithFullStats(),
             getTrendingReleases({ limit: 50 }),
             getMonthlyTrendingReleases(),
             getGlobalMusicStats(),
@@ -801,13 +802,13 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-gradient-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <img
+            <CoverImage
               src="/musiclub_logo_4.png"
               alt=""
               className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
@@ -815,7 +816,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           </div>
 
           <div className="relative z-10 space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-cyan-200">
               Catálogo Musical
             </h1>
             <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
@@ -828,7 +829,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
         {/* Barra superior de carga no invasiva al abrir o procesar un álbum */}
         {proposingId && (
-          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 animate-pulse shadow-[0_0_12px_rgba(236,72,153,0.7)]" />
+          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-linear-to-r from-pink-500 via-purple-500 to-cyan-400 animate-pulse shadow-[0_0_12px_rgba(236,72,153,0.7)]" />
         )}
 
         {/* Notificación discreta de error (solo si ocurre una falla real, sin popups intrusivos) */}
@@ -850,35 +851,29 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/40 transition-all shadow-lg">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Releases Disponibles
+              Lanzamientos en Musiclub
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
-                {platformStats.releases
-                  ? `${platformStats.releases.toLocaleString('es-MX')}+`
-                  : '4,127,529+'}
+                {globalStats.totalClub.toLocaleString('es-MX')}
               </span>
             </div>
             <p className="text-[11px] text-cyan-300 font-medium mt-1">
-              {globalStats.totalClub} en Club · Base discográfica global
+              Catálogo de la comunidad
             </p>
           </div>
 
           <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-pink-500/40 transition-all shadow-lg">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Artistas & Discografías
+              Artistas del club
             </span>
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
-                {platformStats.artists
-                  ? `${(platformStats.artists + (platformStats.labels || 0)).toLocaleString('es-MX')}+`
-                  : '3,340,692+'}
+                {new Set(albums.map(a => a.artist_name)).size.toLocaleString('es-MX')}
               </span>
             </div>
             <p className="text-[11px] text-pink-300 font-medium mt-1">
-              {platformStats.artists?.toLocaleString('es-MX') || '2,995,843'} artistas
-              · {(platformStats.labels || 344849).toLocaleString('es-MX')} discografías
-              oficiales
+              Artistas presentes en el catálogo del club
             </p>
           </div>
 
@@ -926,7 +921,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             onClick={() => handleTabChange('releases')}
             className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
               activeMainTab === 'releases'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-lg shadow-cyan-500/25 scale-[1.02]'
+                ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-lg shadow-cyan-500/25 scale-[1.02]'
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
@@ -939,7 +934,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             onClick={() => handleTabChange('artists')}
             className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
               activeMainTab === 'artists'
-                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white border-pink-400 shadow-lg shadow-pink-500/25 scale-[1.02]'
+                ? 'bg-linear-to-r from-pink-500 to-rose-500 text-white border-pink-400 shadow-lg shadow-pink-500/25 scale-[1.02]'
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
@@ -952,7 +947,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             onClick={() => handleTabChange('genres')}
             className={`px-5 sm:px-8 py-3 rounded-xl text-xs sm:text-sm md:text-base font-black transition-all flex items-center gap-2.5 cursor-pointer border ${
               activeMainTab === 'genres'
-                ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white border-purple-400 shadow-lg shadow-purple-500/25 scale-[1.02]'
+                ? 'bg-linear-to-r from-purple-500 to-indigo-500 text-white border-purple-400 shadow-lg shadow-purple-500/25 scale-[1.02]'
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
@@ -1092,7 +1087,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                     onClick={() => setSelectedYearFilter('ALL')}
                     className={`py-1.5 px-2 rounded-xl text-xs font-black transition-all border ${
                       selectedYearFilter === 'ALL'
-                        ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md border-pink-400/50'
+                        ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md border-pink-400/50'
                         : 'bg-white/5 text-slate-300 border-white/5'
                     }`}
                   >
@@ -1111,7 +1106,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                         }}
                         className={`py-1.5 px-2 rounded-xl text-xs font-bold transition-all border ${
                           isDecFilterActive
-                            ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black shadow-md border-purple-400 ring-1 ring-purple-400'
+                            ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white font-black shadow-md border-purple-400 ring-1 ring-purple-400'
                             : isDecActive
                               ? 'bg-purple-950/60 text-purple-200 border-purple-500/40'
                               : 'bg-white/5 text-slate-400 border-white/5'
@@ -1149,9 +1144,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             key={yr}
                             type="button"
                             onClick={() => selectYearOrDecade(yr)}
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold flex-shrink-0 transition-all border ${
+                            className={`px-2.5 py-1 rounded-lg text-xs font-bold shrink-0 transition-all border ${
                               isSelected
-                                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-black shadow-sm border-pink-400'
+                                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-black shadow-sm border-pink-400'
                                 : count > 0
                                   ? 'bg-white/10 text-slate-200 border-white/10'
                                   : 'bg-white/5 text-slate-600 border-white/5 opacity-50'
@@ -1177,9 +1172,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 <button
                   type="button"
                   onClick={() => setSelectedYearFilter('ALL')}
-                  className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none ${
+                  className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer select-none ${
                     selectedYearFilter === 'ALL'
-                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105'
+                      ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105'
                       : 'bg-black/40 text-slate-300 hover:bg-white/10 hover:text-white border border-white/5'
                   }`}
                 >
@@ -1200,7 +1195,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                   type="button"
                   onClick={handlePrevDecade}
                   disabled={!canGoOlder}
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm shrink-0 cursor-pointer border ${
                     canGoOlder
                       ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
                       : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
@@ -1218,9 +1213,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 <button
                   type="button"
                   onClick={() => selectYearOrDecade(selectedDecade)}
-                  className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
+                  className={`px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 shrink-0 cursor-pointer select-none border ${
                     selectedYearFilter === selectedDecade
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30 ring-2 ring-purple-400 scale-105 border-purple-400'
+                      ? 'bg-linear-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/30 ring-2 ring-purple-400 scale-105 border-purple-400'
                       : 'bg-purple-950/50 hover:bg-purple-900/70 text-purple-200 border-purple-500/40 hover:border-purple-400'
                   }`}
                   title={`Filtrar toda la década ${selectedDecade}`}
@@ -1251,9 +1246,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                       key={yr}
                       type="button"
                       onClick={() => selectYearOrDecade(yr)}
-                      className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 flex-shrink-0 cursor-pointer select-none border ${
+                      className={`px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer select-none border ${
                         isSelected
-                          ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105 border-pink-400'
+                          ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-pink-500/25 ring-2 ring-pink-400/50 font-black scale-105 border-pink-400'
                           : count > 0
                             ? 'bg-black/50 text-slate-200 hover:bg-white/15 hover:text-white border-white/10'
                             : 'bg-black/20 text-slate-500 hover:text-slate-300 border-white/5 opacity-60'
@@ -1280,7 +1275,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                   type="button"
                   onClick={handleNextDecade}
                   disabled={!canGoNewer}
-                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm flex-shrink-0 cursor-pointer border ${
+                  className={`w-8 h-8 rounded-xl flex items-center justify-center font-black transition-all text-sm shrink-0 cursor-pointer border ${
                     canGoNewer
                       ? 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:scale-105 shadow'
                       : 'bg-white/5 text-slate-600 border-white/5 cursor-not-allowed opacity-40'
@@ -1301,7 +1296,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen((prev) => !prev)}
-                className="w-full py-3 px-4 rounded-2xl bg-gradient-to-r from-[#17192b] via-[#1b1e33] to-[#17192b] border border-cyan-500/40 text-cyan-200 text-xs font-black flex items-center justify-between shadow-xl active:scale-[0.98] transition-all cursor-pointer"
+                className="w-full py-3 px-4 rounded-2xl bg-linear-to-r from-[#17192b] via-[#1b1e33] to-[#17192b] border border-cyan-500/40 text-cyan-200 text-xs font-black flex items-center justify-between shadow-xl active:scale-[0.98] transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-base">🎛️</span>
@@ -1406,7 +1401,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                         onClick={() => setReleaseTypeFilter(fmt.id)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
                           isSelected
-                            ? 'bg-gradient-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
+                            ? 'bg-linear-to-r from-cyan-500 to-blue-500 text-black border-cyan-400 font-black shadow-lg shadow-cyan-500/20 scale-105'
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                         }`}
                       >
@@ -1456,7 +1451,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                         }}
                         className={`px-3 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 border ${
                           active
-                            ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
+                            ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-black border-cyan-400 shadow-md shadow-cyan-500/25 scale-[1.02]'
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                         }`}
                       >
@@ -1502,7 +1497,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 {/* Quick Pool Shortcut */}
                 <Link
                   to="/pool"
-                  className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 flex-shrink-0"
+                  className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shrink-0"
                 >
                   <span>🗳️</span>
                   <span>Pool Musical</span>
@@ -1544,7 +1539,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             ) : filteredAlbums.length === 0 ? (
               <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-3">
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
-                  <img
+                  <CoverImage
                     src="/musiclub_logo_4.png"
                     alt="Musiclub"
                     className="w-full h-full object-contain animate-spin-slow opacity-80 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]"
@@ -1620,7 +1615,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                       >
                         {/* Artwork Container */}
                         <div className="relative aspect-square overflow-hidden bg-black/50">
-                          <img
+                          <CoverImage
                             src={album.image_url || PLACEHOLDER_COVER}
                             alt={album.album_name}
                             loading="lazy"
@@ -1642,7 +1637,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
                           <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                             {album.is_trending && score === null && (
-                              <span className="bg-gradient-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
+                              <span className="bg-linear-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
                                 🔥 Tendencia 2026
                               </span>
                             )}
@@ -1657,7 +1652,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                           </div>
 
                           {/* Bottom overlay: Year & Status */}
-                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
+                          <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/90 via-black/50 to-transparent p-2.5 sm:p-3 flex items-end justify-between">
                             <div className="flex items-center gap-1.5">
                               {albumYear ? (
                                 <span className="text-[10px] font-mono font-bold text-slate-300 bg-black/60 backdrop-blur-md border border-white/10 px-1.5 py-0.5 rounded">
@@ -1737,7 +1732,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                 className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
                                   isProposing
                                     ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50'
-                                    : 'bg-gradient-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
+                                    : 'bg-linear-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
                                 }`}
                               >
                                 {isProposing ? (

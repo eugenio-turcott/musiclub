@@ -11,6 +11,20 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7', title: 'Una primera reseña más fácil y mejor seguimiento del club', date: '2026-10-16',
+    sha: '', associatedShas: [], tag: 'Experiencia y mantenimiento',
+    tagColor: 'from-pink-500 via-purple-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Nueva valoración rápida, búsqueda visible, guías para empezar y medición de visitas con controles de privacidad. La portada evita descargar de nuevo el catálogo completo y los avisos incorporan protección contra envíos repetidos.',
+    changes: [
+      { type: 'feature', title: 'Valora con una nota y un comentario opcional', description: 'Elige una nota sobre diez o utiliza el análisis detallado. La valoración rápida no inventa notas para los pilares ni para las canciones. Puedes preparar el borrador antes de iniciar sesión.' },
+      { type: 'feature', title: 'Busca y aprende cómo participar', description: 'La portada incluye una búsqueda directa y tres guías explican las notas, la primera reseña y el descubrimiento en comunidad.' },
+      { type: 'improvement', title: 'Menos descargas al abrir la portada', description: 'La selección inicial se entrega desde el servidor, las portadas principales utilizan imágenes adaptadas y los enlaces evitan precargar fichas completas sin necesidad.' },
+      { type: 'feature', title: 'Visitas y participación con privacidad', description: 'Vercel mide visitas y carga sin eventos personalizados de pago. Se excluyen páginas privadas y parámetros; puedes desactivar la medición. El panel de administración resume actividad y personas que vuelven a reseñar.' },
+      { type: 'fix', title: 'Avisos protegidos frente a reintentos', description: 'Una reserva persistente evita que clics repetidos o ejecuciones simultáneas envíen el mismo aviso varias veces. Los envíos inciertos quedan para revisión antes de intentar reenviarlos.' },
+      { type: 'improvement', title: 'Mantenimiento y dependencias', description: 'Se actualizaron dependencias y se añadieron comprobaciones automáticas para las notas, la privacidad y los envíos. El mantenimiento diario valida su configuración antes de empezar.' },
+    ],
+  },
+  {
     version: 'V.9.6.2',
     title: 'Estadísticas claras en los correos de graduación',
     date: '2026-10-16',

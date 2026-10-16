@@ -364,7 +364,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
         {/* Barra superior de carga sutil y no invasiva */}
         {proposingId && (
-          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 animate-pulse shadow-[0_0_12px_rgba(6,182,212,0.7)]" />
+          <div className="fixed top-0 left-0 right-0 z-[9999] h-1 bg-linear-to-r from-cyan-400 via-blue-500 to-purple-500 animate-pulse shadow-[0_0_12px_rgba(6,182,212,0.7)]" />
         )}
 
         {/* Notificación discreta de error (solo en caso de fallo real) */}
@@ -385,7 +385,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         {/* ARTIST HERO BANNER (Spotify Aesthetic) */}
         {!loading && profileData && artist && (
           <div className="space-y-8">
-            <div className="relative rounded-3xl bg-gradient-to-br from-[#121626] via-[#0d101c] to-[#080912] border border-white/10 p-6 sm:p-8 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl">
+            <div className="relative rounded-3xl bg-linear-to-br from-[#121626] via-[#0d101c] to-[#080912] border border-white/10 p-6 sm:p-8 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl">
               {/* Background ambient glow image */}
               {artist.image && (
                 <div
@@ -393,7 +393,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                   style={{ backgroundImage: `url(${artist.image})` }}
                 />
               )}
-              <div className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-[#1db954]/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -top-32 -right-32 w-96 h-96 bg-linear-to-br from-[#1db954]/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
               {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
               <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
@@ -406,7 +406,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
               <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
                 {/* Artist Avatar */}
-                <div className="relative flex-shrink-0 group">
+                <div className="relative shrink-0 group">
                   <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl bg-black/60 relative">
                     <img
                       src={
@@ -418,7 +418,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                     />
                   </div>
                   {Boolean(artist.popularity && artist.popularity > 0) && (
-                    <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-[#1db954] to-emerald-400 text-black font-black text-xs px-3 py-1 rounded-full shadow-lg border border-black/20 flex items-center gap-1">
+                    <div className="absolute -bottom-2 -right-2 bg-linear-to-r from-[#1db954] to-emerald-400 text-black font-black text-xs px-3 py-1 rounded-full shadow-lg border border-black/20 flex items-center gap-1">
                       <span>🔥 {artist.popularity}%</span>
                     </div>
                   )}
@@ -437,7 +437,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
                   <h1
                     translate="no"
-                    className="notranslate text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
+                    className="notranslate text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
                   >
                     {artist.name}
                   </h1>
@@ -590,7 +590,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       onClick={() => setActiveTab(tab.id)}
                       className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-black whitespace-nowrap transition-all flex items-center gap-2 border ${
                         isActive
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-black border-transparent shadow-lg shadow-cyan-500/20 scale-105'
+                          ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-black border-transparent shadow-lg shadow-cyan-500/20 scale-105'
                           : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border-white/10'
                       }`}
                     >
@@ -685,7 +685,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       <div
                         key={release.id}
                         onClick={handleCardClick}
-                        className="bg-gradient-to-b from-[#131526] to-[#0c0e1a] border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between group hover:border-cyan-400/50 hover:shadow-[0_10px_25px_rgba(6,182,212,0.15)] hover:scale-[1.02] cursor-pointer transition-all shadow-xl select-none"
+                        className="bg-linear-to-b from-[#131526] to-[#0c0e1a] border border-white/10 rounded-2xl sm:rounded-3xl p-3 sm:p-4 flex flex-col justify-between group hover:border-cyan-400/50 hover:shadow-[0_10px_25px_rgba(6,182,212,0.15)] hover:scale-[1.02] cursor-pointer transition-all shadow-xl select-none"
                         role="button"
                         tabIndex={0}
                         onKeyDown={(e) => {
@@ -771,7 +771,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                             <Link
                               to={targetClubUrl}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-full py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
+                              className="w-full py-2 px-3 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
                             >
                               <span>🎧</span>
                               <span>Ver en Club</span>

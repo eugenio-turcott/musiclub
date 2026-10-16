@@ -11,7 +11,7 @@ export function Footer({ showAd = true }) {
 
       {/* Brand Divider with Spinning Musiclub Logo */}
       <div className="flex items-center justify-center gap-3 mb-4 select-none pointer-events-none">
-        <div className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+        <div className="h-px w-12 sm:w-24 bg-linear-to-r from-transparent via-white/15 to-transparent" />
         <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
           <div className="absolute inset-0 bg-amber-400/15 rounded-full blur-md animate-pulse" />
           <img
@@ -20,7 +20,7 @@ export function Footer({ showAd = true }) {
             className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.35)] opacity-80"
           />
         </div>
-        <div className="h-px w-12 sm:w-24 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+        <div className="h-px w-12 sm:w-24 bg-linear-to-r from-transparent via-white/15 to-transparent" />
       </div>
 
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-white/30">
@@ -33,6 +33,7 @@ export function Footer({ showAd = true }) {
           <span>© 2026 Musiclub</span>
         </span>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
+        <Link to="/guias" className="hover:text-pink-300 underline">Guías para escuchar y reseñar</Link>
         <Link
           to="/faq"
           className="hover:text-[#f5576c] transition-colors flex items-center gap-1"

@@ -26,7 +26,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#ff4757]/30',
     tagColor: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#ff4757]/30 via-[#ff4757]/15 to-transparent border-[#ff4757]/40',
+      'bg-linear-to-r from-[#ff4757]/30 via-[#ff4757]/15 to-transparent border-[#ff4757]/40',
     mobileBadgeBg: 'bg-[#ff4757] text-white',
     icon: '🔥',
   },
@@ -45,7 +45,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#ff7f50]/30',
     tagColor: 'bg-orange-500/20 text-orange-300 border-orange-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#ff7f50]/30 via-[#ff7f50]/15 to-transparent border-[#ff7f50]/40',
+      'bg-linear-to-r from-[#ff7f50]/30 via-[#ff7f50]/15 to-transparent border-[#ff7f50]/40',
     mobileBadgeBg: 'bg-[#ff7f50] text-white',
     icon: '🌟',
   },
@@ -64,7 +64,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#eccc68]/30',
     tagColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#eccc68]/30 via-[#eccc68]/15 to-transparent border-[#eccc68]/40',
+      'bg-linear-to-r from-[#eccc68]/30 via-[#eccc68]/15 to-transparent border-[#eccc68]/40',
     mobileBadgeBg: 'bg-[#eccc68] text-slate-950 font-black',
     icon: '✨',
   },
@@ -83,7 +83,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#2ed573]/30',
     tagColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#2ed573]/30 via-[#2ed573]/15 to-transparent border-[#2ed573]/40',
+      'bg-linear-to-r from-[#2ed573]/30 via-[#2ed573]/15 to-transparent border-[#2ed573]/40',
     mobileBadgeBg: 'bg-[#2ed573] text-slate-950 font-black',
     icon: '👍',
   },
@@ -102,7 +102,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#1e90ff]/30',
     tagColor: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#1e90ff]/30 via-[#1e90ff]/15 to-transparent border-[#1e90ff]/40',
+      'bg-linear-to-r from-[#1e90ff]/30 via-[#1e90ff]/15 to-transparent border-[#1e90ff]/40',
     mobileBadgeBg: 'bg-[#1e90ff] text-white',
     icon: '⚠️',
   },
@@ -121,7 +121,7 @@ export const DEFAULT_TIERS = [
     rowBorder: 'border-[#9b59b6]/30',
     tagColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
     mobileHeaderBg:
-      'bg-gradient-to-r from-[#9b59b6]/30 via-[#9b59b6]/15 to-transparent border-[#9b59b6]/40',
+      'bg-linear-to-r from-[#9b59b6]/30 via-[#9b59b6]/15 to-transparent border-[#9b59b6]/40',
     mobileBadgeBg: 'bg-[#9b59b6] text-white',
     icon: '💀',
   },
@@ -763,7 +763,7 @@ export function TierListMaker({
   const totalCategorized = classifiedItems.length;
 
   return (
-    <div className="relative overflow-hidden bg-gradient-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-sans">
+    <div className="relative overflow-hidden bg-linear-to-br from-[#12142a] via-[#0d0f1e] to-[#070810] rounded-3xl p-4 sm:p-6 border border-pink-500/20 sm:border-white/15 shadow-[0_10px_40px_rgba(0,0,0,0.6)] space-y-4 font-sans">
       {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
       <div className="absolute -right-16 -top-16 sm:-right-20 sm:-top-20 md:-right-24 md:-top-16 w-64 h-64 sm:w-80 sm:h-80 md:w-96 md:h-96 pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
         <img
@@ -776,7 +776,7 @@ export function TierListMaker({
       {/* CABECERA CON LOGO OFICIAL DE MUSICLUB */}
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 pb-3.5 border-b border-white/10">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-1.5 flex-shrink-0 shadow-lg shadow-pink-500/10 overflow-hidden">
+          <div className="relative w-11 h-11 sm:w-13 sm:h-13 rounded-2xl bg-linear-to-tr from-pink-500/20 via-purple-500/20 to-cyan-500/20 border border-pink-500/30 flex items-center justify-center p-1.5 shrink-0 shadow-lg shadow-pink-500/10 overflow-hidden">
             <img
               src="/musiclub_logo_2.png"
               alt="Musiclub Disc"
@@ -865,7 +865,7 @@ export function TierListMaker({
             type="button"
             onClick={() => setIsShareModalOpen(true)}
             disabled={totalCategorized === 0}
-            className="px-3.5 sm:px-4 py-2.5 bg-gradient-to-r from-[#f5576c] via-[#f43f5e] to-[#a855f7] hover:opacity-95 text-white text-xs sm:text-sm font-black rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-pink-500/25 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-3.5 sm:px-4 py-2.5 bg-linear-to-r from-[#f5576c] via-[#f43f5e] to-[#a855f7] hover:opacity-95 text-white text-xs sm:text-sm font-black rounded-xl flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-pink-500/25 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             title="Compartir tu Tier List en Instagram, TikTok, WhatsApp, X, Threads y más"
           >
             <ShareIcon className="w-4 h-4 text-white" />
@@ -1056,7 +1056,7 @@ export function TierListMaker({
               >
                 {/* Cabecera del Tier (Izquierda) */}
                 <div
-                  className={`w-28 sm:w-36 flex-shrink-0 flex flex-col items-center justify-center p-2.5 text-center select-none ${tier.headerBg} ${tier.headerText} shadow-md`}
+                  className={`w-28 sm:w-36 shrink-0 flex flex-col items-center justify-center p-2.5 text-center select-none ${tier.headerBg} ${tier.headerText} shadow-md`}
                 >
                   <span className="text-2xl sm:text-3xl font-black leading-none drop-shadow-md mb-0.5">
                     {tier.label}
@@ -1089,7 +1089,7 @@ export function TierListMaker({
                         return (
                           <div
                             key={item.albumId}
-                            className={`group relative rounded-xl overflow-hidden border border-white/10 transition-all duration-200 flex-shrink-0 select-none shadow-md ${
+                            className={`group relative rounded-xl overflow-hidden border border-white/10 transition-all duration-200 shrink-0 select-none shadow-md ${
                               isNormal
                                 ? 'w-28 sm:w-32 aspect-square'
                                 : 'w-20 sm:w-24 aspect-square'
@@ -1106,7 +1106,7 @@ export function TierListMaker({
                           />
 
                           {/* Badge de Calificación */}
-                          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-1 flex items-center justify-between">
+                          <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/90 via-black/60 to-transparent p-1 flex items-center justify-between">
                             <span className="text-[9px] sm:text-[10px] font-black text-amber-300 drop-shadow">
                               ★ {item.score === 10 ? '10' : item.score.toFixed(1)}
                             </span>

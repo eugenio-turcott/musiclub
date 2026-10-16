@@ -422,7 +422,7 @@ export function AlbumGrid({
                       </div>
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
                       <div className="w-full min-w-0">
                         <p
                           translate="no"
@@ -598,7 +598,7 @@ export function AlbumGrid({
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
                       translate="no"
@@ -623,7 +623,7 @@ export function AlbumGrid({
                         </p>
                       )}
 
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white text-[11px] sm:text-xs font-bold rounded-full shadow-lg group-hover:scale-105 transition-all">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-linear-to-r from-blue-500 to-cyan-500 text-white text-[11px] sm:text-xs font-bold rounded-full shadow-lg group-hover:scale-105 transition-all">
                       <span>Ver Álbum</span>
                       <span>➔</span>
                     </span>
@@ -775,7 +775,7 @@ export function AlbumGrid({
                   </div>
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
+                <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center p-3 text-center">
                   <div className="w-full max-w-full min-w-0 flex flex-col items-center">
                     <p
                       translate="no"
@@ -800,7 +800,7 @@ export function AlbumGrid({
                         </p>
                       )}
 
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-gray-600 to-slate-700 text-white text-[11px] sm:text-xs font-bold rounded-full shadow-lg group-hover:scale-105 transition-all">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-linear-to-r from-gray-600 to-slate-700 text-white text-[11px] sm:text-xs font-bold rounded-full shadow-lg group-hover:scale-105 transition-all">
                       <span>Ver Álbum</span>
                       <span>➔</span>
                     </span>

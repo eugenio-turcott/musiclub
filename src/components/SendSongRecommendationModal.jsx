@@ -335,7 +335,7 @@ export function SendSongRecommendationModal({
       }}
     >
       <div
-        className="relative w-full max-w-2xl bg-gradient-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-white/20 rounded-3xl shadow-2xl p-5 sm:p-7 overflow-hidden my-auto animate-fadeIn max-h-[92vh] flex flex-col"
+        className="relative w-full max-w-2xl bg-linear-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-white/20 rounded-3xl shadow-2xl p-5 sm:p-7 overflow-hidden my-auto animate-fadeIn max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Luces de fondo decorativas */}
@@ -343,9 +343,9 @@ export function SendSongRecommendationModal({
         <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-[#f093fb]/20 rounded-full blur-3xl pointer-events-none"></div>
 
         {/* Cabecera del Modal */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30">
               💌
             </div>
             <div>
@@ -370,13 +370,13 @@ export function SendSongRecommendationModal({
 
         {/* Notificaciones de Éxito / Error */}
         {errorMsg && (
-          <div className="mt-3 p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold flex items-center gap-2 animate-fadeIn flex-shrink-0">
+          <div className="mt-3 p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold flex items-center gap-2 animate-fadeIn shrink-0">
             <span>⚠️</span> {errorMsg}
           </div>
         )}
 
         {successMsg && (
-          <div className="mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fadeIn flex-shrink-0">
+          <div className="mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fadeIn shrink-0">
             <span>✨</span> {successMsg}
           </div>
         )}
@@ -396,10 +396,10 @@ export function SendSongRecommendationModal({
                     <img
                       src={selectedRecipient.avatar_url}
                       alt={selectedRecipient.name}
-                      className="w-10 h-10 rounded-full object-cover border border-white/20 flex-shrink-0"
+                      className="w-10 h-10 rounded-full object-cover border border-white/20 shrink-0"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-black text-sm shrink-0">
                       {(selectedRecipient.name || selectedRecipient.email || 'U')[0].toUpperCase()}
                     </div>
                   )}
@@ -477,10 +477,10 @@ export function SendSongRecommendationModal({
                             <img
                               src={p.avatar_url}
                               alt={p.name}
-                              className="w-8 h-8 rounded-full object-cover border border-white/10 flex-shrink-0"
+                              className="w-8 h-8 rounded-full object-cover border border-white/10 shrink-0"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-purple-500/30 flex items-center justify-center text-purple-300 font-bold text-xs shrink-0">
                               {(p.name || p.email || 'U')[0].toUpperCase()}
                             </div>
                           )}
@@ -561,10 +561,10 @@ export function SendSongRecommendationModal({
                         <img
                           src={t.imageUrl}
                           alt={t.name}
-                          className="w-10 h-10 rounded-lg object-cover flex-shrink-0 shadow"
+                          className="w-10 h-10 rounded-lg object-cover shrink-0 shadow"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-base flex-shrink-0">
+                        <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">
                           🎵
                         </div>
                       )}
@@ -582,7 +582,7 @@ export function SendSongRecommendationModal({
                           {t.artistName} {t.albumName && `• ${t.albumName}`}
                         </span>
                       </div>
-                      <span className="text-[10px] bg-[#1DB954]/20 text-[#1DB954] px-2 py-0.5 rounded-full font-bold flex-shrink-0">
+                      <span className="text-[10px] bg-[#1DB954]/20 text-[#1DB954] px-2 py-0.5 rounded-full font-bold shrink-0">
                         Elegir 🎵
                       </span>
                     </div>
@@ -753,9 +753,9 @@ export function SendSongRecommendationModal({
                 Vista Previa de la Cartita Musical:
               </span>
 
-              <div className="relative rounded-2xl p-4 bg-gradient-to-br from-[#1d1f3b] via-[#15172d] to-[#0d0f1e] border-2 border-[#f5576c]/40 shadow-xl overflow-hidden text-left">
+              <div className="relative rounded-2xl p-4 bg-linear-to-br from-[#1d1f3b] via-[#15172d] to-[#0d0f1e] border-2 border-[#f5576c]/40 shadow-xl overflow-hidden text-left">
                 {/* Sello postal */}
-                <div className="absolute top-3 right-3 w-10 h-12 rounded-lg bg-gradient-to-tr from-amber-400 to-rose-500 border border-white/40 shadow flex flex-col items-center justify-center text-white select-none">
+                <div className="absolute top-3 right-3 w-10 h-12 rounded-lg bg-linear-to-tr from-amber-400 to-rose-500 border border-white/40 shadow flex flex-col items-center justify-center text-white select-none">
                   <span className="text-xs">🎵</span>
                   <span className="text-[7px] font-mono font-black uppercase">CLUB</span>
                 </div>
@@ -765,10 +765,10 @@ export function SendSongRecommendationModal({
                     <img
                       src={imageUrl}
                       alt={songTitle}
-                      className="w-12 h-12 rounded-xl object-cover shadow border border-white/20 flex-shrink-0"
+                      className="w-12 h-12 rounded-xl object-cover shadow border border-white/20 shrink-0"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl flex-shrink-0 shadow">
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0 shadow">
                       💿
                     </div>
                   )}
@@ -789,7 +789,7 @@ export function SendSongRecommendationModal({
           )}
 
           {/* Botones de Acción */}
-          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10 flex-shrink-0">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10 shrink-0">
             <button
               type="button"
               onClick={handleClose}
@@ -805,7 +805,7 @@ export function SendSongRecommendationModal({
               className={`px-6 py-2.5 rounded-xl text-xs sm:text-sm font-black uppercase tracking-wider text-white shadow-lg transition-all flex items-center gap-2 ${
                 submitting || !songTitle.trim() || !artistName.trim() || !selectedRecipient
                   ? 'bg-slate-800 border border-white/10 opacity-50 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 shadow-[#f5576c]/30'
+                  : 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 shadow-[#f5576c]/30'
               }`}
             >
               {submitting ? (

@@ -15,5 +15,16 @@ export const metadata = {
 
 export default async function HomePage() {
   const data = await getPublicCatalog();
-  return <LandingPage initialAlbums={data.albums} initialReviews={data.reviews} initialStats={data.stats} />;
+  // The home is a selection; the complete collection remains on /catalogo.
+  const selected = new Map();
+  const add = album => selected.set(album.id, album);
+  data.albums.filter(a => a.review_count > 0).sort((a, b) => b.final_rating - a.final_rating).slice(0, 15).forEach(add);
+  [...data.albums].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 24).forEach(add);
+  data.reviews.slice(0, 6).forEach(review => {
+    const album = data.albums.find(a => a.id === review.album_id);
+    if (album) add(album);
+  });
+  const albums = [...selected.values()];
+  const reviews = data.reviews.filter(review => selected.has(review.album_id));
+  return <LandingPage initialAlbums={albums} initialReviews={reviews} initialStats={data.stats} />;
 }

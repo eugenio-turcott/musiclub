@@ -3,6 +3,7 @@
 import React, { useEffect } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../utils/translateCrashGuard';
+import { SiteMetrics } from '../components/SiteMetrics';
 
 export function ClientProviders({ children }) {
   useEffect(() => {
@@ -39,6 +40,7 @@ export function ClientProviders({ children }) {
         }}
       />
       {children}
+      <SiteMetrics />
     </ErrorBoundary>
   );
 }

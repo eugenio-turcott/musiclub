@@ -1,7 +1,7 @@
+import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendUpcomingConfirmationEmail } from '../../../../services/emailService';
-import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -40,40 +40,11 @@ export async function POST(request) {
     const cleanEmail = auth.user.email.toLowerCase();
     if (email.trim().toLowerCase() !== cleanEmail) return NextResponse.json({ error: 'Solo puedes suscribirte con tu cuenta' }, { status: 403 });
 
-    // 1. Guardar o actualizar en la tabla upcoming_notifications de Supabase
-    try {
-      const supabaseUrl =
-        process.env.NEXT_PUBLIC_SUPABASE_URL ||
-        process.env.REACT_APP_SUPABASE_URL ||
-        process.env.SUPABASE_URL;
-
-      const supabaseKey =
-        process.env.REACT_APP_SUPABASE_ANON_KEY ||
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-        process.env.SUPABASE_ANON_KEY;
-
-      if (supabaseUrl && supabaseKey) {
-        const supabase = auth.db;
-
-        await supabase
-          .from('upcoming_notifications')
-          .upsert(
-            {
-              album_id: String(albumId || albumName),
-              album_name: albumName,
-              artist_name: artistName,
-              release_date: releaseDate || null,
-              email: cleanEmail,
-              user_id: auth.user.id,
-              notified: false,
-              created_at: new Date().toISOString(),
-            },
-            { onConflict: 'album_id,email' }
-          );
-      }
-    } catch (dbErr) {
-      console.warn('⚠️ Nota sobre persistencia en BD:', dbErr.message);
-    }
+    const { data: subscription, error: subscriptionError } = await auth.db.from('upcoming_notifications')
+      .upsert({ album_id: String(albumId || albumName), album_name: albumName, artist_name: artistName,
+        release_date: releaseDate || null, email: cleanEmail, user_id: auth.user.id }, { onConflict: 'album_id,email' })
+      .select('id').single();
+    if (subscriptionError || !subscription) throw new Error('No se pudo guardar la suscripción. No se envió el aviso.');
 
     // 2. Construir enlace canónico de Musiclub
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.musiclub.org';
@@ -82,7 +53,7 @@ export async function POST(request) {
       : `${baseUrl}/catalogo`;
 
     // 3. Enviar correo de confirmación inmediato
-    const emailResult = await sendUpcomingConfirmationEmail({
+    const emailResult = await deliverNotificationOnce(auth.db, `upcoming-confirmation:${subscription.id}`, () => sendUpcomingConfirmationEmail({
       to: cleanEmail,
       albumName,
       artistName,
@@ -90,7 +61,7 @@ export async function POST(request) {
       imageUrl,
       albumUrl,
       lang,
-    });
+    }));
 
     return NextResponse.json({
       success: true,

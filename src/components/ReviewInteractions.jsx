@@ -380,7 +380,7 @@ export function ReviewInteractions({
                       key={qDef.emoji}
                       type="button"
                       onClick={() => handleToggleReaction(qDef.emoji)}
-                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg sm:text-xl hover:scale-125 transition-transform duration-150 active:scale-95 flex-shrink-0 ${
+                      className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-lg sm:text-xl hover:scale-125 transition-transform duration-150 active:scale-95 shrink-0 ${
                         isReacted
                           ? 'bg-pink-500/25 border border-pink-500/40 shadow-sm'
                           : 'hover:bg-white/10'
@@ -393,7 +393,7 @@ export function ReviewInteractions({
                 })}
 
                 {/* Separador vertical */}
-                <div className="h-5 w-px bg-white/20 mx-0.5 flex-shrink-0" />
+                <div className="h-5 w-px bg-white/20 mx-0.5 shrink-0" />
 
                 {/* Botón WhatsApp '+' para abrir el selector completo con buscador */}
                 <button
@@ -402,7 +402,7 @@ export function ReviewInteractions({
                     setIsQuickDockOpen(false);
                     setIsFullPickerOpen(true);
                   }}
-                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm sm:text-base hover:scale-115 bg-white/5 hover:bg-white/15 text-cyan-300 hover:text-white border border-white/15 transition-all active:scale-95 flex-shrink-0"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm sm:text-base hover:scale-115 bg-white/5 hover:bg-white/15 text-cyan-300 hover:text-white border border-white/15 transition-all active:scale-95 shrink-0"
                   title="Más emojis (WhatsApp style con buscador y categorías) ➕"
                 >
                   ➕
@@ -494,7 +494,7 @@ export function ReviewInteractions({
                           <img
                             src={comm.user_avatar}
                             alt={comm.user_name || 'Usuario'}
-                            className="w-5 h-5 rounded-full object-cover border border-white/15 flex-shrink-0"
+                            className="w-5 h-5 rounded-full object-cover border border-white/15 shrink-0"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling)
@@ -503,7 +503,7 @@ export function ReviewInteractions({
                           />
                         ) : null}
                         <div
-                          className={`w-5 h-5 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 text-white items-center justify-center font-bold text-[9px] shadow-sm flex-shrink-0 ${
+                          className={`w-5 h-5 rounded-full bg-linear-to-tr from-cyan-500 to-blue-500 text-white items-center justify-center font-bold text-[9px] shadow-sm shrink-0 ${
                             comm.user_avatar ? 'hidden' : 'flex'
                           }`}
                         >
@@ -518,13 +518,13 @@ export function ReviewInteractions({
                         </span>
 
                         {isReviewerComment && (
-                          <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold flex-shrink-0">
+                          <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold shrink-0">
                             ✍️ Autor
                           </span>
                         )}
 
                         <span className="text-white/20 text-[10px]">•</span>
-                        <span className="text-[10px] text-slate-500 flex-shrink-0">
+                        <span className="text-[10px] text-slate-500 shrink-0">
                           {formatTimeAgo(comm.created_at)}
                         </span>
                       </div>
@@ -582,7 +582,7 @@ export function ReviewInteractions({
               <button
                 type="submit"
                 disabled={submittingComment || !commentText.trim()}
-                className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md active:scale-95 flex-shrink-0 flex items-center gap-1.5"
+                className="px-3.5 py-2.5 rounded-xl text-xs font-bold bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-md active:scale-95 shrink-0 flex items-center gap-1.5"
               >
                 {submittingComment ? (
                   <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />

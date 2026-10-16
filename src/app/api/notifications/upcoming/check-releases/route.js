@@ -1,3 +1,4 @@
+import { deliverNotificationOnce } from '../../../../../services/notificationDelivery';
 import { authorize } from '../../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendUpcomingReleaseDayEmail } from '../../../../../services/emailService';
@@ -77,16 +78,16 @@ async function processReleaseNotifications(auth) {
         ? `https://www.musiclub.org/albumes/${targetAlbumId}`
         : 'https://www.musiclub.org/catalogo';
 
-      const emailRes = await sendUpcomingReleaseDayEmail({
+      const emailRes = await deliverNotificationOnce(supabase, `release-day:${item.id}`, () => sendUpcomingReleaseDayEmail({
         to: item.email,
         albumName: item.album_name,
         artistName: item.artist_name,
         imageUrl,
         albumUrl,
-      });
+      }));
 
       // Solo marcar como notificado si se envió con un proveedor SMTP real
-      if (!emailRes.isTest && emailRes.provider !== 'ethereal') {
+      if (!emailRes.skipped && !emailRes.isTest && emailRes.provider !== 'ethereal') {
         await supabase
           .from('upcoming_notifications')
           .update({ notified: true })
@@ -97,12 +98,12 @@ async function processReleaseNotifications(auth) {
         id: item.id,
         email: item.email,
         album: item.album_name,
-        success: !emailRes.isTest && emailRes.provider !== 'ethereal',
+        success: !emailRes.skipped && !emailRes.isTest && emailRes.provider !== 'ethereal',
         isTest: emailRes.isTest,
         emailRes,
       });
     } catch (sendErr) {
-      console.error(`Error enviando notificación de estreno a ${item.email}:`, sendErr);
+      console.log('Estado del aviso procesado; consulta el proveedor para confirmar la entrega.');
       results.push({
         id: item.id,
         email: item.email,

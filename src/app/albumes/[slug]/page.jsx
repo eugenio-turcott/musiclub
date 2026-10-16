@@ -7,6 +7,7 @@ import {
   slugifyArtist,
   getReleaseTypeCategory,
   getReleaseUrl,
+  getWeightedReviewScore,
 } from '../../../utils/ratingUtils';
 import { AlbumDetail } from '../../../components/AlbumDetail';
 
@@ -106,6 +107,11 @@ export default async function AlbumPage({ params }) {
           ? { genre: album.genres }
           : {}),
         url: `https://www.musiclub.org${getReleaseUrl(album)}`,
+        review: (album.reviews || []).filter(r => r.comment?.trim() && r.reviewer_name && Number(r.rating_general) >= 1).map(r => ({
+          '@type': 'Review', author: { '@type': 'Person', name: r.reviewer_name },
+          reviewBody: r.comment, datePublished: r.created_at,
+          reviewRating: { '@type': 'Rating', ratingValue: getWeightedReviewScore(r), bestRating: 10, worstRating: 1 },
+        })),
         ...(album.final_rating && album.review_count > 0
           ? {
               aggregateRating: {

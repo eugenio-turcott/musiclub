@@ -133,7 +133,7 @@ export function Rankings({ albums, isAdmin = false }) {
     return (
       <div className="w-full bg-white/5 rounded-full h-1.5 overflow-hidden">
         <div
-          className={`h-full bg-gradient-to-r ${color} rounded-full transition-all duration-1000 ${
+          className={`h-full bg-linear-to-r ${color} rounded-full transition-all duration-1000 ${
             animate ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
@@ -254,7 +254,7 @@ export function Rankings({ albums, isAdmin = false }) {
     const initial = (reviewer.reviewer_name || '?').charAt(0).toUpperCase();
     return (
       <div
-        className={`${size} rounded-full bg-gradient-to-tr from-purple-600 via-pink-600 to-amber-500 border-2 ${borderClass} flex items-center justify-center font-bold text-white shadow-md text-sm shrink-0`}
+        className={`${size} rounded-full bg-linear-to-tr from-purple-600 via-pink-600 to-amber-500 border-2 ${borderClass} flex items-center justify-center font-bold text-white shadow-md text-sm shrink-0`}
       >
         {initial}
       </div>
@@ -345,7 +345,7 @@ export function Rankings({ albums, isAdmin = false }) {
                         <div
                           className={`w-full rounded-t transition-all duration-700 ${
                             isHighest
-                              ? 'bg-gradient-to-t from-[#f5576c] to-[#f093fb]'
+                              ? 'bg-linear-to-t from-[#f5576c] to-[#f093fb]'
                               : 'bg-[#f5576c]/30'
                           }`}
                           style={{
@@ -373,7 +373,7 @@ export function Rankings({ albums, isAdmin = false }) {
           onClick={() => setActiveView('albums')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeView === 'albums'
-              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
+              ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
               : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
@@ -383,7 +383,7 @@ export function Rankings({ albums, isAdmin = false }) {
           onClick={() => setActiveView('reviewers')}
           className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
             activeView === 'reviewers'
-              ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
+              ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20 font-bold'
               : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70'
           }`}
         >
@@ -401,7 +401,7 @@ export function Rankings({ albums, isAdmin = false }) {
               className="w-full flex items-center justify-between p-3 sm:p-3.5 bg-black/40 hover:bg-black/60 active:scale-[0.99] border border-white/10 hover:border-white/20 rounded-2xl transition-all shadow-lg backdrop-blur-md text-left"
             >
               <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-base shrink-0">
+                <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-base shrink-0">
                   🎯
                 </div>
                 <div className="min-w-0 flex-1">
@@ -473,7 +473,7 @@ export function Rankings({ albums, isAdmin = false }) {
                       onClick={() => setAlbumType('pool')}
                       className={`px-2 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-center ${
                         albumType === 'pool'
-                          ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
+                          ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
                           : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                       }`}
                     >
@@ -490,7 +490,7 @@ export function Rankings({ albums, isAdmin = false }) {
                       onClick={() => setAlbumType('individual')}
                       className={`px-2 py-2 sm:py-2.5 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 text-center ${
                         albumType === 'individual'
-                          ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-[1.02]'
+                          ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-[1.02]'
                           : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                       }`}
                     >
@@ -534,7 +534,7 @@ export function Rankings({ albums, isAdmin = false }) {
                         onClick={() => setActiveTab(cat.id)}
                         className={`px-2.5 py-2 rounded-xl text-xs font-medium transition-all text-left flex items-center justify-between gap-1.5 ${
                           activeTab === cat.id
-                            ? `bg-gradient-to-r ${cat.color} text-white shadow-md font-bold border border-white/25 scale-[1.02]`
+                            ? `bg-linear-to-r ${cat.color} text-white shadow-md font-bold border border-white/25 scale-[1.02]`
                             : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/5'
                         }`}
                       >
@@ -562,7 +562,7 @@ export function Rankings({ albums, isAdmin = false }) {
                   </span>
                   <button
                     onClick={() => setShowFilterDrawer(false)}
-                    className="px-4 py-1.5 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all shrink-0"
+                    className="px-4 py-1.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-xl shadow-md hover:scale-105 active:scale-95 transition-all shrink-0"
                   >
                     Listo
                   </button>
@@ -583,7 +583,7 @@ export function Rankings({ albums, isAdmin = false }) {
                   onClick={() => setAlbumType('pool')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                     albumType === 'pool'
-                      ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
+                      ? 'bg-linear-to-r from-amber-500 to-orange-500 text-white shadow-lg shadow-amber-500/30 scale-[1.02]'
                       : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -598,7 +598,7 @@ export function Rankings({ albums, isAdmin = false }) {
                   onClick={() => setAlbumType('individual')}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
                     albumType === 'individual'
-                      ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-[1.02]'
+                      ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-[1.02]'
                       : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                   }`}
                 >
@@ -641,7 +641,7 @@ export function Rankings({ albums, isAdmin = false }) {
                   onClick={() => setActiveTab(cat.id)}
                   className={`px-3 py-1.5 rounded-full text-[11px] font-medium transition-all duration-300 ${
                     activeTab === cat.id
-                      ? `bg-gradient-to-r ${cat.color} text-white shadow-lg border border-white/20`
+                      ? `bg-linear-to-r ${cat.color} text-white shadow-lg border border-white/20`
                       : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/70 border border-white/5'
                   }`}
                 >
@@ -753,10 +753,10 @@ export function Rankings({ albums, isAdmin = false }) {
                                         'https://via.placeholder.com/500/1a1a2e/ffffff?text=🎵';
                                     }}
                                   />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
+                                  <div className="absolute inset-0 bg-linear-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
 
                                   {/* Insignia Superior */}
-                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-yellow-200 z-10 whitespace-nowrap">
+                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-linear-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-yellow-200 z-10 whitespace-nowrap">
                                     👑 #1 CAMPEÓN
                                   </div>
 
@@ -767,7 +767,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                 </div>
 
                                 {/* CARA TRASERA: Información Compacta Sin Desborde */}
-                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-gradient-to-b from-amber-950/95 via-slate-950/95 to-black/95 border-2 border-yellow-400 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
+                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-linear-to-b from-amber-950/95 via-slate-950/95 to-black/95 border-2 border-yellow-400 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
                                   {/* Cabecera */}
                                   <div>
                                     <div className="flex items-center justify-between gap-1 mb-1.5">
@@ -874,9 +874,9 @@ export function Rankings({ albums, isAdmin = false }) {
                                         'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
                                     }}
                                   />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
+                                  <div className="absolute inset-0 bg-linear-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
 
-                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-slate-200 to-slate-400 text-slate-950 font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-white/50 z-10 whitespace-nowrap">
+                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-linear-to-r from-slate-200 to-slate-400 text-slate-950 font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-white/50 z-10 whitespace-nowrap">
                                     🥈 #2 SUBCAMPEÓN
                                   </div>
 
@@ -886,7 +886,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                 </div>
 
                                 {/* CARA TRASERA */}
-                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-gradient-to-b from-slate-900/95 via-slate-950/95 to-black/95 border-2 border-slate-300 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
+                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-linear-to-b from-slate-900/95 via-slate-950/95 to-black/95 border-2 border-slate-300 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
                                   <div>
                                     <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <span className="bg-slate-300/20 text-slate-200 border border-slate-300/30 text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -990,9 +990,9 @@ export function Rankings({ albums, isAdmin = false }) {
                                         'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
                                     }}
                                   />
-                                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
+                                  <div className="absolute inset-0 bg-linear-to-t from-black/85 via-transparent to-black/60 pointer-events-none"></div>
 
-                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-amber-400/50 z-10 whitespace-nowrap">
+                                  <div className="absolute top-3 left-1/2 -translate-x-1/2 bg-linear-to-r from-amber-600 to-amber-700 text-white font-black text-xs sm:text-sm px-4 py-1 rounded-full shadow-2xl border border-amber-400/50 z-10 whitespace-nowrap">
                                     🥉 #3 TERCER LUGAR
                                   </div>
 
@@ -1002,7 +1002,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                 </div>
 
                                 {/* CARA TRASERA */}
-                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-gradient-to-b from-amber-950/95 via-slate-950/95 to-black/95 border-2 border-amber-600 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
+                                <div className="flip-card-back rounded-3xl p-3.5 sm:p-4 flex flex-col justify-between bg-linear-to-b from-amber-950/95 via-slate-950/95 to-black/95 border-2 border-amber-600 shadow-2xl backdrop-blur-xl text-center overflow-hidden">
                                   <div>
                                     <div className="flex items-center justify-between gap-1 mb-1.5">
                                       <span className="bg-amber-700/20 text-amber-400 border border-amber-700/30 text-[9px] sm:text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -1085,8 +1085,8 @@ export function Rankings({ albums, isAdmin = false }) {
                         {/* 2do Lugar - Izquierda */}
                         {podiumAlbums[1] && (
                           <div className="w-full max-w-[310px] xl:max-w-[330px] flex-1 order-1 transition-all duration-300 hover:-translate-y-2">
-                            <div className="relative bg-gradient-to-b from-slate-300/20 via-slate-400/10 to-black/85 border-2 border-slate-300/40 rounded-3xl p-5 xl:p-6 text-center shadow-[0_0_30px_rgba(203,213,225,0.18)] flex flex-col items-center">
-                              <div className="absolute -top-4 bg-gradient-to-r from-slate-200 to-slate-400 text-slate-950 font-black text-xs xl:text-sm px-3.5 py-1 rounded-full shadow-xl border border-white/50 flex items-center gap-1.5 z-10">
+                            <div className="relative bg-linear-to-b from-slate-300/20 via-slate-400/10 to-black/85 border-2 border-slate-300/40 rounded-3xl p-5 xl:p-6 text-center shadow-[0_0_30px_rgba(203,213,225,0.18)] flex flex-col items-center">
+                              <div className="absolute -top-4 bg-linear-to-r from-slate-200 to-slate-400 text-slate-950 font-black text-xs xl:text-sm px-3.5 py-1 rounded-full shadow-xl border border-white/50 flex items-center gap-1.5 z-10">
                                 <span>🥈</span> #2 SUB-CAMPEÓN
                               </div>
                               <div className="relative mt-2 w-36 h-36 xl:w-40 xl:h-40 mx-auto aspect-square">
@@ -1160,7 +1160,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                   ? 'review'
                                   : 'reviews'}
                               </div>
-                              <div className="mt-4 w-full bg-gradient-to-r from-slate-400/20 via-slate-300/20 to-slate-400/20 border-t border-slate-300/30 text-slate-200 font-extrabold text-xs py-2 uppercase tracking-widest rounded-b-2xl">
+                              <div className="mt-4 w-full bg-linear-to-r from-slate-400/20 via-slate-300/20 to-slate-400/20 border-t border-slate-300/30 text-slate-200 font-extrabold text-xs py-2 uppercase tracking-widest rounded-b-2xl">
                                 🥈 SUB-CAMPEÓN #2
                               </div>
                             </div>
@@ -1170,12 +1170,12 @@ export function Rankings({ albums, isAdmin = false }) {
                         {/* 1er Lugar - Centro */}
                         {podiumAlbums[0] && (
                           <div className="w-full max-w-[360px] xl:max-w-[390px] flex-1 order-2 -translate-y-5 transition-all duration-300 hover:-translate-y-7">
-                            <div className="relative bg-gradient-to-b from-amber-500/30 via-yellow-500/15 to-black/95 border-2 border-yellow-400/80 rounded-3xl p-6 xl:p-7 text-center shadow-[0_0_55px_rgba(234,179,8,0.38)] flex flex-col items-center">
-                              <div className="absolute -top-5 bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-xs xl:text-sm px-5 py-2 rounded-full shadow-2xl border-2 border-yellow-200 flex items-center gap-1.5 z-10 animate-bounce">
+                            <div className="relative bg-linear-to-b from-amber-500/30 via-yellow-500/15 to-black/95 border-2 border-yellow-400/80 rounded-3xl p-6 xl:p-7 text-center shadow-[0_0_55px_rgba(234,179,8,0.38)] flex flex-col items-center">
+                              <div className="absolute -top-5 bg-linear-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 font-black text-xs xl:text-sm px-5 py-2 rounded-full shadow-2xl border-2 border-yellow-200 flex items-center gap-1.5 z-10 animate-bounce">
                                 👑 🥇 #1 CAMPEÓN
                               </div>
                               <div className="relative mt-3 w-48 h-48 xl:w-56 xl:h-56 mx-auto aspect-square">
-                                <div className="absolute -inset-3 bg-gradient-to-r from-yellow-400/50 via-amber-500/50 to-yellow-400/50 rounded-3xl blur-2xl animate-pulse"></div>
+                                <div className="absolute -inset-3 bg-linear-to-r from-yellow-400/50 via-amber-500/50 to-yellow-400/50 rounded-3xl blur-2xl animate-pulse"></div>
                                 <img
                                   src={podiumAlbums[0].image_url}
                                   alt={podiumAlbums[0].album_name}
@@ -1245,7 +1245,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                   ? 'review'
                                   : 'reviews'}
                               </div>
-                              <div className="mt-4 w-full bg-gradient-to-r from-yellow-500/30 via-amber-400/25 to-yellow-500/30 border-t border-yellow-400/40 text-yellow-300 font-black text-xs py-2.5 uppercase tracking-widest rounded-b-2xl shadow-inner">
+                              <div className="mt-4 w-full bg-linear-to-r from-yellow-500/30 via-amber-400/25 to-yellow-500/30 border-t border-yellow-400/40 text-yellow-300 font-black text-xs py-2.5 uppercase tracking-widest rounded-b-2xl shadow-inner">
                                 🏆 PODIO #1 CAMPEÓN
                               </div>
                             </div>
@@ -1255,8 +1255,8 @@ export function Rankings({ albums, isAdmin = false }) {
                         {/* 3er Lugar - Derecha */}
                         {podiumAlbums[2] && (
                           <div className="w-full max-w-[290px] xl:max-w-[310px] flex-1 order-3 transition-all duration-300 hover:-translate-y-2">
-                            <div className="relative bg-gradient-to-b from-amber-700/20 via-amber-800/10 to-black/85 border-2 border-amber-600/40 rounded-3xl p-5 xl:p-6 text-center shadow-[0_0_25px_rgba(217,119,6,0.2)] flex flex-col items-center">
-                              <div className="absolute -top-4 bg-gradient-to-r from-amber-600 to-amber-700 text-white font-black text-xs xl:text-sm px-3.5 py-1 rounded-full shadow-lg border border-amber-400/50 flex items-center gap-1.5 z-10">
+                            <div className="relative bg-linear-to-b from-amber-700/20 via-amber-800/10 to-black/85 border-2 border-amber-600/40 rounded-3xl p-5 xl:p-6 text-center shadow-[0_0_25px_rgba(217,119,6,0.2)] flex flex-col items-center">
+                              <div className="absolute -top-4 bg-linear-to-r from-amber-600 to-amber-700 text-white font-black text-xs xl:text-sm px-3.5 py-1 rounded-full shadow-lg border border-amber-400/50 flex items-center gap-1.5 z-10">
                                 <span>🥉</span> #3 LUGAR
                               </div>
                               <div className="relative mt-2 w-32 h-32 xl:w-36 xl:h-36 mx-auto aspect-square">
@@ -1330,7 +1330,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                   ? 'review'
                                   : 'reviews'}
                               </div>
-                              <div className="mt-4 w-full bg-gradient-to-r from-amber-700/30 via-amber-600/20 to-amber-700/30 border-t border-amber-600/30 text-amber-300 font-extrabold text-xs py-2 uppercase tracking-widest rounded-b-2xl">
+                              <div className="mt-4 w-full bg-linear-to-r from-amber-700/30 via-amber-600/20 to-amber-700/30 border-t border-amber-600/30 text-amber-300 font-extrabold text-xs py-2 uppercase tracking-widest rounded-b-2xl">
                                 🥉 3ER LUGAR #3
                               </div>
                             </div>
@@ -1442,7 +1442,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                             'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
                                         }}
                                       />
-                                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/60 pointer-events-none"></div>
+                                      <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-black/60 pointer-events-none"></div>
 
                                       {/* Encabezado Superior */}
                                       <div className="relative z-10 flex items-center justify-between gap-1">
@@ -1481,7 +1481,7 @@ export function Rankings({ albums, isAdmin = false }) {
                                     </div>
 
                                     {/* CARA TRASERA: Toda la Información del Álbum Sin Desborde */}
-                                    <div className="flip-card-back rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between bg-gradient-to-b from-slate-900/95 via-black/95 to-slate-900/95 border border-white/20 shadow-xl backdrop-blur-md text-left overflow-hidden">
+                                    <div className="flip-card-back rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between bg-linear-to-b from-slate-900/95 via-black/95 to-slate-900/95 border border-white/20 shadow-xl backdrop-blur-md text-left overflow-hidden">
                                       {/* Cabecera */}
                                       <div>
                                         <div className="flex items-center justify-between gap-1 mb-1">
@@ -1555,7 +1555,7 @@ export function Rankings({ albums, isAdmin = false }) {
                       <div className="mt-6 text-center">
                         <Link
                           to="/catalogo"
-                          className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-yellow-500/25 text-amber-300 font-bold text-xs sm:text-sm rounded-full border border-amber-500/35 hover:border-amber-500/60 transition-all hover:scale-105 shadow-md shadow-black/30 active:scale-95"
+                          className="inline-flex items-center gap-2 px-6 py-2.5 bg-linear-to-r from-amber-500/15 via-yellow-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-yellow-500/25 text-amber-300 font-bold text-xs sm:text-sm rounded-full border border-amber-500/35 hover:border-amber-500/60 transition-all hover:scale-105 shadow-md shadow-black/30 active:scale-95"
                         >
                           <span>💿</span> Ver Catálogo Completo<span>→</span>
                         </Link>
@@ -1603,7 +1603,7 @@ export function Rankings({ albums, isAdmin = false }) {
                             ? {
                                 border:
                                   'border-amber-400/50 shadow-[0_0_25px_rgba(245,158,11,0.2)]',
-                                bg: 'bg-gradient-to-b from-amber-500/15 via-amber-950/20 to-black/40',
+                                bg: 'bg-linear-to-b from-amber-500/15 via-amber-950/20 to-black/40',
                                 badge:
                                   'bg-amber-400/20 text-amber-300 border-amber-400/30',
                                 badgeText: '👑 #1 Crítico Principal',
@@ -1616,7 +1616,7 @@ export function Rankings({ albums, isAdmin = false }) {
                               ? {
                                   border:
                                     'border-slate-300/40 shadow-[0_0_20px_rgba(203,213,225,0.15)]',
-                                  bg: 'bg-gradient-to-b from-slate-400/15 via-slate-900/20 to-black/40',
+                                  bg: 'bg-linear-to-b from-slate-400/15 via-slate-900/20 to-black/40',
                                   badge:
                                     'bg-slate-300/20 text-slate-200 border-slate-300/30',
                                   badgeText: '🥈 #2 Subcampeón',
@@ -1628,7 +1628,7 @@ export function Rankings({ albums, isAdmin = false }) {
                               : {
                                   border:
                                     'border-amber-700/40 shadow-[0_0_20px_rgba(180,83,9,0.15)]',
-                                  bg: 'bg-gradient-to-b from-amber-800/15 via-zinc-900/20 to-black/40',
+                                  bg: 'bg-linear-to-b from-amber-800/15 via-zinc-900/20 to-black/40',
                                   badge:
                                     'bg-amber-700/20 text-amber-400 border-amber-700/30',
                                   badgeText: '🥉 #3 Podio',
@@ -1864,7 +1864,7 @@ export function Rankings({ albums, isAdmin = false }) {
               <div className="mt-6 text-center">
                 <Link
                   to="/leaderboard"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-amber-500/15 via-yellow-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-yellow-500/25 text-amber-300 font-bold text-xs sm:text-sm rounded-full border border-amber-500/35 hover:border-amber-500/60 transition-all hover:scale-105 shadow-md shadow-black/30 active:scale-95"
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-linear-to-r from-amber-500/15 via-yellow-500/15 to-amber-500/15 hover:from-amber-500/25 hover:to-yellow-500/25 text-amber-300 font-bold text-xs sm:text-sm rounded-full border border-amber-500/35 hover:border-amber-500/60 transition-all hover:scale-105 shadow-md shadow-black/30 active:scale-95"
                 >
                   <span>🏆</span> Ver Leaderboard Completo<span>→</span>
                 </Link>

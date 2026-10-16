@@ -1,4 +1,5 @@
 'use client';
+import { publicCatalog } from '../services/publicCatalog';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
 import { Link } from 'react-router-dom';
@@ -40,9 +41,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
     setError(null);
 
     try {
-      const response = await fetch('/api/catalog', { cache: 'no-store' });
-      if (!response.ok) throw new Error('No se pudieron cargar las reseñas');
-      const catalog = await response.json();
+      const catalog = await publicCatalog();
       const reviewsRes = { data: catalog.reviews };
       const profilesRes = { data: [] };
 
@@ -243,7 +242,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
         </div>
 
         {/* Header Title */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-gradient-to-br from-[#181226]/80 via-[#120e20]/90 to-[#090812] border border-white/10 shadow-2xl text-center space-y-3">
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#181226]/80 via-[#120e20]/90 to-[#090812] border border-white/10 shadow-2xl text-center space-y-3">
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-12 -left-12 w-60 h-60 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -257,7 +256,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           </div>
 
           <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-pink-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-pink-200">
               Reviews de Miembros
             </h1>
             <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-2 leading-relaxed">
@@ -403,7 +402,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
 
             <button
               onClick={loadReviews}
-              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 active:scale-95 flex-shrink-0"
+              className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 active:scale-95 shrink-0"
               title="Actualizar reviews"
             >
               <span>🔄</span>{' '}
@@ -488,7 +487,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                   <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 items-start">
                     {/* Imagen del álbum */}
                     {album?.image_url && (
-                      <div className="relative flex-shrink-0 mx-auto sm:mx-0">
+                      <div className="relative shrink-0 mx-auto sm:mx-0">
                         <img
                           src={album.image_url}
                           alt={album.album_name}
@@ -524,7 +523,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                         </div>
 
                         <div
-                          className={`px-3 py-1 rounded-xl border text-sm sm:text-base font-black flex items-center gap-1 self-start sm:self-auto flex-shrink-0 ${getRatingBadgeStyle(
+                          className={`px-3 py-1 rounded-xl border text-sm sm:text-base font-black flex items-center gap-1 self-start sm:self-auto shrink-0 ${getRatingBadgeStyle(
                             rating
                           )}`}
                         >
@@ -542,7 +541,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           <img
                             src={review.reviewer_avatar}
                             alt={review.reviewer_name || 'Reviewer'}
-                            className="w-5 h-5 rounded-full object-cover border border-white/20 shadow-sm flex-shrink-0"
+                            className="w-5 h-5 rounded-full object-cover border border-white/20 shadow-sm shrink-0"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling)
@@ -551,7 +550,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           />
                         ) : null}
                         <div
-                          className={`w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 text-white items-center justify-center font-bold text-[10px] shadow-sm flex-shrink-0 ${
+                          className={`w-5 h-5 rounded-full bg-linear-to-tr from-pink-500 to-purple-500 text-white items-center justify-center font-bold text-[10px] shadow-sm shrink-0 ${
                             review.reviewer_avatar ? 'hidden' : 'flex'
                           }`}
                         >
@@ -610,8 +609,8 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           album?.tracks
                         );
                         return (
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
-                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
+                            <div className="flex items-center gap-1.5 shrink-0">
                               <span className="text-xl">⭐</span>
                               <span className="text-amber-400/80 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
                                 Canción Favorita:
@@ -718,7 +717,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           <button
                             type="button"
                             onClick={() => setSharingReview({ review, album })}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                             title="Compartir tu review en redes sociales en formato celular / story"
                           >
                             <span>📱</span>

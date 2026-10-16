@@ -83,14 +83,15 @@ export default function RootLayout({ children }) {
   return (
     <html lang="es" className={gabarito.variable}>
       <head>
+        <link rel="preconnect" href="https://i.scdn.co" />
+      </head>
+      <body className={`${gabarito.className} bg-[#0a0a12] text-white antialiased min-h-screen font-sans`}>
         <Script
           async
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3995824345173266"
           crossOrigin="anonymous"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-      </head>
-      <body className={`${gabarito.className} bg-[#0a0a12] text-white antialiased min-h-screen font-sans`}>
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

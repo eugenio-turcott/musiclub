@@ -1,4 +1,5 @@
 // src/components/HourlyRecommendedRelease.jsx
+import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ReviewSystem } from './ReviewSystem';
@@ -32,11 +33,12 @@ export function HourlyRecommendedRelease({
   onLogin = () => {},
   onAlbumUpdated = () => {},
 }) {
-  const [now, setNow] = useState(Date.now());
+  const [now, setNow] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
 
   // Timer para actualizar cada segundo y reflejar el countdown de la hora actual
   useEffect(() => {
+    setNow(Date.now());
     const timer = setInterval(() => {
       setNow(Date.now());
     }, 1000);
@@ -46,14 +48,14 @@ export function HourlyRecommendedRelease({
   // Calcular segundos restantes en la hora en curso
   const { minutesLeft, secondsLeft, currentHourSeed } = useMemo(() => {
     const d = new Date(now);
-    const mins = 59 - d.getMinutes();
-    const secs = 59 - d.getSeconds();
+    const mins = 59 - d.getUTCMinutes();
+    const secs = 59 - d.getUTCSeconds();
     // Semilla horaria: año * 1000000 + mes * 10000 + día * 100 + hora
     const seed =
-      d.getFullYear() * 1000000 +
-      (d.getMonth() + 1) * 10000 +
-      d.getDate() * 100 +
-      d.getHours();
+      d.getUTCFullYear() * 1000000 +
+      (d.getUTCMonth() + 1) * 10000 +
+      d.getUTCDate() * 100 +
+      d.getUTCHours();
     return {
       minutesLeft: String(mins).padStart(2, '0'),
       secondsLeft: String(secs).padStart(2, '0'),
@@ -287,10 +289,10 @@ export function HourlyRecommendedRelease({
   return (
     <section className="mb-10 sm:mb-14 relative text-left">
       {/* Ambient Glows */}
-      <div className="absolute -top-12 -left-12 w-72 h-72 bg-gradient-to-tr from-amber-500/15 via-pink-500/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
-      <div className="absolute -bottom-12 -right-12 w-80 h-80 bg-gradient-to-bl from-purple-600/15 via-rose-500/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute -top-12 -left-12 w-72 h-72 bg-linear-to-tr from-amber-500/15 via-pink-500/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
+      <div className="absolute -bottom-12 -right-12 w-80 h-80 bg-linear-to-bl from-purple-600/15 via-rose-500/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#16172d]/95 via-[#0e1022]/95 to-[#070814]/98 border-2 border-amber-500/30 p-5 sm:p-8 md:p-10 shadow-2xl backdrop-blur-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#16172d]/95 via-[#0e1022]/95 to-[#070814]/98 border-2 border-amber-500/30 p-5 sm:p-8 md:p-10 shadow-2xl backdrop-blur-2xl">
         {/* Subtle background circuit texture */}
         <div className="absolute inset-0 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none"></div>
 
@@ -298,8 +300,8 @@ export function HourlyRecommendedRelease({
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/10">
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Live Hour Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500/20 to-pink-500/20 border border-amber-400/40 text-amber-200 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm">
-              <img
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-linear-to-r from-amber-500/20 to-pink-500/20 border border-amber-400/40 text-amber-200 text-[11px] sm:text-xs font-black uppercase tracking-wider shadow-sm">
+              <CoverImage
                 src="/musiclub_logo_corchea.png"
                 alt="Musiclub"
                 className="w-3.5 h-3.5 object-contain"
@@ -336,12 +338,12 @@ export function HourlyRecommendedRelease({
           <div className="lg:col-span-5 flex flex-col items-center sm:items-start">
             <div className="relative group w-full max-w-[300px] sm:max-w-[480px] aspect-square">
               {/* Outer Glow */}
-              <div className="absolute -inset-2 bg-gradient-to-r from-amber-500/25 via-pink-500/25 to-purple-500/25 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
+              <div className="absolute -inset-2 bg-linear-to-r from-amber-500/25 via-pink-500/25 to-purple-500/25 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
 
               {/* Cover Container */}
               <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-[#111322]">
                 {coverUrl ? (
-                  <img
+                  <CoverImage
                     src={coverUrl}
                     alt={albumTitle}
                     className="w-full h-full object-cover"
@@ -352,7 +354,7 @@ export function HourlyRecommendedRelease({
                     <span className="text-xs font-bold">Sin Carátula</span>
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
 
                 {/* Badge Release Type */}
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-white">
@@ -413,13 +415,13 @@ export function HourlyRecommendedRelease({
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   {reviewerAvatar ? (
-                    <img
+                    <CoverImage
                       src={reviewerAvatar}
                       alt={reviewerName}
-                      className="w-8 h-8 rounded-full object-cover border border-amber-400/50 flex-shrink-0"
+                      className="w-8 h-8 rounded-full object-cover border border-amber-400/50 shrink-0"
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-pink-500 flex items-center justify-center text-xs font-black text-white flex-shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-linear-to-tr from-amber-500 to-pink-500 flex items-center justify-center text-xs font-black text-white shrink-0">
                       {reviewerName.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -437,7 +439,7 @@ export function HourlyRecommendedRelease({
                         {reviewerName}
                       </span>
                       {review?.created_at && (
-                        <span className="text-[10px] text-white/40 flex-shrink-0">
+                        <span className="text-[10px] text-white/40 shrink-0">
                           •{' '}
                           {new Date(review.created_at).toLocaleDateString(
                             'es-ES',
@@ -454,7 +456,7 @@ export function HourlyRecommendedRelease({
                 </div>
 
                 {firstReviewScore !== null && (
-                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/20 border border-amber-400/40 text-amber-300 font-black text-sm shadow-sm flex-shrink-0">
+                  <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/20 border border-amber-400/40 text-amber-300 font-black text-sm shadow-sm shrink-0">
                     <span>⭐</span>
                     <span>{Number(firstReviewScore).toFixed(1)}</span>
                     <span className="text-[10px] text-amber-200/60 font-normal">
@@ -528,7 +530,7 @@ export function HourlyRecommendedRelease({
                     setShowReviewForm((prev) => !prev);
                   }
                 }}
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>✍️</span>
                 <span>

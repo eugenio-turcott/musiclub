@@ -311,7 +311,7 @@ export function LanguageSelector({ variant = 'header' }) {
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs transition-all cursor-pointer font-medium shadow-sm hover:scale-105 active:scale-95"
-          aria-label="Cambiar idioma / Change language"
+          aria-label={`Cambiar idioma: ${activeObj.name}`}
         >
           <span>🌐</span>
           <span>
@@ -354,7 +354,7 @@ export function LanguageSelector({ variant = 'header' }) {
                     onClick={() => handleSelectLanguage(lang.code)}
                     className={`w-full flex items-center justify-between px-3 py-1.5 rounded-xl text-xs text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 font-bold border border-cyan-500/30'
+                        ? 'bg-linear-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 font-bold border border-cyan-500/30'
                         : 'text-slate-300 hover:bg-white/5 hover:text-white'
                     }`}
                   >
@@ -493,7 +493,7 @@ export function LanguageSelector({ variant = 'header' }) {
                     onClick={() => handleSelectLanguage(lang.code)}
                     className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm text-left transition-all cursor-pointer ${
                       isSelected
-                        ? 'bg-gradient-to-r from-cyan-500/25 via-blue-500/20 to-purple-500/20 text-cyan-200 font-bold border border-cyan-500/40 shadow-sm'
+                        ? 'bg-linear-to-r from-cyan-500/25 via-blue-500/20 to-purple-500/20 text-cyan-200 font-bold border border-cyan-500/40 shadow-sm'
                         : 'text-slate-300 hover:bg-white/5 hover:text-white border border-transparent'
                     }`}
                   >
@@ -510,7 +510,7 @@ export function LanguageSelector({ variant = 'header' }) {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       {isSelected && (
                         <span className="text-cyan-400 text-xs font-black">
                           ✓

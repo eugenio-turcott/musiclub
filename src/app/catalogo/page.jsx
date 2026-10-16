@@ -35,16 +35,17 @@ const catalogMetadata = {
 
 export async function generateMetadata({ searchParams }) {
   const page = Math.max(1, Number((await searchParams).page) || 1);
-  return { ...catalogMetadata, title: page > 1 ? `Catálogo Musical - Página ${page}` : catalogMetadata.title,
+  return { ...catalogMetadata, ...((await searchParams).q ? { robots: { index: false, follow: true } } : {}), title: page > 1 ? `Catálogo Musical - Página ${page}` : catalogMetadata.title,
     alternates: { canonical: `https://www.musiclub.org/catalogo${page > 1 ? `?page=${page}` : ''}` } };
 }
 export default async function CatalogoPage({ searchParams }) {
   const { albums } = await getPublicCatalog();
+  const query = String((await searchParams).q || '').slice(0, 150);
   const page = Number((await searchParams).page || 1);
   if (!Number.isInteger(page) || page < 1 || page > Math.ceil(albums.length / 20)) notFound();
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#0a0b0f]" />}>
-      <AlbumsPage key={page} initialAlbums={albums} initialPage={page} />
+      <AlbumsPage key={`${page}:${query}`} initialAlbums={albums} initialPage={page} initialQuery={query} />
     </Suspense>
   );
 }

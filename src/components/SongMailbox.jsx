@@ -150,13 +150,13 @@ export function SongMailbox({ user, onOpenSendModal }) {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* BANNER PRINCIPAL DEL BUZÓN */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#1b1e3f] via-[#121327] to-[#0d0e1a] border border-white/15 p-5 sm:p-7 shadow-2xl">
+      <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#1b1e3f] via-[#121327] to-[#0d0e1a] border border-white/15 p-5 sm:p-7 shadow-2xl">
         <div className="absolute -right-12 -bottom-12 w-48 h-48 bg-[#f5576c]/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="absolute -left-12 -top-12 w-48 h-48 bg-[#f093fb]/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4 text-center md:text-left">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-tr from-[#f5576c] via-[#f093fb] to-cyan-400 p-[2px] shadow-lg shadow-[#f5576c]/25 flex-shrink-0 flex items-center justify-center">
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-linear-to-tr from-[#f5576c] via-[#f093fb] to-cyan-400 p-[2px] shadow-lg shadow-[#f5576c]/25 shrink-0 flex items-center justify-center">
               <div className="w-full h-full bg-[#101226] rounded-[14px] flex items-center justify-center text-2xl sm:text-3xl">
                 📬
               </div>
@@ -168,7 +168,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                   Buzón Musical de Perfil
                 </h3>
                 {unreadCount > 0 && (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-gradient-to-r from-amber-400 to-rose-500 text-slate-950 uppercase tracking-wider animate-pulse">
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-linear-to-r from-amber-400 to-rose-500 text-slate-950 uppercase tracking-wider animate-pulse">
                     {unreadCount} {unreadCount === 1 ? 'nueva cartita' : 'nuevas cartitas'}
                   </span>
                 )}
@@ -182,7 +182,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
           <button
             type="button"
             onClick={() => onOpenSendModal && onOpenSendModal()}
-            className="w-full md:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#f5576c]/30 flex items-center justify-center gap-2 transition-all"
+            className="w-full md:w-auto px-5 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#f5576c]/30 flex items-center justify-center gap-2 transition-all"
           >
             <span>✨</span> Recomendar una Canción (+50 XP)
           </button>
@@ -197,7 +197,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             onClick={() => setActiveSubTab('received')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeSubTab === 'received'
-                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -213,7 +213,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             onClick={() => setActiveSubTab('sent')}
             className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeSubTab === 'sent'
-                ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                 : 'text-white/60 hover:text-white'
             }`}
           >
@@ -280,7 +280,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             </p>
             <button
               onClick={() => onOpenSendModal && onOpenSendModal()}
-              className="mt-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
+              className="mt-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
             >
               💌 Enviar primera recomendación
             </button>
@@ -292,14 +292,14 @@ export function SongMailbox({ user, onOpenSendModal }) {
                 key={rec.id}
                 className={`relative rounded-3xl p-5 sm:p-6 transition-all duration-300 overflow-hidden flex flex-col justify-between ${
                   !rec.is_read
-                    ? 'bg-gradient-to-br from-[#232752] via-[#161836] to-[#0f1024] border-2 border-[#f5576c]/60 shadow-xl shadow-[#f5576c]/15 hover:border-[#f093fb]'
-                    : 'bg-gradient-to-br from-[#16182e] via-[#101224] to-[#0a0b16] border border-white/10 hover:border-white/20'
+                    ? 'bg-linear-to-br from-[#232752] via-[#161836] to-[#0f1024] border-2 border-[#f5576c]/60 shadow-xl shadow-[#f5576c]/15 hover:border-[#f093fb]'
+                    : 'bg-linear-to-br from-[#16182e] via-[#101224] to-[#0a0b16] border border-white/10 hover:border-white/20'
                 }`}
               >
                 {/* Sello Postal y Decoración de Cartita */}
                 <div className="absolute top-4 right-4 flex items-center gap-2 select-none pointer-events-none">
                   {/* Sello Postal */}
-                  <div className="w-12 h-14 rounded-lg bg-gradient-to-tr from-amber-400 via-rose-500 to-purple-600 p-[1px] shadow-md transform rotate-2">
+                  <div className="w-12 h-14 rounded-lg bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 p-[1px] shadow-md transform rotate-2">
                     <div className="w-full h-full bg-[#101226]/90 rounded-[7px] border border-dashed border-white/30 flex flex-col items-center justify-center p-1">
                       <span className="text-xs">🎵</span>
                       <span className="text-[7px] font-mono font-black uppercase text-amber-300">
@@ -313,7 +313,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                 {/* Encabezado: Remitente y Fecha */}
                 <div>
                   <div className="flex items-center gap-3 pr-14 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-white font-black text-sm flex-shrink-0 shadow-md">
+                    <div className="w-10 h-10 rounded-full bg-linear-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md">
                       {(rec.sender_name || rec.sender_email || 'U')[0].toUpperCase()}
                     </div>
                     <div className="truncate">
@@ -342,10 +342,10 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       <img
                         src={rec.image_url}
                         alt={rec.song_title}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shadow-lg border border-white/10 flex-shrink-0"
+                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shadow-lg border border-white/10 shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gradient-to-tr from-[#f5576c] via-[#f093fb] to-indigo-600 flex items-center justify-center text-2xl flex-shrink-0 shadow-lg">
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-linear-to-tr from-[#f5576c] via-[#f093fb] to-indigo-600 flex items-center justify-center text-2xl shrink-0 shadow-lg">
                         💿
                       </div>
                     )}
@@ -498,7 +498,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             </p>
             <button
               onClick={() => onOpenSendModal && onOpenSendModal()}
-              className="mt-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
+              className="mt-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
             >
               💌 Recomendar mi primera canción
             </button>
@@ -508,12 +508,12 @@ export function SongMailbox({ user, onOpenSendModal }) {
             {filteredSent.map((rec) => (
               <div
                 key={rec.id}
-                className="relative rounded-3xl p-5 bg-gradient-to-br from-[#16182e] via-[#101224] to-[#0a0b16] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between"
+                className="relative rounded-3xl p-5 bg-linear-to-br from-[#16182e] via-[#101224] to-[#0a0b16] border border-white/10 hover:border-white/20 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-2.5 truncate">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-black text-xs flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white font-black text-xs shrink-0">
                         {(rec.recipient_name || rec.recipient_email || 'U')[0].toUpperCase()}
                       </div>
                       <div className="truncate">
@@ -533,7 +533,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                     </div>
 
                     <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex-shrink-0 ${
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0 ${
                         rec.is_read
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
@@ -549,10 +549,10 @@ export function SongMailbox({ user, onOpenSendModal }) {
                       <img
                         src={rec.image_url}
                         alt={rec.song_title}
-                        className="w-12 h-12 rounded-xl object-cover flex-shrink-0"
+                        className="w-12 h-12 rounded-xl object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0">
                         💿
                       </div>
                     )}

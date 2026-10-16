@@ -13,6 +13,9 @@ import {
   isFavoriteTrackMatch,
   getTopRatedTrack,
 } from '../utils/ratingUtils';
+import { clearPublicCatalog } from '../services/publicCatalog';
+import { QuickReviewForm } from './QuickReviewForm';
+import { reviewAssessment } from '../utils/reviewAssessment';
 import { ShareReviewModal } from './ShareReviewModal';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
@@ -80,6 +83,9 @@ export function ReviewSystem({
   const user = propUser || auth.user;
   const loginWithGoogle = auth.loginWithGoogle;
 
+  const [reviewMode, setReviewMode] = useState('quick');
+  const [quickScoreChosen, setQuickScoreChosen] = useState(false);
+  const quick = reviewMode === 'quick';
   const [showReviewForm, setShowReviewForm] = useState(isIndividual);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -125,7 +131,8 @@ export function ReviewSystem({
     setLoading(true);
     try {
       const data = await supabaseService.getReviews(album.id);
-      setReviews(data || []);
+      const own = await supabaseService.getOwnReview(album.id);
+      setReviews((data || []).map(r => r.id === own?.id ? { ...r, ...own } : r));
     } catch (error) {
       console.error('Error loading reviews:', error);
     }
@@ -175,6 +182,8 @@ export function ReviewSystem({
       const saved = localStorage.getItem(draftKey);
       if (saved) {
         const parsed = JSON.parse(saved);
+        if (parsed.reviewMode) setReviewMode(parsed.reviewMode);
+        if (parsed.quickScoreChosen) setQuickScoreChosen(true);
         if (parsed.ratings) setRatings(parsed.ratings);
         if (parsed.trackRatings) setTrackRatings(parsed.trackRatings);
         if (parsed.favoriteTrack !== undefined)
@@ -286,7 +295,7 @@ export function ReviewSystem({
   useEffect(() => {
     if (!draftKey || isSubmitting) return;
     try {
-      const hasChanges =
+      const hasChanges = quickScoreChosen ||
         Object.keys(trackRatings).length > 0 ||
         comment.trim().length > 0 ||
         currentTrackIndex > 0 ||
@@ -301,6 +310,7 @@ export function ReviewSystem({
 
       if (hasChanges) {
         const draft = {
+          reviewMode, quickScoreChosen,
           ratings,
           trackRatings,
           favoriteTrack,
@@ -320,6 +330,7 @@ export function ReviewSystem({
     }
   }, [
     draftKey,
+    reviewMode, quickScoreChosen,
     ratings,
     trackRatings,
     favoriteTrack,
@@ -386,6 +397,8 @@ export function ReviewSystem({
 
   const handleStartEditing = () => {
     if (!existingUserReview) return;
+    setReviewMode(existingUserReview.rating_produccion == null ? 'quick' : 'detailed');
+    setQuickScoreChosen(true);
     setIsEditing(true);
     setShowReviewForm(true);
     setRatings({
@@ -469,14 +482,15 @@ export function ReviewSystem({
       return;
     }
 
-    const missingCriterios = CRITERIOS.filter((c) => !ratings[c.id]);
+    if (quick && !quickScoreChosen) { setError('Elige una calificación entre 1 y 10.'); setIsSubmitting(false); return; }
+    const missingCriterios = quick ? [] : CRITERIOS.filter((c) => !ratings[c.id]);
     if (missingCriterios.length > 0) {
       setError(`Por favor califica todos los criterios`);
       setIsSubmitting(false);
       return;
     }
 
-    if (shouldShowTracks && effectiveTracks.length > 0) {
+    if (!quick && shouldShowTracks && effectiveTracks.length > 0) {
       const missingTracks = effectiveTracks.filter(
         (track, idx) => getTrackRating(track, idx) === undefined
       );
@@ -490,8 +504,8 @@ export function ReviewSystem({
     }
 
     if (!user || !user.email) {
-      setError('Debes iniciar sesión con Google para poder enviar una reseña.');
       setIsSubmitting(false);
+      await loginWithGoogle();
       return;
     }
 
@@ -503,7 +517,7 @@ export function ReviewSystem({
     const finalReviewerEmail = user.email.trim();
 
     const finalTrackRatings = {};
-    if (effectiveTracks.length > 0) {
+    if (!quick && effectiveTracks.length > 0) {
       effectiveTracks.forEach((track, idx) => {
         const score = getTrackRating(track, idx);
         if (score !== undefined) {
@@ -512,18 +526,18 @@ export function ReviewSystem({
         }
       });
     } else {
-      Object.assign(finalTrackRatings, trackRatings);
+      if (!quick) Object.assign(finalTrackRatings, trackRatings);
     }
 
     // Calcular sentimiento predeterminado si el usuario no eligió uno explícito
     const currentScore = getWeightedReviewScore({
       track_ratings: finalTrackRatings,
-      rating_produccion: ratings.produccion,
-      rating_composicion: ratings.composicion,
-      rating_letras: ratings.letras,
-      rating_originalidad: ratings.originalidad,
-      rating_cohesion: ratings.cohesion,
-      rating_replay: ratings.replay,
+      rating_produccion: quick ? null : ratings.produccion,
+      rating_composicion: quick ? null : ratings.composicion,
+      rating_letras: quick ? null : ratings.letras,
+      rating_originalidad: quick ? null : ratings.originalidad,
+      rating_cohesion: quick ? null : ratings.cohesion,
+      rating_replay: quick ? null : ratings.replay,
       rating_general: ratings.general,
     });
     const defaultEmotion = getEmotionForScore(currentScore);
@@ -532,8 +546,10 @@ export function ReviewSystem({
 
     // Determinar canción favorita: manual o por máxima nota (desempate aleatorio si hay empate)
     const finalFavoriteTrack =
-      favoriteTrack || getTopRatedTrack(finalTrackRatings, true) || null;
+      quick ? null : (favoriteTrack || getTopRatedTrack(finalTrackRatings, false) || null);
 
+    let assessment;
+    try { assessment = reviewAssessment(ratings, finalTrackRatings, quick); } catch (error) { setError(error.message); setIsSubmitting(false); return; }
     const reviewData = {
       albumId: album.id,
       reviewerName: finalReviewerName,
@@ -544,13 +560,13 @@ export function ReviewSystem({
         user?.avatar ||
         existingUserReview?.reviewer_avatar ||
         null,
-      trackRatings: finalTrackRatings,
-      ratingProduccion: ratings.produccion,
-      ratingComposicion: ratings.composicion,
-      ratingLetras: ratings.letras,
-      ratingOriginalidad: ratings.originalidad,
-      ratingCohesion: ratings.cohesion,
-      ratingReplay: ratings.replay,
+      ...assessment,
+      ratingProduccion: quick ? null : ratings.produccion,
+      ratingComposicion: quick ? null : ratings.composicion,
+      ratingLetras: quick ? null : ratings.letras,
+      ratingOriginalidad: quick ? null : ratings.originalidad,
+      ratingCohesion: quick ? null : ratings.cohesion,
+      ratingReplay: quick ? null : ratings.replay,
       ratingGeneral: ratings.general,
       feeling: finalFeeling,
       favoriteTrack: finalFavoriteTrack,
@@ -646,6 +662,7 @@ export function ReviewSystem({
         await supabaseService.updateReview(existingUserReview.id, reviewData);
       } else {
         await supabaseService.submitReview(reviewData);
+        clearPublicCatalog();
       }
       await authenticatedFetch('/api/catalog', { method: 'POST' }).catch(() => {});
 
@@ -748,13 +765,13 @@ export function ReviewSystem({
           <div
             className={`rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-7 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
               isIndividual
-                ? 'bg-gradient-to-br from-[#0b172a] via-[#0d1d36] to-[#081120] border-emerald-500/40 shadow-[0_0_40px_rgba(16,185,129,0.15)]'
-                : 'bg-gradient-to-br from-[#0e1b2b] to-[#09111c] border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.12)]'
+                ? 'bg-linear-to-br from-[#0b172a] via-[#0d1d36] to-[#081120] border-emerald-500/40 shadow-[0_0_40px_rgba(16,185,129,0.15)]'
+                : 'bg-linear-to-br from-[#0e1b2b] to-[#09111c] border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.12)]'
             }`}
           >
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3.5 mb-5 pb-4 border-b border-white/10">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-sm shadow-[0_0_10px_rgba(16,185,129,0.3)] flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-sm shadow-[0_0_10px_rgba(16,185,129,0.3)] shrink-0">
                   ✓
                 </div>
                 <div>
@@ -772,7 +789,7 @@ export function ReviewSystem({
                 <button
                   type="button"
                   onClick={() => setShowShareModal(true)}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-pink-500/25 via-purple-500/25 to-indigo-500/25 hover:from-pink-500/35 hover:to-indigo-500/35 text-pink-300 hover:text-white border border-pink-400/40 hover:border-pink-400/70 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,87,108,0.2)] active:scale-95 flex-shrink-0 cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-linear-to-r from-pink-500/25 via-purple-500/25 to-indigo-500/25 hover:from-pink-500/35 hover:to-indigo-500/35 text-pink-300 hover:text-white border border-pink-400/40 hover:border-pink-400/70 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,87,108,0.2)] active:scale-95 shrink-0 cursor-pointer"
                   title="Compartir review en redes sociales en formato celular / story"
                 >
                   <span>📱</span> Compartir Story
@@ -781,7 +798,7 @@ export function ReviewSystem({
                 <button
                   type="button"
                   onClick={handleStartEditing}
-                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/60 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-95 flex-shrink-0 cursor-pointer"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/60 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-95 shrink-0 cursor-pointer"
                 >
                   <span>✏️</span> Editar Review
                 </button>
@@ -805,10 +822,10 @@ export function ReviewSystem({
                         user?.name ||
                         'Reviewer'
                       }
-                      className="w-16 h-16 sm:w-11 sm:h-11 rounded-full object-cover border border-emerald-500/40 flex-shrink-0 shadow-md"
+                      className="w-16 h-16 sm:w-11 sm:h-11 rounded-full object-cover border border-emerald-500/40 shrink-0 shadow-md"
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-11 sm:h-11 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-sm sm:text-xs text-center flex-shrink-0 px-1 shadow-md">
+                    <div className="w-16 h-16 sm:w-11 sm:h-11 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 flex items-center justify-center font-bold text-sm sm:text-xs text-center shrink-0 px-1 shadow-md">
                       {(existingUserReview?.reviewer_name ||
                         user?.name ||
                         'U')[0].toUpperCase()}
@@ -926,8 +943,8 @@ export function ReviewSystem({
                   effectiveTracks.length > 0 ? effectiveTracks : album?.tracks
                 );
                 return (
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-transparent border border-amber-400/40 p-3 rounded-xl text-amber-200 font-medium">
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/20 via-yellow-500/10 to-transparent border border-amber-400/40 p-3 rounded-xl text-amber-200 font-medium">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <span className="text-base">⭐</span>
                       <span className="text-amber-400 font-bold uppercase tracking-wider text-[11px]">
                         Canción Favorita:
@@ -1009,10 +1026,10 @@ export function ReviewSystem({
                 ? 'relative overflow-hidden'
                 : `rounded-2xl sm:rounded-3xl p-3.5 sm:p-6 md:p-7 border shadow-2xl relative overflow-hidden transition-all duration-500 ${
                     isEditing
-                      ? 'bg-gradient-to-br from-[#16120b] via-[#1a150e] to-[#0d0a07] border-amber-500/40 shadow-[0_0_50px_rgba(245,158,11,0.18)]'
+                      ? 'bg-linear-to-br from-[#16120b] via-[#1a150e] to-[#0d0a07] border-amber-500/40 shadow-[0_0_50px_rgba(245,158,11,0.18)]'
                       : isIndividual
-                        ? 'bg-gradient-to-br from-[#0b1324] via-[#0e1a30] to-[#070d1a] border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.18)]'
-                        : 'bg-gradient-to-br from-[#121225] to-[#0a0a14] border-[#f5576c]/30 shadow-2xl'
+                        ? 'bg-linear-to-br from-[#0b1324] via-[#0e1a30] to-[#070d1a] border-blue-500/40 shadow-[0_0_50px_rgba(59,130,246,0.18)]'
+                        : 'bg-linear-to-br from-[#121225] to-[#0a0a14] border-[#f5576c]/30 shadow-2xl'
                   }`
             }
           >
@@ -1045,11 +1062,11 @@ export function ReviewSystem({
                       {isEditing ? '✏️' : isIndividual ? '📌' : '✍️'}
                     </span>
                     {isEditing ? (
-                      <span className="bg-gradient-to-r from-amber-300 via-orange-200 to-white bg-clip-text text-transparent font-bold">
+                      <span className="bg-linear-to-r from-amber-300 via-orange-200 to-white bg-clip-text text-transparent font-bold">
                         Editar Mi Review
                       </span>
                     ) : isIndividual ? (
-                      <span className="bg-gradient-to-r from-blue-300 via-cyan-200 to-white bg-clip-text text-transparent font-bold">
+                      <span className="bg-linear-to-r from-blue-300 via-cyan-200 to-white bg-clip-text text-transparent font-bold">
                         Review de Álbum Individual
                       </span>
                     ) : isFromSpotify ? (
@@ -1072,7 +1089,7 @@ export function ReviewSystem({
                   <button
                     type="button"
                     onClick={handleCancelEditing}
-                    className="text-white/60 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex-shrink-0"
+                    className="text-white/60 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3.5 py-1.5 rounded-xl border border-white/10 transition-all font-medium shrink-0"
                   >
                     Cancelar Edición
                   </button>
@@ -1085,7 +1102,7 @@ export function ReviewSystem({
                         onToggleTrackReviews();
                       }
                     }}
-                    className="text-white/40 hover:text-white text-sm bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all flex-shrink-0"
+                    className="text-white/40 hover:text-white text-sm bg-white/5 hover:bg-white/10 w-8 h-8 rounded-full flex items-center justify-center transition-all shrink-0"
                     title="Cerrar"
                   >
                     ✕
@@ -1094,9 +1111,13 @@ export function ReviewSystem({
               </div>
             )}
 
-            {!user ? (
+            <div className="flex gap-2 mb-4" role="group" aria-label="Tipo de valoración">
+              <button type="button" disabled={isEditing && existingUserReview?.rating_produccion != null} aria-pressed={quick} onClick={() => setReviewMode('quick')} className="rounded-xl border border-white/20 px-4 py-2 text-white disabled:opacity-40">Valoración rápida</button>
+              <button type="button" aria-pressed={!quick} onClick={() => setReviewMode('detailed')} className="rounded-xl border border-white/20 px-4 py-2 text-white">Reseña detallada</button>
+            </div>
+            {quick ? <QuickReviewForm score={quickScoreChosen ? ratings.general : null} onScore={score => { setQuickScoreChosen(true); setRatings(r => ({ ...r, general: score })); }} comment={comment} onComment={setComment} onSubmit={handleSubmitReview} user={user} busy={isSubmitting} error={error} success={success} /> : !user ? (
               <div className="py-8 sm:py-10 px-4 text-center space-y-4 sm:space-y-5 relative z-10">
-                <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,87,108,0.25)]">
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,87,108,0.25)]">
                   ⭐
                 </div>
                 <div className="space-y-2 max-w-md mx-auto">
@@ -1147,14 +1168,14 @@ export function ReviewSystem({
                         <img
                           src={user.avatar}
                           alt={user.name || 'Usuario'}
-                          className="w-9 h-9 rounded-full object-cover border border-[#f5576c]/40 flex-shrink-0"
+                          className="w-9 h-9 rounded-full object-cover border border-[#f5576c]/40 shrink-0"
                           onError={(e) => {
                             e.target.src =
                               'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
                           }}
                         />
                       ) : (
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                        <div className="w-9 h-9 rounded-full bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-sm flex items-center justify-center shrink-0">
                           {(
                             (user.name || user.email || 'U')[0] || 'U'
                           ).toUpperCase()}
@@ -1187,8 +1208,8 @@ export function ReviewSystem({
                       className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-center ${
                         wizardStep === 'tracks'
                           ? isIndividual
-                            ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-                            : 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                            ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                            : 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                           : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                       }`}
                     >
@@ -1205,8 +1226,8 @@ export function ReviewSystem({
                     className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-center ${
                       wizardStep === 'criteria'
                         ? isIndividual
-                          ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-                          : 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                          ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                          : 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                         : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                     }`}
                   >
@@ -1224,8 +1245,8 @@ export function ReviewSystem({
                     className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-1.5 text-center ${
                       wizardStep === 'summary'
                         ? isIndividual
-                          ? 'bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
-                          : 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
+                          ? 'bg-linear-to-r from-blue-600 to-cyan-500 text-white shadow-lg shadow-blue-500/30'
+                          : 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                         : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                     }`}
                   >
@@ -1260,7 +1281,7 @@ export function ReviewSystem({
                         </div>
                         <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
                           <div
-                            className="bg-gradient-to-r from-[#f5576c] to-[#f093fb] h-full transition-all duration-300"
+                            className="bg-linear-to-r from-[#f5576c] to-[#f093fb] h-full transition-all duration-300"
                             style={{
                               width: `${((currentTrackIndex + 1) / effectiveTracks.length) * 100}%`,
                             }}
@@ -1285,7 +1306,7 @@ export function ReviewSystem({
                               key={getTrackKey(t, idx)}
                               type="button"
                               onClick={() => setCurrentTrackIndex(idx)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1 flex-shrink-0 border ${
+                              className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1 shrink-0 border ${
                                 isActive
                                   ? 'bg-[#f5576c] text-white border-[#f5576c] shadow-lg shadow-[#f5576c]/30 ring-2 ring-[#f5576c]/50 font-bold'
                                   : isFav
@@ -1310,7 +1331,7 @@ export function ReviewSystem({
                       </div>
 
                       {/* CARD DE CANCIÓN ACTUAL */}
-                      <div className="bg-gradient-to-b from-white/10 to-black/40 rounded-2xl p-4 sm:p-6 border border-white/10 shadow-xl relative space-y-4">
+                      <div className="bg-linear-to-b from-white/10 to-black/40 rounded-2xl p-4 sm:p-6 border border-white/10 shadow-xl relative space-y-4">
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3.5 pb-3.5 border-b border-white/10 w-full min-w-0">
                           <div className="flex-1 min-w-0 w-full">
                             <div className="flex items-center gap-2 flex-wrap">
@@ -1432,7 +1453,7 @@ export function ReviewSystem({
                                   }
                                   className={`py-2.5 sm:py-3 rounded-xl text-xs sm:text-sm font-bold font-mono transition-all border ${
                                     isSelected
-                                      ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent scale-105 shadow-md shadow-[#f5576c]/40'
+                                      ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent scale-105 shadow-md shadow-[#f5576c]/40'
                                       : 'bg-black/30 text-white/70 border-white/10 hover:bg-white/10 hover:text-white'
                                   }`}
                                 >
@@ -1528,7 +1549,7 @@ export function ReviewSystem({
                               }
                               setCurrentTrackIndex((prev) => prev + 1);
                             }}
-                            className="w-full xs:w-auto px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                           >
                             Siguiente ➡️
                           </button>
@@ -1550,7 +1571,7 @@ export function ReviewSystem({
                               }
                               setWizardStep('criteria');
                             }}
-                            className="w-full xs:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                           >
                             Ir a Criterios 📊 ➔
                           </button>
@@ -1577,7 +1598,7 @@ export function ReviewSystem({
                       </div>
                       <div className="w-full bg-white/10 h-2.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-[#f5576c] to-[#f093fb] h-full transition-all duration-300"
+                          className="bg-linear-to-r from-[#f5576c] to-[#f093fb] h-full transition-all duration-300"
                           style={{
                             width: `${((currentCriterionIndex + 1) / CRITERIOS.length) * 100}%`,
                           }}
@@ -1594,7 +1615,7 @@ export function ReviewSystem({
                             key={c.id}
                             type="button"
                             onClick={() => setCurrentCriterionIndex(idx)}
-                            className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1.5 flex-shrink-0 border ${
+                            className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1.5 shrink-0 border ${
                               isActive
                                 ? 'bg-[#f5576c] text-white border-[#f5576c] shadow-lg shadow-[#f5576c]/30 ring-2 ring-[#f5576c]/50 font-bold'
                                 : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
@@ -1611,7 +1632,7 @@ export function ReviewSystem({
                     </div>
 
                     {/* CARD DEL CRITERIO ACTUAL */}
-                    <div className="bg-gradient-to-b from-white/10 to-black/40 rounded-2xl p-4 sm:p-6 border border-white/10 shadow-xl relative space-y-4">
+                    <div className="bg-linear-to-b from-white/10 to-black/40 rounded-2xl p-4 sm:p-6 border border-white/10 shadow-xl relative space-y-4">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3.5 border-b border-white/10">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1632,7 +1653,7 @@ export function ReviewSystem({
                         </div>
 
                         {/* Valor del Criterio con Badge Dinámico */}
-                        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto flex-shrink-0 pt-1 sm:pt-0">
+                        <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
                           <div
                             className={`px-3.5 py-2 rounded-xl border text-sm font-bold flex items-center gap-1.5 ${getRatingBadgeColor(
                               ratings[currentCriterion.id] ||
@@ -1679,7 +1700,7 @@ export function ReviewSystem({
                                 }
                                 className={`py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-base font-bold font-mono transition-all border ${
                                   isSelected
-                                    ? 'bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent scale-105 shadow-md shadow-[#f5576c]/40'
+                                    ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white border-transparent scale-105 shadow-md shadow-[#f5576c]/40'
                                     : 'bg-black/30 text-white/70 border-white/10 hover:bg-white/10 hover:text-white'
                                 }`}
                               >
@@ -1772,7 +1793,7 @@ export function ReviewSystem({
                           onClick={() =>
                             setCurrentCriterionIndex((prev) => prev + 1)
                           }
-                          className="w-full xs:w-auto px-6 py-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                          className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
                           Siguiente ➡️
                         </button>
@@ -1780,7 +1801,7 @@ export function ReviewSystem({
                         <button
                           type="button"
                           onClick={() => setWizardStep('summary')}
-                          className="w-full xs:w-auto px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                          className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                         >
                           Ver Resumen 📝 ➔
                         </button>
@@ -1815,7 +1836,7 @@ export function ReviewSystem({
                             currentReviewScore !== undefined &&
                             !isNaN(Number(currentReviewScore));
                           return hasScore ? (
-                            <div className="bg-gradient-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold">
+                            <div className="bg-linear-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold">
                               ★ Promedio Ponderado Final:{' '}
                               {Number(currentReviewScore).toFixed(2)} / 10
                             </div>
@@ -1830,14 +1851,14 @@ export function ReviewSystem({
                             <img
                               src={user.avatar}
                               alt={user.name || 'Usuario'}
-                              className="w-8 h-8 rounded-full object-cover border border-[#f5576c]/30 flex-shrink-0"
+                              className="w-8 h-8 rounded-full object-cover border border-[#f5576c]/30 shrink-0"
                               onError={(e) => {
                                 e.target.src =
                                   'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
                               }}
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white font-bold text-xs flex items-center justify-center shrink-0">
                               {(
                                 (user?.name || user?.email || 'U')[0] || 'U'
                               ).toUpperCase()}
@@ -1961,7 +1982,7 @@ export function ReviewSystem({
 
                       {/* Selección de Canción Favorita (⭐ Track Destacado del Álbum) */}
                       {shouldShowTracks && effectiveTracks.length > 0 && (
-                        <div className="bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 p-4 sm:p-5 rounded-2xl border border-amber-400/30 space-y-3.5 shadow-[0_0_25px_rgba(251,191,36,0.08)]">
+                        <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 p-4 sm:p-5 rounded-2xl border border-amber-400/30 space-y-3.5 shadow-[0_0_25px_rgba(251,191,36,0.08)]">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                             <div>
                               <h6 className="text-amber-300 text-sm sm:text-base font-bold flex items-center gap-2">
@@ -1991,7 +2012,7 @@ export function ReviewSystem({
                                 effectiveTracks
                               );
                               return (
-                                <div className="bg-amber-400/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm flex-shrink-0">
+                                <div className="bg-amber-400/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm shrink-0">
                                   <span>⭐ Favorita:</span>
                                   <span
                                     translate="no"
@@ -2036,7 +2057,7 @@ export function ReviewSystem({
                                   onClick={() => setFavoriteTrack(tKey)}
                                   className={`p-3 rounded-xl border text-left transition-all duration-200 flex items-center justify-between gap-2.5 group ${
                                     isFav
-                                      ? 'bg-gradient-to-r from-amber-500/25 to-yellow-500/20 border-amber-400 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-400/60 scale-[1.01]'
+                                      ? 'bg-linear-to-r from-amber-500/25 to-yellow-500/20 border-amber-400 text-white shadow-md shadow-amber-500/20 ring-1 ring-amber-400/60 scale-[1.01]'
                                       : 'bg-black/30 border-white/5 hover:bg-white/10 hover:border-amber-400/30 text-white/70'
                                   }`}
                                 >
@@ -2059,7 +2080,7 @@ export function ReviewSystem({
                                     </span>
                                   </div>
 
-                                  <div className="flex items-center gap-2 flex-shrink-0">
+                                  <div className="flex items-center gap-2 shrink-0">
                                     {score !== undefined && (
                                       <span className="text-xs font-mono text-white/50 bg-black/40 px-2 py-0.5 rounded border border-white/5">
                                         ★ {score}
@@ -2107,7 +2128,7 @@ export function ReviewSystem({
                             });
                             const suggested = getEmotionForScore(currentScore);
                             return (
-                              <span className="text-xs text-pink-300/90 bg-pink-500/10 px-3 py-1 rounded-xl border border-pink-500/20 self-start sm:self-auto font-mono flex items-center gap-1.5 flex-shrink-0">
+                              <span className="text-xs text-pink-300/90 bg-pink-500/10 px-3 py-1 rounded-xl border border-pink-500/20 self-start sm:self-auto font-mono flex items-center gap-1.5 shrink-0">
                                 <span>💡 Sugerido:</span> {suggested.emoji}{' '}
                                 {suggested.label}
                               </span>
@@ -2193,7 +2214,7 @@ export function ReviewSystem({
                         <button
                           type="button"
                           onClick={() => setShowShareModal(true)}
-                          className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer flex-shrink-0"
+                          className="px-3.5 py-1.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-600 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
                           title="Compartir en formato celular / story a redes sociales"
                         >
                           <span>📱</span> Compartir Story
@@ -2212,7 +2233,7 @@ export function ReviewSystem({
                             effectiveTracks.length > 0 &&
                             !areAllTracksRated)
                         }
-                        className={`w-full sm:flex-1 py-3.5 sm:py-4 px-6 bg-gradient-to-r ${
+                        className={`w-full sm:flex-1 py-3.5 sm:py-4 px-6 bg-linear-to-r ${
                           isEditing
                             ? 'from-amber-500 via-orange-500 to-amber-500 shadow-amber-500/20'
                             : isIndividual
@@ -2287,7 +2308,7 @@ export function ReviewSystem({
           /* Botón CTA cuando no se ha calificado y el formulario está cerrado */
           <button
             onClick={() => setShowReviewForm(true)}
-            className="w-full py-4 bg-gradient-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 hover:from-[#f5576c]/30 hover:via-[#f093fb]/30 hover:to-[#f5576c]/30 border border-[#f5576c]/40 hover:border-[#f5576c]/70 rounded-2xl text-white hover:shadow-xl hover:shadow-[#f5576c]/15 transition-all text-sm font-bold flex items-center justify-center gap-2.5 group"
+            className="w-full py-4 bg-linear-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 hover:from-[#f5576c]/30 hover:via-[#f093fb]/30 hover:to-[#f5576c]/30 border border-[#f5576c]/40 hover:border-[#f5576c]/70 rounded-2xl text-white hover:shadow-xl hover:shadow-[#f5576c]/15 transition-all text-sm font-bold flex items-center justify-center gap-2.5 group"
           >
             <span className="text-lg group-hover:scale-125 transition-transform">
               ✍️
@@ -2306,7 +2327,7 @@ export function ReviewSystem({
             <div className="flex items-center gap-3">
               <h4 className="text-white/90 text-sm font-bold tracking-wider uppercase flex items-center gap-2">
                 {isIndividual ? (
-                  <div className="flex items-center gap-2 bg-gradient-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/10 px-3 py-1 rounded-full border border-blue-400/30 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+                  <div className="flex items-center gap-2 bg-linear-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/10 px-3 py-1 rounded-full border border-blue-400/30 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
                     <span className="animate-pulse">📌</span>
                     <span className="font-semibold text-xs tracking-wider uppercase">
                       Reviews de Álbum Individual
@@ -2366,7 +2387,7 @@ export function ReviewSystem({
                     key={idx}
                     className={`rounded-2xl p-4 border transition-all duration-300 ${
                       isIndividual
-                        ? 'bg-gradient-to-r from-blue-950/30 via-slate-900/40 to-cyan-950/20 border-blue-500/20 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]'
+                        ? 'bg-linear-to-r from-blue-950/30 via-slate-900/40 to-cyan-950/20 border-blue-500/20 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]'
                         : 'bg-white/5 border-white/5 hover:bg-white/10'
                     }`}
                   >
@@ -2376,7 +2397,7 @@ export function ReviewSystem({
                           <img
                             src={review.reviewer_avatar}
                             alt={review.reviewer_name || 'Reviewer'}
-                            className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-sm flex-shrink-0"
+                            className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-sm shrink-0"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling)
@@ -2385,12 +2406,12 @@ export function ReviewSystem({
                           />
                         ) : null}
                         <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                             review?.reviewer_avatar ? 'hidden' : 'flex'
                           } ${
                             isIndividual
-                              ? 'bg-gradient-to-tr from-blue-600 to-cyan-400 text-white shadow-md'
-                              : 'bg-gradient-to-tr from-[#f5576c] to-[#f093fb] text-white'
+                              ? 'bg-linear-to-tr from-blue-600 to-cyan-400 text-white shadow-md'
+                              : 'bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white'
                           }`}
                         >
                           {(review?.reviewer_name || 'A')[0].toUpperCase()}
@@ -2415,7 +2436,7 @@ export function ReviewSystem({
                         </span>
                       </div>
 
-                      <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto flex-shrink-0">
+                      <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto shrink-0">
                         {(() => {
                           const emo = getEmotionFromReview(review);
                           return emo ? (
@@ -2459,8 +2480,8 @@ export function ReviewSystem({
                           : album?.tracks
                       );
                       return (
-                        <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                        <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
+                          <div className="flex items-center gap-1.5 shrink-0">
                             <span className="text-sm">⭐</span>
                             <span className="text-amber-400/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
                               Canción Favorita:

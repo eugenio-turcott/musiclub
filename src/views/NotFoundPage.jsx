@@ -30,8 +30,8 @@ export function NotFoundPage() {
         <div className="my-auto py-8 sm:py-16 flex flex-col items-center justify-center text-center px-4">
           {/* Holographic 404 Vinyl Icon with Neon Glow */}
           <div className="relative mb-8 group">
-            <div className="absolute -inset-4 bg-gradient-to-r from-cyan-500 via-purple-600 to-[#f5576c] rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse" />
-            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-gradient-to-br from-[#1a1c2e] via-[#0f111d] to-[#07080e] border-2 border-cyan-500/40 flex items-center justify-center shadow-2xl overflow-hidden">
+            <div className="absolute -inset-4 bg-linear-to-r from-cyan-500 via-purple-600 to-[#f5576c] rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse" />
+            <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-linear-to-br from-[#1a1c2e] via-[#0f111d] to-[#07080e] border-2 border-cyan-500/40 flex items-center justify-center shadow-2xl overflow-hidden">
               {/* Spinning vinyl grooves */}
               <div className="absolute inset-2 rounded-full border border-white/5 animate-spin" style={{ animationDuration: '12s' }}>
                 <div className="absolute inset-2 rounded-full border border-white/5" />
@@ -43,7 +43,7 @@ export function NotFoundPage() {
               </div>
             </div>
             {/* 404 Floating Tag */}
-            <span className="absolute -bottom-2 -right-2 bg-gradient-to-r from-[#f5576c] to-purple-600 text-white font-mono text-xs sm:text-sm font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
+            <span className="absolute -bottom-2 -right-2 bg-linear-to-r from-[#f5576c] to-purple-600 text-white font-mono text-xs sm:text-sm font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
               ERROR 404
             </span>
           </div>
@@ -68,7 +68,7 @@ export function NotFoundPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 mt-10 w-full max-w-3xl">
             <Link
               to="/"
-              className="p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-cyan-500/20 hover:to-blue-500/10 border border-white/10 hover:border-cyan-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
+              className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-cyan-500/20 hover:to-blue-500/10 border border-white/10 hover:border-cyan-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🏠</span>
@@ -82,7 +82,7 @@ export function NotFoundPage() {
 
             <Link
               to="/catalogo"
-              className="p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-purple-500/20 hover:to-pink-500/10 border border-white/10 hover:border-purple-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
+              className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-purple-500/20 hover:to-pink-500/10 border border-white/10 hover:border-purple-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">💿</span>
@@ -96,7 +96,7 @@ export function NotFoundPage() {
 
             <Link
               to="/leaderboard"
-              className="p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-amber-500/20 hover:to-yellow-500/10 border border-white/10 hover:border-amber-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
+              className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-amber-500/20 hover:to-yellow-500/10 border border-white/10 hover:border-amber-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🏆</span>
@@ -110,7 +110,7 @@ export function NotFoundPage() {
 
             <Link
               to="/gashapon"
-              className="p-4 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] hover:from-rose-500/20 hover:to-red-500/10 border border-white/10 hover:border-rose-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
+              className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-rose-500/20 hover:to-red-500/10 border border-white/10 hover:border-rose-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🎲</span>

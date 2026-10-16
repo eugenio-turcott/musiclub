@@ -84,7 +84,7 @@ export function NotificationsDropdown({
       <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Bloque de Título y campana */}
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm flex-shrink-0 shadow-inner">
+          <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner">
             🔔
           </div>
           <div className="min-w-0">
@@ -93,7 +93,7 @@ export function NotificationsDropdown({
                 Notificaciones
               </h3>
               {unreadCount > 0 && (
-                <span className="bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                <span className="bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
                   {unreadCount} {unreadCount === 1 ? 'nueva' : 'nuevas'}
                 </span>
               )}
@@ -105,7 +105,7 @@ export function NotificationsDropdown({
         </div>
 
         {/* Botones de acción cabecera (debajo del bloque de título en móvil / sm, a la derecha en escritorio) */}
-        <div className="flex items-center justify-end gap-1.5 flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
+        <div className="flex items-center justify-end gap-1.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
           {unreadCount > 0 && (
             <button
               type="button"
@@ -173,7 +173,7 @@ export function NotificationsDropdown({
                 } ${
                   read
                     ? 'bg-white/[0.02] hover:bg-white/[0.06] border-white/5'
-                    : 'bg-gradient-to-r from-pink-500/10 via-purple-500/5 to-transparent hover:bg-pink-500/15 border-pink-500/30 shadow-[0_0_15px_rgba(245,87,108,0.08)]'
+                    : 'bg-linear-to-r from-pink-500/10 via-purple-500/5 to-transparent hover:bg-pink-500/15 border-pink-500/30 shadow-[0_0_15px_rgba(245,87,108,0.08)]'
                 }`}
               >
                 {/* Indicador de no leído */}
@@ -182,7 +182,7 @@ export function NotificationsDropdown({
                 )}
 
                 {/* Avatar / Portada / Icono */}
-                <div className="relative flex-shrink-0 mt-0.5">
+                <div className="relative shrink-0 mt-0.5">
                   {item.image ? (
                     <img
                       src={item.image}
@@ -196,7 +196,7 @@ export function NotificationsDropdown({
                     />
                   ) : null}
                   <div
-                    className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${item.badgeColor} text-white flex items-center justify-center text-lg shadow-md ${
+                    className={`w-10 h-10 rounded-xl bg-linear-to-tr ${item.badgeColor} text-white flex items-center justify-center text-lg shadow-md ${
                       item.image ? 'hidden' : 'flex'
                     }`}
                   >

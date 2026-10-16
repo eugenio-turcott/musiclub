@@ -54,8 +54,8 @@ export function WinnerDisplay({
   return (
     <div className="mb-8 relative">
       {/* Fondo con glow animado */}
-      <div className="absolute -inset-4 bg-gradient-to-r from-[#f5576c] via-[#f093fb] to-[#f5576c] rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
-      <div className="absolute -inset-2 bg-gradient-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 rounded-2xl blur-xl"></div>
+      <div className="absolute -inset-4 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-[#f5576c] rounded-3xl blur-3xl opacity-30 animate-pulse"></div>
+      <div className="absolute -inset-2 bg-linear-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 rounded-2xl blur-xl"></div>
 
       {/* Partículas de confeti estáticas */}
       <div className="absolute inset-0 overflow-hidden rounded-2xl pointer-events-none">
@@ -83,10 +83,10 @@ export function WinnerDisplay({
         ))}
       </div>
 
-      <div className="relative bg-gradient-to-br from-[#f5576c]/10 via-black/80 to-[#f093fb]/10 rounded-2xl border-2 border-[#f5576c]/30 p-6 sm:p-8 backdrop-blur-xl overflow-hidden">
+      <div className="relative bg-linear-to-br from-[#f5576c]/10 via-black/80 to-[#f093fb]/10 rounded-2xl border-2 border-[#f5576c]/30 p-6 sm:p-8 backdrop-blur-xl overflow-hidden">
         {/* Líneas decorativas animadas */}
-        <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#f5576c] to-transparent opacity-60 animate-pulse"></div>
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[#f093fb] to-transparent opacity-60 animate-pulse"></div>
+        <div className="absolute top-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-[#f5576c] to-transparent opacity-60 animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-linear-to-r from-transparent via-[#f093fb] to-transparent opacity-60 animate-pulse"></div>
 
         {/* Esquinas decorativas */}
         <div className="absolute top-2 left-2 w-8 h-8 border-t-2 border-l-2 border-[#f5576c]/20 rounded-tl-lg"></div>
@@ -96,9 +96,9 @@ export function WinnerDisplay({
 
         <div className="flex flex-col md:flex-row items-center gap-6 md:gap-10 relative z-10">
           {/* Imagen del álbum */}
-          <div className="relative flex-shrink-0 group">
-            <div className="absolute -inset-6 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
-            <div className="absolute -inset-3 bg-gradient-to-r from-[#f5576c] to-[#f093fb] rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
+          <div className="relative shrink-0 group">
+            <div className="absolute -inset-6 bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-2xl blur-2xl opacity-30 group-hover:opacity-50 transition-opacity duration-500"></div>
+            <div className="absolute -inset-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-xl blur-md opacity-40 group-hover:opacity-60 transition-opacity duration-500"></div>
 
             <img
               src={winner.imagen}
@@ -128,7 +128,7 @@ export function WinnerDisplay({
             )}
 
             {/* Badge de ganador superpuesto */}
-            <div className="absolute -top-4 -right-4 bg-gradient-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-[#f5576c]/30 animate-bounce border-2 border-white/20">
+            <div className="absolute -top-4 -right-4 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-[#f5576c]/30 animate-bounce border-2 border-white/20">
               🏆 GANADOR
             </div>
 
@@ -168,7 +168,7 @@ export function WinnerDisplay({
             </p>
 
             {/* Divisor decorativo */}
-            <div className="w-24 h-0.5 bg-gradient-to-r from-[#f5576c] to-transparent mx-auto md:mx-0 my-3"></div>
+            <div className="w-24 h-0.5 bg-linear-to-r from-[#f5576c] to-transparent mx-auto md:mx-0 my-3"></div>
 
             <div className="flex flex-wrap items-center gap-3 mt-3 justify-center md:justify-start">
               {winner.added_by && (
@@ -207,7 +207,7 @@ export function WinnerDisplay({
 
             {/* Badge de estado y Acciones de Review */}
             <div className="mt-5 flex flex-wrap items-center gap-3 justify-center md:justify-start">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-gradient-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-linear-to-r from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 rounded-full">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5576c] opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f5576c]"></span>
@@ -244,7 +244,7 @@ export function WinnerDisplay({
                   )}
                   <button
                     onClick={() => setShowReview((prev) => !prev)}
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-white/20"
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-white/20"
                   >
                     <span>
                       {showReview
@@ -272,7 +272,7 @@ export function WinnerDisplay({
               </div>
               <button
                 onClick={() => setShowReview(false)}
-                className="text-slate-400 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex items-center gap-1 flex-shrink-0"
+                className="text-slate-400 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex items-center gap-1 shrink-0"
               >
                 <span>Cerrar</span>
                 <span>✕</span>

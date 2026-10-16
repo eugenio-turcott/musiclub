@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendPoolWinnerEmail } from '../../../../services/emailService';
@@ -106,7 +108,8 @@ export async function POST(request) {
     }
 
     // 4. Despachar correo de ganador
-    const result = await sendPoolWinnerEmail({
+    const deliveryKey = 'pool-winner:' + createHash('sha256').update(JSON.stringify([albumData.id || albumData.album_name, [...recipients].sort(), lang])).digest('hex');
+    const result = await deliverNotificationOnce(supabase, deliveryKey, () => sendPoolWinnerEmail({
       recipients,
       albumName: albumData.album_name || albumData.album,
       artistName: albumData.artist_name || albumData.artista,
@@ -118,7 +121,7 @@ export async function POST(request) {
       appleMusicLink: albumData.apple_music_link || albumData.appleMusicLink,
       deezerLink: albumData.other_link || albumData.deezer_link || albumData.deezerLink,
       lang,
-    });
+    }));
 
     return NextResponse.json({
       success: true,

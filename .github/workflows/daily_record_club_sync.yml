@@ -12,6 +12,10 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  group: record-club-sync
+  cancel-in-progress: false
+
 permissions:
   contents: read
 
@@ -49,6 +53,7 @@ jobs:
           EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
           REPLY_TO: ${{ secrets.REPLY_TO }}
         run: |
+          node scripts/check-maintenance-env.mjs
           if [ "${{ github.event.inputs.force }}" = "true" ]; then
             node scripts/dailyRecordClubSync.mjs --force
           else

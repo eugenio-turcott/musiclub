@@ -149,7 +149,7 @@ function UserAvatar({ user, size = 'md', className = '' }) {
   if (user?.avatar_url && !imgError) {
     return (
       <div
-        className={`${sizeClasses} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-white relative shadow-inner ${className}`}
+        className={`${sizeClasses} rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white relative shadow-inner ${className}`}
       >
         <img
           src={user.avatar_url}
@@ -163,7 +163,7 @@ function UserAvatar({ user, size = 'md', className = '' }) {
 
   return (
     <div
-      className={`${sizeClasses} rounded-full bg-gradient-to-tr ${gradient} flex items-center justify-center flex-shrink-0 select-none shadow-md overflow-hidden ${className}`}
+      className={`${sizeClasses} rounded-full bg-linear-to-tr ${gradient} flex items-center justify-center shrink-0 select-none shadow-md overflow-hidden ${className}`}
       title={name}
     >
       {initial}
@@ -981,7 +981,7 @@ export function AlbumDetail({
             <div className="pt-2">
               <Link
                 to="/catalogo"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-bold text-sm shadow-lg hover:brightness-110 transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 text-black font-bold text-sm shadow-lg hover:brightness-110 transition-all"
               >
                 <span>←</span>
                 <span>Explorar Catálogo</span>
@@ -1040,9 +1040,9 @@ export function AlbumDetail({
         </nav>
 
         {/* HERO SECTION: Responsive Layout (Left = Artwork, Right = Title & Info on desktop; Top = Artwork, Bottom = Info on mobile) */}
-        <div className="relative rounded-3xl bg-gradient-to-br from-[#131522] via-[#0f111d] to-[#090a12] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div className="relative rounded-3xl bg-linear-to-br from-[#131522] via-[#0f111d] to-[#090a12] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl overflow-hidden backdrop-blur-xl">
           {/* Subtle Background Glow behind cover */}
-          <div className="absolute -top-24 -left-24 w-72 h-72 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute -top-24 -left-24 w-72 h-72 bg-linear-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
@@ -1055,7 +1055,7 @@ export function AlbumDetail({
 
           <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
             {/* LEFT / TOP: Album Artwork Container */}
-            <div className="w-full sm:w-72 md:w-80 lg:w-96 flex-shrink-0 flex flex-col items-center">
+            <div className="w-full sm:w-72 md:w-80 lg:w-96 shrink-0 flex flex-col items-center">
               <div className="relative w-full aspect-square rounded-2xl sm:rounded-3xl overflow-hidden border border-white/15 shadow-2xl group bg-black/60">
                 <img
                   src={
@@ -1251,7 +1251,7 @@ export function AlbumDetail({
               <div className="space-y-1.5">
                 <h1
                   translate="no"
-                  className="notranslate music-title text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
+                  className="notranslate music-title text-3xl sm:text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
                 >
                   {album.album_name}
                 </h1>
@@ -1401,8 +1401,8 @@ export function AlbumDetail({
                     onClick={handleOpenNotifyModal}
                     className={`px-6 py-3 rounded-2xl font-black text-xs sm:text-sm flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all cursor-pointer ${
                       isSubscribed
-                        ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white border border-emerald-400/40 shadow-emerald-500/20'
-                        : 'bg-gradient-to-r from-amber-400 via-orange-500 to-amber-500 text-black border border-amber-300 shadow-amber-500/25'
+                        ? 'bg-linear-to-r from-emerald-500 to-teal-600 text-white border border-emerald-400/40 shadow-emerald-500/20'
+                        : 'bg-linear-to-r from-amber-400 via-orange-500 to-amber-500 text-black border border-amber-300 shadow-amber-500/25'
                     }`}
                     title="Programa un recordatorio por correo y notificación en la plataforma el día de su estreno oficial"
                   >
@@ -1419,7 +1419,7 @@ export function AlbumDetail({
                 ) : (
                   <button
                     onClick={() => setShowReviewSystem((prev) => !prev)}
-                    className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <span>
                       {userReview
@@ -1487,7 +1487,7 @@ export function AlbumDetail({
                 </button>
 
                 <div className="text-center space-y-2">
-                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
                     🔔
                   </div>
                   <h3 className="text-lg sm:text-xl font-black text-white">
@@ -1529,7 +1529,7 @@ export function AlbumDetail({
                     <button
                       type="submit"
                       disabled={subscribing}
-                      className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-black font-extrabold text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
+                      className="flex-1 py-2.5 rounded-xl bg-linear-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-black font-extrabold text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                     >
                       <span>{subscribing ? 'Guardando...' : '🔔 Activar Notificación'}</span>
                     </button>
@@ -1542,7 +1542,7 @@ export function AlbumDetail({
 
         {/* ANTICIPATED OR ON-DEMAND BANNER */}
         {isAnticipated ? (
-          <div className="rounded-3xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
+          <div className="rounded-3xl bg-linear-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1.5 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider">
                 <span>⏳</span> Lanzamiento Anticipado
@@ -1562,7 +1562,7 @@ export function AlbumDetail({
                 ¡Puedes programar una notificación para escucharlo y calificarlo primero!
               </p>
             </div>
-            <div className="flex items-center gap-2.5 flex-shrink-0 flex-wrap justify-center sm:justify-end">
+            <div className="flex items-center gap-2.5 shrink-0 flex-wrap justify-center sm:justify-end">
               <button
                 type="button"
                 onClick={handleOpenNotifyModal}
@@ -1587,7 +1587,7 @@ export function AlbumDetail({
             </div>
           </div>
         ) : album.is_on_demand ? (
-          <div className="rounded-3xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
+          <div className="rounded-3xl bg-linear-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
                 <span>✨</span> Álbum Disponible On-Demand
@@ -1602,7 +1602,7 @@ export function AlbumDetail({
             </div>
             <button
               onClick={() => setShowReviewSystem(true)}
-              className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-400 via-[#f5576c] to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2 flex-shrink-0"
+              className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-400 via-[#f5576c] to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2 shrink-0"
             >
               <span>⭐</span>
               <span>Calificar Álbum Ahora</span>
@@ -1622,7 +1622,7 @@ export function AlbumDetail({
               </div>
               <button
                 onClick={() => setShowReviewSystem(false)}
-                className="text-slate-400 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex items-center gap-1 flex-shrink-0"
+                className="text-slate-400 hover:text-white text-xs sm:text-sm bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium flex items-center gap-1 shrink-0"
               >
                 <span>Cerrar</span>
                 <span>✕</span>
@@ -1701,7 +1701,7 @@ export function AlbumDetail({
                   {/* Progress Bar */}
                   <div className="w-full bg-black/50 rounded-full h-2 overflow-hidden border border-white/5">
                     <div
-                      className={`h-full rounded-full bg-gradient-to-r ${crit.color} transition-all duration-700`}
+                      className={`h-full rounded-full bg-linear-to-r ${crit.color} transition-all duration-700`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -1799,7 +1799,7 @@ export function AlbumDetail({
                           </div>
 
                           {/* Track Rating Score */}
-                          <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="flex items-center gap-3 shrink-0">
                             {t.rating_count > 0 && (
                               <span className="hidden sm:inline text-[10px] text-slate-400">
                                 {t.rating_count}{' '}
@@ -1898,7 +1898,7 @@ export function AlbumDetail({
                 return (
                   <div
                     key={rev.id || revIdx}
-                    className="bg-gradient-to-br from-[#121422] to-[#0b0d18] border border-white/5 hover:border-white/15 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-3 shadow-xl transition-all"
+                    className="bg-linear-to-br from-[#121422] to-[#0b0d18] border border-white/5 hover:border-white/15 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-3 shadow-xl transition-all"
                   >
                     {/* Review Header */}
                     <div className="flex items-start justify-between gap-3">
@@ -1961,8 +1961,8 @@ export function AlbumDetail({
 
                     {/* Favorite Track Badge */}
                     {favTrackName && (
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-gradient-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-2.5 sm:py-1 rounded-xl text-amber-200 font-medium shadow-sm">
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-2.5 sm:py-1 rounded-xl text-amber-200 font-medium shadow-sm">
+                        <div className="flex items-center gap-1.5 shrink-0">
                           <span className="text-sm">⭐</span>
                           <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                             Canción Favorita:
@@ -2058,7 +2058,7 @@ export function AlbumDetail({
                                       </span>
                                     </div>
                                     <span
-                                      className={`font-black text-[11px] flex-shrink-0 ${isFav ? 'text-amber-300' : 'text-emerald-400'}`}
+                                      className={`font-black text-[11px] shrink-0 ${isFav ? 'text-amber-300' : 'text-emerald-400'}`}
                                     >
                                       {tScore}/10
                                     </span>
@@ -2086,7 +2086,7 @@ export function AlbumDetail({
                         <button
                           type="button"
                           onClick={() => setSharingReview(rev)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                           title="Compartir tu review en redes sociales en formato celular / story"
                         >
                           <span>📱</span>

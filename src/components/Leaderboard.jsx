@@ -44,7 +44,7 @@ export function UserAvatar({ user, size = 'md', className = '' }) {
   if (user?.avatar_url && !imgError) {
     return (
       <div
-        className={`${sizeClasses} rounded-full overflow-hidden flex-shrink-0 flex items-center justify-center bg-white relative shadow-inner ${className}`}
+        className={`${sizeClasses} rounded-full overflow-hidden shrink-0 flex items-center justify-center bg-white relative shadow-inner ${className}`}
       >
         <img
           src={user.avatar_url}
@@ -58,7 +58,7 @@ export function UserAvatar({ user, size = 'md', className = '' }) {
 
   return (
     <div
-      className={`${sizeClasses} rounded-full bg-gradient-to-tr ${gradient} flex items-center justify-center flex-shrink-0 select-none shadow-md overflow-hidden ${className}`}
+      className={`${sizeClasses} rounded-full bg-linear-to-tr ${gradient} flex items-center justify-center shrink-0 select-none shadow-md overflow-hidden ${className}`}
       title={name}
     >
       {initial}
@@ -317,7 +317,7 @@ export function Leaderboard({ isPage = false }) {
         <AppHeader showTitle={false} />
 
         {/* Header Title */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-gradient-to-br from-[#181a28]/80 via-[#101220]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
+        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#181a28]/80 via-[#101220]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-12 -left-12 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -331,7 +331,7 @@ export function Leaderboard({ isPage = false }) {
           </div>
 
           <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-100 to-amber-200">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-amber-200">
               Leaderboard de Miembros
             </h1>
             <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
@@ -442,10 +442,10 @@ export function Leaderboard({ isPage = false }) {
 
         {/* Podium Top 3 */}
         {podiumUsers[1] && (
-          <div className="bg-gradient-to-b from-[#181a27]/90 to-[#12131e]/90 border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md relative overflow-hidden">
+          <div className="bg-linear-to-b from-[#181a27]/90 to-[#12131e]/90 border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md relative overflow-hidden">
             <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">
               <h2 className="text-base sm:text-xl font-bold flex items-center gap-2 text-white">
-                <span className="relative w-5 h-5 inline-flex items-center justify-center flex-shrink-0">
+                <span className="relative w-5 h-5 inline-flex items-center justify-center shrink-0">
                   <img
                     src="/musiclub_logo_2.png"
                     alt="Musiclub Gold"
@@ -469,7 +469,7 @@ export function Leaderboard({ isPage = false }) {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 font-black text-xs px-3 py-0.5 rounded-full shadow-md">
                     🥈 #2 Puesto
                   </div>
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-slate-400 to-slate-200 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-linear-to-tr from-slate-400 to-slate-200 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[0]} size="podium_silver" />
                   </div>
                   <h3
@@ -495,7 +495,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
 
                   {/* XP Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-slate-400/20 to-slate-200/20 border border-slate-300/40 text-slate-200 text-xs font-black mb-2.5">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-slate-400/20 to-slate-200/20 border border-slate-300/40 text-slate-200 text-xs font-black mb-2.5">
                     <span>✨</span>
                     <span>
                       {(podiumUsers[0].total_xp || 0).toLocaleString()} XP
@@ -516,7 +516,7 @@ export function Leaderboard({ isPage = false }) {
                       <span
                         key={b.id}
                         title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                       >
                         {b.label}
                       </span>
@@ -529,13 +529,13 @@ export function Leaderboard({ isPage = false }) {
               {podiumUsers[1] && (
                 <div
                   onClick={() => setSelectedUserDetail(podiumUsers[1])}
-                  className="bg-gradient-to-b from-[#221f14] via-[#1a1820] to-[#141522] border-2 border-amber-400/60 hover:border-amber-300 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-2 cursor-pointer shadow-[0_0_30px_rgba(251,191,36,0.15)] relative group order-1 md:order-2 md:-mt-4"
+                  className="bg-linear-to-b from-[#221f14] via-[#1a1820] to-[#141522] border-2 border-amber-400/60 hover:border-amber-300 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-2 cursor-pointer shadow-[0_0_30px_rgba(251,191,36,0.15)] relative group order-1 md:order-2 md:-mt-4"
                 >
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-400 to-yellow-500 text-black font-black text-xs px-4 py-1 rounded-full shadow-lg flex items-center gap-1">
+                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-linear-to-r from-amber-400 to-yellow-500 text-black font-black text-xs px-4 py-1 rounded-full shadow-lg flex items-center gap-1">
                     <span>👑</span>
                     <span>#1 Campeón del Club</span>
                   </div>
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1.5 bg-gradient-to-tr from-amber-400 via-yellow-300 to-amber-500 mb-2.5 sm:mb-3 mt-2 sm:mt-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] flex items-center justify-center overflow-hidden">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1.5 bg-linear-to-tr from-amber-400 via-yellow-300 to-amber-500 mb-2.5 sm:mb-3 mt-2 sm:mt-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[1]} size="podium_gold" />
                   </div>
                   <h3
@@ -561,7 +561,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
 
                   {/* XP Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-gradient-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 border border-amber-400/60 text-amber-300 text-xs font-black mb-2.5 shadow-[0_0_12px_rgba(251,191,36,0.3)]">
+                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 border border-amber-400/60 text-amber-300 text-xs font-black mb-2.5 shadow-[0_0_12px_rgba(251,191,36,0.3)]">
                     <span>✨</span>
                     <span>
                       {(podiumUsers[1].total_xp || 0).toLocaleString()} XP
@@ -582,7 +582,7 @@ export function Leaderboard({ isPage = false }) {
                       <span
                         key={b.id}
                         title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-md cursor-help hover:scale-105 transition-transform`}
+                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-md cursor-help hover:scale-105 transition-transform`}
                       >
                         {b.label}
                       </span>
@@ -600,7 +600,7 @@ export function Leaderboard({ isPage = false }) {
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-amber-100 font-black text-xs px-3 py-0.5 rounded-full shadow-md">
                     🥉 #3 Puesto
                   </div>
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-gradient-to-tr from-amber-700 to-amber-500 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-linear-to-tr from-amber-700 to-amber-500 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[2]} size="podium_bronze" />
                   </div>
                   <h3
@@ -626,7 +626,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
 
                   {/* XP Badge */}
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-700/20 to-amber-600/20 border border-amber-600/40 text-amber-200 text-xs font-black mb-2.5">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-amber-700/20 to-amber-600/20 border border-amber-600/40 text-amber-200 text-xs font-black mb-2.5">
                     <span>✨</span>
                     <span>
                       {(podiumUsers[2].total_xp || 0).toLocaleString()} XP
@@ -647,7 +647,7 @@ export function Leaderboard({ isPage = false }) {
                       <span
                         key={b.id}
                         title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                       >
                         {b.label}
                       </span>
@@ -770,7 +770,7 @@ export function Leaderboard({ isPage = false }) {
                       {/* Left: Rank + Avatar + Name + Artist/Email + Badges */}
                       <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
                         {/* Rank Badge */}
-                        <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-slate-300 group-hover:border-amber-400/40 group-hover:text-amber-300 transition-colors mt-0.5 sm:mt-0">
+                        <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-slate-300 group-hover:border-amber-400/40 group-hover:text-amber-300 transition-colors mt-0.5 sm:mt-0">
                           {userRank === 1
                             ? '🥇'
                             : userRank === 2
@@ -781,7 +781,7 @@ export function Leaderboard({ isPage = false }) {
                         </div>
 
                         {/* Avatar */}
-                        <div className="relative flex-shrink-0">
+                        <div className="relative shrink-0">
                           <UserAvatar
                             user={itemUser}
                             size="md"
@@ -842,7 +842,7 @@ export function Leaderboard({ isPage = false }) {
                                 <span
                                   key={b.id}
                                   title={b.tooltip || b.desc || b.label}
-                                  className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-gradient-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
+                                  className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
                                 >
                                   {b.label}
                                 </span>
@@ -873,7 +873,7 @@ export function Leaderboard({ isPage = false }) {
                       {/* Right: XP Score Box + Numerical Metrics + View Action */}
                       <div className="flex items-center justify-between lg:justify-end gap-2.5 sm:gap-4 pt-2.5 lg:pt-0 border-t lg:border-t-0 border-white/5 flex-wrap sm:flex-nowrap">
                         {/* XP Score Box */}
-                        <div className="bg-gradient-to-r from-amber-400/10 via-yellow-400/15 to-amber-500/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-amber-400/35 text-center sm:text-right flex-shrink-0">
+                        <div className="bg-linear-to-r from-amber-400/10 via-yellow-400/15 to-amber-500/10 px-3 sm:px-3.5 py-1.5 rounded-xl border border-amber-400/35 text-center sm:text-right shrink-0">
                           <p className="text-[9px] text-amber-300/80 font-bold uppercase tracking-wider leading-tight">
                             Score XP
                           </p>
@@ -933,7 +933,7 @@ export function Leaderboard({ isPage = false }) {
                             e.stopPropagation();
                             setSelectedUserDetail(itemUser);
                           }}
-                          className="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-amber-400 hover:text-black text-slate-300 text-xs font-semibold border border-white/10 transition-all flex-shrink-0 active:scale-95"
+                          className="px-2.5 py-2 rounded-xl bg-white/5 hover:bg-amber-400 hover:text-black text-slate-300 text-xs font-semibold border border-white/10 transition-all shrink-0 active:scale-95"
                           title="Ver detalle del miembro"
                         >
                           ➜
@@ -1063,7 +1063,7 @@ export function Leaderboard({ isPage = false }) {
                         onClick={() => handlePageChange(page)}
                         className={`w-8 h-8 rounded-xl text-xs font-bold transition-all flex items-center justify-center ${
                           isActive
-                            ? 'bg-gradient-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/20 font-black'
+                            ? 'bg-linear-to-r from-amber-400 to-yellow-500 text-black shadow-md shadow-amber-500/20 font-black'
                             : 'bg-white/5 text-slate-300 hover:text-white hover:bg-white/10 border border-white/10'
                         }`}
                       >
@@ -1146,7 +1146,7 @@ export function Leaderboard({ isPage = false }) {
             </div>
 
             {/* XP Formula Card */}
-            <div className="bg-gradient-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border border-amber-400/30 rounded-2xl p-3.5 sm:p-5 space-y-3">
+            <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border border-amber-400/30 rounded-2xl p-3.5 sm:p-5 space-y-3">
               <h3 className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
                 <span>⚡</span> ¿Cómo ganar Puntos XP de Club?
               </h3>
@@ -1219,7 +1219,7 @@ export function Leaderboard({ isPage = false }) {
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <span
-                              className={`text-xs font-black px-2.5 py-1 rounded-full bg-gradient-to-r ${b.badgeClass} shadow-sm cursor-help hover:scale-105 transition-transform`}
+                              className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.badgeClass} shadow-sm cursor-help hover:scale-105 transition-transform`}
                             >
                               {b.title}
                             </span>
@@ -1261,7 +1261,7 @@ export function Leaderboard({ isPage = false }) {
                               >
                                 <div className="flex items-center justify-between gap-1">
                                   <span
-                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${t.color} cursor-help hover:scale-105 transition-transform`}
+                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${t.color} cursor-help hover:scale-105 transition-transform`}
                                   >
                                     {t.name}
                                   </span>
@@ -1287,7 +1287,7 @@ export function Leaderboard({ isPage = false }) {
             </div>
 
             {/* Footer Tip */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-200/80">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-linear-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-200/80">
               💡{' '}
               <em>
                 ¡Cada reseña, comentario y aporte suma directamente a tu Score

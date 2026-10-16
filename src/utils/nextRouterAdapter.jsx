@@ -17,7 +17,7 @@ export const Link = forwardRef(function Link(
 ) {
   const target = href || to || '#';
   return (
-    <NextLink ref={ref} href={target} replace={replace} {...props} onClick={event => {
+    <NextLink ref={ref} href={target} replace={replace} prefetch={false} {...props} onClick={event => {
       onClick?.(event);
       if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && typeof target === 'string') {
         window.dispatchEvent(new CustomEvent('musiclub:navigate', { detail: target }));
