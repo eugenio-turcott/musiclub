@@ -855,7 +855,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
                 {platformStats.releases
-                  ? `${platformStats.releases.toLocaleString()}+`
+                  ? `${platformStats.releases.toLocaleString('es-MX')}+`
                   : '4,127,529+'}
               </span>
             </div>
@@ -871,13 +871,13 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             <div className="mt-1 flex items-baseline gap-2">
               <span className="text-2xl sm:text-3xl font-black text-white">
                 {platformStats.artists
-                  ? `${(platformStats.artists + (platformStats.labels || 0)).toLocaleString()}+`
+                  ? `${(platformStats.artists + (platformStats.labels || 0)).toLocaleString('es-MX')}+`
                   : '3,340,692+'}
               </span>
             </div>
             <p className="text-[11px] text-pink-300 font-medium mt-1">
-              {platformStats.artists?.toLocaleString() || '2,995,843'} artistas
-              · {(platformStats.labels || 344849).toLocaleString()} discografías
+              {platformStats.artists?.toLocaleString('es-MX') || '2,995,843'} artistas
+              · {(platformStats.labels || 344849).toLocaleString('es-MX')} discografías
               oficiales
             </p>
           </div>

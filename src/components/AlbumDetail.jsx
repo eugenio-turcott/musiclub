@@ -1241,7 +1241,7 @@ export function AlbumDetail({
                   <>
                     <span className="text-white/20">•</span>
                     <span>
-                      {new Date(album.created_at).toLocaleDateString()}
+                      {new Date(album.created_at).toLocaleDateString('es-MX', { timeZone: 'UTC' })}
                     </span>
                   </>
                 )}

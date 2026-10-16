@@ -10,6 +10,15 @@ export const GITHUB_REPO_NAME = 'musiclub-albumes';
 export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
+  {
+    version: 'V.9.6.1',
+    title: 'Formato estable del catálogo al cargar',
+    date: '2026-10-16',
+    sha: '', associatedShas: [], tag: 'Estabilidad',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Los contadores y fechas mantienen el mismo formato durante la carga inicial, aunque el navegador y el servidor utilicen configuraciones regionales diferentes.',
+    changes: [{ type: 'fix', title: 'Formato regional consistente', description: 'Se utiliza un formato explícito para los contadores del catálogo y las fechas de las fichas, evitando regenerar contenido al iniciar la página.' }],
+  },
 {
   "version": "V.9.6",
   "title": "Contenido público, navegación canónica y protección de integraciones",
