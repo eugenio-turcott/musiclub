@@ -2,7 +2,7 @@ import React from 'react';
 import { ProfilePage } from '../../views/ProfilePage';
 
 export const metadata = {
-  title: 'Perfil de Melómano | Musiclub',
+  title: 'Perfil de Melómano',
   description:
     'Tu perfil en Musiclub. Tus calificaciones, estadísticas musicales, insignias y progreso en el club.',
   robots: {

@@ -1,4 +1,6 @@
 import { supabase } from './supabaseClient.js';
+import { spotifyFetch as fetch } from '../utils/spotifyFetch.js';
+import { authenticatedFetch } from './authenticatedFetch.js';
 import { slugifyRelease, slugifyArtist } from '../utils/ratingUtils.js';
 import {
   RECORD_CLUB_FALLBACK_RELEASES,
@@ -17,7 +19,6 @@ function getSpotifyCredentials() {
     process.env.SPOTIFY_CLIENT_ID;
   const clientSecret =
     process.env.REACT_APP_SPOTIFY_CLIENT_SECRET ||
-    process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_SECRET ||
     process.env.SPOTIFY_CLIENT_SECRET;
   return { clientId, clientSecret };
 }
@@ -26,6 +27,7 @@ function getSpotifyCredentials() {
  * Obtiene token de aplicación de Spotify de forma segura (soporta Node y Browser)
  */
 async function getSpotifyAppToken() {
+  if (typeof window !== 'undefined') return 'server-proxy';
   if (cachedToken && Date.now() < tokenExpiresAt) {
     return cachedToken;
   }
@@ -922,7 +924,7 @@ export async function subscribeToUpcomingRelease({
   }
 
   try {
-    const res = await fetch('/api/notifications/upcoming', {
+    const res = await authenticatedFetch('/api/notifications/upcoming', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

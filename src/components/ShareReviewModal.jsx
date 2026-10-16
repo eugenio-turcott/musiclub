@@ -1208,7 +1208,7 @@ export function ShareReviewModal({
         ? window.location.origin
         : 'https://www.musiclub.org';
     const relUrl = album
-      ? getReleaseUrl(album.album_name, album.release_type)
+      ? getReleaseUrl(album)
       : '/';
     return `${origin}${relUrl}`;
   }, [album]);

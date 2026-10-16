@@ -35,6 +35,7 @@ jobs:
 
       - name: Run Smart Catalog Seeder (65% 2026 / 20% Tendencia / 15% Décadas) & Update Sitemap
         env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
@@ -43,6 +44,7 @@ jobs:
 
       - name: Continuous Healing of Legacy Albums (MBID & Genres)
         env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
         run: node scripts/populateMissingMbidAndGenres.mjs --limit=25
@@ -51,16 +53,10 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add scripts/seeder_state.json public/sitemap*.xml
+          git add scripts/seeder_state.json
           if git diff --staged --quiet; then
             echo "Sin cambios para commitear."
           else
-            git commit -m "chore: automated smart catalog ingestion and sitemap update [skip ci]"
+            git commit -m "Musiclub Updates - V.9.6: actualización del catálogo [skip ci]"
             git push
           fi
-
-      - name: Ping Search Engines for Sitemap Indexing
-        run: |
-          echo "Notificando a motores de búsqueda sobre el nuevo sitemap..."
-          curl -s "https://www.bing.com/ping?sitemap=https://www.musiclub.org/sitemap.xml" || true
-          echo "Motores de búsqueda notificados con éxito."

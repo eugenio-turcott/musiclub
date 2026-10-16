@@ -146,8 +146,8 @@ export function useAuth() {
           };
         }
 
-        const isAdminUser = userData.role === 'admin' || checkIsAdmin(userData.email);
-        userData.role = isAdminUser ? 'admin' : userData.role;
+        const isAdminUser = checkIsAdmin(userData.email);
+        userData.role = isAdminUser ? 'admin' : 'user';
 
         setUser((prev) => {
           if (

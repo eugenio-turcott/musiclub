@@ -1,3 +1,4 @@
+import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendPatchNotesEmail } from '../../../../services/emailService';
 import { CURATED_PATCH_NOTES } from '../../../../data/patchNotesData';
@@ -23,6 +24,8 @@ function getSupabaseServerClient() {
 }
 
 export async function POST(request) {
+  const auth = await authorize(request, {"admin":true});
+  if (auth.error) return auth.error;
   try {
     // DESACTIVADO TEMPORALMENTE PARA LA VERSIÓN 9.3 A PETICIÓN DEL USUARIO
     return NextResponse.json({

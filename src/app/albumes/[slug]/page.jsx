@@ -1,5 +1,8 @@
 import React from 'react';
-import { supabaseService } from '../../../services/supabaseClient';
+import { getPublicAlbum } from '../../../server/catalog';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { jsonLd } from '../../../utils/publicData';
 import {
   slugifyArtist,
   getReleaseTypeCategory,
@@ -11,24 +14,9 @@ export const revalidate = 3600; // Incremental Static Regeneration (1 hora)
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const album = await supabaseService.getAlbumWithFullStats(slug);
+  const album = await getPublicAlbum(slug);
 
-  if (!album) {
-    const formattedFallback = slug
-      ? decodeURIComponent(slug).replace(/[-_]/g, ' ')
-      : 'Álbum';
-    return {
-      title: formattedFallback,
-      description: `Explora detalles, calificaciones y opiniones de ${formattedFallback} en Musiclub.`,
-      alternates: {
-        canonical: `https://www.musiclub.org/albumes/${slug}`,
-      },
-      robots: {
-        index: true,
-        follow: true,
-      },
-    };
-  }
+  if (!album) notFound();
 
   const name = album.album_name;
   const artist = album.artist_name;
@@ -96,7 +84,11 @@ export async function generateMetadata({ params }) {
 
 export default async function AlbumPage({ params }) {
   const { slug } = await params;
-  const album = await supabaseService.getAlbumWithFullStats(slug);
+  const album = await getPublicAlbum(slug);
+  if (!album) notFound();
+  const canonicalPath = getReleaseUrl(album);
+  const currentPath = (await headers()).get('x-musiclub-pathname') || `/albumes/${slug}`;
+  if (decodeURI(currentPath) !== canonicalPath) permanentRedirect(canonicalPath);
 
   const schemaData = album
     ? {
@@ -151,7 +143,7 @@ export default async function AlbumPage({ params }) {
       {schemaData && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
+          dangerouslySetInnerHTML={{ __html: jsonLd(schemaData) }}
         />
       )}
       <AlbumDetail preloadedAlbum={album} initialSlug={slug} />

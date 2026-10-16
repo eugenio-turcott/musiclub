@@ -1,8 +1,12 @@
 import React, { Suspense } from 'react';
 import { AlbumsPage } from '../../views/AlbumsPage';
+import { getPublicCatalog } from '../../server/catalog';
+import { notFound } from 'next/navigation';
 
-export const metadata = {
-  title: 'Catálogo Musical | Musiclub',
+export const revalidate = 300;
+
+const catalogMetadata = {
+  title: 'Catálogo Musical',
   description:
     'Explora el catálogo completo de álbumes, EPs y sencillos reseñados y calificados por la comunidad de Musiclub. Descubre notas, tracklists y opiniones.',
   alternates: {
@@ -13,7 +17,7 @@ export const metadata = {
     follow: true,
   },
   openGraph: {
-    title: 'Catálogo Musical | Musiclub',
+    title: 'Catálogo Musical',
     description:
       'Explora el catálogo completo de álbumes, EPs y sencillos reseñados y calificados por la comunidad de Musiclub. Descubre notas, tracklists y opiniones.',
     url: 'https://www.musiclub.org/catalogo',
@@ -22,17 +26,25 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Catálogo Musical | Musiclub',
+    title: 'Catálogo Musical',
     description:
       'Explora el catálogo completo de álbumes, EPs y sencillos reseñados y calificados por la comunidad de Musiclub.',
     images: ['https://www.musiclub.org/musiclub_logo_corchea.png'],
   },
 };
 
-export default function CatalogoPage() {
+export async function generateMetadata({ searchParams }) {
+  const page = Math.max(1, Number((await searchParams).page) || 1);
+  return { ...catalogMetadata, title: page > 1 ? `Catálogo Musical - Página ${page}` : catalogMetadata.title,
+    alternates: { canonical: `https://www.musiclub.org/catalogo${page > 1 ? `?page=${page}` : ''}` } };
+}
+export default async function CatalogoPage({ searchParams }) {
+  const { albums } = await getPublicCatalog();
+  const page = Number((await searchParams).page || 1);
+  if (!Number.isInteger(page) || page < 1 || page > Math.ceil(albums.length / 20)) notFound();
   return (
     <Suspense fallback={<div className="min-h-screen bg-[#0a0b0f]" />}>
-      <AlbumsPage />
+      <AlbumsPage key={page} initialAlbums={albums} initialPage={page} />
     </Suspense>
   );
 }

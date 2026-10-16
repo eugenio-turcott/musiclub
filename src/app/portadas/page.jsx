@@ -2,7 +2,7 @@ import React from 'react';
 import { CoverRatingsPage } from '../../views/CoverRatingsPage';
 
 export const metadata = {
-  title: 'Calificación de Portadas de Álbumes | Musiclub',
+  title: 'Calificación de Portadas de Álbumes',
   description:
     'Califica las portadas de tus álbumes favoritos, explora el ranking visual y vota por el mejor diseño de portada musical en Musiclub.',
   alternates: {

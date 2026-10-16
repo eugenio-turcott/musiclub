@@ -1,9 +1,12 @@
+import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { enrichAndInsertAlbum } from '../../../../services/albumEnrichmentService';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
+  const auth = await authorize(request, {});
+  if (auth.error) return auth.error;
   try {
     const body = await request.json();
     if (!body || !body.album_name) {
@@ -13,7 +16,7 @@ export async function POST(request) {
       );
     }
 
-    const result = await enrichAndInsertAlbum(body);
+    const result = await enrichAndInsertAlbum(body, auth.db);
     if (!result.success) {
       return NextResponse.json(
         { success: false, error: result.error || 'Error enriqueciendo álbum' },

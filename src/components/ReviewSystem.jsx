@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
+import { authenticatedFetch } from '../services/authenticatedFetch';
 import {
   getWeightedReviewScore,
   getAlbumWeightedAverage,
@@ -646,6 +647,7 @@ export function ReviewSystem({
       } else {
         await supabaseService.submitReview(reviewData);
       }
+      await authenticatedFetch('/api/catalog', { method: 'POST' }).catch(() => {});
 
       // Clear draft on successful submission
       if (draftKey) {

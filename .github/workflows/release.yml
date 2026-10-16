@@ -29,15 +29,21 @@ jobs:
           node-version: '22'
 
       - name: Generate Release Body from Patch Notes
+        id: version
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.tag_name || github.ref_name }}
         run: |
-          TAG_INPUT="${{ github.event.inputs.tag_name || github.ref_name }}"
-          node scripts/generate-release-body.mjs "$TAG_INPUT"
+          VERSION="${RELEASE_TAG#v}"
+          VERSION="${VERSION#V.}"
+          echo "number=$VERSION" >> "$GITHUB_OUTPUT"
+          node scripts/generate-release-body.mjs "$RELEASE_TAG"
 
       - name: Publish GitHub Release
+        # The tag is normalized in the preceding step to keep public version names consistent.
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag_name || github.ref_name }}
-          name: Musiclub ${{ github.event.inputs.tag_name || github.ref_name }}
+          name: Musiclub Updates - V.${{ steps.version.outputs.number }}
           body_path: RELEASE_BODY.md
           draft: false
           prerelease: false

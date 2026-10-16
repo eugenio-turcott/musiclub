@@ -4,7 +4,7 @@ import React from 'react';
 import { AlbumsCatalog } from '../components/AlbumsCatalog';
 import { SEO } from '../components/SEO';
 
-export function AlbumsPage() {
+export function AlbumsPage({ initialAlbums = [], initialPage = 1 } = {}) {
   return (
     <>
       <SEO
@@ -13,7 +13,7 @@ export function AlbumsPage() {
         url="https://www.musiclub.org/catalogo"
         keywords="catalogo de albumes, discografias, reviews de musica, mejores albumes, calificaciones musicales, canciones, musiclub"
       />
-      <AlbumsCatalog isPage={true} />
+      <AlbumsCatalog isPage={true} initialAlbums={initialAlbums} initialPage={initialPage} />
     </>
   );
 }

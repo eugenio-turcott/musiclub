@@ -61,9 +61,9 @@ async function getTopReviewersManual() {
   try {
     const [reviewsRes, profilesRes] = await Promise.all([
       supabase
-        .from('reviews')
+        .from('public_reviews')
         .select('reviewer_name, reviewer_email, rating_general, album_id'),
-      supabase.from('profiles').select('email, name, avatar_url'),
+      supabase.from('public_profiles').select('email, name, avatar_url'),
     ]);
 
     const reviews = reviewsRes.data;
@@ -779,7 +779,7 @@ export const supabaseService = {
   getCurrentWinner: async () => {
     try {
       const { data: poolWinner, error } = await supabase
-        .from('pool_entries')
+        .from('public_pool_entries')
         .select(`
           id,
           status,
@@ -829,7 +829,7 @@ export const supabaseService = {
 
   getReviews: async (albumId) => {
     const { data, error } = await supabase
-      .from('reviews')
+      .from('public_reviews')
       .select('*')
       .eq('album_id', albumId)
       .order('created_at', { ascending: false });
@@ -840,7 +840,7 @@ export const supabaseService = {
 
   getAllReviews: async () => {
     const { data, error } = await supabase
-      .from('reviews')
+      .from('public_reviews')
       .select('*, albums:album_id(id, album_name, artist_name, image_url, tracks, release_type, release_year, release_date)')
       .order('created_at', { ascending: false });
 
@@ -976,7 +976,7 @@ export const supabaseService = {
       if (!email && !name) return [];
 
       let query = supabase
-        .from('reviews')
+        .from(name ? 'public_reviews' : 'reviews')
         .select(
           `
           *,
@@ -1044,7 +1044,7 @@ export const supabaseService = {
 
       while (hasMore) {
         const { data, error } = await supabase
-          .from('reviews')
+          .from('public_reviews')
           .select('album_id')
           .range(from, from + step - 1);
 
@@ -1131,8 +1131,8 @@ export const supabaseService = {
   getTopReviewers: async () => {
     try {
       const [reviewsRes, profilesRes] = await Promise.all([
-        supabase.from('reviews').select('*'),
-        supabase.from('profiles').select('email, name, avatar_url'),
+        supabase.from('public_reviews').select('*'),
+        supabase.from('public_profiles').select('email, name, avatar_url'),
       ]);
 
       const data = reviewsRes.data;
@@ -1356,12 +1356,12 @@ export const supabaseService = {
     try {
       const [reviewsRes, albumsRes, profilesRes, topAlbums] = await Promise.all([
         supabase
-          .from('reviews')
+          .from('public_reviews')
           .select(
             'album_id, reviewer_name, rating_produccion, rating_composicion, rating_letras, rating_originalidad, rating_cohesion, rating_replay, rating_general'
           ),
         supabase.from('albums').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('public_profiles').select('*', { count: 'exact', head: true }),
         supabaseService.getTopAlbums().catch(() => []),
       ]);
 
@@ -1536,7 +1536,7 @@ export const supabaseService = {
   getAllProfiles: async () => {
     try {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('*')
         .order('name', { ascending: true });
       if (error) throw error;
@@ -1550,9 +1550,9 @@ export const supabaseService = {
   getDetailedLeaderboard: async () => {
     try {
       const [profilesRes, reviewsRes] = await Promise.all([
-        supabase.from('profiles').select('*'),
+        supabase.from('public_profiles').select('*'),
         supabase
-          .from('reviews')
+          .from('public_reviews')
           .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year, tracks)'),
       ]);
 
@@ -1783,6 +1783,12 @@ export const supabaseService = {
 
   getAlbumWithFullStats: async (slugOrId) => {
     if (!slugOrId) return null;
+    if (typeof window !== 'undefined') {
+      const response = await fetch(`/api/catalog?slug=${encodeURIComponent(slugOrId)}`, { cache: 'no-store' });
+      if (response.status === 404) return null;
+      if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
+      return response.json();
+    }
     try {
       let album = null;
       const strId = String(slugOrId).trim();
@@ -1849,13 +1855,13 @@ export const supabaseService = {
 
       // Recuperar ÚNICAMENTE las reviews de este álbum (ultrarrápido, ~50ms)
       const { data: reviewsData } = await supabase
-        .from('reviews')
+        .from('public_reviews')
         .select('*')
         .eq('album_id', album.id);
 
       // Recuperar perfiles para los avatares
       const { data: profilesData } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('email, name, avatar_url');
 
       return buildAlbumWithFullStats(album, reviewsData || [], profilesData || []);
@@ -1866,6 +1872,11 @@ export const supabaseService = {
   },
 
   getAllAlbumsWithFullStats: async () => {
+    if (typeof window !== 'undefined') {
+      const response = await fetch('/api/catalog', { cache: 'no-store' });
+      if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
+      return (await response.json()).albums;
+    }
     try {
       // Recuperar álbumes paginados para garantizar que catálogos mayores a 1,000 filas no se corten
       const step = 1000;
@@ -1897,7 +1908,7 @@ export const supabaseService = {
 
       while (hasMoreRevs) {
         const { data: revChunk, error: revErr } = await supabase
-          .from('reviews')
+          .from('public_reviews')
           .select('*')
           .range(revFrom, revFrom + step - 1);
 
@@ -1912,7 +1923,7 @@ export const supabaseService = {
       }
 
       const { data: profilesData } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('email, name, avatar_url');
 
       const albums = allAlbums;
@@ -2098,76 +2109,10 @@ export const supabaseService = {
   // BUZÓN DE CANCIONES (RECOMENDACIONES ENTRE PERFILES)
   // ============================================
 
-  sendSongRecommendation: async ({
-    senderId = null,
-    senderName,
-    senderEmail,
-    recipientId = null,
-    recipientName = null,
-    recipientEmail,
-    songTitle,
-    artistName,
-    albumName = null,
-    imageUrl = null,
-    spotifyLink = null,
-    youtubeLink = null,
-    appleMusicLink = null,
-    deezerLink = null,
-    otherLink = null,
-    message = null,
-  }) => {
-    if (!senderEmail || !recipientEmail || !songTitle || !artistName) {
-      throw new Error('Faltan campos obligatorios: correo del emisor, destinatario, título de la canción y artista.');
-    }
-
-    const cleanDeezer = (deezerLink || otherLink || '').trim() || null;
-
-    const basePayload = {
-      sender_id: senderId || null,
-      sender_name: (senderName || 'Miembro del Club').trim(),
-      sender_email: senderEmail.toLowerCase().trim(),
-      recipient_id: recipientId || null,
-      recipient_name: recipientName ? recipientName.trim() : null,
-      recipient_email: recipientEmail.toLowerCase().trim(),
-      song_title: songTitle.trim(),
-      artist_name: artistName.trim(),
-      album_name: albumName ? albumName.trim() : null,
-      image_url: imageUrl ? imageUrl.trim() : null,
-      spotify_link: spotifyLink ? spotifyLink.trim() : null,
-      youtube_link: youtubeLink ? youtubeLink.trim() : null,
-      apple_music_link: appleMusicLink ? appleMusicLink.trim() : null,
-      message: message ? message.trim() : null,
-      is_read: false,
-    };
-
-    // Intentar primero con deezer_link / other_link
-    try {
-      const payloadWithDeezer = {
-        ...basePayload,
-        ...(cleanDeezer ? { deezer_link: cleanDeezer, other_link: cleanDeezer } : {}),
-      };
-      const { data, error } = await supabase
-        .from('song_recommendations')
-        .insert([payloadWithDeezer])
-        .select();
-
-      if (!error && data && data.length > 0) {
-        return data[0];
-      }
-    } catch (ignore) {}
-
-    // Fallback estándar si las columnas deezer_link/other_link aún no existen en la BD
-    const { data, error } = await supabase
-      .from('song_recommendations')
-      .insert([basePayload])
-      .select();
-
-    if (error) {
-      console.error('Error enviando recomendación de canción:', error);
-      throw new Error(error.message);
-    }
-
-    return data && data.length > 0 ? data[0] : null;
+  sendSongRecommendation: async (payload) => {
+    const { data, error } = await supabase.rpc('musiclub_send_song_recommendation', { payload });
+    if (error) throw error;
+    return data;
   },
 
   getReceivedSongRecommendations: async (userEmail, userId = null) => {
@@ -2269,7 +2214,7 @@ export const supabaseService = {
   getCoverRatings: async (albumId) => {
     try {
       const { data, error } = await supabase
-        .from('cover_ratings')
+        .from('public_cover_ratings')
         .select('*')
         .eq('album_id', albumId)
         .order('created_at', { ascending: false });
@@ -2286,7 +2231,7 @@ export const supabaseService = {
   getAllCoverRatings: async () => {
     try {
       const { data, error } = await supabase
-        .from('cover_ratings')
+        .from('public_cover_ratings')
         .select(`
           *,
           albums:album_id (
@@ -2420,8 +2365,8 @@ export const supabaseService = {
     let remoteComments = [];
 
     try {
-      let rQuery = supabase.from('review_reactions').select('*');
-      let cQuery = supabase.from('review_comments').select('*').order('created_at', { ascending: true });
+      let rQuery = supabase.from('public_review_reactions').select('*');
+      let cQuery = supabase.from('public_review_comments').select('*').order('created_at', { ascending: true });
 
       if (albumId) {
         rQuery = rQuery.eq('album_id', albumId);

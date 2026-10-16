@@ -1,3 +1,4 @@
+import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendUpcomingConfirmationEmail } from '../../../../services/emailService';
 import { createClient } from '@supabase/supabase-js';
@@ -6,6 +7,8 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function POST(request) {
+  const auth = await authorize(request, {});
+  if (auth.error) return auth.error;
   try {
     const body = await request.json();
     const {
@@ -34,7 +37,8 @@ export async function POST(request) {
       );
     }
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = auth.user.email.toLowerCase();
+    if (email.trim().toLowerCase() !== cleanEmail) return NextResponse.json({ error: 'Solo puedes suscribirte con tu cuenta' }, { status: 403 });
 
     // 1. Guardar o actualizar en la tabla upcoming_notifications de Supabase
     try {
@@ -49,9 +53,7 @@ export async function POST(request) {
         process.env.SUPABASE_ANON_KEY;
 
       if (supabaseUrl && supabaseKey) {
-        const supabase = createClient(supabaseUrl, supabaseKey, {
-          auth: { persistSession: false },
-        });
+        const supabase = auth.db;
 
         await supabase
           .from('upcoming_notifications')
@@ -62,7 +64,7 @@ export async function POST(request) {
               artist_name: artistName,
               release_date: releaseDate || null,
               email: cleanEmail,
-              user_id: userId || null,
+              user_id: auth.user.id,
               notified: false,
               created_at: new Date().toISOString(),
             },

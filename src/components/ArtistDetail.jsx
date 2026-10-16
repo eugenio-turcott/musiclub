@@ -31,7 +31,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
   // Cargar datos de Supabase y Spotify
   const loadArtistData = useCallback(async () => {
-    setLoading(true);
+    if (!initialProfileData) setLoading(true);
     setError(null);
 
     try {
@@ -130,7 +130,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, initialProfileData]);
 
   useEffect(() => {
     loadArtistData();

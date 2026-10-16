@@ -1,96 +1,28 @@
 import React from 'react';
+import { notFound, permanentRedirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { ArtistDetail } from '../../../components/ArtistDetail';
+import { getPublicArtist } from '../../../server/catalog';
+import { slugifyArtist } from '../../../utils/ratingUtils';
 
-export const revalidate = 3600; // Incremental Static Regeneration
-
+export const revalidate = 300;
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const rawDecoded = slug
-    ? decodeURIComponent(slug).replace(/[-_]/g, ' ').trim()
-    : 'Artista';
-  const artistName =
-    rawDecoded === rawDecoded.toLowerCase()
-      ? rawDecoded
-          .split(' ')
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ')
-      : rawDecoded;
-
-  const canonicalUrl = `https://www.musiclub.org/artista/${slug}`;
-  const title = `${artistName} - Discografía, Álbumes y Calificaciones`;
-  const description = `Explora la discografía completa de ${artistName} en Musiclub. Calificaciones comunitarias, opiniones de álbumes, mejores pistas y reviews de canciones.`;
-
-  return {
-    title,
-    description,
-    keywords: [
-      artistName,
-      'discografia',
-      'albumes',
-      'musica',
-      'canciones',
-      'calificaciones',
-      'reviews',
-      'musiclub',
-    ],
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    robots: {
-      index: true,
-      follow: true,
-    },
-    openGraph: {
-      title,
-      description,
-      url: canonicalUrl,
-      siteName: 'Musiclub',
-      type: 'profile',
-      images: [
-        {
-          url: 'https://www.musiclub.org/musiclub_logo_corchea.png',
-          width: 1200,
-          height: 630,
-          alt: artistName,
-        },
-      ],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title,
-      description,
-      images: ['https://www.musiclub.org/musiclub_logo_corchea.png'],
-    },
-  };
+  const artist = await getPublicArtist(slug);
+  if (!artist) notFound();
+  const name = artist.profile.artist.name;
+  const url = `https://www.musiclub.org/artista/${slugifyArtist(name)}`;
+  const title = `${name} - Discografía, Álbumes y Calificaciones`;
+  const description = `Explora los discos de ${name}, sus calificaciones y las opiniones de la comunidad de Musiclub.`;
+  return { title, description, alternates: { canonical: url },
+    openGraph: { title, description, url, type: 'profile', images: artist.profile.artist.image ? [artist.profile.artist.image] : [] } };
 }
-
 export default async function ArtistPage({ params }) {
   const { slug } = await params;
-  const rawDecoded = slug
-    ? decodeURIComponent(slug).replace(/[-_]/g, ' ').trim()
-    : 'Artista';
-  const artistName =
-    rawDecoded === rawDecoded.toLowerCase()
-      ? rawDecoded
-          .split(' ')
-          .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-          .join(' ')
-      : rawDecoded;
-
-  const schemaData = {
-    '@context': 'https://schema.org',
-    '@type': 'MusicGroup',
-    name: artistName,
-    url: `https://www.musiclub.org/artista/${slug}`,
-  };
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaData) }}
-      />
-      <ArtistDetail initialSlug={slug} />
-    </>
-  );
+  const artist = await getPublicArtist(slug);
+  if (!artist) notFound();
+  const canonicalPath = `/artista/${slugifyArtist(artist.profile.artist.name)}`;
+  const pathname = (await headers()).get('x-musiclub-pathname') || `/artista/${slug}`;
+  if (decodeURI(pathname) !== canonicalPath) permanentRedirect(canonicalPath);
+  return <ArtistDetail key={slug} initialSlug={slug} initialProfileData={artist.profile} initialClubAlbums={artist.albums} />;
 }

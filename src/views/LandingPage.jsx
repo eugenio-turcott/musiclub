@@ -21,8 +21,8 @@ import {
 } from '../utils/ratingUtils';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
-export function LandingPage() {
-  const { albums, winner, refetch, markAlbumAsInactive } = useAlbums();
+export function LandingPage({ initialAlbums = [], initialReviews = [], initialStats } = {}) {
+  const { albums, winner, refetch, markAlbumAsInactive } = useAlbums(initialAlbums);
   const { activePool } = usePool();
   const {
     user,
@@ -43,10 +43,11 @@ export function LandingPage() {
   const [togglingReviews, setTogglingReviews] = useState(false);
 
   // Data states from Supabase
-  const [topAlbums, setTopAlbums] = useState([]);
+  const [topAlbums, setTopAlbums] = useState(() => initialAlbums.filter(a => a.review_count > 0)
+    .map(a => ({ ...a, avg_rating: a.final_rating })).sort((a, b) => b.avg_rating - a.avg_rating));
   const [shuffledReviewedAlbums, setShuffledReviewedAlbums] = useState([]);
-  const [allReviews, setAllReviews] = useState([]);
-  const [globalStats, setGlobalStats] = useState({
+  const [allReviews, setAllReviews] = useState(initialReviews);
+  const [globalStats, setGlobalStats] = useState(initialStats || {
     total_reviews: 320,
     total_albums: 161,
     total_reviewed_albums: 131,
@@ -76,38 +77,13 @@ export function LandingPage() {
     let isMounted = true;
     const fetchLandingData = async () => {
       try {
-        const [topData, reviewsRes, statsData, profilesData] =
-          await Promise.all([
-            supabaseService.getTopAlbums().catch((err) => {
-              console.warn('Error fetching top albums:', err);
-              return [];
-            }),
-            supabase
-              .from('reviews')
-              .select(
-                `
-              *,
-              albums:album_id (
-                id,
-                album_name,
-                artist_name,
-                image_url,
-                release_type,
-                release_year,
-                tracks
-              )
-            `
-              )
-              .order('created_at', { ascending: false }),
-            supabaseService.getGlobalStats().catch((err) => {
-              console.warn('Error fetching global stats:', err);
-              return null;
-            }),
-            supabaseService.getAllProfiles().catch((err) => {
-              console.warn('Error fetching profiles:', err);
-              return [];
-            }),
-          ]);
+        const response = await fetch('/api/catalog', { cache: 'no-store' });
+        if (!response.ok) throw new Error('Catálogo temporalmente no disponible');
+        const data = await response.json();
+        const topData = data.albums.filter(a => a.review_count > 0).map(a => ({ ...a, avg_rating: a.final_rating })).sort((a,b) => b.avg_rating-a.avg_rating);
+        const reviewsRes = { data: data.reviews };
+        const statsData = data.stats;
+        const profilesData = [];
 
         if (!isMounted) return;
 
@@ -532,10 +508,7 @@ export function LandingPage() {
   const renderShowcaseCard = (album, key, isSliderMode = false) => (
     <Link
       key={key}
-      to={getReleaseUrl(
-        album.album || album.album_name,
-        album.release_type || album.releaseType
-      )}
+      to={getReleaseUrl(album)}
       className={`group relative rounded-2xl bg-[#111322]/85 border border-white/10 hover:border-pink-500/50 p-3 sm:p-3.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/15 flex flex-col justify-between ${
         isSliderMode
           ? 'w-[200px] sm:w-[230px] md:w-[260px] flex-shrink-0'
@@ -864,12 +837,7 @@ export function LandingPage() {
                       {(currentVinylAlbum?.album ||
                         currentVinylAlbum?.album_name) && (
                         <Link
-                          to={getReleaseUrl(
-                            currentVinylAlbum.album ||
-                              currentVinylAlbum.album_name,
-                            currentVinylAlbum.release_type ||
-                              currentVinylAlbum.releaseType
-                          )}
+                          to={getReleaseUrl(currentVinylAlbum)}
                           className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs shadow-md shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
                         >
                           <span>Ver Más</span>
@@ -1029,10 +997,7 @@ export function LandingPage() {
                       </a>
                     )}
                     <Link
-                      to={getReleaseUrl(
-                        winner.album,
-                        winner.release_type || winner.releaseType
-                      )}
+                      to={getReleaseUrl(winner)}
                       className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-pink-300 hover:text-pink-200 transition-all flex items-center gap-1.5"
                     >
                       <span>🔍</span>
@@ -1677,12 +1642,7 @@ export function LandingPage() {
 
                     {/* Album Reference Banner */}
                     <Link
-                      to={getReleaseUrl(
-                        albumTitle,
-                        review.release_type ||
-                          review.album?.release_type ||
-                          review.album?.releaseType
-                      )}
+                      to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
                       className="flex items-center gap-3 p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
                     >
                       {albumCover ? (
@@ -1746,12 +1706,7 @@ export function LandingPage() {
                     <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40">
                       <span>Musiclub Review</span>
                       <Link
-                        to={getReleaseUrl(
-                          albumTitle,
-                          review.release_type ||
-                            review.album?.release_type ||
-                            review.album?.releaseType
-                        )}
+                        to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
                         className="text-pink-400 hover:text-white transition-colors font-semibold"
                       >
                         Ver lanzamiento →

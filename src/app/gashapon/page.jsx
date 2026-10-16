@@ -2,7 +2,7 @@ import React from 'react';
 import { GashaponPage } from '../../views/GashaponPage';
 
 export const metadata = {
-  title: 'Gashapon Musical — Ruleta Arcade para Descubrir Álbumes | Musiclub',
+  title: 'Gashapon Musical — Ruleta Arcade para Descubrir Álbumes',
   description:
     'Juega en la máquina Gashapon de Musiclub. Gira la ruleta arcade para obtener álbumes aleatorios, descubrir joyas ocultas y sumar lanzamientos a tu lista de escucha.',
   alternates: {

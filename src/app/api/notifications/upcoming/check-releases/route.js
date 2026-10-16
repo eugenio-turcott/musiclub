@@ -1,3 +1,4 @@
+import { authorize } from '../../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendUpcomingReleaseDayEmail } from '../../../../../services/emailService';
 import { createClient } from '@supabase/supabase-js';
@@ -12,17 +13,14 @@ function getSupabaseServerClient() {
     process.env.SUPABASE_URL;
 
   const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.REACT_APP_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY;
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.REACT_APP_SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !supabaseKey) return null;
   return createClient(supabaseUrl, supabaseKey);
 }
 
-async function processReleaseNotifications() {
-  const supabase = getSupabaseServerClient();
+async function processReleaseNotifications(auth) {
+  const supabase = auth.db || getSupabaseServerClient();
   if (!supabase) {
     throw new Error('No se pudo conectar a Supabase.');
   }
@@ -122,9 +120,11 @@ async function processReleaseNotifications() {
   };
 }
 
-export async function GET() {
+export async function GET(request) {
+  const auth = await authorize(request, { admin: true, cron: true });
+  if (auth.error) return auth.error;
   try {
-    const data = await processReleaseNotifications();
+    const data = await processReleaseNotifications(auth);
     return NextResponse.json({ success: true, ...data });
   } catch (error) {
     console.error('Error en GET /api/notifications/upcoming/check-releases:', error);
@@ -132,9 +132,11 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(request) {
+  const auth = await authorize(request, { admin: true, cron: true });
+  if (auth.error) return auth.error;
   try {
-    const data = await processReleaseNotifications();
+    const data = await processReleaseNotifications(auth);
     return NextResponse.json({ success: true, ...data });
   } catch (error) {
     console.error('Error en POST /api/notifications/upcoming/check-releases:', error);

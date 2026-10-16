@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import {
   slugifyArtist,
+  slugifyRelease,
   findAlbumBySlug,
   getReleaseTypeCategory,
   getReleaseUrl,
@@ -1006,7 +1007,7 @@ export function AlbumDetail({
         url={canonicalUrl}
         type="music.album"
         keywords={pageKeywords}
-        schemaData={schemaData}
+        schemaData={propPreloadedAlbum ? null : schemaData}
       />
 
       <div className="max-w-7xl mx-auto space-y-8 w-full">

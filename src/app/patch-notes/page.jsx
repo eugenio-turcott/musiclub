@@ -2,7 +2,7 @@ import React from 'react';
 import { PatchNotesPage } from '../../views/PatchNotesPage';
 
 export const metadata = {
-  title: 'Patch Notes & Historial de Actualizaciones | Musiclub',
+  title: 'Patch Notes & Historial de Actualizaciones',
   description:
     'Consulta el registro completo de cambios, nuevas funciones, mejoras y correcciones de Musiclub sincronizado en tiempo real con GitHub.',
   alternates: {

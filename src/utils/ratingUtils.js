@@ -1,3 +1,4 @@
+import releaseIdentity from './releaseIdentity.cjs';
 // src/utils/ratingUtils.js
 
 /**
@@ -386,15 +387,7 @@ const KNOWN_INDIVISIBLE_ARTISTS = [
  * Convierte el nombre de un artista en un slug URL-friendly para rutas como /artista/Radiohead o /artista/The-Weeknd
  */
 export function slugifyArtist(artistName) {
-  if (!artistName) return '';
-  return String(artistName)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diacríticos
-    .replace(/['’]/g, '') // Remueve comillas/apóstrofes
-    .replace(/&/g, 'and')
-    .replace(/[^a-zA-Z0-9]+/g, '-') // Caracteres especiales y espacios se vuelven guiones
-    .replace(/^-+|-+$/g, '') // Quita guiones iniciales y finales
-    .toLowerCase();
+  return releaseIdentity.slugify(artistName);
 }
 
 /**
@@ -505,16 +498,7 @@ export function findAlbumsByArtist(albums = [], artistQuery = '') {
  * - Normaliza guiones consecutivos y extremos.
  */
 export function slugifyAlbum(albumName) {
-  if (!albumName) return '';
-  return String(albumName)
-    .replace(/\+/g, ' plus ') // Preserva sufijo deluxe como MOTOMAMI + -> motomami-plus
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Elimina tildes y diacríticos
-    .replace(/['’]/g, '') // Remueve comillas/apóstrofes
-    .replace(/&/g, 'and')
-    .replace(/[^a-zA-Z0-9]+/g, '-') // Caracteres especiales y espacios se vuelven guiones
-    .replace(/^-+|-+$/g, '') // Quita guiones iniciales y finales
-    .toLowerCase();
+  return releaseIdentity.slugify(albumName, true);
 }
 
 /**

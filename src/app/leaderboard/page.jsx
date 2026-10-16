@@ -2,7 +2,7 @@ import React from 'react';
 import { LeaderboardPage } from '../../views/LeaderboardPage';
 
 export const metadata = {
-  title: 'Ranking y Salón de la Fama de Álbumes | Musiclub',
+  title: 'Ranking y Salón de la Fama de Álbumes',
   description:
     'Descubre el Salón de la Fama con los mejores y peores álbumes calificados por la comunidad de Musiclub. Rankings históricos y estadísticas musicales.',
   alternates: {
@@ -13,7 +13,7 @@ export const metadata = {
     follow: true,
   },
   openGraph: {
-    title: 'Ranking y Salón de la Fama de Álbumes | Musiclub',
+    title: 'Ranking y Salón de la Fama de Álbumes',
     description:
       'Descubre el Salón de la Fama con los mejores y peores álbumes calificados por la comunidad de Musiclub.',
     url: 'https://www.musiclub.org/leaderboard',

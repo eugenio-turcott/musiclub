@@ -76,7 +76,7 @@ export function Footer({ showAd = true }) {
           className="hover:text-amber-400 text-amber-500/80 transition-colors flex items-center gap-1 font-medium"
           title="Enlace patrocinado para apoyar el mantenimiento de Musiclub"
         >
-          <span>✨</span> Apoya a Musiclub
+          <span>✨</span> Apoyar viendo publicidad
         </a>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <LanguageSelector variant="footer" />

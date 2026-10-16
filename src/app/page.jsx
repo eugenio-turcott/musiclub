@@ -1,5 +1,8 @@
 import React from 'react';
 import { LandingPage } from '../views/LandingPage';
+import { getPublicCatalog } from '../server/catalog';
+
+export const revalidate = 300;
 
 export const metadata = {
   title: 'Musiclub - Reviews From & For Music Lovers',
@@ -10,6 +13,7 @@ export const metadata = {
   },
 };
 
-export default function HomePage() {
-  return <LandingPage />;
+export default async function HomePage() {
+  const data = await getPublicCatalog();
+  return <LandingPage initialAlbums={data.albums} initialReviews={data.reviews} initialStats={data.stats} />;
 }

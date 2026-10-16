@@ -333,7 +333,7 @@ export function AlbumGrid({
                 {paginatedActiveAlbums.map((album, idx) => (
                   <Link
                     key={idx}
-                    to={getReleaseUrl(album.album || album.album_name, album.release_type || album.releaseType)}
+                    to={getReleaseUrl(album)}
                     className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer block ${
                       album.status === 'GANADOR'
                         ? isUserAlbum(album)
@@ -518,7 +518,7 @@ export function AlbumGrid({
             {paginatedIndividualAlbums.map((album, idx) => (
               <Link
                 key={idx}
-                to={getReleaseUrl(album.album || album.album_name, album.release_type || album.releaseType)}
+                to={getReleaseUrl(album)}
                 className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer block ${
                   isUserAlbum(album)
                     ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'
@@ -695,7 +695,7 @@ export function AlbumGrid({
             {paginatedInactiveAlbums.map((album, idx) => (
               <Link
                 key={idx}
-                to={getReleaseUrl(album.album || album.album_name, album.release_type || album.releaseType)}
+                to={getReleaseUrl(album)}
                 className={`relative aspect-square rounded-xl overflow-hidden border-2 transition-all duration-300 group cursor-pointer block ${
                   isUserAlbum(album)
                     ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'

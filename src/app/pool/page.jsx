@@ -2,7 +2,7 @@ import React from 'react';
 import { PoolPage } from '../../views/PoolPage';
 
 export const metadata = {
-  title: 'Pool Musical Comunitario y Temporadas | Musiclub',
+  title: 'Pool Musical Comunitario y Temporadas',
   description:
     'Participa en las nominaciones de álbumes de la semana, votaciones del pool musical y descubre la selección comunitaria en Musiclub.',
   alternates: {

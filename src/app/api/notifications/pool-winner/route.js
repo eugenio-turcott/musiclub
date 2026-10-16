@@ -1,3 +1,4 @@
+import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendPoolWinnerEmail } from '../../../../services/emailService';
 import { createClient } from '@supabase/supabase-js';
@@ -22,6 +23,8 @@ function getSupabaseServerClient() {
 }
 
 export async function POST(request) {
+  const auth = await authorize(request, {"admin":true});
+  if (auth.error) return auth.error;
   try {
     const body = await request.json();
     const {
@@ -31,7 +34,7 @@ export async function POST(request) {
       lang = 'es',
     } = body;
 
-    const supabase = getSupabaseServerClient();
+    const supabase = auth.db;
     if (!supabase) {
       return NextResponse.json(
         { success: false, error: 'No se pudo inicializar cliente de base de datos' },

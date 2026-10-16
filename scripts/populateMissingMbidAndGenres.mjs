@@ -34,7 +34,8 @@ if (typeof globalThis.WebSocket === 'undefined') {
 }
 
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || 'https://nzsuxrycbywbdyidvsfl.supabase.co';
-const supabaseKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.REACT_APP_SUPABASE_SERVICE_KEY;
+if (!supabaseKey) throw new Error("Configura SUPABASE_SERVICE_ROLE_KEY para ejecutar tareas de mantenimiento");
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Error: Faltan credenciales de Supabase en .env');
