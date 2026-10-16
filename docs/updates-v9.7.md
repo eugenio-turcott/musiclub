@@ -21,6 +21,10 @@ La prueba real de permisos se ejecutó dentro de una transacción revertida: cre
 
 ## Credenciales pendientes
 
+Actualización V.9.7.1: el propietario renovó Spotify y guardó el secreto en Vercel y GitHub. Un despliegue nuevo de producción respondió correctamente a una búsqueda de Spotify. También creó `musiclub_servidor` y confirmó haber guardado las claves nueva secreta y publicable de Supabase en ambos proveedores. Los nombres de variables se conservan por compatibilidad; no indican que el valor deba seguir usando el formato antiguo.
+
+El flujo manual `Verify Supabase configuration (read only)` comprueba que las dos claves de GitHub usan los formatos nuevos, que la lectura pública funciona y que los registros privados permanecen aislados. La lectura de la tabla privada de entregas confirma el acceso del servidor. No escribe filas, no envía avisos y no imprime credenciales ni datos. Ejecutarlo después de actualizar las variables; completar la comprobación de producción antes de desactivar las claves heredadas. Para iniciar sesión se debe verificar además una sesión real en Musiclub; esta prueba no suplanta usuarios.
+
 Quitar `.env` del repositorio y mover Spotify al servidor no revoca las credenciales que estuvieron expuestas. La rotación sigue pendiente hasta que el propietario complete el cambio y guardado en los paneles. El navegador requiere intervención del usuario para cambiar credenciales.
 
 1. Spotify for Developers → Musiclub → Basic Information → View client secret → Rotate client secret. Actualizar el valor de servidor en Vercel y, si existe, en GitHub Actions. No copiar claves a chats ni archivos del repositorio.
