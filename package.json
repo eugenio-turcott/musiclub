@@ -1,6 +1,6 @@
 {
   "name": "musiclub-albums",
-  "version": "9.6.1",
+  "version": "9.6.2",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
@@ -32,7 +32,7 @@
     "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force",
     "check:releases": "node scripts/checkUpcomingReleasesCron.mjs",
     "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs",
-    "test:critical": "node --test tests/critical.test.mjs"
+    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs"
   },
   "eslintConfig": {
     "extends": [

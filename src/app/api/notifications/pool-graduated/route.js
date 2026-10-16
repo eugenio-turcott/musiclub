@@ -1,26 +1,12 @@
 import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
 import { sendPoolGraduatedEmail } from '../../../../services/emailService';
-import { createClient } from '@supabase/supabase-js';
+import { buildAlbumWithFullStats } from '../../../../services/supabaseClient';
+import { getReleaseUrl } from '../../../../utils/ratingUtils';
+import { getCommunityFavoriteTracks } from '../../../../utils/communityFavorites';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-function getSupabaseServerClient() {
-  const supabaseUrl =
-    process.env.NEXT_PUBLIC_SUPABASE_URL ||
-    process.env.REACT_APP_SUPABASE_URL ||
-    process.env.SUPABASE_URL;
-
-  const supabaseKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.REACT_APP_SUPABASE_ANON_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    process.env.SUPABASE_ANON_KEY;
-
-  if (!supabaseUrl || !supabaseKey) return null;
-  return createClient(supabaseUrl, supabaseKey);
-}
 
 export async function POST(request) {
   const auth = await authorize(request, {"admin":true});
@@ -68,85 +54,17 @@ export async function POST(request) {
       .select('*')
       .eq('album_id', albumId);
 
+    if (revErr) throw new Error('No se pudieron consultar las reseñas del álbum');
     const reviewList = reviews || [];
-    const totalReviews = reviewList.length;
-
-    // Calcular promedios
-    let sumGeneral = 0;
-    let sumProd = 0;
-    let sumComp = 0;
-    let sumLetras = 0;
-    let sumOrig = 0;
-    let sumCohesion = 0;
-    let sumReplay = 0;
-    let prodCount = 0;
-    let compCount = 0;
-    let letrasCount = 0;
-    let origCount = 0;
-    let cohesionCount = 0;
-    let replayCount = 0;
-
-    const favoriteTracksMap = {};
-    const highlightQuotes = [];
-
-    reviewList.forEach((r) => {
-      const g = parseFloat(r.rating_general);
-      if (!isNaN(g)) sumGeneral += g;
-
-      if (r.rating_produccion !== null && !isNaN(r.rating_produccion)) {
-        sumProd += parseFloat(r.rating_produccion);
-        prodCount++;
-      }
-      if (r.rating_composicion !== null && !isNaN(r.rating_composicion)) {
-        sumComp += parseFloat(r.rating_composicion);
-        compCount++;
-      }
-      if (r.rating_letras !== null && !isNaN(r.rating_letras)) {
-        sumLetras += parseFloat(r.rating_letras);
-        letrasCount++;
-      }
-      if (r.rating_originalidad !== null && !isNaN(r.rating_originalidad)) {
-        sumOrig += parseFloat(r.rating_originalidad);
-        origCount++;
-      }
-      if (r.rating_cohesion !== null && !isNaN(r.rating_cohesion)) {
-        sumCohesion += parseFloat(r.rating_cohesion);
-        cohesionCount++;
-      }
-      if (r.rating_replay !== null && !isNaN(r.rating_replay)) {
-        sumReplay += parseFloat(r.rating_replay);
-        replayCount++;
-      }
-
-      if (r.favorite_track && typeof r.favorite_track === 'string') {
-        const ft = r.favorite_track.trim();
-        favoriteTracksMap[ft] = (favoriteTracksMap[ft] || 0) + 1;
-      }
-
-      if (r.comment && r.comment.trim().length > 15) {
-        highlightQuotes.push({
-          comment: r.comment.trim(),
-          reviewer: r.reviewer_name || 'Miembro',
-        });
-      }
-    });
-
-    const avgScore =
-      totalReviews > 0 ? (sumGeneral / totalReviews).toFixed(1) : (album.avg_rating || '8.0');
-
-    const breakdown = {
-      produccion: prodCount > 0 ? (sumProd / prodCount).toFixed(1) : null,
-      composicion: compCount > 0 ? (sumComp / compCount).toFixed(1) : null,
-      letras: letrasCount > 0 ? (sumLetras / letrasCount).toFixed(1) : null,
-      originalidad: origCount > 0 ? (sumOrig / origCount).toFixed(1) : null,
-      cohesion: cohesionCount > 0 ? (sumCohesion / cohesionCount).toFixed(1) : null,
-      replay: replayCount > 0 ? (sumReplay / replayCount).toFixed(1) : null,
-    };
-
-    const topTracks = Object.entries(favoriteTracksMap)
-      .sort((a, b) => b[1] - a[1])
-      .map(([track]) => track)
-      .slice(0, 3);
+    // Use the same weighted score and pillar averages as the public album page.
+    const stats = buildAlbumWithFullStats(album, reviewList);
+    const totalReviews = stats.review_count;
+    const avgScore = stats.final_rating == null ? null : Number(stats.final_rating).toFixed(1);
+    const breakdown = Object.fromEntries(['produccion', 'composicion', 'letras', 'originalidad', 'cohesion', 'replay']
+      .map(key => [key, stats.criteria_averages[`rating_${key}`] ?? null]));
+    const topTracks = getCommunityFavoriteTracks(reviewList, album.tracks || [], stats.track_stats);
+    const highlightQuotes = reviewList.filter(r => typeof r.comment === 'string' && r.comment.trim().length > 15)
+      .map(r => ({ comment: r.comment.trim(), reviewer: r.reviewer_name || 'Miembro' }));
 
     // 3. Destinatarios
     let recipients = [];
@@ -181,6 +99,7 @@ export async function POST(request) {
       topTracks,
       highlightQuotes,
       lang,
+      poolUrl: `https://www.musiclub.org${getReleaseUrl(album)}`,
     });
 
     return NextResponse.json({

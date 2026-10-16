@@ -941,6 +941,9 @@ export function generatePoolGraduatedHtml({
   lang = 'es',
   logoUrl,
 }) {
+  const escapeText = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  const pillar = value => value == null || String(value).trim() === '' || !Number.isFinite(Number(value)) || Number(value) < 0 || Number(value) > 5
+    ? '—' : Number(value).toFixed(1);
   const i18n = getI18n(lang).poolGraduated;
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
@@ -952,21 +955,21 @@ export function generatePoolGraduatedHtml({
     <table width="100%" cellpadding="6" cellspacing="0" border="0" style="font-size: 12px; margin-top: 6px;">
       <tr>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600;">${i18n.prod}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.produccion || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.produccion)} / 5</td>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600; padding-left: 12px;">${i18n.comp}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.composicion || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.composicion)} / 5</td>
       </tr>
       <tr>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600;">${i18n.lyrics}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.letras || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.letras)} / 5</td>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600; padding-left: 12px;">${i18n.orig}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.originalidad || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.originalidad)} / 5</td>
       </tr>
       <tr>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600;">${i18n.cohesion}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.cohesion || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.cohesion)} / 5</td>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600; padding-left: 12px;">${i18n.replay}:</td>
-        <td align="right" style="color: #FFFFFF; font-weight: 800;">${breakdown.replay || '—'} / 10</td>
+        <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.replay)} / 5</td>
       </tr>
     </table>
   `;
@@ -979,7 +982,7 @@ export function generatePoolGraduatedHtml({
         ⭐ ${i18n.topTracks}:
       </div>
       <div style="font-size: 12.5px; color: #FFFFFF; font-weight: 700;">
-        ${topTracks.map((t, idx) => `${idx + 1}. ${t}`).join(' • ')}
+        ${topTracks.map((t, idx) => `${idx + 1}. ${escapeText(t)}`).join(' • ')}
       </div>
     </div>
   `
@@ -997,9 +1000,9 @@ export function generatePoolGraduatedHtml({
         .map(
           (q) => `
         <div style="padding: 10px 14px; border-radius: 12px; background-color: rgba(90, 45, 124, 0.25); border-left: 3px solid ${MUSICLUB_COLORS.vibrantRose}; margin-bottom: 8px; font-size: 12px; color: rgba(255,255,255,0.9); font-style: italic;">
-          "${q.comment}"
+          "${escapeText(q.comment)}"
           <span style="display: block; font-style: normal; font-weight: 800; color: ${MUSICLUB_COLORS.softBlush}; font-size: 11px; margin-top: 4px;">
-            — ${q.reviewer}
+            — ${escapeText(q.reviewer)}
           </span>
         </div>
       `
@@ -1017,17 +1020,17 @@ export function generatePoolGraduatedHtml({
       <tr>
         <td style="padding: 20px; text-align: center;">
           <h2 style="margin: 0 0 2px 0; font-size: 19px; font-weight: 900; color: #FFFFFF;">
-            ${albumName}
+            ${escapeText(albumName)}
           </h2>
           <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: ${MUSICLUB_COLORS.softBlush};">
-            ${artistName}
+            ${escapeText(artistName)}
           </p>
 
           <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
             <tr>
               <td style="padding: 8px 18px; border-radius: 14px; background-color: ${MUSICLUB_COLORS.pitchBlack}; border: 1px solid ${MUSICLUB_COLORS.vibrantRose}; text-align: center;">
                 <span style="font-size: 26px; font-weight: 900; color: ${MUSICLUB_COLORS.vibrantRose};">
-                  ★ ${avgScore || '8.5'}
+                  ★ ${avgScore ?? '—'}
                 </span>
                 <span style="font-size: 12px; color: ${MUSICLUB_COLORS.softBlush}; display: block; font-weight: 700;">
                   ${i18n.finalScore} (${totalReviews} ${i18n.totalReviews})
@@ -1556,8 +1559,8 @@ export async function sendPoolGraduatedEmail({
 
   const subject =
     lang === 'en'
-      ? `🎓 Pool Graduation: "${albumName}" finishes with a ${avgScore || '8.5'}/10! - Musiclub`
-      : `🎓 Graduación del Pool: ¡"${albumName}" cierra con nota de ${avgScore || '8.5'}/10! - Musiclub`;
+      ? `🎓 Pool Graduation: "${albumName}" finishes with a ${avgScore ?? '—'}/10! - Musiclub`
+      : `🎓 Graduación del Pool: ¡"${albumName}" cierra con nota de ${avgScore ?? '—'}/10! - Musiclub`;
 
   const validRecipients = recipients.filter((e) => e && e.includes('@'));
 

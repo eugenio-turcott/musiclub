@@ -11,6 +11,19 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.6.2',
+    title: 'Estadísticas claras en los correos de graduación',
+    date: '2026-10-16',
+    sha: '', associatedShas: [], tag: 'Correcciones',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Los correos de graduación muestran los seis pilares sobre cinco y los títulos reales de las canciones favoritas, con la misma nota ponderada que la ficha del álbum.',
+    changes: [
+      { type: 'fix', title: 'Pilares sobre cinco', description: 'Producción, Composición, Letras, Originalidad, Cohesión y Replay Value conservan su escala de 0 a 5. Las notas ausentes se distinguen del cero.' },
+      { type: 'fix', title: 'Favoritas con nombres y votos unificados', description: 'Los identificadores de las canciones se convierten a títulos antes de contar votos. Se agrupan las referencias a una misma pista y se omiten identificadores que no pueden resolverse.' },
+      { type: 'fix', title: 'La misma nota que en la ficha', description: 'El resumen del correo reutiliza el cálculo ponderado del álbum y enlaza a sus resultados. Si faltan reseñas o hay un error de lectura, no se inventa una calificación.' },
+    ],
+  },
+  {
     version: 'V.9.6.1',
     title: 'Formato estable del catálogo al cargar',
     date: '2026-10-16',
