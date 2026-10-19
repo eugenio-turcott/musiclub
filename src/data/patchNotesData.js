@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.11.0', title: 'El vinilo abre tu próxima escucha', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Gashapon',
+    tagColor: 'from-pink-500 via-purple-600 to-indigo-600', authorName: 'Eugenio Turcott',
+    summary: 'Una nueva cápsula de vinilo convierte el símbolo de cada género en la apertura de tu siguiente lanzamiento.',
+    changes: [
+      { type: 'improvement', title: 'Giro, expansión y revelación', description: 'Toca el disco para hacerlo girar. El centro con el símbolo del género se expande y desvanece; un destello suave da paso a la portada del lanzamiento.' },
+      { type: 'improvement', title: 'Una escena continua', description: 'El disco permanece mientras aparece la portada. Las cápsulas de la máquina y la bandeja utilizan la misma identidad de vinilos.' },
+      { type: 'fix', title: 'Apertura consistente y accesible', description: 'Se evitan aperturas duplicadas y resultados de giros anteriores. La apertura funciona con teclado y respeta la preferencia de reducir movimiento.' },
+    ],
+  },
+  {
     version: 'V.9.10.2', title: 'Una identidad para cada género en todo Musiclub', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Géneros',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

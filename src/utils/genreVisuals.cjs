@@ -39,4 +39,8 @@ function genreArtwork(raw) {
   const fallback = family.startsWith('genre:') ? `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#171433"/><g fill="none" stroke="#F57FA2" stroke-width="3" stroke-linejoin="round">${uniqueGenreMotif(family)}</g></svg>`)}` : `/genres/families/${family}.svg`;
   return { family, src: artwork[key] || fallback, name: genres.normalizeGenres([raw])[0] || 'Música' };
 }
-module.exports = { genreFamily, genreArtwork, uniqueGenreMotif };
+function genreRevealArtwork(raw) {
+  const visual = genreArtwork(raw);
+  return { ...visual, disc: '/genres/reveal/disc.svg', center: visual.src.startsWith('/genres/') ? visual.src.replace('/genres/', '/genres/reveal/centers/') : visual.src };
+}
+module.exports = { genreRevealArtwork, genreFamily, genreArtwork, uniqueGenreMotif };

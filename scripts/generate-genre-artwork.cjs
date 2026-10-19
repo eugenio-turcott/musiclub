@@ -55,3 +55,17 @@ list.forEach((genre,index)=>{
 fs.writeFileSync(manifestPath,JSON.stringify(manifest,null,2)+'\n');
 fs.writeFileSync(path.join(__dirname,'../audit/genre-artwork-pages.json'),JSON.stringify(list.map((genre,index)=>({...genre,src:manifest[genre.id],family:genreFamily(genre.id),count:present.get(genre.id),index})),null,2));
 console.log(`Generated ${list.length} genre records and ${Object.keys(motifs).length} visual families.`);
+
+// Split the record and its label so only the center can expand/fade during reveal.
+const revealOut = path.join(out, 'reveal');
+fs.mkdirSync(path.join(revealOut, 'centers', 'families'), {recursive:true});
+const disc = art('rock').replace(/<circle cx="160" cy="154" r="78"[^>]*\/>/, '<circle cx="160" cy="154" r="78" fill="#07070d"/>').replace(/<g transform="translate\(110 104\)"[^>]*>.*?<\/g>/, '');
+fs.writeFileSync(path.join(revealOut,'disc.svg'), disc);
+for (const relative of [...Object.values(manifest).map(src=>src.slice('/genres/'.length)), ...Object.keys(motifs).map(family=>'families/'+family+'.svg')]) {
+  const svg = fs.readFileSync(path.join(out,relative),'utf8');
+  const center = svg.match(/<circle cx="160" cy="154" r="78" fill="([^"]+)"/)[1];
+  const group = svg.match(/<g transform="translate\(110 104\)"([^>]*)>(.*?)<\/g>/);
+  const label = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="${center}"/><g transform="translate(16 16) scale(.68)"${group[1]}>${group[2]}</g></svg>`;
+  fs.writeFileSync(path.join(revealOut,'centers',relative), label);
+}
+console.log('Generated a separate record and 107 genre/family centers for the reveal.');
