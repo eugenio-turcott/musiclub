@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.9.0', title: 'Para Ti aprende de tus géneros', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Recomendaciones',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Con diez lanzamientos distintos calificados, tus géneros y valoraciones orientan las recomendaciones. Antes de llegar, descubre las selecciones de la comunidad.',
+    changes: [
+      { type: 'improvement', title: 'Análisis de tus géneros escuchados', description: 'Se muestran cuántos lanzamientos calificaste de cada género y tu promedio. Se priorizan los géneros que disfrutas con más constancia y se excluyen los discos ya calificados.' },
+      { type: 'improvement', title: 'Selecciones del club desde el primer día', description: 'Sin sesión o con menos de diez lanzamientos, hay recomendaciones basadas en las valoraciones y el número de reseñas. Puedes explorar los más reseñados y los de buena crítica.' },
+      { type: 'fix', title: 'Búsqueda a la altura del Explorador', description: 'La búsqueda desde el inicio sitúa el encabezado del Explorador arriba para ver años, buscador, filtros y resultados.' },
+    ],
+  },
+  {
     version: 'V.9.8.0', title: 'Descubre lanzamientos por género', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Gashapon y catálogo',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

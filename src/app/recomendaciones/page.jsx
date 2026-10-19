@@ -1,10 +1,12 @@
 import React from 'react';
 import { RecommendationsPage } from '../../views/RecommendationsPage';
+import { getPublicCatalog } from '../../server/catalog';
+export const revalidate = 300;
 
 export const metadata = {
-  title: 'Recomendaciones Musicales Inteligentes',
+  title: 'Para Ti: géneros y recomendaciones del club',
   description:
-    'Descubre álbumes y artistas afines a tus gustos musicales con el motor de recomendaciones personalizadas de Musiclub.',
+    'Descubre las selecciones de la comunidad. Con diez lanzamientos calificados, recibe recomendaciones basadas en tus géneros escuchados y valoraciones.',
   alternates: {
     canonical: 'https://www.musiclub.org/recomendaciones',
   },
@@ -14,6 +16,7 @@ export const metadata = {
   },
 };
 
-export default function RecomendacionesRoutePage() {
-  return <RecommendationsPage />;
+export default async function RecomendacionesRoutePage() {
+  const { albums } = await getPublicCatalog();
+  return <RecommendationsPage initialAlbums={albums} />;
 }

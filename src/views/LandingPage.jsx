@@ -661,7 +661,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.
               </p>
 
-              <form action="/catalogo#buscar-catalogo" className="flex gap-2 w-full max-w-xl" role="search">
+              <form action="/catalogo#explorador-catalogo" className="flex gap-2 w-full max-w-xl" role="search">
                 <label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>
                 <input id="home-search" name="q" required placeholder="Busca un álbum o artista" className="min-w-0 flex-1 rounded-xl border border-white/25 bg-black/40 p-3 text-white" />
                 <button className="rounded-xl bg-pink-600 px-5 py-3 font-bold text-white">Buscar</button>
