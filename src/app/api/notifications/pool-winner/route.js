@@ -114,6 +114,7 @@ export async function POST(request) {
       albumName: albumData.album_name || albumData.album,
       artistName: albumData.artist_name || albumData.artista,
       imageUrl: albumData.image_url || albumData.imagen,
+      genres: albumData.genres || [],
       nominatedBy: nominatedBy || albumData.added_by || 'Miembro del Club',
       seasonName: 'Temporada 1: El Origen del Club',
       spotifyLink: albumData.spotify_link || albumData.spotifyLink,

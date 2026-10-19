@@ -11,6 +11,19 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.16.0', title: 'Discografías, estrenos y correos con identidad musical', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Catálogo y correos',
+    tagColor: 'from-cyan-400 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'Tendencias utiliza los géneros del catálogo, las fichas anticipadas muestran las pistas disponibles y las discografías conservan los datos del club.',
+    changes: [
+      { type: 'fix', title: 'Géneros reales en Tendencias', description: 'Se retiran las categorías fijas y sus etiquetas genéricas. Los filtros e íconos se construyen con los géneros registrados de cada release.' },
+      { type: 'fix', title: 'Tracklists antes del estreno', description: 'Las fichas precargadas recuperan las pistas anunciadas desde la fuente del estreno, distinguiendo las posiciones con título pendiente.' },
+      { type: 'fix', title: 'Discografías resistentes a fallos de Spotify', description: 'MusicBrainz proporciona los lanzamientos del artista y se cruzan con Musiclub para mostrar su pertenencia al club, notas y reseñas.' },
+      { type: 'improvement', title: 'Correos con el vinilo de su género', description: 'Los avisos utilizan el primer género del release, imágenes compatibles con correo, bordes redondeados y logos de plataformas.' },
+      { type: 'improvement', title: 'Cabeceras de género más compactas', description: 'Se reduce el espacio vertical conservando el vinilo, la jerarquía visual y la adaptación a móviles.' },
+    ],
+  },
+  {
     version: 'V.9.15.3', title: 'Giro visible del vinilo de Musiclub', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',

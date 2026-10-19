@@ -660,7 +660,7 @@ export function AlbumDetail({
 
   // Recalcular el top track usando la lógica unificada
   const topTrack = useMemo(() => {
-    if (!album) return null;
+    if (!album || !(album.review_count > 0 || album.reviews?.length > 0)) return null;
     return calculateAlbumTopTrack(album, album.reviews, album.track_stats);
   }, [album]);
 
@@ -1757,7 +1757,9 @@ export function AlbumDetail({
                   {isAnticipated && (
                     <div className="mb-3 px-3.5 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium flex items-center gap-2">
                       <span>🎵</span>
-                      <span>Tracklist confirmado para el estreno oficial ({renderedTracks.length} canciones).</span>
+                      <span>{renderedTracks.some(track => /^Track\s+\d+$/i.test(track.name || ''))
+                        ? `Lista parcial: ${renderedTracks.length} posiciones; los títulos pendientes se actualizarán cuando se anuncien.`
+                        : `Tracklist anunciado para el estreno oficial (${renderedTracks.length} canciones).`}</span>
                     </div>
                   )}
                   <div className="divide-y divide-white/5 space-y-1">
@@ -1790,7 +1792,7 @@ export function AlbumDetail({
                                 className={`notranslate track-name text-xs sm:text-sm truncate ${isTop ? 'font-bold text-amber-100' : 'font-medium text-white'}`}
                                 title={t.name}
                               >
-                                {t.name}
+                                {/^Track\s+\d+$/i.test(t.name || '') && (album.is_anticipated || album.is_upcoming) ? 'Título por anunciar' : t.name}
                               </p>
                               {t.duration_ms && (
                                 <p className="text-[10px] text-slate-500">
