@@ -8,8 +8,10 @@ import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { publicCatalog, clearPublicCatalog } from '../services/publicCatalog';
 import { buildGenreRecommendations } from '../utils/genreRecommendations.mjs';
+import { GenreLabel } from './GenreLabel';
 import { GenreArtwork } from './GenreArtwork';
 import { RecommendationGenres } from './RecommendationGenres';
+import genreRoutes from '../utils/genreRoutes.cjs';
 import genres from '../utils/genreCatalog.cjs';
 import {
   buildUserTasteProfile,
@@ -257,7 +259,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                 <GenreArtwork genre={topGenre?.id} size={48} className="h-12 w-12 shrink-0" />
                 <div>
                   <h3 className="text-white font-extrabold text-sm sm:text-base leading-tight">
-                    {topGenre?.name}
+                    <Link to={genreRoutes.genrePath(topGenre?.id)} className="hover:text-cyan-300">{topGenre?.name}</Link>
                   </h3>
                   <span className="text-cyan-400 text-xs font-semibold">
                     Tu género con mayor afinidad
@@ -660,7 +662,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                 {(showAllGenres ? genreData.genreProfile : genreData.genreProfile.slice(0,6)).map((genre, index) => <div key={genre.id} className={`rounded-2xl p-4 border transition-all ${index < 3 ? 'bg-linear-to-br from-white/10 to-white/5 border-amber-400/40 shadow-lg shadow-amber-400/10' : 'bg-black/30 border-white/5'}`}>
                   <div className="flex items-center gap-3">
                     <GenreArtwork genre={genre.id} size={48} className="h-12 w-12 shrink-0" />
-                    <div className="min-w-0"><h4 className="text-sm font-bold text-white" translate="no">{genre.name}</h4><p className="text-white/50 text-xs">{genre.count} {genre.count === 1 ? 'lanzamiento' : 'lanzamientos'} · {genre.average.toFixed(1)}/10</p></div>
+                    <div className="min-w-0"><h4 className="text-sm font-bold text-white" translate="no"><Link to={genreRoutes.genrePath(genre.id)} className="hover:text-cyan-300">{genre.name}</Link></h4><p className="text-white/50 text-xs">{genre.count} {genre.count === 1 ? 'lanzamiento' : 'lanzamientos'} · {genre.average.toFixed(1)}/10</p></div>
                   </div>
                 </div>)}
               </div>
@@ -1016,7 +1018,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     )} inline-block mb-1`}
                     data-stat="score"
                   >
-                    {genreData.personalized && selectedAlbumForDetail.matchingGenres?.length ? `🎵 ${selectedAlbumForDetail.matchingGenres[0]}` : '💿 Selección del club'}
+                    {genreData.personalized && selectedAlbumForDetail.matchingGenres?.length ? <GenreLabel genre={selectedAlbumForDetail.matchingGenres[0]} size={20} link /> : '💿 Selección del club'}
                   </span>
                   <h3
                     translate="no"

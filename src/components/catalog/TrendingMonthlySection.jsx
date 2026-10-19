@@ -1,3 +1,4 @@
+import { GenreLabel } from '../GenreLabel';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
@@ -334,7 +335,7 @@ export function TrendingMonthlySection({
                         #{rank}
                       </span>
                       <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-pink-500/80 border border-pink-400 text-white backdrop-blur-md truncate max-w-[120px]">
-                        {item.genre_category || 'POP'}
+                        <GenreLabel genre={item.genre_category || 'POP'} size={16} />
                       </span>
                     </div>
 

@@ -1,4 +1,5 @@
 'use client';
+import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Link, useLocation } from 'react-router-dom';
@@ -1280,7 +1281,7 @@ export function AlbumDetail({
                           key={g}
                           className="text-[11px] font-medium px-2.5 py-0.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-cyan-200/90 capitalize transition-colors"
                         >
-                          #{g}
+                          <GenreLabel genre={g} link size={20} />
                         </span>
                       ))}
                     </div>

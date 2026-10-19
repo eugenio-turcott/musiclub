@@ -11,6 +11,7 @@ import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { gashaponSound } from '../utils/gashaponAudio';
 import { ReviewSystem } from './ReviewSystem';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+import { GenreArtwork } from './GenreArtwork';
 import { GenrePicker } from './GenrePicker';
 import genreCatalog from '../utils/genreCatalog.cjs';
 
@@ -986,7 +987,7 @@ export function GashaponMachine({
                       className={`h-1/2 bg-linear-to-r ${cap.botGrad} flex items-center justify-center relative`}
                     >
                       <span className="text-[9px] sm:text-[11px] leading-none select-none opacity-90 filter drop-shadow-sm">
-                        {cap.icon}
+                        <GenreArtwork genre={cap.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                       </span>
                     </div>
                   </div>
@@ -1102,7 +1103,7 @@ export function GashaponMachine({
                           style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
                         >
                           <span className="text-sm font-black select-none drop-shadow">
-                            {currentCapsule.theme.icon}
+                            <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                           </span>
                         </div>
                       </button>
@@ -1232,7 +1233,7 @@ export function GashaponMachine({
                         style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                       >
                         <span className="text-[10px] leading-none">
-                          {currentCapsule.theme.icon}
+                          <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                         </span>
                       </div>
                     </div>
@@ -1438,7 +1439,7 @@ export function GashaponMachine({
                       }}
                     />
                     <div className="absolute top-1 right-1 text-xs">
-                      {item.theme.icon}
+                      <GenreArtwork genre={item.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                     </div>
                     {isReviewed && (
                       <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">
@@ -1532,7 +1533,7 @@ export function GashaponMachine({
                   <div className="space-y-2">
                     <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 shadow-lg backdrop-blur-md">
                       <span className="text-base">
-                        {currentCapsule.theme.icon}
+                        <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                       </span>
                       <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-white">
                         {currentCapsule.theme.badge}
@@ -1620,7 +1621,7 @@ export function GashaponMachine({
 
                         {/* Icono central de gran formato */}
                         <span className="text-5xl sm:text-6xl md:text-7xl leading-none select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)] transform group-hover:scale-115 group-hover:rotate-6 transition-transform duration-300">
-                          {currentCapsule.theme.icon}
+                          <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                         </span>
                       </div>
                     </div>
@@ -1664,7 +1665,7 @@ export function GashaponMachine({
                           style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                         >
                           <span className="text-xs">
-                            {currentCapsule.theme.icon}
+                            <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                           </span>
                         </div>
                       </div>

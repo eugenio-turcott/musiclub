@@ -1,3 +1,4 @@
+import { GenreLabel } from '../GenreLabel';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { splitArtists, slugifyArtist } from '../../utils/ratingUtils';
@@ -356,7 +357,7 @@ export function CatalogArtistsView({ albums = [] }) {
                           key={i}
                           className="text-[9px] px-2 py-0.5 rounded-full bg-white/5 border border-white/5 text-slate-400 truncate max-w-[90px]"
                         >
-                          {g}
+                          <GenreLabel genre={g} size={16} />
                         </span>
                       ))}
                     </div>

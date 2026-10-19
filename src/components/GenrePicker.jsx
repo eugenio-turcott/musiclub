@@ -1,5 +1,8 @@
 'use client';
 import { useId, useMemo, useState } from 'react';
+import { GenreArtwork } from './GenreArtwork';
+import { Link } from 'react-router-dom';
+import routes from '../utils/genreRoutes.cjs';
 import catalog from '../utils/genreCatalog.cjs';
 
 const searchable = value => value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
@@ -17,14 +20,15 @@ export function GenrePicker({ albums = [], value = 'all', onChange, disabled = f
         <input id={`${id}-search`} type="search" value={search} onChange={event => setSearch(event.target.value)} placeholder="Rock, jazz, cumbia, shoegaze…" className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-slate-950 p-3 text-white" />
       </label>
       <label className="text-sm text-slate-200" htmlFor={`${id}-select`}>Género musical
-        <select id={`${id}-select`} translate="no" value={value} onChange={event => onChange(event.target.value)} className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-slate-950 p-3 text-white">
+        <div className="relative mt-1">{value !== 'all' && <GenreArtwork genre={value} size={28} className="pointer-events-none absolute left-3 top-1/2 h-7 w-7 -translate-y-1/2" />}<select id={`${id}-select`} translate="no" value={value} onChange={event => onChange(event.target.value)} className={`min-h-11 w-full rounded-xl border border-white/20 bg-slate-950 p-3 text-white ${value !== 'all' ? 'pl-12' : ''}`}>
           <option value="all">Todos los géneros</option>
           {options.map(genre => <option key={genre.id} value={genre.id}>{genre.name} ({counts.get(genre.id) || 0})</option>)}
-        </select>
+        </select></div>
       </label>
     </div>
     <label className="flex min-h-11 items-center gap-2 text-sm text-slate-300"><input type="checkbox" checked={includeEmpty} onChange={event => setIncludeEmpty(event.target.checked)} />Mostrar también géneros sin lanzamientos en el club</label>
     <p className="text-xs text-slate-400">{counts.size} géneros con lanzamientos · {catalog.GENRES.length.toLocaleString('es-ES')} géneros y categorías disponibles. El catálogo se puede ampliar.</p>
+    {value !== 'all' && <Link to={routes.genrePath(value)} className="inline-flex min-h-11 items-center gap-2 text-xs font-bold text-cyan-300 hover:text-white">Ver la página de {catalog.normalizeGenres([value])[0]} →</Link>}
     {search && !options.length && <p role="status" className="text-sm text-amber-200">No hay coincidencias. Puedes incluir los géneros que aún no tienen lanzamientos.</p>}
   </fieldset>;
 }

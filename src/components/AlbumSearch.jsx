@@ -1,3 +1,4 @@
+import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect } from 'react';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
@@ -570,7 +571,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                         key={g}
                         className="text-[10px] px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-cyan-300/80 capitalize"
                       >
-                        #{g}
+                        <GenreLabel genre={g} size={18} />
                       </span>
                     ))}
                   </div>

@@ -1,4 +1,5 @@
 'use client';
+import { GenreLabel } from './GenreLabel';
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -634,7 +635,7 @@ export function UserProfile({ isPage = false }) {
                     key={idx}
                     className="text-[11px] sm:text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2.5 py-0.5 rounded-full"
                   >
-                    #{genre}
+                    <GenreLabel genre={genre} link size={18} />
                   </span>
                 ))
               )}

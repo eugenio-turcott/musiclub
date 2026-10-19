@@ -1,4 +1,5 @@
 'use client';
+import { GenreLabel } from './GenreLabel';
 // src/components/ArtistDetail.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
@@ -462,7 +463,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                           key={g}
                           className="text-[11px] font-semibold px-3 py-1 rounded-full bg-[#0c0e1a]/90 backdrop-blur-md border border-white/20 text-cyan-200 capitalize hover:bg-white/20 transition-colors shadow-sm"
                         >
-                          #{g}
+                          <GenreLabel genre={g} link size={20} />
                         </span>
                       ))}
                     </div>

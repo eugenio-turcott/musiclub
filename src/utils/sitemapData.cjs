@@ -1,3 +1,5 @@
+const genreCatalog = require('./genreCatalog.cjs');
+const genreRoutes = require('./genreRoutes.cjs');
 const { slugify, releasePath } = require('./releaseIdentity.cjs');
 const BASE = 'https://www.musiclub.org';
 const CORE = ['/', '/catalogo', '/pool', '/leaderboard', '/reviews', '/portadas', '/playlists', '/gashapon', '/faq', '/guias', '/guias/como-calificamos', '/guias/escribir-primera-resena', '/guias/descubrir-discos-en-comunidad', '/patch-notes', '/privacy', '/terms'];
@@ -14,6 +16,7 @@ function buildSitemapGroups(albums, reviews = []) {
     const name = slugify(album.artist_name);
     if (name) artists.set(name, { loc: `${BASE}/artista/${name}` });
   }
+  for (const id of genreCatalog.genreCounts(albums).keys()) { const path = genreRoutes.genrePath(id); catalog.set(path, {loc:BASE+path}); }
   return { core: CORE.map(p => ({ loc: BASE + p })), reviews: [...reviewed.values()], catalog: [...catalog.values()], artists: [...artists.values()] };
 }
 const escapeXml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
