@@ -6,7 +6,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
-import { ReviewSystem } from '../components/ReviewSystem';
+import dynamic from 'next/dynamic';
 import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { SEO } from '../components/SEO';
@@ -22,6 +22,10 @@ import {
   getTrackDisplayName,
 } from '../utils/ratingUtils';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
+
+const ReviewSystem = dynamic(() => import('../components/ReviewSystem').then(module => module.ReviewSystem), {
+  loading: () => <p role="status" className="p-4 text-slate-300">Preparando tu valoración…</p>,
+});
 
 export function LandingPage({ initialAlbums = [], initialReviews = [], initialStats } = {}) {
   const { albums, winner, refetch, markAlbumAsInactive } = useAlbums(initialAlbums);
@@ -1598,6 +1602,9 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         {review.reviewer_avatar ? (
                           <CoverImage
                             src={review.reviewer_avatar}
+                            width={32}
+                            height={32}
+                            sizes="32px"
                             alt={review.reviewer_name || 'U'}
                             className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
                             onError={(e) => {

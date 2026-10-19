@@ -65,3 +65,13 @@ La muestra antigua `/albumes/1190` reveló un error 500 en la redirección hacia
 Se recorrieron las 749 direcciones únicas de los cuatro sitemaps publicados con cuatro conexiones simultáneas. Todas respondieron HTTP 200, declararon una dirección canónica equivalente y permitieron indexación. La revisión solo encontró la falta de un h1 en Gashapon; se convirtió su título existente de h2 a h1. La comprobación HTTP no demuestra que Google haya indexado las páginas ni mide toda su calidad editorial.
 
 Google aceptó además la solicitud de indexación de /guias. La solicitud sigue siendo una incorporación a la cola de rastreo; no garantiza indexación. No se volvieron a enviar las dos solicitudes de fichas que ya estaban aceptadas.
+
+## Actualización V.9.7.5 — rendimiento y primera participación
+
+Los formularios de la portada se importan al abrirlos. ShareReviewModal se convierte en una entrada ligera que carga el generador de tarjetas solo cuando se abre; sus iconos comunes se separan para conservar los usos de perfiles y tier lists sin cargar el generador. La recomendación horaria permite preparar la valoración sin sesión y conserva la autenticación al publicar.
+
+Los avatares de 32 px declaran su tamaño real y se incorporan las dos fuentes públicas de imágenes identificadas en la medición previa al optimizador. La ventana de acceso incorpora nombre accesible, ciclo de foco, Escape, retorno al botón de apertura y bloqueo del desplazamiento del fondo.
+
+Se retiró del hook de catálogo la lista estática de álbumes de ejemplo con correos personales. Una lectura vacía muestra una lista vacía y un error de conexión conserva la última lectura real. No se han modificado reseñas ni enviado correos como prueba.
+
+La compilación de producción y las 15 pruebas críticas pasaron. La prueba local con teclado confirmó foco dentro, ciclo inverso de Tab, cierre con Escape y retorno al botón. La API de PageSpeed respondió 429; no se presenta una puntuación móvil nueva ni una mejora de LCP sin medición. La comparación de módulos iniciales se registra por separado como bytes de JavaScript sin comprimir, no como tiempo de carga.
