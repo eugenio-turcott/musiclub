@@ -9,6 +9,8 @@ import { useAuth } from '../hooks/useAuth';
 import { publicCatalog, clearPublicCatalog } from '../services/publicCatalog';
 import { buildGenreRecommendations } from '../utils/genreRecommendations.mjs';
 import { GenreArtwork } from './GenreArtwork';
+import { RecommendationGenres } from './RecommendationGenres';
+import genres from '../utils/genreCatalog.cjs';
 import {
   buildUserTasteProfile,
   findTasteTwins,
@@ -53,6 +55,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
   // Vistas y filtros
   const [activeSection, setActiveSection] = useState('club'); // 'club' | 'dna' | 'discoveries'
   const [filterCategory, setFilterCategory] = useState('top90'); // 'top90' | 'all' | 'critics' | 'twins' | 'criteria'
+  const [selectedGenre, setSelectedGenre] = useState('all');
   const [showAllGenres, setShowAllGenres] = useState(false);
   const [visibleCount, setVisibleCount] = useState(12);
   const discoveryAttempted = useRef(false);
@@ -106,33 +109,20 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
     [genreData.personalized, user, userReviews, allReviews, allProfiles]);
   const decorate = album => ({ ...album, primaryReason: album.recommendationReason, reasons: [album.recommendationReason], matchBadges: [] });
   const recommendations = genreData.recommendations.map(decorate);
-  const highMatchPicks = recommendations.slice(0, 8);
   const criticsTreasures = genreData.acclaimed.map(decorate);
   const twinIds = new Set(tasteTwins.flatMap(twin => twin.favoriteRecommendations.map(review => String(review.album_id))));
   const tasteTwinPicks = recommendations.filter(album => twinIds.has(String(album.id))).slice(0, 8);
   const criteriaPicks = genreData.mostReviewed.map(decorate);
   const topGenre = genreData.genreProfile[0];
-  useEffect(() => { setVisibleCount(12); }, [filterCategory, identity]);
+  const genreOptions = useMemo(() => genreData.personalized ? genreData.genreProfile : [...genres.genreCounts(genreData.recommendations)].map(([id, count]) => ({id, name: genres.normalizeGenres([id])[0], count})).sort((a,b) => b.count - a.count || a.name.localeCompare(b.name, 'es')), [genreData]);
+  useEffect(() => { setVisibleCount(12); }, [filterCategory, selectedGenre, identity]);
 
-  // Filtrado de la lista mostrada
-  const displayedClubAlbums = useMemo(() => {
-    if (filterCategory === 'top90') {
-      return highMatchPicks.length > 0
-        ? highMatchPicks
-        : recommendations.slice(0, 8);
-    }
-    if (filterCategory === 'critics') return criticsTreasures;
-    if (filterCategory === 'twins') return tasteTwinPicks;
-    if (filterCategory === 'criteria') return criteriaPicks;
-    return recommendations;
-  }, [
-    filterCategory,
-    highMatchPicks,
-    recommendations,
-    criticsTreasures,
-    tasteTwinPicks,
-    criteriaPicks,
-  ]);
+  // Apply genre before taking the eight highlighted picks.
+  const categoryAlbums = filterCategory === 'critics' ? criticsTreasures
+    : filterCategory === 'twins' ? tasteTwinPicks
+      : filterCategory === 'criteria' ? criteriaPicks : recommendations;
+  const filteredAlbums = genres.filterByGenre(categoryAlbums, selectedGenre);
+  const displayedClubAlbums = filterCategory === 'top90' ? filteredAlbums.slice(0, 8) : filteredAlbums;
 
   // Cargar nuevos descubrimientos musicales fuera del catálogo
   const loadMusicalDiscoveries = useCallback(
@@ -170,7 +160,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
     }
   }, [activeSection, genreData.personalized, loadMusicalDiscoveries]);
 
-  useEffect(() => { discoveryAttempted.current = false; setDiscoveries([]); setActiveSection('club'); setShowAllGenres(false); }, [identity]);
+  useEffect(() => { discoveryAttempted.current = false; setDiscoveries([]); setActiveSection('club'); setShowAllGenres(false); setSelectedGenre('all'); }, [identity]);
 
   // Agregar un álbum descubierto a la lista de Escuchas Individuales
   const handleAddToIndividualList = async (discoveredAlbum) => {
@@ -259,7 +249,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
 
           {/* Tarjeta Resumen de Arquetipo Musical */}
           {tasteProfile.hasHistory ? (
-            <div className="w-full md:w-auto shrink-0 bg-black/40 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl text-center md:text-left min-w-[260px]">
+            <div className="w-full md:w-auto shrink-0 bg-black/40 border border-white/15 rounded-2xl p-4 sm:p-5 backdrop-blur-md shadow-xl text-center md:text-left min-w-0 md:min-w-[260px] md:max-w-sm">
               <div className="text-[10px] uppercase tracking-wider font-bold text-white/40 mb-1">
                 Tu ADN Musical
               </div>
@@ -279,7 +269,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
               </p>
             </div>
           ) : (
-            <div className="w-full md:w-auto bg-black/40 border border-amber-500/20 rounded-2xl p-4 text-center md:text-left min-w-[260px]">
+            <div className="w-full md:w-auto bg-black/40 border border-amber-500/20 rounded-2xl p-4 text-center md:text-left min-w-0 md:min-w-[260px] md:max-w-sm">
               <div className="text-amber-400 font-bold text-sm flex items-center justify-center md:justify-start gap-1.5 mb-1">
                 <span>🌱</span> Historial Inicial
               </div>
@@ -299,7 +289,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
         </div>
 
         {/* NAVEGACIÓN ENTRE SECCIONES DE RECOMENDACIÓN */}
-        <div className="flex items-center gap-2 mt-6 pt-6 border-t border-white/10 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-2 mt-6 pt-6 border-t border-white/10 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
             onClick={() => setActiveSection('club')}
             className={`px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition-all flex items-center gap-2 whitespace-nowrap shrink-0 ${
@@ -310,7 +300,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
           >
             <span>💿</span> Para Ti{' '}
             <span translate="no" className="notranslate" data-stat="number">
-              ({loading ? '...' : recommendations.length})
+              ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).length})
             </span>
           </button>
 
@@ -368,9 +358,10 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
       {/* CONTENIDO 1: RECOMENDACIONES DEL CLUB */}
       {activeSection === 'club' && (
         <div className="space-y-6">
+          {!loading && genreOptions.length > 0 && <RecommendationGenres key={`${identity}:${genreData.personalized}`} genres={genreOptions} personalized={genreData.personalized} selected={selectedGenre} onSelect={setSelectedGenre} />}
           {/* Barra de Filtros Rápidos */}
           <div className="flex items-center justify-between gap-3 flex-wrap bg-black/40 p-3 sm:p-4 rounded-2xl border border-white/10">
-            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar w-full sm:w-auto">
+            <div className="flex items-center gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden w-full sm:w-auto">
               <button
                 onClick={() => setFilterCategory('top90')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
@@ -381,7 +372,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
               >
                 🌟 {genreData.personalized ? 'Afinidad por géneros' : 'Selección del club'}{' '}
                 <span translate="no" className="notranslate" data-stat="number">
-                  ({loading ? '...' : highMatchPicks.length})
+                  ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).slice(0, 8).length})
                 </span>
               </button>
 
@@ -395,7 +386,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
               >
                 ⚡ Todas las Sugerencias{' '}
                 <span translate="no" className="notranslate" data-stat="number">
-                  ({loading ? '...' : recommendations.length})
+                  ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).length})
                 </span>
               </button>
 
@@ -414,7 +405,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     className="notranslate"
                     data-stat="number"
                   >
-                    ({criticsTreasures.length})
+                    ({genres.filterByGenre(criticsTreasures, selectedGenre).length})
                   </span>
                 </button>
               )}
@@ -434,7 +425,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     className="notranslate"
                     data-stat="number"
                   >
-                    ({tasteTwinPicks.length})
+                    ({genres.filterByGenre(tasteTwinPicks, selectedGenre).length})
                   </span>
                 </button>
               )}
@@ -454,7 +445,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     className="notranslate"
                     data-stat="number"
                   >
-                    ({criteriaPicks.length})
+                    ({genres.filterByGenre(criteriaPicks, selectedGenre).length})
                   </span>
                 </button>
               )}
@@ -502,22 +493,24 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
               {displayedClubAlbums.slice(0, visibleCount).map((album) => {
                 const compatScore = Math.round(album.genreAffinity * 100);
                 const badges = album.matchBadges || [];
+                const badgeGenre = selectedGenre !== 'all' ? genres.normalizeGenres([selectedGenre])[0] : album.matchingGenres?.[0];
 
                 return (
                   <div
                     key={album.id}
+                    data-recommended-release={album.id}
                     className="group relative rounded-3xl p-4 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/25 transition-all duration-300 shadow-xl hover:shadow-2xl flex flex-col justify-between space-y-4"
                   >
                     {/* Badge de compatibilidad superior */}
                     <div className="flex items-center justify-between gap-2">
                       <span
                         translate="no"
-                        className={`notranslate px-3 py-1 rounded-full text-xs bg-linear-to-r ${getCompatibilityColor(
+                        className={`notranslate inline-flex min-w-0 max-w-[70%] items-center gap-1.5 px-2 py-1 rounded-full text-xs bg-linear-to-r ${getCompatibilityColor(
                           compatScore
                         )} shadow-md`}
                         data-stat="genre"
                       >
-                        {genreData.personalized && album.matchingGenres?.length ? `🎵 ${album.matchingGenres[0]}` : '💿 Selección del club'}
+                        {badgeGenre ? <><GenreArtwork genre={badgeGenre} size={24} className="h-6 w-6 shrink-0" /><span className="truncate">{badgeGenre}</span></> : '💿 Selección del club'}
                       </span>
 
                       <span className="text-[11px] font-semibold text-white/50 bg-black/40 px-2.5 py-0.5 rounded-full border border-white/5">
@@ -630,15 +623,13 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
             <div className="py-16 text-center space-y-4 bg-black/20 rounded-3xl border border-white/5 p-6">
               <div className="text-4xl">🎉</div>
               <h3 className="text-lg font-bold text-white">
-                ¡Has calificado todo este segmento!
+                {selectedGenre === 'all' ? '¡Has calificado todo este segmento!' : 'Sin sugerencias en esta selección'}
               </h3>
               <p className="text-white/50 text-xs sm:text-sm max-w-md mx-auto">
-                No quedan álbumes pendientes en esta categoría. Puedes explorar
-                la pestaña de nuevos descubrimientos o calificar más discos del
-                catálogo.
+                {selectedGenre === 'all' ? 'No quedan álbumes pendientes en esta categoría. Puedes explorar nuevos descubrimientos o calificar más discos del catálogo.' : 'No hay lanzamientos pendientes de este género en la categoría elegida. Prueba otra categoría o quita el filtro.'}
               </p>
               <button
-                onClick={() => setFilterCategory('all')}
+                onClick={() => { setFilterCategory('all'); setSelectedGenre('all'); }}
                 className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs transition-all"
               >
                 Ver Todas las Sugerencias{' '}
