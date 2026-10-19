@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.13.3', title: 'Una combinación de colores para cada género', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-cyan-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'Los géneros tienen combinaciones de colores propias, sin repetir la misma paleta entre géneros distintos.',
+    changes: [
+      { type: 'fix', title: 'Identidades de color únicas', description: 'El catálogo, las etiquetas y las páginas individuales comparten los colores de cada género. Se comprueba que los 2220 géneros y categorías tengan combinaciones diferentes; las ediciones aleatorias del Gashapon se mantienen.' },
+    ],
+  },
+  {
     version: 'V.9.13.2', title: 'Discos con más personalidad en cada género', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-amber-400 to-pink-500', authorName: 'Eugenio Turcott',

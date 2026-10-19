@@ -89,8 +89,7 @@ test('every genre reveal has a separate center without an embedded outer record'
   const checked = new Set();
   for (const genre of genres.GENRES) {
     const art = visuals.genreRevealArtwork(genre.id);
-    assert.match(art.disc, /^\/genres\/editions\/[a-z-]+\.svg$/);
-    assert.ok(fs.existsSync(new URL('../public'+art.disc, import.meta.url)));
+    assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
     if (art.center.startsWith('data:') || checked.has(art.center)) continue;
     const svg = fs.readFileSync(new URL('../public'+art.center, import.meta.url),'utf8');
@@ -100,6 +99,21 @@ test('every genre reveal has a separate center without an embedded outer record'
     checked.add(art.center);
   }
   assert.ok(checked.size >= 81);
+});
+
+test('every canonical genre has a unique color combination shared by all its aliases', () => {
+  const combinations = new Set(), records = new Set();
+  for (const genre of genres.GENRES) {
+    const art = visuals.genreRevealArtwork(genre.id);
+    const combination = [art.base, art.accent, art.highlight].map(color => color.toLowerCase()).join('|');
+    assert.ok(!combinations.has(combination), `repeated colors: ${genre.id}`);
+    assert.ok(!records.has(art.disc), `repeated vinyl: ${genre.id}`);
+    combinations.add(combination);
+    records.add(art.disc);
+    assert.deepEqual(art, visuals.genreRevealArtwork(genre.name));
+  }
+  assert.equal(combinations.size, genres.GENRES.length);
+  assert.equal(visuals.genreRevealArtwork('Rap').disc, visuals.genreRevealArtwork('Hip-Hop').disc);
 });
 
 
