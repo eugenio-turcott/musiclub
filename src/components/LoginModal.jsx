@@ -1,5 +1,5 @@
 // src/components/LoginModal.jsx
-import { useState } from 'react';
+import { useState, useEffect, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
 
 export function LoginModal({
@@ -11,6 +11,37 @@ export function LoginModal({
   loading,
 }) {
   const [error, setError] = useState(null);
+  const dialogRef = useRef(null);
+  const closeRef = useRef(onClose);
+  closeRef.current = onClose;
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const previousFocus = document.activeElement;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const focusable = () => [...(dialogRef.current?.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])') || [])].filter(element => element.getClientRects().length);
+    (focusable()[0] || dialogRef.current)?.focus();
+    const handleKey = event => {
+      if (event.key === 'Escape') { event.preventDefault(); closeRef.current?.(); }
+      if (event.key !== 'Tab') return;
+      const elements = focusable();
+      const first = elements[0], last = elements.at(-1);
+      if (!first) { event.preventDefault(); dialogRef.current?.focus(); return; }
+      if (!dialogRef.current?.contains(document.activeElement) || (event.shiftKey && document.activeElement === first)) {
+        event.preventDefault(); (event.shiftKey ? last : first).focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault(); first.focus();
+      }
+    };
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('keydown', handleKey);
+      document.body.style.overflow = previousOverflow;
+      if (previousFocus?.isConnected) previousFocus.focus();
+    };
+  }, [isOpen]);
 
   if (!isOpen) return null;
   if (typeof document === 'undefined') return null;
@@ -40,6 +71,11 @@ export function LoginModal({
       onClick={onClose}
     >
       <div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
         className="relative bg-linear-to-br from-[#181935] via-[#101226] to-[#0a0b16] border border-[#f5576c]/40 rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl text-center my-auto overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
@@ -61,7 +97,7 @@ export function LoginModal({
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,87,108,0.2)]">
             🎵
           </div>
-          <h3 className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
+          <h3 id={titleId} className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
             MUSICLUB
           </h3>
           <p className="text-white/60 text-xs sm:text-sm max-w-xs mx-auto leading-relaxed">
@@ -70,7 +106,7 @@ export function LoginModal({
         </div>
 
         {error && (
-          <div className="bg-red-500/20 border border-red-500/30 text-red-300 text-xs p-3 rounded-xl mb-4 relative z-10 text-left">
+          <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 text-xs p-3 rounded-xl mb-4 relative z-10 text-left">
             ⚠️ {error}
           </div>
         )}

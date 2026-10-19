@@ -11,6 +11,18 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7.5', title: 'Menos carga al entrar y una primera valoración más fácil', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Rendimiento y accesibilidad',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'La portada aplaza el formulario y las tarjetas para compartir hasta que los necesitas. Puedes preparar tu valoración del recomendado antes de iniciar sesión.',
+    changes: [
+      { type: 'improvement', title: 'Código e imágenes ajustados a su uso', description: 'El formulario de portada y el generador de tarjetas se cargan al abrirse. Los avatares de la portada solicitan tamaños acordes a su presentación y se optimizan dos fuentes externas utilizadas por la comunidad.' },
+      { type: 'improvement', title: 'Primero prepara tu opinión', description: 'La llamada para calificar el recomendado permite abrir el formulario sin iniciar sesión; el acceso con Google se solicita al publicar.' },
+      { type: 'fix', title: 'Inicio de sesión accesible con teclado', description: 'La ventana identifica su título, mantiene el foco dentro, admite Escape y devuelve el foco al control que la abrió.' },
+      { type: 'security', title: 'Catálogo sin datos personales de ejemplo', description: 'Se retiró la lista de álbumes de ejemplo que contenía correos incrustados. Si falla la conexión se conserva la última lista real y se informa del error.' },
+    ],
+  },
+  {
     version: 'V.9.7.4', title: 'Título principal del Gashapon', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Accesibilidad',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

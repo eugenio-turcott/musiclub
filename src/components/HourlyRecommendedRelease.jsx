@@ -1,8 +1,8 @@
-// src/components/HourlyRecommendedRelease.jsx
+'use client';
 import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ReviewSystem } from './ReviewSystem';
+import dynamic from 'next/dynamic';
 import { getReleaseUrl, getWeightedReviewScore } from '../utils/ratingUtils';
 import {
   SpotifyLogo,
@@ -11,6 +11,10 @@ import {
   DeezerLogo,
 } from './common/PlatformLogos';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+
+const ReviewSystem = dynamic(() => import('./ReviewSystem').then(module => module.ReviewSystem), {
+  loading: () => <p role="status" className="p-4 text-slate-300">Preparando tu valoración…</p>,
+});
 
 /**
  * Generador pseudo-aleatorio determinista para una semilla entera (por ejemplo, hora actual).
@@ -417,6 +421,9 @@ export function HourlyRecommendedRelease({
                   {reviewerAvatar ? (
                     <CoverImage
                       src={reviewerAvatar}
+                      width={32}
+                      height={32}
+                      sizes="32px"
                       alt={reviewerName}
                       className="w-8 h-8 rounded-full object-cover border border-amber-400/50 shrink-0"
                     />
@@ -523,13 +530,7 @@ export function HourlyRecommendedRelease({
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  if (!user) {
-                    onLogin();
-                  } else {
-                    setShowReviewForm((prev) => !prev);
-                  }
-                }}
+                onClick={() => setShowReviewForm((prev) => !prev)}
                 className="w-full sm:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
                 <span>✍️</span>
@@ -652,7 +653,7 @@ export function HourlyRecommendedRelease({
             <ReviewSystem
               album={album}
               isFromSpotify={album.spotify_verified || false}
-              isIndividual={album.status !== 'GANADOR'}
+              isIndividual={true}
               tracks={album.tracks || []}
               user={user}
               onReviewSubmitted={() => {

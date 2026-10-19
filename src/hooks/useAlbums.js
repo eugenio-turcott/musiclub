@@ -3,63 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
-const FALLBACK_ALBUMS = [
-  {
-    id: 'fallback-1',
-    album: 'Confessions II',
-    artista: 'Madonna',
-    imagen:
-      'https://www.madonna.com/cdn/shop/files/CONFESSIONS2_745da7c4-683d-40ac-9a33-62dfc582e3a5.jpg?v=1782941623',
-    status: 'ACTIVO',
-    added_by: 'Tadeo',
-    added_by_email: 'tadeoemiliano@hotmail.com',
-    reviews_enabled: false,
-  },
-  {
-    id: 'fallback-2',
-    album: 'Disco de Oro',
-    artista: 'Little Jesus',
-    imagen:
-      'https://resources.sanborns.com.mx/imagenes-sanborns-ii/1200/190759443620.jpg',
-    status: 'ACTIVO',
-    added_by: 'Jesús',
-    added_by_email: 'jesusroberto005@gmail.com',
-    reviews_enabled: false,
-  },
-  {
-    id: 'fallback-3',
-    album: 'Prema',
-    artista: 'Fujii Kaze',
-    imagen:
-      'https://m.media-amazon.com/images/I/71AEchV3YiL._UF1000,1000_QL80_.jpg',
-    status: 'ACTIVO',
-    added_by: 'Devie',
-    added_by_email: 'devshtp24@gmail.com',
-    reviews_enabled: false,
-  },
-  {
-    id: 'fallback-4',
-    album: 'Titanic Rising',
-    artista: 'Weyes Blood',
-    imagen:
-      'https://cdn-images.dzcdn.net/images/cover/f2edcff8208b6c8aeb2dccff39209043/1900x1900-000000-80-0-0.jpg',
-    status: 'ACTIVO',
-    added_by: 'Cait',
-    added_by_email: 'ricardodg351@gmail.com',
-    reviews_enabled: false,
-  },
-  {
-    id: 'fallback-5',
-    album: 'Bodhiria',
-    artista: 'Judeline',
-    imagen:
-      'https://cdn-images.dzcdn.net/images/cover/a1041dd029a6ac9dd7eeb9f51c99517c/0x1900-000000-80-0-0.jpg',
-    status: 'ACTIVO',
-    added_by: 'Valentín',
-    added_by_email: 'valentihdz28@gmail.com',
-    reviews_enabled: false,
-  },
-];
 
 export function useAlbums(initialAlbums = []) {
   const [albums, setAlbums] = useState(initialAlbums);
@@ -131,15 +74,14 @@ export function useAlbums(initialAlbums = []) {
         setWinner(winnerAlbum || null);
         setError(null);
       } else {
-        setAlbums(FALLBACK_ALBUMS);
+        setAlbums([]);
         setWinner(null);
-        setError('Usando álbumes de ejemplo (sin datos)');
+        setError('Todavía no hay álbumes disponibles.');
       }
     } catch (error) {
       console.warn('Error fetching albums:', error);
-      setAlbums(FALLBACK_ALBUMS);
-      setWinner(null);
-      setError('Usando álbumes de ejemplo (error de conexión)');
+      // Preserve the last real snapshot when the connection fails.
+      setError('No pudimos actualizar el catálogo. Inténtalo de nuevo.');
     }
     setLoading(false);
   }, []);

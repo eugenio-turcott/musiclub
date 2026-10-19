@@ -19,6 +19,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
       { protocol: 'https', hostname: 'cdn.rcrd.club' },
       { protocol: 'https', hostname: 'cdn-images.dzcdn.net' },
+      { protocol: 'https', hostname: 'i.pinimg.com' },
+      { protocol: 'https', hostname: 'www.serebii.net', pathname: '/dungeonrescueteamdx/pokemon/**' },
     ],
   },
   turbopack: {
