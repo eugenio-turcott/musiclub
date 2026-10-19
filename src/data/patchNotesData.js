@@ -11,6 +11,16 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.14.0', title: 'Familias musicales con figuras propias', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Géneros',
+    tagColor: 'from-purple-500 via-pink-500 to-amber-400', authorName: 'Eugenio Turcott',
+    summary: 'Cada género tiene un centro de vinilo propio. Los subgéneros conservan la figura de su familia con variaciones y detalles que los distinguen.',
+    changes: [
+      { type: 'improvement', title: 'Variaciones dentro de cada familia', description: 'Metal y sus subgéneros comparten una figura reconocible, con modificadores como luna, calavera, atmósfera o reloj de arena. Los géneros sin una familia identificada tienen un emblema abstracto individual.' },
+      { type: 'improvement', title: 'Identidades que crecen con el registro', description: 'Los géneros reconocidos reciben colores y figura automáticamente al incorporarse al catálogo, incluidos los que aún no tienen lanzamientos.' },
+    ],
+  },
+  {
     version: 'V.9.13.3', title: 'Una combinación de colores para cada género', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-cyan-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',

@@ -1,0 +1,17 @@
+MUSICLUB: GÉNEROS, FIGURAS Y ACTUALIZACIÓN AUTOMÁTICA
+
+1. Un release con géneros ya reconocidos recibe sus colores, figura, filtros y página sin diseñar ni subir imágenes nuevas. La figura se genera desde su identidad canónica; los alias de un mismo género comparten identidad.
+
+2. Los subgéneros conservan la figura de su familia y añaden un pequeño modificador. Los géneros sin una familia identificada tienen un emblema abstracto propio. Estas son identidades gráficas de Musiclub, no símbolos oficiales de cada tradición musical.
+
+3. El mantenimiento semanal consulta el registro oficial de MusicBrainz. Valida la respuesta, añade nombres nuevos sin eliminar los anteriores, ejecuta las pruebas, sincroniza las etiquetas permitidas en Supabase y publica el registro. Los colores, las figuras y las rutas se generan a partir de esos nombres nuevos automáticamente. La sincronización solo hace upsert; no borra géneros.
+
+4. Activación única: ejecutar supabase/migrations/20261019_v914_extensible_genre_registry.sql en Supabase, comprobar el resultado y después establecer la variable del repositorio MUSICLUB_GENRE_REGISTRY_READY=true. El workflow no corre hasta que esta variable esté activada. No habilitar antes de verificar la migración. La migración sustituye la lista fija del CHECK por una tabla de etiquetas válidas; no modifica releases ni sus políticas de acceso.
+
+5. Para adelantar una actualización se puede ejecutar el workflow Update verified genres and their visual identities desde GitHub Actions. Su programación normal es semanal. Un nombre desconocido que todavía no conste como género verificado no se convierte automáticamente en un género: debe clasificarse con una etiqueta válida. Esto evita IDs, códigos, errores de escritura y etiquetas arbitrarias.
+
+6. El seeder masivo de releases continúa suspendido: este mantenimiento amplía únicamente el registro musical; no agrega discos por su cuenta ni reactiva la ingestión de catálogo.
+
+7. Exportar todas las figuras actuales: node scripts/export-genre-symbols.cjs. Crea SVG, manifest.json y atlas.html en audit/musiclub-genre-symbols. El atlas tiene buscador y paginación y puede usarse sin conexión. Los archivos SVG son únicamente el centro oscuro con la figura, sin el disco exterior.
+
+8. Los gráficos se sirven por rutas versionadas de SVG. Si se cambia una figura ya publicada, incrementar la versión de /genres/symbols/v1/ para evitar que el navegador conserve el dibujo antiguo. Lo mismo aplica a /genres/colors/v1/ si se modifica una paleta existente.
