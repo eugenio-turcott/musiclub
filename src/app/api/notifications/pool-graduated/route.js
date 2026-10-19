@@ -95,6 +95,7 @@ export async function POST(request) {
       albumName: album.album_name,
       artistName: album.artist_name,
       imageUrl: album.image_url,
+      genres: album.genres || [],
       nominatedBy: album.added_by || 'Miembro del Club',
       avgScore,
       totalReviews,

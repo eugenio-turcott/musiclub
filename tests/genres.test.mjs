@@ -8,6 +8,31 @@ import fs from 'node:fs';
 import genres from '../src/utils/genreCatalog.cjs';
 import { normalizeCanonicalGenres } from '../src/utils/genreNormalizer.js';
 import { planReleaseGenres } from '../scripts/lib/release-genres.mjs';
+import emailArtwork from '../src/utils/genreEmailArtwork.cjs';
+import sharp from 'sharp';
+import { splitArtists, slugifyArtist } from '../src/utils/ratingUtils.js';
+import { generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml, prepareAttachmentsAndImages } from '../src/services/emailService.js';
+
+test('email vinyl uses the first genre and embeds an actual PNG compatible with mail clients', async () => {
+  const input = { albumName: 'Example', artistName: 'Example', genres: ['K-Pop', 'Pop'], imageUrl: '', breakdown: {} };
+  for (const render of [generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml]) {
+    const html = render(input);
+    assert.ok(html.includes('/genres/vinyl/v1/k-pop.png'));
+    assert.ok(!html.includes('/genres/vinyl/v1/pop.png'));
+    assert.ok(!html.includes('border-collapse: collapse'));
+  }
+  const prepared = await prepareAttachmentsAndImages({ genres: input.genres });
+  const vinyl = prepared.attachments.find(file => file.cid === 'genre_vinyl');
+  assert.equal(prepared.vinylUrl, 'cid:genre_vinyl');
+  assert.equal((await sharp(vinyl.content).metadata()).format, 'png');
+  assert.equal((await sharp(vinyl.content).metadata()).width, 560);
+  assert.equal(emailArtwork.genreEmailSvg('Q12345'), null);
+});
+
+test('artist links preserve band names containing commas and symbol-only artists', () => {
+  assert.deepEqual(splitArtists('Black Country, New Road'), [{ name: 'Black Country, New Road', slug: 'black-country-new-road' }]);
+  assert.equal(slugifyArtist('@'), 'at-band');
+});
 
 test('genre normalization preserves specific styles and consolidates spelling and languages', () => {
   assert.deepEqual(normalizeCanonicalGenres(['hip-hop', 'Hip Hop', 'Rap', 'Black Metal', 'death metal', 'Metal Alternativo']), ['Hip-Hop', 'Black Metal', 'Death Metal', 'Metal Alternativo']);

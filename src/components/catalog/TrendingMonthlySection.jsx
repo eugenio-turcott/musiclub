@@ -1,4 +1,6 @@
 import { GenreLabel } from '../GenreLabel';
+import { GenreArtwork } from '../GenreArtwork';
+import genreCatalog from '../../utils/genreCatalog.cjs';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
@@ -56,6 +58,12 @@ export function TrendingMonthlySection({
     return map;
   }, [clubAlbums]);
 
+  const releasesWithGenres = useMemo(() => releases.map(item => {
+    const club = clubAlbumMap.get(item.slug) || clubAlbumMap.get(`${(item.artist_name || '').toLowerCase().trim()}:::${(item.album_name || '').toLowerCase().trim()}`);
+    return { ...item, genres: genreCatalog.normalizeGenres(club?.genres?.length ? club.genres : (item.genres || [])) };
+  }), [releases, clubAlbumMap]);
+  const availableGenres = useMemo(() => [...new Set(releasesWithGenres.flatMap(item => item.genres))].sort((a,b) => a.localeCompare(b, 'es')), [releasesWithGenres]);
+
   // Reiniciar a la página 1 cuando el usuario busca o cambia categoría
   const handleCategoryChange = (cat) => {
     setSelectedCategory(cat);
@@ -89,36 +97,8 @@ export function TrendingMonthlySection({
 
   // Filtrado reactivo por texto y categoría
   const filteredReleases = useMemo(() => {
-    let list = releases;
-
-    if (selectedCategory !== 'ALL') {
-      list = list.filter((item) => {
-        const cat = (item.genre_category || '').toUpperCase();
-        if (selectedCategory === 'POP')
-          return cat.includes('POP') || cat.includes('HYPERPOP');
-        if (selectedCategory === 'ROCK')
-          return (
-            cat.includes('ROCK') ||
-            cat.includes('PUNK') ||
-            cat.includes('INDIE') ||
-            cat.includes('SLUDGE')
-          );
-        if (selectedCategory === 'HIPHOP')
-          return (
-            cat.includes('HIP-HOP') ||
-            cat.includes('RAP') ||
-            cat.includes('SOUL')
-          );
-        if (selectedCategory === 'ELECTRONIC')
-          return (
-            cat.includes('ELECTRO') ||
-            cat.includes('HOUSE') ||
-            cat.includes('AMBIENT') ||
-            cat.includes('IDM')
-          );
-        return true;
-      });
-    }
+    let list = releasesWithGenres;
+    if (selectedCategory !== 'ALL') list = list.filter(item => item.genres.includes(selectedCategory));
 
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
@@ -126,12 +106,12 @@ export function TrendingMonthlySection({
         (item) =>
           item.album_name.toLowerCase().includes(q) ||
           item.artist_name.toLowerCase().includes(q) ||
-          (item.genre_category && item.genre_category.toLowerCase().includes(q))
+          item.genres.some(genre => genre.toLowerCase().includes(q))
       );
     }
 
     return list;
-  }, [releases, selectedCategory, searchQuery]);
+  }, [releasesWithGenres, selectedCategory, searchQuery]);
 
   // Paginación dinámica: 10 en celular, 20 en pantallas medianas y grandes
   const totalPages = Math.max(
@@ -213,17 +193,12 @@ export function TrendingMonthlySection({
           </div>
 
           {/* Filtros de Categoría */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5">
-            {[
-              { id: 'ALL', label: `Todos (${releases.length})` },
-              { id: 'POP', label: 'Pop / Club' },
-              { id: 'ROCK', label: 'Rock / Indie' },
-              { id: 'HIPHOP', label: 'Hip-Hop / Soul' },
-              { id: 'ELECTRONIC', label: 'Electrónica' },
-            ].map((tab) => (
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 sm:max-w-[55%]">
+            {[{ id: 'ALL', label: `Todos (${releases.length})` }, ...availableGenres.map(name => ({ id: name, label: name }))].map((tab) => (
               <button
                 key={tab.id}
                 type="button"
+                aria-pressed={selectedCategory === tab.id}
                 onClick={() => handleCategoryChange(tab.id)}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
                   selectedCategory === tab.id
@@ -231,7 +206,7 @@ export function TrendingMonthlySection({
                     : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10'
                 }`}
               >
-                {tab.label}
+                {tab.id === 'ALL' ? tab.label : <GenreLabel genre={tab.id} size={22} />}
               </button>
             ))}
           </div>
@@ -334,9 +309,9 @@ export function TrendingMonthlySection({
                       >
                         #{rank}
                       </span>
-                      <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-pink-500/80 border border-pink-400 text-white backdrop-blur-md truncate max-w-[120px]">
-                        <GenreLabel genre={item.genre_category || 'POP'} size={16} />
-                      </span>
+                      {item.genres.length > 0 && <span className="inline-flex gap-1 rounded-full border border-white/20 bg-black/70 p-1 backdrop-blur-md" aria-label={item.genres.join(', ')} title={item.genres.join(', ')}>
+                        {item.genres.map(genre => <GenreArtwork key={genre} genre={genre} size={22} />)}
+                      </span>}
                     </div>
 
                     {/* Calificación del Club en la esquina superior derecha o Distintivo NEW (solo si aún no tiene reviews) */}

@@ -372,6 +372,7 @@ export function isFavoriteTrackMatch(trackOrKey, favoriteTrackKey, tracks = [], 
  * Lista de artistas conocidos con comas o ampersands que no deben separarse por coma
  */
 const KNOWN_INDIVISIBLE_ARTISTS = [
+  'black country, new road',
   'tyler, the creator',
   'earth, wind & fire',
   'crosby, stills, nash & young',
@@ -387,6 +388,7 @@ const KNOWN_INDIVISIBLE_ARTISTS = [
  * Convierte el nombre de un artista en un slug URL-friendly para rutas como /artista/Radiohead o /artista/The-Weeknd
  */
 export function slugifyArtist(artistName) {
+  if (String(artistName || '').trim() === '@') return 'at-band';
   return releaseIdentity.slugify(artistName);
 }
 

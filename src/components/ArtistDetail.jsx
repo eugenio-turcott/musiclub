@@ -13,6 +13,7 @@ import {
   getArtistCompleteProfile,
   getAlbumDetails,
 } from '../services/spotifyApi';
+import { getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
 import { findAlbumsByArtist, getReleaseUrl, slugifyArtist } from '../utils/ratingUtils';
 
 
@@ -37,105 +38,21 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
     setError(null);
 
     try {
-      // 1. Obtener todos los álbumes de Musiclub para cruzar datos
-      const allClubAlbums = await supabaseService.getAllAlbumsWithFullStats();
-      const decodedSlug = decodeURIComponent(slug || '').replace(/[-_]/g, ' ').trim();
-      const matchedClub = findAlbumsByArtist(
-        allClubAlbums || [],
-        decodedSlug || slug
-      );
-      setClubAlbums(matchedClub);
-
-      // Usar el nombre exacto de la base de datos si existe coincidencia precisa, o el slug decodificado
-      const exactClubArtist = matchedClub.find((ca) => {
-        const name = (ca.artist_name || ca.artista || '').trim();
-        return slugifyArtist(name).toLowerCase() === slugifyArtist(decodedSlug).toLowerCase();
-      });
-
-      const targetQuery = exactClubArtist
-        ? exactClubArtist.artist_name || exactClubArtist.artista
-        : decodedSlug;
-
-      // 2. Obtener perfil completo desde Spotify API
-      const spotifyRes = await getArtistCompleteProfile(targetQuery);
-
-      if (spotifyRes.success) {
-        setProfileData(spotifyRes);
-
-        // Si encontramos el nombre oficial del artista en Spotify, volvemos a filtrar los del club
-        if (spotifyRes.artist?.name) {
-          const refinedMatches = findAlbumsByArtist(
-            allClubAlbums || [],
-            spotifyRes.artist.name
-          );
-          setClubAlbums(refinedMatches);
-
-          // Registrar / sincronizar artista canónico en tabla artists de Supabase (V.8.5)
-          supabaseService.upsertArtist({
-            name: spotifyRes.artist.name,
-            slug: slugifyArtist(spotifyRes.artist.name),
-            spotify_id: spotifyRes.artist.id,
-            image_url: spotifyRes.artist.image,
-            genres: spotifyRes.artist.genres || [],
-            followers: spotifyRes.artist.followers,
-            popularity: spotifyRes.artist.popularity,
-          });
-        }
-      } else {
-        // Fallback si no está en Spotify pero sí en Musiclub
-        if (matchedClub.length > 0) {
-          const sample = matchedClub[0];
-          const artName = sample.artist_name || sample.artista;
-          supabaseService.recordArtistClick(artName);
-          setProfileData({
-            success: true,
-            artist: {
-              id: null,
-              name: sample.artist_name || sample.artista,
-              image: sample.image_url || sample.imagen,
-              genres: sample.genres || [],
-              followers: null,
-              popularity: null,
-              spotifyUrl: sample.spotify_link || null,
-            },
-            topTracks: [],
-            discography: matchedClub.map((ca) => ({
-              id: ca.id,
-              name: ca.album_name || ca.album,
-              artists: [ca.artist_name || ca.artista],
-              image: ca.image_url || ca.imagen,
-              releaseYear: ca.release_year,
-              releaseDate: ca.release_date,
-              release_type: ca.release_type || 'ALBUM',
-              totalTracks: ca.tracks?.length || 0,
-              spotifyUrl: ca.spotify_link,
-            })),
-            albums: matchedClub.filter(
-              (ca) => (ca.release_type || 'ALBUM') === 'ALBUM'
-            ),
-            eps: matchedClub.filter((ca) => ca.release_type === 'EP'),
-            singles: matchedClub.filter((ca) => ca.release_type === 'SENCILLO'),
-            compilations: matchedClub.filter(
-              (ca) => ca.release_type === 'COMPILACION'
-            ),
-          });
-        } else {
-          setError(
-            spotifyRes.error ||
-              `No se encontró información del artista "${targetQuery}"`
-          );
-        }
-      }
+      const response = await fetch(`/api/artists/${encodeURIComponent(slug)}`);
+      if (!response.ok) throw new Error('No se pudo recuperar la discografía');
+      const data = await response.json();
+      setProfileData(data.profile);
+      setClubAlbums(data.albums || []);
     } catch (err) {
       console.error('Error cargando página de artista:', err);
-      setError('Error al cargar la información del artista');
+      if (!initialProfileData) setError('Error al cargar la información del artista');
     } finally {
       setLoading(false);
     }
   }, [slug, initialProfileData]);
 
   useEffect(() => {
-    loadArtistData();
+    if (!initialProfileData) loadArtistData();
   }, [loadArtistData]);
 
   // Mapa de álbumes del club indexados por nombre normalizado
@@ -210,13 +127,17 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
   // Acción rápida: Proponer álbum al club con 1 click
   const handleQuickPropose = async (release) => {
     if (proposingId) return;
+    if (release.clubUrl) { navigate(release.clubUrl); return; }
+    if (release.releaseDate && release.releaseDate > new Date().toLocaleDateString('en-CA')) { setProposeMessage('Este lanzamiento estará disponible para reseñar después de su estreno.'); return; }
+    if (!user) { loginWithGoogle(); return; }
     setProposingId(release.id);
     setProposeMessage(null);
 
     try {
       // 1. Obtener detalles de canciones desde Spotify
-      const details = await getAlbumDetails(release.id);
-      const spotifyAlbum = details?.success ? details.album : release;
+      const mb = release.mbid ? await getMusicBrainzReleaseGroupDetails(release.mbid) : null;
+      const details = release.mbid ? null : await getAlbumDetails(release.id);
+      const spotifyAlbum = mb ? { ...release, ...mb } : details?.success ? details.album : release;
 
       const tracks = (spotifyAlbum.tracks || []).map((t) => ({
         id: t.id,
@@ -240,15 +161,13 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         releaseDate: spotifyAlbum.releaseDate || release.releaseDate || null,
         releaseYear: spotifyAlbum.releaseYear || release.releaseYear || null,
         releaseType: release.release_type || 'ALBUM',
-        genres: profileData?.artist?.genres || [],
+        genres: mb?.genres?.length ? mb.genres : profileData?.artist?.genres || [],
+        mbid: release.mbid || null,
         reviews_enabled: true,
       };
 
       const created = await supabaseService.createAlbum(albumPayload);
-      const targetUrl = getReleaseUrl(
-        created?.album_name || spotifyAlbum.name,
-        release.release_type || 'ALBUM'
-      );
+      const targetUrl = getReleaseUrl(created || { album_name: spotifyAlbum.name, artist_name: artistName, release_type: release.release_type });
 
       navigate(targetUrl);
     } catch (err) {
@@ -413,7 +332,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                     <img
                       src={
                         artist.image ||
-                        'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎤'
+                        '/musiclub_logo_corchea.png'
                       }
                       alt={artist.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -670,8 +589,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                     };
 
                     const targetClubUrl = getReleaseUrl(
-                      existingInClub?.album_name || release.name,
-                      existingInClub?.release_type || release.release_type || 'ALBUM'
+                      existingInClub || { album_name: release.name, artist_name: profileData.artist.name, release_type: release.release_type }
                     );
 
                     const handleCardClick = () => {
@@ -703,8 +621,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                             <img
                               src={
                                 release.image ||
-                                'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
+                                '/musiclub_logo_corchea.png'
                               }
+                              onError={event => { if (!event.currentTarget.src.endsWith('/musiclub_logo_corchea.png')) event.currentTarget.src = '/musiclub_logo_corchea.png'; }}
                               alt={release.name}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               loading="lazy"
@@ -731,7 +650,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                   </span>
                                 ) : (
                                   <span className="bg-cyan-300/80 text-cyan-800 font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg border border-cyan-700/50">
-                                    Musiclub
+                                    EN MUSICLUB
                                   </span>
                                 )}
                               </div>
@@ -747,6 +666,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                             )}
                           </div>
 
+                          {existingInClub && <div className="mb-2 flex flex-wrap gap-1.5 text-[10px] font-bold"><span className="rounded-full bg-cyan-400/15 px-2 py-1 text-cyan-200">EN MUSICLUB</span>{existingInClub.review_count > 0 && <span className="rounded-full bg-white/5 px-2 py-1 text-slate-300">{existingInClub.review_count} reseñas</span>}</div>}
                           {/* Release Name & Details */}
                           <h4
                             translate="no"
@@ -819,7 +739,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                               <span>
                                 {Boolean(proposingId) && release.id && proposingId === release.id
                                   ? 'Abriendo...'
-                                  : 'Reseñar en Club'}
+                                  : release.clubUrl ? 'Ver lanzamiento' : release.releaseDate > new Date().toLocaleDateString('en-CA') ? 'Próximo estreno' : 'Reseñar en Club'}
                               </span>
                             </button>
                           )}

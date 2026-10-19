@@ -1,6 +1,10 @@
 import nodemailer from 'nodemailer';
 import fs from 'fs';
 import path from 'path';
+import sharp from 'sharp';
+import { createClient } from '@supabase/supabase-js';
+import genreCatalog from '../utils/genreCatalog.cjs';
+import genreArtwork from '../utils/genreEmailArtwork.cjs';
 
 /**
  * MUSICLUB EMAIL SERVICE V.9.2
@@ -406,7 +410,7 @@ export async function getTransporter() {
  * Esto evita que proxies de correo o demoras en la emisión de certificados SSL
  * de subdominios rompan la carga de imágenes.
  */
-export async function prepareAttachmentsAndImages({ imageUrl } = {}) {
+export async function prepareAttachmentsAndImages({ imageUrl, albumName, artistName, genres = [] } = {}) {
   const attachments = [];
   let logoUrl = MUSICLUB_ASSETS.logoCorchea;
   let coverUrl = imageUrl || null;
@@ -460,7 +464,27 @@ export async function prepareAttachmentsAndImages({ imageUrl } = {}) {
     }
   }
 
-  return { attachments, logoUrl, coverUrl };
+  let names = genreCatalog.normalizeGenres(genres);
+  if (!names.length && albumName && artistName) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+    if (url && key) {
+      const db = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+      for (const table of ['albums', 'record_club_upcoming']) {
+        const { data } = await db.from(table).select('*').eq('album_name', albumName).eq('artist_name', artistName).limit(1);
+        names = genreCatalog.normalizeGenres(data?.[0]?.genres || data?.[0]?.genre || []);
+        if (names.length) break;
+      }
+    }
+  }
+  let vinylUrl = MUSICLUB_ASSETS.logoFull;
+  const svg = names[0] && genreArtwork.genreEmailSvg(names[0]);
+  if (svg) {
+    const content = await sharp(Buffer.from(svg)).resize(560, 560).png().toBuffer();
+    attachments.push({ filename: 'vinilo-genero.png', content, contentType: 'image/png', cid: 'genre_vinyl' });
+    vinylUrl = 'cid:genre_vinyl';
+  }
+  return { attachments, logoUrl, coverUrl, vinylUrl };
 }
 
 /**
@@ -497,50 +521,15 @@ export function formatReleaseDate(dateStr, lang = 'es') {
 /**
  * Genera el elemento visual de Disco de Vinilo Audiófilo + Portada del Álbum
  */
-function renderVinylCoverComponent({ imageUrl, albumName, size = 140 }) {
-  const fallbackCover =
-    'https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=400&q=80';
-  const coverSrc = imageUrl || fallbackCover;
-  const vinylSize = Math.round(size * 0.92);
-  const grooveRingSize = Math.round(vinylSize * 0.68);
-  const labelSize = Math.round(vinylSize * 0.36);
-  const holeSize = Math.round(labelSize * 0.22);
-
-  return `
-    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto; text-align: center;">
-      <tr>
-        <td valign="middle" align="center" style="padding: 10px 0;">
-          <table cellpadding="0" cellspacing="0" border="0" align="center">
-            <tr>
-              <!-- Portada del Álbum (Funda / Sleeve) -->
-              <td valign="middle" align="center" style="padding: 0; line-height: 0;">
-                <img 
-                  src="${coverSrc}" 
-                  alt="${albumName || 'Álbum'}" 
-                  width="${size}" 
-                  height="${size}" 
-                  style="width: ${size}px; height: ${size}px; border-radius: 14px; display: block; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; box-shadow: 0 16px 36px rgba(0,0,0,0.85); object-fit: cover;" 
-                />
-              </td>
-              <!-- Disco de Vinilo Audiófilo deslizándose elegantemente -->
-              <td valign="middle" align="center" style="padding-left: 6px; line-height: 0;">
-                <div style="width: ${vinylSize}px; height: ${vinylSize}px; border-radius: 50%; background-color: #000000; background: radial-gradient(circle, #000000 0%, #171433 32%, #000000 48%, #56408B 52%, #000000 64%, #171433 76%, #000000 100%); border: 3px solid ${MUSICLUB_COLORS.mutedViolet}; box-shadow: 0 14px 30px rgba(0,0,0,0.9), inset 0 0 8px rgba(245,127,162,0.3); text-align: center; margin: 0 auto; position: relative;">
-                  <!-- Surcos del Vinilo -->
-                  <div style="width: ${grooveRingSize}px; height: ${grooveRingSize}px; border-radius: 50%; border: 1px solid rgba(255,219,230,0.18); margin: ${Math.round((vinylSize - grooveRingSize) / 2) - 3}px auto 0 auto; text-align: center;">
-                    <!-- Galleta Central (Center Label) en Púrpura y Rosa -->
-                    <div style="width: ${labelSize}px; height: ${labelSize}px; border-radius: 50%; background-color: ${MUSICLUB_COLORS.deepPurple}; background: linear-gradient(135deg, ${MUSICLUB_COLORS.vibrantRose} 0%, ${MUSICLUB_COLORS.deepPurple} 100%); border: 1px solid ${MUSICLUB_COLORS.softBlush}; margin: ${Math.round((grooveRingSize - labelSize) / 2) - 1}px auto 0 auto; text-align: center;">
-                      <!-- Orificio Central del Tocadiscos -->
-                      <div style="width: ${holeSize}px; height: ${holeSize}px; border-radius: 50%; background-color: #000000; border: 1px solid ${MUSICLUB_COLORS.softBlush}; margin: ${Math.round((labelSize - holeSize) / 2) - 1}px auto 0 auto;"></div>
-                    </div>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-  `;
+function renderVinylCoverComponent({ imageUrl, albumName, genres = [], vinylUrl, size = 140 }) {
+  const key = genreCatalog.genreKey(genreCatalog.normalizeGenres(genres)[0]);
+  const discUrl = vinylUrl || (key ? `${MUSICLUB_ASSETS.siteUrl}/genres/vinyl/v1/${encodeURIComponent(key)}.png` : MUSICLUB_ASSETS.logoFull);
+  const escapedName = String(albumName || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; margin: 0 0 14px; border-collapse: separate; border-spacing: 0;">
+    <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+      <td valign="middle" style="padding-right:8px"><img src="${imageUrl || MUSICLUB_ASSETS.logoFull}" alt="${escapedName}" width="${size}" height="${size}" style="display:block;width:${size}px;height:${size}px;object-fit:cover;border:2px solid #F57FA2;border-radius:16px;" /></td>
+      <td valign="middle"><img src="${discUrl}" alt="${genreCatalog.normalizeGenres(genres)[0] || 'Vinilo Musiclub'}" width="${size}" height="${size}" style="display:block;width:${size}px;height:${size}px;border:0;" /></td>
+    </tr></table></td></tr></table>`;
 }
 
 /**
@@ -575,7 +564,7 @@ function wrapEmailHtml({
       color: #FFFFFF;
       -webkit-font-smoothing: antialiased;
     }
-    table { border-collapse: collapse; }
+    table { border-collapse: separate; border-spacing: 0; }
     a { text-decoration: none; }
     .btn-cta:hover {
       background-color: #f796b2 !important;
@@ -584,18 +573,18 @@ function wrapEmailHtml({
   </style>
 </head>
 <body style="margin: 0; padding: 0; background-color: ${MUSICLUB_COLORS.pitchBlack};">
-  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.pitchBlack}; padding: 32px 12px;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.pitchBlack}; padding: 32px 12px;">
     <tr>
       <td align="center">
         <!-- Contenedor Maestro -->
-        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 620px; background-color: ${MUSICLUB_COLORS.nightNavy}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 26px; overflow: hidden; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; max-width: 620px; background-color: ${MUSICLUB_COLORS.nightNavy}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 26px; overflow: hidden; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85);">
           
           <!-- CABECERA CON LOGO Y PALETA OFICIAL -->
           <tr>
-            <td style="padding: 30px 32px 24px 32px; background: linear-gradient(135deg, ${MUSICLUB_COLORS.deepPurple} 0%, ${MUSICLUB_COLORS.nightNavy} 100%); border-bottom: 1px solid rgba(245, 127, 162, 0.25); text-align: center;">
+            <td style="border-radius: 25px 25px 0 0; padding: 24px 26px 20px; background: linear-gradient(135deg, ${MUSICLUB_COLORS.deepPurple} 0%, ${MUSICLUB_COLORS.nightNavy} 100%); border-bottom: 1px solid rgba(245, 127, 162, 0.25); text-align: center;">
               
               <!-- Logo Oficial y Nombre de la Plataforma -->
-              <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto 16px auto;">
+              <table cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse: separate; border-spacing: 0; margin: 0 auto 16px auto;">
                 <tr>
                   <td valign="middle">
                     <img 
@@ -645,14 +634,14 @@ function wrapEmailHtml({
 
           <!-- CUERPO PRINCIPAL -->
           <tr>
-            <td style="padding: 28px 32px; background-color: ${MUSICLUB_COLORS.nightNavy};">
+            <td style="padding: 22px 24px; background-color: ${MUSICLUB_COLORS.nightNavy};">
               ${contentHtml}
 
               <!-- Botón Primario CTA con Rosa Vibrante #F57FA2 -->
               ${
                 ctaText && ctaUrl
                   ? `
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 26px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; margin-top: 26px;">
                   <tr>
                     <td align="center">
                       <a 
@@ -701,6 +690,8 @@ export function generateUpcomingConfirmationHtml({
   artistName,
   releaseDate,
   imageUrl,
+  genres = [],
+  vinylUrl,
   albumUrl,
   lang = 'es',
   logoUrl,
@@ -710,6 +701,7 @@ export function generateUpcomingConfirmationHtml({
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
     albumName,
+    genres, vinylUrl,
     size: 140,
   });
 
@@ -718,7 +710,7 @@ export function generateUpcomingConfirmationHtml({
     ${vinylComponent}
 
     <!-- Tarjeta de Metadatos del Álbum -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 18px; margin: 22px 0 16px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 18px; margin: 22px 0 16px 0;">
       <tr>
         <td style="padding: 18px 22px; text-align: center;">
           <h2 style="margin: 0 0 4px 0; font-size: 18px; font-weight: 900; color: #FFFFFF;">
@@ -758,6 +750,8 @@ export function generateUpcomingReleaseDayHtml({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
+  vinylUrl,
   albumUrl,
   lang = 'es',
   logoUrl,
@@ -766,6 +760,7 @@ export function generateUpcomingReleaseDayHtml({
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
     albumName,
+    genres, vinylUrl,
     size: 150,
   });
 
@@ -774,7 +769,7 @@ export function generateUpcomingReleaseDayHtml({
     ${vinylComponent}
 
     <!-- Ficha del Lanzamiento Estrenado -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin: 22px 0 16px 0; box-shadow: 0 8px 25px rgba(245, 127, 162, 0.25);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin: 22px 0 16px 0; box-shadow: 0 8px 25px rgba(245, 127, 162, 0.25);">
       <tr>
         <td style="padding: 20px 22px; text-align: center;">
           <div style="display: inline-block; padding: 4px 12px; border-radius: 8px; background-color: ${MUSICLUB_COLORS.pitchBlack}; color: ${MUSICLUB_COLORS.vibrantRose}; font-size: 11px; font-weight: 900; text-transform: uppercase; margin-bottom: 8px;">
@@ -814,6 +809,8 @@ export function generatePoolWinnerHtml({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
+  vinylUrl,
   nominatedBy,
   seasonName,
   spotifyLink,
@@ -828,18 +825,19 @@ export function generatePoolWinnerHtml({
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
     albumName,
+    genres, vinylUrl,
     size: 145,
   });
 
   const streamingLinksHtml = `
-    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 14px auto 0 auto;">
+    <table cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse: separate; border-spacing: 0; margin: 14px auto 0 auto;">
       <tr>
         ${
           spotifyLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${spotifyLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #1DB954; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Spotify
+            <a href="${spotifyLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/spotify.png" alt="Spotify" title="Spotify" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -849,8 +847,8 @@ export function generatePoolWinnerHtml({
           youtubeLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${youtubeLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #FF0000; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              YouTube Music
+            <a href="${youtubeLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/youtube-music.png" alt="YouTube Music" title="YouTube Music" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -860,8 +858,8 @@ export function generatePoolWinnerHtml({
           appleMusicLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${appleMusicLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #FC3C44; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Apple Music
+            <a href="${appleMusicLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/apple-music.png" alt="Apple Music" title="Apple Music" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -871,8 +869,8 @@ export function generatePoolWinnerHtml({
           deezerLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${deezerLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #A238FF; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Deezer
+            <a href="${deezerLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/deezer.png" alt="Deezer" title="Deezer" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -886,7 +884,7 @@ export function generatePoolWinnerHtml({
     ${vinylComponent}
 
     <!-- Ficha del Ganador -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 18px; margin: 20px 0 16px 0;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 1px solid ${MUSICLUB_COLORS.mutedViolet}; border-radius: 18px; margin: 20px 0 16px 0;">
       <tr>
         <td style="padding: 18px 22px; text-align: center;">
           <h2 style="margin: 0 0 4px 0; font-size: 19px; font-weight: 900; color: #FFFFFF;">
@@ -934,6 +932,8 @@ export function generatePoolGraduatedHtml({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
+  vinylUrl,
   nominatedBy,
   avgScore,
   totalReviews = 0,
@@ -951,11 +951,12 @@ export function generatePoolGraduatedHtml({
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
     albumName,
+    genres, vinylUrl,
     size: 140,
   });
 
   const breakdownRows = `
-    <table width="100%" cellpadding="6" cellspacing="0" border="0" style="font-size: 12px; margin-top: 6px;">
+    <table width="100%" cellpadding="6" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; font-size: 12px; margin-top: 6px;">
       <tr>
         <td style="color: ${MUSICLUB_COLORS.softBlush}; font-weight: 600;">${i18n.prod}:</td>
         <td align="right" style="color: #FFFFFF; font-weight: 800;">${pillar(breakdown.produccion)} / 5</td>
@@ -1019,7 +1020,7 @@ export function generatePoolGraduatedHtml({
     ${vinylComponent}
 
     <!-- Puntuación Promedio de la Comunidad -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin: 20px 0 16px 0; box-shadow: 0 10px 30px rgba(245, 127, 162, 0.3);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin: 20px 0 16px 0; box-shadow: 0 10px 30px rgba(245, 127, 162, 0.3);">
       <tr>
         <td style="padding: 20px; text-align: center;">
           <h2 style="margin: 0 0 2px 0; font-size: 19px; font-weight: 900; color: #FFFFFF;">
@@ -1029,7 +1030,7 @@ export function generatePoolGraduatedHtml({
             ${escapeText(artistName)}
           </p>
 
-          <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 0 auto;">
+          <table cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse: separate; border-spacing: 0; margin: 0 auto;">
             <tr>
               <td style="padding: 8px 18px; border-radius: 14px; background-color: ${MUSICLUB_COLORS.pitchBlack}; border: 1px solid ${MUSICLUB_COLORS.vibrantRose}; text-align: center;">
                 <span style="font-size: 26px; font-weight: 900; color: ${MUSICLUB_COLORS.vibrantRose};">
@@ -1078,6 +1079,8 @@ export function generateSongRecommendationHtml({
   artistName,
   albumName,
   imageUrl,
+  genres = [],
+  vinylUrl,
   spotifyLink,
   youtubeLink,
   appleMusicLink,
@@ -1090,19 +1093,20 @@ export function generateSongRecommendationHtml({
   const i18n = getI18n(lang).songRec;
   const vinylComponent = renderVinylCoverComponent({
     imageUrl,
+    genres, vinylUrl,
     albumName: songTitle,
     size: 135,
   });
 
   const streamingLinksHtml = `
-    <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin: 12px auto 0 auto;">
+    <table cellpadding="0" cellspacing="0" border="0" align="center" style="border-collapse: separate; border-spacing: 0; margin: 12px auto 0 auto;">
       <tr>
         ${
           spotifyLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${spotifyLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #1DB954; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Spotify
+            <a href="${spotifyLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/spotify.png" alt="Spotify" title="Spotify" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -1112,8 +1116,8 @@ export function generateSongRecommendationHtml({
           youtubeLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${youtubeLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #FF0000; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              YouTube Music
+            <a href="${youtubeLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/youtube-music.png" alt="YouTube Music" title="YouTube Music" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -1123,8 +1127,8 @@ export function generateSongRecommendationHtml({
           appleMusicLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${appleMusicLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #FC3C44; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Apple Music
+            <a href="${appleMusicLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/apple-music.png" alt="Apple Music" title="Apple Music" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -1134,8 +1138,8 @@ export function generateSongRecommendationHtml({
           deezerLink
             ? `
           <td style="padding: 0 4px;">
-            <a href="${deezerLink}" target="_blank" style="display: inline-block; padding: 7px 12px; border-radius: 8px; background-color: #A238FF; color: #FFFFFF; font-size: 11px; font-weight: 800;">
-              Deezer
+            <a href="${deezerLink}" target="_blank" style="display: inline-block; padding: 10px; border-radius: 12px; background-color: #0c1020; color: #FFFFFF; font-size: 11px; font-weight: 800;">
+              <img src="${MUSICLUB_ASSETS.siteUrl}/platforms/deezer.png" alt="Deezer" title="Deezer" width="28" height="28" style="display:block;width:28px;height:28px;border:0;" />
             </a>
           </td>
         `
@@ -1149,11 +1153,11 @@ export function generateSongRecommendationHtml({
     ${vinylComponent}
 
     <!-- Tarjeta Postal Estilizada con Borde Rosa Vibrante -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 20px; margin: 20px 0 16px 0; box-shadow: 0 12px 30px rgba(245, 127, 162, 0.28);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 20px; margin: 20px 0 16px 0; box-shadow: 0 12px 30px rgba(245, 127, 162, 0.28);">
       <tr>
         <td style="padding: 22px;">
           <!-- Sello Postal Audiófilo -->
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 12px;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; margin-bottom: 12px;">
             <tr>
               <td>
                 <span style="font-size: 11px; font-weight: 800; color: ${MUSICLUB_COLORS.softBlush}; text-transform: uppercase; letter-spacing: 1px;">
@@ -1322,7 +1326,7 @@ export function generatePatchNotesHtml({
 
   const contentHtml = `
     <!-- Resumen Destacado con Gradiente Oficial -->
-    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(245, 127, 162, 0.25);">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; background-color: ${MUSICLUB_COLORS.deepPurple}; border: 2px solid ${MUSICLUB_COLORS.vibrantRose}; border-radius: 18px; margin-bottom: 20px; box-shadow: 0 10px 25px rgba(245, 127, 162, 0.25);">
       <tr>
         <td style="padding: 18px 22px;">
           <div style="font-size: 11px; font-weight: 800; color: ${MUSICLUB_COLORS.vibrantRose}; text-transform: uppercase; margin-bottom: 4px;">
@@ -1363,13 +1367,14 @@ export async function sendUpcomingConfirmationEmail({
   artistName,
   releaseDate,
   imageUrl,
+  genres = [],
   albumUrl,
   lang = 'es',
 }) {
   const { transporter, from, replyTo, isTest, provider } =
     await getTransporter();
-  const { attachments, logoUrl, coverUrl } = await prepareAttachmentsAndImages({
-    imageUrl,
+  const { attachments, logoUrl, coverUrl, vinylUrl } = await prepareAttachmentsAndImages({
+    imageUrl, albumName, artistName, genres,
   });
 
   const html = generateUpcomingConfirmationHtml({
@@ -1377,6 +1382,7 @@ export async function sendUpcomingConfirmationEmail({
     artistName,
     releaseDate,
     imageUrl: coverUrl,
+    genres, vinylUrl,
     logoUrl,
     albumUrl,
     lang,
@@ -1410,19 +1416,21 @@ export async function sendUpcomingReleaseDayEmail({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
   albumUrl,
   lang = 'es',
 }) {
   const { transporter, from, replyTo, isTest, provider } =
     await getTransporter();
-  const { attachments, logoUrl, coverUrl } = await prepareAttachmentsAndImages({
-    imageUrl,
+  const { attachments, logoUrl, coverUrl, vinylUrl } = await prepareAttachmentsAndImages({
+    imageUrl, albumName, artistName, genres,
   });
 
   const html = generateUpcomingReleaseDayHtml({
     albumName,
     artistName,
     imageUrl: coverUrl,
+    genres, vinylUrl,
     logoUrl,
     albumUrl,
     lang,
@@ -1457,6 +1465,7 @@ export async function sendPoolWinnerEmail({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
   nominatedBy,
   seasonName,
   spotifyLink,
@@ -1474,14 +1483,15 @@ export async function sendPoolWinnerEmail({
 
   const { transporter, from, replyTo, isTest, provider } =
     await getTransporter();
-  const { attachments, logoUrl, coverUrl } = await prepareAttachmentsAndImages({
-    imageUrl,
+  const { attachments, logoUrl, coverUrl, vinylUrl } = await prepareAttachmentsAndImages({
+    imageUrl, albumName, artistName, genres,
   });
 
   const html = generatePoolWinnerHtml({
     albumName,
     artistName,
     imageUrl: coverUrl,
+    genres, vinylUrl,
     logoUrl,
     nominatedBy,
     seasonName,
@@ -1524,6 +1534,7 @@ export async function sendPoolGraduatedEmail({
   albumName,
   artistName,
   imageUrl,
+  genres = [],
   nominatedBy,
   avgScore,
   totalReviews,
@@ -1541,14 +1552,15 @@ export async function sendPoolGraduatedEmail({
 
   const { transporter, from, replyTo, isTest, provider } =
     await getTransporter();
-  const { attachments, logoUrl, coverUrl } = await prepareAttachmentsAndImages({
-    imageUrl,
+  const { attachments, logoUrl, coverUrl, vinylUrl } = await prepareAttachmentsAndImages({
+    imageUrl, albumName, artistName, genres,
   });
 
   const html = generatePoolGraduatedHtml({
     albumName,
     artistName,
     imageUrl: coverUrl,
+    genres, vinylUrl,
     logoUrl,
     nominatedBy,
     avgScore,
@@ -1594,6 +1606,7 @@ export async function sendSongRecommendationEmail({
   artistName,
   albumName,
   imageUrl,
+  genres = [],
   spotifyLink,
   youtubeLink,
   appleMusicLink,
@@ -1608,8 +1621,8 @@ export async function sendSongRecommendationEmail({
 
   const { transporter, from, replyTo, isTest, provider } =
     await getTransporter();
-  const { attachments, logoUrl, coverUrl } = await prepareAttachmentsAndImages({
-    imageUrl,
+  const { attachments, logoUrl, coverUrl, vinylUrl } = await prepareAttachmentsAndImages({
+    imageUrl, albumName, artistName, genres,
   });
 
   const html = generateSongRecommendationHtml({
@@ -1619,6 +1632,7 @@ export async function sendSongRecommendationEmail({
     artistName,
     albumName,
     imageUrl: coverUrl,
+    genres, vinylUrl,
     logoUrl,
     spotifyLink,
     youtubeLink,
