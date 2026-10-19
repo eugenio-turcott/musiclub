@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.12.2', title: 'La portada muestra categorías con contenido', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Inicio',
+    tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Pool Activo se oculta en las tendencias de inicio cuando no tiene lanzamientos.',
+    changes: [
+      { type: 'fix', title: 'Sin pestañas de Pool vacías', description: 'Si el Pool Activo está vacío, la portada muestra Top Obras Maestras como selección inicial. La pestaña del Pool vuelve a aparecer cuando hay lanzamientos activos.' },
+    ],
+  },
+  {
     version: 'V.9.12.1', title: 'Vinilos y halos bien centrados', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',

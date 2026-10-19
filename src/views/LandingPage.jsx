@@ -60,7 +60,9 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
     total_users: 21,
     top_score: 9.8,
   });
-  const [selectedAlbumTab, setSelectedAlbumTab] = useState('active'); // 'active' | 'top' | 'recent'
+  const [preferredAlbumTab, setSelectedAlbumTab] = useState('active'); // 'active' | 'top' | 'recent'
+  const hasActivePool = (activePool?.length || 0) > 0;
+  const selectedAlbumTab = preferredAlbumTab === 'active' && !hasActivePool ? 'top' : preferredAlbumTab;
   const [quickPickAlbum, setQuickPickAlbum] = useState(null);
   const [isQuickPicking, setIsQuickPicking] = useState(false);
 
@@ -1425,6 +1427,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
               {/* Tabs switcher */}
               <div className="flex items-center gap-1 bg-white/5 p-1 rounded-2xl border border-white/10 backdrop-blur-md">
+                {hasActivePool && (
                 <button
                   type="button"
                   onClick={() => {
@@ -1439,6 +1442,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 >
                   🔥 Pool Activo ({activePool?.length || 0})
                 </button>
+                )}
                 <button
                   type="button"
                   onClick={() => {
