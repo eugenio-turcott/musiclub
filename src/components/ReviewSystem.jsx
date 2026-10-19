@@ -1416,7 +1416,7 @@ export function ReviewSystem({
                         {/* Selección Rápida de Puntajes (Pills 1-10) */}
                         <div>
                           <label className="text-white/50 text-xs uppercase tracking-wider block mb-2.5 font-semibold">
-                            Calificación rápida (Haz clic en un número):
+                            Elige una calificación (haz clic en un número):
                           </label>
                           <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-10 gap-1.5 sm:gap-2">
                             {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((score) => {

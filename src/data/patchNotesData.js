@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.15.1', title: 'Indicaciones claras en la reseña del club', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Reseñas',
+    tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Los botones numéricos de cada canción se presentan como una selección de calificación dentro de la reseña completa.',
+    changes: [
+      { type: 'fix', title: 'Una indicación sin confusiones', description: 'Se sustituye la etiqueta antigua de calificación rápida por Elige una calificación. Los botones siguen siendo parte del análisis canción por canción del club.' },
+    ],
+  },
+  {
     version: 'V.9.15.0', title: 'La reseña completa del club, sin atajos', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Reseñas e interacción',
     tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
