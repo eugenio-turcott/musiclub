@@ -141,6 +141,16 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
   const catalogExplorerRef = useRef(null);
   const pendingScrollToExplorerRef = useRef(false);
 
+  useEffect(() => {
+    if (!initialQuery.trim()) return;
+    const frame = requestAnimationFrame(() => {
+      const input = document.getElementById('buscar-catalogo');
+      input?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      input?.focus({ preventScroll: true });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [initialQuery]);
+
   // Detección reactiva de dispositivo móvil (< 640px)
   const [isMobile, setIsMobile] = useState(false);
 
@@ -969,6 +979,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           />
         ) : (
           <>
+            {!initialQuery.trim() && <>
             {/* 1. SECCIÓN DE TRENDING RELEASES MENSUALES (Top 20, mayoría POP, corte semanal viernes) */}
             <TrendingMonthlySection
               trendingData={monthlyTrending}
@@ -986,6 +997,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
             {/* 3. SECCIÓN DE MÁS RECOMENDADOS POR LOS USUARIOS DEL CLUB */}
             <RecommendedSection albums={albums} />
+            </>}
 
             {/* 4. SECCIÓN DE CATÁLOGO COMPLETO Y EXPLORADOR */}
             <div
@@ -1291,6 +1303,32 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               </div>
             </div>
 
+            {/* Buscador visible también cuando los filtros móviles están cerrados */}
+                <div className="relative flex-1 w-full min-w-[200px]">
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
+                    🔍
+                  </span>
+                  <input
+                    id="buscar-catalogo"
+                    aria-label="Buscar álbum, artista o curador en el catálogo"
+                    type="text"
+                    placeholder="Buscar álbum, artista o curador en el catálogo..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-base text-white placeholder-slate-400 focus:outline-none focus:border-cyan-400/70 transition-colors"
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Limpiar búsqueda"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
             {/* Botón de Filtros Colapsable para Celular (Formato y Filtros Secundarios) */}
             <div className="sm:hidden">
               <button
@@ -1469,29 +1507,6 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                       </button>
                     );
                   })}
-                </div>
-
-                {/* Search Input */}
-                <div className="relative flex-1 w-full min-w-[200px]">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                    🔍
-                  </span>
-                  <input
-                    type="text"
-                    placeholder="Buscar álbum, artista o curador en el catálogo..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-8 py-2.5 bg-black/40 border border-white/10 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400/70 transition-colors"
-                  />
-                  {searchQuery && (
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white"
-                    >
-                      ✕
-                    </button>
-                  )}
                 </div>
 
                 {/* Quick Pool Shortcut */}

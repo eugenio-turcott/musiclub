@@ -661,7 +661,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.
               </p>
 
-              <form action="/catalogo" className="flex gap-2 w-full max-w-xl" role="search">
+              <form action="/catalogo#buscar-catalogo" className="flex gap-2 w-full max-w-xl" role="search">
                 <label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>
                 <input id="home-search" name="q" required placeholder="Busca un álbum o artista" className="min-w-0 flex-1 rounded-xl border border-white/25 bg-black/40 p-3 text-white" />
                 <button className="rounded-xl bg-pink-600 px-5 py-3 font-bold text-white">Buscar</button>
@@ -706,20 +706,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
               {/* Community Proof */}
               <div className="pt-2 flex items-center gap-3 text-xs text-white/50">
-                <div className="flex -space-x-2 overflow-hidden">
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-[10px] text-white font-black">
-                    E
-                  </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-pink-500 to-rose-500 flex items-center justify-center text-[10px] text-white font-black">
-                    T
-                  </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-[10px] text-white font-black">
-                    C
-                  </div>
-                  <div className="inline-block h-7 w-7 rounded-full ring-2 ring-[#0a0a12] bg-linear-to-tr from-cyan-500 to-blue-500 flex items-center justify-center text-[10px] text-white font-black">
-                    A
-                  </div>
-                </div>
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-purple-300/30 bg-purple-500/15 text-base">🎧</span>
                 <span>
                   Álbumes, EPs y canciones evaluadas con pasión por la comunidad
                 </span>

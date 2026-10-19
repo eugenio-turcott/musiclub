@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.8.0', title: 'Descubre lanzamientos por género', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Gashapon y catálogo',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Cada género tiene su cápsula en el Gashapon. Explora géneros y subgéneros musicales vinculados al catálogo del club.',
+    changes: [
+      { type: 'improvement', title: 'Gashapon por géneros', description: 'Filtra el sorteo por género. Todas las cápsulas muestran el mismo tipo cuando eliges uno. Los géneros sin lanzamientos indican su disponibilidad y no sortean otro género.' },
+      { type: 'improvement', title: 'Clasificación musical ampliada', description: 'Registro de 2.215 géneros de MusicBrainz y cinco categorías de proveedores. Los nombres equivalentes se consolidan, se conservan subgéneros específicos y se rechazan códigos y etiquetas ajenos a la música.' },
+      { type: 'fix', title: 'Buscar desde la portada', description: 'La búsqueda del inicio desplaza la pantalla al buscador del catálogo. Se sustituyeron las iniciales superpuestas junto al mensaje de la comunidad.' },
+    ],
+  },
+  {
     version: 'V.9.7.5', title: 'Menos carga al entrar y una primera valoración más fácil', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Rendimiento y accesibilidad',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

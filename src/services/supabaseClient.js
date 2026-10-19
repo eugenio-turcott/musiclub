@@ -1,3 +1,4 @@
+import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
 import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -606,7 +607,7 @@ export const supabaseService = {
     // y los metadatos canónicos (MBID, release_type, géneros, fecha, discográfica,
     // país, barcode, tracks) provienen de MusicBrainz.
     // =========================================================================
-    if (!payload.mbid && !albumData.skipMusicBrainzEnrichment && (!payload.tracks || payload.tracks.length === 0)) {
+    if ((!payload.mbid || !normalizeCanonicalGenres(payload.genres).length) && !albumData.skipMusicBrainzEnrichment) {
       try {
         const mbData = await enrichAlbumWithMusicBrainz(
           payload.album_name,
@@ -683,6 +684,9 @@ export const supabaseService = {
       console.warn('Verificación previa de álbum existente:', checkErr);
     }
 
+    payload.genres = normalizeCanonicalGenres(payload.genres);
+    if (!payload.genres.length) throw new Error('Este lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.');
+
     try {
       const { data, error } = await supabase
         .from('albums')
@@ -714,7 +718,7 @@ export const supabaseService = {
         delete cleanedPayload.barcode;
         delete cleanedPayload.total_tracks;
         delete cleanedPayload.release_type;
-        delete cleanedPayload.genres;
+        // Genre classification is mandatory even in the compatibility retry.
         delete cleanedPayload.release_date;
         delete cleanedPayload.release_year;
         delete cleanedPayload.other_link;

@@ -13,6 +13,7 @@
  * - Guardado inmediato y persistente en Supabase tras cada álbum procesado.
  */
 
+import genreCatalog from '../src/utils/genreCatalog.cjs';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -113,29 +114,8 @@ async function fetchMbWithRetry(url, maxRetries = 3) {
 // ----------------------------------------------------
 // FILTRADO Y LIMPIEZA DE GÉNEROS
 // ----------------------------------------------------
-const IGNORED_TAGS = new Set([
-  'seen live', 'favorite', 'favourites', 'owned', 'vinyl', 'cd', 'album',
-  'albums i own', 'under 2000 ratings', 'spotify', 'apple music', 'deezer',
-  'mexico', 'usa', 'united states', 'uk', 'spain', 'colombia', 'argentina',
-  'female vocalist', 'female vocalists', 'male vocalist', 'male vocalists',
-  'guitar', 'drums', 'piano', 'bass', 'singer-songwriter', '2026', '2025', '2024',
-  'various artists', 'soundtrack', 'ost', 'live', 'deluxe', 'remaster', 'reissue'
-]);
-
 export function cleanGenres(tagList) {
-  if (!tagList || !Array.isArray(tagList)) return [];
-  const valid = [];
-  for (const tag of tagList) {
-    const raw = typeof tag === 'string' ? tag : tag.name;
-    if (!raw) continue;
-    const lower = raw.toLowerCase().trim();
-    if (lower.length < 2 || lower.length > 30) continue;
-    if (IGNORED_TAGS.has(lower)) continue;
-    if (!valid.includes(lower)) {
-      valid.push(lower);
-    }
-  }
-  return valid.slice(0, 5);
+  return genreCatalog.normalizeGenres(Array.isArray(tagList) ? tagList.filter(tag => typeof tag === 'string' || (tag.count ?? 1) > 0) : []);
 }
 
 export function normalizeReleaseType(primaryType, secondaryTypes = []) {
@@ -398,7 +378,7 @@ export async function runBackfill(options = {}) {
         const updatePayload = {
           mbid: mbid,
           release_type: releaseType,
-          genres: genres,
+          ...(genres.length ? { genres } : {}),
         };
 
         if (releaseDate && !album.release_date) updatePayload.release_date = releaseDate;

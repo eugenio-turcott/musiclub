@@ -1,5 +1,6 @@
 // src/services/musicBrainzService.js
 import { searchAlbum } from './spotifyApi.js';
+import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
 
 /**
  * MusicBrainz & Cover Art Archive Service for Musiclub
@@ -326,7 +327,7 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
       .trim() || 'Artista';
 
     const albumTitle = data.title || 'Lanzamiento';
-    const genres = (data.genres || []).map((g) => g.name);
+    const genres = normalizeCanonicalGenres((data.genres || []).filter(g => g.count === undefined || g.count > 0).map(g => g.name));
 
     let releaseYear = null;
     if (targetReleaseDate) {
@@ -618,7 +619,7 @@ export async function enrichAlbumWithMusicBrainz(albumName, artistName) {
         if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
       }
 
-      let genres = (rg.tags || []).map((t) => t.name).slice(0, 5);
+      let genres = normalizeCanonicalGenres(rg.tags || []);
       let label = null;
       let country = null;
       let barcode = null;

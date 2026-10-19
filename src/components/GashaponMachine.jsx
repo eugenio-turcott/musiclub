@@ -11,6 +11,8 @@ import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { gashaponSound } from '../utils/gashaponAudio';
 import { ReviewSystem } from './ReviewSystem';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+import { GenrePicker } from './GenrePicker';
+import genreCatalog from '../utils/genreCatalog.cjs';
 
 // 20 cápsulas arcade coloridas y dinámicas (definición completa de apariencia dentro y fuera del domo)
 const DOME_CAPSULES = [
@@ -452,7 +454,12 @@ export function GashaponMachine({
   // Estados principales de la máquina:
   // 'IDLE' -> 'CRANKING' -> 'DROPPING' -> 'LANDED' -> 'OPENING' -> 'REVEALED'
   const [machineState, setMachineState] = useState('IDLE');
-  const [activeFilter, setActiveFilter] = useState('pending'); // 'pending' | 'all' | 'ALBUM' | 'EP' | 'SENCILLO'
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [selectedGenre, setSelectedGenre] = useState('all');
+  useEffect(() => {
+    const genre = genreCatalog.genreKey(new URLSearchParams(window.location.search).get('genero'));
+    if (genre) setSelectedGenre(genre);
+  }, []); // 'pending' | 'all' | 'ALBUM' | 'EP' | 'SENCILLO'
   const [soundEnabled, setSoundEnabled] = useState(() =>
     gashaponSound.isEnabled()
   );
@@ -537,7 +544,7 @@ export function GashaponMachine({
 
   // Pool de álbumes filtrado según la pestaña activa (Pendientes, Todo el Pool, o por release_type)
   const filteredPool = useMemo(() => {
-    return eligibleAlbums.filter((alb) => {
+    return genreCatalog.filterByGenre(eligibleAlbums, selectedGenre).filter((alb) => {
       const isReviewed = userReviewMap.has(alb.id);
       const rType = String(
         alb.release_type || alb.releaseType || 'ALBUM'
@@ -558,7 +565,16 @@ export function GashaponMachine({
       // 'all'
       return true;
     });
-  }, [eligibleAlbums, activeFilter, userReviewMap]);
+  }, [eligibleAlbums, activeFilter, userReviewMap, selectedGenre]);
+
+  const domeCapsules = useMemo(() => {
+    const keys = [...genreCatalog.genreCounts(filteredPool).keys()].sort();
+    if (selectedGenre === 'all' && !keys.length) return [];
+    return DOME_CAPSULES.map((slot, index) => ({ ...slot, ...genreCatalog.genreCapsule(selectedGenre === 'all' ? keys[Math.floor(index * keys.length / DOME_CAPSULES.length)] : selectedGenre), slot: slot.id }));
+  }, [filteredPool, selectedGenre]);
+  const handleGenreChange = genre => {
+    setSelectedGenre(genre); setCurrentCapsule(null); setMachineState('IDLE'); setIsModalOpen(false);
+  };
 
   // Toggle de sonido
   const handleToggleSound = () => {
@@ -619,21 +635,9 @@ export function GashaponMachine({
       gashaponSound.playGlobeShake();
     }, 150);
 
-    // Seleccionar álbum al azar del pool filtrado
-    const pool = filteredPool;
-    const randomIndex = Math.floor(Math.random() * pool.length);
-    const chosenAlbum = pool[randomIndex];
-
-    // Seleccionar de forma 100% ALEATORIA una de las 20 bolas visuales del domo
-    const randomBall =
-      DOME_CAPSULES[Math.floor(Math.random() * DOME_CAPSULES.length)];
-
-    const capsuleData = {
-      album: chosenAlbum,
-      theme: randomBall,
-      pulledAt: Date.now(),
-      isReviewed: userReviewMap.has(chosenAlbum.id),
-    };
+    const selection = genreCatalog.drawGenreCapsule(filteredPool, selectedGenre);
+    if (!selection) { setMachineState('IDLE'); setIsCrankAnimating(false); return; }
+    const capsuleData = { ...selection, pulledAt: Date.now(), isReviewed: userReviewMap.has(selection.album.id) };
 
     setCurrentCapsule(capsuleData);
 
@@ -785,12 +789,12 @@ export function GashaponMachine({
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
           <div className="space-y-1.5 max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-              Gashapon de Releases Musicales
+              Gashapon por Géneros Musicales
             </h1>
             <p className="text-white/60 text-sm sm:text-base leading-relaxed">
-              Gira la manivela para extraer una cápsula sorpresa entre todos los{' '}
+              Elige un género y gira la manivela para descubrir una cápsula de los{' '}
               <strong className="text-purple-300">releases del catálogo</strong>{' '}
-              (álbumes, EPs y más). ¡Descúbrelo y califícalo con el sistema
+              (álbumes, EPs y más). Cada género tiene su cápsula. ¡Califícalo con el sistema
               oficial!
             </p>
           </div>
@@ -841,6 +845,9 @@ export function GashaponMachine({
           </div>
         </div>
 
+        <div className="mt-6"><GenrePicker albums={eligibleAlbums} value={selectedGenre} onChange={handleGenreChange} disabled={['CRANKING','DROPPING','OPENING'].includes(machineState)} /></div>
+        <p className="mt-3 text-sm text-slate-300" role="status">{filteredPool.length} lanzamientos disponibles con estos filtros. {selectedGenre !== 'all' && 'Todas las cápsulas representan el género seleccionado.'}</p>
+        {filteredPool.length === 0 && <p className="mt-2 text-sm text-amber-200">No hay lanzamientos que coincidan. Prueba otro género o cambia los filtros.</p>}
         {/* SELECTOR DE FILTRO DE CÁPSULAS */}
         <div className="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center justify-center md:justify-start gap-2">
           <span className="text-white/40 text-xs font-bold uppercase tracking-wider mr-1">
@@ -948,9 +955,11 @@ export function GashaponMachine({
 
               {/* CÁPSULAS FLOTANDO/AGITÁNDOSE DENTRO DE LA CÚPULA (20 Cápsulas Arcade) */}
               <div className="relative w-full h-full p-2 pointer-events-none">
-                {DOME_CAPSULES.map((cap) => (
+                {domeCapsules.map((cap) => (
                   <div
-                    key={cap.id}
+                    key={cap.slot}
+                    data-capsule-genre={cap.genre}
+                    title={cap.name}
                     className={`absolute ${cap.size} rounded-full shadow-md border border-white/60 overflow-hidden backdrop-blur-[1px] transition-all duration-300 ${cap.shadow} ${
                       machineState === 'CRANKING' ? cap.swirl : cap.idle
                     }`}
@@ -963,6 +972,7 @@ export function GashaponMachine({
                   >
                     {/* Mitad superior colorida con gradiente vivo */}
                     <div
+                      style={{ background: cap.topBackground }}
                       className={`h-1/2 bg-linear-to-r ${cap.topGrad} relative`}
                     >
                       {/* Reflejo de brillo esférico */}
@@ -972,6 +982,7 @@ export function GashaponMachine({
                     <div className="h-[1.5px] bg-white/90 shadow-[0_0_3px_rgba(255,255,255,0.9)]"></div>
                     {/* Mitad inferior translúcida con sticker/icono arcade */}
                     <div
+                      style={{ background: cap.bottomBackground }}
                       className={`h-1/2 bg-linear-to-r ${cap.botGrad} flex items-center justify-center relative`}
                     >
                       <span className="text-[9px] sm:text-[11px] leading-none select-none opacity-90 filter drop-shadow-sm">
@@ -1080,7 +1091,7 @@ export function GashaponMachine({
                       >
                         {/* Mitad superior con gradiente y reflejo esférico idéntico */}
                         <div
-                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad} relative`}
+                          style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad} relative`}
                         >
                           <div className="absolute top-1 left-2 w-4 h-1.5 bg-white/70 rounded-full blur-[0.4px] pointer-events-none"></div>
                         </div>
@@ -1088,7 +1099,7 @@ export function GashaponMachine({
                         <div className="h-[2px] bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.9)]"></div>
                         {/* Mitad inferior translúcida con el sticker exacto */}
                         <div
-                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
+                          style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
                         >
                           <span className="text-sm font-black select-none drop-shadow">
                             {currentCapsule.theme.icon}
@@ -1214,11 +1225,11 @@ export function GashaponMachine({
                       className={`w-8 h-8 rounded-full border ${currentCapsule.theme.ring} shadow-[0_0_12px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
                     >
                       <div
-                        className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
+                        style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
                       ></div>
                       <div className="h-[1px] bg-white/80"></div>
                       <div
-                        className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
+                        style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                       >
                         <span className="text-[10px] leading-none">
                           {currentCapsule.theme.icon}
@@ -1576,9 +1587,7 @@ export function GashaponMachine({
                     >
                       {/* MITAD SUPERIOR DE LA CÁPSULA */}
                       <div
-                        className={`relative w-full h-1/2 rounded-t-full bg-linear-to-br ${
-                          currentCapsule.theme.topGrad
-                        } border-t-4 border-x-4 border-white/40 shadow-[inset_0_-8px_16px_rgba(0,0,0,0.35)] overflow-hidden transition-all duration-700 ease-out z-10 ${
+                        style={{ background: currentCapsule.theme.topBackground }} className={`relative w-full h-1/2 rounded-t-full bg-linear-to-br ${currentCapsule.theme.topGrad} border-t-4 border-x-4 border-white/40 shadow-[inset_0_-8px_16px_rgba(0,0,0,0.35)] overflow-hidden transition-all duration-700 ease-out z-10 ${
                           modalStage === 'OPENING'
                             ? '-translate-y-16 sm:-translate-y-24 -rotate-12 scale-90 opacity-60'
                             : 'group-hover:brightness-110'
@@ -1600,9 +1609,7 @@ export function GashaponMachine({
 
                       {/* MITAD INFERIOR TRANSLÚCIDA CON EL ICONO */}
                       <div
-                        className={`relative w-full h-1/2 rounded-b-full bg-linear-to-b ${
-                          currentCapsule.theme.botGrad
-                        } border-b-4 border-x-4 border-white/40 shadow-[inset_0_8px_16px_rgba(0,0,0,0.25)] overflow-hidden flex items-center justify-center transition-all duration-700 ease-out z-10 ${
+                        style={{ background: currentCapsule.theme.bottomBackground }} className={`relative w-full h-1/2 rounded-b-full bg-linear-to-b ${currentCapsule.theme.botGrad} border-b-4 border-x-4 border-white/40 shadow-[inset_0_8px_16px_rgba(0,0,0,0.25)] overflow-hidden flex items-center justify-center transition-all duration-700 ease-out z-10 ${
                           modalStage === 'OPENING'
                             ? 'translate-y-16 sm:translate-y-24 rotate-12 scale-90 opacity-60'
                             : 'group-hover:brightness-110'
@@ -1650,11 +1657,11 @@ export function GashaponMachine({
                         className={`w-9 h-9 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_15px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
                       >
                         <div
-                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
+                          style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
                         ></div>
                         <div className="h-[1px] bg-white"></div>
                         <div
-                          className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
+                          style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
                         >
                           <span className="text-xs">
                             {currentCapsule.theme.icon}

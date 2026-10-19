@@ -1,4 +1,5 @@
 // scripts/hourlyMusicBrainzIngestion.mjs
+import genreCatalog from '../src/utils/genreCatalog.cjs';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import fs from 'fs';
@@ -339,10 +340,7 @@ async function getDetailedMusicBrainzMetadata(mbid) {
     }
 
     // Extraer géneros / tags
-    const genres = [
-      ...(rgData.genres || []).map((g) => g.name),
-      ...(rgData.tags || []).map((t) => t.name),
-    ].slice(0, 6);
+    const genres = genreCatalog.normalizeGenres([...(rgData.genres || []), ...(rgData.tags || [])].filter(g => (g.count ?? 1) > 0));
 
     // Obtener tracklist canónico y detalles de edición (barcode, país, sello)
     let tracks = [];
@@ -517,9 +515,8 @@ export async function runIngestionBatch(targetCount = 50) {
       if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
     }
 
-    const genres = (mbDetails?.genres && mbDetails.genres.length > 0)
-      ? mbDetails.genres
-      : (rg.tags || []).map((t) => t.name).slice(0, 5);
+    const genres = genreCatalog.normalizeGenres([...(mbDetails?.genres || []), ...(rg.tags || []).filter(t => (t.count ?? 1) > 0)]);
+    if (!genres.length) { console.log(`Pendiente de clasificación: ${albumName}`); continue; }
 
     const albumRecord = {
       album_name: albumName.substring(0, 255),
