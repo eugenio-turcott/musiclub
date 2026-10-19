@@ -28,10 +28,13 @@ export function PoolAppearanceFields({ value, onChange, onUploadingChange = () =
   return <details className="rounded-xl border border-white/10 p-3 sm:col-span-2">
     <summary className="font-bold text-purple-200">Colores, vinilo e imagen del Pool</summary>
     <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2 text-xs text-slate-300">
+      <div className="sm:col-span-2"><span className="mb-2 block">Paletas para empezar</span><div className="flex flex-wrap gap-2">{[
+        ['Musiclub','#161832','#070812'],['Rojo','#581429','#b73148'],['Azul','#10244e','#155e91'],['Verde','#143d32','#668622'],['Atardecer','#48215f','#b94436']
+      ].map(([name,colorA,colorB])=><button type="button" key={name} aria-label={`Paleta ${name}`} onClick={()=>onChange({...a,colorA,colorB})} className="flex min-h-10 items-center gap-2 rounded-xl border border-white/15 px-3 text-[11px] font-bold hover:border-pink-300"><span className="h-5 w-5 rounded-full border border-white/25" style={{background:`linear-gradient(135deg,${colorA},${colorB})`}}/>{name}</button>)}</div></div>
       <label>Título de la cabecera<input maxLength={100} value={a.heading} placeholder="Pool Musical Comunitario" onChange={e=>change('heading',e.target.value)} className={input} /></label>
       <label>Fondo<select value={a.mode} onChange={e=>change('mode',e.target.value)} className={input}><option value="gradient">Degradado</option><option value="solid">Color sólido</option></select></label>
-      <label>Color principal<input type="color" value={a.colorA} onChange={e=>change('colorA',e.target.value)} className={`${input} cursor-pointer`} /></label>
-      {a.mode === 'gradient' && <label>Segundo color<input type="color" value={a.colorB} onChange={e=>change('colorB',e.target.value)} className={`${input} cursor-pointer`} /></label>}
+      <label>Color principal<input type="color" value={a.colorA} onInput={e=>change('colorA',e.target.value)} onChange={e=>change('colorA',e.target.value)} className={`${input} cursor-pointer`} /></label>
+      {a.mode === 'gradient' && <label>Segundo color<input type="color" value={a.colorB} onInput={e=>change('colorB',e.target.value)} onChange={e=>change('colorB',e.target.value)} className={`${input} cursor-pointer`} /></label>}
       <label className="sm:col-span-2">Presentación breve<textarea rows={2} maxLength={600} value={a.intro} onChange={e=>change('intro',e.target.value)} placeholder="Cuenta de qué se trata este Pool" className={input} /></label>
       <label>Vinilo de fondo<select value={a.vinyl} onChange={e=>change('vinyl',e.target.value)} className={input}><option value="brand">Musiclub</option><option value="genre">Vinilo de un género</option><option value="none">Sin vinilo</option></select></label>
       {a.vinyl === 'brand' && <label>Edición Musiclub<select value={a.logo} onChange={e=>change('logo',e.target.value)} className={input}>{['/musiclub_logo.png','/musiclub_logo_2.png','/musiclub_logo_3.png','/musiclub_logo_4.png'].map((logo,i)=><option key={logo} value={logo}>Edición {i+1}</option>)}</select></label>}
