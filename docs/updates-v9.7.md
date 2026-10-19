@@ -59,3 +59,9 @@ Search Console consultado el 19 de octubre conserva el informe de indexación fe
 La prueba en vivo de Forever Howlong confirmó disponibilidad para Google y 10 elementos válidos de reseñas. Google aceptó la solicitud de indexación; esto no equivale a indexación confirmada.
 
 La muestra antigua `/albumes/1190` reveló un error 500 en la redirección hacia una dirección con caracteres cirílicos. Se codifican los destinos de redirección y se decodifican los parámetros antes de resolver álbumes y artistas. Una prueba de regresión cubre los parámetros codificados y su compatibilidad con cabeceras HTTP.
+
+## Actualización V.9.7.4 — comprobación completa de las páginas públicas
+
+Se recorrieron las 749 direcciones únicas de los cuatro sitemaps publicados con cuatro conexiones simultáneas. Todas respondieron HTTP 200, declararon una dirección canónica equivalente y permitieron indexación. La revisión solo encontró la falta de un h1 en Gashapon; se convirtió su título existente de h2 a h1. La comprobación HTTP no demuestra que Google haya indexado las páginas ni mide toda su calidad editorial.
+
+Google aceptó además la solicitud de indexación de /guias. La solicitud sigue siendo una incorporación a la cola de rastreo; no garantiza indexación. No se volvieron a enviar las dos solicitudes de fichas que ya estaban aceptadas.
