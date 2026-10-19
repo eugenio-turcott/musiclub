@@ -10,6 +10,7 @@ export const GITHUB_REPO_NAME = 'musiclub-albumes';
 export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
+  {version:'V.9.18.1',title:'Vista previa de cápsulas con el release del catálogo',date:'2026-10-19',sha:'',associatedShas:[],tag:'Pool Musical',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'La demostración del depósito usa la portada y el nombre del release del catálogo, junto con el avatar del miembro.',changes:[{type:'fix',title:'Portada real en la demostración',description:'La vista previa del administrador reconoce los nombres e imágenes del catálogo cargado y conserva el género principal del release.'}]},
   {
     version: 'V.9.18.0', title: 'Deposita tu cápsula en el Pool', date: '2026-10-19', sha: '', associatedShas: [], tag: 'Pool Musical', tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
     summary: 'Cápsulas con el género del release y la firma de quien lo propone, cupos opcionales y una identidad visual propia para cada Pool.',

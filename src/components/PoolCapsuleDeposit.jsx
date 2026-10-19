@@ -7,7 +7,7 @@ export function PoolCapsulePreview({ release, user }) {
   const [phase, setPhase] = useState('ready');
   const timer = useRef(null);
   useEffect(()=>()=>clearTimeout(timer.current),[]);
-  const album = { albumName: release?.album_name || 'Tu próximo descubrimiento', imageUrl: release?.image_url || '/musiclub_logo_corchea.png', genres: release?.genres || ['Pop'] };
+  const album = { albumName: release?.album_name || release?.album || 'Tu próximo descubrimiento', imageUrl: release?.image_url || release?.imagen || '/musiclub_logo_corchea.png', genres: release?.genres || ['Pop'] };
   return <details className="rounded-xl border border-white/10 p-3"><summary className="font-bold text-purple-200">Vista previa del depósito de cápsulas</summary><PoolCapsuleDeposit album={album} user={user} phase={phase}/><div className="text-center"><button type="button" disabled={phase === 'saving'} className="min-h-11 rounded-xl bg-pink-500/20 px-4 text-xs font-bold text-pink-200" onClick={()=>{setPhase('saving'); timer.current=setTimeout(()=>setPhase('saved'),2300);}}>{phase === 'ready' ? 'Ver animación' : phase === 'saving' ? 'Sellando cápsula…' : 'Repetir animación'}</button><p className="mt-2 text-[11px] text-slate-400">Solo es una vista previa. No registra una propuesta ni ocupa cupo.</p></div></details>;
 }
 
