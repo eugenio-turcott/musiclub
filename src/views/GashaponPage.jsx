@@ -37,7 +37,7 @@ export function GashaponPage({ initialAlbums = [] }) {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
-        title="Gashapon por Géneros — Descubre Música | Musiclub"
+        title="Gashapon Musical — Descubre Música | Musiclub"
         description="Elige un género musical y descubre lanzamientos del club. Cada género tiene su cápsula y los resultados respetan tu selección."
         url="https://www.musiclub.org/gashapon"
         keywords="ruleta musical, gashapon musica, descubrir albumes aleatorios, juego musical arcade, musiclub gashapon"
