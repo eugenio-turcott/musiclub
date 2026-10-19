@@ -89,7 +89,7 @@ export default async function AlbumPage({ params }) {
   if (!album) notFound();
   const canonicalPath = getReleaseUrl(album);
   const currentPath = (await headers()).get('x-musiclub-pathname') || `/albumes/${slug}`;
-  if (decodeURI(currentPath) !== canonicalPath) permanentRedirect(canonicalPath);
+  if (decodeURI(currentPath) !== canonicalPath) permanentRedirect(encodeURI(canonicalPath));
 
   const schemaData = album
     ? {

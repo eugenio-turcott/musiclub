@@ -19,4 +19,8 @@ function releasePath(album) {
   if (!name || !artist) return null;
   return `/${getReleaseTypePrefix(album.release_type || album.releaseType)}/${artist}-${name}`;
 }
-module.exports = { slugify, getReleaseTypePrefix, releasePath };
+function decodeRouteSlug(value) {
+  const slug = String(value || '');
+  try { return decodeURIComponent(slug); } catch { return slug; }
+}
+module.exports = { slugify, getReleaseTypePrefix, releasePath, decodeRouteSlug };

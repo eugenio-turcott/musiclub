@@ -49,3 +49,13 @@ Spotify y Supabase ya se comprobaron con las claves nuevas. El propietario confi
 El propietario confirmó haber guardado SMTP_PASS en Vercel y GitHub y SMTP_USER en GitHub; SMTP_HOST y SMTP_PORT también están configurados. La validación manual `Verify SMTP configuration (no email)` comprueba la presencia de los siete valores del mantenimiento y autentica contra Brevo mediante el mismo transportador de producción. No envía mensajes, no muestra claves y no acredita la entrega en un buzón. La conexión SMTP exige cifrado; se limita la espera de conexión y saludo a 15 segundos.
 
 Antes de revocar la clave SMTP anterior, ejecutar esa comprobación y esperar el despliegue nuevo de Vercel. La revocación la completa el propietario en Brevo. Hasta entonces, el cierre de la rotación SMTP sigue pendiente. Los archivos locales ignorados con credenciales anteriores no sirven para ejecutar mantenimiento local tras revocarlas; actualizarlos de forma privada si se necesita esa ejecución.
+
+## Actualización V.9.7.3 — seguimiento de Search Console
+
+La rotación de correo quedó cerrada: Brevo rechazó la clave anterior con EAUTH y la nueva pasó TLS y autenticación después de su retirada (ejecución 39260030975, intento 2). No se enviaron correos de prueba. Esto actualiza los pendientes históricos de las secciones anteriores.
+
+Search Console consultado el 19 de octubre conserva el informe de indexación fechado el 11 de octubre: 4 indexadas, 769 descubiertas sin indexar. La validación figura iniciada desde el 16 de septiembre, antes de estas correcciones. No hay una comparación posterior al despliegue disponible en ese informe. El sitemap índice figura correcto y leído el 18 de octubre. Rendimiento, con datos hasta el 17 de octubre, muestra 12 clics y 28 impresiones frente a 12 y 27 del diagnóstico inicial; esta muestra no demuestra crecimiento.
+
+La prueba en vivo de Forever Howlong confirmó disponibilidad para Google y 10 elementos válidos de reseñas. Google aceptó la solicitud de indexación; esto no equivale a indexación confirmada.
+
+La muestra antigua `/albumes/1190` reveló un error 500 en la redirección hacia una dirección con caracteres cirílicos. Se codifican los destinos de redirección y se decodifican los parámetros antes de resolver álbumes y artistas. Una prueba de regresión cubre los parámetros codificados y su compatibilidad con cabeceras HTTP.

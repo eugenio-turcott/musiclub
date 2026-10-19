@@ -23,6 +23,6 @@ export default async function ArtistPage({ params }) {
   if (!artist) notFound();
   const canonicalPath = `/artista/${slugifyArtist(artist.profile.artist.name)}`;
   const pathname = (await headers()).get('x-musiclub-pathname') || `/artista/${slug}`;
-  if (decodeURI(pathname) !== canonicalPath) permanentRedirect(canonicalPath);
+  if (decodeURI(pathname) !== canonicalPath) permanentRedirect(encodeURI(canonicalPath));
   return <ArtistDetail key={slug} initialSlug={slug} initialProfileData={artist.profile} initialClubAlbums={artist.albums} />;
 }

@@ -11,6 +11,13 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7.3', title: 'Fichas con nombres en otros alfabetos', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Correcciones',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Las fichas musicales reconocen direcciones codificadas y redirigen de forma compatible con HTTP cuando el artista utiliza otros alfabetos.',
+    changes: [{ type: 'fix', title: 'Direcciones Unicode', description: 'Se decodifican los identificadores de las rutas antes de buscar álbumes y artistas, y se codifican los destinos de las redirecciones. Esto evita errores en direcciones antiguas como la del álbum 1190 de Аигел.' }],
+  },
+  {
     version: 'V.9.7.2', title: 'Comprobación segura del correo', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Mantenimiento',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
