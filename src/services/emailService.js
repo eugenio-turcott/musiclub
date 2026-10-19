@@ -346,6 +346,9 @@ export async function getTransporter() {
         host: smtpHost,
         port: smtpPort,
         secure: smtpSecure,
+        requireTLS: !smtpSecure,
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
         auth: {
           user: smtpUser,
           pass: smtpPass,
