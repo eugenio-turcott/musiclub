@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/AppHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -181,7 +182,7 @@ export function AppHeader({
           <Link to="/" className="flex items-center gap-2 group">
             <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
               {/* Spinning Musiclub Logo Disc Base */}
-              <img
+              <MusiclubVinyl showCenter={false}
                 src="/musiclub_logo_4.png"
                 alt="Musiclub Vinyl"
                 className="absolute inset-0 w-full h-full object-contain animate-spin-slow opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none select-none"

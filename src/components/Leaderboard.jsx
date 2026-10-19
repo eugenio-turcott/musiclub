@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from './MusiclubVinyl';
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
@@ -323,7 +324,7 @@ export function Leaderboard({ isPage = false }) {
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <img
+            <MusiclubVinyl
               src="/musiclub_logo_2.png"
               alt=""
               className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(251,191,36,0.3)]"
@@ -446,7 +447,7 @@ export function Leaderboard({ isPage = false }) {
             <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">
               <h2 className="text-base sm:text-xl font-bold flex items-center gap-2 text-white">
                 <span className="relative w-5 h-5 inline-flex items-center justify-center shrink-0">
-                  <img
+                  <MusiclubVinyl
                     src="/musiclub_logo_2.png"
                     alt="Musiclub Gold"
                     className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"

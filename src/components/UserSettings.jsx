@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -235,7 +236,7 @@ export function UserSettings() {
 
         {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
         <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-          <img
+          <MusiclubVinyl
             src="/musiclub_logo.png"
             alt=""
             className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"

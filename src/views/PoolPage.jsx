@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from '../components/MusiclubVinyl';
 // src/pages/PoolPage.jsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -349,7 +350,7 @@ export function PoolPage() {
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <img
+            <MusiclubVinyl
               src="/musiclub_logo_4.png"
               alt=""
               className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
@@ -757,7 +758,7 @@ export function PoolPage() {
 
                     {/* Disc Frame & Shadow */}
                     <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
-                      <img
+                      <MusiclubVinyl
                         src="/musiclub_logo_3.png"
                         alt="Disco de la semana"
                         className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"

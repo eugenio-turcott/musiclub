@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from './MusiclubVinyl';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LanguageSelector } from './LanguageSelector';
@@ -14,7 +15,7 @@ export function Footer({ showAd = true }) {
         <div className="h-px w-12 sm:w-24 bg-linear-to-r from-transparent via-white/15 to-transparent" />
         <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
           <div className="absolute inset-0 bg-amber-400/15 rounded-full blur-md animate-pulse" />
-          <img
+          <MusiclubVinyl
             src="/musiclub_logo.png"
             alt="Musiclub Logo"
             className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_10px_rgba(251,191,36,0.35)] opacity-80"

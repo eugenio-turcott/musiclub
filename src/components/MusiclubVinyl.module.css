@@ -1,0 +1,28 @@
+.frame {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+.slow,
+.fast {
+  transform-origin: 355px 355px;
+  animation: turn 20s linear infinite;
+}
+
+.fast {
+  animation-duration: 6s;
+}
+
+.label {
+  clip-path: circle(50%);
+}
+
+@keyframes turn {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .slow,
+  .fast { animation: none; }
+}
