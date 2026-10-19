@@ -1267,7 +1267,7 @@ export function GashaponMachine({
                   {/* Portada con efecto de Vinilo saliente */}
                   <div className="relative group shrink-0">
                     {/* Disco de vinilo detrás */}
-                    <div className="absolute top-0 -right-4 sm:-right-6 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-white/20 shadow-xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
+                    <div className="absolute top-0 -right-4 sm:-right-6 w-28 h-28 sm:w-32 sm:h-32 rounded-full drop-shadow-xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
                       <GenreArtwork genre={currentCapsule.theme.genre} edition={currentCapsule.edition} size={128} className="w-full h-full select-none pointer-events-none" />
                     </div>
 
