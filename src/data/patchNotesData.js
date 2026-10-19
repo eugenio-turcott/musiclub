@@ -11,6 +11,16 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.18.0', title: 'Deposita tu cápsula en el Pool', date: '2026-10-19', sha: '', associatedShas: [], tag: 'Pool Musical', tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Cápsulas con el género del release y la firma de quien lo propone, cupos opcionales y una identidad visual propia para cada Pool.',
+    changes: [
+      {type:'improvement',title:'Tu release entra en una cápsula',description:'La portada y tu avatar entran al vinilo, el centro gira en sentido contrario para sellarse y la cápsula se deposita cuando el registro queda confirmado. Si no tienes foto, aparece tu inicial.'},
+      {type:'improvement',title:'Los primeros registros ocupan el cupo',description:'Cada Pool puede tener un límite opcional de releases, validado en la base de datos incluso ante envíos simultáneos. Graduar un disco no libera su lugar.'},
+      {type:'improvement',title:'Una identidad para cada Pool',description:'Personaliza la cabecera con colores sólidos o degradados, título, presentación, un vinilo Musiclub o de género y una imagen o GIF opcional. Incluye vista previa.'},
+      {type:'fix',title:'Navegación sin elementos encimados',description:'El menú compacto se mantiene en tablets y pantallas intermedias; la navegación completa aparece cuando hay espacio suficiente.'}
+    ]
+  },
+  {
     version: 'V.9.17.0', title: 'Pools con dinámica propia y control manual', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Pool Musical',
     tagColor: 'from-pink-500 to-cyan-400', authorName: 'Eugenio Turcott',

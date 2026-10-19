@@ -1,0 +1,32 @@
+.scene { position:relative; height:285px; display:grid; place-items:center; overflow:hidden; perspective:900px; isolation:isolate; }
+.token { position:relative; aspect-ratio:1; width:100%; margin-bottom:12px; isolation:isolate; }
+.tokenCover { position:absolute; inset:23%; width:54%; height:54%; border-radius:12px; object-fit:cover; transform:rotate(-7deg); box-shadow:0 6px 20px #000a; transition:transform .3s; }
+.token:hover .tokenCover { transform:rotate(0) scale(1.04); }
+.tokenGenre { position:absolute; right:3%; bottom:7%; width:28%; aspect-ratio:1; filter:drop-shadow(0 3px 6px #000a); }
+.tokenGenre img { width:100%; height:100%; }
+.tokenAvatar { position:absolute; left:7%; bottom:8%; width:23%; aspect-ratio:1; display:grid; place-items:center; border-radius:50%; border:2px solid #1b1634; color:white; background:linear-gradient(135deg,#db2777,#6d28d9); overflow:hidden; font-weight:900; }
+.tokenAvatar img { position:absolute; width:100%; height:100%; object-fit:cover; }
+.halo { position:absolute; width:220px; height:220px; border-radius:50%; background:var(--capsule-accent,#ec4899); filter:blur(48px); opacity:.22; }
+.capsule { position:relative; width:214px; height:214px; transform-style:preserve-3d; margin-top:-32px; }
+.disc { position:absolute; inset:0; width:100%; height:100%; filter:drop-shadow(0 12px 22px #0008); }
+.contents { position:absolute; inset:26%; display:grid; place-items:center; }
+.cover { width:100%; height:100%; object-fit:cover; border-radius:12px; box-shadow:0 10px 30px #000b; transform:rotate(-9deg); }
+.avatar { position:absolute; right:-19px; bottom:-12px; width:43px; height:43px; display:grid; place-items:center; background:linear-gradient(135deg,#db2777,#6d28d9); border:3px solid #17142d; border-radius:50%; color:white; font-weight:900; box-shadow:0 4px 12px #0008; overflow:hidden; }
+.avatar img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; }
+.lid { position:absolute; inset:25.6%; width:48.8%; height:48.8%; transform:translate(-102px,-44px) rotate(24deg) scale(.62); opacity:.8; filter:drop-shadow(0 4px 15px #0008); }
+.slot { position:absolute; bottom:37px; width:240px; height:24px; border-radius:50%; border:1px solid #a78bfa50; background:linear-gradient(#070812,#28213f); box-shadow:0 8px 18px #0009; z-index:-1; }
+.slot span { position:absolute; inset:9px 26px; border-radius:50%; background:#020207; box-shadow:0 0 10px var(--capsule-accent,#ec4899); }
+.caption { position:absolute; bottom:3px; margin:0; text-align:center; color:#ddd2ec; font-size:12px; font-weight:700; }
+.scene[data-phase='saving'] .contents { animation:pack 1.8s cubic-bezier(.2,.7,.2,1) both; }
+.scene[data-phase='saving'] .lid { animation:seal 2.2s cubic-bezier(.22,.8,.22,1) both; }
+.scene[data-phase='saving'] .disc { animation:counterspin 2.2s cubic-bezier(.2,.7,.2,1) both; }
+.scene[data-phase='saved'] .contents { opacity:0; }
+.scene[data-phase='saved'] .lid { transform:none; opacity:1; }
+.scene[data-phase='saved'] .capsule { animation:deposit 1s cubic-bezier(.4,0,.3,1) both; }
+.scene[data-phase='saved'] .slot { animation:accepted 1s ease-out both; }
+@keyframes pack { 0%,15% { transform:scale(1); opacity:1; } 65%,100% { transform:scale(.25) rotate(-25deg); opacity:0; } }
+@keyframes seal { 0% { transform:translate(-102px,-44px) rotate(24deg) scale(.62); opacity:.8; } 22% { transform:translate(-110px,-60px) rotate(-60deg) scale(.72); opacity:1; } 100% { transform:translate(0,0) rotate(-720deg) scale(1); opacity:1; } }
+@keyframes counterspin { from { transform:rotate(0); } to { transform:rotate(-720deg); } }
+@keyframes deposit { 0% { transform:translateY(0) scale(1); opacity:1; } 55% { transform:translateY(-12px) rotate(-12deg) scale(.84); opacity:1; } 100% { transform:translateY(125px) rotate(-160deg) scale(.1); opacity:0; } }
+@keyframes accepted { 30% { box-shadow:0 0 40px var(--capsule-accent,#ec4899); } 100% { box-shadow:0 0 16px var(--capsule-accent,#ec4899); } }
+@media (prefers-reduced-motion:reduce) { .scene * { animation:none!important; transition:none!important; } .scene[data-phase='saving'] .lid { transform:none; opacity:1; } .scene[data-phase='saving'] .contents { opacity:0; } .scene[data-phase='saved'] .capsule { transform:scale(.7); } }

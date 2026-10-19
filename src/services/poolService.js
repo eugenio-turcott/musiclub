@@ -96,6 +96,8 @@ export const poolService = {
       is_active: false,
       is_open: false,
       description: seasonData.description || '',
+      max_releases: seasonData.max_releases ?? null,
+      appearance: seasonData.appearance || {},
     };
 
     const { error: insertError } = await supabase.from('seasons').insert(newSeason);
@@ -201,6 +203,11 @@ export const poolService = {
       supabaseService.getAllAlbumsWithFullStats(),
     ]);
     if (error) throw new Error('No se pudieron cargar las propuestas del Pool');
+    const avatars = new Map();
+    const userIds = [...new Set((entries || []).map(entry => entry.user_id).filter(Boolean))];
+    if (userIds.length) {
+      try { const { data: profiles } = await supabase.from('public_profiles').select('id,avatar_url').in('id', userIds); for (const profile of profiles || []) avatars.set(profile.id, profile.avatar_url); } catch {}
+    }
     const byId = new Map(albums.map(album => [album.id, album]));
     const active = [], history = [];
     let winner = null;
@@ -209,7 +216,7 @@ export const poolService = {
       if (!album) continue;
       const item = { ...album, id: album.id, pool_entry_id: entry.id,
         album: album.album_name, artista: album.artist_name, imagen: album.image_url,
-        status: entry.status, added_by: entry.nominated_by || 'Miembro',
+        status: entry.status, added_by: entry.nominated_by || 'Miembro', nominated_avatar: avatars.get(entry.user_id) || null,
         created_at: entry.created_at, nominated_at: entry.created_at, nomination_note: entry.note || '',
         reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true && album.reviews_enabled !== false,
         spotifyLink: entry.spotify_link || album.spotify_link,
@@ -225,7 +232,7 @@ export const poolService = {
       const { data: allowed, error: gateError } = await supabase.rpc('musiclub_can_review_album', { p_album_id: winner.id });
       winner.reviews_enabled = !gateError && allowed === true;
     }
-    return { season, active, winner, history, isFromDedicatedTable: true };
+    return { season: { ...season, entry_count: (entries || []).length }, active, winner, history, isFromDedicatedTable: true };
   },
 
   /**

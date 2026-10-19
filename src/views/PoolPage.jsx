@@ -1,11 +1,14 @@
 'use client';
+import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
+import { GenreArtwork } from '../components/GenreArtwork';
+import presentation from '../utils/poolPresentation.cjs';
 import { PoolManualControls } from '../components/PoolManualControls';
 import { GenreLabel } from '../components/GenreLabel';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import { searchMusicBrainzReleases, getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
 // src/pages/PoolPage.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
@@ -37,6 +40,7 @@ export function PoolPage() {
     season,
     seasons,
     createSeason,
+    updateSeason,
     setActiveSeason,
     error: poolError,
     activePool,
@@ -53,6 +57,9 @@ export function PoolPage() {
   } = usePool();
 
   const { albums: catalogAlbums = [] } = useAlbums();
+
+  const appearance = presentation.poolAppearance(season.appearance);
+  const capacity = presentation.poolCapacity(season, season.entry_count || 0);
 
   // Candidatos de pool_entries para la Ruleta / Máquina Musical
   const slotMachinePool = useMemo(() => {
@@ -128,6 +135,7 @@ export function PoolPage() {
   }, [poolMarqueeItems.length]);
 
   // Nomination Modal States
+  const nominationSelection = useRef(0);
   const [nominationSearch, setNominationSearch] = useState('');
   const [spotifyResults, setSpotifyResults] = useState([]);
   const [searchingRemote, setSearchingRemote] = useState(false);
@@ -135,6 +143,19 @@ export function PoolPage() {
   const [nominationNote, setNominationNote] = useState('');
   const [submittingNomination, setSubmittingNomination] = useState(false);
   const [nominationSuccess, setNominationSuccess] = useState(false);
+  const [nominationError, setNominationError] = useState('');
+  const closeNomination = () => { if (submittingNomination) return; nominationSelection.current++; setShowNominateModal(false); setNominationSuccess(false); setSelectedAlbumToNominate(null); setNominationError(''); setNominationNote(''); };
+  const enrichGenres = async item => {
+    const known = genreCatalog.normalizeGenres(item.genres || []);
+    if (known.length) return { ...item, genres: known };
+    const clean = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    try {
+      const matches = await searchMusicBrainzReleases(`${item.artistName} ${item.albumName}`, 8);
+      const match = matches.find(m => clean(m.name) === clean(item.albumName) && clean(m.artist) === clean(item.artistName));
+      if (match) { const details = await getMusicBrainzReleaseGroupDetails(match.mbid); return { ...item, genres: genreCatalog.normalizeGenres(details?.genres || []) }; }
+    } catch {}
+    return { ...item, genres: [] };
+  };
 
   // Format filter calculation
   const formatCounts = useMemo(() => {
@@ -218,53 +239,29 @@ export function PoolPage() {
   };
 
   const handleSelectAlbumForNomination = async (item) => {
-    if (item.albumId) { setSelectedAlbumToNominate(item); return; }
-    if (item.mbid) {
-      setSearchingRemote(true);
-      try {
-        const details = await getMusicBrainzReleaseGroupDetails(item.mbid);
-        setSelectedAlbumToNominate({ ...item, tracks: details?.tracks || [], genres: details?.genres || [],
-          spotifyLink: details?.externalLinks?.spotify, youtubeLink: details?.externalLinks?.youtube,
-          appleMusicLink: details?.externalLinks?.apple_music, otherLink: details?.externalLinks?.deezer });
-      } catch { setSelectedAlbumToNominate(item); } finally { setSearchingRemote(false); }
-      return;
-    }
+    const ticket = ++nominationSelection.current;
+    setNominationError(''); setSearchingRemote(true);
+    let result = item;
     try {
-      const res = await getAlbumDetails(item.id);
-      if (res?.success && res.album) {
-        const details = res.album;
-        const artistDisplay = Array.isArray(details.artists)
-          ? details.artists.join(', ')
-          : details.artist || item.artistName;
-
-        const tracks = (details.tracks || []).map((t, idx) => ({
-          id: t.id || `track-${idx + 1}`,
-          name: t.name,
-          duration_ms: t.duration_ms || 0,
-          track_number: t.track_number || idx + 1,
-        }));
-
-        setSelectedAlbumToNominate({
-          albumName: details.name || item.albumName,
-          artistName: artistDisplay,
-          imageUrl: details.image || item.imageUrl,
-          releaseDate: details.releaseDate || item.releaseDate,
-          releaseYear: details.releaseYear || item.releaseYear,
-          releaseType: details.release_type || item.releaseType || 'ALBUM',
-          tracks: tracks,
-          genres: genreCatalog.normalizeGenres(details.genres || item.genres || []),
-          spotifyLink:
-            details.external_urls?.spotify ||
-            `https://open.spotify.com/album/${item.id}`,
-          youtubeLink: null,
-          appleMusicLink: null,
-        });
-      } else {
-        setSelectedAlbumToNominate(item);
+      if (item.mbid && !item.albumId) {
+        const details = await getMusicBrainzReleaseGroupDetails(item.mbid);
+        if (details) result = { ...item, tracks: details.tracks || [], genres: details.genres || [], releaseDate: details.releaseDate || item.releaseDate,
+          spotifyLink: details.externalLinks?.spotify, youtubeLink: details.externalLinks?.youtube,
+          appleMusicLink: details.externalLinks?.apple_music, otherLink: details.externalLinks?.deezer };
+      } else if (!item.albumId) {
+        const res = await getAlbumDetails(item.id);
+        if (res?.success && res.album) {
+          const details = res.album;
+          result = { ...item, albumName: details.name || item.albumName, artistName: Array.isArray(details.artists) ? details.artists.join(', ') : details.artist || item.artistName,
+            imageUrl: details.image || item.imageUrl, releaseDate: details.releaseDate || item.releaseDate, releaseYear: details.releaseYear || item.releaseYear,
+            releaseType: details.release_type || item.releaseType || 'ALBUM', genres: details.genres || item.genres || [],
+            tracks: (details.tracks || []).map((track,index)=>({...track, id:track.id || `track-${index+1}`,track_number:track.track_number || index+1})),
+            spotifyLink: details.external_urls?.spotify || item.spotifyLink };
+        }
       }
-    } catch (err) {
-      setSelectedAlbumToNominate(item);
-    }
+      result = await enrichGenres(result);
+    } catch { result = { ...item, genres: genreCatalog.normalizeGenres(item.genres || []) }; }
+    finally { if (ticket === nominationSelection.current) { setSelectedAlbumToNominate(result); setSearchingRemote(false); } }
   };
 
   // Submit nomination
@@ -274,7 +271,8 @@ export function PoolPage() {
       return;
     }
     if (!selectedAlbumToNominate) return;
-    setSubmittingNomination(true);
+    setSubmittingNomination(true); setNominationError('');
+    const motion = new Promise(resolve => setTimeout(resolve, 2300));
     try {
       await nominateAlbum({
         albumId: selectedAlbumToNominate.albumId || null,
@@ -282,17 +280,10 @@ export function PoolPage() {
         user,
         note: nominationNote,
       });
+      await motion;
       setNominationSuccess(true);
-      setTimeout(() => {
-        setNominationSuccess(false);
-        setShowNominateModal(false);
-        setSelectedAlbumToNominate(null);
-        setNominationSearch('');
-        setSpotifyResults([]);
-        setNominationNote('');
-      }, 1500);
     } catch (err) {
-      alert(`Error al nominar: ${err.message}`);
+      setNominationError(err.message || 'No se pudo guardar la cápsula. Puedes intentarlo de nuevo.');
     } finally {
       setSubmittingNomination(false);
     }
@@ -368,19 +359,20 @@ export function PoolPage() {
         {/* =========================================================================
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
-        <div className="relative rounded-3xl bg-linear-to-br from-[#161832] via-[#0e1022] to-[#070812] border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
+        <div style={{ background: presentation.poolBackground(appearance) }} className="relative rounded-3xl border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
+          {appearance.mediaUrl && <img src={appearance.mediaUrl} alt="" className="absolute inset-y-0 right-0 h-full w-full sm:w-1/2 object-cover opacity-20 pointer-events-none motion-reduce:hidden" onError={event=>{event.currentTarget.hidden=true;}}/>}
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <MusiclubVinyl
-              src="/musiclub_logo_4.png"
+          {appearance.vinyl !== 'none' && <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
+            {appearance.vinyl === 'genre' ? <GenreArtwork genre={appearance.genre} size={440} animated className="h-full w-full"/> : <MusiclubVinyl
+              src={appearance.logo}
               alt=""
               className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
-            />
-          </div>
+            />}
+          </div>}
 
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+          <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10 ${Object.keys(season.appearance || {}).length ? 'rounded-2xl bg-[#070812]/60 p-3 sm:p-5' : ''}`}>
             <div className="space-y-3 max-w-2xl">
               {/* Season Live Pill & Selector */}
               <div className="flex flex-wrap items-center gap-2">
@@ -414,20 +406,20 @@ export function PoolPage() {
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold shadow-sm">
-                    🔒 Pool Cerrado
+                    {capacity.full ? '🎟️ Cupo completo' : '🔒 Pool Cerrado'}
                   </span>
                 )}
               </div>
 
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                Pool Musical Comunitario
+                {appearance.heading || 'Pool Musical Comunitario'}
               </h1>
 
               <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                El motor social de Musiclub. Aquí los miembros proponen sus{' '}
+                {appearance.intro || <>El motor social de Musiclub. Aquí los miembros proponen sus{' '}
                 <strong>álbumes, EPs y canciones</strong> favoritos para la
                 temporada. Cada semana se sortea el disco en foco mediante la
-                ruleta/gashapon para escucharlo y calificarlo en comunidad.
+                ruleta/gashapon para escucharlo y calificarlo en comunidad.</>}
               </p>
 
               {/* Banner Pool Cerrado / Abierto */}
@@ -448,7 +440,7 @@ export function PoolPage() {
                   {isAdmin && (
                     <button
                       type="button"
-                      disabled={poolActionBusy}
+                      disabled={poolActionBusy || capacity.full}
                       onClick={() => runPoolAction(() => setPoolOpenStatus(true))}
                       className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs shadow transition-all flex items-center gap-1.5 shrink-0"
                     >
@@ -484,7 +476,7 @@ export function PoolPage() {
                   className="px-5 py-3.5 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                 >
                   <span>➕</span>
-                  <span>Proponer al Pool</span>
+                  <span>Depositar cápsula</span>
                 </button>
               )}
 
@@ -566,9 +558,10 @@ export function PoolPage() {
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
         <section className="rounded-2xl border border-white/10 bg-[#111424]/80 p-4 sm:p-5 space-y-3" aria-label="Dinámica del Pool">
           <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-black text-white">{season.name}</h2><span className="rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300">{isPoolOpen ? 'Propuestas abiertas' : 'Propuestas cerradas'} · {winner?.reviews_enabled ? 'Reseñas abiertas' : 'Reseñas cerradas'}</span></div>
+          {capacity.limit && <div className="flex flex-wrap items-center gap-2 text-xs text-purple-200"><span className="rounded-full border border-purple-300/20 bg-purple-500/10 px-3 py-1.5 font-bold">{capacity.used} / {capacity.limit} cápsulas depositadas</span><span>{capacity.full ? 'Cupo completo · los primeros registros válidos ya ocuparon los lugares.' : `${capacity.remaining} lugares disponibles`}</span></div>}
           <p className="whitespace-pre-line text-xs leading-relaxed text-slate-300">{season.description}</p>
           <p className="text-[11px] text-slate-400">Propón tu release → participa en el sorteo → escucha y reseña cuando el administrador habilite el ganador.</p>
-          {isAdmin && <PoolManualControls season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
+          {isAdmin && <PoolManualControls user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
         </section>
 
         {/* =========================================================================
@@ -1043,18 +1036,7 @@ export function PoolPage() {
                   key={alb.id}
                   className="group relative rounded-2xl bg-[#111322]/90 border border-white/10 hover:border-pink-500/40 p-3 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between"
                 >
-                  {/* Artwork */}
-                  <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2">
-                    <img
-                      src={alb.imagen}
-                      alt={alb.album}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                    <div className="absolute top-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/80 backdrop-blur-md text-[9px] font-black text-pink-300">
-                      POOL ACTIVO
-                    </div>
-                  </div>
+                  <PoolCapsuleToken album={alb} />
 
                   {/* Metadata */}
                   <div className="space-y-0.5 min-w-0">
@@ -1344,7 +1326,7 @@ export function PoolPage() {
             ========================================================================= */}
         {showNominateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="relative w-full max-w-xl rounded-3xl bg-[#141628] border border-pink-500/30 p-6 sm:p-8 shadow-2xl space-y-5 text-left">
+            <div className="relative max-h-[90dvh] overflow-y-auto w-full max-w-xl rounded-3xl bg-[#141628] border border-pink-500/30 p-6 sm:p-8 shadow-2xl space-y-5 text-left">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
@@ -1356,26 +1338,21 @@ export function PoolPage() {
                 </div>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowNominateModal(false);
-                    setSelectedAlbumToNominate(null);
-                  }}
+                  disabled={submittingNomination}
+                  onClick={closeNomination}
                   className="text-slate-400 hover:text-white text-sm p-1"
                 >
                   ✕
                 </button>
               </div>
 
-              {nominationSuccess ? (
-                <div className="py-12 text-center space-y-3">
-                  <span className="text-5xl">🎉</span>
-                  <h4 className="text-xl font-black text-white">
-                    ¡Propuesta Registrada Exitosamente!
-                  </h4>
-                  <p className="text-xs text-slate-300">
-                    El lanzamiento ya forma parte del Pool Activo de la
-                    temporada.
-                  </p>
+              {nominationError && <p role="alert" className="rounded-xl border border-rose-400/25 bg-rose-500/10 p-3 text-xs text-rose-200">{nominationError}</p>}
+              {nominationSuccess || submittingNomination ? (
+                <div className="text-center space-y-3">
+                  <PoolCapsuleDeposit album={selectedAlbumToNominate} user={user} phase={nominationSuccess ? 'saved' : 'saving'} />
+                  <p className="text-sm font-bold text-white">{selectedAlbumToNominate?.albumName}</p>
+                  <p className="text-xs text-slate-400">{nominationSuccess ? `Guardada en ${season.name}. Las reseñas conservan su control manual.` : 'Espera a que se confirme el registro para ocupar tu lugar.'}</p>
+                  {nominationSuccess && <button onClick={closeNomination} className="min-h-11 rounded-xl bg-pink-500 px-5 text-sm font-bold text-white">Volver al Pool</button>}
                 </div>
               ) : !selectedAlbumToNominate ? (
                 <div className="space-y-4">
@@ -1399,10 +1376,12 @@ export function PoolPage() {
 
                   {/* Results List */}
                   <div className="max-h-64 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                    {searchingRemote && <p role="status" className="py-3 text-center text-xs text-purple-200">Buscando el release y sus géneros…</p>}
                     {spotifyResults.map((item, idx) => (
                       <div
                         key={item.id || idx}
-                        onClick={() => handleSelectAlbumForNomination(item)}
+                        aria-disabled={searchingRemote}
+                        onClick={() => { if (!searchingRemote) handleSelectAlbumForNomination(item); }}
                         className="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 hover:bg-pink-500/20 border border-white/5 hover:border-pink-500/40 cursor-pointer transition-all"
                       >
                         <img
@@ -1475,6 +1454,7 @@ export function PoolPage() {
                     </div>
                   </div>
 
+                  <PoolCapsuleDeposit album={selectedAlbumToNominate} user={user} />
                   <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs text-cyan-100">Tu propuesta se registra en <strong>{season.name}</strong>. Proponer no habilita las reseñas: el administrador elige el ganador y controla cuándo se puede calificar.</p>
                   {genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length ? <div className="flex flex-wrap gap-2">{genreCatalog.normalizeGenres(selectedAlbumToNominate.genres).map(genre => <GenreLabel key={genre} genre={genre} className="rounded-lg bg-white/5 px-2 py-1 text-xs" />)}</div> : !selectedAlbumToNominate.albumId && <label className="block text-xs text-slate-300">Género principal de este release
                     <select value="" onChange={event => setSelectedAlbumToNominate(previous => ({...previous, genres: genreCatalog.normalizeGenres([event.target.value])}))} className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-[#111424] p-2 text-white"><option value="">Elige un género para continuar</option>{genreCatalog.GENRES.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select>
@@ -1509,7 +1489,7 @@ export function PoolPage() {
                     >
                       {submittingNomination
                         ? 'Registrando...'
-                        : 'Confirmar Propuesta'}
+                        : 'Depositar mi cápsula'}
                     </button>
                   </div>
                 </div>
