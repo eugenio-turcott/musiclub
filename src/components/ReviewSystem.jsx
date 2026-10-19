@@ -14,7 +14,6 @@ import {
   getTopRatedTrack,
 } from '../utils/ratingUtils';
 import { clearPublicCatalog } from '../services/publicCatalog';
-import { QuickReviewForm } from './QuickReviewForm';
 import { reviewAssessment } from '../utils/reviewAssessment';
 import { ShareReviewModal } from './ShareReviewModal';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
@@ -83,9 +82,6 @@ export function ReviewSystem({
   const user = propUser || auth.user;
   const loginWithGoogle = auth.loginWithGoogle;
 
-  const [reviewMode, setReviewMode] = useState('quick');
-  const [quickScoreChosen, setQuickScoreChosen] = useState(false);
-  const quick = reviewMode === 'quick';
   const [showReviewForm, setShowReviewForm] = useState(isIndividual);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -182,8 +178,6 @@ export function ReviewSystem({
       const saved = localStorage.getItem(draftKey);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.reviewMode) setReviewMode(parsed.reviewMode);
-        if (parsed.quickScoreChosen) setQuickScoreChosen(true);
         if (parsed.ratings) setRatings(parsed.ratings);
         if (parsed.trackRatings) setTrackRatings(parsed.trackRatings);
         if (parsed.favoriteTrack !== undefined)
@@ -295,7 +289,7 @@ export function ReviewSystem({
   useEffect(() => {
     if (!draftKey || isSubmitting) return;
     try {
-      const hasChanges = quickScoreChosen ||
+      const hasChanges =
         Object.keys(trackRatings).length > 0 ||
         comment.trim().length > 0 ||
         currentTrackIndex > 0 ||
@@ -310,7 +304,6 @@ export function ReviewSystem({
 
       if (hasChanges) {
         const draft = {
-          reviewMode, quickScoreChosen,
           ratings,
           trackRatings,
           favoriteTrack,
@@ -330,7 +323,6 @@ export function ReviewSystem({
     }
   }, [
     draftKey,
-    reviewMode, quickScoreChosen,
     ratings,
     trackRatings,
     favoriteTrack,
@@ -397,8 +389,6 @@ export function ReviewSystem({
 
   const handleStartEditing = () => {
     if (!existingUserReview) return;
-    setReviewMode(existingUserReview.rating_produccion == null ? 'quick' : 'detailed');
-    setQuickScoreChosen(true);
     setIsEditing(true);
     setShowReviewForm(true);
     setRatings({
@@ -482,15 +472,14 @@ export function ReviewSystem({
       return;
     }
 
-    if (quick && !quickScoreChosen) { setError('Elige una calificación entre 1 y 10.'); setIsSubmitting(false); return; }
-    const missingCriterios = quick ? [] : CRITERIOS.filter((c) => !ratings[c.id]);
+    const missingCriterios = CRITERIOS.filter((c) => !ratings[c.id]);
     if (missingCriterios.length > 0) {
       setError(`Por favor califica todos los criterios`);
       setIsSubmitting(false);
       return;
     }
 
-    if (!quick && shouldShowTracks && effectiveTracks.length > 0) {
+    if (shouldShowTracks && effectiveTracks.length > 0) {
       const missingTracks = effectiveTracks.filter(
         (track, idx) => getTrackRating(track, idx) === undefined
       );
@@ -517,7 +506,7 @@ export function ReviewSystem({
     const finalReviewerEmail = user.email.trim();
 
     const finalTrackRatings = {};
-    if (!quick && effectiveTracks.length > 0) {
+    if (effectiveTracks.length > 0) {
       effectiveTracks.forEach((track, idx) => {
         const score = getTrackRating(track, idx);
         if (score !== undefined) {
@@ -526,18 +515,18 @@ export function ReviewSystem({
         }
       });
     } else {
-      if (!quick) Object.assign(finalTrackRatings, trackRatings);
+      Object.assign(finalTrackRatings, trackRatings);
     }
 
     // Calcular sentimiento predeterminado si el usuario no eligió uno explícito
     const currentScore = getWeightedReviewScore({
       track_ratings: finalTrackRatings,
-      rating_produccion: quick ? null : ratings.produccion,
-      rating_composicion: quick ? null : ratings.composicion,
-      rating_letras: quick ? null : ratings.letras,
-      rating_originalidad: quick ? null : ratings.originalidad,
-      rating_cohesion: quick ? null : ratings.cohesion,
-      rating_replay: quick ? null : ratings.replay,
+      rating_produccion: ratings.produccion,
+      rating_composicion: ratings.composicion,
+      rating_letras: ratings.letras,
+      rating_originalidad: ratings.originalidad,
+      rating_cohesion: ratings.cohesion,
+      rating_replay: ratings.replay,
       rating_general: ratings.general,
     });
     const defaultEmotion = getEmotionForScore(currentScore);
@@ -546,10 +535,10 @@ export function ReviewSystem({
 
     // Determinar canción favorita: manual o por máxima nota (desempate aleatorio si hay empate)
     const finalFavoriteTrack =
-      quick ? null : (favoriteTrack || getTopRatedTrack(finalTrackRatings, false) || null);
+      (favoriteTrack || getTopRatedTrack(finalTrackRatings, false) || null);
 
     let assessment;
-    try { assessment = reviewAssessment(ratings, finalTrackRatings, quick); } catch (error) { setError(error.message); setIsSubmitting(false); return; }
+    try { assessment = reviewAssessment(ratings, finalTrackRatings); } catch (error) { setError(error.message); setIsSubmitting(false); return; }
     const reviewData = {
       albumId: album.id,
       reviewerName: finalReviewerName,
@@ -561,12 +550,12 @@ export function ReviewSystem({
         existingUserReview?.reviewer_avatar ||
         null,
       ...assessment,
-      ratingProduccion: quick ? null : ratings.produccion,
-      ratingComposicion: quick ? null : ratings.composicion,
-      ratingLetras: quick ? null : ratings.letras,
-      ratingOriginalidad: quick ? null : ratings.originalidad,
-      ratingCohesion: quick ? null : ratings.cohesion,
-      ratingReplay: quick ? null : ratings.replay,
+      ratingProduccion: ratings.produccion,
+      ratingComposicion: ratings.composicion,
+      ratingLetras: ratings.letras,
+      ratingOriginalidad: ratings.originalidad,
+      ratingCohesion: ratings.cohesion,
+      ratingReplay: ratings.replay,
       ratingGeneral: ratings.general,
       feeling: finalFeeling,
       favoriteTrack: finalFavoriteTrack,
@@ -1111,11 +1100,7 @@ export function ReviewSystem({
               </div>
             )}
 
-            <div className="flex gap-2 mb-4" role="group" aria-label="Tipo de valoración">
-              <button type="button" disabled={isEditing && existingUserReview?.rating_produccion != null} aria-pressed={quick} onClick={() => setReviewMode('quick')} className="rounded-xl border border-white/20 px-4 py-2 text-white disabled:opacity-40">Valoración rápida</button>
-              <button type="button" aria-pressed={!quick} onClick={() => setReviewMode('detailed')} className="rounded-xl border border-white/20 px-4 py-2 text-white">Reseña detallada</button>
-            </div>
-            {quick ? <QuickReviewForm score={quickScoreChosen ? ratings.general : null} onScore={score => { setQuickScoreChosen(true); setRatings(r => ({ ...r, general: score })); }} comment={comment} onComment={setComment} onSubmit={handleSubmitReview} user={user} busy={isSubmitting} error={error} success={success} /> : !user ? (
+            {!user ? (
               <div className="py-8 sm:py-10 px-4 text-center space-y-4 sm:space-y-5 relative z-10">
                 <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,87,108,0.25)]">
                   ⭐

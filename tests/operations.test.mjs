@@ -2,7 +2,6 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { deliverNotificationOnce } from '../src/services/notificationDelivery.js';
 import { reviewAssessment } from '../src/utils/reviewAssessment.js';
-import { getWeightedReviewScore } from '../src/utils/ratingUtils.js';
 import { publicMetricEvent } from '../src/utils/metricsPrivacy.js';
 import { participationMetrics } from '../src/utils/participationMetrics.js';
 
@@ -40,13 +39,17 @@ test('a claim failure prevents any send', async () => {
   assert.equal(sends, 0);
 });
 
-test('quick reviews preserve the chosen score and do not manufacture pillar or track ratings', () => {
-  const assessment = reviewAssessment({ general: 8, produccion: 3 }, { song: 10 }, true);
-  assert.equal(assessment.ratingGeneral, 8); assert.equal(assessment.ratingProduccion, null);
-  assert.deepEqual(assessment.trackRatings, {});
-  assert.equal(getWeightedReviewScore(assessment), 8);
-  assert.throws(() => reviewAssessment({ general: 11 }, {}, true));
-  assert.throws(() => reviewAssessment({ general: 8, produccion: 6 }, {}, false));
+test('club reviews require all six pillars on five and preserve track and general ratings', () => {
+  const ratings = {general:8, produccion:3, composicion:4, letras:5, originalidad:3, cohesion:4, replay:5};
+  const assessment = reviewAssessment(ratings, {song:10});
+  assert.equal(assessment.ratingGeneral,8);
+  assert.equal(assessment.ratingProduccion,3);
+  assert.equal(assessment.ratingReplay,5);
+  assert.deepEqual(assessment.trackRatings,{song:10});
+  assert.throws(() => reviewAssessment({general:8},{}), /cada pilar/);
+  assert.throws(() => reviewAssessment({...ratings, general:11},{}));
+  assert.throws(() => reviewAssessment({...ratings, produccion:6},{}), /cada pilar/);
+  assert.throws(() => reviewAssessment({...ratings, replay:null},{}), /cada pilar/);
 });
 
 test('analytics remove all URL parameters and exclude private pages', () => {
