@@ -1,4 +1,5 @@
 'use client';
+import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { AppHeader } from './AppHeader';
@@ -621,7 +622,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                       {/* Mood Badge */}
                       {playlist.genre_or_mood && (
                         <span className="absolute top-3 left-3 bg-black/60 backdrop-blur-md px-2.5 py-1 rounded-full text-[10px] font-bold text-pink-300 border border-white/10 uppercase tracking-wider">
-                          ✨ {playlist.genre_or_mood}
+                          <GenreLabel genre={playlist.genre_or_mood} size={18} fallbackIcon="✨" />
                         </span>
                       )}
 

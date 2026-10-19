@@ -1,4 +1,5 @@
 'use client';
+import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -429,7 +430,7 @@ export function UserSettings() {
                     }`}
                   >
                     {isSelected ? '✓ ' : '+ '}
-                    {genre}
+                    <GenreLabel genre={genre} size={20} />
                   </button>
                 );
               })}

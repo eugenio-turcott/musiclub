@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.10.2', title: 'Una identidad para cada género en todo Musiclub', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Géneros',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Los símbolos de los géneros se comparten entre Para Ti, Gashapon, catálogo, fichas y perfiles. Cada género tiene su propia página con los lanzamientos del club.',
+    changes: [
+      { type: 'improvement', title: 'Cápsulas con el símbolo de su género', description: 'La cúpula, la cápsula ganada, su apertura y el historial utilizan los mismos vinilos que el resto de Musiclub.' },
+      { type: 'improvement', title: 'Íconos coherentes en las etiquetas', description: 'Álbumes, artistas, búsquedas, tendencias, perfiles y preferencias comparten los mismos símbolos y nombres musicales.' },
+      { type: 'improvement', title: 'Páginas individuales de géneros', description: 'Explora los lanzamientos reales de cada género y abre el Gashapon con ese filtro. Las páginas con contenido se incluyen en el sitemap; los géneros sin lanzamientos no se indexan.' },
+    ],
+  },
+  {
     version: 'V.9.10.1', title: 'Tus géneros e íconos dentro de Para Ti', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño y géneros',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

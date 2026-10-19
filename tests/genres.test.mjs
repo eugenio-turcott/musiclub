@@ -1,5 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import routes from '../src/utils/genreRoutes.cjs';
+import sitemap from '../src/utils/sitemapData.cjs';
+import visuals from '../src/utils/genreVisuals.cjs';
+import fs from 'node:fs';
 import genres from '../src/utils/genreCatalog.cjs';
 import { normalizeCanonicalGenres } from '../src/utils/genreNormalizer.js';
 import { planReleaseGenres } from '../scripts/lib/release-genres.mjs';
@@ -45,5 +49,37 @@ test('a genre filter never draws another genre and never substitutes an empty ge
   for (let index=0;index<100;index++) {
     const draw=genres.drawGenreCapsule(albums,'all',()=>index/100);
     assert.ok(genres.albumGenreKeys(draw.album).includes(draw.theme.genre));
+  }
+});
+
+
+test('genre pages preserve every identity, aliases and accents without URL collisions', () => {
+  const paths = new Set();
+  for (const genre of genres.GENRES) {
+    const slug = routes.genreSlug(genre.id);
+    assert.equal(routes.findGenreBySlug(slug)?.id, genre.id);
+    assert.ok(!paths.has(routes.genrePath(genre.id)), genre.id);
+    paths.add(routes.genrePath(genre.id));
+  }
+  assert.equal(routes.genrePath('Rap'), routes.genrePath('Hip-Hop'));
+  assert.notEqual(routes.genrePath('kaseko'), routes.genrePath('kasékò'));
+  assert.equal(routes.findGenreBySlug('not-a-musical-genre'), null);
+  const xml = sitemap.sitemapXml(sitemap.buildSitemapGroups([{id:'x',artist_name:'A',album_name:'B',genres:['Rock','rock','Pop']}]).catalog);
+  assert.equal((xml.match(/\/generos\/rock</g) || []).length,1);
+  assert.ok(!xml.includes('/generos/jazz'));
+});
+
+test('genre symbols repeat only inside the same musical family', () => {
+  const seen = new Map(), cache = new Map();
+  for (const genre of genres.GENRES) {
+    const {src,family} = visuals.genreArtwork(genre.id);
+    let symbol = src;
+    if (!src.startsWith('data:')) {
+      if (!cache.has(src)) cache.set(src, fs.readFileSync(new URL('../public'+src, import.meta.url),'utf8'));
+      symbol = cache.get(src).match(/translate\(110 104\)[^>]*>(.*?)<\/g>/)?.[1];
+      assert.ok(symbol, genre.id);
+    }
+    if (seen.has(symbol)) assert.equal(seen.get(symbol),family,genre.id);
+    seen.set(symbol,family);
   }
 });
