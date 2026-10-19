@@ -89,7 +89,9 @@ test('every genre reveal has a separate center without an embedded outer record'
   const checked = new Set();
   for (const genre of genres.GENRES) {
     const art = visuals.genreRevealArtwork(genre.id);
-    assert.equal(art.disc, '/genres/reveal/disc.svg');
+    assert.match(art.disc, /^\/genres\/editions\/[a-z-]+\.svg$/);
+    assert.ok(fs.existsSync(new URL('../public'+art.disc, import.meta.url)));
+    assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
     if (art.center.startsWith('data:') || checked.has(art.center)) continue;
     const svg = fs.readFileSync(new URL('../public'+art.center, import.meta.url),'utf8');
     assert.match(svg,/viewBox="0 0 100 100"/);
@@ -98,4 +100,28 @@ test('every genre reveal has a separate center without an embedded outer record'
     checked.add(art.center);
   }
   assert.ok(checked.size >= 81);
+});
+
+
+test('vinyl editions vary independently of genre and persist across reveal artwork', async () => {
+  const {default: editions} = await import('../src/utils/vinylEditions.cjs');
+  const {EDITIONS, drawVinylEdition, vinylEdition} = editions;
+  assert.equal(new Set(EDITIONS.map(e => e.disc)).size, 24);
+  assert.equal(new Set(Array.from({length:20}, (_,i) => vinylEdition(i).id)).size, 20);
+  for (const genre of ['Rock', 'Jazz', 'Pop', 'qawwali']) {
+    const centers = new Set();
+    for (let i=0; i<EDITIONS.length; i++) {
+      const pressing = drawVinylEdition(null, () => (i+.5)/EDITIONS.length);
+      const art = visuals.genreRevealArtwork(genre, pressing.id);
+      assert.equal(art.disc, EDITIONS[i].disc);
+      assert.equal(art.glow, EDITIONS[i].base+'99');
+      assert.deepEqual(art, visuals.genreRevealArtwork(genre, pressing.id));
+      centers.add(art.center);
+      assert.ok(fs.existsSync(new URL('../public'+art.disc, import.meta.url)));
+    }
+    assert.equal(centers.size, 1, 'pressing never changes the genre symbol');
+  }
+  for (const previous of EDITIONS) for (const random of [0, .5, .99999]) {
+    assert.notEqual(drawVinylEdition(previous.id, () => random).id, previous.id);
+  }
 });

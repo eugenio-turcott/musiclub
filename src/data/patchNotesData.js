@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.12.0', title: 'Vinilos con ediciones de color', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: '24 ediciones de vinilos con colores y acabados diferentes, disponibles para cualquier género.',
+    changes: [
+      { type: 'improvement', title: 'Cada giro tiene su edición', description: 'Degradados, mármol, salpicaduras, bicolores y acabados translúcidos. Incluso al elegir un solo género, las cápsulas conservan colores distintos.' },
+      { type: 'improvement', title: 'Brillos que acompañan al vinilo', description: 'La luz y el destello combinan con la edición obtenida. El centro oscuro conserva el símbolo del género y la animación de apertura.' },
+      { type: 'improvement', title: 'El mismo disco en cada paso', description: 'La edición se conserva entre la bandeja, la apertura y el historial. Los íconos del resto de Musiclub también estrenan vinilos de colores.' },
+    ],
+  },
+  {
     version: 'V.9.11.0', title: 'El vinilo abre tu próxima escucha', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Gashapon',
     tagColor: 'from-pink-500 via-purple-600 to-indigo-600', authorName: 'Eugenio Turcott',
