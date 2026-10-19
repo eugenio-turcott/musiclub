@@ -4,16 +4,16 @@ import React from 'react';
 import { Recommendations } from '../components/Recommendations';
 import { SEO } from '../components/SEO';
 
-export function RecommendationsPage() {
+export function RecommendationsPage({ initialAlbums = [] }) {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
-        title="Recomendaciones Musicales Inteligentes | Musiclub"
-        description="Descubre álbumes y artistas afines a tus gustos musicales con el motor de recomendaciones personalizadas de Musiclub."
+        title="Para Ti: géneros y recomendaciones del club | Musiclub"
+        description="Descubre las selecciones de la comunidad. Con diez lanzamientos calificados, recibe recomendaciones basadas en tus géneros escuchados y valoraciones."
         url="https://www.musiclub.org/recomendaciones"
         keywords="recomendaciones de musica, descubrir musica, nuevos albumes, que musica escuchar, musiclub recomendaciones"
       />
-      <Recommendations isPage={true} />
+      <Recommendations isPage={true} initialAlbums={initialAlbums} />
     </div>
   );
 }

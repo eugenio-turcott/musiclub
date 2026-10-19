@@ -145,7 +145,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     if (!initialQuery.trim()) return;
     const frame = requestAnimationFrame(() => {
       const input = document.getElementById('buscar-catalogo');
-      input?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'center' });
+      catalogExplorerRef.current?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
       input?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
@@ -1003,7 +1003,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             <div
               id="explorador-catalogo"
               ref={catalogExplorerRef}
-              className="flex items-center gap-3 pt-6 border-t border-white/10 scroll-mt-24"
+              className="flex items-center gap-3 pt-6 border-t border-white/10 scroll-mt-0"
             >
               <span className="text-2xl">📚</span>
               <div>

@@ -985,12 +985,12 @@ export const supabaseService = {
     return true;
   },
 
-  getUserReviews: async (email, name) => {
+  getUserReviews: async (email, name, { throwOnError = false } = {}) => {
     try {
       if (!email && !name) return [];
 
       let query = supabase
-        .from(name ? 'public_reviews' : 'reviews')
+        .from(email ? 'reviews' : 'public_reviews')
         .select(
           `
           *,
@@ -1010,19 +1010,17 @@ export const supabaseService = {
         )
         .order('created_at', { ascending: false });
 
-      if (email && name) {
-        query = query.or(`reviewer_email.eq.${email},reviewer_name.eq.${name}`);
-      } else if (email) {
-        query = query.eq('reviewer_email', email);
-      } else {
-        query = query.eq('reviewer_name', name);
-      }
+      // Own history comes from the authenticated table, protected by row-level security.
+      // Public names are display labels and must not identify a personal taste history.
+      if (email) query = query.eq('reviewer_email', email);
+      else query = query.eq('reviewer_name', name);
 
       const { data, error } = await query;
       if (error) throw error;
       return data || [];
     } catch (err) {
       console.error('Error en getUserReviews:', err);
+      if (throwOnError) throw err;
       return [];
     }
   },
