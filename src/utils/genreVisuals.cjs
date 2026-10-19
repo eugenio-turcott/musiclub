@@ -1,5 +1,6 @@
 const genres = require('./genreCatalog.cjs');
 const artwork = require('../data/genreArtwork.json');
+const editions = require('./vinylEditions.cjs');
 const FAMILY_RULES = [
   ['arabic', /arabic|arab|khaleeji|raqs|shaabi|maqam/],
   ['world', /world|global/],
@@ -39,8 +40,9 @@ function genreArtwork(raw) {
   const fallback = family.startsWith('genre:') ? `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#171433"/><g fill="none" stroke="#F57FA2" stroke-width="3" stroke-linejoin="round">${uniqueGenreMotif(family)}</g></svg>`)}` : `/genres/families/${family}.svg`;
   return { family, src: artwork[key] || fallback, name: genres.normalizeGenres([raw])[0] || 'Música' };
 }
-function genreRevealArtwork(raw) {
+function genreRevealArtwork(raw, edition) {
   const visual = genreArtwork(raw);
-  return { ...visual, disc: '/genres/reveal/disc.svg', center: visual.src.startsWith('/genres/') ? visual.src.replace('/genres/', '/genres/reveal/centers/') : visual.src };
+  const pressing = edition == null ? editions.defaultEdition(genres.genreKey(raw) || raw) : editions.vinylEdition(edition);
+  return { ...visual, ...pressing, center: visual.src.startsWith('/genres/') ? visual.src.replace('/genres/', '/genres/reveal/centers/') : visual.src };
 }
 module.exports = { genreRevealArtwork, genreFamily, genreArtwork, uniqueGenreMotif };

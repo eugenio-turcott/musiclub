@@ -15,6 +15,7 @@ import { GashaponReveal } from './GashaponReveal';
 import { GenreArtwork } from './GenreArtwork';
 import { GenrePicker } from './GenrePicker';
 import genreCatalog from '../utils/genreCatalog.cjs';
+import vinylEditions from '../utils/vinylEditions.cjs';
 
 // 20 cápsulas arcade coloridas y dinámicas (definición completa de apariencia dentro y fuera del domo)
 const DOME_CAPSULES = [
@@ -602,7 +603,7 @@ export function GashaponMachine({
   const domeCapsules = useMemo(() => {
     const keys = [...genreCatalog.genreCounts(filteredPool).keys()].sort();
     if (selectedGenre === 'all' && !keys.length) return [];
-    return DOME_CAPSULES.map((slot, index) => ({ ...slot, ...genreCatalog.genreCapsule(selectedGenre === 'all' ? keys[Math.floor(index * keys.length / DOME_CAPSULES.length)] : selectedGenre), slot: slot.id }));
+    return DOME_CAPSULES.map((slot, index) => ({ ...slot, ...genreCatalog.genreCapsule(selectedGenre === 'all' ? keys[Math.floor(index * keys.length / DOME_CAPSULES.length)] : selectedGenre), edition: vinylEditions.vinylEdition(index).id, slot: slot.id }));
   }, [filteredPool, selectedGenre]);
   const handleGenreChange = genre => {
     drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
@@ -674,7 +675,8 @@ export function GashaponMachine({
 
     const selection = genreCatalog.drawGenreCapsule(filteredPool, selectedGenre);
     if (!selection) { setMachineState('IDLE'); setIsCrankAnimating(false); return; }
-    const capsuleData = { ...selection, pulledAt: Date.now(), isReviewed: userReviewMap.has(selection.album.id) };
+    const edition = vinylEditions.drawVinylEdition(currentCapsule?.edition);
+    const capsuleData = { ...selection, edition: edition.id, theme: { ...selection.theme, glow: edition.glow }, pulledAt: Date.now(), isReviewed: userReviewMap.has(selection.album.id) };
 
     setCurrentCapsule(capsuleData);
 
@@ -998,7 +1000,7 @@ export function GashaponMachine({
                       transform: `rotate(${cap.rot})`,
                     }}
                   >
-                    <GenreArtwork genre={cap.genre} size={64} className="h-full w-full drop-shadow-md" />
+                    <GenreArtwork genre={cap.genre} edition={cap.edition} size={64} className="h-full w-full drop-shadow-md" />
                   </div>
                 ))}
               </div>
@@ -1098,10 +1100,11 @@ export function GashaponMachine({
                             setModalStage('READY');
                           }
                         }}
-                        className={`group relative w-16 h-16 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_25px_${currentCapsule.theme.glow}] overflow-hidden transform hover:scale-110 active:scale-95 transition-all cursor-pointer flex flex-col`}
+                        className={`group relative w-16 h-16 rounded-full border-2 ${currentCapsule.theme.ring} overflow-hidden transform hover:scale-110 active:scale-95 transition-all cursor-pointer flex flex-col`}
+                        style={{boxShadow: `0 0 25px ${currentCapsule.theme.glow}`}}
                         title="¡Toca para ver la cápsula en grande!"
                       >
-                        <GenreArtwork genre={currentCapsule.theme.genre} size={64} className="h-full w-full" />
+                        <GenreArtwork genre={currentCapsule.theme.genre} edition={currentCapsule.edition} size={64} className="h-full w-full" />
                       </button>
 
                       <button
@@ -1217,7 +1220,7 @@ export function GashaponMachine({
                 {/* Header de Rareza de la Cápsula */}
                 <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-white/10 flex-wrap">
                   <div className="flex items-center gap-2.5">
-                    <GenreArtwork genre={currentCapsule.theme.genre} size={36} className="h-9 w-9 shrink-0" />
+                    <GenreArtwork genre={currentCapsule.theme.genre} edition={currentCapsule.edition} size={36} className="h-9 w-9 shrink-0" />
                     <span className="text-xs font-black uppercase tracking-wider text-white">
                       {currentCapsule.theme.name}
                     </span>
@@ -1265,11 +1268,7 @@ export function GashaponMachine({
                   <div className="relative group shrink-0">
                     {/* Disco de vinilo detrás */}
                     <div className="absolute top-0 -right-4 sm:-right-6 w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-white/20 shadow-xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
-                      <img
-                        src="/musiclub_logo_3.png"
-                        alt="Vinilo"
-                        className="w-full h-full object-cover select-none pointer-events-none"
-                      />
+                      <GenreArtwork genre={currentCapsule.theme.genre} edition={currentCapsule.edition} size={128} className="w-full h-full select-none pointer-events-none" />
                     </div>
 
                     {/* Portada del álbum */}
@@ -1420,7 +1419,7 @@ export function GashaponMachine({
                       }}
                     />
                     <div className="absolute top-1 right-1 text-xs">
-                      <GenreArtwork genre={item.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
+                      <GenreArtwork genre={item.theme.genre} edition={item.edition} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
                     </div>
                     {isReviewed && (
                       <div className="absolute bottom-1 right-1 bg-emerald-500 text-white rounded-full w-4 h-4 text-[9px] flex items-center justify-center font-bold">
@@ -1507,11 +1506,11 @@ export function GashaponMachine({
 
               <div className="flex w-full flex-col items-center gap-3 py-2 text-center sm:gap-4">
                 <div className="space-y-2">
-                  <span className="inline-flex items-center gap-2 rounded-full border border-[#f57fa2]/25 bg-white/5 px-3 py-1 text-xs font-bold text-[#ffdbe6]"><GenreArtwork genre={currentCapsule.theme.genre} size={24} className="h-6 w-6" />{currentCapsule.theme.badge}</span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#f57fa2]/25 bg-white/5 px-3 py-1 text-xs font-bold text-[#ffdbe6]"><GenreArtwork genre={currentCapsule.theme.genre} edition={currentCapsule.edition} size={24} className="h-6 w-6" />{currentCapsule.theme.badge}</span>
                   <h3 id="gashapon-capsule-title" className="text-2xl font-black text-white sm:text-3xl">{modalStage === 'REVEALED' ? 'Tu próxima escucha' : currentCapsule.theme.name}</h3>
                   {modalStage !== 'REVEALED' && <p className="text-xs text-white/50 sm:text-sm">{modalStage === 'OPENING' ? 'Tu género abre la puerta a un nuevo release…' : modalStage === 'DROPPING' ? 'Tu cápsula está llegando…' : 'Toca el vinilo y descubre qué te espera.'}</p>}
                 </div>
-                <GashaponReveal key={currentCapsule.pulledAt} genre={currentCapsule.theme.genre} stage={modalStage} duration={openingDuration} startedAt={openingStartedAt} album={currentCapsule.album} onOpen={() => handleOpenCapsule(currentCapsule)} />
+                <GashaponReveal key={currentCapsule.pulledAt} genre={currentCapsule.theme.genre} edition={currentCapsule.edition} stage={modalStage} duration={openingDuration} startedAt={openingStartedAt} album={currentCapsule.album} onOpen={() => handleOpenCapsule(currentCapsule)} />
                 {modalStage === 'READY' && <button type="button" onClick={() => handleOpenCapsule(currentCapsule)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] px-6 py-3 text-sm font-black text-white shadow-lg shadow-[#f57fa2]/20 transition-transform hover:scale-105 active:scale-95">Abrir mi cápsula</button>}
                 <p role="status" className="sr-only">{modalStage === 'OPENING' ? 'Abriendo cápsula' : modalStage === 'REVEALED' ? `Descubriste ${currentCapsule.album.album}, de ${currentCapsule.album.artista}` : ''}</p>
               </div>

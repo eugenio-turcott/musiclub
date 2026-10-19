@@ -3,11 +3,11 @@ import React, { useMemo } from 'react';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './GashaponReveal.module.css';
 
-export function GashaponReveal({ genre, stage, duration = 2400, startedAt = 0, album, onOpen }) {
-  const art = visuals.genreRevealArtwork(genre);
+export function GashaponReveal({ genre, edition, stage, duration = 2400, startedAt = 0, album, onOpen }) {
+  const art = visuals.genreRevealArtwork(genre, edition);
   const elapsed = useMemo(() => startedAt ? Math.min(Date.now() - startedAt, duration) : 0, [startedAt, duration]);
   const interactive = stage === 'READY';
-  return <div className={styles.scene} data-stage={stage.toLowerCase()} data-vinyl-reveal style={{'--opening-duration':`${duration}ms`, '--opening-delay':`${-elapsed}ms`}}>
+  return <div className={styles.scene} data-stage={stage.toLowerCase()} data-vinyl-reveal data-vinyl-edition={art.id} style={{'--opening-duration':`${duration}ms`, '--opening-delay':`${-elapsed}ms`, '--vinyl-base':art.base, '--vinyl-accent':art.accent, '--vinyl-highlight':art.highlight}}>
     <div className={styles.aura} aria-hidden="true" />
     <div className={styles.orbit} aria-hidden="true" />
     <button type="button" onClick={onOpen} disabled={!interactive} aria-hidden={!interactive} aria-label={`Abrir cápsula de ${art.name}`} className={styles.capsule} data-vinyl-capsule>
