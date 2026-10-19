@@ -2,6 +2,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CoverImage } from '../CoverImage';
+import { GenreArtwork } from '../GenreArtwork';
 import { GenrePicker } from '../GenrePicker';
 import { getReleaseUrl } from '../../utils/ratingUtils';
 import genres from '../../utils/genreCatalog.cjs';
@@ -20,7 +21,7 @@ export function CatalogGenresView({ albums = [] }) {
       const releases = genres.filterByGenre(albums, genre.id);
       const capsule = genres.genreCapsule(genre.id);
       return <article key={genre.id} className="space-y-4 rounded-2xl border border-white/15 bg-slate-950/60 p-5">
-        <h3 className="text-xl font-bold text-white" translate="no">{genre.name}</h3>
+        <div className="flex items-center gap-3"><GenreArtwork genre={genre.id} size={64} className="h-16 w-16 shrink-0" /><h3 className="text-xl font-bold text-white" translate="no">{genre.name}</h3></div>
         <p className="text-sm text-slate-300">{releases.length} lanzamientos</p>
         <div className="grid grid-cols-4 gap-2">{releases.slice(0,4).map(album => <Link key={album.id} to={getReleaseUrl(album)} title={album.album_name || album.album}><CoverImage src={album.image_url || album.imagen} alt={album.album_name || album.album} width={96} height={96} sizes="80px" className="aspect-square w-full rounded-lg object-cover" /></Link>)}</div>
         {!releases.length && <p className="text-sm text-amber-200">Este género aún no tiene lanzamientos en el club.</p>}
