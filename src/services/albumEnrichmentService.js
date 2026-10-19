@@ -49,7 +49,7 @@ export async function fetchMusicBrainzDetails(artistName, albumName) {
       return {
         mbid,
         primaryType: rg['primary-type'] || 'Album',
-        tags: rg.tags?.map((t) => t.name) || [],
+        tags: normalizeCanonicalGenres(rg.tags || []),
       };
     }
 
@@ -138,7 +138,7 @@ export async function fetchMusicBrainzDetails(artistName, albumName) {
     return {
       mbid,
       primaryType: rg['primary-type'] || 'Album',
-      tags: rg.tags?.map((t) => t.name) || [],
+      tags: normalizeCanonicalGenres([...(rgData.genres || []).filter(g => (g.count ?? 1) > 0), ...(rg.tags || [])]),
       barcode,
       country: country || 'XW',
       label,
@@ -405,15 +405,16 @@ export function build21ColumnPayload({
   const country = mbData?.country || 'XW';
   const label = mbData?.label || spotifyData?.label || deezerData?.label || null;
 
-  // 7. Géneros (Canónicos y concisos, máximo 3)
+  // 7. Géneros reconocidos; conservar los subgéneros específicos (máximo 12)
   const candidateGenres = [
+    ...(Array.isArray(rawItem.genres) ? rawItem.genres : []),
     ...(rawItem.genre_category ? [rawItem.genre_category] : []),
     ...(rawItem.genre ? [rawItem.genre] : []),
     ...(spotifyData?.genres || []),
     ...(deezerData?.genres || []),
     ...(mbData?.tags || []),
   ];
-  const genres = normalizeCanonicalGenres(candidateGenres, 3);
+  const genres = normalizeCanonicalGenres(candidateGenres, 12);
 
   const totalTracks =
     finalTracks.length ||
@@ -607,6 +608,10 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
       album: doubleCheck,
       alreadyExists: true,
     };
+  }
+
+  if (!payload.genres.length) {
+    return { success: false, error: 'El lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.' };
   }
 
   // 6. Inserción a la tabla "albums"

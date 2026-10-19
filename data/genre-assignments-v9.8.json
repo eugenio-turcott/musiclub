@@ -1,0 +1,826 @@
+{
+  "date": "2026-10-19",
+  "assignments": [
+    {
+      "id": "0b283c18-f18a-4bb6-b506-8a795a3a0a43",
+      "album_name": "Love & Tears",
+      "artist_name": "GENER8ION",
+      "genres": [
+        "Pop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1009787981",
+          "genres": [
+            "Pop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0ca18806-92d6-46dc-b4cb-d7a7ae964ee0",
+      "album_name": "mosca",
+      "artist_name": "Nsqk",
+      "genres": [
+        "Rock",
+        "Hip-Hop Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1101818902",
+          "genres": [
+            "Alternativo"
+          ]
+        },
+        {
+          "provider": "apple-music-editorial",
+          "reference": "https://music.apple.com/us/album/mosca/6813620396",
+          "genres": [
+            "rock",
+            "alternative hip hop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "0dfa8007-30b8-411e-9ec8-1788c27037c6",
+      "album_name": "Amantes Sunt Amentes",
+      "artist_name": "PXNDX",
+      "genres": [
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "musicbrainz-release-group",
+          "reference": "https://musicbrainz.org/release-group/5740faab-3064-3200-a2af-45f305a1bfd1",
+          "genres": [
+            "latin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "12f07c29-9216-445c-a87f-0aa77c9cc2a7",
+      "album_name": "Mundo Retorcido",
+      "artist_name": "La Santa Grifa",
+      "genres": [
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1081572052",
+          "genres": [
+            "Latino"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "1a614f32-8ac8-4e0b-96ae-dc7c28d7990a",
+      "album_name": "Ride Lonesome",
+      "artist_name": "Beck",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1012129081",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "221081fa-6fa3-4f4c-affa-cdd663458098",
+      "album_name": "Oro Salsero (20 Éxitos)",
+      "artist_name": "Hector Tricoche",
+      "genres": [
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/113851032",
+          "genres": [
+            "Latino"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "228f1136-685a-4952-a076-da115550d5d1",
+      "album_name": "Descanso Eterno",
+      "artist_name": "Missa Sinfonia",
+      "genres": [
+        "Indie Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1116305342",
+          "genres": [
+            "Alternativo",
+            "Indie Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "26636a3e-7573-4b60-bd87-fa1ce569852b",
+      "album_name": "Amnesiac",
+      "artist_name": "Radiohead",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/14879749",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "2dba9159-33bd-44b2-964f-15316ed7f829",
+      "album_name": "Tropicoqueta",
+      "artist_name": "KAROL G",
+      "genres": [
+        "Latino",
+        "Pop Latino",
+        "Reggaetón"
+      ],
+      "sources": [
+        {
+          "provider": "musicbrainz-release-group",
+          "reference": "https://musicbrainz.org/release-group/3b60e5df-b148-471a-9938-b7ae2196a785",
+          "genres": [
+            "latin",
+            "latin pop",
+            "reggaeton"
+          ]
+        },
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/774864691",
+          "genres": [
+            "Latino"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "32a461e7-b29d-4352-968b-c6e8a70bfaf6",
+      "album_name": "Fotografías de España",
+      "artist_name": "Roy Borland",
+      "genres": [
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "musicbrainz-release-group",
+          "reference": "https://musicbrainz.org/release-group/65d4eb59-6207-489d-ae13-748d9ee1961e",
+          "genres": [
+            "latin"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "361f23e8-8160-4bbd-94a1-1f0124d0245f",
+      "album_name": "Recordando A Una Leyenda",
+      "artist_name": "Los Plebes del Rancho de Ariel Camacho, Christian Nodal",
+      "genres": [
+        "Regional Mexicano",
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/230774622",
+          "genres": [
+            "Música Mexicana",
+            "Latino"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "3816221c-b616-437d-812b-b8c07e9a1fa8",
+      "album_name": "At Work in the Fields of the Bomb",
+      "artist_name": "Deafheaven",
+      "genres": [
+        "Atmospheric Black Metal",
+        "Black Metal",
+        "Post-Metal",
+        "Rock",
+        "Metal"
+      ],
+      "sources": [
+        {
+          "provider": "musicbrainz-release-group",
+          "reference": "https://musicbrainz.org/release-group/67d9fff1-498d-4805-8215-afe32dd1d9f0",
+          "genres": [
+            "atmospheric black metal",
+            "black metal",
+            "post-metal"
+          ]
+        },
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1117546742",
+          "genres": [
+            "Rock",
+            "Metal"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "41869405-9bad-4225-98e9-ed87e9dde1ba",
+      "album_name": "Ramones (40th Anniversary Deluxe Edition; 2016 Remaster)",
+      "artist_name": "Ramones",
+      "genres": [
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/128789422",
+          "genres": [
+            "Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "43276f6f-710d-4fcf-abd1-6afd3da94ce0",
+      "album_name": "1190",
+      "artist_name": "Аигел",
+      "genres": [
+        "Electrónica",
+        "Hip-Hop",
+        "Dance"
+      ],
+      "sources": [
+        {
+          "provider": "musicbrainz-release-group",
+          "reference": "https://musicbrainz.org/release-group/4daf656d-1216-4d74-934b-ae379572ba05",
+          "genres": [
+            "electronic",
+            "hip hop"
+          ]
+        },
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/784515171",
+          "genres": [
+            "Alternativo",
+            "Dance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4899407d-65d4-4663-be0f-c5db7f5297a0",
+      "album_name": "Frequency of Love",
+      "artist_name": "Victoria Monét",
+      "genres": [
+        "R&B"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1109697462",
+          "genres": [
+            "R&B"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4fda5f65-58f8-48c1-9ffd-0e2fb596cd8f",
+      "album_name": "Hombre Sintetizador",
+      "artist_name": "Zurdok",
+      "genres": [
+        "Latino",
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/320876487",
+          "genres": [
+            "Latino"
+          ]
+        },
+        {
+          "provider": "apple-music-album",
+          "reference": "https://music.apple.com/us/album/hombre-sintetizador/1444201228",
+          "genres": [
+            "rock",
+            "alternative"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "63b817fd-b758-4358-93e2-e7c8f76638d6",
+      "album_name": "No Rest for The Wicked",
+      "artist_name": "AZ Chike",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1062282182",
+          "genres": [
+            "Rap/Hip Hop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "680de480-34e4-47b4-8aaa-3976e2e9a103",
+      "album_name": "La vida era más corta",
+      "artist_name": "Milo j",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/825634741",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "726aa1df-e967-4a63-bec0-2a26b76dedda",
+      "album_name": "Angel",
+      "artist_name": "Lizzy McAlpine",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1079550582",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "75c3b945-d7b6-41bb-8e24-6c092b2d3137",
+      "album_name": "Fell Asleep in the Sun",
+      "artist_name": "After",
+      "genres": [
+        "Trip Hop",
+        "Pop"
+      ],
+      "sources": [
+        {
+          "provider": "artist-bandcamp-bio",
+          "reference": "https://after95.bandcamp.com/album/fell-asleep-in-the-sun",
+          "genres": [
+            "trip hop",
+            "pop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "77b7cf25-48b5-4c70-b67d-3a25b13cb4ef",
+      "album_name": "Norman Fucking Rockwell!",
+      "artist_name": "Lana Del Rey",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/108706862",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "7919e7cc-1606-4ea8-9434-7307b9304234",
+      "album_name": "That's The Spirit",
+      "artist_name": "Bring Me The Horizon",
+      "genres": [
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/11130386",
+          "genres": [
+            "Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "80bfdf18-6ddf-4f0c-a2bb-337c9de72564",
+      "album_name": "MIRADA",
+      "artist_name": "Ivan Cornejo",
+      "genres": [
+        "Regional Mexicano"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/612746172",
+          "genres": [
+            "Música Mexicana"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "8d3665fa-dc9f-451b-b86c-b703887d7c07",
+      "album_name": "Mud",
+      "artist_name": "Remi Wolf",
+      "genres": [
+        "Pop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1111624572",
+          "genres": [
+            "Pop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "991a33be-63ad-4baf-bf82-99976fe971db",
+      "album_name": "If Not Winter",
+      "artist_name": "Wisp",
+      "genres": [
+        "Rock",
+        "Shoegaze"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/793816941",
+          "genres": [
+            "Alternativo"
+          ]
+        },
+        {
+          "provider": "interscope-album",
+          "reference": "https://interscope.com/products/if-not-winter-vinyl",
+          "genres": [
+            "rock"
+          ]
+        },
+        {
+          "provider": "interscope-artist",
+          "reference": "https://interscope.com/pages/artist/wisp",
+          "genres": [
+            "shoegaze"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9ac54704-2557-48a8-a910-a4b41f6bc3bb",
+      "album_name": "My Beautiful Dark Twisted Fantasy",
+      "artist_name": "Kanye West",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/2320921",
+          "genres": [
+            "Rap/Hip Hop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9d9f4ffd-c9f5-41e9-9074-3b48835632bd",
+      "album_name": "Ramones (2017 Remaster)",
+      "artist_name": "Ramones",
+      "genres": [
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/128789422",
+          "genres": [
+            "Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9e08164d-d687-44f9-a146-cbe7edc5c69d",
+      "album_name": "The Great Divide",
+      "artist_name": "Noah Kahan",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/907772422",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a5b0adbc-d216-4ee6-8e1c-ee96d44db4a1",
+      "album_name": "Cracker Island (Deluxe)",
+      "artist_name": "Gorillaz",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/327102977",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a6581c55-92d9-4a79-b62b-6cac3a965d12",
+      "album_name": "Hey u x",
+      "artist_name": "BENEE",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/184484482",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "b8d510db-7dd7-431c-81b4-e5e27067562c",
+      "album_name": "Friends That I Don't Like",
+      "artist_name": "Dexter and The Moonrocks",
+      "genres": [
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1104176862",
+          "genres": [
+            "Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bded8939-7832-4f19-9ada-e0677c46a93f",
+      "album_name": "Natsukashii",
+      "artist_name": "Juanpalitoschinos",
+      "genres": [
+        "Pop",
+        "Pop Latino",
+        "Latino"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/580266351",
+          "genres": [
+            "Pop",
+            "Pop latino",
+            "Latino"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bf308b8a-3b8b-4616-9ba2-bf9d7a430bdf",
+      "album_name": "Пыяла",
+      "artist_name": "Аигел",
+      "genres": [
+        "Dance"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/553368662",
+          "genres": [
+            "Alternativo",
+            "Dance"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c77736c3-187a-4b5a-8476-2f15bf092145",
+      "album_name": "4th MINI ALBUM [NEW WAV]",
+      "artist_name": "TREASURE",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/992780841",
+          "genres": [
+            "Música Asiática"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c8a8cafb-d51a-4d90-89a2-debd9d1598a9",
+      "album_name": "Enola Gay",
+      "artist_name": "asia menor",
+      "genres": [
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/722211791",
+          "genres": [
+            "Alternativo",
+            "Rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cec274cf-d387-4e89-99b2-96ac845312e6",
+      "album_name": "American Idiot (Deluxe)",
+      "artist_name": "Green Day",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1346657",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cf40ab33-2a2f-416d-9756-8b5cf6ed4520",
+      "album_name": "My Ghosts Go Ghost",
+      "artist_name": "By Storm",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/898884552",
+          "genres": [
+            "Rap/Hip Hop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "d3d051df-0e84-423d-8dee-6992aab51797",
+      "album_name": "Melodie",
+      "artist_name": "Slow Pulp",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/982951161",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "daaf9081-208a-453e-8e55-d27d3f513187",
+      "album_name": "¡DOS!",
+      "artist_name": "Green Day",
+      "genres": [
+        "Punk Rock",
+        "Rock"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/6063408",
+          "genres": [
+            "Alternativo"
+          ]
+        },
+        {
+          "provider": "apple-music-editorial",
+          "reference": "https://music.apple.com/us/album/dos/1156548651",
+          "genres": [
+            "punk rock",
+            "rock"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dcf230ff-dfc3-419e-9818-4edcc8b6fff5",
+      "album_name": "Revolution Radio",
+      "artist_name": "Green Day",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/13995414",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ed98795e-70ee-4397-88a2-a0928ef6fed8",
+      "album_name": "JAGUAR",
+      "artist_name": "Victoria Monét",
+      "genres": [
+        "R&B"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/163840232",
+          "genres": [
+            "R&B"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f459a78d-4402-4261-a433-81e2adebf665",
+      "album_name": "The Happy Dictator (feat. Sparks)",
+      "artist_name": "Gorillaz",
+      "genres": [
+        "Indie Pop"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/818155821",
+          "genres": [
+            "Alternativo",
+            "Indie Pop"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ffe43f26-3b03-4619-a3cf-03e19c34b9a0",
+      "album_name": "Dream House",
+      "artist_name": "Empress Of",
+      "genres": [
+        "Alternativo"
+      ],
+      "sources": [
+        {
+          "provider": "deezer-album",
+          "reference": "https://www.deezer.com/album/1011591381",
+          "genres": [
+            "Alternativo"
+          ]
+        }
+      ]
+    }
+  ]
+}

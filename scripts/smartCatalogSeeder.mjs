@@ -578,7 +578,7 @@ export async function runSmartSeed(options = {}) {
     if (mbRg) {
       mbid = mbRg.id;
       finalReleaseType = normalizeReleaseType(mbRg['primary-type'], mbRg['secondary-types']);
-      const mbGenres = cleanGenres(mbRg.tags || []);
+      const mbGenres = cleanGenres([...(mbRg.genres || []), ...(mbRg.tags || [])]);
       if (mbGenres.length > 0) {
         finalGenres = mbGenres;
       }
@@ -592,6 +592,8 @@ export async function runSmartSeed(options = {}) {
         }
       } catch {}
     }
+
+    if (!finalGenres.length) { console.log(`Pendiente de clasificación: ${albumName}`); continue; }
 
     const record = {
       album_name: albumName,

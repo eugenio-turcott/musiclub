@@ -1,4 +1,5 @@
 // scripts/enrichMissingMusicBrainz.mjs
+import genreCatalog from '../src/utils/genreCatalog.cjs';
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import path from 'path';
@@ -364,12 +365,12 @@ async function enrichMissing() {
       let totalTracks = album.total_tracks || null;
       let tracks = album.tracks || [];
 
-      const rgDetailsUrl = `https://musicbrainz.org/ws/2/release-group/${mbid}?inc=releases+tags&fmt=json`;
+      const rgDetailsUrl = `https://musicbrainz.org/ws/2/release-group/${mbid}?inc=releases+genres+tags&fmt=json`;
       const rgDetails = await fetchWithRetry(rgDetailsUrl);
       await sleep(1500);
 
       if (rgDetails) {
-        const tags = (rgDetails.tags || []).map((t) => t.name).slice(0, 5);
+        const tags = genreCatalog.normalizeGenres([...(rgDetails.genres || []), ...(rgDetails.tags || [])].filter(g => (g.count ?? 1) > 0));
         if (tags.length > 0) genres = tags;
 
         const releases = rgDetails.releases || [];
@@ -431,7 +432,7 @@ async function enrichMissing() {
         country: country,
         barcode: barcode,
         total_tracks: totalTracks || (tracks ? tracks.length : null),
-        genres: genres,
+        ...(genreCatalog.normalizeGenres(genres).length ? {genres: genreCatalog.normalizeGenres(genres)} : {}),
         tracks: tracks || [],
         image_url: imageUrl,
       };

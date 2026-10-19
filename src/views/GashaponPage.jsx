@@ -10,8 +10,8 @@ import { useAuth } from '../hooks/useAuth';
 import { useUserReviews } from '../hooks/useUserReviews';
 import { LoginModal } from '../components/LoginModal';
 
-export function GashaponPage() {
-  const { albums, refetch: refetchAlbums } = useAlbums();
+export function GashaponPage({ initialAlbums = [] }) {
+  const { albums, refetch: refetchAlbums } = useAlbums(initialAlbums);
   const { user, loading: authLoading, isAdmin, loginWithGoogle, logout } = useAuth();
   const { userReviews, refetchUserReviews } = useUserReviews(user);
 
@@ -37,8 +37,8 @@ export function GashaponPage() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden flex flex-col justify-between">
       <SEO
-        title="Gashapon Musical — Ruleta Arcade para Descubrir Álbumes | Musiclub"
-        description="Juega en la máquina Gashapon de Musiclub. Gira la ruleta arcade para obtener álbumes aleatorios, descubrir joyas ocultas y sumar lanzamientos a tu lista de escucha."
+        title="Gashapon por Géneros — Descubre Música | Musiclub"
+        description="Elige un género musical y descubre lanzamientos del club. Cada género tiene su cápsula y los resultados respetan tu selección."
         url="https://www.musiclub.org/gashapon"
         keywords="ruleta musical, gashapon musica, descubrir albumes aleatorios, juego musical arcade, musiclub gashapon"
       />

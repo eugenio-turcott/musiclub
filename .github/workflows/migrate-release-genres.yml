@@ -1,0 +1,41 @@
+name: Consolidate release genres
+on:
+  workflow_dispatch:
+    inputs:
+      apply:
+        description: Apply verified genre assignments (otherwise dry run)
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: release-genre-migration
+  cancel-in-progress: false
+jobs:
+  consolidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Plan or apply only album genres
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          APPLY_GENRES: ${{ inputs.apply }}
+        run: |
+          if [ "$APPLY_GENRES" = "true" ]; then
+            node scripts/migrate-release-genres.mjs --apply
+          else
+            node scripts/migrate-release-genres.mjs
+          fi
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-genre-backup-${{ github.run_id }}
+          path: genre-migration/
+          retention-days: 30

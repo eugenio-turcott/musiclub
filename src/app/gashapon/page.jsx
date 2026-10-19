@@ -1,10 +1,13 @@
 import React from 'react';
 import { GashaponPage } from '../../views/GashaponPage';
+import { getPublicCatalog } from '../../server/catalog';
+
+export const revalidate = 300;
 
 export const metadata = {
-  title: 'Gashapon Musical — Ruleta Arcade para Descubrir Álbumes',
+  title: 'Gashapon por Géneros — Descubre Música',
   description:
-    'Juega en la máquina Gashapon de Musiclub. Gira la ruleta arcade para obtener álbumes aleatorios, descubrir joyas ocultas y sumar lanzamientos a tu lista de escucha.',
+    'Elige un género musical y descubre lanzamientos reales del club. Cada género tiene su cápsula y el sorteo respeta el género seleccionado.',
   alternates: {
     canonical: 'https://www.musiclub.org/gashapon',
   },
@@ -14,6 +17,7 @@ export const metadata = {
   },
 };
 
-export default function GashaponRoutePage() {
-  return <GashaponPage />;
+export default async function GashaponRoutePage() {
+  const { albums } = await getPublicCatalog();
+  return <GashaponPage initialAlbums={albums} />;
 }

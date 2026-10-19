@@ -844,11 +844,12 @@ async function syncRecordClubReleasesWithAlbums() {
           if (rc.spotify_url && !matchedAlb.spotify_link) {
             updatePayload.spotify_link = rc.spotify_url;
           }
-          if (!matchedAlb.genres || matchedAlb.genres.length === 0 || (rc.genre_category && matchedAlb.genres.length > 3)) {
+          if (!matchedAlb.genres || matchedAlb.genres.length === 0) {
             updatePayload.genres = normalizeCanonicalGenres([
               ...(rc.genre_category ? [rc.genre_category] : []),
               ...(Array.isArray(matchedAlb.genres) ? matchedAlb.genres : [])
-            ], 3);
+            ], 12);
+            if (!updatePayload.genres.length) delete updatePayload.genres;
           }
           await supabase
             .from('albums')
