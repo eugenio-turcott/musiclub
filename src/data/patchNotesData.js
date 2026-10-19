@@ -11,6 +11,16 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.12.1', title: 'Vinilos y halos bien centrados', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'El disco, su símbolo y el halo comparten el mismo centro durante la apertura del Gashapon.',
+    changes: [
+      { type: 'fix', title: 'Un solo eje para la apertura', description: 'El vinilo gira sobre su centro real. El halo acompaña su movimiento y queda alineado con el disco y la portada revelada.' },
+      { type: 'fix', title: 'Sin círculos duplicados', description: 'Se retira la sombra desplazada del dibujo y el borde exterior de la tarjeta que parecía un segundo disco.' },
+    ],
+  },
+  {
     version: 'V.9.12.0', title: 'Vinilos con ediciones de color', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
