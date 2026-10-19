@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import routes from '../src/utils/genreRoutes.cjs';
 import sitemap from '../src/utils/sitemapData.cjs';
 import visuals from '../src/utils/genreVisuals.cjs';
+import symbols from '../src/utils/genreSymbols.cjs';
 import fs from 'node:fs';
 import genres from '../src/utils/genreCatalog.cjs';
 import { normalizeCanonicalGenres } from '../src/utils/genreNormalizer.js';
@@ -91,8 +92,8 @@ test('every genre reveal has a separate center without an embedded outer record'
     const art = visuals.genreRevealArtwork(genre.id);
     assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
-    if (art.center.startsWith('data:') || checked.has(art.center)) continue;
-    const svg = fs.readFileSync(new URL('../public'+art.center, import.meta.url),'utf8');
+    assert.match(art.center, /^\/genres\/symbols\/v1\/[^/]+\.svg$/);
+    const svg = symbols.genreSymbol(genre.id).svg;
     assert.match(svg,/viewBox="0 0 100 100"/);
     assert.ok(!svg.includes('clipPath'),genre.id);
     assert.notEqual(art.center, art.src);
@@ -138,4 +139,24 @@ test('vinyl editions vary independently of genre and persist across reveal artwo
   for (const previous of EDITIONS) for (const random of [0, .5, .99999]) {
     assert.notEqual(drawVinylEdition(previous.id, () => random).id, previous.id);
   }
+});
+
+
+test('all genres have individual center geometry and metal subgenres retain their family figure', () => {
+  const seen = new Set();
+  for (const genre of genres.GENRES) {
+    const symbol = symbols.genreSymbol(genre.id);
+    assert.equal(symbol.key,genre.id);
+    assert.ok(!seen.has(symbol.svg), genre.id);
+    assert.ok(!/undefined|NaN|<text|<script|<foreignObject/.test(symbol.svg), genre.id);
+    seen.add(symbol.svg);
+  }
+  const kinds = ['metal','black metal','death metal','doom metal','power metal','progressive metal','atmospheric black metal'];
+  const variants = kinds.map(id=>symbols.genreSymbol(id));
+  assert.ok(variants.every(v=>v.family==='metal'));
+  assert.equal(new Set(variants.map(v=>v.svg)).size,kinds.length);
+  assert.equal(symbols.genreSymbol('death metal').modifier,'death');
+  assert.equal(symbols.genreSymbol('doom metal').modifier,'doom');
+  assert.equal(symbols.genreSymbol('atmospheric black metal').modifier,'atmospheric');
+  assert.equal(symbols.genreSymbol('not-a-musical-genre'),null);
 });
