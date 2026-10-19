@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.13.1', title: 'Cada género tiene su propia atmósfera', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'Una nueva cabecera para las páginas de género, con el vinilo como protagonista y luces que acompañan sus colores.',
+    changes: [
+      { type: 'improvement', title: 'Más carácter, menos espacio vacío', description: 'Título destacado, acceso al Gashapon y vinilo en una composición adaptable a escritorio y móvil. El disco flota suavemente y su exterior gira, con el símbolo fijo y respeto por la preferencia de reducir movimiento.' },
+    ],
+  },
+  {
     version: 'V.9.13.0', title: 'Gashapon Musical: elige tu vinilo', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Gashapon',
     tagColor: 'from-cyan-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
