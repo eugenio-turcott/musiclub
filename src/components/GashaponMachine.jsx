@@ -11,6 +11,7 @@ import { getWeightedReviewScore } from '../utils/ratingUtils';
 import { gashaponSound } from '../utils/gashaponAudio';
 import { ReviewSystem } from './ReviewSystem';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+import { GashaponReveal } from './GashaponReveal';
 import { GenreArtwork } from './GenreArtwork';
 import { GenrePicker } from './GenrePicker';
 import genreCatalog from '../utils/genreCatalog.cjs';
@@ -475,6 +476,14 @@ export function GashaponMachine({
 
   // Modal / Popup épico para presentación y apertura cinematográfica
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openingDuration, setOpeningDuration] = useState(2400);
+  const [openingStartedAt, setOpeningStartedAt] = useState(0);
+  const openingRef = useRef(false);
+  const openedDrawRef = useRef(-1);
+  const openingTimerRef = useRef(null);
+  const drawRef = useRef(0);
+  const modalRef = useRef(null);
+  const modalOpenerRef = useRef(null);
   const [modalStage, setModalStage] = useState('DROPPING'); // 'DROPPING' | 'READY' | 'OPENING' | 'REVEALED'
 
   // Auto-registrar cápsula actual contra traducción (V.8.11)
@@ -499,6 +508,8 @@ export function GashaponMachine({
     isMountedRef.current = true;
     return () => {
       isMountedRef.current = false;
+      clearTimeout(openingTimerRef.current);
+      drawRef.current++;
     };
   }, []);
 
@@ -511,6 +522,26 @@ export function GashaponMachine({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen]);
+
+  useEffect(() => {
+    if (!isModalOpen || !modalRef.current) return;
+    const previous = document.activeElement !== document.body ? document.activeElement : modalOpenerRef.current;
+    const modal = modalRef.current;
+    modal.querySelector('button')?.focus({preventScroll:true});
+    const trap = event => {
+      if (event.key !== 'Tab') return;
+      const controls = [...modal.querySelectorAll('button:not(:disabled),a[href],input:not(:disabled),select:not(:disabled),[tabindex="0"]')].filter(element=>element.getClientRects().length);
+      const first = controls[0], last = controls[controls.length-1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    modal.addEventListener('keydown',trap);
+    return () => {
+      modal.removeEventListener('keydown',trap);
+      const target = previous?.isConnected && !previous.disabled ? previous : containerRef.current?.querySelector('button[title="¡Toca para ver la cápsula en grande!"]');
+      target?.focus?.({preventScroll:true});
+    };
   }, [isModalOpen]);
 
   // Bloquear scroll de la página de fondo cuando el modal esté abierto
@@ -574,6 +605,7 @@ export function GashaponMachine({
     return DOME_CAPSULES.map((slot, index) => ({ ...slot, ...genreCatalog.genreCapsule(selectedGenre === 'all' ? keys[Math.floor(index * keys.length / DOME_CAPSULES.length)] : selectedGenre), slot: slot.id }));
   }, [filteredPool, selectedGenre]);
   const handleGenreChange = genre => {
+    drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
     setSelectedGenre(genre); setCurrentCapsule(null); setMachineState('IDLE'); setIsModalOpen(false);
   };
 
@@ -621,9 +653,12 @@ export function GashaponMachine({
 
   // Función para tirar de la manivela y girar el Gashapon
   const handleSpinGashapon = () => {
-    if (machineState === 'CRANKING' || machineState === 'DROPPING') return;
+    if (openingRef.current || ['CRANKING','DROPPING','OPENING'].includes(machineState)) return;
     if (filteredPool.length === 0) return;
 
+    modalOpenerRef.current = document.activeElement;
+    const drawId = ++drawRef.current;
+    clearTimeout(openingTimerRef.current);
     // 1. Iniciar giro en la máquina
     setMachineState('CRANKING');
     setIsCrankAnimating(true);
@@ -632,6 +667,7 @@ export function GashaponMachine({
     // Sonidos
     gashaponSound.playCoinInsert();
     setTimeout(() => {
+      if (!isMountedRef.current || drawRef.current !== drawId) return;
       gashaponSound.playCrankTurn(isFastMode ? 1.5 : 1);
       gashaponSound.playGlobeShake();
     }, 150);
@@ -646,7 +682,7 @@ export function GashaponMachine({
 
     // 2. Caída de la cápsula por el conducto y apertura del POPUP
     setTimeout(() => {
-      if (!isMountedRef.current) return;
+      if (!isMountedRef.current || drawRef.current !== drawId) return;
       setIsCrankAnimating(false);
       setMachineState('DROPPING');
       setModalStage('DROPPING');
@@ -656,13 +692,13 @@ export function GashaponMachine({
       // 3. Cápsula aterriza en el centro del popup
       setTimeout(
         () => {
-          if (!isMountedRef.current) return;
+          if (!isMountedRef.current || drawRef.current !== drawId) return;
           setMachineState('LANDED');
           setModalStage('READY');
 
           // Si es fast mode, abrir automáticamente
           if (isFastMode) {
-            setTimeout(() => handleOpenCapsule(capsuleData), 450);
+            setTimeout(() => { if (isMountedRef.current && drawRef.current === drawId) handleOpenCapsule(capsuleData); }, 450);
           }
         },
         isFastMode ? 300 : 550
@@ -672,36 +708,26 @@ export function GashaponMachine({
 
   // Función para abrir la cápsula que cayó (sea en bandeja o en popup)
   const handleOpenCapsule = (capsuleToOpen = currentCapsule) => {
-    if (!capsuleToOpen) return;
-
+    if (!capsuleToOpen || openingRef.current || openedDrawRef.current === drawRef.current) return;
+    openedDrawRef.current = drawRef.current;
+    openingRef.current = true;
+    modalRef.current?.querySelector('button')?.focus({preventScroll:true});
+    const drawId = drawRef.current;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const duration = reduced ? 180 : isFastMode ? 1500 : 2400;
+    setOpeningDuration(duration);
+    setOpeningStartedAt(Date.now());
     setMachineState('OPENING');
     setModalStage('OPENING');
     gashaponSound.playCapsuleOpen();
-    launchParticles();
-
-    setTimeout(
-      () => {
-        if (!isMountedRef.current) return;
-        setMachineState('REVEALED');
-        setModalStage('REVEALED');
-        gashaponSound.playFanfare(
-          capsuleToOpen.theme?.icon === '👑' ||
-            capsuleToOpen.theme?.icon === '💎'
-            ? 'legendary'
-            : 'epic'
-        );
-
-        // Agregar al historial de la sesión si no está repetido
-        setSessionHistory((prev) => {
-          const exists = prev.some(
-            (item) => item.album.id === capsuleToOpen.album.id
-          );
-          if (exists) return prev;
-          return [capsuleToOpen, ...prev.slice(0, 9)];
-        });
-      },
-      isFastMode ? 350 : 700
-    );
+    openingTimerRef.current = setTimeout(() => {
+      if (!isMountedRef.current || drawRef.current !== drawId) return;
+      openingRef.current = false;
+      setMachineState('REVEALED');
+      setModalStage('REVEALED');
+      gashaponSound.playFanfare('epic');
+      setSessionHistory(previous => previous.some(item => item.album.id === capsuleToOpen.album.id) ? previous : [capsuleToOpen, ...previous.slice(0,9)]);
+    }, duration);
   };
 
   // Ir directamente a calificar desde el modal
@@ -717,6 +743,7 @@ export function GashaponMachine({
 
   // Re-inspeccionar una cápsula en modal grande desde el historial
   const handleInspectCapsule = (item) => {
+    drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
     setCurrentCapsule(item);
     setMachineState('REVEALED');
     setModalStage('REVEALED');
@@ -961,7 +988,7 @@ export function GashaponMachine({
                     key={cap.slot}
                     data-capsule-genre={cap.genre}
                     title={cap.name}
-                    className={`absolute ${cap.size} rounded-full shadow-md border border-white/60 overflow-hidden backdrop-blur-[1px] transition-all duration-300 ${cap.shadow} ${
+                    className={`absolute ${cap.size} rounded-full shadow-md border border-[#f57fa2]/25 overflow-hidden bg-[#090915] transition-all duration-300 ${cap.shadow} ${
                       machineState === 'CRANKING' ? cap.swirl : cap.idle
                     }`}
                     style={{
@@ -971,25 +998,7 @@ export function GashaponMachine({
                       transform: `rotate(${cap.rot})`,
                     }}
                   >
-                    {/* Mitad superior colorida con gradiente vivo */}
-                    <div
-                      style={{ background: cap.topBackground }}
-                      className={`h-1/2 bg-linear-to-r ${cap.topGrad} relative`}
-                    >
-                      {/* Reflejo de brillo esférico */}
-                      <div className="absolute top-0.5 left-1 w-2.5 h-1 bg-white/70 rounded-full blur-[0.3px] pointer-events-none"></div>
-                    </div>
-                    {/* Banda divisoria de la cápsula */}
-                    <div className="h-[1.5px] bg-white/90 shadow-[0_0_3px_rgba(255,255,255,0.9)]"></div>
-                    {/* Mitad inferior translúcida con sticker/icono arcade */}
-                    <div
-                      style={{ background: cap.bottomBackground }}
-                      className={`h-1/2 bg-linear-to-r ${cap.botGrad} flex items-center justify-center relative`}
-                    >
-                      <span className="text-[9px] sm:text-[11px] leading-none select-none opacity-90 filter drop-shadow-sm">
-                        <GenreArtwork genre={cap.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                      </span>
-                    </div>
+                    <GenreArtwork genre={cap.genre} size={64} className="h-full w-full drop-shadow-md" />
                   </div>
                 ))}
               </div>
@@ -1004,6 +1013,7 @@ export function GashaponMachine({
                   disabled={
                     machineState === 'CRANKING' ||
                     machineState === 'DROPPING' ||
+                    machineState === 'OPENING' ||
                     filteredPool.length === 0
                   }
                   onClick={handleSpinGashapon}
@@ -1033,6 +1043,7 @@ export function GashaponMachine({
                 disabled={
                   machineState === 'CRANKING' ||
                   machineState === 'DROPPING' ||
+                  machineState === 'OPENING' ||
                   filteredPool.length === 0
                 }
                 onClick={handleSpinGashapon}
@@ -1090,22 +1101,7 @@ export function GashaponMachine({
                         className={`group relative w-16 h-16 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_25px_${currentCapsule.theme.glow}] overflow-hidden transform hover:scale-110 active:scale-95 transition-all cursor-pointer flex flex-col`}
                         title="¡Toca para ver la cápsula en grande!"
                       >
-                        {/* Mitad superior con gradiente y reflejo esférico idéntico */}
-                        <div
-                          style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad} relative`}
-                        >
-                          <div className="absolute top-1 left-2 w-4 h-1.5 bg-white/70 rounded-full blur-[0.4px] pointer-events-none"></div>
-                        </div>
-                        {/* Banda divisoria metálica */}
-                        <div className="h-[2px] bg-white/90 shadow-[0_0_4px_rgba(255,255,255,0.9)]"></div>
-                        {/* Mitad inferior translúcida con el sticker exacto */}
-                        <div
-                          style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center relative`}
-                        >
-                          <span className="text-sm font-black select-none drop-shadow">
-                            <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                          </span>
-                        </div>
+                        <GenreArtwork genre={currentCapsule.theme.genre} size={64} className="h-full w-full" />
                       </button>
 
                       <button
@@ -1221,22 +1217,7 @@ export function GashaponMachine({
                 {/* Header de Rareza de la Cápsula */}
                 <div className="flex items-center justify-between gap-2 pb-4 mb-4 border-b border-white/10 flex-wrap">
                   <div className="flex items-center gap-2.5">
-                    {/* Mini réplica idéntica de la bola abierta */}
-                    <div
-                      className={`w-8 h-8 rounded-full border ${currentCapsule.theme.ring} shadow-[0_0_12px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
-                    >
-                      <div
-                        style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
-                      ></div>
-                      <div className="h-[1px] bg-white/80"></div>
-                      <div
-                        style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
-                      >
-                        <span className="text-[10px] leading-none">
-                          <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                        </span>
-                      </div>
-                    </div>
+                    <GenreArtwork genre={currentCapsule.theme.genre} size={36} className="h-9 w-9 shrink-0" />
                     <span className="text-xs font-black uppercase tracking-wider text-white">
                       {currentCapsule.theme.name}
                     </span>
@@ -1325,7 +1306,7 @@ export function GashaponMachine({
                     </div>
 
                     {/* Chips de Información */}
-                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-1">
+                    <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
                       {currentCapsule.album.tracks &&
                         Array.isArray(currentCapsule.album.tracks) && (
                           <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
@@ -1485,13 +1466,13 @@ export function GashaponMachine({
             {/* Fondo con rayos sunburst giratorios */}
             <div className="fixed inset-0 top-0 left-0 right-0 bottom-0 flex items-center justify-center pointer-events-none overflow-hidden">
               <div
-                className="w-[650px] h-[650px] sm:w-[900px] sm:h-[900px] rounded-full opacity-25 animate-sunburst-spin pointer-events-none"
+                className="w-[650px] h-[650px] sm:w-[900px] sm:h-[900px] rounded-full opacity-10 pointer-events-none"
                 style={{
                   background: `conic-gradient(from 0deg, transparent 0deg 15deg, ${currentCapsule.theme.glow} 15deg 30deg, transparent 30deg 45deg, ${currentCapsule.theme.glow} 45deg 60deg, transparent 60deg 75deg, ${currentCapsule.theme.glow} 75deg 90deg, transparent 90deg 105deg, ${currentCapsule.theme.glow} 105deg 120deg, transparent 120deg 135deg, ${currentCapsule.theme.glow} 135deg 150deg, transparent 150deg 165deg, ${currentCapsule.theme.glow} 165deg 180deg, transparent 180deg 195deg, ${currentCapsule.theme.glow} 195deg 210deg, transparent 210deg 225deg, ${currentCapsule.theme.glow} 225deg 240deg, transparent 240deg 255deg, ${currentCapsule.theme.glow} 255deg 270deg, transparent 270deg 285deg, ${currentCapsule.theme.glow} 285deg 300deg, transparent 300deg 315deg, ${currentCapsule.theme.glow} 315deg 330deg, transparent 330deg 345deg, ${currentCapsule.theme.glow} 345deg 360deg)`,
                 }}
               ></div>
               <div
-                className="absolute w-[450px] h-[450px] sm:w-[600px] sm:h-[600px] rounded-full blur-3xl opacity-40 pointer-events-none animate-pulse-glow-ring"
+                className="absolute w-[450px] h-[450px] sm:w-[600px] sm:h-[600px] rounded-full blur-3xl opacity-20 pointer-events-none"
                 style={{ background: currentCapsule.theme.glow }}
               ></div>
             </div>
@@ -1513,7 +1494,7 @@ export function GashaponMachine({
             ))}
 
             {/* Tarjeta Contenedora del Modal */}
-            <div className="relative z-10 w-full max-w-2xl bg-linear-to-b from-[#1b1933] via-[#121327] to-[#090a16] rounded-3xl p-5 sm:p-8 border-2 border-white/20 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col items-center max-h-[92vh] overflow-y-auto no-scrollbar my-auto">
+            <div ref={modalRef} role="dialog" aria-modal="true" aria-labelledby="gashapon-capsule-title" data-gashapon-dialog className="relative z-10 w-full max-w-2xl bg-linear-to-b from-[#1b1933] via-[#121327] to-[#090a16] rounded-3xl p-5 sm:p-8 border-2 border-white/20 shadow-[0_0_80px_rgba(0,0,0,0.95)] overflow-hidden flex flex-col items-center max-h-[92vh] overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden my-auto">
               {/* Botón de Cerrar */}
               <button
                 type="button"
@@ -1524,195 +1505,23 @@ export function GashaponMachine({
                 ✕
               </button>
 
-              {/* FASE 1 & 2: CÁPSULA GIGANTE EN ESCENA (DROPPING, READY U OPENING) */}
-              {(modalStage === 'DROPPING' ||
-                modalStage === 'READY' ||
-                modalStage === 'OPENING') && (
-                <div className="flex flex-col items-center text-center space-y-4 sm:space-y-6 w-full py-2">
-                  {/* Cabecera / Identidad de la Cápsula */}
-                  <div className="space-y-2">
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 shadow-lg backdrop-blur-md">
-                      <span className="text-base">
-                        <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                      </span>
-                      <span className="text-xs sm:text-sm font-black tracking-widest uppercase text-white">
-                        {currentCapsule.theme.badge}
-                      </span>
-                    </div>
-
-                    <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
-                      {currentCapsule.theme.name}
-                    </h3>
-
-                    <p className="text-white/60 text-xs sm:text-sm max-w-md mx-auto">
-                      {modalStage === 'OPENING'
-                        ? '¡Abriendo la cápsula misteriosa...!'
-                        : modalStage === 'DROPPING'
-                          ? '¡Cápsula en camino...!'
-                          : '¡Cápsula arcade extraída de la máquina! Toca para abrirla.'}
-                    </p>
-                  </div>
-
-                  {/* ESCENARIO DE LA CÁPSULA GIGANTE 3D */}
-                  <div className="relative py-4 flex items-center justify-center">
-                    {/* Aura brillante detrás de la cápsula */}
-                    <div
-                      className="absolute w-60 h-60 sm:w-80 sm:h-80 rounded-full blur-3xl pointer-events-none transition-all duration-500"
-                      style={{
-                        background: currentCapsule.theme.glow,
-                        opacity: modalStage === 'OPENING' ? 0.95 : 0.5,
-                      }}
-                    ></div>
-
-                    {/* Explosión de rayos luminosos al abrir */}
-                    {modalStage === 'OPENING' && (
-                      <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none">
-                        <div className="w-56 h-56 sm:w-80 sm:h-80 rounded-full bg-linear-to-r from-amber-300 via-white to-pink-300 animate-burst-rays blur-md"></div>
-                      </div>
-                    )}
-
-                    {/* CÁPSULA 3D INTERACTIVA */}
-                    <div
-                      onClick={() => {
-                        if (modalStage === 'READY') {
-                          handleOpenCapsule(currentCapsule);
-                        }
-                      }}
-                      className={`relative w-52 h-52 sm:w-64 sm:h-64 md:w-72 md:h-72 rounded-full flex flex-col items-center justify-center select-none group ${
-                        modalStage === 'DROPPING'
-                          ? 'animate-giant-drop'
-                          : modalStage === 'READY'
-                            ? 'animate-giant-hover cursor-pointer'
-                            : ''
-                      }`}
-                    >
-                      {/* MITAD SUPERIOR DE LA CÁPSULA */}
-                      <div
-                        style={{ background: currentCapsule.theme.topBackground }} className={`relative w-full h-1/2 rounded-t-full bg-linear-to-br ${currentCapsule.theme.topGrad} border-t-4 border-x-4 border-white/40 shadow-[inset_0_-8px_16px_rgba(0,0,0,0.35)] overflow-hidden transition-all duration-700 ease-out z-10 ${
-                          modalStage === 'OPENING'
-                            ? '-translate-y-16 sm:-translate-y-24 -rotate-12 scale-90 opacity-60'
-                            : 'group-hover:brightness-110'
-                        }`}
-                      >
-                        {/* Reflejo curvado hiperrealista */}
-                        <div className="absolute top-2 left-6 sm:top-3 sm:left-8 w-24 sm:w-32 h-8 sm:h-12 bg-linear-to-b from-white/80 to-transparent rounded-full -rotate-25 blur-[1px] pointer-events-none"></div>
-                        <div className="absolute top-8 right-6 w-8 h-4 bg-white/20 rounded-full rotate-45 blur-[1px] pointer-events-none"></div>
-                      </div>
-
-                      {/* BANDA METÁLICA CENTRAL (DIVISIÓN) */}
-                      <div
-                        className={`relative z-20 w-[102%] h-4 sm:h-5 bg-linear-to-r from-slate-200 via-white to-slate-300 border-y-2 border-black/30 shadow-[0_0_15px_rgba(255,255,255,0.9)] flex items-center justify-center transition-all duration-500 ${
-                          modalStage === 'OPENING' ? 'scale-0 opacity-0' : ''
-                        }`}
-                      >
-                        <div className="w-8 sm:w-10 h-2 bg-slate-400 rounded-full border border-slate-600 shadow-inner"></div>
-                      </div>
-
-                      {/* MITAD INFERIOR TRANSLÚCIDA CON EL ICONO */}
-                      <div
-                        style={{ background: currentCapsule.theme.bottomBackground }} className={`relative w-full h-1/2 rounded-b-full bg-linear-to-b ${currentCapsule.theme.botGrad} border-b-4 border-x-4 border-white/40 shadow-[inset_0_8px_16px_rgba(0,0,0,0.25)] overflow-hidden flex items-center justify-center transition-all duration-700 ease-out z-10 ${
-                          modalStage === 'OPENING'
-                            ? 'translate-y-16 sm:translate-y-24 rotate-12 scale-90 opacity-60'
-                            : 'group-hover:brightness-110'
-                        }`}
-                      >
-                        {/* Reflejo inferior */}
-                        <div className="absolute bottom-2 w-28 sm:w-36 h-5 bg-white/30 rounded-full blur-[1px] pointer-events-none"></div>
-
-                        {/* Icono central de gran formato */}
-                        <span className="text-5xl sm:text-6xl md:text-7xl leading-none select-none drop-shadow-[0_8px_16px_rgba(0,0,0,0.6)] transform group-hover:scale-115 group-hover:rotate-6 transition-transform duration-300">
-                          <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* BOTÓN DE ACCIÓN / LLAMADO A ABRIR */}
-                  {modalStage === 'READY' && (
-                    <div className="space-y-2 pt-2">
-                      <button
-                        type="button"
-                        onClick={() => handleOpenCapsule(currentCapsule)}
-                        className="px-8 py-3.5 sm:px-10 sm:py-4 rounded-2xl bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 hover:from-amber-300 hover:to-yellow-300 text-slate-950 font-black text-sm sm:text-base uppercase tracking-wider shadow-[0_0_35px_rgba(251,191,36,0.6)] border-2 border-white hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer mx-auto"
-                      >
-                        <span>✨</span>
-                        <span>¡TOCA PARA ABRIR LA CÁPSULA!</span>
-                        <span>✨</span>
-                      </button>
-                      <p className="text-white/40 text-[11px] sm:text-xs">
-                        Toca la cápsula o el botón para revelar el release
-                        sorpresa
-                      </p>
-                    </div>
-                  )}
+              <div className="flex w-full flex-col items-center gap-3 py-2 text-center sm:gap-4">
+                <div className="space-y-2">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-[#f57fa2]/25 bg-white/5 px-3 py-1 text-xs font-bold text-[#ffdbe6]"><GenreArtwork genre={currentCapsule.theme.genre} size={24} className="h-6 w-6" />{currentCapsule.theme.badge}</span>
+                  <h3 id="gashapon-capsule-title" className="text-2xl font-black text-white sm:text-3xl">{modalStage === 'REVEALED' ? 'Tu próxima escucha' : currentCapsule.theme.name}</h3>
+                  {modalStage !== 'REVEALED' && <p className="text-xs text-white/50 sm:text-sm">{modalStage === 'OPENING' ? 'Tu género abre la puerta a un nuevo release…' : modalStage === 'DROPPING' ? 'Tu cápsula está llegando…' : 'Toca el vinilo y descubre qué te espera.'}</p>}
                 </div>
-              )}
+                <GashaponReveal key={currentCapsule.pulledAt} genre={currentCapsule.theme.genre} stage={modalStage} duration={openingDuration} startedAt={openingStartedAt} album={currentCapsule.album} onOpen={() => handleOpenCapsule(currentCapsule)} />
+                {modalStage === 'READY' && <button type="button" onClick={() => handleOpenCapsule(currentCapsule)} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] px-6 py-3 text-sm font-black text-white shadow-lg shadow-[#f57fa2]/20 transition-transform hover:scale-105 active:scale-95">Abrir mi cápsula</button>}
+                <p role="status" className="sr-only">{modalStage === 'OPENING' ? 'Abriendo cápsula' : modalStage === 'REVEALED' ? `Descubriste ${currentCapsule.album.album}, de ${currentCapsule.album.artista}` : ''}</p>
+              </div>
 
               {/* FASE 3: ÁLBUM REVELADO EN EL MODAL */}
               {modalStage === 'REVEALED' && currentCapsule?.album && (
                 <div className="w-full flex flex-col items-center space-y-5 animate-card-reveal text-center sm:text-left">
-                  {/* Cabecera de logro */}
-                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3 w-full pb-4 border-b border-white/10">
-                    <div className="flex items-center gap-2.5">
-                      <div
-                        className={`w-9 h-9 rounded-full border-2 ${currentCapsule.theme.ring} shadow-[0_0_15px_${currentCapsule.theme.glow}] overflow-hidden flex flex-col shrink-0`}
-                      >
-                        <div
-                          style={{ background: currentCapsule.theme.topBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.topGrad}`}
-                        ></div>
-                        <div className="h-[1px] bg-white"></div>
-                        <div
-                          style={{ background: currentCapsule.theme.bottomBackground }} className={`h-1/2 bg-linear-to-r ${currentCapsule.theme.botGrad} flex items-center justify-center`}
-                        >
-                          <span className="text-xs">
-                            <GenreArtwork genre={currentCapsule.theme.genre} size={96} className="block h-[1.5em] w-[1.5em] shrink-0" />
-                          </span>
-                        </div>
-                      </div>
-                      <div>
-                        <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-amber-300 block">
-                          ¡Cápsula Revelada!
-                        </span>
-                        <h4 className="text-sm sm:text-base font-black text-white">
-                          {currentCapsule.theme.name}
-                        </h4>
-                      </div>
-                    </div>
-
-                    <span className="text-xs mr-0 sm:mr-8 font-bold px-3 py-1 rounded-full bg-white/10 border border-white/10 text-white/90">
-                      {currentCapsule.theme.badge}
-                    </span>
-                  </div>
-
-                  {/* Contenido Principal: Portada + Vinilo Girando + Metadatos */}
-                  <div className="w-full flex flex-col sm:flex-row items-center gap-6 py-2">
-                    {/* Portada del Álbum con Vinilo 3D saliente */}
-                    <div className="relative group shrink-0">
-                      {/* Vinilo saliente rotando detrás */}
-                      <div className="absolute top-0 -right-6 sm:-right-8 w-36 h-36 sm:w-44 sm:h-44 rounded-full border-2 border-white/20 shadow-2xl flex items-center justify-center animate-disc-spin group-hover:translate-x-3 transition-transform duration-500 overflow-hidden">
-                        <img
-                          src="/musiclub_logo_3.png"
-                          alt="Vinilo"
-                          className="w-full h-full object-cover select-none pointer-events-none"
-                        />
-                      </div>
-
-                      {/* Portada */}
-                      <div className="relative z-10 w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-2xl bg-black">
-                        <img
-                          src={currentCapsule.album.imagen}
-                          alt={currentCapsule.album.album}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.src =
-                              'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
-                          }}
-                        />
-                      </div>
-                    </div>
-
+                  <div className="w-full py-2">
                     {/* Información del Álbum */}
-                    <div className="flex-1 ml-0 sm:ml-6 min-w-0 space-y-2.5">
+                    <div className="min-w-0 space-y-2.5 text-center">
                       <div className="space-y-1">
                         <span className="text-[10px] font-extrabold uppercase tracking-widest text-pink-400 bg-pink-500/20 px-2.5 py-0.5 rounded-full border border-pink-500/30 inline-block">
                           RELEASE DESCUBIERTO
@@ -1734,7 +1543,7 @@ export function GashaponMachine({
                       </div>
 
                       {/* Badges de soporte */}
-                      <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 pt-1">
+                      <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
                         {currentCapsule.album.tracks &&
                           Array.isArray(currentCapsule.album.tracks) && (
                             <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80">

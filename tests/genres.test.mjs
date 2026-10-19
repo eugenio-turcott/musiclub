@@ -83,3 +83,19 @@ test('genre symbols repeat only inside the same musical family', () => {
     seen.set(symbol,family);
   }
 });
+
+
+test('every genre reveal has a separate center without an embedded outer record', () => {
+  const checked = new Set();
+  for (const genre of genres.GENRES) {
+    const art = visuals.genreRevealArtwork(genre.id);
+    assert.equal(art.disc, '/genres/reveal/disc.svg');
+    if (art.center.startsWith('data:') || checked.has(art.center)) continue;
+    const svg = fs.readFileSync(new URL('../public'+art.center, import.meta.url),'utf8');
+    assert.match(svg,/viewBox="0 0 100 100"/);
+    assert.ok(!svg.includes('clipPath'),genre.id);
+    assert.notEqual(art.center, art.src);
+    checked.add(art.center);
+  }
+  assert.ok(checked.size >= 81);
+});
