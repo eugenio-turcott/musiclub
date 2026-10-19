@@ -784,9 +784,9 @@ export function GashaponMachine({
 
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
           <div className="space-y-1.5 max-w-3xl">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
               Gashapon de Releases Musicales
-            </h2>
+            </h1>
             <p className="text-white/60 text-sm sm:text-base leading-relaxed">
               Gira la manivela para extraer una cápsula sorpresa entre todos los{' '}
               <strong className="text-purple-300">releases del catálogo</strong>{' '}

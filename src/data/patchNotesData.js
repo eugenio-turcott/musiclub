@@ -11,6 +11,13 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7.4', title: 'Título principal del Gashapon', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Accesibilidad',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'La cabecera del Gashapon se identifica como el título principal de la página.',
+    changes: [{ type: 'fix', title: 'Jerarquía de encabezados', description: 'El título existente utiliza un encabezado principal para facilitar la navegación por encabezados y describir la página desde su HTML inicial.' }],
+  },
+  {
     version: 'V.9.7.3', title: 'Fichas con nombres en otros alfabetos', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Correcciones',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
