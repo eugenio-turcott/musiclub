@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.10.1', title: 'Tus géneros e íconos dentro de Para Ti', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño y géneros',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Los géneros y sus vinilos se integran en la misma vista de recomendaciones, conservando el diseño y las tarjetas originales.',
+    changes: [
+      { type: 'improvement', title: 'Símbolos por familia musical', description: 'Cada familia tiene un símbolo propio; los subgéneros relacionados pueden compartirlo. Los géneros sin una familia reconocida reciben un sello individual.' },
+      { type: 'improvement', title: 'Géneros a la vista', description: 'Seis géneros con sus íconos aparecen sobre las sugerencias. Puedes desplegar el resto, buscar uno y tocarlo para filtrar las tarjetas.' },
+      { type: 'fix', title: 'Filtros y pantallas pequeñas', description: 'El género se aplica antes de seleccionar las recomendaciones destacadas. Los contadores reflejan el filtro activo; los paneles se adaptan a pantallas estrechas.' },
+    ],
+  },
+  {
     version: 'V.9.10.0', title: 'Tu diseño de siempre, con géneros musicales', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Para Ti',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
