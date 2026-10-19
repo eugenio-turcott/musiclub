@@ -180,7 +180,7 @@ export function AppHeader({
         {/* Lado Izquierdo: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
-            <div className="relative w-14 h-14 sm:w-16 sm:h-16 flex items-center justify-center">
+            <div className="relative w-11 h-11 sm:w-16 sm:h-16 flex items-center justify-center">
               {/* Spinning Musiclub Logo Disc Base */}
               <MusiclubVinyl showCenter={false}
                 src="/musiclub_logo_4.png"
@@ -197,7 +197,7 @@ export function AppHeader({
         </div>
 
         {/* Centro: Menú de Navegación Principal - Destacando lo más relevante (md/lg/xl) */}
-        <div className="hidden md:flex items-center justify-center flex-1 min-w-0 px-1 lg:px-2">
+        <div className="hidden xl:flex items-center justify-center flex-1 min-w-0 px-1 lg:px-2">
           <nav className="flex items-center gap-1 lg:gap-1.5 bg-[#0c0e1b]/80 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-xl shadow-inner shadow-black/40">
             {/* 1. Catálogo Directo */}
             <Link
@@ -685,9 +685,9 @@ export function AppHeader({
             <button
               onClick={handleLoginClick}
               disabled={!mounted || loading}
-              className="px-3.5 sm:px-4 py-1.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
+              className="px-2 sm:px-4 py-1.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
             >
-              <span>👤</span>
+              <span className="hidden min-[380px]:inline">👤</span>
               <span>{!mounted || loading ? '...' : 'Iniciar sesión'}</span>
             </button>
           )}
@@ -701,7 +701,7 @@ export function AppHeader({
               setIsUserMenuOpen(false);
               setOpenNavDropdown(null);
             }}
-            className={`md:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 cursor-pointer ${
+            className={`xl:hidden w-9 h-9 flex items-center justify-center rounded-xl border transition-all duration-200 cursor-pointer ${
               isMobileMenuOpen
                 ? 'bg-pink-500/20 border-pink-500/50 text-white'
                 : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/70 hover:text-white'
@@ -746,7 +746,7 @@ export function AppHeader({
       {isMobileMenuOpen && (
         <div
           ref={mobileMenuRef}
-          className="md:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3.5 animate-fadeIn shadow-2xl"
+          className="xl:hidden border-t border-white/10 bg-[#0c0e1a]/98 backdrop-blur-2xl px-4 py-3.5 space-y-3.5 animate-fadeIn shadow-2xl"
         >
           {/* SECCIÓN 1: EXPERIENCIAS PRINCIPALES */}
           <div className="space-y-2">

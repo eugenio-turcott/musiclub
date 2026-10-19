@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import presentation from '../utils/poolPresentation.cjs';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
@@ -42,7 +43,7 @@ export function usePool(seasonId) {
     setError(null);
     try {
       const data = await poolService.getPoolData(seasonId);
-      if (data.season) { setSeason(data.season); setIsPoolOpen(data.season.is_active === true && data.season.is_open === true); }
+      if (data.season) { setSeason(data.season); setIsPoolOpen(data.season.is_active === true && data.season.is_open === true && !presentation.poolCapacity(data.season, data.season.entry_count).full); }
       setActivePool(data.active || []);
       setWinner(data.winner || null);
       setPoolHistory(data.history || []);
@@ -127,9 +128,6 @@ export function usePool(seasonId) {
 
   const setPoolOpenStatus = useCallback(async (isOpen) => {
     const ok = await poolService.setPoolOpenStatus(isOpen, season.id);
-    if (ok) {
-      setIsPoolOpen(Boolean(isOpen));
-    }
     await fetchPoolData();
     return ok;
   }, [season.id, fetchPoolData]);
