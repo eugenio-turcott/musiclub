@@ -1,0 +1,56 @@
+// Musiclub's own vector artwork. Uses the brand palette from Musiclub General in Canva.
+const fs = require('node:fs');
+const path = require('node:path');
+const genres = require('../src/utils/genreCatalog.cjs');
+const motifs = {
+ pop: '<path d="m50 5 12 28 31 3-24 20 7 31-26-16-26 16 7-31L7 36l31-3Z" fill="currentColor" stroke="none"/><circle cx="50" cy="48" r="11" fill="#56408E" stroke="none"/>',
+ rock: '<path d="m66 12 13 12-24 25c9 15 8 27-4 36-13 10-30 2-34-10-4-11 1-22 13-25 7-2 11 0 14 3Z"/><path d="m43 63 32-43M28 68l10 10M70 9l15 15"/><circle cx="40" cy="66" r="6" fill="currentColor" stroke="none"/>',
+ hiphop: '<rect x="9" y="32" width="82" height="51" rx="8"/><path d="M31 31V17h38v14M25 14 78 5"/><circle cx="30" cy="60" r="12"/><circle cx="72" cy="60" r="12"/><path d="M43 43h14M47 72h8"/>',
+ rnb: '<path d="M50 82 15 48C-4 23 28 7 50 31 72 7 104 23 85 48Z"/><path d="M21 53h14l7-16 12 33 8-17h17"/>',
+ soul: '<rect x="35" y="8" width="30" height="49" rx="15"/><path d="M24 40v10a26 26 0 0 0 52 0V40M50 77v15M34 92h32M45 22h10M45 35h10"/><path d="m10 20 5-5 6 5-6 10Z" fill="currentColor" stroke="none"/>',
+ electronic: '<rect x="7" y="24" width="86" height="59" rx="8"/><path d="M8 46h84M25 47v35M42 47v35M59 47v35M76 47v35M18 35h17M62 35h3M79 35h3"/><path d="M31 47v15M65 47v15" stroke-width="10"/>',
+ jazz: '<path d="M70 12v47c0 23-14 31-29 27-16-4-19-19-14-30l12 4c-3 9 1 14 7 14 7 0 10-5 10-15V15Z"/><path d="m12 46 27-5 5 19-24 9ZM56 15h25M71 29h9M71 43h9M56 53h-7"/>',
+ metal: '<path d="m56 5-35 50h25L36 95l42-57H55L65 5Z" fill="currentColor" stroke="none"/><path d="M18 19 7 34l10 12M81 65l12 12-12 11"/>',
+ punk: '<path d="m55 6-31 43h22l-8 43 37-55H53Z" fill="currentColor" stroke="none"/><path d="M16 13 9 8M87 21l7-5M15 79l-8 4M79 87l7 7"/>',
+ folk: '<path d="M43 42V6h14v36c8-2 18 5 16 17 13 14 7 31-7 35-20 6-43-2-43-19 0-10 5-15 9-18-1-9 3-14 11-15Z"/><circle cx="50" cy="65" r="9"/><path d="M39 84h22M50 6v47"/>',
+ classical: '<path d="M45 8h10v29c13-7 19 5 14 13-10 4-10 15 1 20 9 21-31 33-40 10-4-9 0-14 6-19 6-8 1-13-3-16-3-10 6-15 12-8Z"/><path d="M50 9v74M37 77h25M87 10 75 92"/>',
+ latin: '<ellipse cx="30" cy="31" rx="16" ry="23" transform="rotate(-25 30 31)"/><ellipse cx="72" cy="34" rx="16" ry="23" transform="rotate(25 72 34)"/><path d="m40 52 19 34M63 56 46 91M15 29l25-13M61 18l24 13"/>',
+ regional: '<path d="M14 23h20v62H14ZM66 17h20v63H66ZM34 28l32-6v57l-32 6Z"/><path d="m42 27 8 54M52 25l7 55M16 39h15M16 53h15M16 67h15M76 33v1M76 48v1M76 63v1"/>',
+ reggaeton: '<path d="M10 25h33l-5 61H16ZM57 14h33l-5 62H62Z"/><ellipse cx="27" cy="25" rx="17" ry="8"/><ellipse cx="74" cy="14" rx="17" ry="8"/><path d="m18 42 17 22M35 42 18 64M66 32l16 22M82 32 66 54"/>',
+ indie: '<rect x="9" y="27" width="82" height="55" rx="8"/><circle cx="31" cy="50" r="10"/><circle cx="70" cy="50" r="10"/><path d="M41 50h19M26 80l8-13h34l8 13M32 14h34"/>',
+ country: '<path d="M28 54 34 17c8-10 13 8 20 4 12-13 18-8 20 7l3 26M10 50c10 19 66 26 80-2 10 31-25 44-49 39C15 85 4 70 10 50ZM32 45c14 9 28 10 43 1"/>',
+ ambient: '<path d="M66 12C25 1 7 46 31 70c18 19 42 12 52-7-34 12-53-22-17-51Z"/><path d="M13 87c15-8 25 8 40 0s25 8 35 0M81 14v17M73 22h17"/>',
+ reggae: '<path d="M50 88V39M50 39C38 10 14 18 11 36c18-4 26-2 39 3ZM50 39c8-31 31-30 40-14-15 2-28 7-40 14ZM50 39C34 28 18 41 18 59c13-13 23-16 32-20ZM50 39c21-4 33 12 31 28-10-14-22-23-31-28Z"/>',
+ dance: '<circle cx="50" cy="51" r="34"/><path d="M50 5v12M18 51h64M25 31h50M25 70h50M50 18c-20 13-20 52 0 67M50 18c20 13 20 52 0 67M50 18v67M9 9l3 5M88 86l5 5"/>',
+ funk: '<path d="M43 46V7h13v42c20-10 31 11 18 28-15 21-48 13-48-4 0-16 13-10 17-27Z"/><path d="M49 9v62M38 77h23M36 60l-7-7M58 17h9M58 30h9"/><circle cx="66" cy="71" r="4" fill="currentColor" stroke="none"/>',
+ blues: '<path d="M43 38V7h13v31c13-3 22 13 13 24 21 27-25 47-39 21-6-12-1-17 6-25-9-11-3-24 7-20Z"/><circle cx="50" cy="62" r="9"/><path d="M50 8v43M39 83h22M81 21c14 17 12 25 5 25s-10-8-5-25Z"/>',
+ kpop: '<path d="m10 34 17-18h47l17 18-41 55ZM10 34h81M27 16l23 73 24-73M50 17 38 34h24Z"/><path d="M88 6v12M82 12h12"/>',
+ jpop: '<circle cx="50" cy="49" r="27"/><path d="M50 3v10M50 85v11M4 49h10M85 49h11M17 17l8 8M77 77l8 8M17 82l8-8M77 24l8-8"/><path d="m50 32 5 11 13 2-9 9 2 13-11-6-11 6 2-13-9-9 13-2Z" fill="currentColor" stroke="none"/>',
+ experimental: '<ellipse cx="50" cy="50" rx="44" ry="17" transform="rotate(-35 50 50)"/><ellipse cx="50" cy="50" rx="44" ry="17" transform="rotate(35 50 50)"/><circle cx="50" cy="50" r="8" fill="currentColor" stroke="none"/><path d="M15 13h1M83 88h1"/>',
+ world: '<circle cx="50" cy="50" r="38"/><ellipse cx="50" cy="50" rx="18" ry="38"/><path d="M12 50h76M20 28h60M20 72h60"/>',
+};
+// Bootstrap the visual registry before requiring its lookup utility.
+const manifestPath = path.join(__dirname, '../src/data/genreArtwork.json');
+if (!fs.existsSync(manifestPath)) fs.writeFileSync(manifestPath, '{}\n');
+const { genreFamily } = require('../src/utils/genreVisuals.cjs');
+const palettes = [['#56408E','#F57FA2','#FFDBE6'],['#5A2D7C','#FFDBE6','#F57FA2'],['#171433','#F57FA2','#FFDBE6'],['#56408E','#FFDBE6','#F57FA2']];
+function art(family, index=0) {
+ const [center,accent,ink] = palettes[index % palettes.length];
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 320"><defs><clipPath id="record"><circle cx="160" cy="154" r="144"/></clipPath></defs><ellipse cx="164" cy="166" rx="144" ry="144" fill="#000000" opacity=".22"/><circle cx="160" cy="154" r="144" fill="#000000"/><g clip-path="url(#record)" fill="${accent}"><path d="M160 154 280 28 323 109Z"/><path d="M160 154 330 139 330 173Z"/><path d="M160 154-14 139-2 280Z"/></g><g fill="none" stroke="#56408E" opacity=".35"><circle cx="160" cy="154" r="127"/><circle cx="160" cy="154" r="117"/><circle cx="160" cy="154" r="106"/></g><circle cx="160" cy="154" r="78" fill="${center}"/><g transform="translate(110 104)" color="${ink}" stroke="${ink}" fill="none" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">${motifs[family] || motifs.world}</g><circle cx="160" cy="154" r="144" fill="none" stroke="${accent}" stroke-width="2" opacity=".25"/></svg>`;
+}
+const out = path.join(__dirname,'../public/genres'); fs.mkdirSync(path.join(out,'families'),{recursive:true});
+Object.keys(motifs).forEach((family,index)=>fs.writeFileSync(path.join(out,'families',family+'.svg'),art(family,index)));
+const auditPath=path.join(__dirname,'../audit'); fs.mkdirSync(auditPath,{recursive:true});
+const snapshotPath=process.argv[2] || path.join(auditPath,'genre-catalog-after.json');
+const snapshot=fs.existsSync(snapshotPath) ? JSON.parse(fs.readFileSync(snapshotPath,'utf8')) : null;
+const present=snapshot ? genres.genreCounts(Array.isArray(snapshot) ? snapshot : snapshot.albums) : new Map(Object.keys(JSON.parse(fs.readFileSync(manifestPath,'utf8'))).map(id=>[id,0]));
+const list=genres.GENRES.filter(genre=>present.has(genre.id));
+const manifest={};
+list.forEach((genre,index)=>{
+ const slug=genre.id.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+ const filename=slug+'.svg'; manifest[genre.id]='/genres/'+filename;
+ fs.writeFileSync(path.join(out,filename),art(genreFamily(genre.id),index));
+});
+fs.writeFileSync(manifestPath,JSON.stringify(manifest,null,2)+'\n');
+fs.writeFileSync(path.join(__dirname,'../audit/genre-artwork-pages.json'),JSON.stringify(list.map((genre,index)=>({...genre,src:manifest[genre.id],family:genreFamily(genre.id),count:present.get(genre.id),index})),null,2));
+console.log(`Generated ${list.length} genre records and ${Object.keys(motifs).length} visual families.`);

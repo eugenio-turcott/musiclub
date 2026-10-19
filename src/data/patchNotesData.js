@@ -11,6 +11,17 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.10.0', title: 'Tu diseño de siempre, con géneros musicales', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Para Ti',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'Para Ti conserva su diseño original: pestañas, tarjetas compactas y detalles. El análisis por géneros se integra en esos mismos espacios.',
+    changes: [
+      { type: 'improvement', title: 'ADN musical por géneros', description: 'Desde diez lanzamientos calificados, el resumen y el desglose muestran los géneros que escuchas y cómo los valoras. Seis aparecen inicialmente; puedes desplegar los demás.' },
+      { type: 'improvement', title: 'Gráficos con identidad Musiclub', description: 'Vinilos pequeños inspirados en el logotipo y la paleta de Musiclub identifican los géneros dentro de los paneles existentes.' },
+      { type: 'fix', title: 'Tarjetas y navegación originales', description: 'Se conservan las portadas laterales, los botones de calificación y detalle, y las pestañas Para Ti, Tu ADN Musical y Nuevos Descubrimientos. La selección comunitaria sigue disponible antes de alcanzar diez calificaciones.' },
+    ],
+  },
+  {
     version: 'V.9.9.0', title: 'Para Ti aprende de tus géneros', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Recomendaciones',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
