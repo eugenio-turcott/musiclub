@@ -1,4 +1,8 @@
 'use client';
+import { PoolManualControls } from '../components/PoolManualControls';
+import { GenreLabel } from '../components/GenreLabel';
+import genreCatalog from '../utils/genreCatalog.cjs';
+import { searchMusicBrainzReleases, getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
 // src/pages/PoolPage.jsx
 import React, { useState, useMemo } from 'react';
@@ -31,6 +35,10 @@ export function PoolPage() {
   } = useAuth();
   const {
     season,
+    seasons,
+    createSeason,
+    setActiveSeason,
+    error: poolError,
     activePool,
     winner,
     poolHistory,
@@ -44,7 +52,7 @@ export function PoolPage() {
     refetch,
   } = usePool();
 
-  const { markAlbumAsInactive } = useAlbums();
+  const { albums: catalogAlbums = [] } = useAlbums();
 
   // Candidatos de pool_entries para la Ruleta / Máquina Musical
   const slotMachinePool = useMemo(() => {
@@ -61,6 +69,13 @@ export function PoolPage() {
   }, [activePool]);
 
   // Local UI States
+  const [poolActionError, setPoolActionError] = useState('');
+  const [poolActionBusy, setPoolActionBusy] = useState(false);
+  const runPoolAction = async action => {
+    setPoolActionError(''); setPoolActionBusy(true);
+    try { await action(); } catch (error) { setPoolActionError(error.message); } finally { setPoolActionBusy(false); }
+  };
+
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [showNominateModal, setShowNominateModal] = useState(false);
@@ -175,30 +190,25 @@ export function PoolPage() {
     if (!nominationSearch.trim()) return;
     setSearchingRemote(true);
     try {
-      const res = await searchAlbum(nominationSearch);
-      if (res?.success && Array.isArray(res.albums)) {
-        const formatted = res.albums.map((a) => {
-          const artistDisplay = Array.isArray(a.artists)
-            ? a.artists.join(', ')
-            : a.artist || 'Artista';
-          return {
-            id: a.id,
-            albumName: a.name,
-            artistName: artistDisplay,
-            imageUrl: a.image,
-            releaseDate: a.releaseDate,
-            releaseYear: a.releaseYear,
-            releaseType: a.release_type || a.releaseType || 'ALBUM',
-            tracks: a.tracks || [],
-            spotifyLink:
-              a.external_urls?.spotify ||
-              `https://open.spotify.com/album/${a.id}`,
-          };
-        });
-        setSpotifyResults(formatted);
-      } else {
-        setSpotifyResults([]);
-      }
+      const query = nominationSearch.trim().toLowerCase();
+      const local = catalogAlbums.filter(album => `${album.album_name || album.album} ${album.artist_name || album.artista}`.toLowerCase().includes(query)).slice(0,15).map(album => ({
+        albumId: album.id, id: album.id, albumName: album.album_name || album.album, artistName: album.artist_name || album.artista,
+        imageUrl: album.image_url || album.imagen, genres: album.genres || [], tracks: album.tracks || [],
+        releaseDate: album.release_date, releaseYear: album.release_year, releaseType: album.release_type,
+        spotifyLink: album.spotify_link, youtubeLink: album.youtube_link, appleMusicLink: album.apple_music_link, otherLink: album.other_link,
+      }));
+      const [spotify, mb] = await Promise.allSettled([searchAlbum(nominationSearch), searchMusicBrainzReleases(nominationSearch, 12)]);
+      const remote = spotify.status === 'fulfilled' && spotify.value?.success ? (spotify.value.albums || []).map(album => ({
+        id: album.id, albumName: album.name, artistName: Array.isArray(album.artists) ? album.artists.join(', ') : album.artist,
+        imageUrl: album.image, releaseDate: album.releaseDate, releaseYear: album.releaseYear, releaseType: album.release_type || album.releaseType || 'ALBUM',
+        genres: album.genres || [], tracks: album.tracks || [], spotifyLink: album.external_urls?.spotify || `https://open.spotify.com/album/${album.id}`,
+      })) : [];
+      const musicbrainz = mb.status === 'fulfilled' ? mb.value.map(album => ({
+        id: album.id, mbid: album.mbid, albumName: album.name, artistName: album.artist, imageUrl: album.image,
+        releaseDate: album.releaseDate, releaseYear: album.releaseYear, releaseType: album.releaseType, genres: [],
+      })) : [];
+      const seen = new Set();
+      setSpotifyResults([...local, ...remote, ...musicbrainz].filter(item => { const key = `${item.artistName}::${item.albumName}`.toLowerCase(); if (seen.has(key)) return false; seen.add(key); return true; }));
     } catch (err) {
       console.error('Error buscando en Spotify:', err);
       setSpotifyResults([]);
@@ -208,6 +218,17 @@ export function PoolPage() {
   };
 
   const handleSelectAlbumForNomination = async (item) => {
+    if (item.albumId) { setSelectedAlbumToNominate(item); return; }
+    if (item.mbid) {
+      setSearchingRemote(true);
+      try {
+        const details = await getMusicBrainzReleaseGroupDetails(item.mbid);
+        setSelectedAlbumToNominate({ ...item, tracks: details?.tracks || [], genres: details?.genres || [],
+          spotifyLink: details?.externalLinks?.spotify, youtubeLink: details?.externalLinks?.youtube,
+          appleMusicLink: details?.externalLinks?.apple_music, otherLink: details?.externalLinks?.deezer });
+      } catch { setSelectedAlbumToNominate(item); } finally { setSearchingRemote(false); }
+      return;
+    }
     try {
       const res = await getAlbumDetails(item.id);
       if (res?.success && res.album) {
@@ -231,6 +252,7 @@ export function PoolPage() {
           releaseYear: details.releaseYear || item.releaseYear,
           releaseType: details.release_type || item.releaseType || 'ALBUM',
           tracks: tracks,
+          genres: genreCatalog.normalizeGenres(details.genres || item.genres || []),
           spotifyLink:
             details.external_urls?.spotify ||
             `https://open.spotify.com/album/${item.id}`,
@@ -255,6 +277,7 @@ export function PoolPage() {
     setSubmittingNomination(true);
     try {
       await nominateAlbum({
+        albumId: selectedAlbumToNominate.albumId || null,
         albumData: selectedAlbumToNominate,
         user,
         note: nominationNote,
@@ -281,7 +304,7 @@ export function PoolPage() {
     try {
       await toggleWinnerReviews(winner.id, !winner.reviews_enabled);
     } catch (err) {
-      console.error('Error toggling winner reviews:', err);
+      setPoolActionError(err.message);
     } finally {
       setTogglingReviews(false);
     }
@@ -425,7 +448,8 @@ export function PoolPage() {
                   {isAdmin && (
                     <button
                       type="button"
-                      onClick={() => setPoolOpenStatus(true)}
+                      disabled={poolActionBusy}
+                      onClick={() => runPoolAction(() => setPoolOpenStatus(true))}
                       className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs shadow transition-all flex items-center gap-1.5 shrink-0"
                     >
                       <span>🔓 Abrir Pool Ahora</span>
@@ -538,6 +562,14 @@ export function PoolPage() {
             </div>
           </div>
         </div>
+
+        {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
+        <section className="rounded-2xl border border-white/10 bg-[#111424]/80 p-4 sm:p-5 space-y-3" aria-label="Dinámica del Pool">
+          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-black text-white">{season.name}</h2><span className="rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300">{isPoolOpen ? 'Propuestas abiertas' : 'Propuestas cerradas'} · {winner?.reviews_enabled ? 'Reseñas abiertas' : 'Reseñas cerradas'}</span></div>
+          <p className="whitespace-pre-line text-xs leading-relaxed text-slate-300">{season.description}</p>
+          <p className="text-[11px] text-slate-400">Propón tu release → participa en el sorteo → escucha y reseña cuando el administrador habilite el ganador.</p>
+          {isAdmin && <PoolManualControls season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
+        </section>
 
         {/* =========================================================================
             2. WINNER SPOTLIGHT: ÁLBUM EN FOCO DE LA SEMANA
@@ -806,8 +838,7 @@ export function PoolPage() {
               No hay un disco ganador seleccionado actualmente
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
-              Usa la Ruleta o el Gashapon Arcade para sortear el próximo álbum
-              de los{' '}
+              {activePool.length ? <>Usa la Ruleta o el Gashapon Arcade para sortear el próximo release de los{' '}
               <span
                 translate="no"
                 className="notranslate font-bold text-pink-400"
@@ -815,15 +846,15 @@ export function PoolPage() {
               >
                 {poolLoading ? '...' : activePool.length}
               </span>{' '}
-              candidatos activos en el Pool.
+              candidatos activos en el Pool.</> : isPoolOpen ? 'Las propuestas están abiertas. El siguiente descubrimiento puede ser el tuyo.' : 'El próximo turno comenzará cuando el administrador abra las propuestas.'}
             </p>
-            <Link
+            {activePool.length > 0 && <Link
               to="/gashapon"
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-all"
             >
               <span>🎲</span>
               <span>Sortear Ganador en Gashapon</span>
-            </Link>
+            </Link>}
           </div>
         )}
 
@@ -981,16 +1012,12 @@ export function PoolPage() {
                         await selectWinner(winningCandidate.id);
                         refetch();
                       } catch (err) {
-                        console.error(
-                          'Error al seleccionar ganador desde la ruleta:',
-                          err
-                        );
+                        setPoolActionError(err.message || 'No se pudo elegir el ganador.');
                       }
                     }
                   }}
                   isSpinning={false}
                   onSpinStart={() => {}}
-                  markAlbumAsInactive={markAlbumAsInactive}
                   isAdmin={isAdmin}
                   user={user}
                 />
@@ -1146,7 +1173,8 @@ export function PoolPage() {
                       {isAdmin && (
                         <button
                           type="button"
-                          onClick={() => selectWinner(alb.id)}
+                          disabled={Boolean(winner) || poolActionBusy}
+                          onClick={() => runPoolAction(() => selectWinner(alb.id))}
                           className="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white transition-colors font-bold cursor-pointer"
                           title="Seleccionar como ganador semanal"
                         >
@@ -1175,7 +1203,7 @@ export function PoolPage() {
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                Lanzamientos que ganaron en el Pool de la Temporada 1 y ya
+                Lanzamientos que ganaron en {season.name} y ya
                 fueron evaluados por la comunidad, ordenados de mayor a menor
                 calificación.
               </p>
@@ -1355,7 +1383,7 @@ export function PoolPage() {
                   <form onSubmit={handleSearchSpotify} className="flex gap-2">
                     <input
                       type="text"
-                      placeholder="Buscar en Spotify (Álbum, EP o Single)..."
+                      placeholder="Buscar en Musiclub, Spotify o MusicBrainz..."
                       value={nominationSearch}
                       onChange={(e) => setNominationSearch(e.target.value)}
                       className="flex-1 px-4 py-2.5 bg-black/50 border border-white/15 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-pink-400"
@@ -1411,7 +1439,7 @@ export function PoolPage() {
                     {spotifyResults.length === 0 && !searchingRemote && (
                       <p className="text-center text-xs text-slate-500 py-6">
                         Escribe el nombre de un artista o disco para buscar en
-                        el catálogo oficial de Spotify.
+                        Musiclub y las fuentes musicales disponibles.
                       </p>
                     )}
                   </div>
@@ -1447,12 +1475,17 @@ export function PoolPage() {
                     </div>
                   </div>
 
+                  <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs text-cyan-100">Tu propuesta se registra en <strong>{season.name}</strong>. Proponer no habilita las reseñas: el administrador elige el ganador y controla cuándo se puede calificar.</p>
+                  {genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length ? <div className="flex flex-wrap gap-2">{genreCatalog.normalizeGenres(selectedAlbumToNominate.genres).map(genre => <GenreLabel key={genre} genre={genre} className="rounded-lg bg-white/5 px-2 py-1 text-xs" />)}</div> : !selectedAlbumToNominate.albumId && <label className="block text-xs text-slate-300">Género principal de este release
+                    <select value="" onChange={event => setSelectedAlbumToNominate(previous => ({...previous, genres: genreCatalog.normalizeGenres([event.target.value])}))} className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-[#111424] p-2 text-white"><option value="">Elige un género para continuar</option>{genreCatalog.GENRES.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select>
+                  </label>}
                   <div>
                     <label className="block text-xs font-semibold text-slate-300 mb-1">
-                      Nota o comentario de recomendación (Opcional):
+                      ¿Cómo encaja con la dinámica del Pool? (opcional)
                     </label>
                     <textarea
                       rows={2}
+                      maxLength={600}
                       placeholder="¿Por qué recomiendas este disco para el club?"
                       value={nominationNote}
                       onChange={(e) => setNominationNote(e.target.value)}
@@ -1471,7 +1504,7 @@ export function PoolPage() {
                     <button
                       type="button"
                       onClick={handleConfirmNomination}
-                      disabled={submittingNomination}
+                      disabled={submittingNomination || !isPoolOpen || (!selectedAlbumToNominate.albumId && !genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length)}
                       className="px-6 py-2 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-xs font-black shadow-lg"
                     >
                       {submittingNomination

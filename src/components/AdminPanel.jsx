@@ -236,7 +236,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       );
       setPoolActive(poolData.active || []);
       setPoolWinner(poolData.winner || null);
-      setIsPoolOpen(poolService.isPoolOpen());
+      setIsPoolOpen(active.is_open === true);
 
       // 3. Cargar Catálogo Universal de Álbumes (Paginación interna para superar el límite de 1000 de PostgREST)
       let allAlbums = [];
@@ -372,15 +372,19 @@ export function AdminPanel({ onClose, isPage = true }) {
   // POOL ACTIONS
   // =========================================================================
   const handleTogglePoolOpen = async () => {
-    const nextState = !isPoolOpen;
-    const ok = await poolService.setPoolOpenStatus(nextState);
-    if (ok) {
-      setIsPoolOpen(nextState);
-      showToast(
-        nextState
-          ? '🔓 Pool abierto con éxito para nuevas propuestas de la comunidad.'
-          : '🔒 Pool cerrado para nuevas propuestas. Los miembros ya no pueden postular.'
-      );
+    try {
+      const nextState = !isPoolOpen;
+      const ok = await poolService.setPoolOpenStatus(nextState);
+      if (ok) {
+        setIsPoolOpen(nextState);
+        showToast(
+          nextState
+            ? '🔓 Pool abierto con éxito para nuevas propuestas de la comunidad.'
+            : '🔒 Pool cerrado para nuevas propuestas. Los miembros ya no pueden postular.'
+        );
+      }
+    } catch (error) {
+      showToast(error.message || "No se pudo cambiar el estado del Pool.");
     }
   };
 
@@ -605,7 +609,7 @@ export function AdminPanel({ onClose, isPage = true }) {
           releaseType: album.release_type,
           releaseYear: album.release_year,
         },
-        user: { name: 'Administración Musiclub', email: 'admin@musiclub.org' },
+        seasonId: activeSeason.id,
         note: `Promovido directamente por el Administrador al Pool de la ${activeSeason.name}`,
       });
       showToast(`🗳️ "${album.album_name}" añadido al Pool Activo.`);

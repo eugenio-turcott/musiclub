@@ -1,7 +1,6 @@
 // src/services/poolService.js
-import { supabase } from './supabaseClient.js';
+import { supabase, supabaseService } from './supabaseClient.js';
 import { authenticatedFetch } from './authenticatedFetch.js';
-import { getAlbumWeightedAverage } from '../utils/ratingUtils.js';
 
 /**
  * Metadata de las Temporadas de Musiclub
@@ -94,13 +93,14 @@ export const poolService = {
       name: seasonData.name || `Temporada ${num}`,
       start_date: seasonData.start_date || new Date().toISOString().split('T')[0],
       end_date: seasonData.end_date || null,
-      is_active: Boolean(seasonData.is_active),
+      is_active: false,
+      is_open: false,
       description: seasonData.description || '',
     };
 
-    try {
-      await supabase.from('seasons').insert(newSeason);
-    } catch (e) {}
+    const { error: insertError } = await supabase.from('seasons').insert(newSeason);
+    if (insertError) throw new Error(insertError.message);
+    if (seasonData.is_active) { await poolService.setActiveSeason(newId); newSeason.is_active = true; }
 
     const current = await poolService.getSeasons();
     let updated = [...current.filter((s) => s.id !== newId), newSeason];
@@ -122,9 +122,10 @@ export const poolService = {
    * Actualiza una temporada existente
    */
   updateSeason: async (seasonId, seasonData) => {
-    try {
-      await supabase.from('seasons').update(seasonData).eq('id', seasonId);
-    } catch (e) {}
+    const { is_active, ...fields } = seasonData;
+    const { error: updateError } = await supabase.from('seasons').update(fields).eq('id', seasonId);
+    if (updateError) throw new Error(updateError.message);
+    if (is_active) await poolService.setActiveSeason(seasonId);
 
     const current = await poolService.getSeasons();
     let updated = current.map((s) => (s.id === seasonId ? { ...s, ...seasonData } : s));
@@ -146,9 +147,8 @@ export const poolService = {
    * Elimina una temporada
    */
   deleteSeason: async (seasonId) => {
-    try {
-      await supabase.from('seasons').delete().eq('id', seasonId);
-    } catch (e) {}
+    const { error: deleteError } = await supabase.from('seasons').delete().eq('id', seasonId);
+    if (deleteError) throw new Error(deleteError.message);
 
     const current = await poolService.getSeasons();
     let updated = current.filter((s) => s.id !== seasonId);
@@ -169,10 +169,8 @@ export const poolService = {
    * Activa una temporada específica
    */
   setActiveSeason: async (seasonId) => {
-    try {
-      await supabase.from('seasons').update({ is_active: false }).neq('id', seasonId);
-      await supabase.from('seasons').update({ is_active: true }).eq('id', seasonId);
-    } catch (e) {}
+    const { error } = await supabase.rpc('musiclub_activate_season', { p_season_id: seasonId });
+    if (error) throw new Error(error.message);
 
     const current = await poolService.getSeasons();
     const updated = current.map((s) => ({
@@ -195,285 +193,63 @@ export const poolService = {
    * 2. Álbum Ganador actual (en foco esta semana)
    * 3. Álbumes Graduados / Históricos del Pool
    */
-  getPoolData: async (seasonId = DEFAULT_SEASON.id) => {
-    try {
-      // 1. Intentar consultar tabla dedicada `pool_entries` si existe
-      const { data: poolEntries, error: poolError } = await supabase
-        .from('public_pool_entries')
-        .select(
-          `
-          *,
-          album:album_id (
-            *,
-            reviews (
-              track_ratings,
-              rating_produccion,
-              rating_composicion,
-              rating_letras,
-              rating_originalidad,
-              rating_cohesion,
-              rating_replay,
-              rating_general
-            )
-          )
-        `
-        )
-        .eq('season_id', seasonId)
-        .order('created_at', { ascending: false });
-
-      if (!poolError && Array.isArray(poolEntries) && poolEntries.length > 0) {
-        const active = [];
-        let winner = null;
-        const history = [];
-
-        poolEntries.forEach((entry) => {
-          const albumObj = entry.album || {};
-          const albumReviews = albumObj.reviews || [];
-          const calculatedAvg = getAlbumWeightedAverage(albumReviews);
-          const computedRating = calculatedAvg ? parseFloat(calculatedAvg) : (albumObj.final_rating || albumObj.avg_rating || null);
-
-          const item = {
-            id: albumObj.id || entry.album_id,
-            pool_entry_id: entry.id,
-            album: albumObj.album_name,
-            artista: albumObj.artist_name,
-            imagen: albumObj.image_url,
-            spotifyLink: entry.spotify_link || albumObj.spotify_link,
-            spotify_link: entry.spotify_link || albumObj.spotify_link,
-            youtubeLink: entry.youtube_link || albumObj.youtube_link,
-            youtube_link: entry.youtube_link || albumObj.youtube_link,
-            appleMusicLink: entry.apple_music_link || albumObj.apple_music_link,
-            apple_music_link: entry.apple_music_link || albumObj.apple_music_link,
-            otherLink: entry.other_link || albumObj.other_link,
-            other_link: entry.other_link || albumObj.other_link,
-            deezerLink: entry.other_link || albumObj.other_link,
-            deezer_link: entry.other_link || albumObj.other_link,
-            status: entry.status,
-            added_by: entry.nominated_by || albumObj.added_by,
-            added_by_email: entry.nominated_by_email || albumObj.added_by_email,
-            user_id: entry.user_id || null,
-            created_at: entry.created_at || albumObj.created_at,
-            nominated_at: entry.created_at,
-            nomination_note: entry.note || '',
-            tracks: albumObj.tracks || [],
-            reviews_enabled: albumObj.reviews_enabled || entry.reviews_enabled || false,
-            final_rating: computedRating,
-            avg_rating: computedRating,
-            review_count: albumReviews.length || albumObj.review_count || 0,
-            release_type: albumObj.release_type,
-          };
-
-          if (entry.status === 'GANADOR') {
-            winner = item;
-          } else if (entry.status === 'ACTIVO') {
-            active.push(item);
-          } else {
-            history.push(item);
-          }
-        });
-
-        return {
-          season: DEFAULT_SEASON,
-          active,
-          winner,
-          history,
-          isFromDedicatedTable: true,
-        };
-      }
-    } catch (err) {
-      // Fallback a albums si pool_entries no existe aún
-      console.info('pool_entries table not detected or empty, using albums fallback:', err?.message);
-    }
-
-    // Fallback Universal: Utilizar la tabla `albums` existente
-    const { data: allAlbums, error: albumsError } = await supabase
-      .from('albums')
-      .select(`
-        *,
-        reviews (
-          track_ratings,
-          rating_produccion,
-          rating_composicion,
-          rating_letras,
-          rating_originalidad,
-          rating_cohesion,
-          rating_replay,
-          rating_general
-        )
-      `)
-      .order('created_at', { ascending: false });
-
-    if (albumsError) throw new Error(albumsError.message);
-
-    const active = [];
+  getPoolData: async (seasonId) => {
+    const seasons = await poolService.getSeasons();
+    const season = seasons.find(item => item.id === seasonId) || seasons.find(item => item.is_active) || DEFAULT_SEASON;
+    const [{ data: entries, error }, albums] = await Promise.all([
+      supabase.from('public_pool_entries').select('*').eq('season_id', season.id).order('created_at', { ascending: false }),
+      supabaseService.getAllAlbumsWithFullStats(),
+    ]);
+    if (error) throw new Error('No se pudieron cargar las propuestas del Pool');
+    const byId = new Map(albums.map(album => [album.id, album]));
+    const active = [], history = [];
     let winner = null;
-    const history = [];
-
-    (allAlbums || []).forEach((alb) => {
-      const albumReviews = alb.reviews || [];
-      const calculatedAvg = getAlbumWeightedAverage(albumReviews);
-      const computedRating = calculatedAvg ? parseFloat(calculatedAvg) : (alb.final_rating || alb.avg_rating || null);
-
-      const item = {
-        id: alb.id,
-        album: alb.album_name,
-        artista: alb.artist_name,
-        imagen: alb.image_url,
-        spotifyLink: alb.spotify_link,
-        spotify_link: alb.spotify_link,
-        youtubeLink: alb.youtube_link,
-        youtube_link: alb.youtube_link,
-        appleMusicLink: alb.apple_music_link,
-        apple_music_link: alb.apple_music_link,
-        otherLink: alb.other_link,
-        other_link: alb.other_link,
-        deezerLink: alb.other_link,
-        deezer_link: alb.other_link,
-        status: alb.status,
-        added_by: alb.added_by,
-        added_by_email: alb.added_by_email,
-        created_at: alb.created_at,
-        tracks: alb.tracks || [],
-        spotify_verified: alb.spotify_verified || false,
-        reviews_enabled: alb.reviews_enabled || false,
-        final_rating: computedRating,
-        avg_rating: computedRating,
-        review_count: albumReviews.length || alb.review_count || 0,
-        release_type: alb.release_type,
+    for (const entry of entries || []) {
+      const album = byId.get(entry.album_id);
+      if (!album) continue;
+      const item = { ...album, id: album.id, pool_entry_id: entry.id,
+        album: album.album_name, artista: album.artist_name, imagen: album.image_url,
+        status: entry.status, added_by: entry.nominated_by || 'Miembro',
+        created_at: entry.created_at, nominated_at: entry.created_at, nomination_note: entry.note || '',
+        reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true && album.reviews_enabled !== false,
+        spotifyLink: entry.spotify_link || album.spotify_link,
+        youtubeLink: entry.youtube_link || album.youtube_link,
+        appleMusicLink: entry.apple_music_link || album.apple_music_link,
+        otherLink: entry.other_link || album.other_link,
       };
-
-      if (alb.status === 'GANADOR') {
-        winner = item;
-      } else if (alb.status === 'ACTIVO') {
-        active.push(item);
-      } else if (alb.status === 'INACTIVO') {
-        history.push(item);
-      }
-    });
-
-    return {
-      season: DEFAULT_SEASON,
-      active,
-      winner,
-      history,
-      isFromDedicatedTable: false,
-    };
+      if (entry.status === 'GANADOR') winner = item;
+      else if (entry.status === 'ACTIVO') active.push(item);
+      else history.push(item);
+    }
+    if (winner) {
+      const { data: allowed, error: gateError } = await supabase.rpc('musiclub_can_review_album', { p_album_id: winner.id });
+      winner.reviews_enabled = !gateError && allowed === true;
+    }
+    return { season, active, winner, history, isFromDedicatedTable: true };
   },
 
   /**
    * Nomina / Propone un álbum al Pool Activo de la temporada
    */
-  nominateAlbumToPool: async ({ albumId, albumData, user, note = '' }) => {
-    // 1. Si no tiene albumId, asegurarse de que existe en la tabla universal `albums`
-    let targetAlbumId = albumId;
-
-    if (!targetAlbumId && albumData) {
-      // Buscar si ya existe por nombre y artista
-      const { data: existing } = await supabase
-        .from('albums')
-        .select('id')
-        .eq('album_name', albumData.albumName || albumData.album)
-        .eq('artist_name', albumData.artistName || albumData.artista)
-        .maybeSingle();
-
-      if (existing?.id) {
-        targetAlbumId = existing.id;
-      } else {
-        // Insertar en la tabla universal `albums`
-        const { data: inserted, error: insertError } = await supabase
-          .from('albums')
-          .insert([
-            {
-              album_name: albumData.albumName || albumData.album,
-              artist_name: albumData.artistName || albumData.artista,
-              image_url: albumData.imageUrl || albumData.imagen,
-              spotify_link: albumData.spotifyLink || albumData.spotify_link || null,
-              youtube_link: albumData.youtubeLink || albumData.youtube_link || null,
-              apple_music_link: albumData.appleMusicLink || albumData.apple_music_link || null,
-              other_link: albumData.otherLink || albumData.other_link || albumData.deezerLink || null,
-              tracks: albumData.tracks || [],
-              spotify_verified: true,
-              reviews_enabled: false,
-              release_date: albumData.releaseDate || albumData.release_date || null,
-              release_year: albumData.releaseYear || albumData.release_year || null,
-            },
-          ])
-          .select()
-          .single();
-
-        if (insertError) throw new Error(insertError.message);
-        targetAlbumId = inserted.id;
-      }
-    }
-
-    // 2. Registrar en `pool_entries`
-    const baseEntry = {
-      season_id: DEFAULT_SEASON.id,
-      album_id: targetAlbumId,
-      nominated_by: user?.name || user?.email?.split('@')[0] || 'Miembro',
-      nominated_by_email: user?.email || null,
-      user_id: user?.id || null,
-      note: note,
-      status: 'ACTIVO',
-    };
-
-    const entryWithLinks = {
-      ...baseEntry,
-      spotify_link: albumData?.spotifyLink || albumData?.spotify_link || null,
-      youtube_link: albumData?.youtubeLink || albumData?.youtube_link || null,
-      apple_music_link: albumData?.appleMusicLink || albumData?.apple_music_link || null,
-      other_link: albumData?.otherLink || albumData?.other_link || albumData?.deezerLink || null,
-    };
-
-    let poolInsertError = null;
-    const resWithLinks = await supabase.from('pool_entries').insert([entryWithLinks]);
-    if (resWithLinks.error) {
-      // Fallback si las columnas de streaming aún no existen en pool_entries
-      const resBase = await supabase.from('pool_entries').insert([baseEntry]);
-      poolInsertError = resBase.error;
-    }
-
-    if (poolInsertError) {
-      console.error('Error insertando en pool_entries:', poolInsertError);
-      throw new Error(poolInsertError.message);
-    }
-
-    return { success: true, albumId: targetAlbumId };
+  nominateAlbumToPool: async ({ albumId, albumData, user, note = '', seasonId }) => {
+    seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
+    if (!user?.id) { const { data } = await supabase.auth.getUser(); user = data?.user; }
+    if (!user?.id) throw new Error('Inicia sesión para proponer un release');
+    const { data, error } = await supabase.rpc('musiclub_nominate_pool_release', {
+      p_season_id: seasonId, p_album_id: albumId || null,
+      p_album_data: albumData || {}, p_note: note,
+    });
+    if (error) throw new Error(error.message);
+    return data;
   },
 
   /**
    * Selecciona el álbum ganador de la semana en el Pool
    */
-  selectWinner: async (albumId, seasonId = DEFAULT_SEASON.id) => {
-    // 1. Desmarcar cualquier ganador previo (pasa a HISTÓRICO / GRADUADO)
-    try {
-      await supabase
-        .from('pool_entries')
-        .update({ status: 'GRADUADO' })
-        .eq('season_id', seasonId)
-        .eq('status', 'GANADOR');
-    } catch (e) {
-      console.warn('Error graduando ganadores previos:', e);
-    }
-
-    // 2. Marcar el nuevo ganador como GANADOR
-    const { error: winErr } = await supabase
-      .from('pool_entries')
-      .update({ status: 'GANADOR' })
-      .eq('season_id', seasonId)
-      .eq('album_id', albumId);
-
-    if (winErr) {
-      console.error('Error seleccionando ganador en pool_entries:', winErr);
-      throw new Error(winErr.message);
-    }
-
-    // 3. Activar reseñas en la tabla albums
-    try {
-      await supabase.from('albums').update({ reviews_enabled: true }).eq('id', albumId);
-    } catch (e) {
-      console.warn('No se pudo habilitar reviews_enabled en albums:', e);
-    }
+  selectWinner: async (albumId, seasonId) => {
+    seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
+    const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'winner', p_album_id: albumId });
+    if (error) throw new Error(error.message);
 
     // 4. Disparar notificación por correo a todos los miembros sobre el nuevo ganador
     if (typeof window !== 'undefined') {
@@ -492,28 +268,10 @@ export const poolService = {
   /**
    * Gradúa el ganador actual y lo pasa al historial del Pool
    */
-  archiveCurrentWinner: async (albumId, seasonId = DEFAULT_SEASON.id) => {
-    // 1. Marcar como GRADUADO en pool_entries
-    const { error: poolError } = await supabase
-      .from('pool_entries')
-      .update({ status: 'GRADUADO' })
-      .eq('season_id', seasonId)
-      .eq('album_id', albumId);
-
-    if (poolError) {
-      console.error('Error archivando en pool_entries:', poolError);
-      throw new Error(poolError.message);
-    }
-
-    // 2. Desactivar reviews_enabled en la tabla albums
-    try {
-      await supabase
-        .from('albums')
-        .update({ reviews_enabled: false })
-        .eq('id', albumId);
-    } catch (e) {
-      console.warn('No se pudo desactivar reviews_enabled en albums:', e);
-    }
+  archiveCurrentWinner: async (albumId, seasonId) => {
+    seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
+    const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'graduate', p_album_id: albumId });
+    if (error) throw new Error(error.message);
 
     // 3. Disparar notificación por correo a todos los miembros sobre la graduación y resultados
     if (typeof window !== 'undefined') {
@@ -532,62 +290,19 @@ export const poolService = {
   /**
    * Habilita o deshabilita las reseñas para el ganador actual del Pool
    */
-  toggleWinnerReviews: async (albumId, reviewsEnabled) => {
-    const { error } = await supabase
-      .from('albums')
-      .update({ reviews_enabled: reviewsEnabled })
-      .eq('id', albumId);
-
+  toggleWinnerReviews: async (albumId, reviewsEnabled, seasonId) => {
+    seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
+    const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'reviews', p_album_id: albumId, p_enabled: reviewsEnabled });
     if (error) throw new Error(error.message);
     return true;
   },
 
-  /**
-   * Verifica si el Pool de la temporada está abierto para nuevas propuestas
-   * Por defecto: false (CERRADO)
-   */
-  isPoolOpen: () => {
-    try {
-      const stored = localStorage.getItem('musiclub_pool_is_open');
-      if (stored !== null) {
-        return stored === 'true';
-      }
-      return false; // Por defecto cerrado
-    } catch {
-      return false;
-    }
-  },
-
-  /**
-   * Actualiza el estado de apertura del Pool (Abierto / Cerrado)
-   */
-  setPoolOpenStatus: async (isOpen) => {
-    try {
-      localStorage.setItem('musiclub_pool_is_open', String(isOpen));
-      // Intentar persistir en Supabase si existe seasons
-      try {
-        await supabase
-          .from('seasons')
-          .update({ is_open: isOpen })
-          .eq('id', DEFAULT_SEASON.id);
-      } catch (e) {
-        // Ignorar si la columna aún no está creada
-      }
-
-      // Notificar a toda la app mediante evento personalizado
-      if (typeof window !== 'undefined') {
-        window.dispatchEvent(
-          new CustomEvent('musiclub_pool_status_change', {
-            detail: { isOpen: Boolean(isOpen) },
-          })
-        );
-      }
-      return true;
-    } catch (err) {
-      console.error('Error al cambiar estado del pool:', err);
-      return false;
-    }
+  isPoolOpen: () => false,
+  setPoolOpenStatus: async (isOpen, seasonId) => {
+    seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
+    const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'proposals', p_enabled: isOpen });
+    if (error) throw new Error(error.message);
+    return true;
   },
 };
-
 export default poolService;
