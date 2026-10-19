@@ -20,3 +20,4 @@ jobs:
       - run: node --check scripts/dailyRecordClubSync.mjs
       - run: node --check scripts/checkUpcomingReleasesCron.mjs
       - run: node --check scripts/verify-supabase-configuration.mjs
+      - run: node --check scripts/verify-smtp-configuration.mjs

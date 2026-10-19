@@ -11,6 +11,13 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.7.2', title: 'Comprobación segura del correo', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Mantenimiento',
+    tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',
+    summary: 'El correo exige una conexión cifrada y dispone de una comprobación manual de autenticación sin enviar mensajes.',
+    changes: [{ type: 'security', title: 'Verificación SMTP sin envíos', description: 'La administración puede validar las credenciales de Brevo y comprobar la presencia de la configuración diaria sin mostrar claves ni enviar correos. Esta comprobación no acredita la entrega en los buzones.' }],
+  },
+  {
     version: 'V.9.7.1', title: 'Comprobación privada de la renovación de claves', date: '2026-10-16',
     sha: '', associatedShas: [], tag: 'Mantenimiento',
     tagColor: 'from-purple-500 via-indigo-600 to-cyan-600', authorName: 'Eugenio Turcott',

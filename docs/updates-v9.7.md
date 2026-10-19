@@ -41,3 +41,11 @@ La revisión de GitHub Actions del 16 de octubre encontró solamente las cuatro 
 La medición empieza con esta instalación: no recupera visitas históricas. Revisar en Search Console las impresiones, clics y motivos de exclusión; en Vercel, origen de visitas y métricas de carga; en administración, primeras reseñas y retorno. Google decide cuándo rastrear e indexar. Las mejoras técnicas y las guías no sustituyen una distribución constante ni crean enlaces externos por sí mismas.
 
 La auditoría y las capturas privadas se conservan localmente en `audit/`, fuera de Git.
+
+## Actualización V.9.7.2 — 19 de octubre de 2026
+
+Spotify y Supabase ya se comprobaron con las claves nuevas. El propietario confirmó el inicio de sesión y desactivó las claves heredadas de Supabase; la clave privilegiada anterior devolvió 401. La lectura pública y el aislamiento privado siguieron funcionando.
+
+El propietario confirmó haber guardado SMTP_PASS en Vercel y GitHub y SMTP_USER en GitHub; SMTP_HOST y SMTP_PORT también están configurados. La validación manual `Verify SMTP configuration (no email)` comprueba la presencia de los siete valores del mantenimiento y autentica contra Brevo mediante el mismo transportador de producción. No envía mensajes, no muestra claves y no acredita la entrega en un buzón. La conexión SMTP exige cifrado; se limita la espera de conexión y saludo a 15 segundos.
+
+Antes de revocar la clave SMTP anterior, ejecutar esa comprobación y esperar el despliegue nuevo de Vercel. La revocación la completa el propietario en Brevo. Hasta entonces, el cierre de la rotación SMTP sigue pendiente. Los archivos locales ignorados con credenciales anteriores no sirven para ejecutar mantenimiento local tras revocarlas; actualizarlos de forma privada si se necesita esa ejecución.
