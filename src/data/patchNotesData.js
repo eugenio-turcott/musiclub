@@ -11,6 +11,16 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.15.0', title: 'La reseña completa del club, sin atajos', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Reseñas e interacción',
+    tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Se retira la valoración rápida y queda únicamente el formulario de reseña completa del club. Los controles interactivos comparten el cursor de mano.',
+    changes: [
+      { type: 'fix', title: 'Un solo formato para participar', description: 'Las fichas, el Gashapon, las recomendaciones y la edición de reseñas utilizan el análisis completo. Se actualizan las guías y los borradores no pueden reactivar el formato retirado.' },
+      { type: 'improvement', title: 'Controles que se reconocen al pasar el cursor', description: 'Botones, filtros, pestañas y selectores usan el cursor de mano. Los controles deshabilitados indican que no están disponibles; los campos de texto conservan su cursor de escritura.' },
+    ],
+  },
+  {
     version: 'V.9.14.0', title: 'Familias musicales con figuras propias', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Géneros',
     tagColor: 'from-purple-500 via-pink-500 to-amber-400', authorName: 'Eugenio Turcott',
@@ -197,9 +207,9 @@ export const CURATED_PATCH_NOTES = [
     version: 'V.9.7', title: 'Una primera reseña más fácil y mejor seguimiento del club', date: '2026-10-16',
     sha: '', associatedShas: [], tag: 'Experiencia y mantenimiento',
     tagColor: 'from-pink-500 via-purple-600 to-cyan-600', authorName: 'Eugenio Turcott',
-    summary: 'Nueva valoración rápida, búsqueda visible, guías para empezar y medición de visitas con controles de privacidad. La portada evita descargar de nuevo el catálogo completo y los avisos incorporan protección contra envíos repetidos.',
+    summary: 'Búsqueda visible, guías para empezar y medición de visitas con controles de privacidad. La opción de valoración breve introducida en esta versión fue retirada en V.9.15.0; el club utiliza la reseña completa.',
     changes: [
-      { type: 'feature', title: 'Valora con una nota y un comentario opcional', description: 'Elige una nota sobre diez o utiliza el análisis detallado. La valoración rápida no inventa notas para los pilares ni para las canciones. Puedes preparar el borrador antes de iniciar sesión.' },
+      { type: 'feature', title: 'Historial: formato breve retirado', description: 'Esta versión incorporó un formato de nota general y comentario. Fue retirado en V.9.15.0 para mantener únicamente la reseña completa del club.' },
       { type: 'feature', title: 'Busca y aprende cómo participar', description: 'La portada incluye una búsqueda directa y tres guías explican las notas, la primera reseña y el descubrimiento en comunidad.' },
       { type: 'improvement', title: 'Menos descargas al abrir la portada', description: 'La selección inicial se entrega desde el servidor, las portadas principales utilizan imágenes adaptadas y los enlaces evitan precargar fichas completas sin necesidad.' },
       { type: 'feature', title: 'Visitas y participación con privacidad', description: 'Vercel mide visitas y carga sin eventos personalizados de pago. Se excluyen páginas privadas y parámetros; puedes desactivar la medición. El panel de administración resume actividad y personas que vuelven a reseñar.' },

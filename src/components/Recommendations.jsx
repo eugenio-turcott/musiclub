@@ -910,7 +910,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
         </div>
       )}
 
-      {/* MODAL DE RESEÑA RÁPIDA (REVIEW SYSTEM) VÍA CREATEPORTAL */}
+      {/* MODAL DE RESEÑA (REVIEW SYSTEM) VÍA CREATEPORTAL */}
       {selectedAlbumForReview &&
         createPortal(
           <div
