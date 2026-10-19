@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.15.3', title: 'Giro visible del vinilo de Musiclub', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Se corrige el recorte del centro fijo para que no tape el movimiento exterior del disco.',
+    changes: [
+      { type: 'fix', title: 'El exterior vuelve a verse girar', description: 'La capa fija muestra únicamente el centro con el logo. La parte exterior queda visible y gira de forma independiente en todos los vinilos de Musiclub.' },
+    ],
+  },
+  {
     version: 'V.9.15.2', title: 'El vinilo gira, el logo permanece derecho', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',

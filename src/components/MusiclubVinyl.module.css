@@ -14,10 +14,6 @@
   animation-duration: 6s;
 }
 
-.label {
-  clip-path: circle(50%);
-}
-
 @keyframes turn {
   to { transform: rotate(360deg); }
 }
