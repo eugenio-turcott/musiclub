@@ -5,6 +5,16 @@ import sitemap from '../src/utils/sitemapData.cjs';
 import { publicData, jsonLd } from '../src/utils/publicData.js';
 import { getReleaseUrl } from '../src/utils/ratingUtils.js';
 
+test('Unicode album identities survive encoded route parameters and HTTP redirects', () => {
+  const path = getReleaseUrl({ artist_name: 'Аигел', album_name: '1190' });
+  const encoded = encodeURI(path);
+  const headers = new Headers({ Location: encoded });
+  assert.equal(headers.get('Location'), encoded);
+  assert.equal(identity.decodeRouteSlug(encoded.split('/').pop()), 'аигел-1190');
+  assert.equal(identity.decodeRouteSlug('black-country-new-road-forever-howlong'), 'black-country-new-road-forever-howlong');
+  assert.equal(identity.decodeRouteSlug('invalid%'), 'invalid%');
+});
+
 test('sitemap and application agree for artists, formats, accents and editions', () => {
   for (const album of [
     { artist_name: 'ROSALÍA', album_name: 'MOTOMAMI', release_type: 'ALBUM' },

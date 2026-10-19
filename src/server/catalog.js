@@ -6,6 +6,7 @@ import { buildAlbumWithFullStats } from '../services/supabaseClient';
 import { PUBLIC_REVIEW_FIELDS, publicData } from '../utils/publicData';
 import { slugifyArtist, slugifyAlbum, splitArtists, getReleaseUrl } from '../utils/ratingUtils';
 import { getArtistCompleteProfile } from '../services/spotifyApi';
+import releaseIdentity from '../utils/releaseIdentity.cjs';
 
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
 function client() {
@@ -59,7 +60,7 @@ export const getPublicAlbum = cache(async slug => {
   const detail = album => publicData({ ...album, ...buildAlbumWithFullStats(album,
     reviews.filter(r => r.album_id === album.id).map(({ albums: relation, ...review }) => review)) });
   // Legacy titles shared by multiple artists must not redirect to an arbitrary album.
-  const clean = String(slug).toLowerCase();
+  const clean = releaseIdentity.decodeRouteSlug(slug).toLowerCase();
   const byIdentity = albums.find(a => a.id === slug || getReleaseUrl(a).split('/').pop() === clean);
   if (byIdentity) return detail(byIdentity);
   const legacy = albums.filter(a => slugifyAlbum(a.album_name) === clean);
@@ -73,11 +74,11 @@ export const getPublicAlbum = cache(async slug => {
 
 export const getPublicArtist = cache(async slug => {
   const { albums } = await getPublicCatalog();
-  const canonicalSlug = String(slug).toLowerCase();
+  const canonicalSlug = releaseIdentity.decodeRouteSlug(slug).toLowerCase();
   const clubAlbums = albums.filter(a => slugifyArtist(a.artist_name) === canonicalSlug ||
     splitArtists(a.artist_name).some(artist => artist.slug === canonicalSlug));
   if (!clubAlbums.length) {
-    const profile = await getArtistCompleteProfile(String(slug).replace(/-/g, ' '));
+    const profile = await getArtistCompleteProfile(canonicalSlug.replace(/-/g, ' '));
     return profile?.success && profile.artist ? { albums: [], profile } : null;
   }
   const sample = clubAlbums[0];
