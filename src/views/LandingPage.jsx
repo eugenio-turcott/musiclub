@@ -1,4 +1,5 @@
 'use client';
+import { MusiclubVinyl } from '../components/MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
 // src/pages/LandingPage.jsx
 import { CoverImage } from '../components/CoverImage';
@@ -753,7 +754,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                     <div className="relative w-[180px] sm:w-[210px] md:w-[230px] lg:w-[245px] aspect-square shrink-0">
                       {/* Vinyl Disc: out by default, tucks into sleeve ONLY when hovering over the vinyl assembly */}
                       <div className="absolute inset-0 z-0 rounded-full shadow-2xl flex items-center justify-center transform translate-x-28 sm:translate-x-32 md:translate-x-40 lg:translate-x-44 group-hover/vinyl:translate-x-8 sm:group-hover/vinyl:translate-x-10 md:group-hover/vinyl:translate-x-12 transition-transform duration-700 ease-out">
-                        <CoverImage
+                        <MusiclubVinyl
                           src="/musiclub_logo_3.png"
                           alt="Musiclub Vinyl Disc"
                           className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none border-2 border-white/25 shadow-2xl"
@@ -1057,7 +1058,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
                     {/* Disc Frame & Shadow */}
                     <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
-                      <CoverImage
+                      <MusiclubVinyl
                         src="/musiclub_logo_3.png"
                         alt="Disco de la semana"
                         className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"

@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.15.2', title: 'El vinilo gira, el logo permanece derecho', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
+    summary: 'Los discos de Musiclub mantienen su centro fijo y alineado mientras gira la parte exterior.',
+    changes: [
+      { type: 'fix', title: 'Un movimiento consistente en todo el club', description: 'El inicio, Pool, encabezado, pie y las demás secciones comparten un vinilo con el logo centrado y siempre derecho. Se respeta la preferencia de movimiento reducido.' },
+    ],
+  },
+  {
     version: 'V.9.15.1', title: 'Indicaciones claras en la reseña del club', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Reseñas',
     tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',

@@ -1,3 +1,4 @@
+import { MusiclubVinyl } from './MusiclubVinyl';
 import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -818,7 +819,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
           {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
           <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <CoverImage
+            <MusiclubVinyl
               src="/musiclub_logo_4.png"
               alt=""
               className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
@@ -1554,7 +1555,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             ) : filteredAlbums.length === 0 ? (
               <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-3">
                 <div className="relative w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">
-                  <CoverImage
+                  <MusiclubVinyl
                     src="/musiclub_logo_4.png"
                     alt="Musiclub"
                     className="w-full h-full object-contain animate-spin-slow opacity-80 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]"
