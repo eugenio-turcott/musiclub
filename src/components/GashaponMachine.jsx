@@ -13,7 +13,7 @@ import { ReviewSystem } from './ReviewSystem';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 import { GashaponReveal } from './GashaponReveal';
 import { GenreArtwork } from './GenreArtwork';
-import { GenrePicker } from './GenrePicker';
+import { GashaponGenres } from './GashaponGenres';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import vinylEditions from '../utils/vinylEditions.cjs';
 
@@ -819,7 +819,7 @@ export function GashaponMachine({
         <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-5 text-center md:text-left">
           <div className="space-y-1.5 max-w-3xl">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-              Gashapon por Géneros Musicales
+              Gashapon Musical
             </h1>
             <p className="text-white/60 text-sm sm:text-base leading-relaxed">
               Elige un género y gira la manivela para descubrir una cápsula de los{' '}
@@ -875,7 +875,7 @@ export function GashaponMachine({
           </div>
         </div>
 
-        <div className="mt-6"><GenrePicker albums={eligibleAlbums} value={selectedGenre} onChange={handleGenreChange} disabled={['CRANKING','DROPPING','OPENING'].includes(machineState)} /></div>
+        <div className="mt-6"><GashaponGenres albums={eligibleAlbums} value={selectedGenre} onChange={handleGenreChange} disabled={['CRANKING','DROPPING','OPENING'].includes(machineState)} /></div>
         <p className="mt-3 text-sm text-slate-300" role="status">{filteredPool.length} lanzamientos disponibles con estos filtros. {selectedGenre !== 'all' && 'Todas las cápsulas representan el género seleccionado.'}</p>
         {filteredPool.length === 0 && <p className="mt-2 text-sm text-amber-200">No hay lanzamientos que coincidan. Prueba otro género o cambia los filtros.</p>}
         {/* SELECTOR DE FILTRO DE CÁPSULAS */}

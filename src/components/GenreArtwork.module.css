@@ -1,0 +1,3 @@
+.spinning { transform-origin: 50% 50%; animation: vinylRotation 24s linear infinite; }
+@keyframes vinylRotation { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinning { animation: none; } }

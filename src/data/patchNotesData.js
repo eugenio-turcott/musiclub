@@ -11,6 +11,16 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.13.0', title: 'Gashapon Musical: elige tu vinilo', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Gashapon',
+    tagColor: 'from-cyan-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'El Gashapon estrena filtros visuales con vinilos que puedes pulsar para elegir un género.',
+    changes: [
+      { type: 'improvement', title: 'Géneros para explorar de un vistazo', description: 'Tarjetas con vinilos grandes, búsqueda y una vista ampliable de géneros. Cada selección filtra la máquina y conserva el enlace a su página.' },
+      { type: 'improvement', title: 'Vinilos protagonistas', description: 'Las páginas de género muestran un vinilo más grande. Su exterior gira suavemente mientras el símbolo permanece fijo; la animación respeta la preferencia de reducir movimiento.' },
+    ],
+  },
+  {
     version: 'V.9.12.2', title: 'La portada muestra categorías con contenido', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Inicio',
     tagColor: 'from-pink-500 to-purple-500', authorName: 'Eugenio Turcott',
