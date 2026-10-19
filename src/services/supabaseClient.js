@@ -863,6 +863,8 @@ export const supabaseService = {
   },
 
   submitReview: async (reviewData) => {
+    const { data: canReview, error: accessError } = await supabase.rpc('musiclub_can_review_album', { p_album_id: reviewData.albumId });
+    if (accessError || canReview !== true) throw new Error('Las reseñas de este release están cerradas. El administrador debe habilitarlas.');
     // Validar si el usuario ya calificó este álbum para prevenir duplicados
     if (reviewData.albumId && (reviewData.reviewerEmail || reviewData.reviewerName)) {
       try {
@@ -932,6 +934,8 @@ export const supabaseService = {
   },
 
   updateReview: async (reviewId, reviewData) => {
+    const { data: canReview, error: accessError } = await supabase.rpc('musiclub_can_review_album', { p_album_id: reviewData.albumId });
+    if (accessError || canReview !== true) throw new Error('Las reseñas de este release están cerradas. No se pueden modificar mientras estén pausadas.');
     let finalUpdateAvatar =
       reviewData.reviewerAvatar || reviewData.reviewer_avatar || null;
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { poolService, DEFAULT_SEASON } from '../services/poolService';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
-export function usePool(seasonId = DEFAULT_SEASON.id) {
+export function usePool(seasonId) {
   const [season, setSeason] = useState(DEFAULT_SEASON);
   const [seasons, setSeasons] = useState(() => poolService.getAllSeasons());
   const [activePool, setActivePool] = useState([]);
@@ -37,12 +37,12 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
     };
   }, [loadSeasons]);
 
-  const fetchPoolData = useCallback(async () => {
-    setLoading(true);
+  const fetchPoolData = useCallback(async (background = false) => {
+    if (!background) setLoading(true);
     setError(null);
     try {
       const data = await poolService.getPoolData(seasonId);
-      if (data.season) setSeason(data.season);
+      if (data.season) { setSeason(data.season); setIsPoolOpen(data.season.is_active === true && data.season.is_open === true); }
       setActivePool(data.active || []);
       setWinner(data.winner || null);
       setPoolHistory(data.history || []);
@@ -50,13 +50,20 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
       console.error('Error in usePool:', err);
       setError(err.message || 'Error al cargar los datos del Pool');
     } finally {
-      setLoading(false);
+      if (!background) setLoading(false);
       notifyContentLoaded('pool');
     }
   }, [seasonId]);
 
   useEffect(() => {
     fetchPoolData();
+  }, [fetchPoolData]);
+
+  useEffect(() => {
+    const refresh = () => { if (document.visibilityState === 'visible') fetchPoolData(true); };
+    window.addEventListener('focus', refresh);
+    const interval = window.setInterval(refresh, 30000);
+    return () => { window.removeEventListener('focus', refresh); window.clearInterval(interval); };
   }, [fetchPoolData]);
 
   const nominateAlbum = useCallback(
@@ -66,40 +73,41 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
         albumData,
         user,
         note,
+        seasonId: season.id,
       });
       await fetchPoolData();
       return result;
     },
-    [fetchPoolData]
+    [fetchPoolData, season.id]
   );
 
   const selectWinner = useCallback(
     async (albumId) => {
-      const result = await poolService.selectWinner(albumId, seasonId);
+      const result = await poolService.selectWinner(albumId, season.id);
       await fetchPoolData();
       return result;
     },
-    [seasonId, fetchPoolData]
+    [season.id, fetchPoolData]
   );
 
   const archiveCurrentWinner = useCallback(
     async (albumId) => {
-      const result = await poolService.archiveCurrentWinner(albumId, seasonId);
+      const result = await poolService.archiveCurrentWinner(albumId, season.id);
       await fetchPoolData();
       return result;
     },
-    [seasonId, fetchPoolData]
+    [season.id, fetchPoolData]
   );
 
   const toggleWinnerReviews = useCallback(
     async (albumId, enabled) => {
-      const result = await poolService.toggleWinnerReviews(albumId, enabled);
+      const result = await poolService.toggleWinnerReviews(albumId, enabled, season.id);
       if (winner && winner.id === albumId) {
         setWinner((prev) => (prev ? { ...prev, reviews_enabled: enabled } : null));
       }
       return result;
     },
-    [winner]
+    [winner, season.id]
   );
 
   const [isPoolOpen, setIsPoolOpen] = useState(() => poolService.isPoolOpen());
@@ -118,12 +126,13 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
   }, []);
 
   const setPoolOpenStatus = useCallback(async (isOpen) => {
-    const ok = await poolService.setPoolOpenStatus(isOpen);
+    const ok = await poolService.setPoolOpenStatus(isOpen, season.id);
     if (ok) {
       setIsPoolOpen(Boolean(isOpen));
     }
+    await fetchPoolData();
     return ok;
-  }, []);
+  }, [season.id, fetchPoolData]);
 
   const openPool = useCallback(() => setPoolOpenStatus(true), [setPoolOpenStatus]);
   const closePool = useCallback(() => setPoolOpenStatus(false), [setPoolOpenStatus]);
@@ -131,26 +140,30 @@ export function usePool(seasonId = DEFAULT_SEASON.id) {
   const createSeason = useCallback(async (seasonData) => {
     const res = await poolService.createSeason(seasonData);
     await loadSeasons();
+    await fetchPoolData();
     return res;
-  }, [loadSeasons]);
+  }, [loadSeasons, fetchPoolData]);
 
   const updateSeason = useCallback(async (seasonId, seasonData) => {
     const res = await poolService.updateSeason(seasonId, seasonData);
     await loadSeasons();
+    await fetchPoolData();
     return res;
-  }, [loadSeasons]);
+  }, [loadSeasons, fetchPoolData]);
 
   const deleteSeason = useCallback(async (seasonId) => {
     const res = await poolService.deleteSeason(seasonId);
     await loadSeasons();
+    await fetchPoolData();
     return res;
-  }, [loadSeasons]);
+  }, [loadSeasons, fetchPoolData]);
 
   const setActiveSeason = useCallback(async (seasonId) => {
     const res = await poolService.setActiveSeason(seasonId);
     await loadSeasons();
+    await fetchPoolData();
     return res;
-  }, [loadSeasons]);
+  }, [loadSeasons, fetchPoolData]);
 
   return {
     season,

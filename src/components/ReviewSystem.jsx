@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useReviewAccess } from '../hooks/useReviewAccess';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { authenticatedFetch } from '../services/authenticatedFetch';
@@ -79,6 +80,7 @@ export function ReviewSystem({
   onCancelEdit = null,
 }) {
   const auth = useAuth();
+  const reviewAccess = useReviewAccess(album?.id);
   const user = propUser || auth.user;
   const loginWithGoogle = auth.loginWithGoogle;
 
@@ -742,6 +744,8 @@ export function ReviewSystem({
   };
 
   if (!album) return null;
+
+  if (reviewAccess !== true) return <div role="status" className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-5 text-center text-sm text-amber-100">{reviewAccess === null ? 'Comprobando disponibilidad de reseñas…' : '🔒 Las reseñas de este release están cerradas. El administrador controla cuándo se habilitan.'}</div>;
 
   return (
     <div className={isModal ? 'space-y-4' : 'space-y-6'}>

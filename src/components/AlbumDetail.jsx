@@ -1,4 +1,5 @@
 'use client';
+import { useReviewAccess } from '../hooks/useReviewAccess';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -211,6 +212,7 @@ export function AlbumDetail({
   const preloadedAlbum = propPreloadedAlbum || location?.state?.preloadedAlbum;
 
   const [album, setAlbum] = useState(() => normalizeAlbumData(preloadedAlbum));
+  const reviewAccess = useReviewAccess(album?.id);
   const [loading, setLoading] = useState(() => !preloadedAlbum);
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
@@ -1420,13 +1422,12 @@ export function AlbumDetail({
                   </button>
                 ) : (
                   <button
+                    disabled={reviewAccess !== true}
                     onClick={() => setShowReviewSystem((prev) => !prev)}
                     className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <span>
-                      {userReview
-                        ? '✏️ Modificar Mi Reseña'
-                        : '⭐ Calificar y Reseñar'}
+                      {reviewAccess === null ? 'Comprobando acceso…' : reviewAccess === false ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}
                     </span>
                   </button>
                 )}
@@ -1588,7 +1589,7 @@ export function AlbumDetail({
               </div>
             </div>
           </div>
-        ) : album.is_on_demand ? (
+        ) : album.is_on_demand && reviewAccess === true ? (
           <div className="rounded-3xl bg-linear-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
@@ -1613,7 +1614,7 @@ export function AlbumDetail({
         ) : null}
 
         {/* REVIEW SYSTEM MODAL / SECTION (Interactive Rating Form) */}
-        {showReviewSystem && !isAnticipated && (
+        {showReviewSystem && !isAnticipated && reviewAccess === true && (
           <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">

@@ -11,6 +11,18 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.17.0', title: 'Pools con dinámica propia y control manual', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Pool Musical',
+    tagColor: 'from-pink-500 to-cyan-400', authorName: 'Eugenio Turcott',
+    summary: 'Cada Pool conserva sus propuestas y reglas. El administrador decide cuándo abrir las propuestas y cuándo permitir, pausar o cerrar las reseñas.',
+    changes: [
+      { type: 'improvement', title: 'Diez dinámicas para descubrir música en grupo', description: 'El administrador puede preparar un Pool cerrado con una de las diez ideas creativas o escribir sus propias reglas. La activación y apertura son manuales.' },
+      { type: 'fix', title: 'Propuestas asociadas al Pool correcto', description: 'La búsqueda reúne Musiclub, Spotify y MusicBrainz. Las nominaciones se guardan de forma conjunta con el release, evitando duplicados en el mismo Pool y registros incompletos cuando las propuestas están cerradas.' },
+      { type: 'fix', title: 'Los cierres se respetan en todo el club', description: 'El estado se guarda en la base de datos. Las fichas, el Gashapon y los formularios respetan la pausa de reseñas, y la base de datos impide guardar o editar una reseña cerrada.' },
+      { type: 'fix', title: 'Historial y notas de toda la comunidad', description: 'El Pool muestra los promedios públicos del club y deja de mezclar temporadas o recuperar candidatos ajenos cuando un Pool está vacío.' },
+    ],
+  },
+  {
     version: 'V.9.16.0', title: 'Discografías, estrenos y correos con identidad musical', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Catálogo y correos',
     tagColor: 'from-cyan-400 to-pink-500', authorName: 'Eugenio Turcott',
