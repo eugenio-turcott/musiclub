@@ -11,6 +11,15 @@ export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OW
 
 export const CURATED_PATCH_NOTES = [
   {
+    version: 'V.9.13.2', title: 'Discos con más personalidad en cada género', date: '2026-10-19',
+    sha: '', associatedShas: [], tag: 'Diseño',
+    tagColor: 'from-amber-400 to-pink-500', authorName: 'Eugenio Turcott',
+    summary: 'Las tarjetas de las páginas de género adoptan el estilo de los recomendados del club.',
+    changes: [
+      { type: 'improvement', title: 'Reseñas y canciones destacadas a la vista', description: 'Las tarjetas con reseñas muestran la calificación, el número de reseñas y la canción destacada cuando existe. Los lanzamientos sin reseñas conservan su portada, año y acceso a la ficha, sin calificaciones ni contadores vacíos.' },
+    ],
+  },
+  {
     version: 'V.9.13.1', title: 'Cada género tiene su propia atmósfera', date: '2026-10-19',
     sha: '', associatedShas: [], tag: 'Diseño',
     tagColor: 'from-teal-400 via-purple-500 to-pink-500', authorName: 'Eugenio Turcott',

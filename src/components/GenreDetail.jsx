@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { GenreArtwork } from './GenreArtwork';
-import { CoverImage } from './CoverImage';
-import { getReleaseUrl } from '../utils/ratingUtils';
+import { GenreReleaseCard } from './GenreReleaseCard';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './GenreHero.module.css';
 
@@ -28,10 +27,7 @@ export function GenreDetail({ genre, albums }) {
       </div>
     </section>
     {!albums.length ? <p className="rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-white/60">Este género aún no tiene lanzamientos en el club.</p> : <section aria-label={`Lanzamientos de ${genre.name}`} className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
-      {albums.slice((page-1)*24,page*24).map(album => <article key={album.id} className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-[#121424] shadow-lg">
-        <Link to={getReleaseUrl(album)}><CoverImage src={album.image_url || album.imagen} alt={album.album_name || album.album} width={320} height={320} sizes="(max-width:640px) 45vw, (max-width:1024px) 30vw, 240px" className="aspect-square w-full object-cover" /></Link>
-        <div className="space-y-2 p-3 sm:p-4"><h2 translate="no" className="line-clamp-2 text-sm font-extrabold text-white"><Link to={getReleaseUrl(album)}>{album.album_name || album.album}</Link></h2><p translate="no" className="truncate text-xs text-white/50">{album.artist_name || album.artista}</p><p className="text-xs text-white/60">{album.review_count > 0 ? `★ ${Number(album.base_rating ?? album.avg_rating ?? album.final_rating ?? 0).toFixed(1)}/10 · ${album.review_count} ${album.review_count === 1 ? 'reseña' : 'reseñas'}` : 'Aún sin reseñas'}</p></div>
-      </article>)}
+      {albums.slice((page-1)*24,page*24).map(album => <GenreReleaseCard key={album.id} album={album} />)}
     </section>}
     {pages > 1 && <nav aria-label="Páginas de lanzamientos" className="flex items-center justify-center gap-4 text-sm"><button disabled={page===1} onClick={()=>setPage(value=>value-1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Anterior</button><span>{page} / {pages}</span><button disabled={page===pages} onClick={()=>setPage(value=>value+1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Siguiente</button></nav>}
     <Footer />
