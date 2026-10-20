@@ -129,3 +129,10 @@ test('a release added after the public catalogue cache was warmed opens immediat
   await expect(page.getByRole('heading',{name:'Violeta (Deluxe)',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Pista Fuera de Órbita'})).toHaveCount(0);
 });
+
+
+test('artists with only an upcoming release open immediately from local metadata',async({page})=>{
+  await page.goto('/artista/artista-proximo');
+  await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
+});

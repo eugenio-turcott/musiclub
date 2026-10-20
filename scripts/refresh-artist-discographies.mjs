@@ -13,7 +13,11 @@ for(let offset=0;;offset+=500) {
  for(const row of data) for(const {name,slug} of splitArtists(row.artist_name)) names.set(slug,name);
  if(data.length<500) break;
 }
+const upcoming=await db.from('record_club_upcoming').select('artist_name,artist_slug');
+if(upcoming.error) throw new Error('No se pudieron leer los artistas de próximos estrenos');
+for(const row of upcoming.data || []) if(row.artist_name) names.set(row.artist_slug || identity.slugify(row.artist_name),row.artist_name);
 const selected=(process.env.ARTIST_SLUGS || '').split(',').map(s=>s.trim()).filter(Boolean);
+for(const slug of selected) if(!names.has(slug)) throw new Error(`Artista no encontrado en el club: ${slug}`);
 let failed=0,updated=0;
 for(const [slug,name] of [...names].sort(([a],[b])=>a.localeCompare(b))) {
  if(selected.length && !selected.includes(slug)) continue;

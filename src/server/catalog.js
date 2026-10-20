@@ -97,9 +97,10 @@ export const getPublicArtist = cache(async slug => {
   const clubAlbums = albums.filter(a => slugifyArtist(a.artist_name) === canonicalSlug ||
     splitArtists(a.artist_name).some(artist => artist.slug === canonicalSlug));
   const sample = clubAlbums[0];
-  const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : canonicalSlug.replace(/-/g, ' ');
-  const external = await getStoredArtistProfile(client(), canonicalSlug, name);
-  if (!sample && !external) return null;
+  const { data: upcoming } = await client().from('record_club_upcoming').select('*').eq('artist_slug', canonicalSlug);
+  const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : upcoming?.[0]?.artist_name || canonicalSlug.replace(/-/g, ' ');
+  const external = await getStoredArtistProfile(client(), canonicalSlug, name, Boolean(sample || upcoming?.length));
+  if (!sample && !external && !upcoming?.length) return null;
   const discography = [...(external?.discography || [])];
   for (const a of clubAlbums) {
     const links=[a.spotify_link,a.other_link,a.apple_music_link].filter(Boolean).map(link=>link.split('?')[0].replace(/\/$/,''));
@@ -111,7 +112,6 @@ export const getPublicArtist = cache(async slug => {
       image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
       release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link });
   }
-  const { data: upcoming } = await client().from('record_club_upcoming').select('*').eq('artist_slug', canonicalSlug);
   for (const release of upcoming || []) {
     const match = discography.find(d => d.name.toLowerCase().trim() === release.album_name.toLowerCase().trim());
     const metadata = { image: release.image_url, totalTracks: release.total_tracks, clubUrl: `/albumes/${release.slug}`, isUpcoming: true };
