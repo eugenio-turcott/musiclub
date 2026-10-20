@@ -1,3 +1,4 @@
+import mbIdentity from '../src/utils/musicBrainzIdentity.cjs';
 // scripts/populateMissingMbidAndGenres.mjs
 /**
  * MUSICLUB - Enriquecedor y Poblador Canónico de Metadatos (MBID & Géneros)
@@ -146,7 +147,7 @@ function pickBestReleaseGroup(rgs, artist, album) {
   const cleanAlb = album.toLowerCase().trim();
   const cleanArt = artist.toLowerCase().trim();
 
-  const scored = rgs.map((rg) => {
+  const scored = rgs.filter(rg => mbIdentity.releaseGroupMatches(artist, album, rg)).map((rg) => {
     let score = rg.score || 50;
     const title = (rg.title || '').toLowerCase().trim();
     const rgArt = (rg['artist-credit'] || [])
@@ -437,6 +438,11 @@ export async function runBackfill(options = {}) {
       const detailsUrl = `https://musicbrainz.org/ws/2/release-group/${album.mbid}?inc=genres+tags+artists&fmt=json`;
       const details = await fetchMbWithRetry(detailsUrl);
       let genres = [];
+
+      if (details && !mbIdentity.releaseGroupMatches(album.artist_name, album.album_name, details)) {
+        console.warn('Referencia de MusicBrainz pendiente de revisión; se conserva el release y sus géneros.');
+        continue;
+      }
 
       if (details) {
         genres = cleanGenres([...(details.genres || []), ...(details.tags || [])]);

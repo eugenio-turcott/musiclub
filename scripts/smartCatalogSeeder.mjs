@@ -1,3 +1,4 @@
+import mbIdentity from '../src/utils/musicBrainzIdentity.cjs';
 // scripts/smartCatalogSeeder.mjs
 /**
  * MUSICLUB - Smart Catalog Seeder
@@ -79,7 +80,7 @@ async function searchMusicBrainzReleaseGroupSeeder(artistName, albumName) {
     });
     if (!res.ok) return null;
     const data = await res.json();
-    return data['release-groups']?.[0] || null;
+    return data['release-groups']?.find(rg => mbIdentity.releaseGroupMatches(artistName, albumName, rg)) || null;
   } catch {
     return null;
   }

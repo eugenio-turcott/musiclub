@@ -1,3 +1,4 @@
+import mbIdentity from '../src/utils/musicBrainzIdentity.cjs';
 // scripts/enrichMissingMusicBrainz.mjs
 import genreCatalog from '../src/utils/genreCatalog.cjs';
 import { createClient } from '@supabase/supabase-js';
@@ -178,7 +179,7 @@ function pickBestReleaseGroup(rgs, artist, album) {
   const cleanAlb = album.toLowerCase().trim();
   const cleanArt = artist.toLowerCase().trim();
 
-  const scored = rgs.map((rg) => {
+  const scored = rgs.filter(rg => mbIdentity.releaseGroupMatches(artist, album, rg)).map((rg) => {
     let score = rg.score || 50;
     const title = (rg.title || '').toLowerCase().trim();
     const rgArt = (rg['artist-credit'] || [])

@@ -60,3 +60,32 @@ test('anonymous ratings ask for a session without publishing a community vote',a
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
   expect(writes).toHaveLength(0);
 });
+
+test('Gashapon genre selection updates the capsules and genre-page link together',async({page})=>{
+  await page.goto('/gashapon');
+  await page.getByRole('button',{name:'Filtrar Gashapon por Rock',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Filtrar Gashapon por Rock',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByRole('link',{name:'Ver la página de Rock →',exact:true})).toHaveAttribute('href','/generos/rock');
+  await expect(page.locator('[data-capsule-genre="rock"]').first()).toBeVisible();
+  await expect(page.locator('[data-capsule-genre]:not([data-capsule-genre="rock"])')).toHaveCount(0);
+});
+
+test('artist pages preserve club discography and review badges',async({page})=>{
+  await page.goto('/artista/artista-de-prueba');
+  await expect(page.getByRole('heading',{name:'Artista de Prueba',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Discografía Completa',exact:false})).toBeVisible();
+  await expect(page.getByText('EN MUSICLUB',{exact:true}).first()).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+});
+
+test('a closed Pool keeps proposals disabled without creating entries',async({page})=>{
+  await page.goto('/pool');
+  await expect(page.getByRole('heading',{name:'Pool Musical Comunitario',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:/Proponer al Pool \(Cerrado\)/})).toBeDisabled();
+});
+
+test('unavailable cover votes produce a visible error instead of a fake saved total',async({page})=>{
+  await page.route('**/rest/v1/public_cover_ratings*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Fixture unavailable'})}));
+  await page.goto('/portadas');
+  await expect(page.getByRole('alert')).toContainText('No pudimos cargar las calificaciones de portadas');
+});
