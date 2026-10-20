@@ -1,5 +1,5 @@
 'use client';
-import React, { forwardRef, useState, useEffect } from 'react';
+import React, { forwardRef, useState, useEffect, useMemo } from 'react';
 import NextLink from 'next/link';
 import {
   useRouter,
@@ -118,7 +118,7 @@ export function useParams() {
  */
 export function useSearchParams() {
   const location = useLocation();
-  const searchParams = new URLSearchParams(location.search);
+  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const router = useRouter();
   const pathname = usePathname();
 
