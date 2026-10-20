@@ -87,5 +87,5 @@ test('a closed Pool keeps proposals disabled without creating entries',async({pa
 test('unavailable cover votes produce a visible error instead of a fake saved total',async({page})=>{
   await page.route('**/rest/v1/public_cover_ratings*',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Fixture unavailable'})}));
   await page.goto('/portadas');
-  await expect(page.getByRole('alert')).toContainText('No pudimos cargar las calificaciones de portadas');
+  await expect(page.getByRole('alert').filter({hasText:'No pudimos cargar las calificaciones de portadas'})).toBeVisible();
 });
