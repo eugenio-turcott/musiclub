@@ -392,7 +392,7 @@ export function AppHeader({
           </div>
 
           {/* Buscador de Álbumes del Club con Autocomplete y Calificación Directa */}
-          <HeaderAlbumSearch user={user} />
+          <HeaderAlbumSearch user={user} onLogin={handleLoginClick} />
 
           {/* Centro de Notificaciones (Buzón de Canciones, Reviews a tus Álbumes, Álbum Ganador) */}
           <div className="relative" ref={notificationsRef}>
