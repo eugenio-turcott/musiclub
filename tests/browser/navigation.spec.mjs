@@ -82,8 +82,10 @@ test('artist pages preserve club discography and review badges',async({page})=>{
 
 test('a closed Pool keeps proposals disabled without creating entries',async({page})=>{
   await page.goto('/pool');
-  await expect(page.getByRole('heading',{name:'Pool Musical Comunitario',exact:true})).toBeVisible();
-  await expect(page.getByRole('button',{name:/Proponer al Pool \(Cerrado\)/})).toBeDisabled();
+  const hero = page.getByRole('region',{name:'Pool activo',exact:true});
+  await expect(hero.getByRole('heading',{level:1})).toBeVisible();
+  await expect(hero.getByRole('heading',{level:1})).toHaveCount(1);
+  await expect(hero.getByRole('button',{name:'🔒 Propuestas cerradas',exact:true})).toBeDisabled();
 });
 
 test('unavailable cover votes produce a visible error instead of a fake saved total',async({page})=>{
