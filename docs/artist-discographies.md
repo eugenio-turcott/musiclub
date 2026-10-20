@@ -24,3 +24,5 @@ El mantenimiento repara primero las copias guardadas con conteos o portadas falt
 Los géneros se conservan cuando el proveedor los entrega para el release (Deezer o Apple); no se extrapolan los géneros del artista a toda su discografía. Los releases que ya pertenecen al club usan sus géneros guardados. Los metadatos desconocidos no se inventan. Un proveedor con portadas o conteos incompletos se presenta como parcial.
 
 Un ID oficial guardado evita repetir la búsqueda por nombre. Los datos vacíos de un proveedor no borran conteos, fechas o portadas anteriores. La unión tolera metadatos faltantes solo ante una edición compatible inequívoca; no fusiona variantes explícitas y limpias ni barcodes diferentes. La reparación conserva todos los enlaces originales, aunque agrupe sus tarjetas duplicadas.
+
+La reparación espacia sus solicitudes al menos 150 ms y reintenta hasta tres veces ante HTTP 429 o el error de cuota 4 de Deezer, con una pausa de cinco segundos.
