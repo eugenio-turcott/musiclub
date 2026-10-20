@@ -24,3 +24,19 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
   if(result.error) throw new Error('No se pudo guardar la discografía oficial');
   return {success:!!profile.success,count:patch.profile?.discography?.length || 0};
 }
+
+
+// Always return persisted public data, including after a first-time discovery.
+export async function loadStoredArtist(db,slug,{hasLocal=false,canDiscover=false,refresh,schedule}={}) {
+  const stored=await readStoredArtist(db,slug);
+  const profile=stored?.profile?.discography?.length ? stored.profile : null;
+  const needsRefresh=!stored || Date.parse(stored.refresh_after)<=Date.now();
+  if(profile || hasLocal) {
+    if(canDiscover && needsRefresh) schedule(refresh);
+    return profile;
+  }
+  if(!canDiscover || !needsRefresh) return null;
+  await refresh();
+  const saved=await readStoredArtist(db,slug);
+  return saved?.profile?.discography?.length ? saved.profile : null;
+}

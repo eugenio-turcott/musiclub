@@ -1,20 +1,23 @@
 import 'server-only';
 import { after } from 'next/server';
+import { headers } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { readStoredArtist, refreshStoredArtist } from '../services/artistDiscographyStore.mjs';
+import { loadStoredArtist, refreshStoredArtist } from '../services/artistDiscographyStore.mjs';
+import { allowRequest } from './rateLimit';
 
-export async function getStoredArtistProfile(db,slug,name,allowRefresh=false) {
-  const stored=await readStoredArtist(db,slug);
+export async function getStoredArtistProfile(db,slug,name,hasLocal=false) {
   const key=process.env.SUPABASE_SERVICE_ROLE_KEY;
-  // The response only waits for a database read, never for streaming providers.
-  if(key && name && (allowRefresh || stored) && (!stored || Date.parse(stored.refresh_after)<=Date.now())) {
-    after(async()=>{
-      try {
-        const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL,key,
-          {auth:{persistSession:false,autoRefreshToken:false}});
-        await refreshStoredArtist(admin,slug,name);
-      } catch { console.warn('La discografía se conserva; se reintentará su actualización.'); }
-    });
-  }
-  return stored?.profile?.discography?.length ? stored.profile : null;
+  const valid=typeof slug==='string' && slug.length>=2 && slug.length<=120 && /^[\p{L}\p{N}]+(?:-[\p{L}\p{N}]+)*$/u.test(slug);
+  const requestHeaders=await headers();
+  const ip=requestHeaders.get('x-forwarded-for')?.split(',')[0] || 'unknown';
+  const refresh=async()=>{
+    if(!allowRequest(`artist-discovery:${ip}`,10)) return;
+    try {
+      const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL,key,
+        {auth:{persistSession:false,autoRefreshToken:false}});
+      await refreshStoredArtist(admin,slug,name);
+    } catch {console.warn('La discografía se conserva; se reintentará su actualización.');}
+  };
+  return loadStoredArtist(db,slug,{hasLocal,canDiscover:!!key && valid && !!name,refresh,
+    schedule:task=>after(task)});
 }
