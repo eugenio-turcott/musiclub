@@ -9,6 +9,13 @@ const server=http.createServer((request,response)=>{
   response.setHeader('Access-Control-Allow-Headers','*');
   response.setHeader('Access-Control-Expose-Headers','Content-Range');
   response.setHeader('Content-Type','application/json');
+  // Explicit, local-only fixture write used to test the stale public collection cache.
+  if(request.method==='POST' && request.url==='/__fixture/add-release') {
+    if(!tables.albums.some(album=>album.id==='late-fixture')) tables.albums.push({
+      ...tables.albums[0],id:'late-fixture',album_name:'Violeta (Deluxe)',genres:['Pop'],
+    });
+    response.end('{"success":true}'); return;
+  }
   if(request.method==='OPTIONS') { response.writeHead(204).end(); return; }
   if(request.method!=='GET'&&request.method!=='HEAD') {
     // Permit read-only RPCs. Other write attempts fail rather than reaching any provider.
