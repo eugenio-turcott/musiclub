@@ -90,7 +90,7 @@ export function RecommendedSection({ albums = [] }) {
             }}
           />
 
-          <GenreIconStrip genres={album.genres} className="absolute left-2 top-10 z-10" />
+          <GenreIconStrip genres={album.genres} className="absolute left-2 top-2 z-10 max-w-[calc(100%-5.5rem)]" />
           {/* Top Badge: Score */}
           <div className="absolute top-2 right-2 z-10 flex items-center gap-1 bg-black/85 backdrop-blur-md border border-amber-500/40 px-2 py-0.5 rounded-lg shadow-md">
             <span className="text-amber-300 text-xs font-black">

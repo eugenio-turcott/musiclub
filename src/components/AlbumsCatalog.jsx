@@ -24,6 +24,11 @@ import { RecommendedSection } from './catalog/RecommendedSection';
 import { CatalogArtistsView } from './catalog/CatalogArtistsView';
 import { CatalogGenresView } from './catalog/CatalogGenresView';
 
+const getCatalogReleaseLabel = (type) => {
+  const key = String(type || 'ALBUM').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[ -]+/g, '_');
+  return ({ ALBUM: 'Álbum', EP: 'EP', SINGLE: 'Sencillo', SENCILLO: 'Sencillo', TRACK: 'Canción', CANCION: 'Canción', COMPILACION: 'Compilación', COMPILATION: 'Compilación', EN_VIVO: 'Álbum en vivo', LIVE: 'Álbum en vivo', SOUNDTRACK: 'Banda sonora', REMIX: 'Remix', REMIXES: 'Remixes' })[key] || 'Release';
+};
+
 const ITEMS_PER_PAGE = 20;
 const SPOTIFY_YEARS_CACHE_KEY = 'musiclub_spotify_years_cache_v1';
 
@@ -1643,15 +1648,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             }}
                           />
 
-                          <GenreIconStrip genres={album.genres} className="absolute left-2 top-10 z-10" />
-                          {/* Top Badges (Musiclub style floating badges) */}
-                          <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
-                            {album.release_type && (
-                              <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg border backdrop-blur-md shadow-sm bg-black/80 text-cyan-300 border-cyan-500/40">
-                                {album.release_type}
-                              </span>
-                            )}
-                          </div>
+                          <GenreIconStrip genres={album.genres} className="absolute left-2 top-2 z-10 max-w-[calc(100%-5.5rem)]" />
 
                           <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                             {album.is_trending && score === null && (
@@ -1736,7 +1733,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             {isCardInClub ? (
                               <div className="w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
                                 <span>🎧</span>
-                                <span>Ver Álbum</span>
+                                <span>Ver {getCatalogReleaseLabel(album.release_type || album.releaseType)}</span>
                               </div>
                             ) : (
                               <button
