@@ -1,3 +1,4 @@
+import lookup from '../src/utils/publicReleaseLookup.cjs';
 import editions from '../src/utils/releaseEditions.cjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -184,4 +185,13 @@ test('regional, clean and explicit editions share one card, with deluxe separate
 test('club display groups original row IDs for reviews while separating artists and deluxe',()=>{
  const rows=editions.groupReleaseEditions([{id:'base',album_name:'Vie',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'regional',album_name:'Vie (Paris Edition)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'clean',album_name:'Vie (Clean)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'deluxe',album_name:'Vie (Deluxe)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'other',album_name:'Vie',artist_name:'Other Artist',release_type:'ALBUM'}]);
  assert.equal(rows.length,3);assert.deepEqual(rows[0].edition_member_ids,['base','regional','clean']);assert.equal(rows[0].album_name,'Vie');
+});
+
+
+test('legacy URLs and original IDs resolve one grouped work without hiding unrelated artists',async()=>{
+ const standard={id:'base',album_name:'Blue',artist_name:'Artist',release_type:'ALBUM',edition_member_ids:['base','clean']};
+ const clean={id:'clean',album_name:'Blue',artist_name:'Artist',release_type:'ALBUM'};
+ assert.equal((await lookup.resolvePublicRelease('blue',[standard,clean],async()=>[])).album.id,'base');
+ assert.equal((await lookup.resolvePublicRelease('clean',[standard,clean],async()=>[])).album.id,'base');
+ assert.equal((await lookup.resolvePublicRelease('blue',[standard,{...clean,id:'other',artist_name:'Another Artist'}],async()=>[])).ambiguous,true);
 });

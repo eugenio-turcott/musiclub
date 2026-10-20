@@ -1,9 +1,11 @@
+const {editionKey}=require('./releaseEditions.cjs');
 const { releasePath, slugify, decodeRouteSlug } = require('./releaseIdentity.cjs');
 function matches(slug, rows) {
   const clean = decodeRouteSlug(slug).toLowerCase();
-  const exact = rows.find(album => album.id === slug || releasePath(album)?.split('/').pop() === clean);
+  const exact = rows.find(album => (album.id === slug || album.edition_member_ids?.includes(slug)) || releasePath(album)?.split('/').pop() === clean);
   if (exact) return { album: exact };
-  const legacy = rows.filter(album => slugify(album.album_name, true) === clean);
+  const candidates = rows.filter(album => slugify(album.album_name, true) === clean);
+  const legacy=candidates.filter((album,index)=>candidates.findIndex(other=>editionKey(other)===editionKey(album))===index);
   return legacy.length === 1 ? { album: legacy[0] } : { album: null, ambiguous: legacy.length > 1 };
 }
 async function resolvePublicRelease(slug, cached, loadFresh) {
