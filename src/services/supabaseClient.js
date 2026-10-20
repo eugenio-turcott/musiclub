@@ -1807,8 +1807,9 @@ export const supabaseService = {
     if (typeof window !== 'undefined') {
       const album = await publicCatalog(slugOrId);
       if (!album) return null;
-      const own = await supabaseService.getOwnReview(album.id);
-      if (own) album.reviews = album.reviews.map(r => r.id === own.id ? { ...r, ...own } : r);
+      const own=(await Promise.all((album.edition_member_ids || [album.id]).map(id=>supabaseService.getOwnReview(id)))).filter(Boolean);
+      const byId=new Map(own.map(review=>[review.id,review]));
+      album.reviews=album.reviews.map(review=>byId.has(review.id)?{...review,...byId.get(review.id)}:review);
       return album;
     }
     try {
