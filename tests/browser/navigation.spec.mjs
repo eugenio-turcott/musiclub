@@ -94,8 +94,26 @@ test('unavailable cover votes produce a visible error instead of a fake saved to
 test('global search opens an existing release through its artist-qualified URL',async({page})=>{
   await page.goto('/portadas');
   await page.getByRole('button',{name:'Buscar álbum',exact:true}).click();
-  await page.getByPlaceholder('Escribe el álbum o artista...').fill('Azul');
+  await page.getByPlaceholder(/Escribe el.*álbum o artista/).fill('Azul');
   await page.getByText('Azul',{exact:true}).last().click();
   await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+});
+
+
+test('opening a remote release without a session requests login before any album insert',async({page})=>{
+  let inserts=0;
+  page.on('request',request=>{if(request.method()==='POST'&&request.url().includes('/rest/v1/albums'))inserts++;});
+  await page.route('https://api.deezer.com/**',route=>{
+    const url=new URL(route.request().url());
+    const callback=url.searchParams.get('callback');
+    const data={data:[{id:987654,title:'Azul (Deluxe)',artist:{name:'Artista de Prueba'},nb_tracks:12,record_type:'album'}]};
+    return route.fulfill({contentType:'application/javascript',body:`${callback}(${JSON.stringify(data)})`});
+  });
+  await page.goto('/portadas');
+  await page.getByRole('button',{name:'Buscar álbum',exact:true}).click();
+  await page.getByPlaceholder(/Escribe el.*álbum o artista/).fill('Azul');
+  await page.getByText('Azul (Deluxe)',{exact:true}).click();
+  await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
+  expect(inserts).toBe(0);
 });

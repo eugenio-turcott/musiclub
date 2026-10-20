@@ -16,7 +16,7 @@ import remoteGenres from '../utils/remoteReleaseGenres.cjs';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
-export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
+export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user, onLogin }) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -304,6 +304,14 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
             },
           },
         });
+        return;
+      }
+
+      // Reading an existing release is public; registering a new one needs a session.
+      if (!user?.id) {
+        setIsOpen(false);
+        setStatusMessage(null);
+        onLogin?.();
         return;
       }
 
