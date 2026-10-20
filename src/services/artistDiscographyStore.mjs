@@ -12,7 +12,7 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
   const previous=await readStoredArtist(db,slug);
   let knownReleases=[];
   try {
-    const anchors=await db.from('albums').select('album_name').eq('artist_name',name);
+    const anchors=await db.from('albums').select('album_name,artist_name,spotify_link,apple_music_link,other_link').eq('artist_name',name);
     if(!anchors.error) knownReleases=anchors.data || [];
   } catch { /* Verified provider IDs still work if local anchors are unavailable. */ }
   let profile;

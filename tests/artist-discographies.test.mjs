@@ -88,3 +88,34 @@ test('ambiguous release evidence remains unresolved and verified IDs are reused'
  const result=await selectOfficialArtist(candidates,{knownId:'b',idOf:a=>a.id,catalog:async a=>{requests.push(a.id);return [];}});
  assert.equal(result.artist.id,'b');assert.deepEqual(requests,['b']);
 });
+
+
+test('more than six namesakes are checked with bounded concurrency instead of being discarded',async()=>{
+ const candidates=Array.from({length:12},(_,id)=>({id:String(id),name:'BIBI'}));let active=0,max=0;
+ const result=await selectOfficialArtist(candidates,{idOf:a=>a.id,knownReleases:['EVE: ROMANCE'],catalog:async a=>{
+ active++;max=Math.max(max,active);await new Promise(resolve=>setTimeout(resolve,2));active--;
+ return [{title:a.id==='9'?'EVE: ROMANCE':'Unrelated '+a.id}];}});
+ assert.equal(result.artist.id,'9');assert.ok(max<=3);
+});
+test('an exact official album link resolves BIBI without reading unrelated namesake catalogues',async()=>{
+ const requests=[];
+ const fetcher=async url=>{requests.push(url);let data;
+ if(url.includes('/search/artist'))data={data:Array.from({length:12},(_,id)=>({id:String(id),name:'BIBI'}))};
+ else if(url.includes('/album/99'))data={id:99,title:'EVE: ROMANCE',artist:{id:'9',name:'BIBI'},nb_tracks:14};
+ else if(url.includes('/artist/9/albums'))data={data:[{id:99,title:'EVE: ROMANCE',record_type:'album'}]};
+ else throw new Error('Provider unavailable or unrelated artist');
+ return {ok:true,json:async()=>data};};
+ const result=await collectOfficialArtist('BIBI',{env:{},fetcher,knownReleases:[{album_name:'EVE: ROMANCE',other_link:'https://www.deezer.com/album/99'}]});
+ assert.equal(result.providers.DEEZER.artistId,'9');assert.equal(result.success,true);
+ assert.equal(requests.filter(url=>/\/artist\/\d+\/albums/.test(url)).length,1);
+});
+test('an unrelated album URL cannot override the artist identity',async()=>{
+ const fetcher=async url=>{let data;
+ if(url.includes('/search/artist'))data={data:[{id:'1',name:'BIBI'},{id:'2',name:'BIBI'}]};
+ else if(url.includes('/album/99'))data={title:'OTHER',artist:{id:'1',name:'BIBI'}};
+ else if(url.includes('/albums'))data={data:[]};
+ else throw new Error('Provider unavailable');
+ return {ok:true,json:async()=>data};};
+ const result=await collectOfficialArtist('BIBI',{env:{},fetcher,knownReleases:[{album_name:'EVE: ROMANCE',other_link:'https://www.deezer.com/album/99'}]});
+ assert.equal(result.providers.DEEZER.status,'unavailable');assert.equal(result.success,false);
+});
