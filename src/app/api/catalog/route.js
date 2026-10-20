@@ -8,7 +8,8 @@ export async function GET(request) {
     const slug = new URL(request.url).searchParams.get('slug');
     const data = slug ? await getPublicAlbum(slug) : await getPublicCatalog();
     if (!data) return NextResponse.json({ error: 'Lanzamiento no encontrado' }, { status: 404 });
-    return NextResponse.json(data);
+    const {rawAlbums,...response}=data;
+    return NextResponse.json(slug ? data : response);
   } catch { return NextResponse.json({ error: 'Catálogo temporalmente no disponible' }, { status: 503 }); }
 }
 export async function POST(request) {

@@ -1,32 +1,26 @@
+import editions from '../utils/releaseEditions.cjs';
 import identity from '../utils/releaseIdentity.cjs';
 import genreCatalog from '../utils/genreCatalog.cjs';
 const { slugify } = identity;
 const artistKey = value => slugify(value);
 const titleKey = value => slugify(String(value || '').replace(/ - (Single|EP)$/i,''), true);
 export function mergeOfficialReleases(previous = [], incoming = []) {
-  const merged = [];
-  const compatible = (a,b) => titleKey(a.name)===titleKey(b.name) && a.release_type===b.release_type &&
-    (!a.totalTracks || !b.totalTracks || a.totalTracks===b.totalTracks) &&
-    (!a.releaseYear || !b.releaseYear || a.releaseYear===b.releaseYear) &&
-    (a.explicit==null || b.explicit==null || a.explicit===b.explicit) &&
-    (!a.barcode || !b.barcode || a.barcode===b.barcode);
-  for (const release of [...previous, ...incoming]) {
-    if (!release?.name || !release.sources?.length) continue;
-    const sameSource=merged.findIndex(old=>old.sources.some(a=>release.sources.some(b=>a.provider===b.provider && String(a.id)===String(b.id))));
-    const candidates=merged.map((old,index)=>({old,index})).filter(({old})=>compatible(old,release));
-    // Missing metadata may join only one unambiguous edition, never bridge clean/explicit editions.
-    const match=sameSource>=0 ? sameSource : candidates.length===1 ? candidates[0].index : -1;
-    if(match<0) {merged.push({...release,sources:[...release.sources]});continue;}
-    const old=merged[match];
-    const filled=Object.fromEntries(Object.entries(release).filter(([,v])=>v!==null && v!==undefined && v!=='' && (!Array.isArray(v)||v.length)));
-    merged[match]={...release,...old,...(sameSource>=0 ? filled : {}),
-      totalTracks:release.totalTracks || old.totalTracks, image:old.image || release.image,
-      releaseDate:release.releaseDate || old.releaseDate,releaseYear:release.releaseYear || old.releaseYear,
-      explicit:release.explicit ?? old.explicit,
-      genres:genreCatalog.normalizeGenres([...(old.genres||[]),...(release.genres||[])]),
-      sources:[...new Map([...old.sources,...release.sources].map(source=>[`${source.provider}:${source.id}`,source])).values()]};
+  const variants=new Map();
+  for(const grouped of [...previous,...incoming]) {
+    for(const release of grouped.editionVariants || [grouped]) {
+      if(!release?.name || !release.sources?.length)continue;
+      const key=release.sources.map(source=>`${source.provider}:${source.id}`).sort().join('|');
+      const existing=[...variants.entries()].find(([,old])=>old.sources.some(a=>release.sources.some(b=>a.provider===b.provider && String(a.id)===String(b.id))));
+      const old=existing?.[1] || {};
+      const filled=Object.fromEntries(Object.entries(release).filter(([,value])=>value!==null && value!==undefined && value!=='' && (!Array.isArray(value)||value.length)));
+      const {editionVariants,edition_member_ids,edition_names,...row}={...release,...old,...filled};
+      variants.set(existing?.[0] || key,{...row,sources:[...new Map([...(old.sources||[]),...release.sources].map(source=>[`${source.provider}:${source.id}`,source])).values()]});
+    }
   }
-  return merged.sort((a,b)=>(b.releaseDate || '').localeCompare(a.releaseDate || ''));
+  const rows=[...variants.values()];
+  return editions.groupReleaseEditions(rows).map(group=>({...group,
+    editionVariants:rows.filter(row=>editions.editionKey(row)===editions.editionKey(group))
+  })).sort((a,b)=>(b.releaseDate || '').localeCompare(a.releaseDate || ''));
 }
 function releaseType(name, type, count) {
   if (/remix/i.test(name)) return 'REMIX';
@@ -114,7 +108,7 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
       catalog:a=>paginate(`https://api.deezer.com/artist/${a.id}/albums?limit=100`,'https://api.deezer.com','data')});
     // Artist listings omit track counts; resolve them before comparing editions.
     const enriched=new Array(items.length);let index=0;
-    const cached=new Map(knownDiscography.flatMap(release=>(release.sources||[]).filter(source=>source.provider==='DEEZER').map(source=>[String(source.id),release])));
+    const cached=new Map(knownDiscography.flatMap(release=>release.editionVariants || [release]).flatMap(release=>(release.sources||[]).filter(source=>source.provider==='DEEZER').map(source=>[String(source.id),release])));
     await Promise.all(Array.from({length:Math.min(4,items.length)},async()=>{
       while(index<items.length) {
         const current=index++,item=items[current];
@@ -174,7 +168,7 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
 // Repair only incomplete records; never invent counts or replace a verified value with an empty response.
 let nextMetadataRequest=0;
 export async function repairOfficialMetadata(profile,{fetcher=fetch,requestIntervalMs=150}={}) {
-  const releases=(profile.discography || []).map(release=>({...release}));
+  const releases=(profile.discography || []).flatMap(release=>release.editionVariants || [release]).map(release=>({...release}));
   let index=0,repaired=0,unavailable=0;
   await Promise.all(Array.from({length:Math.min(4,releases.length)},async()=>{
     while(index<releases.length) {

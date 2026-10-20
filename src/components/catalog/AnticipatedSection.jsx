@@ -1,3 +1,4 @@
+import editions from '../../utils/releaseEditions.cjs';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
@@ -13,9 +14,10 @@ const ITEMS_PER_PAGE = 10;
  * Paginación de 10 en 10 con navegación rápida.
  */
 export function AnticipatedSection({
-  anticipatedReleases = [],
+  anticipatedReleases: rawReleases = [],
   loading = false,
 }) {
+  const anticipatedReleases=useMemo(()=>editions.groupReleaseEditions(rawReleases),[rawReleases]);
   const sectionRef = useRef(null);
   const [currentPage, setCurrentPage] = useState(1);
   const totalCount = anticipatedReleases.length;

@@ -1,3 +1,4 @@
+import editions from '../utils/releaseEditions.cjs';
 // src/hooks/useAlbums.js
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabaseClient';
@@ -5,7 +6,7 @@ import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 
 export function useAlbums(initialAlbums = []) {
-  const [albums, setAlbums] = useState(initialAlbums);
+  const [albums, setAlbums] = useState(()=>editions.groupReleaseEditions(initialAlbums));
   const [winner, setWinner] = useState(() => initialAlbums.find(a => a.status === 'GANADOR') || null);
   const [loading, setLoading] = useState(initialAlbums.length === 0);
   const [error, setError] = useState(null);
@@ -70,7 +71,7 @@ export function useAlbums(initialAlbums = []) {
         });
 
         const winnerAlbum = mappedAlbums.find((a) => a.status === 'GANADOR');
-        setAlbums(mappedAlbums);
+        setAlbums(editions.groupReleaseEditions(mappedAlbums));
         setWinner(winnerAlbum || null);
         setError(null);
       } else {

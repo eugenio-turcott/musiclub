@@ -1,3 +1,4 @@
+import editions from '../utils/releaseEditions.cjs';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/HeaderAlbumSearch.jsx
 import React, {
@@ -140,7 +141,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       const normArtist = (ca.artist_name || ca.artista || '')
         .trim()
         .toLowerCase();
-      const key = `${normName}:::${normArtist}`;
+      const key = editions.editionKey({name:normName,artist:normArtist,releaseType:ca.release_type || ca.releaseType});
       seenKeys.add(key);
 
       results.push({
@@ -164,7 +165,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         ? remote.artists.join(', ')
         : remote.artist || '';
       const normArtist = artistDisplay.trim().toLowerCase();
-      const key = `${normName}:::${normArtist}`;
+      const key = editions.editionKey({name:normName,artist:normArtist,releaseType:remote.release_type || remote.releaseType});
 
       if (seenKeys.has(key)) return;
 
@@ -211,7 +212,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       }
     });
 
-    return results.slice(0, 16);
+    return editions.groupReleaseEditions(results).slice(0, 16);
   }, [clubMatches, remoteResults, clubAlbums]);
 
   // Blindaje universal contra traducción de resultados buscados (V.8.11)

@@ -1,3 +1,4 @@
+import editions from '../utils/releaseEditions.cjs';
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
@@ -40,15 +41,15 @@ export const getPublicCatalog = cache(async () => {
     if (!byAlbum.has(review.album_id)) byAlbum.set(review.album_id, []);
     byAlbum.get(review.album_id).push(review);
   }
-  const detailed = albums.map(album => publicData({
-    ...buildAlbumWithFullStats(album, byAlbum.get(album.id) || [], profiles),
+  const detailed = editions.groupReleaseEditions(albums).map(album => publicData({
+    ...buildAlbumWithFullStats(album, (album.edition_member_ids || [album.id]).flatMap(id=>byAlbum.get(id)||[]), profiles),
     status: album.status, reviews_enabled: album.reviews_enabled,
     album: album.album_name, artista: album.artist_name, imagen: album.image_url,
     // Collection pages use aggregate statistics. Full reviews/tracks statistics are resolved per detail page.
     reviews: [], track_stats: [],
   }));
-  const byId = new Map(detailed.map(a => [a.id, a]));
-  return { albums: detailed, reviews: publicData(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
+  const byId = new Map(detailed.flatMap(a => (a.edition_member_ids || [a.id]).map(id=>[id,a])));
+  return { albums: detailed, rawAlbums: publicData(albums), reviews: publicData(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
     id: r.album_id, album_name: byId.get(r.album_id).album_name, artist_name: byId.get(r.album_id).artist_name,
     image_url: byId.get(r.album_id).image_url, release_type: byId.get(r.album_id).release_type,
     release_year: byId.get(r.album_id).release_year, tracks: byId.get(r.album_id).tracks,
@@ -59,15 +60,15 @@ export const getPublicCatalog = cache(async () => {
 });
 
 export const getPublicAlbum = cache(async slug => {
-  const { albums, reviews } = await getPublicCatalog();
+  const { albums, rawAlbums, reviews } = await getPublicCatalog();
   const detail = album => publicData({ ...album, ...buildAlbumWithFullStats(album,
-    reviews.filter(r => r.album_id === album.id).map(({ albums: relation, ...review }) => review)) });
+    reviews.filter(r => (album.edition_member_ids || [album.id]).includes(r.album_id)).map(({ albums: relation, ...review }) => review)) });
   // A newly inserted release can be absent from the five-minute collection cache.
   // Check public rows directly on a miss before returning a real 404.
-  const found = await releaseLookup.resolvePublicRelease(slug, albums,
+  const found = await releaseLookup.resolvePublicRelease(slug, [...albums,...rawAlbums],
     () => allRows(client(), 'albums', ALBUM_FIELDS, false));
   if (found?.album) {
-    if (!found.fresh) return detail(found.album);
+    if (!found.fresh) return detail(albums.find(album=>(album.edition_member_ids || [album.id]).includes(found.album.id)) || found.album);
     const result = await client().from('public_reviews').select(PUBLIC_REVIEW_FIELDS).eq('album_id', found.album.id);
     if (result.error) throw new Error('No se pudieron leer las reseñas públicas');
     return publicData(buildAlbumWithFullStats(found.album, result.data || []));
@@ -101,12 +102,12 @@ export const getPublicArtist = cache(async slug => {
   const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : upcoming?.[0]?.artist_name || canonicalSlug.replace(/-/g, ' ');
   const external = await getStoredArtistProfile(client(), canonicalSlug, name, Boolean(sample || upcoming?.length));
   if (!sample && !external && !upcoming?.length) return null;
-  const discography = [...(external?.discography || [])];
+  const discography = editions.groupReleaseEditions(external?.discography || []);
   for (const a of clubAlbums) {
     const links=[a.spotify_link,a.other_link,a.apple_music_link].filter(Boolean).map(link=>link.split('?')[0].replace(/\/$/,''));
-    const editionKey=name=>releaseIdentity.slugify(String(name).replace(/ - (Single|EP)$/i,''),true);
+    const editionKey=name=>releaseIdentity.slugify(editions.editionTitle(name).name,true);
     const match = discography.find(d => (d.sources || []).some(source=>source.url && links.includes(source.url.split('?')[0].replace(/\/$/,'')))) ||
-      discography.find(d => editionKey(d.name)===editionKey(a.album_name) && (!d.totalTracks || !(a.total_tracks || a.tracks?.length) || d.totalTracks===(a.total_tracks || a.tracks?.length)));
+      discography.find(d => editionKey(d.name)===editionKey(a.album_name));
     if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; match.genres=a.genres || match.genres; }
     else discography.push({ id: a.id, clubAlbumId:a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
       image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
@@ -118,12 +119,13 @@ export const getPublicArtist = cache(async slug => {
     if (match) Object.assign(match, metadata);
     else discography.push({ id: release.id, name: release.album_name, releaseDate: release.release_date || '', releaseYear: Number(release.release_date?.slice(0,4)) || null, release_type: release.release_type || 'ALBUM', ...metadata });
   }
-  discography.sort((a,b) => (b.releaseDate || '').localeCompare(a.releaseDate || ''));
+  const groupedDiscography=editions.groupReleaseEditions(discography).map(({editionVariants,...release})=>release);
+  groupedDiscography.sort((a,b) => (b.releaseDate || '').localeCompare(a.releaseDate || ''));
   return { albums: clubAlbums, profile: { ...external, success: true, artist: {
     ...external?.artist, name: external?.artist?.name || name,
     image: external?.artist?.image || sample?.image_url || '',
     genres: [...new Set([...(external?.artist?.genres || []), ...clubAlbums.flatMap(a => a.genres || [])])],
-  }, topTracks: external?.topTracks || [], discography,
-    albums: discography.filter(a => a.release_type === 'ALBUM'), eps: discography.filter(a => a.release_type === 'EP'),
-    singles: discography.filter(a => /SINGLE|SENCILLO/.test(a.release_type)), compilations: discography.filter(a => a.release_type === 'COMPILACION') } };
+  }, topTracks: external?.topTracks || [], discography:groupedDiscography,
+    albums: groupedDiscography.filter(a => a.release_type === 'ALBUM'), eps: groupedDiscography.filter(a => a.release_type === 'EP'),
+    singles: groupedDiscography.filter(a => /SINGLE|SENCILLO/.test(a.release_type)), compilations: groupedDiscography.filter(a => a.release_type === 'COMPILACION') } };
 });

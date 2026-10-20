@@ -211,7 +211,7 @@ export function CoverRatingsPage() {
 
       // Si fue solicitado directamente por URL o slug, permitirlo
       if (
-        (requestedId && a.id === requestedId) ||
+        (requestedId && (a.edition_member_ids || [a.id]).includes(requestedId)) ||
         (requestedSlug &&
           (a.album_name || a.album || '')
             .toLowerCase()
@@ -323,7 +323,7 @@ export function CoverRatingsPage() {
     if ((requestedId || requestedSlug) && shuffledAlbums.length > 0) {
       const foundIdx = shuffledAlbums.findIndex(
         (a) =>
-          (requestedId && a.id === requestedId) ||
+          (requestedId && (a.edition_member_ids || [a.id]).includes(requestedId)) ||
           (requestedSlug &&
             (a.album_name || a.album || '')
               .toLowerCase()

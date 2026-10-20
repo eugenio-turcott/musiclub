@@ -128,9 +128,10 @@ export function ReviewSystem({
 
     setLoading(true);
     try {
-      const data = await supabaseService.getReviews(album.id);
-      const own = await supabaseService.getOwnReview(album.id);
-      setReviews((data || []).map(r => r.id === own?.id ? { ...r, ...own } : r));
+      const ids=album.edition_member_ids || [album.id];
+      const data=(await Promise.all(ids.map(id=>supabaseService.getReviews(id)))).flat();
+      const own=(await Promise.all(ids.map(id=>supabaseService.getOwnReview(id)))).filter(Boolean).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)))[0];
+      setReviews((data || []).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).map(r => r.id === own?.id ? { ...r, ...own } : r));
     } catch (error) {
       console.error('Error loading reviews:', error);
     }
@@ -565,7 +566,7 @@ export function ReviewSystem({
     };
 
     try {
-      let targetAlbumId = album.id;
+      let targetAlbumId = isEditing && existingUserReview?.album_id ? existingUserReview.album_id : album.id;
 
       // Auto-creación On-Demand en Supabase si el álbum viene de Spotify o aún no existe en BD
       if (
