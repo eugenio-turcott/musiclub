@@ -1,4 +1,5 @@
 'use client';
+import { GenreIconStrip } from './GenreIconStrip';
 import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -360,6 +361,7 @@ export function HourlyRecommendedRelease({
                 )}
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
 
+                <GenreIconStrip genres={album.genres} className="absolute left-3 top-12 z-10" size={26} />
                 {/* Badge Release Type */}
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-white">
                   {releaseType === 'EP'

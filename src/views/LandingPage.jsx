@@ -1,4 +1,5 @@
 'use client';
+import { GenreIconStrip } from '../components/GenreIconStrip';
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
 // src/pages/LandingPage.jsx
@@ -386,6 +387,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
   // Curated showcase albums based on active tab
   const showcaseAlbums = useMemo(() => {
+    const genresById = new Map(albums.map(album => [album.id, album.genres || []]));
+    const releaseGenres = album => album.genres?.length ? album.genres : genresById.get(album.id) || [];
     if (selectedAlbumTab === 'top') {
       if (topAlbums && topAlbums.length > 0) {
         return topAlbums.slice(0, 16).map((a) => ({
@@ -397,6 +400,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           reviewCount: a.review_count,
           status: a.status,
           release_type: a.release_type,
+          genres: releaseGenres(a),
           release_year: a.release_year,
         }));
       }
@@ -417,6 +421,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           reviewCount: a.reviews_count || 1,
           status: a.status,
           release_type: a.release_type,
+          genres: releaseGenres(a),
           release_year: a.release_year,
         }));
     }
@@ -439,6 +444,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             score: topInfo?.avg_rating || a.final_rating || a.avg_rating,
             reviewCount: topInfo?.review_count || 0,
             release_type: a.release_type,
+            genres: releaseGenres(a),
             release_year: a.release_year,
           };
         });
@@ -459,6 +465,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           score: topInfo?.avg_rating || a.final_rating || a.avg_rating,
           reviewCount: topInfo?.review_count || 0,
           release_type: a.release_type,
+          genres: releaseGenres(a),
           release_year: a.release_year,
         };
       });
@@ -472,6 +479,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
       status: a.status,
       score: a.final_rating || a.avg_rating,
       release_type: a.release_type,
+      genres: releaseGenres(a),
       release_year: a.release_year,
     }));
   }, [selectedAlbumTab, activePool, activeAlbums, topAlbums, albums]);
@@ -540,6 +548,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           </div>
         )}
 
+        <GenreIconStrip genres={album.genres} className="absolute left-2 top-9 z-10" />
         {/* Format badge on top-left */}
         <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase text-white/90 tracking-wider shadow-sm">
           {album.release_type === 'EP'
