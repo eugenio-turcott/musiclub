@@ -698,7 +698,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                           </h4>
 
                           <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
-                            <span>{release.releaseYear || ''}{release.explicit != null && <span className="ml-1.5 rounded border border-white/15 px-1 text-[9px]" title={release.explicit?'Versión explícita':'Versión limpia'}>{release.explicit?'E':'Limpia'}</span>}</span>
+                            <span>{release.releaseYear || ''}</span>
                             {release.totalTracks > 0 && (
                               <span>
                                 {release.totalTracks}{' '}

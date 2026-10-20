@@ -297,6 +297,8 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
 
   return {
     id: alb.id,
+    edition_member_ids: alb.edition_member_ids || [alb.id],
+    edition_names: alb.edition_names || [alb.album_name],
     album_name: alb.album_name,
     artist_name: alb.artist_name,
     image_url: alb.image_url,

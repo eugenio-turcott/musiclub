@@ -1,3 +1,4 @@
+import editions from '../../utils/releaseEditions.cjs';
 import { GenreLabel } from '../GenreLabel';
 import { GenreArtwork } from '../GenreArtwork';
 import genreCatalog from '../../utils/genreCatalog.cjs';
@@ -21,7 +22,7 @@ export function TrendingMonthlySection({
   onQuickPropose,
   proposingId = null,
 }) {
-  const releases = trendingData?.releases || [];
+  const releases = editions.groupReleaseEditions(trendingData?.releases || []);
   const monthLabel = trendingData?.monthLabel || 'Tendencias de la Semana';
 
   const sectionRef = useRef(null);

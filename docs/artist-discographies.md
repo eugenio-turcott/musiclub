@@ -26,3 +26,9 @@ Los géneros se conservan cuando el proveedor los entrega para el release (Deeze
 Un ID oficial guardado evita repetir la búsqueda por nombre. Los datos vacíos de un proveedor no borran conteos, fechas o portadas anteriores. La unión tolera metadatos faltantes solo ante una edición compatible inequívoca; no fusiona variantes explícitas y limpias ni barcodes diferentes. La reparación conserva todos los enlaces originales, aunque agrupe sus tarjetas duplicadas.
 
 La reparación espacia sus solicitudes al menos 150 ms y reintenta hasta tres veces ante HTTP 429 o el error de cuota 4 de Deezer, con una pausa de cinco segundos.
+
+## Política de presentación desde V9.23.0
+
+La presentación agrupa variantes limpias, explícitas, regionales y de remasterización del mismo lanzamiento en una tarjeta; las ediciones deluxe permanecen aparte. Los conciertos y remixes que constituyen obras distintas mantienen su identidad. La regla no usa diferencias de barcode, número de pistas o año para multiplicar una obra. Se conserva una referencia estándar preferente con sus datos coherentes y se archivan los metadatos originales en `editionVariants`, incluidos todos los enlaces oficiales, para poder actualizar sin perder procedencia.
+
+El catálogo del club agrupa las fichas al leer y reúne sus reseñas. Los registros y votos originales no se eliminan ni se trasladan. Los enlaces de variantes anteriores resuelven a la ficha unificada. Al editar una reseña, se conserva su registro y la comprobación de permisos del álbum original. Los géneros, portadas y recomendaciones reciben la misma colección agrupada.

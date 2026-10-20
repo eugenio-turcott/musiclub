@@ -1,3 +1,4 @@
+import editions from '../src/utils/releaseEditions.cjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
@@ -5,10 +6,10 @@ import { PGlite } from '@electric-sql/pglite';
 import { mergeOfficialReleases, collectOfficialArtist, selectOfficialArtist, repairOfficialMetadata } from '../src/services/officialArtistCatalog.mjs';
 import { refreshStoredArtist, readStoredArtist, loadStoredArtist } from '../src/services/artistDiscographyStore.mjs';
 const release=(name,provider='DEEZER',id=name,extra={})=>({name,release_type:'ALBUM',totalTracks:10,releaseYear:2025,sources:[{provider,id,url:'https://example.test/album/'+id}],...extra});
-test('official union preserves deluxe, live, explicit and plus editions and their provider links',()=>{
+test('official union keeps deluxe and distinct live works while grouping listening variants and provider links',()=>{
  const rows=mergeOfficialReleases([release('Blue')],[release('Blue','SPOTIFY','2'),release('Blue (Deluxe)'),release('Blue +'),release('Blue Live'),release('Blue','APPLE','3',{explicit:true}),release('Blue','APPLE','4',{explicit:false})]);
- assert.equal(rows.length,5);assert.equal(rows[0].sources.length,3);
- assert.equal(rows.filter(r=>r.name==='Blue').length,2);
+ assert.equal(rows.length,3);assert.equal(rows[0].sources.length,5);
+ assert.equal(rows.filter(r=>r.name==='Blue').length,1);
 });
 test('official lookup follows provider pagination and rejects ambiguous artist identities',async()=>{
  const seen=[];
@@ -129,7 +130,7 @@ test('missing counts merge across platforms only when the edition is unambiguous
  const rows=mergeOfficialReleases([release('Blue','DEEZER','1',{totalTracks:null})],[release('Blue - Single','APPLE','2',{release_type:'ALBUM'})]);
  assert.equal(rows.length,1);assert.equal(rows[0].sources.length,2);assert.equal(rows[0].totalTracks,10);
  const variants=mergeOfficialReleases([release('Blue','APPLE','1',{explicit:true}),release('Blue','APPLE','2',{explicit:false})],[release('Blue','DEEZER','3',{totalTracks:null,explicit:null})]);
- assert.equal(variants.length,3);
+ assert.equal(variants.length,1);assert.equal(variants[0].sources.length,3);
 });
 test('metadata repair verifies the provider ID and preserves data when a provider fails',async()=>{
  const profile={discography:[release('Blue','DEEZER','1',{totalTracks:null,image:''}),release('Red','DEEZER','2',{totalTracks:null,image:'known-cover'})]};
@@ -152,8 +153,8 @@ test('verified provider IDs bypass name search on subsequent refreshes',async()=
  assert.equal(result.success,true);assert.equal(result.providers.DEEZER.artistId,'9');assert.deepEqual(result.discography[0].genres,['Rock']);
  assert.equal(seen.some(url=>url.includes('deezer.com/search')),false);
 });
-test('distinct official barcodes remain separate editions',()=>{
- assert.equal(mergeOfficialReleases([release('Blue','DEEZER','1',{barcode:'111'})],[release('Blue','APPLE','2',{barcode:'222'})]).length,2);
+test('distinct barcodes are retained inside a single displayed release',()=>{
+ assert.equal(mergeOfficialReleases([release('Blue','DEEZER','1',{barcode:'111'})],[release('Blue','APPLE','2',{barcode:'222'})]).length,1);
 });
 
 
@@ -168,4 +169,19 @@ test('an official single with several tracks is not reclassified as an EP by its
  const fetcher=async url=>({ok:true,json:async()=>url.endsWith('/artist/9')?{id:9,name:'Artist'}:url.includes('/artist/9/albums')?{data:[{id:99,title:'Blue',record_type:'single'}]}:url.endsWith('/album/99')?{id:99,title:'Blue',record_type:'single',nb_tracks:4,cover_xl:'cover'}:{results:[]}});
  const result=await collectOfficialArtist('Artist',{fetcher,env:{},knownIds:{deezer:'9'}});
  assert.equal(result.discography[0].release_type,'SENCILLO');
+});
+
+
+test('regional, clean and explicit editions share one card, with deluxe separate and all source variants retained',()=>{
+ const rows=mergeOfficialReleases([], [release('Vie','DEEZER','1',{explicit:true,totalTracks:15}),release('Vie','APPLE','2',{explicit:false,totalTracks:15}),release('Vie (Paris Edition)','APPLE','3',{totalTracks:20}),release('Vie (Deluxe Edition)','APPLE','4',{totalTracks:22})]);
+ assert.deepEqual(rows.map(row=>row.name).sort(),['Vie','Vie (Deluxe)']);
+ const standard=rows.find(row=>row.name==='Vie');assert.equal(standard.totalTracks,15);assert.equal(standard.explicit,true);assert.equal(standard.sources.length,3);assert.equal(standard.editionVariants.length,3);
+ const next=mergeOfficialReleases(rows,[release('Vie','APPLE','2',{explicit:false,totalTracks:15})]);
+ assert.equal(next.length,2);assert.equal(next.find(row=>row.name==='Vie').sources.length,3);
+});
+
+
+test('club display groups original row IDs for reviews while separating artists and deluxe',()=>{
+ const rows=editions.groupReleaseEditions([{id:'base',album_name:'Vie',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'regional',album_name:'Vie (Paris Edition)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'clean',album_name:'Vie (Clean)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'deluxe',album_name:'Vie (Deluxe)',artist_name:'Doja Cat',release_type:'ALBUM'}, {id:'other',album_name:'Vie',artist_name:'Other Artist',release_type:'ALBUM'}]);
+ assert.equal(rows.length,3);assert.deepEqual(rows[0].edition_member_ids,['base','regional','clean']);assert.equal(rows[0].album_name,'Vie');
 });

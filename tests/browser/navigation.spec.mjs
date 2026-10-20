@@ -151,3 +151,14 @@ test('compact mobile pages keep navigation, filters and primary content within t
   await page.screenshot({path:testInfo.outputPath(`${name}-mobile.png`),fullPage:true});
  }
 });
+
+
+test('historical listening-variant links open one canonical release without losing their reviews',async({page})=>{
+ await page.goto('/albumes/artista-de-prueba-azul-clean');
+ await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
+ await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
+ await expect(page.getByText('Reseña de la variante limpia.',{exact:true})).toBeVisible();
+ await page.goto('/artista/artista-de-prueba');
+ await expect(page.getByRole('heading',{name:'Azul',exact:true})).toHaveCount(1);
+ await expect(page.getByRole('heading',{name:'Azul (Clean)',exact:true})).toHaveCount(0);
+});
