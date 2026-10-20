@@ -1,7 +1,6 @@
 'use client';
 import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
-import { GenreArtwork } from '../components/GenreArtwork';
-import presentation from '../utils/poolPresentation.cjs';
+import { PoolHero } from '../components/PoolHero';
 import { PoolManualControls } from '../components/PoolManualControls';
 import { GenreLabel } from '../components/GenreLabel';
 import genreCatalog from '../utils/genreCatalog.cjs';
@@ -58,8 +57,6 @@ export function PoolPage() {
 
   const { albums: catalogAlbums = [] } = useAlbums();
 
-  const appearance = presentation.poolAppearance(season.appearance);
-  const capacity = presentation.poolCapacity(season, season.entry_count || 0);
 
   // Candidatos de pool_entries para la Ruleta / Máquina Musical
   const slotMachinePool = useMemo(() => {
@@ -359,210 +356,13 @@ export function PoolPage() {
         {/* =========================================================================
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
-        <div style={{ background: presentation.poolBackground(appearance) }} className="relative rounded-3xl border border-white/10 p-6 sm:p-10 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/15 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-
-          {appearance.mediaUrl && <img src={appearance.mediaUrl} alt="" className="absolute inset-y-0 right-0 h-full w-full sm:w-1/2 object-cover opacity-20 pointer-events-none motion-reduce:hidden" onError={event=>{event.currentTarget.hidden=true;}}/>}
-          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-          {appearance.vinyl !== 'none' && <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            {appearance.vinyl === 'genre' ? <GenreArtwork genre={appearance.genre} size={440} animated className="h-full w-full"/> : <MusiclubVinyl
-              src={appearance.logo}
-              alt=""
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
-            />}
-          </div>}
-
-          <div className={`flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10 ${Object.keys(season.appearance || {}).length ? 'rounded-2xl bg-[#070812]/60 p-3 sm:p-5' : ''}`}>
-            <div className="space-y-3 max-w-2xl">
-              {/* Season Live Pill & Selector */}
-              <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-linear-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 text-pink-300 text-xs font-black tracking-wider uppercase">
-                  <img
-                    src="/musiclub_logo_corchea.png"
-                    alt="Musiclub"
-                    className="w-3.5 h-3.5 object-contain"
-                  />
-                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  <span>{season.name}</span>
-                  <span className="text-white/40">&bull;</span>
-                  <span className="text-white/70">
-                    Inició:{' '}
-                    {season.start_date
-                      ? new Date(
-                          `${season.start_date}T00:00:00`
-                        ).toLocaleDateString('en-US', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })
-                      : '11 Jul 2026'}
-                  </span>
-                </div>
-
-                {isPoolOpen ? (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-xs font-bold shadow-sm">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                    🔓 Pool Abierto
-                  </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 text-xs font-bold shadow-sm">
-                    {capacity.full ? '🎟️ Cupo completo' : '🔒 Pool Cerrado'}
-                  </span>
-                )}
-              </div>
-
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                {appearance.heading || 'Pool Musical Comunitario'}
-              </h1>
-
-              <p className="text-slate-300 text-xs sm:text-sm md:text-base leading-relaxed">
-                {appearance.intro || <>El motor social de Musiclub. Aquí los miembros proponen sus{' '}
-                <strong>álbumes, EPs y canciones</strong> favoritos para la
-                temporada. Cada semana se sortea el disco en foco mediante la
-                ruleta/gashapon para escucharlo y calificarlo en comunidad.</>}
-              </p>
-
-              {/* Banner Pool Cerrado / Abierto */}
-              {!isPoolOpen && (
-                <div className="p-4 rounded-2xl bg-[#18131d]/95 backdrop-blur-md border border-amber-500/40 text-amber-200 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xl">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xl">🔒</span>
-                    <span>
-                      <strong>
-                        El Pool se encuentra actualmente cerrado para nuevas
-                        propuestas.
-                      </strong>{' '}
-                      Puedes explorar los discos propuestos por la comunidad,
-                      participar en el sorteo semanal y calificar el disco en
-                      foco.
-                    </span>
-                  </div>
-                  {isAdmin && (
-                    <button
-                      type="button"
-                      disabled={poolActionBusy || capacity.full}
-                      onClick={() => runPoolAction(() => setPoolOpenStatus(true))}
-                      className="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs shadow transition-all flex items-center gap-1.5 shrink-0"
-                    >
-                      <span>🔓 Abrir Pool Ahora</span>
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Quick Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3">
-              {!isPoolOpen ? (
-                <button
-                  type="button"
-                  disabled
-                  className="px-5 py-3.5 rounded-2xl bg-white/[0.04] text-slate-500 border border-white/5 font-bold text-xs sm:text-sm flex items-center gap-2 cursor-not-allowed opacity-60 select-none shadow-none"
-                  title="El Pool se encuentra actualmente cerrado para nuevas propuestas"
-                >
-                  <span className="opacity-70">🔒</span>
-                  <span>Proponer al Pool (Cerrado)</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!user) {
-                      setShowLoginModal(true);
-                    } else {
-                      setShowNominateModal(true);
-                    }
-                  }}
-                  className="px-5 py-3.5 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
-                >
-                  <span>➕</span>
-                  <span>Depositar cápsula</span>
-                </button>
-              )}
-
-              <Link
-                to="/gashapon"
-                className="px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm backdrop-blur-md hover:scale-105 transition-all flex items-center gap-2"
-              >
-                <span>🎰</span>
-                <span>Gashapon Arcade</span>
-              </Link>
-            </div>
-          </div>
-
-          {/* Quick Season Stats Ribbon */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-8 pt-6 border-t border-white/10 text-center">
-            <div className="p-2">
-              <p
-                translate="no"
-                className="notranslate text-xl sm:text-2xl font-black text-pink-400"
-                data-stat="number"
-              >
-                {poolLoading && activePool.length === 0
-                  ? '...'
-                  : activePool.length}
-              </p>
-              <p className="text-[11px] text-slate-400 uppercase font-semibold">
-                En Espera en el Pool
-              </p>
-            </div>
-            <div className="p-2">
-              <p
-                translate="no"
-                className="notranslate text-xl sm:text-2xl font-black text-amber-300"
-                data-stat="number"
-              >
-                {poolLoading && poolHistory.length === 0 && !winner
-                  ? '...'
-                  : poolHistory.length + (winner ? 1 : 0)}
-              </p>
-              <p className="text-[11px] text-slate-400 uppercase font-semibold">
-                Ganadores de Temporada
-              </p>
-            </div>
-            <div className="p-2">
-              <p
-                translate="no"
-                className="notranslate text-xl sm:text-2xl font-black text-purple-300"
-                data-stat="season"
-              >
-                {season.name.split(':')[0]}
-              </p>
-              <p className="text-[11px] text-slate-400 uppercase font-semibold">
-                Temporada Activa
-              </p>
-            </div>
-            <div className="p-2">
-              <p
-                translate="no"
-                className="notranslate text-xl sm:text-2xl font-black text-emerald-400"
-                data-stat="date"
-              >
-                {season.start_date
-                  ? new Date(
-                      `${season.start_date}T00:00:00`
-                    ).toLocaleDateString('en-US', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric',
-                    })
-                  : '11 Jul 2026'}
-              </p>
-              <p className="text-[11px] text-slate-400 uppercase font-semibold">
-                Fecha de Lanzamiento
-              </p>
-            </div>
-          </div>
-        </div>
-
+        <PoolHero season={season} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
+          winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
+          isOpen={isPoolOpen} isAdmin={isAdmin} busy={poolActionBusy}
+          onDeposit={() => user ? setShowNominateModal(true) : setShowLoginModal(true)}
+          onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
-        <section className="rounded-2xl border border-white/10 bg-[#111424]/80 p-4 sm:p-5 space-y-3" aria-label="Dinámica del Pool">
-          <div className="flex flex-wrap items-center justify-between gap-2"><h2 className="text-base font-black text-white">{season.name}</h2><span className="rounded-full bg-white/5 px-3 py-1 text-[11px] font-bold text-slate-300">{isPoolOpen ? 'Propuestas abiertas' : 'Propuestas cerradas'} · {winner?.reviews_enabled ? 'Reseñas abiertas' : 'Reseñas cerradas'}</span></div>
-          {capacity.limit && <div className="flex flex-wrap items-center gap-2 text-xs text-purple-200"><span className="rounded-full border border-purple-300/20 bg-purple-500/10 px-3 py-1.5 font-bold">{capacity.used} / {capacity.limit} cápsulas depositadas</span><span>{capacity.full ? 'Cupo completo · los primeros registros válidos ya ocuparon los lugares.' : `${capacity.remaining} lugares disponibles`}</span></div>}
-          <p className="whitespace-pre-line text-xs leading-relaxed text-slate-300">{season.description}</p>
-          <p className="text-[11px] text-slate-400">Propón tu release → participa en el sorteo → escucha y reseña cuando el administrador habilite el ganador.</p>
-          {isAdmin && <PoolManualControls user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
-        </section>
+        {isAdmin && <PoolManualControls user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
 
         {/* =========================================================================
             2. WINNER SPOTLIGHT: ÁLBUM EN FOCO DE LA SEMANA
@@ -1185,7 +985,7 @@ export function PoolPage() {
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                Lanzamientos que ganaron en {season.name} y ya
+                Lanzamientos que ganaron en esta temporada y ya
                 fueron evaluados por la comunidad, ordenados de mayor a menor
                 calificación.
               </p>
