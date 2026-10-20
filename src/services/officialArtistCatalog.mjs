@@ -37,8 +37,14 @@ export async function selectOfficialArtist(candidates,{knownId,idOf,catalog,know
   }
   if(candidates.length===1) return {artist:candidates[0],items:await catalog(candidates[0])};
   const titles=new Set(knownReleases.map(release=>titleKey(typeof release==='string'?release:release.album_name || release.name)).filter(Boolean));
-  if(!titles.size || candidates.length>6) throw new Error('Artist identity missing or ambiguous');
-  const results=await Promise.allSettled(candidates.map(async artist=>({artist,items:await catalog(artist)})));
+  if(!titles.size) throw new Error('Artist identity missing or ambiguous');
+  const results=new Array(candidates.length);let index=0;
+  await Promise.all(Array.from({length:Math.min(3,candidates.length)},async()=>{
+    while(index<candidates.length) {
+      const current=index++,artist=candidates[current];
+      try {results[current]={status:'fulfilled',value:{artist,items:await catalog(artist)}};} catch {results[current]={status:'rejected'};}
+    }
+  }));
   // An unavailable candidate cannot be ruled out safely; preserve the previous copy.
   if(results.some(result=>result.status!=='fulfilled')) throw new Error('Artist identity verification incomplete');
   const confirmed=results.map(result=>result.value).filter(result=>result.items.some(release=>titles.has(titleKey(release.title || release.name || release.collectionName))));
@@ -62,10 +68,40 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
   };
   const exact = artists => artists.filter(a=>artistKey(a.name)===artistKey(name));
   const providers={};
+  // Resolve identity from a known official album URL before comparing namesakes.
+  // Only provider hosts and album IDs are accepted; never fetch a stored arbitrary URL.
+  async function anchorArtist(provider,headers={}) {
+    for(const release of knownReleases.filter(item=>item && typeof item==='object').slice(0,5)) {
+      for(const link of [release.other_link,release.spotify_link,release.apple_music_link].filter(Boolean)) {
+        let url;try {url=new URL(link);} catch {continue;}
+        const host=url.hostname.replace(/^www\./,'');let data,credits=[];
+        try {
+          if(provider==='DEEZER' && host==='deezer.com' && /^\/album\/\d+\/?$/.test(url.pathname)) {
+            data=await json(`https://api.deezer.com/album/${url.pathname.split('/')[2]}`);
+            credits=[data.artist];
+          } else if(provider==='APPLE' && ['music.apple.com','itunes.apple.com'].includes(host) && /\/album\/(?:[^/]+\/)?(\d+)\/?$/.test(url.pathname)) {
+            const id=url.pathname.match(/(\d+)\/?$/)[1];
+            const lookup=await json(`https://itunes.apple.com/lookup?id=${id}&entity=album&country=mx`);
+            data=(lookup.results||[]).find(item=>item.wrapperType==='collection');
+            if(data) credits=[{id:data.artistId,name:data.artistName}];
+          } else if(provider==='SPOTIFY' && host==='open.spotify.com' && /^\/album\/[A-Za-z0-9]{22}\/?$/.test(url.pathname)) {
+            data=await json(`https://api.spotify.com/v1/albums/${url.pathname.split('/')[2]}`,headers);
+            credits=data.artists || [];
+          } else continue;
+          if(titleKey(data?.title || data?.name || data?.collectionName)!==titleKey(release.album_name || release.name)) continue;
+          const exact=credits.filter(artist=>artist?.id && artistKey(artist.name)===artistKey(name));
+          if(exact.length===1) return exact[0];
+        } catch { /* Try another verified release or the catalog comparison. */ }
+      }
+    }
+    return null;
+  }
   async function deezer() {
     const found=await json(`https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=25`);
     const matches=exact(found.data || []);
-    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.deezer,idOf:a=>a.id,knownReleases,
+    const anchor=!knownIds.deezer && matches.length!==1 ? await anchorArtist('DEEZER') : null;
+    if(anchor && !matches.some(a=>String(a.id)===String(anchor.id))) matches.push(await json(`https://api.deezer.com/artist/${anchor.id}`));
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.deezer || anchor?.id,idOf:a=>a.id,knownReleases,
       catalog:a=>paginate(`https://api.deezer.com/artist/${a.id}/albums?limit=100`,'https://api.deezer.com','data')});
     // Artist listings omit track counts; resolve them before comparing editions.
     const enriched=new Array(items.length);let index=0;
@@ -83,7 +119,9 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
   async function apple() {
     const found=await json(`https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=musicArtist&limit=25&country=mx`);
     const matches=exact((found.results||[]).map(a=>({...a,name:a.artistName})));
-    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.apple,idOf:a=>a.artistId,knownReleases,catalog:async a=>{
+    const anchor=!knownIds.apple && matches.length!==1 ? await anchorArtist('APPLE') : null;
+    if(anchor && !matches.some(a=>String(a.artistId)===String(anchor.id))) matches.push({artistId:anchor.id,name:anchor.name});
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.apple || anchor?.id,idOf:a=>a.artistId,knownReleases,catalog:async a=>{
       const data=await json(`https://itunes.apple.com/lookup?id=${a.artistId}&entity=album&limit=200&country=mx`);
       return (data.results||[]).filter(item=>item.wrapperType==='collection' && item.artistId===a.artistId);
     }});
@@ -101,7 +139,9 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
     const token=await response.json(),headers={Authorization:`Bearer ${token.access_token}`};
     const found=await json(`https://api.spotify.com/v1/search?q=${encodeURIComponent(name)}&type=artist&limit=10`,headers);
     const matches=exact(found.artists?.items || []);
-    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.spotify,idOf:a=>a.id,knownReleases,catalog:async a=>{
+    const anchor=!knownIds.spotify && matches.length!==1 ? await anchorArtist('SPOTIFY',headers) : null;
+    if(anchor && !matches.some(a=>a.id===anchor.id)) matches.push(await json(`https://api.spotify.com/v1/artists/${anchor.id}`,headers));
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.spotify || anchor?.id,idOf:a=>a.id,knownReleases,catalog:async a=>{
       const rows=await paginate(`https://api.spotify.com/v1/artists/${a.id}/albums?include_groups=album,single,compilation,appears_on&limit=10`,'https://api.spotify.com','items',headers);
       return rows.filter(release=>(release.artists||[]).some(credit=>credit.id===a.id));
     }});
