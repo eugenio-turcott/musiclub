@@ -35,10 +35,12 @@
     "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force",
     "check:releases": "node scripts/checkUpcomingReleasesCron.mjs",
     "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs",
-    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs tests/cover-ratings.test.mjs tests/musicbrainz-identity.test.mjs",
+    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs tests/cover-ratings.test.mjs tests/musicbrainz-identity.test.mjs tests/private-backup.test.mjs",
     "genres:update": "node scripts/update-genre-registry.mjs",
     "test:browser": "playwright test",
-    "genres:audit": "node scripts/audit-release-genres.mjs"
+    "genres:audit": "node scripts/audit-release-genres.mjs",
+    "backup:seal": "node scripts/seal-private-backup.mjs",
+    "backup:verify": "node scripts/verify-private-recovery.mjs"
   },
   "eslintConfig": {
     "extends": [
@@ -59,6 +61,7 @@
     ]
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
     "tailwindcss": "^4.3.3"

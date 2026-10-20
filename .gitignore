@@ -9,6 +9,10 @@
 /coverage
 /playwright-report/
 /test-results/
+/private-backups/
+/private-backup-keys/
+*.recovery-key
+/musiclub-private-backup*.csv
 
 # production
 /build
