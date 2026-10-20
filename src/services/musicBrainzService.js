@@ -1,3 +1,4 @@
+import mbIdentity from '../utils/musicBrainzIdentity.cjs';
 // src/services/musicBrainzService.js
 import { searchAlbum } from './spotifyApi.js';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
@@ -564,7 +565,7 @@ export async function searchBestReleaseGroup(artistName, albumName) {
   const cleanLowerAlb = cleanAlb.toLowerCase();
   const cleanLowerArt = cleanArt.toLowerCase();
 
-  const scored = rgs.map((rg) => {
+  const scored = rgs.filter(rg => mbIdentity.releaseGroupMatches(artistName, albumName, rg)).map((rg) => {
     let score = rg.score || 50;
     const title = (rg.title || '').toLowerCase().trim();
     const rgArt = (rg['artist-credit'] || [])
