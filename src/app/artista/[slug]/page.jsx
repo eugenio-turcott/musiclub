@@ -1,3 +1,4 @@
+export const maxDuration = 60;
 import React from 'react';
 import { notFound, permanentRedirect } from 'next/navigation';
 import { headers } from 'next/headers';

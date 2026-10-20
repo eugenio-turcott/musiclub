@@ -10,10 +10,10 @@ import { SEO } from './SEO';
 import { useAuth } from '../hooks/useAuth';
 import { supabaseService } from '../services/supabaseClient';
 import {
-  getArtistCompleteProfile,
   getAlbumDetails,
 } from '../services/spotifyApi';
 import { getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
+import releaseIdentity from '../utils/releaseIdentity.cjs';
 import { findAlbumsByArtist, getReleaseUrl, slugifyArtist } from '../utils/ratingUtils';
 
 
@@ -29,6 +29,8 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('ALL'); // 'ALL' | 'ALBUM' | 'EP' | 'SENCILLO' | 'COMPILACION'
   const [searchFilter, setSearchFilter] = useState('');
+  const [visibleReleases,setVisibleReleases]=useState(48);
+  useEffect(()=>setVisibleReleases(48),[slug,activeTab,searchFilter]);
   const [proposingId, setProposingId] = useState(null);
   const [proposeMessage, setProposeMessage] = useState(null);
 
@@ -55,15 +57,29 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
     if (!initialProfileData) loadArtistData();
   }, [loadArtistData]);
 
+  // A first visit renders the local catalogue immediately while the official copy is prepared.
+  useEffect(() => {
+    if (profileData?.source === 'OFFICIAL') return;
+    let cancelled=false, timer, attempts=0;
+    const poll=async()=>{
+      try {
+        const response=await fetch(`/api/artists/${encodeURIComponent(slug)}`,{cache:'no-store'});
+        if(response.ok) {
+          const data=await response.json();
+          if(!cancelled && data.profile?.source==='OFFICIAL') {setProfileData(data.profile);setClubAlbums(data.albums||[]);return;}
+        }
+      } catch { /* Keep the local releases visible. */ }
+      if(!cancelled && ++attempts<10) timer=setTimeout(poll,5000);
+    };
+    timer=setTimeout(poll,5000);
+    return()=>{cancelled=true;clearTimeout(timer);};
+  },[slug,profileData?.source]);
+
   // Mapa de álbumes del club indexados por nombre normalizado
   const clubAlbumMap = useMemo(() => {
     const map = new Map();
     clubAlbums.forEach((ca) => {
-      const normName = (ca.album_name || ca.album || '')
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, '');
+      const normName = releaseIdentity.slugify(ca.album_name || ca.album || '', true);
       if (normName) {
         map.set(normName, ca);
       }
@@ -450,10 +466,10 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                 <div>
                   <h3 className="text-white font-black text-xl sm:text-2xl flex items-center gap-2">
                     <span>💿</span>
-                    <span>Discografía Completa</span>
+                    <span>Discografía</span>
                   </h3>
                   <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
-                    Álbumes, EPs y sencillos oficiales lanzados por{' '}
+                    Álbumes, EPs, sencillos y otras ediciones de{' '}
                     {artist.name}.
                   </p>
                 </div>
@@ -469,6 +485,13 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                   />
                 </div>
               </div>
+
+              <p className="text-xs text-slate-400 mb-4" role="status">
+                {profileData.source === 'OFFICIAL'
+                  ? `Fuentes: ${Object.entries(profileData.providers || {}).filter(([,source])=>source.status==='ok'||source.status==='partial').map(([provider])=>({SPOTIFY:'Spotify',DEEZER:'Deezer',APPLE:'Apple Music'}[provider])).join(' · ')}. Catálogo guardado en Musiclub.`
+                  : 'Mostrando los releases del club. Completando la discografía oficial…'}
+                {profileData.source === 'OFFICIAL' && Object.values(profileData.providers || {}).some(source=>source.status!=='ok') && ' Algunas fuentes tienen cobertura parcial; conservamos los releases ya verificados.'}
+              </p>
 
               {/* Category Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
@@ -536,14 +559,12 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                 </div>
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5">
-                  {filteredDiscography.map((release) => {
-                    const normReleaseName = release.name
-                      .normalize('NFD')
-                      .replace(/[\u0300-\u036f]/g, '')
-                      .toLowerCase()
-                      .replace(/[^a-z0-9]/g, '');
+                  {filteredDiscography.slice(0,visibleReleases).map((release) => {
+                    const normReleaseName = releaseIdentity.slugify(release.name, true);
 
-                    const existingInClub = clubAlbumMap.get(normReleaseName);
+                    const existingInClub = release.clubAlbumId
+                      ? clubAlbums.find(album=>album.id===release.clubAlbumId)
+                      : profileData.source==='OFFICIAL' && release.sources?.length ? null : clubAlbumMap.get(normReleaseName);
 
                     const typeBadge =
                       release.release_type === 'EP'
@@ -677,7 +698,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                           </h4>
 
                           <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1">
-                            <span>{release.releaseYear || ''}</span>
+                            <span>{release.releaseYear || ''}{release.explicit != null && <span className="ml-1.5 rounded border border-white/15 px-1 text-[9px]" title={release.explicit?'Versión explícita':'Versión limpia'}>{release.explicit?'E':'Limpia'}</span>}</span>
                             {release.totalTracks > 0 && (
                               <span>
                                 {release.totalTracks}{' '}
@@ -749,6 +770,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                   })}
                 </div>
               )}
+              {filteredDiscography.length > visibleReleases && <div className="flex justify-center pt-4"><button type="button" onClick={()=>setVisibleReleases(count=>count+48)} className="cursor-pointer rounded-xl border border-white/15 bg-white/5 px-5 py-2 text-sm font-bold text-cyan-200 hover:bg-white/10">Ver más releases ({visibleReleases}/{filteredDiscography.length})</button></div>}
             </div>
           </div>
         )}

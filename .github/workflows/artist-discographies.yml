@@ -1,0 +1,34 @@
+name: Refresh official artist discographies
+on:
+  schedule:
+    - cron: '15 8 * * *'
+  workflow_dispatch:
+    inputs:
+      artist_slugs:
+        description: 'Opcional: slugs separados por coma; vacío actualiza artistas del club pendientes'
+        required: false
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: official-artist-discographies
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Refresh stored official discographies
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
+          REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
+          ARTIST_SLUGS: ${{ inputs.artist_slugs }}
+        run: node scripts/refresh-artist-discographies.mjs
