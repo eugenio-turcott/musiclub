@@ -1,6 +1,6 @@
 # Discografías oficiales persistentes
 
-Las rutas de artista leen `artist_discographies` en Supabase; no esperan a Spotify, Deezer ni Apple. Se combinan con los releases y reseñas actuales del club. Si todavía no existe una copia, se muestra el catálogo local y se consulta brevemente por la actualización en segundo plano.
+Las rutas de artista leen `artist_discographies` en Supabase; no esperan a Spotify, Deezer ni Apple. Se combinan con los releases y reseñas actuales del club. Si todavía no existe una copia y hay releases locales, se muestran inmediatamente y se consulta por la actualización en segundo plano. Si el artista es completamente nuevo, la primera visita consulta las fuentes oficiales, guarda el resultado y vuelve a leerlo desde Supabase antes de presentar la discografía. Una búsqueda sin coincidencia verificada no se presenta como artista válido.
 
 La migración `20261020_artist_discographies.sql` crea una tabla de metadatos públicos con lectura pública y escritura exclusiva de `service_role`. El servidor usa `after` para actualizar copias vencidas; una reserva atómica de dos minutos evita trabajos duplicados. Un fallo externo conserva los datos anteriores y permite otro intento después de una hora. Una actualización correcta vence después de 24 horas.
 

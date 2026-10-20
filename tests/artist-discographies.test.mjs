@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { mergeOfficialReleases, collectOfficialArtist } from '../src/services/officialArtistCatalog.mjs';
-import { refreshStoredArtist, readStoredArtist } from '../src/services/artistDiscographyStore.mjs';
+import { refreshStoredArtist, readStoredArtist, loadStoredArtist } from '../src/services/artistDiscographyStore.mjs';
 const release=(name,provider='DEEZER',id=name,extra={})=>({name,release_type:'ALBUM',totalTracks:10,releaseYear:2025,sources:[{provider,id,url:'https://example.test/album/'+id}],...extra});
 test('official union preserves deluxe, live, explicit and plus editions and their provider links',()=>{
  const rows=mergeOfficialReleases([release('Blue')],[release('Blue','SPOTIFY','2'),release('Blue (Deluxe)'),release('Blue +'),release('Blue Live'),release('Blue','APPLE','3',{explicit:true}),release('Blue','APPLE','4',{explicit:false})]);
@@ -51,4 +51,25 @@ test('artist storage grants public reading but restricts writing and refresh cla
 test('a refreshed provider record updates metadata without creating a second copy',()=>{
  const rows=mergeOfficialReleases([release('Blue','DEEZER','1',{totalTracks:null})],[release('Blue','DEEZER','1',{totalTracks:12})]);
  assert.equal(rows.length,1);assert.equal(rows[0].totalTracks,12);
+});
+
+
+test('first artist discovery reads the database, saves verified metadata, then rereads the database',async()=>{
+ const events=[];let saved=null;
+ const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>{events.push('db');return {data:saved};}})})})};
+ const profile={source:'OFFICIAL',discography:[release('Blue')]};
+ const actual=await loadStoredArtist(db,'artist',{canDiscover:true,refresh:async()=>{events.push('save');saved={profile};}});
+ assert.equal(actual,profile);assert.deepEqual(events,['db','save','db']);
+});
+test('an existing artist returns database data immediately and schedules an overdue update',async()=>{
+ const profile={discography:[release('Blue')]};let scheduled,called=false;
+ const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:{profile,refresh_after:'2000-01-01'}})})})})};
+ assert.equal(await loadStoredArtist(db,'artist',{canDiscover:true,refresh:async()=>{called=true;},schedule:task=>scheduled=task}),profile);
+ assert.equal(called,false);await scheduled();assert.equal(called,true);
+});
+test('failed discovery never returns unpersisted upstream data and local releases do not wait',async()=>{
+ const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:null})})})})};let scheduled;
+ assert.equal(await loadStoredArtist(db,'artist',{canDiscover:true,refresh:async()=>({discography:[release('Not saved')]})}),null);
+ assert.equal(await loadStoredArtist(db,'artist',{hasLocal:true,canDiscover:true,refresh:async()=>{},schedule:task=>scheduled=task}),null);
+ assert.equal(typeof scheduled,'function');
 });
