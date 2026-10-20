@@ -706,7 +706,7 @@ export function AppHeader({
                 ? 'bg-pink-500/20 border-pink-500/50 text-white'
                 : 'bg-white/5 hover:bg-white/10 border-white/10 text-white/70 hover:text-white'
             }`}
-            aria-label="Abrir menú de navegación"
+            aria-label={isMobileMenuOpen ? 'Cerrar menú de navegación' : 'Abrir menú de navegación'}
             aria-expanded={isMobileMenuOpen}
           >
             {isMobileMenuOpen ? (

@@ -107,10 +107,10 @@ export const getPublicArtist = cache(async slug => {
     const editionKey=name=>releaseIdentity.slugify(String(name).replace(/ - (Single|EP)$/i,''),true);
     const match = discography.find(d => (d.sources || []).some(source=>source.url && links.includes(source.url.split('?')[0].replace(/\/$/,'')))) ||
       discography.find(d => editionKey(d.name)===editionKey(a.album_name) && (!d.totalTracks || !(a.total_tracks || a.tracks?.length) || d.totalTracks===(a.total_tracks || a.tracks?.length)));
-    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; }
+    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; match.genres=a.genres || match.genres; }
     else discography.push({ id: a.id, clubAlbumId:a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
       image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
-      release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link });
+      genres:a.genres || [], release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link });
   }
   for (const release of upcoming || []) {
     const match = discography.find(d => d.name.toLowerCase().trim() === release.album_name.toLowerCase().trim());

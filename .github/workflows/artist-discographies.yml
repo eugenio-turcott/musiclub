@@ -8,6 +8,11 @@ on:
         description: 'Opcional: slugs separados por coma; vacío actualiza artistas del club pendientes'
         required: false
         type: string
+      repair_only:
+        description: 'Solo reparar metadatos y duplicados de las discografías guardadas'
+        required: false
+        type: boolean
+        default: false
 permissions:
   contents: read
 concurrency:
@@ -24,7 +29,20 @@ jobs:
           node-version: '22'
           cache: npm
       - run: npm ci
+      - name: Repair incomplete stored metadata
+        env:
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          ARTIST_SLUGS: ${{ inputs.artist_slugs }}
+        run: node scripts/repair-artist-metadata.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: artist-metadata-report
+          path: artist-metadata-report.json
+          retention-days: 7
       - name: Refresh stored official discographies
+        if: ${{ !inputs.repair_only }}
         env:
           REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

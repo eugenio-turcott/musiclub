@@ -489,7 +489,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               <p className="text-xs text-slate-400 mb-4" role="status">
                 {profileData.source === 'OFFICIAL'
                   ? `Fuentes: ${Object.entries(profileData.providers || {}).filter(([,source])=>source.status==='ok'||source.status==='partial').map(([provider])=>({SPOTIFY:'Spotify',DEEZER:'Deezer',APPLE:'Apple Music'}[provider])).join(' · ')}. Catálogo guardado en Musiclub.`
-                  : 'Mostrando los releases del club. Completando la discografía oficial…'}
+                  : 'Mostrando los releases del club. La discografía oficial está pendiente de verificación.'}
                 {profileData.source === 'OFFICIAL' && Object.values(profileData.providers || {}).some(source=>source.status!=='ok') && ' Algunas fuentes tienen cobertura parcial; conservamos los releases ya verificados.'}
               </p>
 

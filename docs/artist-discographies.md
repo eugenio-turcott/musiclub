@@ -16,3 +16,11 @@ La migración `20261020_artist_discographies.sql` crea una tabla de metadatos p�
 - Se conservan releases verificados anteriormente si desaparecen temporalmente de un proveedor. La copia no certifica disponibilidad actual en todos los países.
 
 La interfaz muestra la procedencia y cobertura, conserva los tags EN MUSICLUB en la edición correspondiente y presenta 48 tarjetas por bloque, sin limitar el buscador ni eliminar releases del catálogo.
+
+## Reparación y auditoría
+
+El mantenimiento repara primero las copias guardadas con conteos o portadas faltantes, consultando únicamente los IDs de Deezer ya verificados (hasta cuatro solicitudes simultáneas, ocho segundos por solicitud). La escritura comprueba `updated_at` para conservar una actualización concurrente. El informe público del trabajo enumera recuperaciones, fuentes no disponibles y conflictos. La opción manual `repair_only` permite ejecutar esta fase sin iniciar descubrimientos nuevos.
+
+Los géneros se conservan cuando el proveedor los entrega para el release (Deezer o Apple); no se extrapolan los géneros del artista a toda su discografía. Los releases que ya pertenecen al club usan sus géneros guardados. Los metadatos desconocidos no se inventan. Un proveedor con portadas o conteos incompletos se presenta como parcial.
+
+Un ID oficial guardado evita repetir la búsqueda por nombre. Los datos vacíos de un proveedor no borran conteos, fechas o portadas anteriores. La unión tolera metadatos faltantes solo ante una edición compatible inequívoca; no fusiona variantes explícitas y limpias ni barcodes diferentes. La reparación conserva todos los enlaces originales, aunque agrupe sus tarjetas duplicadas.
