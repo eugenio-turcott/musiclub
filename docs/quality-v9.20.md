@@ -24,11 +24,11 @@ El informe de fallos de GitHub se conserva siete días y contiene exclusivamente
 - Mantenimiento diario: ejecución 39397723398 completada correctamente.
 - Actualización del registro de géneros: ejecución 39317946375 completada correctamente.
 - Search Console sigue mostrando actualización del 11 de octubre: 4 páginas indexadas y 769 descubiertas sin indexar. No existe en ese informe evidencia posterior a las correcciones; no se repiten solicitudes de indexación ya aceptadas.
-- Supabase muestra `Free Plan does not include project backups`. No hay un respaldo automático del proyecto confirmado. No se cambió de plan ni se restauró producción.
+- Supabase muestra `Free Plan does not include project backups`. Se preparó y comprobó una copia privada manual cifrada, sin cambiar de plan. El ensayo local restauró 23 tablas y 3,514 registros con igualdad de contenido. Véase `docs/private-backups.md` para sus límites; no se restauró producción.
 
 ## Pendientes que requieren seguimiento
 
-1. Una copia privada verificable de esquema y datos y un ensayo de recuperación en un entorno separado. Los artefactos de géneros no son una copia completa de la base de datos. No guardar correos, usuarios ni credenciales en el repositorio público ni en sus artefactos públicos.
+1. Conservar una segunda copia cifrada fuera de este equipo y guardar la clave por separado. La copia manual y el ensayo local ya están comprobados; no equivalen a una recuperación completa de todos los servicios administrados de Supabase.
 2. Revisión editorial de clasificaciones específicas contra fuentes del release; no reemplazar estilos por inferencias basadas solo en el artista.
-3. Comparación de Search Console cuando su informe tenga fecha posterior al despliegue y de métricas reales de carga móvil. No declarar mejoras de tráfico o velocidad sin datos nuevos.
+3. Comparación de Search Console cuando su informe tenga fecha posterior al despliegue y de métricas reales de carga móvil. PageSpeed devolvió HTTP 429 el 20 de octubre; no se presenta una puntuación nueva ni una mejora de tráfico o velocidad sin datos nuevos.
 4. Prueba completa de cierre manual, cupos y sorteo con cuentas y Pool de prueba. Las pruebas automáticas de reglas no sustituyen esa prueba y no se utiliza el Pool activo para simular participación.
