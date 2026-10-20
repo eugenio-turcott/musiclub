@@ -20,3 +20,29 @@ test('the full credited collaboration must match, not just one contributor',()=>
   assert.equal(identity.releaseGroupMatches('A','Together',release),false);
   assert.equal(identity.releaseGroupMatches('A','Together',{title:'Together'}),false);
 });
+
+
+const { resolveGenres, sameRelease } = (await import('../src/utils/remoteReleaseGenres.cjs')).default;
+test('Deluxe without embed genres gets canonical genres from the exact Deezer edition',async()=>{
+  const selected={name:'House of LION BABE (Deluxe)',artist:'LION BABE',tracks:[{name:'Bonus track'}]};
+  const before=JSON.stringify(selected), requested=[];
+  const genres=await resolveGenres(selected.artist,selected.name,[[],['not-a-genre-code']],{
+    search:async()=>({albums:[{id:'standard',name:'House of LION BABE',artist:'LION BABE'},{id:'deluxe',...selected}]}),
+    details:async id=>{requested.push(id);return {...selected,genres:['Dance','Pop']};}
+  });
+  assert.deepEqual(genres,['Dance','Pop']);
+  assert.deepEqual(requested,['deluxe']);
+  assert.equal(JSON.stringify(selected),before);
+});
+test('genre fallback rejects another artist, edition and mismatched detail responses',async()=>{
+  assert.equal(sameRelease('A','Blue (Deluxe)',{name:'Blue',artist:'A'}),false);
+  assert.equal(sameRelease('A','Blue',{name:'Blue',artist:'B'}),false);
+  assert.deepEqual(await resolveGenres('A','Blue (Deluxe)',[],{
+    search:async()=>({albums:[{id:'x',name:'Blue (Deluxe)',artist:'A'}]}),
+    details:async()=>({name:'Blue',artist:'A',genres:['Rock']})
+  }),[]);
+});
+test('recognized source genres avoid an extra lookup and outages never invent genres',async()=>{
+  assert.deepEqual(await resolveGenres('A','Blue',[['R&B/Soul']],{search:()=>{throw new Error('must not run');}}),['R&B','Soul']);
+  assert.deepEqual(await resolveGenres('A','Blue',[],{search:async()=>{throw new Error('offline');}}),[]);
+});
