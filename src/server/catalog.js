@@ -5,10 +5,9 @@ import { createClient } from '@supabase/supabase-js';
 import { buildAlbumWithFullStats } from '../services/supabaseClient';
 import { PUBLIC_REVIEW_FIELDS, publicData } from '../utils/publicData';
 import { slugifyArtist, splitArtists, getReleaseUrl } from '../utils/ratingUtils';
-import { getArtistCompleteProfile } from '../services/spotifyApi';
 import releaseIdentity from '../utils/releaseIdentity.cjs';
 import releaseLookup from '../utils/publicReleaseLookup.cjs';
-import { getVerifiedArtistProfile } from './artistProfile';
+import { getStoredArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
 
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
@@ -99,18 +98,16 @@ export const getPublicArtist = cache(async slug => {
     splitArtists(a.artist_name).some(artist => artist.slug === canonicalSlug));
   const sample = clubAlbums[0];
   const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : canonicalSlug.replace(/-/g, ' ');
-  let external;
-  try { external = await getVerifiedArtistProfile(name); } catch { /* Preserve the local catalog if the source is unavailable. */ }
-  if (!external?.discography?.length) {
-    const spotify = await getArtistCompleteProfile(name);
-    if (spotify?.discography?.length) external = spotify;
-  }
+  const external = await getStoredArtistProfile(client(), canonicalSlug, name);
   if (!sample && !external) return null;
   const discography = [...(external?.discography || [])];
   for (const a of clubAlbums) {
-    const match = discography.find(d => (a.mbid && d.mbid === a.mbid) || d.name.toLowerCase().trim() === a.album_name.toLowerCase().trim());
-    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; }
-    else discography.push({ id: a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
+    const links=[a.spotify_link,a.other_link,a.apple_music_link].filter(Boolean).map(link=>link.split('?')[0].replace(/\/$/,''));
+    const editionKey=name=>releaseIdentity.slugify(String(name).replace(/ - (Single|EP)$/i,''),true);
+    const match = discography.find(d => (d.sources || []).some(source=>source.url && links.includes(source.url.split('?')[0].replace(/\/$/,'')))) ||
+      discography.find(d => editionKey(d.name)===editionKey(a.album_name) && (!d.totalTracks || !(a.total_tracks || a.tracks?.length) || d.totalTracks===(a.total_tracks || a.tracks?.length)));
+    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; }
+    else discography.push({ id: a.id, clubAlbumId:a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
       image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
       release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link });
   }

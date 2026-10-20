@@ -73,7 +73,9 @@ test('Gashapon genre selection updates the capsules and genre-page link together
 test('artist pages preserve club discography and review badges',async({page})=>{
   await page.goto('/artista/artista-de-prueba');
   await expect(page.getByRole('heading',{name:'Artista de Prueba',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Discografía Completa',exact:false})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Discografía',exact:false})).toBeVisible();
+  await expect(page.getByText('Edición exclusiva oficial',{exact:true})).toBeVisible();
+  await expect(page.getByRole('status').filter({hasText:'Catálogo guardado en Musiclub'})).toBeVisible();
   await expect(page.getByText('EN MUSICLUB',{exact:true}).first()).toBeVisible();
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
 });

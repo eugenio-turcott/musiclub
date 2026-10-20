@@ -10,3 +10,5 @@ export const reviews=albums.map((album,index)=>({
   rating_general:8, comment:'Una reseña de prueba.', created_at:'2025-01-02T00:00:00Z',
 }));
 export const tables={albums, public_reviews:reviews, public_profiles:[], public_cover_ratings:[],record_club_upcoming:[],record_club_trending:[]};
+
+tables.artist_discographies=[{slug:'artista-de-prueba',name:'Artista de Prueba',refresh_after:'2099-01-01T00:00:00Z',checked_at:'2026-10-20T00:00:00Z',profile:{source:'OFFICIAL',artist:{name:'Artista de Prueba',image:'/musiclub_logo.png',genres:['Pop']},providers:{DEEZER:{status:'ok'}},discography:[{id:'deezer_fixture',name:'Edición exclusiva oficial',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-02-01',releaseYear:2025,image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'fixture'}]}]}}];
