@@ -89,3 +89,13 @@ test('unavailable cover votes produce a visible error instead of a fake saved to
   await page.goto('/portadas');
   await expect(page.getByRole('alert').filter({hasText:'No pudimos cargar las calificaciones de portadas'})).toBeVisible();
 });
+
+
+test('global search opens an existing release through its artist-qualified URL',async({page})=>{
+  await page.goto('/portadas');
+  await page.getByRole('button',{name:'Buscar álbum',exact:true}).click();
+  await page.getByPlaceholder('Escribe el álbum o artista...').fill('Azul');
+  await page.getByText('Azul',{exact:true}).last().click();
+  await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
+  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+});

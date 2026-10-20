@@ -11,6 +11,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
+import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
+import remoteGenres from '../utils/remoteReleaseGenres.cjs';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
@@ -281,10 +283,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       // 1. Caso Álbum ya registrado en el Club
       if (item.type === 'CLUB' && item.rawClubAlbum) {
         const target = item.rawClubAlbum;
-        const targetUrl = getReleaseUrl(
-          target.album_name || target.album || item.name,
-          target.release_type || target.releaseType
-        );
+        const targetUrl = getReleaseUrl(target);
 
         setIsOpen(false);
         setQuery('');
@@ -330,7 +329,8 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         }
       }
 
-      const rawRemote = remoteDetails || item.rawRemoteAlbum || item;
+      const rawRemote = remoteGenres.sameRelease(searchArtist, searchTitle, remoteDetails)
+        ? remoteDetails : (item.rawRemoteAlbum || item);
 
       // Obtener datos canónicos de MusicBrainz con timeout estricto de 2.5s y fallback rápido
       const mbData = await getFullMusicBrainzAlbumData(
@@ -368,6 +368,10 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           ? rawRemote.tracks.length
           : (rawRemote?.totalTracks || mbData?.total_tracks || tracksToSave.length || null);
 
+        const genres = await remoteGenres.resolveGenres(
+          searchArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
+          { search: searchDeezerAlbums, details: getDeezerAlbumDetails }
+        );
         const albumPayload = {
           albumName: canonicalTitle,
           artistName: canonicalArtist,
@@ -376,7 +380,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
           releaseType: mbData?.release_type || item.releaseType || rawRemote?.release_type || 'ALBUM',
           releaseDate: mbData?.release_date || item.releaseDate || rawRemote?.releaseDate || null,
           releaseYear: mbData?.release_year || item.releaseYear || rawRemote?.releaseYear || null,
-          genres: (mbData?.genres && mbData.genres.length > 0) ? mbData.genres : (rawRemote?.genres || []),
+          genres,
           label: mbData?.label || rawRemote?.label || null,
           country: mbData?.country || null,
           barcode: mbData?.barcode || null,
@@ -413,10 +417,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
         item.releaseType ||
         'ALBUM';
 
-      const targetUrl = getReleaseUrl(
-        finalAlbum?.album_name || canonicalTitle,
-        relType
-      );
+      const targetUrl = getReleaseUrl({ ...finalAlbum,
+        album_name: finalAlbum?.album_name || canonicalTitle,
+        artist_name: finalAlbum?.artist_name || canonicalArtist,
+        release_type: relType,
+      });
 
       setIsOpen(false);
       setQuery('');
@@ -450,8 +455,9 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed }) {
       return;
     } catch (err) {
       console.error('Error al seleccionar y abrir álbum:', err);
-      setStatusMessage('Error al abrir el álbum. Intenta de nuevo.');
-      setTimeout(() => setStatusMessage(null), 3000);
+      setStatusMessage(err.message?.includes('género musical reconocido')
+        ? 'No encontramos un género verificado para esta edición. Intenta más tarde o agrégala desde el catálogo con su género.'
+        : 'No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
     } finally {
       setSelectingAlbumId(null);
     }
