@@ -1,18 +1,37 @@
 // src/hooks/useCoverRatings.js
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabaseService } from '../services/supabaseClient';
+import identity from '../utils/coverRatingIdentity.cjs';
 
 export function useCoverRatings(user = null) {
   const [ratings, setRatings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [ownSnapshot, setOwnSnapshot] = useState({ account: null, ratings: [] });
+  const account = user?.id || null;
+  const accountRef = useRef(account);
+  accountRef.current = account;
+  const userEmail = user?.email;
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!account) {
+      setOwnSnapshot({ account: null, ratings: [] });
+      return;
+    }
+    supabaseService.getUserCoverRatings({ id: account, email: userEmail }).then(data => {
+      if (!cancelled) setOwnSnapshot({ account, ratings: data });
+    }).catch(() => {
+      if (!cancelled) setError('No pudimos cargar tus calificaciones de portadas. Recarga para intentarlo de nuevo.');
+    });
+    return () => { cancelled = true; };
+  }, [account, userEmail]);
 
   const fetchRatings = useCallback(async () => {
     try {
       setLoading(true);
       const data = await supabaseService.getAllCoverRatings();
       setRatings(data || []);
-      setError(null);
     } catch (err) {
       console.warn('Error fetching cover ratings:', err);
       setError(err.message || 'Error al cargar calificaciones de portadas');
@@ -82,33 +101,15 @@ export function useCoverRatings(user = null) {
 
   // Mapa de calificaciones del usuario actual: { [album_id]: userRatingObject }
   const userRatingsMap = useMemo(() => {
-    const map = new Map();
-    if (!user) return map;
-
-    const userEmail = user?.email?.toLowerCase()?.trim();
-    const userName = user?.user_metadata?.full_name || user?.name;
-
-    ratings.forEach((item) => {
-      const itemEmail = item.user_email?.toLowerCase()?.trim();
-      const itemName = item.user_name?.toLowerCase()?.trim();
-
-      const isMatch =
-        (userEmail && itemEmail === userEmail) ||
-        (item.user_id && user.id && item.user_id === user.id) ||
-        (userName && itemName === userName.toLowerCase().trim());
-
-      if (isMatch) {
-        map.set(item.album_id, item);
-      }
-    });
-
-    return map;
-  }, [ratings, user]);
+    const ownRows = ownSnapshot.account === account ? ownSnapshot.ratings : [];
+    return identity.ownCoverRatings([...ratings, ...ownRows], user);
+  }, [ratings, ownSnapshot, account, user]);
 
   // Enviar o actualizar calificación de portada
   const submitRating = useCallback(
     async ({ album_id, rating, aesthetic_tags = [], comment = '' }) => {
       if (!album_id || !rating) return null;
+      if (!user?.id) throw new Error('Inicia sesión para calificar.');
 
       const userEmail = user?.email || null;
       const userName =
@@ -135,6 +136,9 @@ export function useCoverRatings(user = null) {
 
       try {
         const saved = await supabaseService.submitCoverRating(payload);
+        // A response from the previous session must not enter the new account's view.
+        if (accountRef.current !== user.id) return saved;
+        setOwnSnapshot(prev => ({ account: user.id, ratings: [saved, ...(prev.account === user.id ? prev.ratings.filter(r => r.album_id !== album_id) : [])] }));
 
         // Actualizar estado local reactivamente sin esperar refetch
         setRatings((prev) => {
@@ -142,8 +146,7 @@ export function useCoverRatings(user = null) {
           const idx = list.findIndex(
             (r) =>
               r.album_id === album_id &&
-              ((userEmail && r.user_email === userEmail) ||
-                (userName && r.user_name === userName))
+              identity.ownsCoverRating(r, user)
           );
           if (idx >= 0) {
             list[idx] = { ...list[idx], ...saved };
@@ -167,26 +170,27 @@ export function useCoverRatings(user = null) {
     async (album_id) => {
       if (!album_id) return false;
       const existing = userRatingsMap.get(album_id);
+      if (!existing || !user?.id) throw new Error('No se encontró tu calificación.');
       try {
         await supabaseService.deleteCoverRating(
           existing?.id || null,
-          album_id,
-          user?.email || null
+          album_id
         );
+        if (accountRef.current !== user.id) return true;
+        setOwnSnapshot(prev => ({ account: user.id, ratings: prev.account === user.id ? prev.ratings.filter(r => r.id !== existing.id) : [] }));
         setRatings((prev) =>
           prev.filter(
             (r) =>
               !(
                 r.album_id === album_id &&
-                ((user?.email && r.user_email === user.email) ||
-                  (user?.name && r.user_name === user.name))
+                identity.ownsCoverRating(r, user)
               )
           )
         );
         return true;
       } catch (err) {
         console.error('Error al eliminar calificación de portada:', err);
-        return false;
+        throw err;
       }
     },
     [user, userRatingsMap]
