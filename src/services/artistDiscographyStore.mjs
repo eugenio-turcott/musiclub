@@ -10,8 +10,13 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
   if(claim.error) throw new Error('No se pudo reservar la actualización del artista');
   if(!claim.data) return {skipped:true};
   const previous=await readStoredArtist(db,slug);
+  let knownReleases=[];
+  try {
+    const anchors=await db.from('albums').select('album_name').eq('artist_name',name);
+    if(!anchors.error) knownReleases=anchors.data || [];
+  } catch { /* Verified provider IDs still work if local anchors are unavailable. */ }
   let profile;
-  try {profile=await collect(name,{knownIds:Object.fromEntries(Object.entries(previous?.providers||{}).map(([key,value])=>[key.toLowerCase(),value.artistId]))});}
+  try {profile=await collect(name,{knownReleases,knownIds:Object.fromEntries(Object.entries(previous?.providers||{}).map(([key,value])=>[key.toLowerCase(),value.artistId]))});}
   catch {profile={success:false};}
   const now=new Date();
   const patch={lease_until:null,refresh_after:new Date(now.getTime()+(profile.success?86400000:3600000)).toISOString(),updated_at:now.toISOString()};

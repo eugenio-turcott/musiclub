@@ -27,7 +27,25 @@ function releaseType(name, type, count) {
   if (type === 'ep' || /(?: - |\()EP(?:\)|$)/i.test(name)) return 'EP';
   return type === 'single' ? (count > 2 && count <= 7 ? 'EP' : 'SENCILLO') : 'ALBUM';
 }
-export async function collectOfficialArtist(name, { fetcher = fetch, env = process.env, knownIds = {}, timeoutMs = 45000 } = {}) {
+// A matching name alone cannot disambiguate namesakes. Confirm against releases
+// already attributed to this artist in Musiclub, or reuse a verified provider ID.
+export async function selectOfficialArtist(candidates,{knownId,idOf,catalog,knownReleases=[]}) {
+  if(knownId) {
+    const artist=candidates.find(candidate=>String(idOf(candidate))===String(knownId));
+    if(!artist) throw new Error('Verified artist ID missing');
+    return {artist,items:await catalog(artist)};
+  }
+  if(candidates.length===1) return {artist:candidates[0],items:await catalog(candidates[0])};
+  const titles=new Set(knownReleases.map(release=>titleKey(typeof release==='string'?release:release.album_name || release.name)).filter(Boolean));
+  if(!titles.size || candidates.length>6) throw new Error('Artist identity missing or ambiguous');
+  const results=await Promise.allSettled(candidates.map(async artist=>({artist,items:await catalog(artist)})));
+  // An unavailable candidate cannot be ruled out safely; preserve the previous copy.
+  if(results.some(result=>result.status!=='fulfilled')) throw new Error('Artist identity verification incomplete');
+  const confirmed=results.map(result=>result.value).filter(result=>result.items.some(release=>titles.has(titleKey(release.title || release.name || release.collectionName))));
+  if(confirmed.length!==1) throw new Error('Artist identity missing or ambiguous');
+  return confirmed[0];
+}
+export async function collectOfficialArtist(name, { fetcher = fetch, env = process.env, knownIds = {}, knownReleases = [], timeoutMs = 45000 } = {}) {
   const controller = new AbortController(), timer = setTimeout(()=>controller.abort(),timeoutMs);
   const json = async (url, headers={}) => {
     const response = await fetcher(url,{headers,signal:controller.signal,cache:'no-store'});
@@ -47,9 +65,8 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
   async function deezer() {
     const found=await json(`https://api.deezer.com/search/artist?q=${encodeURIComponent(name)}&limit=25`);
     const matches=exact(found.data || []);
-    const artist=knownIds.deezer ? matches.find(a=>String(a.id)===String(knownIds.deezer)) : matches.length===1 ? matches[0] : null;
-    if(!artist) throw new Error('Artist identity missing or ambiguous');
-    const items=await paginate(`https://api.deezer.com/artist/${artist.id}/albums?limit=100`,'https://api.deezer.com','data');
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.deezer,idOf:a=>a.id,knownReleases,
+      catalog:a=>paginate(`https://api.deezer.com/artist/${a.id}/albums?limit=100`,'https://api.deezer.com','data')});
     // Artist listings omit track counts; resolve them before comparing editions.
     const enriched=new Array(items.length);let index=0;
     await Promise.all(Array.from({length:Math.min(4,items.length)},async()=>{
@@ -66,10 +83,10 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
   async function apple() {
     const found=await json(`https://itunes.apple.com/search?term=${encodeURIComponent(name)}&entity=musicArtist&limit=25&country=mx`);
     const matches=exact((found.results||[]).map(a=>({...a,name:a.artistName})));
-    const artist=knownIds.apple ? matches.find(a=>String(a.artistId)===String(knownIds.apple)) : matches.length===1 ? matches[0] : null;
-    if(!artist) throw new Error('Artist identity missing or ambiguous');
-    const data=await json(`https://itunes.apple.com/lookup?id=${artist.artistId}&entity=album&limit=200&country=mx`);
-    const items=(data.results||[]).filter(a=>a.wrapperType==='collection' && a.artistId===artist.artistId);
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.apple,idOf:a=>a.artistId,knownReleases,catalog:async a=>{
+      const data=await json(`https://itunes.apple.com/lookup?id=${a.artistId}&entity=album&limit=200&country=mx`);
+      return (data.results||[]).filter(item=>item.wrapperType==='collection' && item.artistId===a.artistId);
+    }});
     return {artist:{name:artist.name,image:'',genres:genreCatalog.normalizeGenres([artist.primaryGenreName])},provider:'APPLE',artistId:String(artist.artistId),complete:items.length<200,
       releases:items.map(a=>({id:`itunes_${a.collectionId}`,name:a.collectionName,artists:[artist.name],releaseDate:a.releaseDate?.slice(0,10) || '',releaseYear:Number(a.releaseDate?.slice(0,4)) || null,
         release_type:releaseType(a.collectionName, / - Single$/.test(a.collectionName)?'single':/ - EP$/.test(a.collectionName)?'ep':'album',a.trackCount),totalTracks:a.trackCount || null,
@@ -84,9 +101,10 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
     const token=await response.json(),headers={Authorization:`Bearer ${token.access_token}`};
     const found=await json(`https://api.spotify.com/v1/search?q=${encodeURIComponent(name)}&type=artist&limit=10`,headers);
     const matches=exact(found.artists?.items || []);
-    const artist=knownIds.spotify ? matches.find(a=>a.id===knownIds.spotify) : matches.length===1 ? matches[0] : null;
-    if(!artist) throw new Error('Artist identity missing or ambiguous');
-    const items=await paginate(`https://api.spotify.com/v1/artists/${artist.id}/albums?include_groups=album,single,compilation,appears_on&limit=10`,'https://api.spotify.com','items',headers);
+    const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.spotify,idOf:a=>a.id,knownReleases,catalog:async a=>{
+      const rows=await paginate(`https://api.spotify.com/v1/artists/${a.id}/albums?include_groups=album,single,compilation,appears_on&limit=10`,'https://api.spotify.com','items',headers);
+      return rows.filter(release=>(release.artists||[]).some(credit=>credit.id===a.id));
+    }});
     return {artist:{name:artist.name,image:artist.images?.[0]?.url || '',genres:genreCatalog.normalizeGenres(artist.genres || [])},provider:'SPOTIFY',artistId:artist.id,complete:true,
       releases:items.filter(a=>(a.artists||[]).some(credit=>credit.id===artist.id)).map(a=>({id:a.id,name:a.name,artists:a.artists.map(credit=>credit.name),
         releaseDate:a.release_date || '',releaseYear:Number(a.release_date?.slice(0,4)) || null,release_type:releaseType(a.name,a.album_type,a.total_tracks),totalTracks:a.total_tracks || null,

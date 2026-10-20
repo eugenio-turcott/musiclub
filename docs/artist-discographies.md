@@ -11,7 +11,7 @@ La migración `20261020_artist_discographies.sql` crea una tabla de metadatos p�
 - Spotify: catálogo del ID oficial, con paginación y comprobación de créditos, incluyendo colaboraciones cuando el artista está acreditado.
 - Deezer: álbumes del ID oficial con paginación y detalles para comparar pistas y ediciones.
 - Apple: API pública de iTunes/Apple Music, región MX, hasta 200 colecciones. Si alcanza el límite, se registra cobertura parcial. No implica acceso ilimitado a MusicKit.
-- Los homónimos ambiguos se omiten hasta disponer de un ID verificado. Una fuente no disponible se registra como tal; no se rellena con resultados comunitarios de MusicBrainz.
+- Los homónimos se comparan mediante releases ya atribuidos al artista en Musiclub. Solo una coincidencia inequívoca permite guardar sus IDs oficiales; si la evidencia sigue siendo ambigua, se conserva la copia anterior. Una fuente no disponible se registra como tal; no se rellena con resultados comunitarios de MusicBrainz.
 - La unión conserva enlaces e IDs de origen, variantes de pistas, ediciones, versiones limpias y explícitas. Cambios posteriores de metadatos de un mismo ID actualizan el registro sin crear duplicados.
 - Se conservan releases verificados anteriormente si desaparecen temporalmente de un proveedor. La copia no certifica disponibilidad actual en todos los países.
 

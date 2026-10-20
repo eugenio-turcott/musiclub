@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
-import { mergeOfficialReleases, collectOfficialArtist } from '../src/services/officialArtistCatalog.mjs';
+import { mergeOfficialReleases, collectOfficialArtist, selectOfficialArtist } from '../src/services/officialArtistCatalog.mjs';
 import { refreshStoredArtist, readStoredArtist, loadStoredArtist } from '../src/services/artistDiscographyStore.mjs';
 const release=(name,provider='DEEZER',id=name,extra={})=>({name,release_type:'ALBUM',totalTracks:10,releaseYear:2025,sources:[{provider,id,url:'https://example.test/album/'+id}],...extra});
 test('official union preserves deluxe, live, explicit and plus editions and their provider links',()=>{
@@ -72,4 +72,19 @@ test('failed discovery never returns unpersisted upstream data and local release
  assert.equal(await loadStoredArtist(db,'artist',{canDiscover:true,refresh:async()=>({discography:[release('Not saved')]})}),null);
  assert.equal(await loadStoredArtist(db,'artist',{hasLocal:true,canDiscover:true,refresh:async()=>{},schedule:task=>scheduled=task}),null);
  assert.equal(typeof scheduled,'function');
+});
+
+
+test('namesakes are resolved by an existing release, never by order or popularity',async()=>{
+ const candidates=[{id:'other',name:'Tinashe'},{id:'official',name:'Tinashe'},{id:'accent',name:'Tinashé'}];
+ const catalogs={other:[{title:'Other Music'}],official:[{title:'QUANTUM BABY'}],accent:[{title:'Another Song'}]};
+ const result=await selectOfficialArtist(candidates,{idOf:a=>a.id,knownReleases:['QUANTUM BABY'],catalog:async a=>catalogs[a.id]});
+ assert.equal(result.artist.id,'official');assert.equal(result.items[0].title,'QUANTUM BABY');
+ await assert.rejects(selectOfficialArtist(candidates,{idOf:a=>a.id,knownReleases:[],catalog:async a=>catalogs[a.id]}),/ambiguous/);
+});
+test('ambiguous release evidence remains unresolved and verified IDs are reused',async()=>{
+ const candidates=[{id:'a'},{id:'b'}];let requests=[];
+ await assert.rejects(selectOfficialArtist(candidates,{idOf:a=>a.id,knownReleases:['Blue'],catalog:async()=>[{name:'Blue'}]}),/ambiguous/);
+ const result=await selectOfficialArtist(candidates,{knownId:'b',idOf:a=>a.id,catalog:async a=>{requests.push(a.id);return [];}});
+ assert.equal(result.artist.id,'b');assert.deepEqual(requests,['b']);
 });

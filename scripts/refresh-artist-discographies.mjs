@@ -21,7 +21,7 @@ for(const slug of selected) if(!names.has(slug)) throw new Error(`Artista no enc
 let failed=0,updated=0;
 for(const [slug,name] of [...names].sort(([a],[b])=>a.localeCompare(b))) {
  if(selected.length && !selected.includes(slug)) continue;
- try {const result=await refreshStoredArtist(db,slug,name);if(result.success)updated++;console.log(`${slug}: ${result.skipped?'vigente':result.success?`${result.count} releases guardados`:'fuentes temporalmente no disponibles'}`);}
+ try {const result=await refreshStoredArtist(db,slug,name);if(result.success)updated++;console.log(`${slug}: ${result.skipped?'vigente':result.success?`${result.count} releases guardados`:'fuentes temporalmente no disponibles'}`);if(result.skipped)continue;}
  catch {failed++;console.error(`${slug}: no se pudo guardar la actualización`);}
  await new Promise(resolve=>setTimeout(resolve,6500)); // Apple public API: avoid bursts.
 }
