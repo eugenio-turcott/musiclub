@@ -12,3 +12,5 @@ export const reviews=albums.map((album,index)=>({
 export const tables={albums, public_reviews:reviews, public_profiles:[], public_cover_ratings:[],record_club_upcoming:[],record_club_trending:[]};
 
 tables.artist_discographies=[{slug:'artista-de-prueba',name:'Artista de Prueba',refresh_after:'2099-01-01T00:00:00Z',checked_at:'2026-10-20T00:00:00Z',profile:{source:'OFFICIAL',artist:{name:'Artista de Prueba',image:'/musiclub_logo.png',genres:['Pop']},providers:{DEEZER:{status:'ok'}},discography:[{id:'deezer_fixture',name:'Edición exclusiva oficial',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-02-01',releaseYear:2025,image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'fixture'}]}]}}];
+
+tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estreno-oficial',artist_slug:'artista-proximo',artist_name:'Artista Próximo',album_name:'Estreno oficial',release_type:'ALBUM',release_date:'2099-01-01',image_url:'/musiclub_logo.png',tracks:[],total_tracks:10}];
