@@ -155,3 +155,17 @@ test('verified provider IDs bypass name search on subsequent refreshes',async()=
 test('distinct official barcodes remain separate editions',()=>{
  assert.equal(mergeOfficialReleases([release('Blue','DEEZER','1',{barcode:'111'})],[release('Blue','APPLE','2',{barcode:'222'})]).length,2);
 });
+
+
+test('metadata repair retries a provider quota response without losing the release',async()=>{
+ let calls=0;const profile={discography:[release('Blue','DEEZER','1',{totalTracks:null,image:'cover'})]};
+ const result=await repairOfficialMetadata(profile,{requestIntervalMs:0,fetcher:async()=>({ok:true,json:async()=>++calls===1?{error:{code:4}}:{id:1,nb_tracks:12}})});
+ assert.equal(calls,2);assert.equal(result.repaired,1);assert.equal(result.profile.discography[0].totalTracks,12);
+});
+
+
+test('an official single with several tracks is not reclassified as an EP by its count',async()=>{
+ const fetcher=async url=>({ok:true,json:async()=>url.endsWith('/artist/9')?{id:9,name:'Artist'}:url.includes('/artist/9/albums')?{data:[{id:99,title:'Blue',record_type:'single'}]}:url.endsWith('/album/99')?{id:99,title:'Blue',record_type:'single',nb_tracks:4,cover_xl:'cover'}:{results:[]}});
+ const result=await collectOfficialArtist('Artist',{fetcher,env:{},knownIds:{deezer:'9'}});
+ assert.equal(result.discography[0].release_type,'SENCILLO');
+});

@@ -34,7 +34,7 @@ function releaseType(name, type, count) {
   if (/soundtrack/i.test(name)) return 'SOUNDTRACK';
   if (['compilation','compile'].includes(type)) return 'COMPILACION';
   if (type === 'ep' || /(?: - |\()EP(?:\)|$)/i.test(name)) return 'EP';
-  return type === 'single' ? (count > 2 && count <= 7 ? 'EP' : 'SENCILLO') : 'ALBUM';
+  return type === 'single' ? 'SENCILLO' : 'ALBUM';
 }
 // A matching name alone cannot disambiguate namesakes. Confirm against releases
 // already attributed to this artist in Musiclub, or reuse a verified provider ID.
@@ -172,7 +172,8 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
 }
 
 // Repair only incomplete records; never invent counts or replace a verified value with an empty response.
-export async function repairOfficialMetadata(profile,{fetcher=fetch}={}) {
+let nextMetadataRequest=0;
+export async function repairOfficialMetadata(profile,{fetcher=fetch,requestIntervalMs=150}={}) {
   const releases=(profile.discography || []).map(release=>({...release}));
   let index=0,repaired=0,unavailable=0;
   await Promise.all(Array.from({length:Math.min(4,releases.length)},async()=>{
@@ -181,9 +182,19 @@ export async function repairOfficialMetadata(profile,{fetcher=fetch}={}) {
       const source=release.sources?.find(source=>source.provider==='DEEZER' && /^\d+$/.test(String(source.id)));
       if(!source || (release.totalTracks && release.image)) continue;
       try {
-        const response=await fetcher(`https://api.deezer.com/album/${source.id}`,{signal:AbortSignal.timeout(8000)});
-        if(!response.ok) throw Error('Unavailable');
-        const data=await response.json();
+        let data;
+        for(let attempt=0;attempt<3;attempt++) {
+          const wait=Math.max(0,nextMetadataRequest-Date.now());nextMetadataRequest=Date.now()+wait+requestIntervalMs;
+          if(wait)await new Promise(resolve=>setTimeout(resolve,wait));
+          const response=await fetcher(`https://api.deezer.com/album/${source.id}`,{signal:AbortSignal.timeout(8000)});
+          data=await response.json();
+          if(response.status===429 || data.error?.code===4) {
+            nextMetadataRequest=Math.max(nextMetadataRequest,Date.now()+5000);
+            if(attempt<2)continue;
+          }
+          if(!response.ok)throw Error('Unavailable');
+          break;
+        }
         if(String(data.id)!==String(source.id) || data.error) throw Error('Unavailable');
         const patch={totalTracks:data.nb_tracks || release.totalTracks,image:release.image || data.cover_xl || data.cover_big || data.cover_medium,
           genres:genreCatalog.normalizeGenres([...(release.genres||[]),...(data.genres?.data||[])]),barcode:release.barcode || data.upc || null};
