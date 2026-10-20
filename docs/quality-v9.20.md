@@ -1,0 +1,32 @@
+# Calidad y operación — V.9.20.0
+
+## Identidad y persistencia de Portadas
+
+Las calificaciones propias se reconocen por `user_id`. Solo los registros históricos sin ese identificador admiten coincidencia por correo normalizado, obtenida desde la tabla privada bajo las políticas existentes. El nombre visible nunca concede pertenencia. Un identificador distinto no se reemplaza por una coincidencia de correo.
+
+La lectura pública utiliza la proyección `public_cover_ratings`. Las lecturas privadas se filtran por cuenta; las respuestas de una sesión anterior se descartan al cambiar de cuenta. No se modifica el esquema ni las políticas de Supabase.
+
+El servidor de Supabase debe confirmar tanto el guardado como la eliminación de la fila. Un fallo muestra un mensaje y conserva la nota para volver a intentarlo; no se anuncia un guardado local como publicación. Las copias históricas de localStorage no se eliminan ni se publican automáticamente y no se cuentan como votos comunitarios.
+
+## Comprobaciones
+
+`npm run test:critical` incluye las pruebas de identidad, cuentas homónimas, registros antiguos, precedencia del identificador, sesión cambiada, valores inválidos y rechazos de persistencia. Los casos de borrado verifican que el filtro se aplique a una fila propia y que se confirme una fila eliminada.
+
+`npm run test:browser` usa Playwright con Chromium de escritorio y móvil. El trabajo `Musiclub browser navigation checks` construye la aplicación contra un servidor de datos ficticios sin credenciales ni usuarios reales. Comprueba la estabilidad de Portadas, notas y estilos visuales, modo museo, anterior/siguiente, selección por enlace directo, búsqueda del catálogo, géneros y solicitud de sesión al publicar anónimamente. Los navegadores de prueba bloquean destinos externos; el servidor de datos rechaza escrituras.
+
+El informe de fallos de GitHub se conserva siete días y contiene exclusivamente datos ficticios. Para ejecutar estas pruebas en otra máquina, instalar primero Chromium mediante `npx playwright install chromium`. El arnés construye `.next`; reconstruir con la configuración real antes de iniciar una instancia local habitual.
+
+## Revisión de solo lectura del 20 de octubre de 2026
+
+- Catálogo: 426 releases, ninguno sin género y ninguno con nombres ajenos al registro; 81 géneros tienen releases. Esto no acredita la exactitud editorial de cada clasificación.
+- Mantenimiento diario: ejecución 39397723398 completada correctamente.
+- Actualización del registro de géneros: ejecución 39317946375 completada correctamente.
+- Search Console sigue mostrando actualización del 11 de octubre: 4 páginas indexadas y 769 descubiertas sin indexar. No existe en ese informe evidencia posterior a las correcciones; no se repiten solicitudes de indexación ya aceptadas.
+- Supabase muestra `Free Plan does not include project backups`. No hay un respaldo automático del proyecto confirmado. No se cambió de plan ni se restauró producción.
+
+## Pendientes que requieren seguimiento
+
+1. Una copia privada verificable de esquema y datos y un ensayo de recuperación en un entorno separado. Los artefactos de géneros no son una copia completa de la base de datos. No guardar correos, usuarios ni credenciales en el repositorio público ni en sus artefactos públicos.
+2. Revisión editorial de clasificaciones específicas contra fuentes del release; no reemplazar estilos por inferencias basadas solo en el artista.
+3. Comparación de Search Console cuando su informe tenga fecha posterior al despliegue y de métricas reales de carga móvil. No declarar mejoras de tráfico o velocidad sin datos nuevos.
+4. Prueba completa de cierre manual, cupos y sorteo con cuentas y Pool de prueba. Las pruebas automáticas de reglas no sustituyen esa prueba y no se utiliza el Pool activo para simular participación.

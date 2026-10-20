@@ -1,3 +1,4 @@
+import { createCoverRatingsStore } from './coverRatingsStore.mjs';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
 import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
@@ -54,6 +55,7 @@ function getSupabaseClient() {
 }
 
 export const supabase = getSupabaseClient();
+const coverRatingsStore = createCoverRatingsStore(supabase);
 
 // ============================================
 // FUNCIONES DE RESPALDO - USANDO rating_general
@@ -2226,149 +2228,15 @@ export const supabaseService = {
   // ==========================================
 
   getCoverRatings: async (albumId) => {
-    try {
-      const { data, error } = await supabase
-        .from('public_cover_ratings')
-        .select('*')
-        .eq('album_id', albumId)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return getLocalCoverRatings().filter((r) => r.album_id === albumId);
-      }
-      return data || [];
-    } catch (err) {
-      return getLocalCoverRatings().filter((r) => r.album_id === albumId);
-    }
+    const { data, error } = await supabase.from('public_cover_ratings').select('*').eq('album_id', albumId).order('created_at', { ascending: false });
+    if (error) throw new Error('No pudimos cargar las calificaciones de esta portada.');
+    return data || [];
   },
 
-  getAllCoverRatings: async () => {
-    try {
-      const { data, error } = await supabase
-        .from('public_cover_ratings')
-        .select(`
-          *,
-          albums:album_id (
-            id,
-            album_name,
-            artist_name,
-            image_url,
-            release_type,
-            release_year
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        return getLocalCoverRatings();
-      }
-      const local = getLocalCoverRatings();
-      if (local.length === 0) return data || [];
-      const remoteIds = new Set((data || []).map((r) => r.id));
-      const merged = [...(data || [])];
-      local.forEach((l) => {
-        if (!remoteIds.has(l.id)) merged.push(l);
-      });
-      return merged;
-    } catch (err) {
-      return getLocalCoverRatings();
-    }
-  },
-
-  getUserCoverRatings: async (userEmail, userName) => {
-    if (!userEmail && !userName) return [];
-    try {
-      let query = supabase.from('cover_ratings').select('*');
-      if (userEmail) {
-        query = query.eq('user_email', userEmail);
-      } else {
-        query = query.eq('user_name', userName);
-      }
-      const { data, error } = await query.order('created_at', { ascending: false });
-
-      if (error) {
-        return getLocalCoverRatings().filter(
-          (r) =>
-            (userEmail && r.user_email === userEmail) ||
-            (userName && r.user_name === userName)
-        );
-      }
-      return data || [];
-    } catch (err) {
-      return getLocalCoverRatings().filter(
-        (r) =>
-          (userEmail && r.user_email === userEmail) ||
-          (userName && r.user_name === userName)
-      );
-    }
-  },
-
-  submitCoverRating: async ({
-    album_id,
-    rating,
-    aesthetic_tags = [],
-    comment = '',
-    user_id = null,
-    user_email = null,
-    user_name = null,
-    user_avatar = null,
-  }) => {
-    if (!album_id || !rating) throw new Error('album_id y rating son requeridos');
-
-    const payload = {
-      album_id,
-      rating: parseFloat(Number(rating).toFixed(1)),
-      aesthetic_tags: Array.isArray(aesthetic_tags) ? aesthetic_tags : [],
-      comment: comment?.trim() || null,
-      user_id: user_id || null,
-      user_email: user_email?.trim() || null,
-      user_name: user_name?.trim() || null,
-      user_avatar: user_avatar || null,
-      updated_at: new Date().toISOString(),
-    };
-
-    try {
-      const { data, error } = await supabase
-        .from('cover_ratings')
-        .upsert(payload, { onConflict: 'album_id,user_email' })
-        .select()
-        .single();
-
-      if (error) {
-        console.warn('Guardando calificación de portada localmente:', error.message);
-        return saveLocalCoverRating(payload);
-      }
-
-      saveLocalCoverRating(data || payload);
-      return data || payload;
-    } catch (err) {
-      console.warn('Fallback a almacenamiento local para calificación de portada:', err);
-      return saveLocalCoverRating(payload);
-    }
-  },
-
-  deleteCoverRating: async (id, album_id, user_email) => {
-    try {
-      let query = supabase.from('cover_ratings').delete();
-      if (id) {
-        query = query.eq('id', id);
-      } else if (album_id && user_email) {
-        query = query.eq('album_id', album_id).eq('user_email', user_email);
-      }
-      await query;
-    } catch (e) {
-      console.warn('Error al borrar calificación de portada en Supabase:', e);
-    }
-
-    try {
-      const list = getLocalCoverRatings().filter(
-        (r) => (id ? r.id !== id : !(r.album_id === album_id && r.user_email === user_email))
-      );
-      localStorage.setItem(LOCAL_COVER_RATINGS_KEY, JSON.stringify(list));
-    } catch (_) {}
-
-    return true;
-  },
+  getAllCoverRatings: () => coverRatingsStore.getAll(),
+  getUserCoverRatings: user => coverRatingsStore.getOwn(user),
+  submitCoverRating: payload => coverRatingsStore.submit(payload),
+  deleteCoverRating: (id, albumId) => coverRatingsStore.remove(id, albumId),
 
   // ============================================
   // INTERACCIONES EN RESEÑAS: REACCIONES Y COMENTARIOS
@@ -2721,46 +2589,6 @@ export const supabaseService = {
     }
   },
 };
-
-const LOCAL_COVER_RATINGS_KEY = 'musiclub_cover_ratings_local';
-
-function getLocalCoverRatings() {
-  try {
-    const raw = typeof window !== 'undefined' ? localStorage.getItem(LOCAL_COVER_RATINGS_KEY) : null;
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveLocalCoverRating(ratingData) {
-  try {
-    if (typeof window === 'undefined') return ratingData;
-    const list = getLocalCoverRatings();
-    const existingIndex = list.findIndex(
-      (r) =>
-        r.album_id === ratingData.album_id &&
-        ((ratingData.user_email && r.user_email === ratingData.user_email) ||
-          (ratingData.user_name && r.user_name === ratingData.user_name))
-    );
-    const item = {
-      id: ratingData.id || `local-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      ...ratingData,
-      created_at: ratingData.created_at || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    if (existingIndex >= 0) {
-      list[existingIndex] = { ...list[existingIndex], ...item };
-    } else {
-      list.unshift(item);
-    }
-    localStorage.setItem(LOCAL_COVER_RATINGS_KEY, JSON.stringify(list));
-    return item;
-  } catch (e) {
-    console.warn('Error saving local cover rating:', e);
-    return ratingData;
-  }
-}
 
 const LOCAL_REVIEW_REACTIONS_KEY = 'musiclub_review_reactions_local';
 const LOCAL_REVIEW_COMMENTS_KEY = 'musiclub_review_comments_local';

@@ -144,7 +144,7 @@ export function CoverRatingsPage() {
   const requestedSlug = routeSlug || searchParams.get('album');
   const { user, loading: authLoading, loginWithGoogle, logout } = useAuth();
   const { albums, loading: albumsLoading } = useAlbums();
-  const { ratings, coverStats, userRatingsMap, submitRating, deleteRating } =
+  const { ratings, coverStats, userRatingsMap, submitRating, deleteRating, error: ratingsError } =
     useCoverRatings(user);
 
   // Estados de navegación y filtros
@@ -442,7 +442,7 @@ export function CoverRatingsPage() {
     } catch (err) {
       setSubmitFeedback({
         type: 'error',
-        text: 'Hubo un error al guardar tu calificación.',
+        text: err.message || 'Hubo un error al guardar tu calificación.',
       });
     } finally {
       setIsSubmitting(false);
@@ -466,7 +466,7 @@ export function CoverRatingsPage() {
     } catch (err) {
       setSubmitFeedback({
         type: 'error',
-        text: 'Error al eliminar la calificación.',
+        text: err.message || 'Error al eliminar la calificación.',
       });
     } finally {
       setIsSubmitting(false);
@@ -662,6 +662,8 @@ export function CoverRatingsPage() {
               </div>
             </div>
           </div>
+
+          {ratingsError && <p role="alert" className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{ratingsError}</p>}
 
           {/* Tab Navigation Switcher */}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">

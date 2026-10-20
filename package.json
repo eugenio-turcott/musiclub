@@ -1,6 +1,6 @@
 {
   "name": "musiclub-albums",
-  "version": "9.19.1",
+  "version": "9.20.0",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
@@ -35,8 +35,9 @@
     "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force",
     "check:releases": "node scripts/checkUpcomingReleasesCron.mjs",
     "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs",
-    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs",
-    "genres:update": "node scripts/update-genre-registry.mjs"
+    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs tests/cover-ratings.test.mjs",
+    "genres:update": "node scripts/update-genre-registry.mjs",
+    "test:browser": "playwright test"
   },
   "eslintConfig": {
     "extends": [
@@ -57,6 +58,7 @@
     ]
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/postcss": "^4.3.3",
     "tailwindcss": "^4.3.3"
   }
