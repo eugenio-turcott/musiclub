@@ -548,16 +548,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           </div>
         )}
 
-        <GenreIconStrip genres={album.genres} className="absolute left-2 top-9 z-10" />
-        {/* Format badge on top-left */}
-        <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-black/75 backdrop-blur-md border border-white/10 text-[9px] font-black uppercase text-white/90 tracking-wider shadow-sm">
-          {album.release_type === 'EP'
-            ? '💽 EP'
-            : album.release_type === 'SENCILLO' ||
-                album.release_type === 'SINGLE'
-              ? '🎵 Sencillo'
-              : '💿 Álbum'}
-        </div>
+        <GenreIconStrip genres={album.genres} className="absolute left-2 top-2 z-10" />
 
         {/* Bottom right badge */}
         {selectedAlbumTab === 'top' ||
