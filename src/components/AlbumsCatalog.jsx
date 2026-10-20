@@ -1,3 +1,4 @@
+import { GenreIconStrip } from './GenreIconStrip';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
@@ -1642,6 +1643,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             }}
                           />
 
+                          <GenreIconStrip genres={album.genres} className="absolute left-2 top-10 z-10" />
                           {/* Top Badges (Musiclub style floating badges) */}
                           <div className="absolute top-2 left-2 z-10 flex items-center gap-1">
                             {album.release_type && (
