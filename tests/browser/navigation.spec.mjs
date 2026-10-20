@@ -154,10 +154,14 @@ test('compact mobile pages keep navigation, filters and primary content within t
 
 
 test('historical listening-variant links open one canonical release without losing their reviews',async({page})=>{
+ const response=await page.request.get('/api/catalog?slug=artista-de-prueba-azul-clean');
+ const album=await response.json();
+ expect(album.review_count).toBe(2);
+ expect(album.reviews.map(review=>review.id)).toContain('clean-variant-review');
  await page.goto('/albumes/artista-de-prueba-azul-clean');
  await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
  await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
- await expect(page.getByText('Reseña de la variante limpia.',{exact:true})).toBeVisible();
+ await expect(page.getByText('"Reseña de la variante limpia."',{exact:true})).toBeVisible();
  await page.goto('/artista/artista-de-prueba');
  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toHaveCount(1);
  await expect(page.getByRole('heading',{name:'Azul (Clean)',exact:true})).toHaveCount(0);
