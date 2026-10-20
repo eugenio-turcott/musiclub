@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
-import { mergeOfficialReleases, collectOfficialArtist, selectOfficialArtist } from '../src/services/officialArtistCatalog.mjs';
+import { mergeOfficialReleases, collectOfficialArtist, selectOfficialArtist, repairOfficialMetadata } from '../src/services/officialArtistCatalog.mjs';
 import { refreshStoredArtist, readStoredArtist, loadStoredArtist } from '../src/services/artistDiscographyStore.mjs';
 const release=(name,provider='DEEZER',id=name,extra={})=>({name,release_type:'ALBUM',totalTracks:10,releaseYear:2025,sources:[{provider,id,url:'https://example.test/album/'+id}],...extra});
 test('official union preserves deluxe, live, explicit and plus editions and their provider links',()=>{
@@ -21,7 +21,7 @@ test('official lookup follows provider pagination and rejects ambiguous artist i
  return {ok:true,json:async()=>data};};
  const profile=await collectOfficialArtist('Artist',{fetcher,env:{}});
  assert.equal(profile.discography.length,2);assert.equal(profile.providers.APPLE.status,'unavailable');
- assert.equal(profile.providers.DEEZER.status,'ok');assert.ok(seen.some(url=>url.includes('index=1')));
+ assert.equal(profile.providers.DEEZER.status,'partial');assert.ok(seen.some(url=>url.includes('index=1')));
 });
 test('database reads never call providers and failed refreshes retain the last good profile',async()=>{
  const previous={profile:{discography:[release('Blue')]},providers:{DEEZER:{artistId:'1'}}};let patch,collectCalls=0;
@@ -118,4 +118,40 @@ test('an unrelated album URL cannot override the artist identity',async()=>{
  return {ok:true,json:async()=>data};};
  const result=await collectOfficialArtist('BIBI',{env:{},fetcher,knownReleases:[{album_name:'EVE: ROMANCE',other_link:'https://www.deezer.com/album/99'}]});
  assert.equal(result.providers.DEEZER.status,'unavailable');assert.equal(result.success,false);
+});
+
+
+test('metadata from an incomplete refresh never erases known tracks, dates or artwork',()=>{
+ const [row]=mergeOfficialReleases([release('Blue','DEEZER','1',{image:'cover',releaseDate:'2025-01-02'})],[release('Blue','DEEZER','1',{totalTracks:null,image:'',releaseDate:''})]);
+ assert.equal(row.totalTracks,10);assert.equal(row.image,'cover');assert.equal(row.releaseDate,'2025-01-02');
+});
+test('missing counts merge across platforms only when the edition is unambiguous',()=>{
+ const rows=mergeOfficialReleases([release('Blue','DEEZER','1',{totalTracks:null})],[release('Blue - Single','APPLE','2',{release_type:'ALBUM'})]);
+ assert.equal(rows.length,1);assert.equal(rows[0].sources.length,2);assert.equal(rows[0].totalTracks,10);
+ const variants=mergeOfficialReleases([release('Blue','APPLE','1',{explicit:true}),release('Blue','APPLE','2',{explicit:false})],[release('Blue','DEEZER','3',{totalTracks:null,explicit:null})]);
+ assert.equal(variants.length,3);
+});
+test('metadata repair verifies the provider ID and preserves data when a provider fails',async()=>{
+ const profile={discography:[release('Blue','DEEZER','1',{totalTracks:null,image:''}),release('Red','DEEZER','2',{totalTracks:null,image:'known-cover'})]};
+ const result=await repairOfficialMetadata(profile,{fetcher:async url=>({ok:true,json:async()=>url.endsWith('/1')?{id:1,nb_tracks:12,cover_xl:'new-cover',genres:{data:[{name:'Rock'}]}}:{id:999,nb_tracks:50}})});
+ assert.equal(result.repaired,1);assert.equal(result.unavailable,1);
+ assert.equal(result.profile.discography[0].totalTracks,12);assert.deepEqual(result.profile.discography[0].genres,['Rock']);
+ assert.equal(result.profile.discography[1].totalTracks,null);assert.equal(result.profile.discography[1].image,'known-cover');
+});
+
+
+test('verified provider IDs bypass name search on subsequent refreshes',async()=>{
+ const seen=[];
+ const fetcher=async url=>{seen.push(url);let data;
+ if(url==='https://api.deezer.com/artist/9')data={id:9,name:'Artist Renamed'};
+ else if(url.includes('/artist/9/albums'))data={data:[{id:99,title:'Blue',record_type:'album'}]};
+ else if(url.endsWith('/album/99'))data={id:99,title:'Blue',nb_tracks:10,cover_xl:'cover',genres:{data:[{name:'Rock'}]}};
+ else throw Error('Unavailable');
+ return {ok:true,json:async()=>data};};
+ const result=await collectOfficialArtist('Artist',{fetcher,env:{},knownIds:{deezer:'9'}});
+ assert.equal(result.success,true);assert.equal(result.providers.DEEZER.artistId,'9');assert.deepEqual(result.discography[0].genres,['Rock']);
+ assert.equal(seen.some(url=>url.includes('deezer.com/search')),false);
+});
+test('distinct official barcodes remain separate editions',()=>{
+ assert.equal(mergeOfficialReleases([release('Blue','DEEZER','1',{barcode:'111'})],[release('Blue','APPLE','2',{barcode:'222'})]).length,2);
 });

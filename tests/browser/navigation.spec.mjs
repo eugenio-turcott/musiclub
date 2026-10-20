@@ -136,3 +136,18 @@ test('artists with only an upcoming release open immediately from local metadata
   await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
 });
+
+
+test('compact mobile pages keep navigation, filters and primary content within the viewport',async({page},testInfo)=>{
+ test.skip(testInfo.project.name!=='mobile','Mobile layout audit');
+ await page.setViewportSize({width:360,height:800});
+ for(const [path,name] of [['/catalogo','catalogue'],['/artista/artista-de-prueba','artist'],['/gashapon','gashapon'],['/pool','pool']]) {
+  await page.goto(path);
+  await expect(page.locator('h1').first()).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.getByRole('button',{name:'Abrir menú de navegación',exact:true}).click();
+  await expect(page.getByRole('link',{name:/Catálogo/}).filter({visible:true}).first()).toBeVisible();
+  await page.getByRole('button',{name:'Cerrar menú de navegación',exact:true}).click();
+  await page.screenshot({path:testInfo.outputPath(`${name}-mobile.png`),fullPage:true});
+ }
+});
