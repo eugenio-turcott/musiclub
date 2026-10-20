@@ -4,9 +4,10 @@ import { cache } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { buildAlbumWithFullStats } from '../services/supabaseClient';
 import { PUBLIC_REVIEW_FIELDS, publicData } from '../utils/publicData';
-import { slugifyArtist, slugifyAlbum, splitArtists, getReleaseUrl } from '../utils/ratingUtils';
+import { slugifyArtist, splitArtists, getReleaseUrl } from '../utils/ratingUtils';
 import { getArtistCompleteProfile } from '../services/spotifyApi';
 import releaseIdentity from '../utils/releaseIdentity.cjs';
+import releaseLookup from '../utils/publicReleaseLookup.cjs';
 import { getVerifiedArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
 
@@ -16,14 +17,15 @@ function client() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } });
 }
-async function allRows(db, table, fields) {
+async function allRows(db, table, fields, cached = true) {
   const rows = [];
   for (let from = 0; ; from += 100) {
-    const data = await unstable_cache(async () => {
+    const read = async () => {
       const result = await db.from(table).select(fields).order('id').range(from, from + 99);
       if (result.error) throw new Error(`No se pudo leer el catálogo público (${table})`);
       return result.data;
-    }, ['public-catalog-rows-v96', table, fields, String(from)], { revalidate: 300, tags: ['catalog'] })();
+    };
+    const data = cached ? await unstable_cache(read, ['public-catalog-rows-v96', table, fields, String(from)], { revalidate: 300, tags: ['catalog'] })() : await read();
     rows.push(...data);
     if (data.length < 100) return rows;
   }
@@ -61,12 +63,16 @@ export const getPublicAlbum = cache(async slug => {
   const { albums, reviews } = await getPublicCatalog();
   const detail = album => publicData({ ...album, ...buildAlbumWithFullStats(album,
     reviews.filter(r => r.album_id === album.id).map(({ albums: relation, ...review }) => review)) });
-  // Legacy titles shared by multiple artists must not redirect to an arbitrary album.
-  const clean = releaseIdentity.decodeRouteSlug(slug).toLowerCase();
-  const byIdentity = albums.find(a => a.id === slug || getReleaseUrl(a).split('/').pop() === clean);
-  if (byIdentity) return detail(byIdentity);
-  const legacy = albums.filter(a => slugifyAlbum(a.album_name) === clean);
-  if (legacy.length === 1) return detail(legacy[0]);
+  // A newly inserted release can be absent from the five-minute collection cache.
+  // Check public rows directly on a miss before returning a real 404.
+  const found = await releaseLookup.resolvePublicRelease(slug, albums,
+    () => allRows(client(), 'albums', ALBUM_FIELDS, false));
+  if (found?.album) {
+    if (!found.fresh) return detail(found.album);
+    const result = await client().from('public_reviews').select(PUBLIC_REVIEW_FIELDS).eq('album_id', found.album.id);
+    if (result.error) throw new Error('No se pudieron leer las reseñas públicas');
+    return publicData(buildAlbumWithFullStats(found.album, result.data || []));
+  }
   // Existing anticipated releases remain readable without creating database records.
   const { data, error } = await client().from('record_club_upcoming').select('*').eq('slug', slug).maybeSingle();
   if (error) throw new Error('No se pudieron consultar los próximos estrenos');

@@ -117,3 +117,13 @@ test('opening a remote release without a session requests login before any album
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
   expect(inserts).toBe(0);
 });
+
+
+test('a release added after the public catalogue cache was warmed opens immediately',async({page})=>{
+  await page.goto('/catalogo');
+  const response=await page.request.post('http://127.0.0.1:54329/__fixture/add-release');
+  expect(response.ok()).toBe(true);
+  await page.goto('/albumes/artista-de-prueba-violeta-deluxe');
+  await expect(page.getByRole('heading',{name:'Violeta (Deluxe)',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Pista Fuera de Órbita'})).toHaveCount(0);
+});

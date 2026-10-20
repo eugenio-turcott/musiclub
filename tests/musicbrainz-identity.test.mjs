@@ -46,3 +46,18 @@ test('recognized source genres avoid an extra lookup and outages never invent ge
   assert.deepEqual(await resolveGenres('A','Blue',[['R&B/Soul']],{search:()=>{throw new Error('must not run');}}),['R&B','Soul']);
   assert.deepEqual(await resolveGenres('A','Blue',[],{search:async()=>{throw new Error('offline');}}),[]);
 });
+
+
+const { resolvePublicRelease } = (await import('../src/utils/publicReleaseLookup.cjs')).default;
+test('a newly inserted Deluxe is resolved immediately despite a stale collection cache',async()=>{
+  const standard={id:'standard',album_name:'House of LION BABE',artist_name:'LION BABE'};
+  const deluxe={id:'deluxe',album_name:'House of LION BABE (Deluxe)',artist_name:'LION BABE'};
+  const result=await resolvePublicRelease('lion-babe-house-of-lion-babe-deluxe',[standard],async()=>[standard,deluxe]);
+  assert.equal(result.album,deluxe); assert.equal(result.fresh,true);
+  assert.equal((await resolvePublicRelease('lion-babe-house-of-lion-babe',[standard],()=>{throw new Error('unneeded refresh');})).album,standard);
+});
+test('fresh misses and ambiguous legacy titles still return no arbitrary release',async()=>{
+  const albums=[{album_name:'Blue',artist_name:'A'},{album_name:'Blue',artist_name:'B'}];
+  assert.equal((await resolvePublicRelease('blue',albums,()=>{throw new Error('ambiguous');})).album,null);
+  assert.equal((await resolvePublicRelease('not-found',[],async()=>albums)).album,null);
+});
