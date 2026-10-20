@@ -1,6 +1,6 @@
 {
   "name": "musiclub-albums",
-  "version": "9.19.0",
+  "version": "9.19.1",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",

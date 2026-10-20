@@ -1,11 +1,10 @@
 'use client';
 // src/pages/CoverRatingsPage.jsx
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Link,
   useSearchParams,
   useParams,
-  useLocation,
 } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
@@ -141,7 +140,8 @@ function getCoverScoreBadge(score) {
 export function CoverRatingsPage() {
   const [searchParams] = useSearchParams();
   const { slug: routeSlug } = useParams();
-  const location = useLocation();
+  const requestedId = searchParams.get('id');
+  const requestedSlug = routeSlug || searchParams.get('album');
   const { user, loading: authLoading, loginWithGoogle, logout } = useAuth();
   const { albums, loading: albumsLoading } = useAlbums();
   const { ratings, coverStats, userRatingsMap, submitRating, deleteRating } =
@@ -204,9 +204,6 @@ export function CoverRatingsPage() {
   const eligibleAlbums = useMemo(() => {
     if (!albums || albums.length === 0 || !reviewedAlbumIds) return [];
 
-    const requestedId = searchParams.get('id');
-    const requestedSlug = routeSlug || searchParams.get('album');
-
     return albums.filter((a) => {
       const img = a.image_url || a.imagen;
       const hasImage = img && typeof img === 'string' && img.trim().length > 5;
@@ -237,7 +234,7 @@ export function CoverRatingsPage() {
 
       return Boolean(hasReview);
     });
-  }, [albums, reviewedAlbumIds, searchParams, routeSlug]);
+  }, [albums, reviewedAlbumIds, requestedId, requestedSlug]);
 
   // Mantener el orden aleatorio SIEMPRE para Calificar Portadas
   useEffect(() => {
@@ -255,19 +252,6 @@ export function CoverRatingsPage() {
       setShuffledAlbums([]);
     }
   }, [eligibleAlbums]);
-
-  // Re-barajar aleatoriamente si el usuario navega a /portadas (nueva visita / cambio en location.key)
-  const initialMountRef = useRef(true);
-  useEffect(() => {
-    if (initialMountRef.current) {
-      initialMountRef.current = false;
-      return;
-    }
-    if (eligibleAlbums.length > 0) {
-      setShuffledAlbums(shuffleArray(eligibleAlbums));
-      setSelectedAlbumIndex(0);
-    }
-  }, [location.key, eligibleAlbums]);
 
   // Lista filtrada para el modo curador (siempre preservando el orden aleatorio)
   const curatorPool = useMemo(() => {
@@ -336,8 +320,6 @@ export function CoverRatingsPage() {
 
   // Detectar parámetro ?album=slug o ?id=... o /portada/:slug
   useEffect(() => {
-    const requestedId = searchParams.get('id');
-    const requestedSlug = routeSlug || searchParams.get('album');
     if ((requestedId || requestedSlug) && shuffledAlbums.length > 0) {
       const foundIdx = shuffledAlbums.findIndex(
         (a) =>
@@ -353,7 +335,7 @@ export function CoverRatingsPage() {
         setActiveTab('curator');
       }
     }
-  }, [searchParams, routeSlug, shuffledAlbums]);
+  }, [requestedId, requestedSlug, shuffledAlbums]);
 
   useEffect(() => {
     notifyContentLoaded('cover-ratings');
@@ -978,10 +960,7 @@ export function CoverRatingsPage() {
                       </span>
 
                       <Link
-                        to={getReleaseUrl(
-                          currentTitle,
-                          currentAlbum.release_type
-                        )}
+                        to={getReleaseUrl(currentAlbum)}
                         className="text-xs text-pink-400 hover:text-pink-300 transition-colors flex items-center gap-1 font-semibold"
                       >
                         <span>Ver en Musiclub</span>
