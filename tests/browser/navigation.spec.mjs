@@ -99,7 +99,8 @@ test('global search opens an existing release through its artist-qualified URL',
   await page.goto('/portadas');
   await page.getByRole('button',{name:'Buscar álbum',exact:true}).click();
   await page.getByPlaceholder(/Escribe el.*álbum o artista/).fill('Azul');
-  await page.getByText('Azul',{exact:true}).last().click();
+  // Wait for the actual search result, not Portadas' underlying album title.
+  await page.locator('p.music-title').filter({hasText:/^Azul$/}).click();
   await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
 });
