@@ -93,7 +93,7 @@ function genreIdentity(raw) {
   const additional=extra.find(([,members])=>members.has(key));
   const override=overrides[key];
   const figure=override?.figure || (primary.has(key) ? FAMILY_ICONS[family] : null) || association?.[0] || additional?.[0] || FAMILY_ICONS[family] || 'lyre';
-  const quality=association || additional ? 'specific' : FAMILY_ICONS[family] ? 'family' : 'general';
+  const quality=override || association || additional ? 'specific' : FAMILY_ICONS[family] ? 'family' : 'general';
   const details=override?.details || (primary.has(key) ? [] : MODIFIERS.filter(([,pattern,icon])=>icon!==figure && pattern.test(key)).slice(0,2).map(([id,,icon])=>({id,icon,label:library.icons[icon].label})));
   // The default is an explicitly general musical metaphor, never a fabricated
   // instrument attribution or an abstract polygon selected by a hash.

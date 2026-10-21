@@ -17,8 +17,8 @@ test('email vinyl uses the first genre and embeds an actual PNG compatible with 
   const input = { albumName: 'Example', artistName: 'Example', genres: ['K-Pop', 'Pop'], imageUrl: '', breakdown: {} };
   for (const render of [generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml]) {
     const html = render(input);
-    assert.ok(html.includes('/genres/vinyl/v2/k-pop.png'));
-    assert.ok(!html.includes('/genres/vinyl/v2/pop.png'));
+    assert.ok(html.includes('/genres/vinyl/v3/k-pop.png'));
+    assert.ok(!html.includes('/genres/vinyl/v3/pop.png'));
     assert.ok(!html.includes('border-collapse: collapse'));
   }
   const prepared = await prepareAttachmentsAndImages({ genres: input.genres });
@@ -117,7 +117,7 @@ test('every genre reveal has a separate center without an embedded outer record'
     const art = visuals.genreRevealArtwork(genre.id);
     assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
-    assert.match(art.center, /^\/genres\/symbols\/v2\/[^/]+\.svg$/);
+    assert.match(art.center, /^\/genres\/symbols\/v3\/[^/]+\.svg$/);
     const svg = symbols.genreSymbol(genre.id).svg;
     assert.match(svg,/viewBox="0 0 100 100"/);
     assert.ok(!svg.includes('clipPath'),genre.id);
@@ -146,6 +146,9 @@ test('the full registry uses named musical figures and a single monoline grid', 
   assert.equal(identities.genreIdentity('k-pop').figure,'lightstick');
   assert.equal(identities.genreIdentity('j-pop').figure,'flower');
   assert.deepEqual(identities.genreIdentity('classical').details,[]);
+  assert.equal(identities.genreIdentity('bhangra').figure,'dhol');
+  assert.equal(identities.genreIdentity('afroswing').figure,'boombox');
+  assert.equal(identities.genreIdentity('slack-key guitar').figure,'acousticGuitar');
 });
 
 test('every library drawing renders as visible vector ink without remote assets', async () => {
