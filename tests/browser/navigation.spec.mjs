@@ -51,6 +51,48 @@ test('catalogue search returns club releases with genre icons and an accessible 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
+test('editorial selections change banners and retain real release links without overflowing',async({page})=>{
+  await page.goto('/');
+  const section=page.locator('section').filter({has:page.getByRole('heading',{name:'En el radar.',exact:true})});
+  await section.scrollIntoViewIfNeeded();
+  await expect(section.getByRole('link',{name:'Descubrir Popstar de Tinashe'})).toHaveAttribute('href','/albumes/tinashe-popstar');
+  await section.getByRole('tab',{name:/Próximo Estreno/}).click();
+  await expect(section.getByRole('link',{name:'Descubrir wor$t man in america de Slayyyter'})).toHaveAttribute('href',/slayyyter/);
+  await section.getByRole('tab',{name:/Release Underground/}).click();
+  await expect(section.getByRole('link',{name:'Descubrir House of LION BABE de LION BABE'})).toHaveAttribute('href','/albumes/lion-babe-house-of-lion-babe');
+  await expect(section.locator('img')).toHaveJSProperty('naturalWidth',1600);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('catalogue searches Musiclub first and renders Spotify-only fallback without creating albums',async({page})=>{
+  let searches=0,inserts=0;
+  await page.route('**/api/spotify?*',route=>{
+    const path=new URL(route.request().url()).searchParams.get('path') || '';
+    if(!path.startsWith('/v1/search'))return route.fulfill({status:503,json:{error:'No detail fixture'}});
+    searches++;
+    return route.fulfill({json:{albums:{items:[{id:'1234567890123456789012',name:'Órbita lejana',artists:[{name:'Nuevo Artista'}],images:[{url:'/musiclub_logo.png'}],release_date:'2026-10-01',total_tracks:11,album_type:'album',external_urls:{spotify:'https://open.spotify.com/album/1234567890123456789012'}}],next:null}}});
+  });
+  page.on('request',request=>{if(request.method()==='POST'&&request.url().includes('/rest/v1/albums'))inserts++;});
+  await page.goto('/catalogo?q=Azul&tab=releases');
+  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+  await page.waitForTimeout(650);expect(searches).toBe(0);
+  await page.getByRole('textbox',{name:'Buscar álbum, artista o curador en el catálogo'}).fill('Órbita lejana');
+  await expect(page.getByRole('status').filter({hasText:'Resultados de Spotify'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Órbita lejana',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Abrir Órbita lejana en Spotify',exact:true})).toHaveAttribute('href','https://open.spotify.com/album/1234567890123456789012');
+  await page.getByRole('button',{name:'Ver Álbum en Musiclub',exact:true}).click();
+  await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
+  expect(inserts).toBe(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('Spotify search failures offer retry and never silently switch providers',async({page})=>{
+  await page.route('**/api/spotify?*',route=>route.fulfill({status:503,json:{error:'Unavailable'}}));
+  await page.goto('/catalogo?q=Release%20desconocido&tab=releases');
+  await expect(page.getByRole('alert').filter({hasText:'No pudimos consultar Spotify'})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Reintentar búsqueda',exact:true})).toBeVisible();
+});
+
 test('anonymous ratings ask for a session without publishing a community vote',async({page})=>{
   const writes=[];
   page.on('request',request=>{if(request.method()==='POST'&&request.url().includes('/rest/v1/cover_ratings'))writes.push(request.url());});

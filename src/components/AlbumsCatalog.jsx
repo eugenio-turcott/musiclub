@@ -23,6 +23,9 @@ import { AnticipatedSection } from './catalog/AnticipatedSection';
 import { RecommendedSection } from './catalog/RecommendedSection';
 import { CatalogArtistsView } from './catalog/CatalogArtistsView';
 import { CatalogGenresView } from './catalog/CatalogGenresView';
+import { LoginModal } from './LoginModal';
+import { matchesCatalogQuery, searchSpotifyCatalog } from '../services/catalogSpotifySearch.mjs';
+import editions from '../utils/releaseEditions.cjs';
 
 const getCatalogReleaseLabel = (type) => {
   const key = String(type || 'ALBUM').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[ -]+/g, '_');
@@ -86,7 +89,10 @@ const DECADES = [
 export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage = 1, initialQuery = '' }) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, loginWithGoogle } = useAuth();
+  const [showSearchLogin, setShowSearchLogin] = useState(false);
+  const [spotifySearch, setSpotifySearch] = useState({query:'',status:'idle',albums:[]});
+  const [spotifyRetry, setSpotifyRetry] = useState(0);
   const [albums, setAlbums] = useState(initialAlbums);
   const [loading, setLoading] = useState(initialAlbums.length === 0);
   const [error, setError] = useState(null);
@@ -226,6 +232,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
       return;
     }
 
+    if (!user?.id) { setShowSearchLogin(true); return; }
+
     const rawId =
       release.spotify_id ||
       (typeof release.id === 'string' && release.id.startsWith('trend_')
@@ -238,6 +246,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
     try {
       const details = await getAlbumDetails(rawId);
+      if (release.is_external_spotify && !details?.success) throw new Error('No pudimos cargar los detalles del release de Spotify. Inténtalo de nuevo.');
       const spotifyAlbum = details?.success ? details.album : release;
 
       const tracks = (spotifyAlbum.tracks || []).map((t) => ({
@@ -264,7 +273,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           ? parseInt(release.release_date.substring(0, 4), 10)
           : null,
         releaseType: release.release_type || 'ALBUM',
-        genres: release.genres || [],
+        genres: spotifyAlbum.genres || release.genres || [],
+        totalTracks: spotifyAlbum.totalTracks || release.total_tracks || tracks.length || null,
         reviews_enabled: true,
       };
 
@@ -675,9 +685,35 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     };
   }, [unifiedAlbums, albums, trendingReleases]);
 
+  const hasInternalMatches = useMemo(()=>albums.some(album=>matchesCatalogQuery(album,searchQuery)),[albums,searchQuery]);
+  const shouldSearchSpotify = !loading && activeMainTab==='releases' && browseFilter==='ALL' && searchQuery.trim().length>0 && !hasInternalMatches;
+  const showingSpotify = shouldSearchSpotify && spotifySearch.query===searchQuery.trim();
+  useEffect(()=>{
+    if(!shouldSearchSpotify){setSpotifySearch({query:'',status:'idle',albums:[]});return;}
+    const controller=new AbortController(),query=searchQuery.trim();
+    setSpotifySearch({query,status:'loading',albums:[]});
+    const timer=setTimeout(()=>{
+      searchSpotifyCatalog(query,{signal:controller.signal}).then(result=>{
+        if(!controller.signal.aborted)setSpotifySearch({query,status:'ready',...result});
+      }).catch(error=>{
+        if(!controller.signal.aborted)setSpotifySearch({query,status:'error',albums:[],error:error.message});
+      });
+    },400);
+    return ()=>{clearTimeout(timer);controller.abort();};
+  },[shouldSearchSpotify,searchQuery,spotifyRetry]);
+  const loadMoreSpotify = async () => {
+    const {query,nextOffset,status}=spotifySearch;
+    if(nextOffset==null || status!=='ready')return;
+    setSpotifySearch(previous=>({...previous,status:'more',pageError:null}));
+    try {
+      const result=await searchSpotifyCatalog(query,{offset:nextOffset});
+      setSpotifySearch(previous=>previous.query!==query?previous:{...previous,status:'ready',albums:editions.groupReleaseEditions([...previous.albums,...result.albums]),nextOffset:result.nextOffset});
+    } catch(error) {setSpotifySearch(previous=>previous.query!==query?previous:{...previous,status:'ready',pageError:error.message});}
+  };
+
   // Álbumes filtrados y ordenados (Musiclub Hybrid Browse)
   const filteredAlbums = useMemo(() => {
-    let result = [...unifiedAlbums];
+    let result = showingSpotify ? [...spotifySearch.albums] : [...unifiedAlbums];
 
     // Musiclub Collection Filter (ALL | TRENDING | REVIEWED)
     if (browseFilter === 'TRENDING') {
@@ -743,16 +779,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     }
 
     // Search Query (Buscador universal tanto en club como en novedades)
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(
-        (a) =>
-          a.album_name?.toLowerCase().includes(q) ||
-          a.artist_name?.toLowerCase().includes(q) ||
-          a.added_by?.toLowerCase().includes(q) ||
-          a.added_by_email?.toLowerCase().includes(q)
-      );
-    }
+    if (searchQuery.trim() && !showingSpotify) result = result.filter(album=>matchesCatalogQuery(album,searchQuery));
 
     // Sorting
     result.sort((a, b) => {
@@ -802,6 +829,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     searchQuery,
     sortBy,
     spotifyYearsCache,
+    showingSpotify,
+    spotifySearch.albums,
   ]);
 
   const totalPages = Math.ceil(filteredAlbums.length / itemsPerPage) || 1;
@@ -1516,15 +1545,6 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                   })}
                 </div>
 
-                {/* Quick Pool Shortcut */}
-                <Link
-                  to="/pool"
-                  className="px-4 py-2 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shrink-0"
-                >
-                  <span>🗳️</span>
-                  <span>Pool Musical</span>
-                </Link>
-
                 {/* Sorting */}
                 <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
                   <label className="text-xs text-slate-400 whitespace-nowrap">
@@ -1547,7 +1567,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             </div>
 
             {/* Albums Grid */}
-            {loading ? (
+            {showingSpotify && <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/5 p-4 text-sm text-slate-300" role="status"><strong className="block text-emerald-300">Resultados de Spotify</strong><p className="mt-1 text-xs">No encontramos «{spotifySearch.query}» en Musiclub. Estos releases vienen de Spotify y aún no tienen reseñas del club.</p></div>}
+            {showingSpotify && spotifySearch.status==='loading' ? <p role="status" className="py-12 text-center text-sm text-slate-300">Buscando releases en Spotify…</p> : showingSpotify && spotifySearch.status==='error' ? <div role="alert" className="rounded-2xl border border-amber-400/20 p-6 text-center text-sm text-slate-300"><p>{spotifySearch.error}</p><button type="button" className="mt-3 cursor-pointer rounded-xl border border-white/20 px-4 py-2" onClick={()=>setSpotifyRetry(value=>value+1)}>Reintentar búsqueda</button></div> :
+            loading ? (
               <div className="py-20 text-center space-y-4">
                 <div className="inline-block w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
                 <p className="text-slate-400 text-sm">
@@ -1684,7 +1706,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
                               {isCardInClub
                                 ? `📝 ${album.review_count || 0}`
-                                : '⚡ En vivo'}
+                                : album.is_external_spotify ? <a href={album.spotify_link} target="_blank" rel="noopener noreferrer" onClick={event=>event.stopPropagation()} onKeyDown={event=>event.stopPropagation()} className="inline-flex items-center gap-1 text-emerald-300" aria-label={`Abrir ${album.album_name} en Spotify`}><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.5 17.3a.75.75 0 0 1-1 .3c-2.7-1.6-6.1-2-10.1-1.1a.75.75 0 1 1-.3-1.5c4.4-1 8.2-.6 11.1 1.2.4.2.5.7.3 1.1Zm1.4-3a.94.94 0 0 1-1.3.3C14.5 12.7 10 12.1 6.4 13a.94.94 0 0 1-.4-1.8c4.1-1.1 9.1-.4 12.6 1.8.4.3.6.8.3 1.3Zm.1-3.2C15.3 8.9 9.2 8.7 5.7 9.8a1.13 1.13 0 0 1-.7-2.2c4.1-1.3 10.9-1.1 15.2 1.5a1.13 1.13 0 1 1-1.2 2Z" /></svg>Spotify ↗</a> : '⚡ En vivo'}
                             </div>
                           </div>
                         </div>
@@ -1777,7 +1799,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                 <span>
                                   {isProposing
                                     ? 'Abriendo...'
-                                    : 'Reseñar en Club'}
+                                    : album.is_external_spotify ? `Ver ${getCatalogReleaseLabel(album.release_type)} en Musiclub` : 'Reseñar en Club'}
                                 </span>
                               </button>
                             )}
@@ -1914,10 +1936,12 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 )}
               </>
             )}
+            {showingSpotify && spotifySearch.nextOffset!=null && <div className="text-center"><button type="button" onClick={loadMoreSpotify} disabled={spotifySearch.status==='more'} className="cursor-pointer rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-5 py-3 text-xs font-bold text-emerald-200 disabled:opacity-50">{spotifySearch.status==='more'?'Cargando…':'Ver más resultados de Spotify'}</button>{spotifySearch.pageError && <p role="alert" className="mt-2 text-xs text-amber-200">{spotifySearch.pageError}</p>}</div>}
           </>
         )}
 
         {/* Footer */}
+        <LoginModal isOpen={showSearchLogin} onClose={()=>setShowSearchLogin(false)} onGoogleLogin={loginWithGoogle} />
         <Footer />
       </div>
     </div>
