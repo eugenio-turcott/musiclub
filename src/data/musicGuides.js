@@ -13,11 +13,11 @@ export const MUSIC_GUIDES = [
       ['Evalúa cada pilar', 'Mantén separadas la calidad de la grabación, la composición y tus ganas de volver a escucharlo. Tu gusto y la ejecución del disco pueden apuntar en direcciones diferentes.'],
       ['Revisa y comparte con contexto', 'Puedes editar tu valoración desde la ficha. Los formularios guardan un borrador en este navegador; no es una copia sincronizada entre dispositivos. Comparte el enlace de la ficha para que otras personas escuchen el disco y lean las opiniones.'],
     ] },
-  { slug: 'descubrir-discos-en-comunidad', title: 'Cómo descubrir discos con las reseñas de una comunidad', description: 'Usa las opiniones, la cantidad de reseñas y el contexto para elegir tu próxima escucha.',
+  { slug: 'descubrir-discos-en-comunidad', updatedAt: '2026-10-21', title: 'Cómo descubrir discos con las reseñas de una comunidad', description: 'Usa las opiniones, la cantidad de reseñas y el contexto para elegir tu próxima escucha.',
     sections: [
       ['Busca afinidades, además de puntuaciones', 'Una nota alta puede ser una pista para empezar. Lee qué valoró cada persona y compara sus observaciones con lo que tú buscas: melodías, letras, producción o una experiencia diferente.'],
       ['Distingue entusiasmo de consenso', 'Mira el número de reseñas antes de interpretar un promedio. Un único voto representa una opinión; varias reseñas permiten conocer acuerdos y diferencias. Las puntuaciones de Musiclub reflejan a quienes participaron, no a todos los oyentes.'],
-      ['Escucha una selección y vuelve a opinar', 'El Pool reúne las selecciones del club. Aunque no esté abierta la recepción de propuestas, puedes escuchar los discos y valorar cualquier lanzamiento del catálogo. El estado de participación se consulta en la página del Pool.'],
+      ['Escucha una selección y vuelve a opinar', 'El Pool reúne las selecciones del club. Aunque no esté abierta la recepción de propuestas, puedes explorar los discos y su historial. Las reseñas del Pool se habilitan o cierran por decisión del administrador; consulta el estado en la ficha. Los releases fuera del Pool también pueden tener restricciones por fecha de estreno.'],
       ['Ayuda a que otra persona descubra algo', 'Comparte una ficha con una recomendación concreta: qué canción escuchar primero o qué detalle merece atención. Una reseña razonada aporta contexto que una puntuación aislada no puede ofrecer.'],
     ] },
 ];

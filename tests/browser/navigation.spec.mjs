@@ -185,3 +185,18 @@ test('Pool discovery keeps genre filters inside the selected season and accepts 
   await expect(page).toHaveURL(/\/gashapon$/);
   await expect(page.getByText('🎰 Releases del Pool',{exact:true})).toHaveCount(0);
 });
+
+
+test('publisher verification and contact pages are public while pending releases stay out of search', async ({page}) => {
+  const ads = await page.request.get('/ads.txt');
+  expect(ads.ok()).toBe(true);
+  expect((await ads.text()).trim()).toBe('google.com, pub-3995824345173266, DIRECT, f08c47fec0942fa0');
+  await page.goto('/contacto');
+  await expect(page.getByRole('heading',{name:'Hablemos de Musiclub',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'musiclub.org@gmail.com',exact:true})).toHaveAttribute('href','mailto:musiclub.org@gmail.com');
+  const pending = await page.request.get('/albumes/artista-proximo-estreno-oficial');
+  const html = await pending.text();
+  expect(html).toMatch(/name="robots" content="noindex, follow"/);
+  expect(html).toContain('name="google-adsense-account" content="ca-pub-3995824345173266"');
+  expect(html).not.toMatch(/src="https:\/\/pagead2\.googlesyndication\.com/);
+});

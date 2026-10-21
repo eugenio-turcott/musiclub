@@ -48,7 +48,7 @@ export function PrivacyPolicy() {
                       Compromiso
                     </p>
                     <p className="text-white font-black text-xs sm:text-sm leading-tight">
-                      100% Seguro
+                      Acceso protegido
                     </p>
                   </div>
                 </div>
@@ -60,7 +60,7 @@ export function PrivacyPolicy() {
                       Vigencia
                     </p>
                     <p className="text-white font-black text-base sm:text-lg leading-tight">
-                      Año 2026
+                      21 oct 2026
                     </p>
                   </div>
                 </div>
@@ -236,9 +236,16 @@ export function PrivacyPolicy() {
                 <li>
                   <strong>Eliminación de Cuenta y Datos:</strong> Puedes
                   solicitar la eliminación definitiva de tu usuario y registros
-                  asociados contactando al administrador.
+                  asociados escribiendo a musiclub.org@gmail.com. Podemos solicitar una comprobación de titularidad antes de actuar.
                 </li>
               </ul>
+            </section>
+
+            <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
+              <h2 className="text-white font-bold text-base mb-2">Publicidad y preferencias</h2>
+              <p>La publicidad de Google AdSense se mantiene desactivada mientras preparamos su activación. La etiqueta de verificación del dominio y el archivo ads.txt identifican la cuenta publicitaria; por sí solos no solicitan anuncios ni instalan cookies publicitarias.</p>
+              <p className="mt-3">Cuando se habilite la publicidad, Google y sus proveedores podrán usar cookies e identificadores para publicar y medir anuncios, incluyendo anuncios basados en visitas a este sitio y a otros sitios. Donde corresponda, se solicitarán las preferencias mediante una plataforma de consentimiento certificada antes de activar los tratamientos sujetos a consentimiento. La preferencia de medición de Vercel es independiente de la publicidad.</p>
+              <p className="mt-3">Puedes gestionar la personalización en <a className="text-pink-300 underline" href="https://myadcenter.google.com/">Mi centro de anuncios de Google</a> y consultar <a className="text-pink-300 underline" href="https://policies.google.com/technologies/partner-sites?hl=es">cómo Google usa la información de sitios asociados</a>. La activación efectiva y sus controles se reflejarán en esta política.</p>
             </section>
 
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
@@ -254,7 +261,7 @@ export function PrivacyPolicy() {
                 >
                   Preguntas Frecuentes (FAQ)
                 </Link>{' '}
-                o comunicarte directamente con el administrador del club.
+                o escribir a <a href="mailto:musiclub.org@gmail.com" className="text-pink-300 underline">musiclub.org@gmail.com</a>.
               </p>
             </section>
           </div>

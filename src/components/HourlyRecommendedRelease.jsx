@@ -340,7 +340,7 @@ export function HourlyRecommendedRelease({
         {/* Main Content Body */}
         <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
           {/* Left Column: Big Cover Artwork */}
-          <div className="lg:col-span-5 flex flex-col items-center sm:items-start">
+          <div className="lg:col-span-5 flex flex-col items-center lg:items-start">
             <div className="relative group w-full max-w-[300px] sm:max-w-[480px] aspect-square">
               {/* Outer Glow */}
               <div className="absolute -inset-2 bg-linear-to-r from-amber-500/25 via-pink-500/25 to-purple-500/25 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
@@ -385,9 +385,9 @@ export function HourlyRecommendedRelease({
           </div>
 
           {/* Right Column: Title, Review Spotlight & Action Buttons */}
-          <div className="lg:col-span-7 flex flex-col space-y-4">
+          <div className="lg:col-span-7 flex flex-col space-y-4 text-center lg:text-left">
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-400">
+              <div className="flex items-center justify-center lg:justify-start gap-2 text-xs font-bold text-amber-400">
                 <span>🎯</span>
                 <span className="uppercase tracking-wider">
                   {reviewCount === 1
@@ -417,7 +417,7 @@ export function HourlyRecommendedRelease({
             </div>
 
             {/* Spotlight on the Community Review */}
-            <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-3">
+            <div className="p-4 sm:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md space-y-3 text-left">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2.5 min-w-0">
                   {reviewerAvatar ? (
@@ -529,7 +529,7 @@ export function HourlyRecommendedRelease({
             )}
 
             {/* Primary Action Buttons */}
-            <div className="pt-2 flex flex-wrap items-center gap-3">
+            <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-3">
               <button
                 type="button"
                 onClick={() => setShowReviewForm((prev) => !prev)}
@@ -559,7 +559,7 @@ export function HourlyRecommendedRelease({
             {/* Streaming Listening Links */}
             {(spotifyUrl || appleMusicUrl || youtubeUrl || otherUrl) && (
               <div className="pt-2">
-                <div className="text-[11px] text-white/50 font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <div className="text-[11px] text-white/50 font-bold uppercase tracking-wider mb-2 flex items-center justify-center lg:justify-start gap-1.5">
                   <span>🎧</span>
                   <span>Escuchar en streaming:</span>
                 </div>

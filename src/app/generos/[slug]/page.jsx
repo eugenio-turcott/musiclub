@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
   const description = `Explora ${count} lanzamientos de ${genre.name} en Musiclub: álbumes, EPs, sencillos y reseñas de la comunidad.`;
   return { title: `${genre.name}: lanzamientos y reseñas`, description,
     alternates: {canonical:'https://www.musiclub.org'+routes.genrePath(genre.id)},
-    robots: {index:count>0,follow:true}, openGraph: {title:`${genre.name} | Musiclub`,description,url:'https://www.musiclub.org'+routes.genrePath(genre.id)} };
+    robots: {index:catalog.filterByGenre(albums, genre.id).some(album => album.review_count > 0),follow:true}, openGraph: {title:`${genre.name} | Musiclub`,description,url:'https://www.musiclub.org'+routes.genrePath(genre.id)} };
 }
 export default async function GenreRoute({ params }) {
   const { slug } = await params;

@@ -2,7 +2,7 @@ const genreCatalog = require('./genreCatalog.cjs');
 const genreRoutes = require('./genreRoutes.cjs');
 const { slugify, releasePath } = require('./releaseIdentity.cjs');
 const BASE = 'https://www.musiclub.org';
-const CORE = ['/', '/catalogo', '/pool', '/leaderboard', '/reviews', '/portadas', '/playlists', '/gashapon', '/faq', '/guias', '/guias/como-calificamos', '/guias/escribir-primera-resena', '/guias/descubrir-discos-en-comunidad', '/patch-notes', '/privacy', '/terms'];
+const CORE = ['/', '/catalogo', '/pool', '/leaderboard', '/reviews', '/portadas', '/playlists', '/gashapon', '/faq', '/sobre-musiclub', '/contacto', '/guias', '/guias/como-calificamos', '/guias/escribir-primera-resena', '/guias/descubrir-discos-en-comunidad', '/patch-notes', '/privacy', '/terms'];
 function buildSitemapGroups(albums, reviews = []) {
   const reviewed = new Map(), catalog = new Map(), artists = new Map();
   for (const album of albums) {
@@ -12,11 +12,11 @@ function buildSitemapGroups(albums, reviews = []) {
     const lastmod = dates.length ? new Date(Math.max(...dates.map(Date.parse))).toISOString() : undefined;
     const entry = { loc: BASE + pathname, lastmod };
     if (album.review_count > 0) { reviewed.set(pathname, entry); catalog.delete(pathname); }
-    else if (!reviewed.has(pathname)) catalog.set(pathname, entry);
+
     const name = slugify(album.artist_name);
-    if (name) artists.set(name, { loc: `${BASE}/artista/${name}` });
+    if (name && album.review_count > 0) artists.set(name, { loc: `${BASE}/artista/${name}` });
   }
-  for (const id of genreCatalog.genreCounts(albums).keys()) { const path = genreRoutes.genrePath(id); catalog.set(path, {loc:BASE+path}); }
+  for (const id of genreCatalog.genreCounts(albums.filter(album => album.review_count > 0)).keys()) { const path = genreRoutes.genrePath(id); catalog.set(path, {loc:BASE+path}); }
   return { core: CORE.map(p => ({ loc: BASE + p })), reviews: [...reviewed.values()], catalog: [...catalog.values()], artists: [...artists.values()] };
 }
 const escapeXml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));

@@ -32,7 +32,7 @@ export async function generateMetadata({ params }) {
       ? ` con ${album.review_count} reseña${album.review_count > 1 ? 's' : ''}`
       : '';
 
-  const title = `${name} de ${artist} - Reseña, Calificación y Tracklist`;
+  const title = `${name} de ${artist} - ${album.review_count > 0 ? 'Reseña, Calificación y Tracklist' : 'Ficha y canciones'}`;
   const description = `Califica y lee opiniones del ${category.singularLabel.toLowerCase()} "${name}" de ${artist} (${album.release_year || 'Música'}). Calificación comunitaria: ${scoreText}${reviewsCountText}.`;
   const imageUrl =
     album.image_url || 'https://www.musiclub.org/musiclub_logo_corchea.png';
@@ -56,7 +56,7 @@ export async function generateMetadata({ params }) {
       canonical: canonicalUrl,
     },
     robots: {
-      index: true,
+      index: album.review_count > 0,
       follow: true,
     },
     openGraph: {

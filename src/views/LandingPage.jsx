@@ -56,11 +56,11 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
   const [shuffledReviewedAlbums, setShuffledReviewedAlbums] = useState([]);
   const [allReviews, setAllReviews] = useState(initialReviews);
   const [globalStats, setGlobalStats] = useState(initialStats || {
-    total_reviews: 320,
-    total_albums: 161,
-    total_reviewed_albums: 131,
-    total_users: 21,
-    top_score: 9.8,
+    total_reviews: null,
+    total_albums: null,
+    total_reviewed_albums: null,
+    total_users: null,
+    top_score: null,
   });
   const [preferredAlbumTab, setSelectedAlbumTab] = useState('active'); // 'active' | 'top' | 'recent'
   const hasActivePool = (activePool?.length || 0) > 0;
@@ -140,34 +140,20 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         const reviewedAlbumIds = new Set(
           (reviewsData || []).map((rev) => rev.album_id).filter(Boolean)
         );
-        const totalReviewedAlbums =
-          reviewedAlbumIds.size ||
-          (topData && topData.length) ||
-          statsData?.total_reviewed_albums ||
-          131;
-        const totalReviewsCount =
-          reviewsData.length || statsData?.total_reviews || 288;
+        const totalReviewedAlbums = statsData?.total_reviewed_albums ?? reviewedAlbumIds.size;
+        const totalReviewsCount = statsData?.total_reviews ?? reviewsData.length;
         const uniqueReviewersCount = new Set(
           (reviewsData || [])
             .map((rev) => rev.reviewer_name?.trim())
             .filter(Boolean)
         ).size;
-        const totalMembersCount =
-          (profilesData && profilesData.length) ||
-          statsData?.total_users ||
-          uniqueReviewersCount ||
-          21;
-        const topScore =
-          topData && topData.length > 0 && topData[0].avg_rating
-            ? topData[0].avg_rating
-            : statsData?.top_score || 9.8;
-
+        const totalMembersCount = statsData?.total_users ?? uniqueReviewersCount;
+        const topScore = topData?.[0]?.avg_rating || statsData?.top_score || null;
         setGlobalStats({
           total_reviews: totalReviewsCount,
-          total_albums:
-            statsData?.total_albums || (albums && albums.length) || 161,
+          total_albums: statsData?.total_albums ?? albums.length,
           total_reviewed_albums: totalReviewedAlbums,
-          total_users: totalMembersCount > 0 ? totalMembersCount : 21,
+          total_users: totalMembersCount,
           top_score: topScore,
         });
         notifyContentLoaded('landing');
@@ -322,7 +308,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
     const distinctList = [];
     const seenUsers = new Set();
 
-    for (const rev of allReviews) {
+    for (const rev of [...allReviews].filter(review => review.comment?.trim()).sort((a,b) => Math.min(b.comment.trim().length, 600) - Math.min(a.comment.trim().length, 600))) {
       const userKey = (
         rev.user_id ||
         rev.author_email ||
@@ -861,10 +847,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
                 data-stat="number"
               >
-                +
-                {globalStats.total_reviewed_albums ||
-                  (topAlbums && topAlbums.length) ||
-                  131}
+                {globalStats.total_reviewed_albums ?? '…'}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Lanzamientos con Reviews
@@ -877,13 +860,10 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-pink-400 to-rose-400 tracking-tight"
                 data-stat="number"
               >
-                +
-                {globalStats.total_reviews ||
-                  (allReviews && allReviews.length) ||
-                  271}
+                {globalStats.total_reviews ?? '…'}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
-                Reviews Escritas
+                Reseñas publicadas
               </span>
             </div>
 
@@ -893,7 +873,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight"
                 data-stat="number"
               >
-                {globalStats.total_users || 21}
+                {globalStats.total_users ?? '…'}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Críticos & Miembros
@@ -909,7 +889,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 <span>⭐</span>{' '}
                 {globalStats.top_score
                   ? Number(globalStats.top_score).toFixed(1)
-                  : '9.8'}
+                  : '—'}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
                 Top Score Comunitario
@@ -1108,6 +1088,190 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         {/* =========================================================================
             RELEASE ALEATORIO POR HORA RECOMENDADO PARA CALIFICAR (1 A 3 RESEÑAS)
             ========================================================================= */}
+        {communityReviews.length > 0 && (
+          <section className="my-12 sm:my-16 text-left">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
+              <div className="space-y-1">
+                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                  La Voz de la Comunidad
+                </h2>
+                <p className="text-white/60 text-xs sm:text-sm">
+                  Opiniones, calificaciones y canciones favoritas compartidas
+                  por los miembros del club.
+                </p>
+              </div>
+              <Link
+                to="/reviews"
+                className="text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors self-start sm:self-auto"
+              >
+                Ver todas las reviews{' '}
+                <span translate="no" className="notranslate" data-stat="count">
+                  ({globalStats.total_reviews})
+                </span>{' '}
+                →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+              {communityReviews.map((review, idx) => {
+                const weighted =
+                  getWeightedReviewScore(review) ?? review.rating_general;
+                const emotion = getEmotionFromReview(review);
+                const albumInfo = review.matchedAlbum;
+                const albumTitle =
+                  albumInfo?.album_name ||
+                  albumInfo?.album ||
+                  review.album_name ||
+                  'Álbum';
+                const artistTitle =
+                  albumInfo?.artist_name ||
+                  albumInfo?.artista ||
+                  review.artist_name ||
+                  'Artista';
+                const albumCover =
+                  albumInfo?.image_url || albumInfo?.imagen || null;
+
+                return (
+                  <div
+                    key={review.id || idx}
+                    className="rounded-3xl bg-[#111322]/80 border border-white/10 p-5 sm:p-6 backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-pink-500/30 transition-all shadow-lg"
+                  >
+                    {/* Header: Reviewer Avatar, Name & Score */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {review.reviewer_avatar ? (
+                          <CoverImage
+                            src={review.reviewer_avatar}
+                            width={32}
+                            height={32}
+                            sizes="32px"
+                            alt={review.reviewer_name || 'U'}
+                            className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                            }}
+                          />
+                        ) : null}
+                        <div
+                          className={`w-8 h-8 rounded-full bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-black shrink-0 ${
+                            review.reviewer_avatar ? 'hidden' : 'flex'
+                          }`}
+                        >
+                          {(review.reviewer_name || 'U')[0].toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p
+                            translate="no"
+                            className="notranslate username-tag text-white text-xs font-bold truncate"
+                          >
+                            {review.reviewer_name || 'Miembro del Club'}
+                          </p>
+                          <p className="text-white/40 text-[10px]">
+                            {review.created_at
+                              ? new Date(review.created_at).toLocaleDateString(
+                                  'es-ES',
+                                  {
+                                    timeZone: 'UTC',
+                                    month: 'short',
+                                    day: 'numeric',
+                                  }
+                                )
+                              : 'Reciente'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {weighted !== null && (
+                        <div className="px-2.5 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-xs font-black flex items-center gap-1">
+                          <span>⭐</span>
+                          <span>
+                            {typeof weighted === 'number'
+                              ? weighted.toFixed(1)
+                              : weighted}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Album Reference Banner */}
+                    <Link
+                      to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
+                      className="flex items-center gap-3 p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
+                    >
+                      {albumCover ? (
+                        <CoverImage
+                          src={albumCover}
+                          alt={albumTitle}
+                          className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg shrink-0">
+                          💿
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p
+                          translate="no"
+                          className="notranslate music-title text-white text-xs font-bold truncate group-hover:text-pink-300 transition-colors"
+                        >
+                          {albumTitle}
+                        </p>
+                        <p
+                          translate="no"
+                          className="notranslate artist-name text-white/50 text-[10px] truncate"
+                        >
+                          {artistTitle}
+                        </p>
+                      </div>
+                    </Link>
+
+                    {/* Review Snippet / Text */}
+                    <div className="space-y-2">
+                      {review.review_text || review.comment ? (
+                        <p className="text-white/80 text-xs sm:text-sm italic line-clamp-3 leading-relaxed">
+                          "{review.review_text || review.comment}"
+                        </p>
+                      ) : (
+                        <p className="text-white/50 text-xs italic">
+                          Calificó y puntuó este lanzamiento en la comunidad.
+                        </p>
+                      )}
+
+                      {/* Emotion & Favorite Track Tags */}
+                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                        {emotion && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
+                            {emotion.emoji} {emotion.label}
+                          </span>
+                        )}
+                        {review.favTrackTitle && (
+                          <span
+                            translate="no"
+                            className="notranslate track-name text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 truncate max-w-[200px]"
+                          >
+                            👑 {review.favTrackTitle}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Album Reference Footer */}
+                    <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40">
+                      <span>Musiclub Review</span>
+                      <Link
+                        to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
+                        className="text-pink-400 hover:text-white transition-colors font-semibold"
+                      >
+                        Ver lanzamiento →
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         <HourlyRecommendedRelease
           albums={albums}
           allReviews={allReviews}
@@ -1540,189 +1704,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         {/* =========================================================================
             6. COMMUNITY REVIEWS SNAPSHOT (1 Review por Usuario Diferente, 3 en total)
             ========================================================================= */}
-        {communityReviews.length > 0 && (
-          <section className="my-12 sm:my-16 text-left">
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
-              <div className="space-y-1">
-                <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                  La Voz de la Comunidad
-                </h2>
-                <p className="text-white/60 text-xs sm:text-sm">
-                  Opiniones, calificaciones y canciones favoritas compartidas
-                  por los miembros del club.
-                </p>
-              </div>
-              <Link
-                to="/reviews"
-                className="text-xs font-bold text-pink-400 hover:text-pink-300 transition-colors self-start sm:self-auto"
-              >
-                Ver todas las reviews{' '}
-                <span translate="no" className="notranslate" data-stat="count">
-                  ({globalStats.total_reviews})
-                </span>{' '}
-                →
-              </Link>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              {communityReviews.map((review, idx) => {
-                const weighted =
-                  getWeightedReviewScore(review) ?? review.rating_general;
-                const emotion = getEmotionFromReview(review);
-                const albumInfo = review.matchedAlbum;
-                const albumTitle =
-                  albumInfo?.album_name ||
-                  albumInfo?.album ||
-                  review.album_name ||
-                  'Álbum';
-                const artistTitle =
-                  albumInfo?.artist_name ||
-                  albumInfo?.artista ||
-                  review.artist_name ||
-                  'Artista';
-                const albumCover =
-                  albumInfo?.image_url || albumInfo?.imagen || null;
-
-                return (
-                  <div
-                    key={review.id || idx}
-                    className="rounded-3xl bg-[#111322]/80 border border-white/10 p-5 sm:p-6 backdrop-blur-xl flex flex-col justify-between space-y-4 hover:border-pink-500/30 transition-all shadow-lg"
-                  >
-                    {/* Header: Reviewer Avatar, Name & Score */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        {review.reviewer_avatar ? (
-                          <CoverImage
-                            src={review.reviewer_avatar}
-                            width={32}
-                            height={32}
-                            sizes="32px"
-                            alt={review.reviewer_name || 'U'}
-                            className="w-8 h-8 rounded-full object-cover border border-white/20 shrink-0"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-8 h-8 rounded-full bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-white text-xs font-black shrink-0 ${
-                            review.reviewer_avatar ? 'hidden' : 'flex'
-                          }`}
-                        >
-                          {(review.reviewer_name || 'U')[0].toUpperCase()}
-                        </div>
-                        <div className="min-w-0">
-                          <p
-                            translate="no"
-                            className="notranslate username-tag text-white text-xs font-bold truncate"
-                          >
-                            {review.reviewer_name || 'Miembro del Club'}
-                          </p>
-                          <p className="text-white/40 text-[10px]">
-                            {review.created_at
-                              ? new Date(review.created_at).toLocaleDateString(
-                                  'es-ES',
-                                  {
-                                    timeZone: 'UTC',
-                                    month: 'short',
-                                    day: 'numeric',
-                                  }
-                                )
-                              : 'Reciente'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {weighted !== null && (
-                        <div className="px-2.5 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-xs font-black flex items-center gap-1">
-                          <span>⭐</span>
-                          <span>
-                            {typeof weighted === 'number'
-                              ? weighted.toFixed(1)
-                              : weighted}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Album Reference Banner */}
-                    <Link
-                      to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
-                      className="flex items-center gap-3 p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 transition-all group"
-                    >
-                      {albumCover ? (
-                        <CoverImage
-                          src={albumCover}
-                          alt={albumTitle}
-                          className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg shrink-0">
-                          💿
-                        </div>
-                      )}
-                      <div className="min-w-0 flex-1">
-                        <p
-                          translate="no"
-                          className="notranslate music-title text-white text-xs font-bold truncate group-hover:text-pink-300 transition-colors"
-                        >
-                          {albumTitle}
-                        </p>
-                        <p
-                          translate="no"
-                          className="notranslate artist-name text-white/50 text-[10px] truncate"
-                        >
-                          {artistTitle}
-                        </p>
-                      </div>
-                    </Link>
-
-                    {/* Review Snippet / Text */}
-                    <div className="space-y-2">
-                      {review.review_text || review.comment ? (
-                        <p className="text-white/80 text-xs sm:text-sm italic line-clamp-3 leading-relaxed">
-                          "{review.review_text || review.comment}"
-                        </p>
-                      ) : (
-                        <p className="text-white/50 text-xs italic">
-                          Calificó y puntuó este lanzamiento en la comunidad.
-                        </p>
-                      )}
-
-                      {/* Emotion & Favorite Track Tags */}
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        {emotion && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                            {emotion.emoji} {emotion.label}
-                          </span>
-                        )}
-                        {review.favTrackTitle && (
-                          <span
-                            translate="no"
-                            className="notranslate track-name text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 truncate max-w-[200px]"
-                          >
-                            👑 {review.favTrackTitle}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Album Reference Footer */}
-                    <div className="pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-white/40">
-                      <span>Musiclub Review</span>
-                      <Link
-                        to={getReleaseUrl(albumInfo || { album_name: albumTitle, artist_name: artistTitle, release_type: review.release_type })}
-                        className="text-pink-400 hover:text-white transition-colors font-semibold"
-                      >
-                        Ver lanzamiento →
-                      </Link>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-        )}
 
         {/* =========================================================================
             7. QUICK PLAYGROUND: MINI ROULETTE / GASHAPON ARCADE
