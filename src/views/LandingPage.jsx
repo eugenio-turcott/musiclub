@@ -11,6 +11,7 @@ import { Footer } from '../components/Footer';
 import dynamic from 'next/dynamic';
 import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
+import { EditorialSpotlight } from '../components/EditorialSpotlight';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -1088,6 +1089,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         {/* =========================================================================
             RELEASE ALEATORIO POR HORA RECOMENDADO PARA CALIFICAR (1 A 3 RESEÑAS)
             ========================================================================= */}
+        <EditorialSpotlight />
         {communityReviews.length > 0 && (
           <section className="my-12 sm:my-16 text-left">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
