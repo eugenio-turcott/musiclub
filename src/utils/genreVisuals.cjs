@@ -11,6 +11,6 @@ function genreArtwork(raw) {
 function genreRevealArtwork(raw, edition) {
   const visual = genreArtwork(raw);
   const pressing = edition == null ? editions.defaultEdition(genres.genreKey(raw) || raw) : editions.vinylEdition(edition);
-  return { ...visual, ...pressing, center: genres.genreKey(raw) ? '/genres/symbols/v3/'+encodeURIComponent(genres.genreKey(raw))+'.svg' : visual.src };
+  return { ...visual, ...pressing, center: genres.genreKey(raw) ? '/genres/symbols/v4/'+encodeURIComponent(genres.genreKey(raw))+'.svg' : visual.src };
 }
 module.exports = { genreRevealArtwork, genreFamily, genreArtwork, uniqueGenreMotif };

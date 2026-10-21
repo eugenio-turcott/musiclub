@@ -23,6 +23,8 @@ jobs:
       - run: npm ci
       - name: Fetch verified MusicBrainz genres
         run: node scripts/update-genre-registry.mjs
+      - name: Assign exclusive visual variations to new genres
+        run: node scripts/build-genre-variations.cjs
       - name: Validate genre identities and artwork
         run: npm run test:critical
       - name: Synchronize the database whitelist
@@ -34,7 +36,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git add src/data/musicGenres.json src/data/musicbrainzGenreIds.json
+          git add src/data/musicGenres.json src/data/musicbrainzGenreIds.json src/data/genreVariationAssignments.json
           if git diff --cached --quiet; then exit 0; fi
           npm version patch --no-git-tag-version
           git add package.json package-lock.json

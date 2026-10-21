@@ -4,6 +4,7 @@ const catalog = require('./genreCatalog.cjs');
 const {genreFamily} = require('./genreFamilies.cjs');
 const library = require('../data/musicIconLibrary.json');
 const overrides = require('../data/genreVisualOverrides.json');
+const variations = require('../data/genreVariationAssignments.json');
 const FAMILY_ICONS = {pop:'star',rock:'electricGuitar',hiphop:'boombox',rnb:'heart',soul:'microphone-2',electronic:'synthesizer',jazz:'saxophone',metal:'bolt',punk:'safetyPin',folk:'acousticGuitar',classical:'violin',latin:'maracas',regional:'accordion',reggaeton:'congas',indie:'cassette',country:'cowboyHat',ambient:'moon-stars',reggae:'device-speaker',dance:'discoBall',funk:'bassGuitar',blues:'harmonica',kpop:'lightstick',jpop:'flower',experimental:'atom',arabic:'oud',world:'world'};
 const primary = new Set('pop|rock|hip hop|r&b|soul|electronic|jazz|metal|punk|folk|classical|latin|regional mexicano|reggaeton|indie|alternative|country|ambient|reggae|disco|dance|funk|blues|k-pop|j-pop|experimental|arabic music|world'.split('|'));
 const exact = (names) => new Set(names.split('|'));
@@ -72,7 +73,7 @@ const extra = [
   ['microphone-2',exact('ghazal|dhrupad|mélodie|sevdalinka|doina|russian romance|russian chanson|bocet|boedra|adhunik geet|bhavageethe|jibonmukhi gaan|balitaw|kundiman|harana|kanto|morna|tizita|bozlak|harawi|pirekua|canto degli alpini|cante alentejano|għana|izlan|ahwash|ashkenazi cantorial music|islamic religious music|contemporary christian|church music|praise & worship|spirituals|red song|red dirt|nhạc đỏ|nhạc tiền chiến|nhạc vàng|runo song|min\'yō|shima-uta|ondō|shan\'ge|haozi|wangga|djanba|unakesa|unyago|kalattut|uaajeerneq|tivaner inngernerlu|rabbit song|saluang klasik|kakawin|kecak|kete|duma|nóta|fado|fado de coimbra|filin|sawt|batonebi songs|iavnana|aboio|baguala|pásztordal|lullaby|drinking song|fahrtenlied|football chant|jùjú|jesus music|jubilee|doo-wop|quiet storm|motown|minneapolis sound|sissy bounce|soft visual|loud kei|visual kei|palingsound|nyū myūjikku|zohioliin duu|sarala gee|tassu|meyxana|ngâm thơ|russian orthodox liturgical music|vedic chant|tibetan buddhist chant|taoist ritual music')],
 ];
 const MODIFIERS = [
-  ['atmospheric',/atmospheric|ambient|ethereal|dream|shoegaze/,'cloud'],
+  ['atmospheric',/atmospheric|ambient|ethereal|dream|gaze/,'cloud'],
   ['black',/black|dark|gothic|noir/,'moon-stars'],['death',/death|grind/,'skull'],
   ['doom',/doom|slow|funeral/,'hourglass'],['power',/power|epic|royal/,'crown'],
   ['progressive',/progressive|math|technical/,'stairs'],['symphonic',/symphonic|orchestral|chamber|baroque/,'file-music'],
@@ -86,7 +87,7 @@ const MODIFIERS = [
   ['jazz',/jazz|bop|swing/,'saxophone'],['rock',/rock/,'electricGuitar'],['pop',/pop/,'star'],
   ['hiphop',/hip.?hop|rap|trap/,'boombox'],['reggae',/reggae|ska|dub/,'device-speaker'],
 ];
-function genreIdentity(raw) {
+function genreSemanticIdentity(raw) {
   const key=catalog.genreKey(raw); if(!key) return null;
   const family=genreFamily(key);
   const association=associations.find(([icon,pattern])=>pattern.test(key) && !(icon==='synthesizer' && ['metal','punk','rock','hiphop'].includes(family)));
@@ -101,4 +102,14 @@ function genreIdentity(raw) {
   return {key,family,figure,label:library.icons[figure].label,details,quality,
     note:quality==='general' ? 'Lira como metáfora musical general; no afirma que el género utilice este instrumento.' : 'Asociación visual editorial; no representa toda la instrumentación del género.'};
 }
-module.exports={genreIdentity,FAMILY_ICONS,MODIFIERS};
+function genreIdentity(raw) {
+  const identity=genreSemanticIdentity(raw);
+  if(!identity) return null;
+  const variation=variations.genres[identity.key];
+  if(!variation || variation.figure!==identity.figure) return {...identity,variationStatus:'pending'};
+  const semantic=new Map(identity.details.map(detail=>[detail.icon,detail]));
+  return {...identity,variationStatus:'assigned',details:variation.details.map(icon=>semantic.get(icon) || {
+    id:'identity:'+icon,icon,label:library.icons[icon].label,role:'visual-signature',
+  })};
+}
+module.exports={genreIdentity,genreSemanticIdentity,FAMILY_ICONS,MODIFIERS};

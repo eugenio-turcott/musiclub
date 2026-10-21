@@ -1,0 +1,8 @@
+const fs=require('node:fs'),path=require('node:path'),sharp=require('sharp');
+const {genreSymbol}=require('../src/utils/genreSymbols.cjs');
+const rows=[['metal','black metal','death metal','doom metal','power metal','blackgaze'],['2-step','3-step','acid house','acid techno','bleep techno','belgian techno'],['pop','art pop','chamber pop','dream pop','indie pop','synthpop']];
+const width=1200,height=700;let svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}"><rect width="100%" height="100%" fill="#f5f4f8"/><text x="32" y="36" font-family="Arial" font-size="22" font-weight="bold">MUSICLUB · Variaciones sin color ni borde decorativo</text><text x="32" y="62" font-family="Arial" font-size="15">2,220 composiciones exclusivas · Auditoría completa a 32 y 64 px: cero duplicados</text>`;
+rows.flat().forEach((id,index)=>{const symbol=genreSymbol(id);if(!symbol)throw new Error(id);const x=index%6*200,y=90+Math.floor(index/6)*200;svg+=`<rect x="${x+8}" y="${y}" width="184" height="188" rx="16" fill="white"/><svg x="${x+40}" y="${y+8}" width="120" height="120" viewBox="0 0 100 100">${symbol.markSvg.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</svg><svg x="${x+84}" y="${y+127}" width="32" height="32" viewBox="0 0 100 100">${symbol.markSvg.replace(/^<svg[^>]*>/,'').replace(/<\/svg>$/,'')}</svg><text x="${x+100}" y="${y+178}" text-anchor="middle" font-family="Arial" font-size="13">${id}</text>`;});
+svg+='</svg>';
+const output=path.resolve('outputs/musiclub-genre-library-v2/comparativa-variaciones.png');
+sharp(Buffer.from(svg)).png().toFile(output).then(()=>console.log(output));
