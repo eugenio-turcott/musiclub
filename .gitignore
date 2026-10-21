@@ -23,6 +23,9 @@
 .DS_Store
 .env
 /audit/
+/outputs/musiclub-generos-canva/
+/outputs/musiclub-genre-library-v2/
+/outputs/musiclub-genre-library-v2.zip
 /scripts/sync_daily.log
 .env.local
 .env.development.local

@@ -17,8 +17,8 @@ test('email vinyl uses the first genre and embeds an actual PNG compatible with 
   const input = { albumName: 'Example', artistName: 'Example', genres: ['K-Pop', 'Pop'], imageUrl: '', breakdown: {} };
   for (const render of [generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml]) {
     const html = render(input);
-    assert.ok(html.includes('/genres/vinyl/v1/k-pop.png'));
-    assert.ok(!html.includes('/genres/vinyl/v1/pop.png'));
+    assert.ok(html.includes('/genres/vinyl/v2/k-pop.png'));
+    assert.ok(!html.includes('/genres/vinyl/v2/pop.png'));
     assert.ok(!html.includes('border-collapse: collapse'));
   }
   const prepared = await prepareAttachmentsAndImages({ genres: input.genres });
@@ -117,7 +117,7 @@ test('every genre reveal has a separate center without an embedded outer record'
     const art = visuals.genreRevealArtwork(genre.id);
     assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
-    assert.match(art.center, /^\/genres\/symbols\/v1\/[^/]+\.svg$/);
+    assert.match(art.center, /^\/genres\/symbols\/v2\/[^/]+\.svg$/);
     const svg = symbols.genreSymbol(genre.id).svg;
     assert.match(svg,/viewBox="0 0 100 100"/);
     assert.ok(!svg.includes('clipPath'),genre.id);
@@ -125,6 +125,39 @@ test('every genre reveal has a separate center without an embedded outer record'
     checked.add(art.center);
   }
   assert.ok(checked.size >= 81);
+});
+
+test('the full registry uses named musical figures and a single monoline grid', async () => {
+  const {default:library}=await import('../src/data/musicIconLibrary.json',{with:{type:'json'}});
+  const {default:identities}=await import('../src/utils/genreIdentityPlan.cjs');
+  assert.equal(library.grid,24);
+  assert.equal(library.strokeWidth,2);
+  assert.ok(Object.keys(library.icons).length>=169);
+  for(const genre of genres.GENRES) {
+    const identity=identities.genreIdentity(genre.id);
+    assert.ok(library.icons[identity.figure],genre.id);
+    assert.ok(['specific','family','general'].includes(identity.quality),genre.id);
+    for(const detail of identity.details) assert.ok(library.icons[detail.icon],genre.id);
+    assert.ok(!symbols.genreSymbol(genre.id).svg.includes('<polygon'),genre.id);
+  }
+  for(const [id,figure] of Object.entries({'metalcore':'bolt','hardcore punk':'safetyPin','gamelan gong kebyar':'gong','shabad kirtan':'harmonium','orkes gambus':'oud','sacred steel':'pedalSteel','ogene music':'cowbells','instrumental':'music'})) {
+    assert.equal(identities.genreIdentity(id)?.figure,figure,id);
+  }
+  assert.equal(identities.genreIdentity('k-pop').figure,'lightstick');
+  assert.equal(identities.genreIdentity('j-pop').figure,'flower');
+  assert.deepEqual(identities.genreIdentity('classical').details,[]);
+});
+
+test('every library drawing renders as visible vector ink without remote assets', async () => {
+  const {default:library}=await import('../src/data/musicIconLibrary.json',{with:{type:'json'}});
+  const results=await Promise.all(Object.entries(library.icons).map(async ([id,icon])=>{
+    assert.ok(!/script|foreignObject|<image|https?:|stroke-width=/.test(icon.body),id);
+    const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#f57fa2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${icon.body}</svg>`;
+    const {data,info}=await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({resolveWithObject:true});
+    let ink=0; for(let index=3;index<data.length;index+=info.channels) if(data[index]>0) ink++;
+    return {id,ink};
+  }));
+  for(const {id,ink} of results) assert.ok(ink>20 && ink<48*48,id);
 });
 
 test('every canonical genre has a unique color combination shared by all its aliases', () => {
