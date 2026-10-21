@@ -642,11 +642,11 @@ export function PoolPage() {
               candidatos activos en el Pool.</> : isPoolOpen ? 'Las propuestas están abiertas. El siguiente descubrimiento puede ser el tuyo.' : 'El próximo turno comenzará cuando el administrador abra las propuestas.'}
             </p>
             {activePool.length > 0 && <Link
-              to="/gashapon"
+              to={`/gashapon?pool=${encodeURIComponent(season.id)}`}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-all"
             >
               <span>🎲</span>
-              <span>Sortear Ganador en Gashapon</span>
+              <span>Explorar releases del Pool en Gashapon</span>
             </Link>}
           </div>
         )}

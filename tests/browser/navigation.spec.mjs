@@ -168,3 +168,20 @@ test('historical listening-variant links open one canonical release without losi
  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toHaveCount(1);
  await expect(page.getByRole('heading',{name:'Azul (Clean)',exact:true})).toHaveCount(0);
 });
+
+
+test('Pool discovery keeps genre filters inside the selected season and accepts original edition IDs', async ({page}) => {
+  await page.route('**/rest/v1/public_pool_entries*', route => route.fulfill({contentType:'application/json',body:JSON.stringify([
+    {album_id:'clean-variant-fixture',status:'GRADUADO'},
+    {album_id:'00000000-0000-4000-8000-000000000002',status:'ACTIVO'},
+  ])}));
+  await page.goto('/gashapon?pool=temporada-1');
+  await expect(page.getByText('🎰 Releases del Pool',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'🎲 Todos los Releases (2)',exact:true})).toBeVisible();
+  await expect(page.getByRole('checkbox',{name:'Filtrar Gashapon por Jazz',exact:true})).toHaveCount(0);
+  await page.getByRole('checkbox',{name:'Filtrar Gashapon por Pop',exact:true}).click();
+  await expect(page.getByRole('status').filter({hasText:'1 lanzamientos disponibles'})).toBeVisible();
+  await page.getByRole('link',{name:'Explorar catálogo completo',exact:true}).click();
+  await expect(page).toHaveURL(/\/gashapon$/);
+  await expect(page.getByText('🎰 Releases del Pool',{exact:true})).toHaveCount(0);
+});

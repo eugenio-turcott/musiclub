@@ -12,7 +12,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
   const date = season.start_date && new Date(`${season.start_date}T00:00:00`).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
   return <section aria-label={preview ? 'Vista previa de la cabecera' : 'Pool activo'} style={{ background: presentation.poolBackground(a), '--pool-media-size': `${a.mediaSize}px` }} className={`relative isolate overflow-hidden rounded-3xl border border-white/10 p-5 text-left shadow-xl sm:p-8 ${a.mediaUrl && !preview ? 'sm:min-h-[calc(var(--pool-media-size)+17.5rem)]' : ''}`}>
     <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-r from-[#070812]/70 to-[#070812]/30" />
-    {a.vinyl !== 'none' && <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 select-none opacity-15 sm:-right-12 sm:-top-20 sm:h-80 sm:w-80">
+    {a.vinyl !== 'none' && <div aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 h-64 w-64 select-none opacity-40 sm:-right-12 sm:-top-20 sm:h-80 sm:w-80">
       {a.vinyl === 'genre' ? <GenreArtwork genre={a.genre} size={320} animated className="h-full w-full" /> : <MusiclubVinyl src={a.logo} alt="" className="h-full w-full animate-spin-slow" />}
     </div>}
     <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
@@ -31,7 +31,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
     {!preview && <>
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
         <button type="button" disabled={!isOpen} onClick={onDeposit} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] px-5 text-sm font-black text-white shadow-lg shadow-pink-500/10 transition hover:brightness-110 disabled:cursor-not-allowed disabled:from-white/5 disabled:to-white/5 disabled:text-slate-500 disabled:shadow-none">{isOpen ? '＋ Depositar cápsula' : '🔒 Propuestas cerradas'}</button>
-        <Link to="/gashapon" className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition hover:bg-white/10">🎰 Gashapon Arcade</Link>
+        <Link to={`/gashapon?pool=${encodeURIComponent(season.id)}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition hover:bg-white/10">🎰 Descubrir releases del Pool</Link>
         {!isOpen && isAdmin && <button type="button" disabled={busy || capacity.full} onClick={onOpen} className="min-h-11 rounded-xl px-3 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-40">Abrir propuestas</button>}
       </div>
       {!isOpen && <p className="mt-3 text-xs leading-relaxed text-slate-400">{capacity.full ? 'Todos los lugares están ocupados.' : 'Por ahora no se reciben nuevas cápsulas.'} Puedes explorar las propuestas y escuchar el disco elegido.</p>}
