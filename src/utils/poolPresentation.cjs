@@ -13,4 +13,8 @@ function poolCapacity(season, used = 0) {
   const limit = Number.isInteger(parsed) && parsed > 0 ? parsed : null;
   return { limit, used, remaining: limit === null ? null : Math.max(0, limit - used), full: limit !== null && used >= limit };
 }
-module.exports = { DEFAULT_APPEARANCE, poolAppearance, poolBackground, poolCapacity };
+function poolReleases(albums = [], entries = []) {
+  const ids = new Set(entries.filter(entry => ['ACTIVO', 'GANADOR', 'GRADUADO'].includes(entry.status)).map(entry => String(entry.album_id)));
+  return albums.filter(album => [album.id, ...(album.edition_member_ids || [])].some(id => ids.has(String(id))));
+}
+module.exports = { DEFAULT_APPEARANCE, poolAppearance, poolBackground, poolCapacity, poolReleases };

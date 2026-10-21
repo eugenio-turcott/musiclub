@@ -31,3 +31,11 @@ test('the primary release genre resolves to the established capsule icon', () =>
   assert.match(decodeURIComponent(art.center),/atmospheric black metal/);
   assert.notEqual(art.center,visuals.genreRevealArtwork(genres[1]).center);
 });
+
+
+test('Pool discovery includes only accepted entries and recognizes grouped edition IDs', () => {
+  const albums = [{id:'active'}, {id:'canonical',edition_member_ids:['historical-variant']}, {id:'winner'}, {id:'unrelated'}, {id:'removed'}];
+  const entries = [{album_id:'active',status:'ACTIVO'}, {album_id:'historical-variant',status:'GRADUADO'}, {album_id:'winner',status:'GANADOR'}, {album_id:'removed',status:'RECHAZADO'}];
+  assert.deepEqual(presentation.poolReleases(albums,entries).map(album=>album.id), ['active','canonical','winner']);
+  assert.deepEqual(presentation.poolReleases(albums,[]), []);
+});

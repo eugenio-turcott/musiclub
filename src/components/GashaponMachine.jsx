@@ -449,6 +449,7 @@ const renderReleaseTypeBadge = (album) => {
 
 export function GashaponMachine({
   albums = [],
+  collectionLabel = 'releases del catálogo',
   user = null,
   userReviews = [],
   refetchUserReviews = null,
@@ -824,7 +825,7 @@ export function GashaponMachine({
             </h1>
             <p className="text-white/60 text-sm sm:text-base leading-relaxed">
               Elige un género y gira la manivela para descubrir una cápsula de los{' '}
-              <strong className="text-purple-300">releases del catálogo</strong>{' '}
+              <strong className="text-purple-300">{collectionLabel}</strong>{' '}
               (álbumes, EPs y más). Cada género tiene su cápsula. ¡Califícalo con el sistema
               oficial!
             </p>
