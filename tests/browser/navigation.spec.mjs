@@ -201,3 +201,52 @@ test('publisher verification and contact pages are public while pending releases
   expect(html).toContain('name="google-adsense-account" content="ca-pub-3995824345173266"');
   expect(html).not.toMatch(/src="https:\/\/pagead2\.googlesyndication\.com/);
 });
+
+test('genre vinyl opens a focused viewer with zoom, rotation and focus restored on close', async ({page},testInfo) => {
+  await page.goto('/generos/pop');
+  const trigger=page.getByRole('button',{name:'Ampliar vinilo de Pop',exact:true});
+  await trigger.click();
+  const viewer=page.getByRole('dialog',{name:'Pop',exact:true});
+  await expect(viewer).toBeVisible();
+  await expect(viewer.getByRole('button',{name:'Cerrar vinilo ampliado'})).toBeFocused();
+  await viewer.getByRole('button',{name:'Restablecer',exact:true}).click();
+  const record=viewer.locator('[data-interactive-vinyl]');
+  const surface=viewer.getByRole('group',{name:'Vinilo interactivo de Pop',exact:true});
+  const artwork=record.locator('svg');
+  const bounds=await artwork.boundingBox(),stageBounds=await surface.boundingBox();
+  expect(bounds.width).toBeLessThan(stageBounds.width);
+  expect(bounds.height).toBeLessThan(stageBounds.height);
+  await surface.focus();
+  await surface.press('ArrowRight');
+  await expect(record).toHaveAttribute('style',/--rotation: 15deg/);
+  await viewer.getByRole('button',{name:'Acercar vinilo',exact:true}).click();
+  await expect(viewer.getByLabel('Nivel de zoom',{exact:true})).toHaveText('120%');
+  await viewer.getByRole('button',{name:'Restablecer',exact:true}).click();
+  await expect(record).toHaveAttribute('style',/--rotation: 0deg/);
+  await expect(viewer.getByLabel('Nivel de zoom',{exact:true})).toHaveText('100%');
+  if(testInfo.project.name==='desktop') {
+    const box=await surface.boundingBox(),x=box.x+box.width/2,y=box.y+box.height/2,r=Math.min(box.width,box.height)*.3;
+    await page.mouse.move(x,y-r);await page.mouse.down();await page.mouse.move(x+r,y,{steps:10});await page.mouse.up();
+    await expect(record).not.toHaveAttribute('style',/--rotation: 0deg/);
+  }
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({path:testInfo.outputPath('genre-vinyl-viewer.png')});
+  await surface.press('Escape');
+  await expect(viewer).not.toBeVisible();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await expect(viewer).toBeVisible();
+  await viewer.getByRole('button',{name:'Cerrar vinilo ampliado'}).click();
+  await expect(trigger).toBeFocused();
+});
+
+test('genre viewer respects reduced motion until the visitor requests automatic rotation', async ({page}) => {
+  await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/generos/metal');
+  await page.getByRole('button',{name:'Ampliar vinilo de Metal',exact:true}).click();
+  const viewer=page.getByRole('dialog',{name:'Metal',exact:true});
+  await expect(viewer.getByRole('button',{name:'Girar solo',exact:true})).toHaveAttribute('aria-pressed','false');
+  await viewer.getByRole('button',{name:'Girar solo',exact:true}).click();
+  await expect(viewer.getByRole('button',{name:'Pausar giro',exact:true})).toHaveAttribute('aria-pressed','true');
+  await viewer.getByRole('button',{name:'Cerrar vinilo ampliado'}).click();
+});
