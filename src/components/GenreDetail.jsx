@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
-import { GenreArtwork } from './GenreArtwork';
+import { GenreVinylViewer } from './GenreVinylViewer';
 import { GenreReleaseCard } from './GenreReleaseCard';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './GenreHero.module.css';
@@ -23,7 +23,7 @@ export function GenreDetail({ genre, albums }) {
           <p className={styles.description}>Un sonido, muchos discos por descubrir. Explora sus álbumes, EPs y sencillos, y encuentra tu próxima escucha.</p>
           {albums.length > 0 && <Link to={'/gashapon?genero='+encodeURIComponent(genre.id)} className={styles.action}>Descubrir en Gashapon<span className={styles.arrow} aria-hidden="true">↗</span></Link>}
         </div>
-        <div className={styles.visual} aria-hidden="true"><GenreArtwork genre={genre.id} size={370} animated className={styles.vinyl} /></div>
+        <div className={styles.visual}><GenreVinylViewer genre={genre} className={styles.vinyl} /></div>
       </div>
     </section>
     {!albums.length ? <p className="rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-white/60">Este género aún no tiene lanzamientos en el club.</p> : <section aria-label={`Lanzamientos de ${genre.name}`} className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
