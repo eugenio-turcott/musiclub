@@ -11,8 +11,8 @@ const deltaAngle = (next, previous) => ((next - previous + 540) % 360) - 180;
 function VinylDialog({ genre, onClose }) {
   const dialog = useRef(null), disc = useRef(null), stage = useRef(null);
   const motion = useRef({ angle: 0, velocity: 0, pointers: new Map(), previous: null, pinch: null });
-  const [spinning, setSpinning] = useState(false), [zoom, setZoom] = useState(1), [dragging, setDragging] = useState(false);
-  const zoomRef = useRef(1), autoSpin = useRef(false);
+  const [speed, setSpeed] = useState(1), [zoom, setZoom] = useState(1), [dragging, setDragging] = useState(false);
+  const zoomRef = useRef(1), speedRef = useRef(1);
   const pressing = visuals.genreRevealArtwork(genre.id);
   const changeZoom = value => {
     const next = clamp(value, 1, 1.8);
@@ -20,12 +20,17 @@ function VinylDialog({ genre, onClose }) {
     setZoom(next);
   };
   const paint = () => disc.current?.style.setProperty('--rotation', `${motion.current.angle}deg`);
+  const changeSpeed = value => {
+    const next = Math.round(clamp(value, .25, 3) * 100) / 100;
+    speedRef.current = next;
+    setSpeed(next);
+  };
 
   useEffect(() => {
     const element = dialog.current, previousFocus = document.activeElement, overflow = document.body.style.overflow;
     element.showModal();
     document.body.style.overflow = 'hidden';
-    setSpinning(!window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) changeSpeed(.25);
     return () => {
       element.close();
       document.body.style.overflow = overflow;
@@ -33,7 +38,6 @@ function VinylDialog({ genre, onClose }) {
     };
   }, []);
 
-  useEffect(() => { autoSpin.current = spinning; }, [spinning]);
   useEffect(() => {
     let frame, previousTime;
     const tick = now => {
@@ -41,7 +45,7 @@ function VinylDialog({ genre, onClose }) {
       previousTime = now;
       const state = motion.current;
       if (!state.pointers.size) {
-        state.angle += (state.velocity + (autoSpin.current ? 12 : 0)) * dt;
+        state.angle += (state.velocity + 12 * speedRef.current) * dt;
         state.velocity *= Math.exp(-3.2 * dt);
         if (Math.abs(state.velocity) < .1) state.velocity = 0;
         // Keep the value bounded without a visible rotation jump.
@@ -77,7 +81,6 @@ function VinylDialog({ genre, onClose }) {
       const [a, b] = [...state.pointers.values()];
       state.pinch = { distance: Math.hypot(a.x-b.x, a.y-b.y), zoom: zoomRef.current };
     }
-    setSpinning(false);
     setDragging(true);
   };
   const pointerMove = event => {
@@ -113,18 +116,9 @@ function VinylDialog({ genre, onClose }) {
   const reset = () => {
     motion.current.angle = 0;
     motion.current.velocity = 0;
-    setSpinning(false);
+    changeSpeed(1);
     changeZoom(1);
     paint();
-  };
-  const keyDown = event => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault();
-      setSpinning(false);
-      motion.current.velocity = 0;
-      motion.current.angle += (event.key === 'ArrowLeft' ? -1 : 1) * (event.shiftKey ? 45 : 15);
-      paint();
-    } else if (event.key === 'Home') { event.preventDefault(); reset(); }
   };
 
   return createPortal(<dialog ref={dialog} className={styles.dialog} aria-labelledby="vinyl-viewer-title" onCancel={event => { event.preventDefault(); onClose(); }} onPointerDown={event => { if (event.target === event.currentTarget) onClose(); }}>
@@ -133,20 +127,20 @@ function VinylDialog({ genre, onClose }) {
         <div><p className={styles.eyebrow}>LA IDENTIDAD DE UN SONIDO</p><h2 id="vinyl-viewer-title" translate="no">{genre.name}</h2></div>
         <button type="button" autoFocus onClick={onClose} className={styles.close} aria-label="Cerrar vinilo ampliado">×</button>
       </header>
-      <div ref={stage} className={`${styles.stage} ${dragging ? styles.dragging : ''}`} tabIndex={0} role="group" aria-label={`Vinilo interactivo de ${genre.name}`} aria-describedby="vinyl-viewer-instructions" aria-keyshortcuts="ArrowLeft ArrowRight Home" onKeyDown={keyDown} onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd}>
+      <div ref={stage} className={`${styles.stage} ${dragging ? styles.dragging : ''}`} tabIndex={0} role="group" aria-label={`Vinilo interactivo de ${genre.name}`} aria-describedby="vinyl-viewer-instructions" onPointerDown={pointerDown} onPointerMove={pointerMove} onPointerUp={pointerEnd} onPointerCancel={pointerEnd} onLostPointerCapture={pointerEnd}>
         <div className={styles.orbit} aria-hidden="true" />
-        <div className={styles.recordScale} style={{ '--zoom': zoom }}><div ref={disc} className={styles.record} data-interactive-vinyl><GenreArtwork genre={genre.id} size={900} className={styles.artwork} /></div></div>
+        <div className={styles.recordScale} style={{ '--zoom': zoom }}><div ref={disc} className={styles.record} data-interactive-vinyl><GenreArtwork genre={genre.id} size={900} className={styles.artwork} discClassName={styles.rotatingDisc} /></div></div>
         <span className={styles.stageNote} aria-hidden="true">{dragging ? 'Tú llevas el ritmo' : 'Dale una vuelta'}</span>
       </div>
       <footer className={styles.footer}>
-        <p id="vinyl-viewer-instructions" className={styles.instructions}>Arrastra para girar · Pellizca o usa el zoom para acercarte<span>Con teclado, usa ← y → para girar.</span></p>
+        <p id="vinyl-viewer-instructions" className={styles.instructions}>Arrastra el vinilo y suéltalo para que siga girando<span>Pellizca o usa la rueda para acercarte.</span></p>
         <div className={styles.controls}>
-          <button type="button" className={styles.spin} aria-pressed={spinning} onClick={() => { motion.current.velocity = 0; setSpinning(value => !value); }}><span aria-hidden="true">{spinning ? 'Ⅱ' : '▷'}</span>{spinning ? 'Pausar giro' : 'Girar solo'}</button>
-          <div className={styles.zoom}>
-            <button type="button" aria-label="Alejar vinilo" disabled={zoom <= 1} onClick={() => changeZoom(zoom-.2)}>−</button>
-            <label className={styles.zoomSlider}><span className={styles.srOnly}>Zoom del vinilo</span><input aria-label="Zoom del vinilo" type="range" min="100" max="180" step="1" value={Math.round(zoom*100)} onChange={event => changeZoom(Number(event.target.value)/100)} /></label>
-            <button type="button" aria-label="Acercar vinilo" disabled={zoom >= 1.8} onClick={() => changeZoom(zoom+.2)}>+</button>
-            <output aria-label="Nivel de zoom">{Math.round(zoom*100)}%</output>
+          <div className={styles.speed}>
+            <span className={styles.speedLabel}>Velocidad</span>
+            <button type="button" aria-label="Reducir velocidad" disabled={speed <= .25} onClick={() => changeSpeed(speed-.25)}>−</button>
+            <label className={styles.speedSlider}><span className={styles.srOnly}>Velocidad del vinilo</span><input aria-label="Velocidad del vinilo" type="range" min="25" max="300" step="25" value={Math.round(speed*100)} onChange={event => changeSpeed(Number(event.target.value)/100)} /></label>
+            <button type="button" aria-label="Aumentar velocidad" disabled={speed >= 3} onClick={() => changeSpeed(speed+.25)}>+</button>
+            <output aria-label="Velocidad de giro">{speed.toLocaleString('es-MX', { maximumFractionDigits: 2 })}×</output>
           </div>
           <button type="button" className={styles.reset} onClick={reset}>Restablecer</button>
         </div>
@@ -160,7 +154,7 @@ export function GenreVinylViewer({ genre, className = '' }) {
   return <>
     <button type="button" className={styles.trigger} aria-label={`Ampliar vinilo de ${genre.name}`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
       <GenreArtwork genre={genre.id} size={370} animated className={className} />
-      <span className={styles.triggerHint} aria-hidden="true"><span>＋</span> Explorar vinilo</span>
+      <span className={styles.triggerHint} aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" /></svg></span>
     </button>
     {open && <VinylDialog genre={genre} onClose={() => setOpen(false)} />}
   </>;
