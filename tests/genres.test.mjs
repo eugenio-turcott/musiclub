@@ -90,7 +90,7 @@ test('genre pages preserve every identity, aliases and accents without URL colli
   assert.equal(routes.genrePath('Rap'), routes.genrePath('Hip-Hop'));
   assert.notEqual(routes.genrePath('kaseko'), routes.genrePath('kasékò'));
   assert.equal(routes.findGenreBySlug('not-a-musical-genre'), null);
-  const xml = sitemap.sitemapXml(sitemap.buildSitemapGroups([{id:'x',artist_name:'A',album_name:'B',genres:['Rock','rock','Pop']}]).catalog);
+  const xml = sitemap.sitemapXml(sitemap.buildSitemapGroups([{id:'x',artist_name:'A',album_name:'B',review_count:1,genres:['Rock','rock','Pop']}]).catalog);
   assert.equal((xml.match(/\/generos\/rock</g) || []).length,1);
   assert.ok(!xml.includes('/generos/jazz'));
 });

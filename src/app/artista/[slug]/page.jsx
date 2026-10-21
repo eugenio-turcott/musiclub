@@ -15,7 +15,7 @@ export async function generateMetadata({ params }) {
   const url = `https://www.musiclub.org/artista/${slugifyArtist(name)}`;
   const title = `${name} - Discografía, Álbumes y Calificaciones`;
   const description = `Explora los discos de ${name}, sus calificaciones y las opiniones de la comunidad de Musiclub.`;
-  return { title, description, alternates: { canonical: url },
+  return { title, description, robots: { index: artist.albums.some(album => album.review_count > 0), follow: true }, alternates: { canonical: url },
     openGraph: { title, description, url, type: 'profile', images: artist.profile.artist.image ? [artist.profile.artist.image] : [] } };
 }
 export default async function ArtistPage({ params }) {

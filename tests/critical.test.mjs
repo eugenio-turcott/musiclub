@@ -35,8 +35,8 @@ test('sitemaps exclude empty identities and deduplicate canonical releases', () 
   ];
   const groups = sitemap.buildSitemapGroups(albums);
   assert.equal(groups.reviews.length, 1);
-  assert.equal(groups.catalog.length, 1);
-  assert.equal(groups.artists.length, 2);
+  assert.equal(groups.catalog.length, 0);
+  assert.equal(groups.artists.length, 1);
   assert.ok(groups.artists.every(a => !a.loc.endsWith('/artista/')));
   assert.ok(!groups.core.some(a => a.loc.endsWith('/recomendaciones')));
   assert.match(sitemap.sitemapXml([{ loc: 'https://x.test/a?b=c&d=e' }]), /c&amp;d=e/);

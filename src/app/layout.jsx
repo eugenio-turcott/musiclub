@@ -1,7 +1,6 @@
 import '../styles/global.css';
 import '../index.css';
 import localFont from 'next/font/local';
-import Script from 'next/script';
 import { ClientProviders } from './ClientProviders';
 
 const gabarito = localFont({
@@ -42,6 +41,7 @@ export const metadata = {
     'rankings',
     'discografia',
   ],
+  other: { 'google-adsense-account': 'ca-pub-3995824345173266' },
   verification: {
     google: '0pLiSU5HTFvlbKZcVEg8qnt2O6lQsCFt-t5IFgTlwK8',
   },
@@ -86,12 +86,6 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://i.scdn.co" />
       </head>
       <body className={`${gabarito.className} bg-[#0a0a12] text-white antialiased min-h-screen font-sans`}>
-        <Script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3995824345173266"
-          crossOrigin="anonymous"
-          strategy="lazyOnload"
-        />
         <ClientProviders>{children}</ClientProviders>
       </body>
     </html>

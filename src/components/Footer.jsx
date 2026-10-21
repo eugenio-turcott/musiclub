@@ -34,6 +34,8 @@ export function Footer({ showAd = true }) {
           <span>© 2026 Musiclub</span>
         </span>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
+        <Link to="/sobre-musiclub" className="hover:text-pink-300 underline">Sobre Musiclub</Link>
+        <Link to="/contacto" className="hover:text-pink-300 underline">Contacto</Link>
         <Link to="/guias" className="hover:text-pink-300 underline">Guías para escuchar y reseñar</Link>
         <Link
           to="/faq"
@@ -69,17 +71,6 @@ export function Footer({ showAd = true }) {
         >
           <span>🖼️</span> Calificar Portadas
         </Link>
-        <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
-        {/* Adsterra Smartlink Estratégico (Apoyo al Club) */}
-        <a
-          href="https://www.profitableratecpmnetwork.com/t6th9d40w?key=4e5727d8ec1bfa194c514b1411284db6"
-          target="_blank"
-          rel="noopener noreferrer sponsored"
-          className="hover:text-amber-400 text-amber-500/80 transition-colors flex items-center gap-1 font-medium"
-          title="Enlace patrocinado para apoyar el mantenimiento de Musiclub"
-        >
-          <span>✨</span> Apoyar viendo publicidad
-        </a>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <LanguageSelector variant="footer" />
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
