@@ -523,7 +523,7 @@ export function formatReleaseDate(dateStr, lang = 'es') {
  */
 function renderVinylCoverComponent({ imageUrl, albumName, genres = [], vinylUrl, size = 140 }) {
   const key = genreCatalog.genreKey(genreCatalog.normalizeGenres(genres)[0]);
-  const discUrl = vinylUrl || (key ? `${MUSICLUB_ASSETS.siteUrl}/genres/vinyl/v1/${encodeURIComponent(key)}.png` : MUSICLUB_ASSETS.logoFull);
+  const discUrl = vinylUrl || (key ? `${MUSICLUB_ASSETS.siteUrl}/genres/vinyl/v2/${encodeURIComponent(key)}.png` : MUSICLUB_ASSETS.logoFull);
   const escapedName = String(albumName || '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse: separate; border-spacing: 0; margin: 0 0 14px; border-collapse: separate; border-spacing: 0;">
     <tr><td align="center"><table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>

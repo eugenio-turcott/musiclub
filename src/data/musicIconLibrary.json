@@ -1,0 +1,853 @@
+{
+  "grid": 24,
+  "strokeWidth": 2,
+  "linecap": "round",
+  "linejoin": "round",
+  "icons": {
+    "star": {
+      "label": "Estrella",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873l-6.158 -3.245\" />"
+    },
+    "bolt": {
+      "label": "Rayo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11\" />"
+    },
+    "heart": {
+      "label": "Corazón",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572\" />"
+    },
+    "microphone-2": {
+      "label": "Micrófono",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M15 12.9a5 5 0 1 0 -3.902 -3.9\" /> <path d=\"M15 12.9l-3.902 -3.899l-7.513 8.584a2 2 0 1 0 2.827 2.83l8.588 -7.515\" />"
+    },
+    "moon-stars": {
+      "label": "Luna y estrellas",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008\" /> <path d=\"M17 4a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2\" /> <path d=\"M19 11h2m-1 -1v2\" />"
+    },
+    "device-speaker": {
+      "label": "Altavoz",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 5a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2l0 -14\" /> <path d=\"M9 14a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\" /> <path d=\"M12 7l0 .01\" />"
+    },
+    "flower": {
+      "label": "Flor",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\" /> <path d=\"M12 2a3 3 0 0 1 3 3c0 .562 -.259 1.442 -.776 2.64l-.724 1.36l1.76 -1.893c.499 -.6 .922 -1 1.27 -1.205a2.968 2.968 0 0 1 4.07 1.099a3.011 3.011 0 0 1 -1.09 4.098c-.374 .217 -.99 .396 -1.846 .535l-2.664 .366l2.4 .326c1 .145 1.698 .337 2.11 .576a3.011 3.011 0 0 1 1.09 4.098a2.968 2.968 0 0 1 -4.07 1.098c-.348 -.202 -.771 -.604 -1.27 -1.205l-1.76 -1.893l.724 1.36c.516 1.199 .776 2.079 .776 2.64a3 3 0 0 1 -6 0c0 -.562 .259 -1.442 .776 -2.64l.724 -1.36l-1.76 1.893c-.499 .601 -.922 1 -1.27 1.205a2.968 2.968 0 0 1 -4.07 -1.098a3.011 3.011 0 0 1 1.09 -4.098c.374 -.218 .99 -.396 1.846 -.536l2.664 -.366l-2.4 -.325c-1 -.145 -1.698 -.337 -2.11 -.576a3.011 3.011 0 0 1 -1.09 -4.099a2.968 2.968 0 0 1 4.07 -1.099c.348 .203 .771 .604 1.27 1.205l1.76 1.894c-1 -2.292 -1.5 -3.625 -1.5 -4a3 3 0 0 1 3 -3\" />"
+    },
+    "atom": {
+      "label": "Órbitas",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 12v.01\" /> <path d=\"M19.071 4.929c-1.562 -1.562 -6 .337 -9.9 4.243c-3.905 3.905 -5.804 8.337 -4.242 9.9c1.562 1.561 6 -.338 9.9 -4.244c3.905 -3.905 5.804 -8.337 4.242 -9.9\" /> <path d=\"M4.929 4.929c-1.562 1.562 .337 6 4.243 9.9c3.905 3.905 8.337 5.804 9.9 4.242c1.561 -1.562 -.338 -6 -4.244 -9.9c-3.905 -3.905 -8.337 -5.804 -9.9 -4.242\" />"
+    },
+    "world": {
+      "label": "Globo terráqueo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\" /> <path d=\"M3.6 9h16.8\" /> <path d=\"M3.6 15h16.8\" /> <path d=\"M11.5 3a17 17 0 0 0 0 18\" /> <path d=\"M12.5 3a17 17 0 0 1 0 18\" />"
+    },
+    "crown": {
+      "label": "Corona",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 6l4 6l5 -4l-2 10h-14l-2 -10l5 4l4 -6\" />"
+    },
+    "hourglass": {
+      "label": "Reloj de arena",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6.5 7h11\" /> <path d=\"M6.5 17h11\" /> <path d=\"M6 20v-2a6 6 0 1 1 12 0v2a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1\" /> <path d=\"M6 4v2a6 6 0 1 0 12 0v-2a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1\" />"
+    },
+    "skull": {
+      "label": "Calavera",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 4c4.418 0 8 3.358 8 7.5c0 1.901 -.755 3.637 -2 4.96l0 2.54a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-2.54c-1.245 -1.322 -2 -3.058 -2 -4.96c0 -4.142 3.582 -7.5 8 -7.5\" /> <path d=\"M10 17v3\" /> <path d=\"M14 17v3\" /> <path d=\"M8 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M14 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" />"
+    },
+    "stairs": {
+      "label": "Escalones",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M22 5h-5v5h-5v5h-5v5h-5\" />"
+    },
+    "music": {
+      "label": "Notas musicales",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\" /> <path d=\"M13 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\" /> <path d=\"M9 17v-13h10v13\" /> <path d=\"M9 8h10\" />"
+    },
+    "leaf": {
+      "label": "Hoja",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 21c.5 -4.5 2.5 -8 7 -10\" /> <path d=\"M9 18c6.218 0 10.5 -3.288 11 -12v-2h-4.014c-9 0 -11.986 4 -12 9c0 1 0 3 2 5h3l.014 0\" />"
+    },
+    "chevrons-right": {
+      "label": "Doble flecha",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7 7l5 5l-5 5\" /> <path d=\"M13 7l5 5l-5 5\" />"
+    },
+    "settings": {
+      "label": "Engranaje",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065\" /> <path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\" />"
+    },
+    "spiral": {
+      "label": "Espiral",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 12.057a1.9 1.9 0 0 0 .614 .743c1.06 .713 2.472 .112 3.043 -.919c.839 -1.513 -.022 -3.368 -1.525 -4.08c-2 -.95 -4.371 .154 -5.24 2.086c-1.095 2.432 .29 5.248 2.71 6.246c2.931 1.208 6.283 -.418 7.438 -3.255c1.36 -3.343 -.557 -7.134 -3.896 -8.41c-3.855 -1.474 -8.2 .68 -9.636 4.422c-1.63 4.253 .823 9.024 5.082 10.576c4.778 1.74 10.118 -.941 11.833 -5.59a9.354 9.354 0 0 0 .577 -2.813\" />"
+    },
+    "arrows-shuffle": {
+      "label": "Flechas cruzadas",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M18 4l3 3l-3 3\" /> <path d=\"M18 20l3 -3l-3 -3\" /> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\" /> <path d=\"M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3\" />"
+    },
+    "minus": {
+      "label": "Línea mínima",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 12l14 0\" />"
+    },
+    "adjustments": {
+      "label": "Controles de mezcla",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M6 4v4\" /> <path d=\"M6 12v8\" /> <path d=\"M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M12 4v10\" /> <path d=\"M12 18v2\" /> <path d=\"M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M18 4v1\" /> <path d=\"M18 9v11\" />"
+    },
+    "sparkles": {
+      "label": "Destellos",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2m0 -12a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2m-7 12a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6\" />"
+    },
+    "wave-sine": {
+      "label": "Onda sinusoidal",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M21 12h-2c-.894 0 -1.662 -.857 -1.761 -2c-.296 -3.45 -.749 -6 -2.749 -6s-2.5 3.582 -2.5 8s-.5 8 -2.5 8s-2.452 -2.547 -2.749 -6c-.1 -1.147 -.867 -2 -1.763 -2h-2\" />"
+    },
+    "waves-electricity": {
+      "label": "Ondas",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12c.576 -.643 1.512 -1.017 2.5 -1c.988 -.017 1.924 .357 2.5 1c.576 .643 1.512 1.017 2.5 1c.988 .017 1.924 -.357 2.5 -1\" /> <path d=\"M3 16c.576 -.643 1.512 -1.017 2.5 -1c.988 -.017 1.924 .357 2.5 1c.576 .643 1.512 1.017 2.5 1c.988 .017 1.924 -.357 2.5 -1\" /> <path d=\"M3 8c.576 -.643 1.512 -1.017 2.5 -1c.988 -.017 1.924 .357 2.5 1c.576 .643 1.512 1.017 2.5 1c.988 .017 1.924 -.357 2.5 -1\" /> <path d=\"M20 7l-3 5h4l-3 5\" />"
+    },
+    "sun": {
+      "label": "Sol",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\" /> <path d=\"M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7\" />"
+    },
+    "cloud": {
+      "label": "Nube",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6.657 18c-2.572 0 -4.657 -2.007 -4.657 -4.483c0 -2.475 2.085 -4.482 4.657 -4.482c.393 -1.762 1.794 -3.2 3.675 -3.773c1.88 -.572 3.956 -.193 5.444 1c1.488 1.19 2.162 3.007 1.77 4.769h.99c1.913 0 3.464 1.56 3.464 3.486c0 1.927 -1.551 3.487 -3.465 3.487h-11.878\" />"
+    },
+    "snowflake": {
+      "label": "Copo de nieve",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 4l2 1l2 -1\" /> <path d=\"M12 2v6.5l3 1.72\" /> <path d=\"M17.928 6.268l.134 2.232l1.866 1.232\" /> <path d=\"M20.66 7l-5.629 3.25l.01 3.458\" /> <path d=\"M19.928 14.268l-1.866 1.232l-.134 2.232\" /> <path d=\"M20.66 17l-5.629 -3.25l-2.99 1.738\" /> <path d=\"M14 20l-2 -1l-2 1\" /> <path d=\"M12 22v-6.5l-3 -1.72\" /> <path d=\"M6.072 17.732l-.134 -2.232l-1.866 -1.232\" /> <path d=\"M3.34 17l5.629 -3.25l-.01 -3.458\" /> <path d=\"M4.072 9.732l1.866 -1.232l.134 -2.232\" /> <path d=\"M3.34 7l5.629 3.25l2.99 -1.738\" />"
+    },
+    "flame": {
+      "label": "Llama",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 10.941c2.333 -3.308 .167 -7.823 -1 -8.941c0 3.395 -2.235 5.299 -3.667 6.706c-1.43 1.408 -2.333 3.294 -2.333 5.588c0 3.704 3.134 6.706 7 6.706c3.866 0 7 -3.002 7 -6.706c0 -1.712 -1.232 -4.403 -2.333 -5.588c-2.084 3.353 -3.257 3.353 -4.667 2.235\" />"
+    },
+    "droplet": {
+      "label": "Gota",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7.502 19.423c2.602 2.105 6.395 2.105 8.996 0c2.602 -2.105 3.262 -5.708 1.566 -8.546l-4.89 -7.26c-.42 -.625 -1.287 -.803 -1.936 -.397a1.376 1.376 0 0 0 -.41 .397l-4.893 7.26c-1.695 2.838 -1.035 6.441 1.567 8.546\" />"
+    },
+    "mountain": {
+      "label": "Montaña",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 20h18l-6.921 -14.612a2.3 2.3 0 0 0 -4.158 0l-6.921 14.612\" /> <path d=\"M7.5 11l2 2.5l2.5 -2.5l2 3l2.5 -2\" />"
+    },
+    "trees": {
+      "label": "Árboles",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16 5l3 3l-2 1l4 4l-3 1l4 4h-9\" /> <path d=\"M15 21l0 -3\" /> <path d=\"M8 13l-2 -2\" /> <path d=\"M8 12l2 -2\" /> <path d=\"M8 21v-13\" /> <path d=\"M5.824 16a3 3 0 0 1 -2.743 -3.69a3 3 0 0 1 .304 -4.833a3 3 0 0 1 4.615 -3.707a3 3 0 0 1 4.614 3.707a3 3 0 0 1 .305 4.833a3 3 0 0 1 -2.919 3.695h-4l-.176 -.005\" />"
+    },
+    "building-skyscraper": {
+      "label": "Ciudad",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 21l18 0\" /> <path d=\"M5 21v-14l8 -4v18\" /> <path d=\"M19 21v-10l-6 -4\" /> <path d=\"M9 9l0 .01\" /> <path d=\"M9 12l0 .01\" /> <path d=\"M9 15l0 .01\" /> <path d=\"M9 18l0 .01\" />"
+    },
+    "building-factory": {
+      "label": "Fábrica",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 21c1.147 -4.02 1.983 -8.027 2 -12h6c.017 3.973 .853 7.98 2 12\" /> <path d=\"M12.5 13h4.5c.025 2.612 .894 5.296 2 8\" /> <path d=\"M9 5a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1\" /> <path d=\"M3 21l19 0\" />"
+    },
+    "satellite": {
+      "label": "Satélite",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3.707 6.293l2.586 -2.586a1 1 0 0 1 1.414 0l5.586 5.586a1 1 0 0 1 0 1.414l-2.586 2.586a1 1 0 0 1 -1.414 0l-5.586 -5.586a1 1 0 0 1 0 -1.414\" /> <path d=\"M6 10l-3 3l3 3l3 -3\" /> <path d=\"M10 6l3 -3l3 3l-3 3\" /> <path d=\"M12 12l1.5 1.5\" /> <path d=\"M14.5 17a2.5 2.5 0 0 0 2.5 -2.5\" /> <path d=\"M15 21a6 6 0 0 0 6 -6\" />"
+    },
+    "robot": {
+      "label": "Robot",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4\" /> <path d=\"M12 2v2\" /> <path d=\"M9 12v9\" /> <path d=\"M15 12v9\" /> <path d=\"M5 16l4 -2\" /> <path d=\"M15 14l4 2\" /> <path d=\"M9 18h6\" /> <path d=\"M10 8v.01\" /> <path d=\"M14 8v.01\" />"
+    },
+    "device-gamepad-2": {
+      "label": "Control de videojuego",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 5h3.5a5 5 0 0 1 0 10h-5.5l-4.015 4.227a2.3 2.3 0 0 1 -3.923 -2.035l1.634 -8.173a5 5 0 0 1 4.904 -4.019h3.4\" /> <path d=\"M14 15l4.07 4.284a2.3 2.3 0 0 0 3.925 -2.023l-1.6 -8.232\" /> <path d=\"M8 9v2\" /> <path d=\"M7 10h2\" /> <path d=\"M14 10h2\" />"
+    },
+    "cpu": {
+      "label": "Circuito",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 6a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -12\" /> <path d=\"M9 9h6v6h-6l0 -6\" /> <path d=\"M3 10h2\" /> <path d=\"M3 14h2\" /> <path d=\"M10 3v2\" /> <path d=\"M14 3v2\" /> <path d=\"M21 10h-2\" /> <path d=\"M21 14h-2\" /> <path d=\"M14 21v-2\" /> <path d=\"M10 21v-2\" />"
+    },
+    "binary": {
+      "label": "Código binario",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M11 10v-5h-1m8 14v-5h-1\" /> <path d=\"M15 5.5a.5 .5 0 0 1 .5 -.5h2a.5 .5 0 0 1 .5 .5v4a.5 .5 0 0 1 -.5 .5h-2a.5 .5 0 0 1 -.5 -.5l0 -4\" /> <path d=\"M10 14.5a.5 .5 0 0 1 .5 -.5h2a.5 .5 0 0 1 .5 .5v4a.5 .5 0 0 1 -.5 .5h-2a.5 .5 0 0 1 -.5 -.5l0 -4\" /> <path d=\"M6 10h.01m-.01 9h.01\" />"
+    },
+    "headphones": {
+      "label": "Audífonos",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 15a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2l0 -3\" /> <path d=\"M15 15a2 2 0 0 1 2 -2h1a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2 -2l0 -3\" /> <path d=\"M4 15v-3a8 8 0 0 1 16 0v3\" />"
+    },
+    "volume": {
+      "label": "Sonido",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M15 8a5 5 0 0 1 0 8\" /> <path d=\"M17.7 5a9 9 0 0 1 0 14\" /> <path d=\"M6 15h-2a1 1 0 0 1 -1 -1v-4a1 1 0 0 1 1 -1h2l3.5 -4.5a.8 .8 0 0 1 1.5 .5v14a.8 .8 0 0 1 -1.5 .5l-3.5 -4.5\" />"
+    },
+    "ear": {
+      "label": "Oído",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6 10a7 7 0 1 1 13 3.6a10 10 0 0 1 -2 2a8 8 0 0 0 -2 3a4.5 4.5 0 0 1 -6.8 1.4\" /> <path d=\"M10 10a3 3 0 1 1 5 2.2\" />"
+    },
+    "book": {
+      "label": "Libro abierto",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 19a9 9 0 0 1 9 0a9 9 0 0 1 9 0\" /> <path d=\"M3 6a9 9 0 0 1 9 0a9 9 0 0 1 9 0\" /> <path d=\"M3 6l0 13\" /> <path d=\"M12 6l0 13\" /> <path d=\"M21 6l0 13\" />"
+    },
+    "book-2": {
+      "label": "Libro",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M19 4v16h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12\" /> <path d=\"M19 16h-12a2 2 0 0 0 -2 2\" /> <path d=\"M9 8h6\" />"
+    },
+    "script": {
+      "label": "Pergamino",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M17 20h-11a3 3 0 0 1 0 -6h11a3 3 0 0 0 0 6h1a3 3 0 0 0 3 -3v-11a2 2 0 0 0 -2 -2h-10a2 2 0 0 0 -2 2v8\" />"
+    },
+    "feather": {
+      "label": "Pluma",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 20l10 -10m0 -5v5h5m-9 -1v5h5m-9 -1v5h5m-5 -5l4 -4l4 -4\" /> <path d=\"M19 10c.638 -.636 1 -1.515 1 -2.486a3.515 3.515 0 0 0 -3.517 -3.514c-.97 0 -1.847 .367 -2.483 1m-3 13l4 -4l4 -4\" />"
+    },
+    "message": {
+      "label": "Voz",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M8 9h8\" /> <path d=\"M8 13h6\" /> <path d=\"M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12\" />"
+    },
+    "messages": {
+      "label": "Diálogo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M21 14l-3 -3h-7a1 1 0 0 1 -1 -1v-6a1 1 0 0 1 1 -1h9a1 1 0 0 1 1 1v10\" /> <path d=\"M14 15v2a1 1 0 0 1 -1 1h-7l-3 3v-10a1 1 0 0 1 1 -1h2\" />"
+    },
+    "users-group": {
+      "label": "Voces en conjunto",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1\" /> <path d=\"M15 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M17 10h2a2 2 0 0 1 2 2v1\" /> <path d=\"M5 5a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M3 13v-1a2 2 0 0 1 2 -2h2\" />"
+    },
+    "peace": {
+      "label": "Paz",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\" /> <path d=\"M12 3l0 18\" /> <path d=\"M12 12l6.3 6.3\" /> <path d=\"M12 12l-6.3 6.3\" />"
+    },
+    "ship": {
+      "label": "Barco",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M2 20a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1\" /> <path d=\"M4 18l-1 -5h18l-2 4\" /> <path d=\"M5 13v-6h8l4 6\" /> <path d=\"M7 7v-4h-1\" />"
+    },
+    "anchor": {
+      "label": "Ancla",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 9v12m-8 -8a8 8 0 0 0 16 0m1 0h-2m-14 0h-2\" /> <path d=\"M9 6a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\" />"
+    },
+    "horse": {
+      "label": "Caballo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7 10l-.85 8.507a1.357 1.357 0 0 0 1.35 1.493h.146a2 2 0 0 0 1.857 -1.257l.994 -2.486a2 2 0 0 1 1.857 -1.257h1.292a2 2 0 0 1 1.857 1.257l.994 2.486a2 2 0 0 0 1.857 1.257h.146a1.37 1.37 0 0 0 1.364 -1.494l-.864 -9.506h-8c0 -3 -3 -5 -6 -5l-3 6l2 2l3 -2\" /> <path d=\"M22 14v-2a3 3 0 0 0 -3 -3\" />"
+    },
+    "fish": {
+      "label": "Pez",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16.69 7.44a6.973 6.973 0 0 0 -1.69 4.56c0 1.747 .64 3.345 1.699 4.571\" /> <path d=\"M2 9.504c7.715 8.647 14.75 10.265 20 2.498c-5.25 -7.761 -12.285 -6.142 -20 2.504\" /> <path d=\"M18 11v.01\" /> <path d=\"M11.5 10.5c-.667 1 -.667 2 0 3\" />"
+    },
+    "plant": {
+      "label": "Brote",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7 15h10v4a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2v-4\" /> <path d=\"M12 9a6 6 0 0 0 -6 -6h-3v2a6 6 0 0 0 6 6h3\" /> <path d=\"M12 11a6 6 0 0 1 6 -6h3v1a6 6 0 0 1 -6 6h-3\" /> <path d=\"M12 15l0 -6\" />"
+    },
+    "mask": {
+      "label": "Máscara",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M9 12a3 3 0 1 0 6 0a3 3 0 1 0 -6 0\" /> <path d=\"M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12\" />"
+    },
+    "masks-theater": {
+      "label": "Máscaras teatrales",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M13.192 9h6.616a2 2 0 0 1 1.992 2.183l-.567 6.182a4 4 0 0 1 -3.983 3.635h-1.5a4 4 0 0 1 -3.983 -3.635l-.567 -6.182a2 2 0 0 1 1.992 -2.183\" /> <path d=\"M15 13h.01\" /> <path d=\"M18 13h.01\" /> <path d=\"M15 16.5c1 .667 2 .667 3 0\" /> <path d=\"M8.632 15.982a4.037 4.037 0 0 1 -.382 .018h-1.5a4 4 0 0 1 -3.983 -3.635l-.567 -6.182a2 2 0 0 1 1.992 -2.183h6.616a2 2 0 0 1 2 2\" /> <path d=\"M6 8h.01\" /> <path d=\"M9 8h.01\" /> <path d=\"M6 12c.764 -.51 1.528 -.63 2.291 -.36\" />"
+    },
+    "building-church": {
+      "label": "Templo cristiano",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 21l18 0\" /> <path d=\"M10 21v-4a2 2 0 0 1 4 0v4\" /> <path d=\"M10 5l4 0\" /> <path d=\"M12 3l0 5\" /> <path d=\"M6 21v-7m-2 2l8 -8l8 8m-2 -2v7\" />"
+    },
+    "building-mosque": {
+      "label": "Mezquita",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 21h7v-2a2 2 0 1 1 4 0v2h7\" /> <path d=\"M4 21v-10\" /> <path d=\"M20 21v-10\" /> <path d=\"M4 16h3v-3h10v3h3\" /> <path d=\"M17 13a5 5 0 0 0 -10 0\" /> <path d=\"M21 10.5c0 -.329 -.077 -.653 -.224 -.947l-.776 -1.553l-.776 1.553a2.118 2.118 0 0 0 -.224 .947a.5 .5 0 0 0 .5 .5h1a.5 .5 0 0 0 .5 -.5\" /> <path d=\"M5 10.5c0 -.329 -.077 -.653 -.224 -.947l-.776 -1.553l-.776 1.553a2.118 2.118 0 0 0 -.224 .947a.5 .5 0 0 0 .5 .5h1a.5 .5 0 0 0 .5 -.5\" /> <path d=\"M12 2a2 2 0 1 0 2 2\" /> <path d=\"M12 6v2\" />"
+    },
+    "building-pavilion": {
+      "label": "Pabellón",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 21h7v-3a2 2 0 0 1 4 0v3h7\" /> <path d=\"M6 21l0 -9\" /> <path d=\"M18 21l0 -9\" /> <path d=\"M6 12h12a3 3 0 0 0 3 -3a9 8 0 0 1 -9 -6a9 8 0 0 1 -9 6a3 3 0 0 0 3 3\" />"
+    },
+    "building-monument": {
+      "label": "Monumento",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M8 18l2 -13l2 -2l2 2l2 13\" /> <path d=\"M5 21v-3h14v3\" /> <path d=\"M3 21l18 0\" />"
+    },
+    "flag": {
+      "label": "Bandera",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 5a5 5 0 0 1 7 0a5 5 0 0 0 7 0v9a5 5 0 0 1 -7 0a5 5 0 0 0 -7 0v-9\" /> <path d=\"M5 21v-7\" />"
+    },
+    "balloon": {
+      "label": "Globo festivo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M14 8a2 2 0 0 0 -2 -2\" /> <path d=\"M6 8a6 6 0 1 1 12 0c0 4.97 -2.686 9 -6 9s-6 -4.03 -6 -9\" /> <path d=\"M12 17v1a2 2 0 0 1 -2 2h-3a2 2 0 0 0 -2 2\" />"
+    },
+    "confetti": {
+      "label": "Confeti",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 5h2\" /> <path d=\"M5 4v2\" /> <path d=\"M11.5 4l-.5 2\" /> <path d=\"M18 5h2\" /> <path d=\"M19 4v2\" /> <path d=\"M15 9l-1 1\" /> <path d=\"M18 13l2 -.5\" /> <path d=\"M18 19h2\" /> <path d=\"M19 18v2\" /> <path d=\"M14 16.518l-6.518 -6.518l-4.39 9.58a1 1 0 0 0 1.329 1.329l9.579 -4.39\" />"
+    },
+    "cake": {
+      "label": "Pastel",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 20h18v-8a3 3 0 0 0 -3 -3h-12a3 3 0 0 0 -3 3v8\" /> <path d=\"M3 14.803c.312 .135 .654 .204 1 .197a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1c.35 .007 .692 -.062 1 -.197\" /> <path d=\"M12 4l1.465 1.638a2 2 0 1 1 -3.015 .099l1.55 -1.737\" />"
+    },
+    "christmas-tree": {
+      "label": "Árbol navideño",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 3l4 4l-2 1l4 4l-3 1l4 4h-14l4 -4l-3 -1l4 -4l-2 -1l4 -4\" /> <path d=\"M14 17v3a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-3\" />"
+    },
+    "baby-carriage": {
+      "label": "Infancia",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M16 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M2 5h2.5l1.632 4.897a6 6 0 0 0 5.693 4.103h2.675a5.5 5.5 0 0 0 0 -11h-.5v6\" /> <path d=\"M6 9h14\" /> <path d=\"M9 17l1 -3\" /> <path d=\"M16 14l1 3\" />"
+    },
+    "ball-football": {
+      "label": "Balón",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\" /> <path d=\"M12 7l4.76 3.45l-1.76 5.55h-6l-1.76 -5.55l4.76 -3.45\" /> <path d=\"M12 7v-4m3 13l2.5 3m-.74 -8.55l3.74 -1.45m-11.44 7.05l-2.56 2.95m.74 -8.55l-3.74 -1.45\" />"
+    },
+    "sword": {
+      "label": "Espada",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M20 4v5l-9 7l-4 4l-3 -3l4 -4l7 -9l5 0\" /> <path d=\"M6.5 11.5l6 6\" />"
+    },
+    "swords": {
+      "label": "Espadas cruzadas",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M21 3v5l-11 9l-4 4l-3 -3l4 -4l9 -11l5 0\" /> <path d=\"M5 13l6 6\" /> <path d=\"M14.32 17.32l3.68 3.68l3 -3l-3.365 -3.365\" /> <path d=\"M10 5.5l-2 -2.5h-5v5l3 2.5\" />"
+    },
+    "helmet": {
+      "label": "Casco",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 4a9 9 0 0 1 5.656 16h-11.312a9 9 0 0 1 5.656 -16\" /> <path d=\"M20 9h-8.8a1 1 0 0 0 -.968 1.246c.507 2 1.596 3.418 3.268 4.254c2 1 4.333 1.5 7 1.5\" />"
+    },
+    "shield": {
+      "label": "Escudo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3\" />"
+    },
+    "pick": {
+      "label": "Pico",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M13 8l-9.383 9.418a2.091 2.091 0 0 0 0 2.967a2.11 2.11 0 0 0 2.976 0l9.407 -9.385\" /> <path d=\"M9 3h4.586a1 1 0 0 1 .707 .293l6.414 6.414a1 1 0 0 1 .293 .707v4.586a2 2 0 1 1 -4 0v-3l-5 -5h-3a2 2 0 1 1 0 -4\" />"
+    },
+    "infinity": {
+      "label": "Infinito",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M9.828 9.172a4 4 0 1 0 0 5.656a10 10 0 0 0 2.172 -2.828a10 10 0 0 1 2.172 -2.828a4 4 0 1 1 0 5.656a10 10 0 0 1 -2.172 -2.828a10 10 0 0 0 -2.172 -2.828\" />"
+    },
+    "math-function": {
+      "label": "Función matemática",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 19a2 2 0 0 0 2 2c2 0 2 -4 3 -9s1 -9 3 -9a2 2 0 0 1 2 2\" /> <path d=\"M5 12h6\" /> <path d=\"M15 12l6 6\" /> <path d=\"M15 18l6 -6\" />"
+    },
+    "triangle": {
+      "label": "Triángulo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10.363 3.591l-8.106 13.534a1.914 1.914 0 0 0 1.636 2.871h16.214a1.914 1.914 0 0 0 1.636 -2.87l-8.106 -13.536a1.914 1.914 0 0 0 -3.274 0\" />"
+    },
+    "circles": {
+      "label": "Círculos",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\" /> <path d=\"M2.5 17a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\" /> <path d=\"M13.5 17a4 4 0 1 0 8 0a4 4 0 1 0 -8 0\" />"
+    },
+    "hexagon": {
+      "label": "Hexágono",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27a2.225 2.225 0 0 1 -1.158 -1.948v-7.285c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98a2.33 2.33 0 0 1 2.25 0l6.75 3.98h-.033\" />"
+    },
+    "circle": {
+      "label": "Círculo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\" />"
+    },
+    "square": {
+      "label": "Cuadrado",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 5a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-14\" />"
+    },
+    "diamond": {
+      "label": "Diamante",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M6 5h12l3 5l-8.5 9.5a.7 .7 0 0 1 -1 0l-8.5 -9.5l3 -5\" /> <path d=\"M10 12l-2 -2.2l.6 -1\" />"
+    },
+    "polygon": {
+      "label": "Polígono",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 5a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M17 8a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M3 11a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M13 19a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M6.5 9.5l3.5 -3\" /> <path d=\"M14 5.5l3 1.5\" /> <path d=\"M18.5 10l-2.5 7\" /> <path d=\"M13.5 17.5l-7 -5\" />"
+    },
+    "geometry": {
+      "label": "Geometría",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7 21l4 -12m2 0l1.48 4.439m.949 2.847l1.571 4.714\" /> <path d=\"M10 7a2 2 0 1 0 4 0a2 2 0 1 0 -4 0\" /> <path d=\"M4 12c1.526 2.955 4.588 5 8 5c3.41 0 6.473 -2.048 8 -5\" /> <path d=\"M12 5v-2\" />"
+    },
+    "eye": {
+      "label": "Ojo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6\" />"
+    },
+    "ghost": {
+      "label": "Fantasma",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 11a7 7 0 0 1 14 0v7a1.78 1.78 0 0 1 -3.1 1.4a1.65 1.65 0 0 0 -2.6 0a1.65 1.65 0 0 1 -2.6 0a1.65 1.65 0 0 0 -2.6 0a1.78 1.78 0 0 1 -3.1 -1.4v-7\" /> <path d=\"M10 10l.01 0\" /> <path d=\"M14 10l.01 0\" /> <path d=\"M10 14a3.5 3.5 0 0 0 4 0\" />"
+    },
+    "rocket": {
+      "label": "Cohete",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 13a8 8 0 0 1 7 7a6 6 0 0 0 3 -5a9 9 0 0 0 6 -8a3 3 0 0 0 -3 -3a9 9 0 0 0 -8 6a6 6 0 0 0 -5 3\" /> <path d=\"M7 14a6 6 0 0 0 -3 6a6 6 0 0 0 6 -3\" /> <path d=\"M14 9a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" />"
+    },
+    "ufo": {
+      "label": "Platillo volador",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16.95 9.01c3.02 .739 5.05 2.123 5.05 3.714c0 2.367 -4.48 4.276 -10 4.276s-10 -1.909 -10 -4.276c0 -1.59 2.04 -2.985 5.07 -3.724\" /> <path d=\"M7 9c0 1.105 2.239 2 5 2s5 -.895 5 -2v-.035c0 -2.742 -2.239 -4.965 -5 -4.965s-5 2.223 -5 4.965v.035\" /> <path d=\"M15 17l2 3\" /> <path d=\"M8.5 17l-1.5 3\" /> <path d=\"M12 14h.01\" /> <path d=\"M7 13h.01\" /> <path d=\"M17 13h.01\" />"
+    },
+    "comet": {
+      "label": "Cometa",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M15.5 18.5l-3 1.5l.5 -3.5l-2 -2l3 -.5l1.5 -3l1.5 3l3 .5l-2 2l.5 3.5l-3 -1.5\" /> <path d=\"M4 4l7 7\" /> <path d=\"M9 4l3.5 3.5\" /> <path d=\"M4 9l3.5 3.5\" />"
+    },
+    "clock": {
+      "label": "Reloj",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0\" /> <path d=\"M12 7v5l3 3\" />"
+    },
+    "metronome": {
+      "label": "Metrónomo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M14.153 8.188l-.72 -3.236a2.493 2.493 0 0 0 -4.867 0l-3.025 13.614a2 2 0 0 0 1.952 2.434h7.014a2 2 0 0 0 1.952 -2.434l-.524 -2.357m-4.935 1.791l9 -13\" /> <path d=\"M19 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" />"
+    },
+    "piano": {
+      "label": "Piano",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10\" /> <path d=\"M9 19v-6\" /> <path d=\"M8 5v8h2v-8\" /> <path d=\"M15 19v-6\" /> <path d=\"M14 5v8h2v-8\" />"
+    },
+    "vinyl": {
+      "label": "Disco de vinilo",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16 3.937a9 9 0 1 0 5 8.063\" /> <path d=\"M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M19 4a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M20 4l-3.5 10l-2.5 2\" />"
+    },
+    "disc": {
+      "label": "Disco",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\" /> <path d=\"M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M7 12a5 5 0 0 1 5 -5\" /> <path d=\"M12 17a5 5 0 0 0 5 -5\" />"
+    },
+    "radio": {
+      "label": "Radio",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M14 3l-9.371 3.749a1 1 0 0 0 -.629 .928v11.323a1 1 0 0 0 1 1h14a1 1 0 0 0 1 -1v-11a1 1 0 0 0 -1 -1h-14.5\" /> <path d=\"M4 12h16\" /> <path d=\"M7 12v-2\" /> <path d=\"M17 16v.01\" /> <path d=\"M13 16v.01\" />"
+    },
+    "device-audio-tape": {
+      "label": "Cinta de audio",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10\" /> <path d=\"M3 17l4 -3h10l4 3\" /> <path d=\"M7 9.5a.5 .5 0 1 0 1 0a.5 .5 0 1 0 -1 0\" fill=\"currentColor\" /> <path d=\"M16 9.5a.5 .5 0 1 0 1 0a.5 .5 0 1 0 -1 0\" fill=\"currentColor\" />"
+    },
+    "file-music": {
+      "label": "Partitura",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M14 3v4a1 1 0 0 0 1 1h4\" /> <path d=\"M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2\" /> <path d=\"M10 16a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M12 16l0 -5l2 1\" />"
+    },
+    "map": {
+      "label": "Mapa",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 7l6 -3l6 3l6 -3v13l-6 3l-6 -3l-6 3v-13\" /> <path d=\"M9 4v13\" /> <path d=\"M15 7v13\" />"
+    },
+    "compass": {
+      "label": "Brújula",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M8 16l2 -6l6 -2l-2 6l-6 2\" /> <path d=\"M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0\" /> <path d=\"M12 3l0 2\" /> <path d=\"M12 19l0 2\" /> <path d=\"M3 12l2 0\" /> <path d=\"M19 12l2 0\" />"
+    },
+    "route": {
+      "label": "Recorrido",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 19a2 2 0 1 0 4 0a2 2 0 0 0 -4 0\" /> <path d=\"M19 7a2 2 0 1 0 0 -4a2 2 0 0 0 0 4\" /> <path d=\"M11 19h5.5a3.5 3.5 0 0 0 0 -7h-8a3.5 3.5 0 0 1 0 -7h4.5\" />"
+    },
+    "music-question": {
+      "label": "Música por identificar",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 17a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\" /> <path d=\"M9 17v-13h10v7\" /> <path d=\"M9 8h10\" /> <path d=\"M19 22v.01\" /> <path d=\"M19 19a2.003 2.003 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483\" />"
+    },
+    "plus": {
+      "label": "Más",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 5l0 14\" /> <path d=\"M5 12l14 0\" />"
+    },
+    "bulb": {
+      "label": "Bombilla",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12h1m8 -9v1m8 8h1m-15.4 -6.4l.7 .7m12.1 -.7l-.7 .7\" /> <path d=\"M9 16a5 5 0 1 1 6 0a3.5 3.5 0 0 0 -1 3a2 2 0 0 1 -4 0a3.5 3.5 0 0 0 -1 -3\" /> <path d=\"M9.7 17l4.6 0\" />"
+    },
+    "flask": {
+      "label": "Matraz",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M9 3l6 0\" /> <path d=\"M10 9l4 0\" /> <path d=\"M10 3v6l-4 11a.7 .7 0 0 0 .5 1h11a.7 .7 0 0 0 .5 -1l-4 -11v-6\" />"
+    },
+    "ripple": {
+      "label": "Ondulación",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 7c3 -2 6 -2 9 0s6 2 9 0\" /> <path d=\"M3 17c3 -2 6 -2 9 0s6 2 9 0\" /> <path d=\"M3 12c3 -2 6 -2 9 0s6 2 9 0\" />"
+    },
+    "rainbow": {
+      "label": "Arcoíris",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M22 17c0 -5.523 -4.477 -10 -10 -10c-5.523 0 -10 4.477 -10 10\" /> <path d=\"M18 17a6 6 0 1 0 -12 0\" /> <path d=\"M14 17a2 2 0 1 0 -4 0\" />"
+    },
+    "cloud-rain": {
+      "label": "Lluvia",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M7 18a4.6 4.4 0 0 1 0 -9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7\" /> <path d=\"M11 13v2m0 3v2m4 -5v2m0 3v2\" />"
+    },
+    "palette": {
+      "label": "Paleta de pintor",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25\" /> <path d=\"M7.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M11.5 7.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" /> <path d=\"M15.5 10.5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0\" />"
+    },
+    "brush": {
+      "label": "Pincel",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 21v-4a4 4 0 1 1 4 4h-4\" /> <path d=\"M21 3a16 16 0 0 0 -12.8 10.2\" /> <path d=\"M21 3a16 16 0 0 1 -10.2 12.8\" /> <path d=\"M10.6 9a9 9 0 0 1 4.4 4.4\" />"
+    },
+    "camera": {
+      "label": "Cámara",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2\" /> <path d=\"M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0\" />"
+    },
+    "movie": {
+      "label": "Cine",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12\" /> <path d=\"M8 4l0 16\" /> <path d=\"M16 4l0 16\" /> <path d=\"M4 8l4 0\" /> <path d=\"M4 16l4 0\" /> <path d=\"M4 12l16 0\" /> <path d=\"M16 8l4 0\" /> <path d=\"M16 16l4 0\" />"
+    },
+    "video": {
+      "label": "Video",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M15 10l4.553 -2.276a1 1 0 0 1 1.447 .894v6.764a1 1 0 0 1 -1.447 .894l-4.553 -2.276v-4\" /> <path d=\"M3 8a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -8\" />"
+    },
+    "news": {
+      "label": "Documento",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M16 6h3a1 1 0 0 1 1 1v11a2 2 0 0 1 -4 0v-13a1 1 0 0 0 -1 -1h-10a1 1 0 0 0 -1 1v12a3 3 0 0 0 3 3h11\" /> <path d=\"M8 8l4 0\" /> <path d=\"M8 12l4 0\" /> <path d=\"M8 16l4 0\" />"
+    },
+    "vocabulary": {
+      "label": "Palabras",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M10 19h-6a1 1 0 0 1 -1 -1v-14a1 1 0 0 1 1 -1h6a2 2 0 0 1 2 2a2 2 0 0 1 2 -2h6a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-6a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2\" /> <path d=\"M12 5v16\" /> <path d=\"M7 7h1\" /> <path d=\"M7 11h1\" /> <path d=\"M16 7h1\" /> <path d=\"M16 11h1\" /> <path d=\"M16 15h1\" />"
+    },
+    "wave-square": {
+      "label": "Onda cuadrada",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12h5v8h4v-16h4v8h5\" />"
+    },
+    "wave-saw-tool": {
+      "label": "Onda de sierra",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 12h5l4 8v-16l4 8h5\" />"
+    },
+    "chart-bar": {
+      "label": "Ecualizador",
+      "source": "Tabler Icons 3.49.0 · MIT",
+      "body": "<path d=\"M3 13a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -6\" /> <path d=\"M15 9a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v10a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -10\" /> <path d=\"M9 5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1l0 -14\" /> <path d=\"M4 20h14\" />"
+    },
+    "electricGuitar": {
+      "label": "Guitarra eléctrica",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M11 2h3v9l3-3 1 5 2-1c2 6-1 10-8 10S2 18 4 12l2 1 2-5 3 3V2Z\"/><path d=\"M12 3v15M9 19h6M9 14l-1 3M14 4h2M14 7h2\"/>"
+    },
+    "acousticGuitar": {
+      "label": "Guitarra acústica",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M10 3h4v7c3-1 5 2 3 4 5 5 1 8-5 8s-10-3-5-8c-2-2 0-5 3-4V3Z\"/><circle cx=\"12\" cy=\"15\" r=\"2\"/><path d=\"M12 3v10M9 19h6\"/>"
+    },
+    "bassGuitar": {
+      "label": "Bajo eléctrico",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M11 2h3v10c3-3 7-1 5 4-1 4-5 7-9 6-5-1-6-5-3-7 2-1 3 0 4-3V2Z\"/><path d=\"M12 3v13M9 18h6M14 4h2M14 7h2\"/>"
+    },
+    "boombox": {
+      "label": "Boombox",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"3\" y=\"8\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M7 8V4h10v4M4 3l15-1M10 12h4M10 18h4\"/><circle cx=\"7\" cy=\"15\" r=\"2\"/><circle cx=\"17\" cy=\"15\" r=\"2\"/>"
+    },
+    "synthesizer": {
+      "label": "Sintetizador",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"15\" rx=\"2\"/><path d=\"M2 11h20M6 11v9M10 11v9M14 11v9M18 11v9M6 8h3M14 8h.01M18 8h.01M8 11v4M16 11v4\"/>"
+    },
+    "saxophone": {
+      "label": "Saxofón",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M17 3h-4v12c0 3-2 4-4 3-2-1-2-3-1-4l-4-2c-3 6 1 10 6 10 5 0 7-3 7-8V3Z\"/><path d=\"m3 11 7-2 1 5-7 2M13 3l-2-1M17 7h2M17 11h2\"/>"
+    },
+    "safetyPin": {
+      "label": "Imperdible",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m17 3 4 4-3 3-4-4 3-3ZM15 7 4 17a3 3 0 0 0 4 4L19 10M6 18l7-7\"/><circle cx=\"7\" cy=\"18\" r=\"1\"/>"
+    },
+    "violin": {
+      "label": "Violín",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M11 2h2v6c3-2 5 1 3 3-2 1-2 3 0 4 3 5-5 9-8 4-1-2 0-3 1-4 2-2 1-3-1-4-1-3 2-5 3-3V2Z\"/><path d=\"M12 3v16M9 18h6M21 3l-3 19\"/>"
+    },
+    "maracas": {
+      "label": "Maracas",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"7\" cy=\"7\" rx=\"4\" ry=\"5\" transform=\"rotate(-25 7 7)\"/><ellipse cx=\"17\" cy=\"8\" rx=\"4\" ry=\"5\" transform=\"rotate(25 17 8)\"/><path d=\"m9 12 6 10M15 13l-5 9M4 6l5-2M16 4l5 3\"/>"
+    },
+    "accordion": {
+      "label": "Acordeón",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"6\" width=\"5\" height=\"15\" rx=\"1\"/><rect x=\"17\" y=\"3\" width=\"5\" height=\"15\" rx=\"1\"/><path d=\"m7 7 10-2v12L7 20ZM10 7l2 12M14 6l1 12M3 10h3M3 14h3M3 18h3M19 7h.01M19 11h.01M19 15h.01\"/>"
+    },
+    "congas": {
+      "label": "Congas",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"7\" cy=\"6\" rx=\"5\" ry=\"2\"/><ellipse cx=\"18\" cy=\"4\" rx=\"4\" ry=\"2\"/><path d=\"m2 6 2 16h6l2-16M14 4l1 16h6l1-16M4 11l5 6M10 11l-5 6M16 9l4 6\"/>"
+    },
+    "cassette": {
+      "label": "Casete",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"15\" rx=\"2\"/><circle cx=\"7\" cy=\"11\" r=\"2\"/><circle cx=\"17\" cy=\"11\" r=\"2\"/><path d=\"M9 11h6M6 20l2-5h8l2 5\"/>"
+    },
+    "cowboyHat": {
+      "label": "Sombrero vaquero",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m6 13 2-9c2-2 3 2 5 1 3-3 4-1 5 8M2 12c4 5 15 7 20-1 2 7-5 11-12 9-6-1-9-4-8-8ZM7 11c3 2 7 3 11 0\"/>"
+    },
+    "discoBall": {
+      "label": "Bola de espejos",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 2v3M4 13h16M6 8h12M6 18h12M12 5c-5 4-5 12 0 16M12 5c5 4 5 12 0 16M12 5v16\"/>"
+    },
+    "harmonica": {
+      "label": "Armónica",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"7\" width=\"20\" height=\"10\" rx=\"2\"/><path d=\"M2 10h20M2 14h20M6 10v4M10 10v4M14 10v4M18 10v4\"/>"
+    },
+    "lightstick": {
+      "label": "Lightstick",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m10 14-1 7h6l-1-7M7 5l5-3 5 3v6l-5 4-5-4V5Z\"/><path d=\"M12 6v4M3 4l1 1M20 4l1-1\"/>"
+    },
+    "oud": {
+      "label": "Laúd / oud",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m13 8 4-6 3 2-5 6c7 5 4 11-2 12-7 1-12-5-8-10 2-3 4-4 8-4Z\"/><circle cx=\"10\" cy=\"14\" r=\"2\"/><path d=\"m10 19 7-14M7 19l6 1\"/>"
+    },
+    "banjo": {
+      "label": "Banjo",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<circle cx=\"10\" cy=\"16\" r=\"6\"/><path d=\"m10 10 6-8 3 2-7 8M10 7l4 3M8 18l5-7M7 19h6\"/>"
+    },
+    "mandolin": {
+      "label": "Mandolina",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m13 10 5-8 3 2-6 8c4 4 1 9-3 10-5 1-10-4-8-8 1-3 5-5 9-4Z\"/><ellipse cx=\"10\" cy=\"16\" rx=\"2\" ry=\"3\"/><path d=\"m9 19 8-14M7 20h6\"/>"
+    },
+    "harp": {
+      "label": "Arpa",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M4 3c4 5 12 1 16 4L8 22H5L4 3Z\"/><path d=\"M8 6v13M12 6v9M16 6v5\"/>"
+    },
+    "lyre": {
+      "label": "Lira",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M5 3c-3 10 1 13 7 13s10-3 7-13M6 3h12M8 3v12M12 3v13M16 3v12M12 16v5M8 21h8\"/>"
+    },
+    "cello": {
+      "label": "Violonchelo",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M11 2h2v6c3-1 5 1 3 3-2 1-2 3 0 4 3 5-5 7-8 3-1-2 0-3 1-4 2-2 1-3-1-4-1-2 2-3 3-2V2Z\"/><path d=\"M12 2v20M9 17h6M21 2l-3 20\"/>"
+    },
+    "flute": {
+      "label": "Flauta",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m4 21 15-18 3 2L7 23ZM13 9l3 2M9 14l3 2M17 4l3 2\"/>"
+    },
+    "panFlute": {
+      "label": "Flauta de Pan",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M3 3h4v18H3ZM7 3h4v15H7ZM11 3h4v12h-4ZM15 3h4v9h-4ZM19 3h3v6h-3M3 7h19\"/>"
+    },
+    "trumpet": {
+      "label": "Trompeta",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M3 9h12l6-5v16l-6-5H6a3 3 0 0 1 0-6M3 7v4M8 7v8M12 7v8M7 6h2M11 6h2M15 9v6\"/>"
+    },
+    "trombone": {
+      "label": "Trombón",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M3 7h13l5-4v13l-5-4H7M3 5v4M6 7v12a2 2 0 0 0 4 0V7M16 7v5\"/>"
+    },
+    "clarinet": {
+      "label": "Clarinete",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M10 3h4v13l4 6H6l4-6V3ZM10 3l2-2h3M10 8h4M10 12h4M10 16h4\"/>"
+    },
+    "bagpipes": {
+      "label": "Gaita",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m6 12 5-3 7 3c4 5-2 10-7 8l-5-3v-5ZM10 10 6 2M14 10 12 2M17 10l1-8M7 16l-5 5M18 15l4 6\"/>"
+    },
+    "sitar": {
+      "label": "Sitar",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m12 13 5-11 3 1-6 12c5 5 0 8-4 7-5-1-6-6-3-8 2-1 3-1 5-1Z\"/><path d=\"m10 19 8-15M15 6l-2-1M13 10l-2-1M18 4l3 1\"/>"
+    },
+    "erhu": {
+      "label": "Erhu",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M12 2v17M10 3h5M10 6h5M8 17l5-2 4 3v4H8v-5ZM3 9l18 7\"/>"
+    },
+    "shamisen": {
+      "label": "Shamisen",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"5\" y=\"14\" width=\"12\" height=\"8\" rx=\"2\"/><path d=\"M11 14V2h3v12M10 4h6M10 7h6M11 15v5M6 17h10\"/>"
+    },
+    "zither": {
+      "label": "Cítara",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M3 6c5-3 13-3 18 0v13c-5-3-13-3-18 0V6ZM7 5v12M12 4v12M17 5v12M4 10h16\"/>"
+    },
+    "sheng": {
+      "label": "Órgano de boca",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M5 14V5h3v9M8 14V2h3v12M11 14V4h3v10M14 14V7h3v7M17 14V9h3v5M5 14h15v3c0 4-15 4-15 0v-3ZM5 17H2\"/>"
+    },
+    "tabla": {
+      "label": "Tabla",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"7\" cy=\"7\" rx=\"5\" ry=\"2\"/><ellipse cx=\"18\" cy=\"10\" rx=\"4\" ry=\"2\"/><path d=\"M2 7v10c0 5 10 5 10 0V7M14 10v9c0 3 8 3 8 0v-9M5 9v10M9 9v10M17 12v8M20 12v8\"/>"
+    },
+    "djembe": {
+      "label": "Djembé",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"12\" cy=\"5\" rx=\"8\" ry=\"3\"/><path d=\"m4 5 4 10-2 7h12l-2-7 4-10M7 9l9 5M17 9l-9 5M8 15h8\"/>"
+    },
+    "taiko": {
+      "label": "Tambor taiko",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"12\" cy=\"8\" rx=\"8\" ry=\"4\"/><path d=\"M4 8v9c0 5 16 5 16 0V8M7 3 4 1M17 3l3-2M7 12v5M17 12v5\"/>"
+    },
+    "janggu": {
+      "label": "Tambor de reloj de arena",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"3\" cy=\"12\" rx=\"1\" ry=\"8\"/><ellipse cx=\"21\" cy=\"12\" rx=\"1\" ry=\"8\"/><path d=\"M3 4c8 0 7 16 18 16M3 20c8 0 7-16 18-16M4 6l16 12M4 18 20 6\"/>"
+    },
+    "frameDrum": {
+      "label": "Tambor de marco",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><path d=\"M12 3v3M12 18v3M3 12h3M18 12h3\"/>"
+    },
+    "tambourine": {
+      "label": "Pandereta",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<circle cx=\"12\" cy=\"12\" r=\"8\"/><path d=\"M7 4v4M17 4v4M4 10h4M16 10h4M7 17v4M17 17v4M9 14c2 2 4 2 6 0\"/>"
+    },
+    "gong": {
+      "label": "Gong",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M3 22V3h18v19M8 3v3M16 3v3M1 22h4M19 22h4\"/><circle cx=\"12\" cy=\"13\" r=\"7\"/><circle cx=\"12\" cy=\"13\" r=\"2\"/>"
+    },
+    "metallophone": {
+      "label": "Metalófono",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m4 4 16 3v14L4 18V4ZM4 8l16 3M4 13l16 3M8 5v14M13 6v13M18 7v13M3 2l18 2\"/>"
+    },
+    "angklung": {
+      "label": "Angklung",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M4 22V3h16v19M2 22h20M8 5v13h3V5M14 5v15h3V5M7 10h11\"/>"
+    },
+    "steelpan": {
+      "label": "Steelpan",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"12\" cy=\"9\" rx=\"9\" ry=\"6\"/><path d=\"M3 9v8c0 5 18 5 18 0V9M8 5l4 4 4-4M6 12l6-3 6 3M12 9v6\"/>"
+    },
+    "mbira": {
+      "label": "Mbira",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"17\" rx=\"2\"/><path d=\"M6 9h12M7 3v12M10 2v15M13 2v15M16 3v12M8 19h8\"/>"
+    },
+    "berimbau": {
+      "label": "Berimbau",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M8 2c13 7 13 14 0 20M8 2v20M5 16c0-4 6-4 6 0s-6 4-6 0ZM13 6l8 13\"/>"
+    },
+    "castanets": {
+      "label": "Castañuelas",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"M8 7c-6 0-7 13 0 14 7-1 6-14 0-14ZM17 5c-6 0-7 13 0 14 7-1 6-14 0-14ZM8 7V3l9-1v3M8 12v4M17 10v4\"/>"
+    },
+    "claves": {
+      "label": "Claves",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m3 5 3-2 15 16-3 3L3 5ZM4 19l4-5M14 8l5-5 3 3-5 5M2 21l2-2 3 3-2 1\"/>"
+    },
+    "cuica": {
+      "label": "Cuíca",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<ellipse cx=\"12\" cy=\"7\" rx=\"7\" ry=\"3\"/><path d=\"m5 7 2 14h10l2-14M12 3v10M8 11v7M16 11v7\"/>"
+    },
+    "bandoneon": {
+      "label": "Bandoneón",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"5\" width=\"5\" height=\"15\" rx=\"1\"/><rect x=\"17\" y=\"5\" width=\"5\" height=\"15\" rx=\"1\"/><path d=\"M7 7h10M7 18h10M9 7v11M12 7v11M15 7v11M4 9h.01M4 13h.01M4 17h.01M19 9h.01M19 13h.01M19 17h.01\"/>"
+    },
+    "harmonium": {
+      "label": "Armonio",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"7\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"m3 7 2-5h14l2 5M2 13h20M6 13v8M10 13v8M14 13v8M18 13v8M5 10h4M16 10h3\"/>"
+    },
+    "turntable": {
+      "label": "Tornamesa",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"4\" width=\"20\" height=\"17\" rx=\"2\"/><circle cx=\"10\" cy=\"12\" r=\"6\"/><circle cx=\"10\" cy=\"12\" r=\"1\"/><path d=\"M19 7v7l-3 3M5 18h2M18 18h1\"/>"
+    },
+    "choir": {
+      "label": "Coro",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<circle cx=\"12\" cy=\"5\" r=\"2\"/><circle cx=\"5\" cy=\"9\" r=\"2\"/><circle cx=\"19\" cy=\"9\" r=\"2\"/><path d=\"M8 14v-3c0-4 8-4 8 0v3M2 20v-5c0-3 6-3 6 0v5M16 20v-5c0-3 6-3 6 0v5M8 22v-6h8v6\"/>"
+    },
+    "pedalSteel": {
+      "label": "Guitarra de pedal steel",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<rect x=\"2\" y=\"5\" width=\"20\" height=\"7\" rx=\"1\"/><path d=\"M4 8h16M5 12 3 22M19 12l2 10M8 12v7M12 12v7M16 12v7M7 19h11\"/>"
+    },
+    "cowbells": {
+      "label": "Campanas metálicas",
+      "source": "Musiclub · dibujo vectorial propio",
+      "body": "<path d=\"m4 4 4-1 3 14H2L4 4ZM15 7l4-1 3 14H12l3-13ZM4 20h5M15 23h5\"/>"
+    }
+  }
+}

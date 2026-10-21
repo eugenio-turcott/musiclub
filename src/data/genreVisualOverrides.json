@@ -1,0 +1,8 @@
+{
+  "k-pop": { "figure": "lightstick", "details": [] },
+  "j-pop": { "figure": "flower", "details": [] },
+  "instrumental": { "figure": "music", "details": [] },
+  "sacred steel": { "figure": "pedalSteel" },
+  "ogene music": { "figure": "cowbells" },
+  "orkes gambus": { "figure": "oud" }
+}
