@@ -10,6 +10,8 @@ import { normalizeCanonicalGenres } from '../src/utils/genreNormalizer.js';
 import { planReleaseGenres } from '../scripts/lib/release-genres.mjs';
 import emailArtwork from '../src/utils/genreEmailArtwork.cjs';
 import sharp from 'sharp';
+import variationAudit from '../scripts/lib/audit-genre-variations.cjs';
+import variationRules from '../src/utils/genreVariationRules.cjs';
 import { splitArtists, slugifyArtist } from '../src/utils/ratingUtils.js';
 import { generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml, prepareAttachmentsAndImages } from '../src/services/emailService.js';
 
@@ -17,8 +19,8 @@ test('email vinyl uses the first genre and embeds an actual PNG compatible with 
   const input = { albumName: 'Example', artistName: 'Example', genres: ['K-Pop', 'Pop'], imageUrl: '', breakdown: {} };
   for (const render of [generatePoolWinnerHtml, generatePoolGraduatedHtml, generateUpcomingConfirmationHtml, generateUpcomingReleaseDayHtml, generateSongRecommendationHtml]) {
     const html = render(input);
-    assert.ok(html.includes('/genres/vinyl/v3/k-pop.png'));
-    assert.ok(!html.includes('/genres/vinyl/v3/pop.png'));
+    assert.ok(html.includes('/genres/vinyl/v4/k-pop.png'));
+    assert.ok(!html.includes('/genres/vinyl/v4/pop.png'));
     assert.ok(!html.includes('border-collapse: collapse'));
   }
   const prepared = await prepareAttachmentsAndImages({ genres: input.genres });
@@ -117,7 +119,7 @@ test('every genre reveal has a separate center without an embedded outer record'
     const art = visuals.genreRevealArtwork(genre.id);
     assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
-    assert.match(art.center, /^\/genres\/symbols\/v3\/[^/]+\.svg$/);
+    assert.match(art.center, /^\/genres\/symbols\/v4\/[^/]+\.svg$/);
     const svg = symbols.genreSymbol(genre.id).svg;
     assert.match(svg,/viewBox="0 0 100 100"/);
     assert.ok(!svg.includes('clipPath'),genre.id);
@@ -220,4 +222,12 @@ test('all genres have individual center geometry and metal subgenres retain thei
   assert.equal(symbols.genreSymbol('doom metal').modifier,'doom');
   assert.equal(symbols.genreSymbol('atmospheric black metal').modifier,'atmospheric');
   assert.equal(symbols.genreSymbol('not-a-musical-genre'),null);
+});
+
+test('all canonical genre compositions remain unique without colors, rims, labels or badge reordering', async () => {
+  assert.equal(variationRules.variationSignature('bolt',['moon','skull']),variationRules.variationSignature('bolt',['skull','moon']));
+  const report=await variationAudit.auditGenreVariations();
+  assert.deepEqual(report.duplicates,[]);
+  assert.equal(report.uniqueCompositions,genres.GENRES.length);
+  for(const size of report.monochromeImages)assert.equal(size.unique,genres.GENRES.length,`${size.size}px monochrome`);
 });
