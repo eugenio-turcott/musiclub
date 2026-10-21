@@ -55,4 +55,5 @@ module.exports = {
   choir: ['Coro', '<circle cx="12" cy="5" r="2"/><circle cx="5" cy="9" r="2"/><circle cx="19" cy="9" r="2"/><path d="M8 14v-3c0-4 8-4 8 0v3M2 20v-5c0-3 6-3 6 0v5M16 20v-5c0-3 6-3 6 0v5M8 22v-6h8v6"/>'],
   pedalSteel: ['Guitarra de pedal steel', '<rect x="2" y="5" width="20" height="7" rx="1"/><path d="M4 8h16M5 12 3 22M19 12l2 10M8 12v7M12 12v7M16 12v7M7 19h11"/>'],
   cowbells: ['Campanas metálicas', '<path d="m4 4 4-1 3 14H2L4 4ZM15 7l4-1 3 14H12l3-13ZM4 20h5M15 23h5"/>'],
+  dhol: ['Dhol', '<ellipse cx="5" cy="12" rx="3" ry="7"/><ellipse cx="19" cy="12" rx="3" ry="7"/><path d="M5 5c5-2 9-2 14 0M5 19c5 2 9 2 14 0M8 7l8 10M8 17l8-10M7 2 4 4M17 2l3 2"/>'],
 };

@@ -2,7 +2,7 @@
 
 El registro completo vigente contiene 2.220 entradas. Cada una tiene una figura principal con nombre y, cuando corresponde, hasta dos detalles de variante. Son asociaciones editoriales para Musiclub, no símbolos oficiales ni afirmaciones de que todos los releases de un género utilicen ese instrumento.
 
-La biblioteca contiene 169 figuras: 54 instrumentos y objetos dibujados para Musiclub y 115 elementos de Tabler Icons 3.49.0 (MIT). Todos usan una retícula de 24 × 24, trazo de 2 unidades, extremos redondeados y uniones redondeadas. No se mezclan iconos rellenos con contornos ni se sustituyen géneros por polígonos aleatorios.
+La biblioteca contiene 169 figuras: 55 instrumentos y objetos dibujados para Musiclub y 114 elementos de Tabler Icons 3.49.0 (MIT). Todos usan una retícula de 24 × 24, trazo de 2 unidades, extremos redondeados y uniones redondeadas. No se mezclan iconos rellenos con contornos ni se sustituyen géneros por polígonos aleatorios.
 
 ## Control de los dibujos y las asignaciones
 
@@ -21,7 +21,7 @@ Ejemplo de control: `"k-pop": {"figure":"lightstick","details":[]}`. Black Metal
 3. `node scripts/preview-music-icons.cjs` crea la lámina de instrumentos propios. `comparativa.png` compara familias y variantes a 120 y 30 píxeles.
 4. Ejecutar `npm run test:critical` y comprobar los géneros en el catálogo y Gashapon. Las pruebas exigen cobertura del registro entero, figuras existentes, geometría válida, coherencia entre alias, colores únicos y familias de Metal diferenciadas.
 
-Los recursos web y de correo usan `/genres/symbols/v2/` y `/genres/vinyl/v2/`. Al cambiar una figura publicada se debe incrementar la versión de ambas rutas para evitar iconos antiguos en la caché. Los archivos heredados se actualizan con `node scripts/refresh-legacy-genre-icons.cjs`, que conserva los discos y sus paletas.
+Los recursos web y de correo usan `/genres/symbols/v3/` y `/genres/vinyl/v3/`. Al cambiar una figura publicada se debe incrementar la versión de ambas rutas para evitar iconos antiguos en la caché. Los archivos heredados se actualizan con `node scripts/refresh-legacy-genre-icons.cjs`, que conserva los discos y sus paletas.
 
 ## Géneros nuevos
 
