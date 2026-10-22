@@ -56,11 +56,20 @@ test('editorial selections change banners and retain real release links without 
   const section=page.locator('section').filter({has:page.getByRole('heading',{name:'En el radar.',exact:true})});
   await section.scrollIntoViewIfNeeded();
   await expect(section.getByRole('link',{name:'Descubrir Popstar de Tinashe'})).toHaveAttribute('href','/albumes/tinashe-popstar');
-  await section.getByRole('tab',{name:/Próximo Estreno/}).click();
+  await section.getByRole('button',{name:'Mostrar Próximo Estreno'}).click();
   await expect(section.getByRole('link',{name:'Descubrir wor$t man in america de Slayyyter'})).toHaveAttribute('href',/slayyyter/);
-  await section.getByRole('tab',{name:/Release Underground/}).click();
+  await section.getByRole('button',{name:'Mostrar Release Underground'}).click();
   await expect(section.getByRole('link',{name:'Descubrir House of LION BABE de LION BABE'})).toHaveAttribute('href','/albumes/lion-babe-house-of-lion-babe');
   await expect(section.locator('img')).toHaveJSProperty('naturalWidth',1600);
+  await expect(section.locator('img')).toHaveAttribute('src',/lion-babe-house-canva-v2/);
+  await expect(section.getByRole('tab')).toHaveCount(0);
+  await expect(section).not.toContainText('SELECCIÓN DE LOS ADMINS');
+  await expect(section).not.toContainText('Tres miradas');
+  await expect(section).not.toContainText('MunRis');
+  await section.getByRole('button',{name:'Release siguiente'}).click();
+  await expect(section.getByRole('link',{name:'Descubrir Popstar de Tinashe'})).toBeVisible();
+  await section.getByRole('button',{name:'Release anterior'}).click();
+  await expect(section.getByRole('button',{name:'Mostrar Release Underground'})).toHaveAttribute('aria-current','true');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
