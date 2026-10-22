@@ -1,5 +1,16 @@
-import { collectOfficialArtist, mergeOfficialReleases } from './officialArtistCatalog.mjs';
-export const ARTIST_FIELDS='slug,name,profile,providers,checked_at,refresh_after';
+import { collectOfficialArtist, mergeOfficialReleases, storedOfficialArtistName } from './officialArtistCatalog.mjs';
+export const ARTIST_FIELDS='slug,name,profile,providers,checked_at,refresh_after,updated_at';
+export async function repairStoredArtistName(db, slug) {
+  const stored = await readStoredArtist(db, slug);
+  if (!stored) return;
+  const name = storedOfficialArtistName(stored.profile, stored.name);
+  if (!name || (name === stored.name && name === stored.profile?.artist?.name)) return;
+  const patch = { name, profile: { ...stored.profile, artist: { ...stored.profile?.artist, name } }, updated_at: new Date().toISOString() };
+  let update = db.from('artist_discographies').update(patch).eq('slug', slug);
+  if (stored.updated_at) update = update.eq('updated_at', stored.updated_at);
+  const result = await update;
+  if (result.error) throw new Error('No se pudo guardar el nombre oficial');
+}
 export async function readStoredArtist(db,slug) {
   const {data,error}=await db.from('artist_discographies').select(ARTIST_FIELDS).eq('slug',slug).maybeSingle();
   if(error) return null; // Missing migration must not take the public pages down.
@@ -21,6 +32,7 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
   const now=new Date();
   const patch={lease_until:null,refresh_after:new Date(now.getTime()+(profile.success?86400000:3600000)).toISOString(),updated_at:now.toISOString()};
   if(profile.success) {
+    patch.name=profile.artist?.name || previous?.name || name;
     patch.profile={...profile,discography:mergeOfficialReleases(previous?.profile?.discography || [],profile.discography)};
     patch.providers=Object.fromEntries(Object.entries(profile.providers).map(([provider,value])=>[provider,{...previous?.providers?.[provider],...value}]));
     patch.profile.providers=patch.providers;patch.checked_at=profile.checkedAt;
@@ -32,9 +44,16 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
 
 
 // Always return persisted public data, including after a first-time discovery.
-export async function loadStoredArtist(db,slug,{hasLocal=false,canDiscover=false,refresh,schedule}={}) {
+export async function loadStoredArtist(db,slug,{hasLocal=false,canDiscover=false,refresh,schedule,repairName}={}) {
   const stored=await readStoredArtist(db,slug);
-  const profile=stored?.profile?.discography?.length ? stored.profile : null;
+  let profile=stored?.profile?.discography?.length ? stored.profile : null;
+  if (profile) {
+    const name = storedOfficialArtistName(profile, stored.name);
+    if (name && (name !== profile.artist?.name || name !== stored.name)) {
+      profile = { ...profile, artist: { ...profile.artist, name } };
+      if (canDiscover && repairName) schedule(repairName);
+    }
+  }
   const needsRefresh=!stored || Date.parse(stored.refresh_after)<=Date.now();
   if(profile || hasLocal) {
     if(canDiscover && needsRefresh) schedule(refresh);

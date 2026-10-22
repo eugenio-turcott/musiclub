@@ -2,7 +2,7 @@ import 'server-only';
 import { after } from 'next/server';
 import { headers } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
-import { loadStoredArtist, refreshStoredArtist } from '../services/artistDiscographyStore.mjs';
+import { loadStoredArtist, refreshStoredArtist, repairStoredArtistName } from '../services/artistDiscographyStore.mjs';
 import { allowRequest } from './rateLimit';
 
 export async function getStoredArtistProfile(db,slug,name,hasLocal=false) {
@@ -19,5 +19,11 @@ export async function getStoredArtistProfile(db,slug,name,hasLocal=false) {
     } catch {console.warn('La discografía se conserva; se reintentará su actualización.');}
   };
   return loadStoredArtist(db,slug,{hasLocal,canDiscover:!!key && valid && !!name,refresh,
+    repairName:async()=>{
+      try {
+        const admin=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL,key,{auth:{persistSession:false,autoRefreshToken:false}});
+        await repairStoredArtistName(admin,slug);
+      } catch {console.warn('Se reintentará guardar el nombre oficial del artista.');}
+    },
     schedule:task=>after(task)});
 }

@@ -1,4 +1,6 @@
 'use client';
+import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
+import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
 import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
 import { PoolHero } from '../components/PoolHero';
 import { PoolManualControls } from '../components/PoolManualControls';
@@ -142,17 +144,10 @@ export function PoolPage() {
   const [nominationSuccess, setNominationSuccess] = useState(false);
   const [nominationError, setNominationError] = useState('');
   const closeNomination = () => { if (submittingNomination) return; nominationSelection.current++; setShowNominateModal(false); setNominationSuccess(false); setSelectedAlbumToNominate(null); setNominationError(''); setNominationNote(''); };
-  const enrichGenres = async item => {
-    const known = genreCatalog.normalizeGenres(item.genres || []);
-    if (known.length) return { ...item, genres: known };
-    const clean = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
-    try {
-      const matches = await searchMusicBrainzReleases(`${item.artistName} ${item.albumName}`, 8);
-      const match = matches.find(m => clean(m.name) === clean(item.albumName) && clean(m.artist) === clean(item.artistName));
-      if (match) { const details = await getMusicBrainzReleaseGroupDetails(match.mbid); return { ...item, genres: genreCatalog.normalizeGenres(details?.genres || []) }; }
-    } catch {}
-    return { ...item, genres: [] };
-  };
+  const enrichGenres = item => enrichPoolReleaseGenres(item, {
+    searchDeezer: searchDeezerAlbums, deezerDetails: getDeezerAlbumDetails,
+    searchMusicBrainz: searchMusicBrainzReleases, musicBrainzDetails: getMusicBrainzReleaseGroupDetails,
+  });
 
   // Format filter calculation
   const formatCounts = useMemo(() => {
@@ -1256,7 +1251,7 @@ export function PoolPage() {
 
                   <PoolCapsuleDeposit album={selectedAlbumToNominate} user={user} />
                   <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs text-cyan-100">Tu propuesta se registra en <strong>{season.name}</strong>. Proponer no habilita las reseñas: el administrador elige el ganador y controla cuándo se puede calificar.</p>
-                  {genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length ? <div className="flex flex-wrap gap-2">{genreCatalog.normalizeGenres(selectedAlbumToNominate.genres).map(genre => <GenreLabel key={genre} genre={genre} className="rounded-lg bg-white/5 px-2 py-1 text-xs" />)}</div> : !selectedAlbumToNominate.albumId && <label className="block text-xs text-slate-300">Género principal de este release
+                  {genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length ? <div className="flex flex-wrap gap-2">{genreCatalog.normalizeGenres(selectedAlbumToNominate.genres).map(genre => <GenreLabel key={genre} genre={genre} className="rounded-lg bg-white/5 px-2 py-1 text-xs" />)}</div> : !selectedAlbumToNominate.albumId && <label className="block text-xs text-slate-300">No encontramos el género automáticamente. Indica el principal para completar la cápsula.
                     <select value="" onChange={event => setSelectedAlbumToNominate(previous => ({...previous, genres: genreCatalog.normalizeGenres([event.target.value])}))} className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-[#111424] p-2 text-white"><option value="">Elige un género para continuar</option>{genreCatalog.GENRES.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select>
                   </label>}
                   <div>
