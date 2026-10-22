@@ -92,7 +92,7 @@ test('catalogue searches Musiclub first and renders Spotify-only fallback withou
   await expect(page.getByRole('heading',{name:'Órbita lejana',exact:true})).toBeVisible();
   expect(searches).toBeGreaterThan(0);
   await expect(page.getByRole('link',{name:'Abrir Órbita lejana en Spotify',exact:true})).toHaveAttribute('href','https://open.spotify.com/album/1234567890123456789012');
-  await page.getByRole('button',{name:'Ver Álbum en Musiclub',exact:true}).click();
+  await page.getByRole('button',{name:/Ver Álbum en Musiclub/}).click();
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
   expect(inserts).toBe(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
