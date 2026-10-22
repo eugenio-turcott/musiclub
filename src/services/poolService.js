@@ -125,12 +125,16 @@ export const poolService = {
    */
   updateSeason: async (seasonId, seasonData) => {
     const { is_active, ...fields } = seasonData;
+    // Optional empty date inputs must be SQL NULL, never an empty date string.
+    if (Object.hasOwn(fields, 'end_date')) fields.end_date = fields.end_date?.trim() || null;
+    // A metadata-only edit must not erase an existing start date.
+    if (Object.hasOwn(fields, 'start_date') && !fields.start_date?.trim()) delete fields.start_date;
     const { error: updateError } = await supabase.from('seasons').update(fields).eq('id', seasonId);
     if (updateError) throw new Error(updateError.message);
     if (is_active) await poolService.setActiveSeason(seasonId);
 
     const current = await poolService.getSeasons();
-    let updated = current.map((s) => (s.id === seasonId ? { ...s, ...seasonData } : s));
+    let updated = current.map((s) => (s.id === seasonId ? { ...s, ...fields } : s));
     if (seasonData.is_active) {
       updated = updated.map((s) => (s.id === seasonId ? s : { ...s, is_active: false }));
     }

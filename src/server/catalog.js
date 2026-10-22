@@ -1,4 +1,5 @@
 import editions from '../utils/releaseEditions.cjs';
+import reviewChronology from '../utils/reviewChronology.cjs';
 import 'server-only';
 import { unstable_cache } from 'next/cache';
 import { cache } from 'react';
@@ -49,11 +50,11 @@ export const getPublicCatalog = cache(async () => {
     reviews: [], track_stats: [],
   }));
   const byId = new Map(detailed.flatMap(a => (a.edition_member_ids || [a.id]).map(id=>[id,a])));
-  return { albums: detailed, rawAlbums: publicData(albums), reviews: publicData(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
+  return { albums: detailed, rawAlbums: publicData(albums), reviews: publicData(reviewChronology.sortReviewsNewestFirst(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
     id: r.album_id, album_name: byId.get(r.album_id).album_name, artist_name: byId.get(r.album_id).artist_name,
     image_url: byId.get(r.album_id).image_url, release_type: byId.get(r.album_id).release_type,
     release_year: byId.get(r.album_id).release_year, tracks: byId.get(r.album_id).tracks,
-  } : null })).sort((a,b) => String(b.created_at).localeCompare(String(a.created_at)))),
+  } : null })))),
     stats: { total_reviews: reviews.length, total_albums: detailed.length,
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
       total_users: profiles.length, top_score: Math.max(0, ...detailed.map(a => a.final_rating || 0)) } };

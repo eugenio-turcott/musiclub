@@ -7,7 +7,7 @@ export const albums = ['Azul','Rojo','Verde'].map((name,index) => ({
 }));
 export const reviews=albums.map((album,index)=>({
   id:`review-${index}`, album_id:album.id, reviewer_name:'Miembro de Prueba',
-  rating_general:8, comment:'Una reseña de prueba.', created_at:'2025-01-02T00:00:00Z',
+  rating_general:8, comment:index===2?'':'Una reseña de prueba.', created_at:`2025-01-0${index+2}T00:00:00Z`,
 }));
 export const tables={albums, public_reviews:reviews, public_profiles:[], public_cover_ratings:[],record_club_upcoming:[],record_club_trending:[]};
 
@@ -17,4 +17,4 @@ tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estren
 
 // Historical variant rows remain readable, while the public catalogue groups them with the standard release.
 tables.albums.push({...albums[0],id:'clean-variant-fixture',album_name:'Azul (Clean)',tracks:[{id:'clean-track',name:'Canción de prueba',track_number:1}]});
-tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña de la variante limpia.'});
+tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña anterior de la variante limpia. '.repeat(30),created_at:'2025-01-01T00:00:00Z'});

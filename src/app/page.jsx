@@ -20,7 +20,7 @@ export default async function HomePage() {
   const add = album => selected.set(album.id, album);
   data.albums.filter(a => a.review_count > 0).sort((a, b) => b.final_rating - a.final_rating).slice(0, 15).forEach(add);
   [...data.albums].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at))).slice(0, 24).forEach(add);
-  data.reviews.filter(review => review.comment?.trim()).sort((a,b) => Math.min(b.comment.trim().length, 600) - Math.min(a.comment.trim().length, 600)).slice(0, 6).forEach(review => {
+  data.reviews.slice(0, 3).forEach(review => {
     const album = data.albums.find(a => a.id === review.album_id || a.edition_member_ids?.includes(review.album_id));
     if (album) add(album);
   });

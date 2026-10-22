@@ -571,6 +571,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                             ? new Date(review.created_at).toLocaleDateString(
                                 'es-ES',
                                 {
+                                  timeZone: 'America/Mexico_City',
                                   day: 'numeric',
                                   month: 'short',
                                   year: 'numeric',
