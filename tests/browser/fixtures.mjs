@@ -17,4 +17,4 @@ tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estren
 
 // Historical variant rows remain readable, while the public catalogue groups them with the standard release.
 tables.albums.push({...albums[0],id:'clean-variant-fixture',album_name:'Azul (Clean)',tracks:[{id:'clean-track',name:'Canción de prueba',track_number:1}]});
-tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña anterior de la variante limpia. '.repeat(30),created_at:'2025-01-01T00:00:00Z'});
+tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña de la variante limpia.',created_at:'2025-01-01T00:00:00Z'});
