@@ -3,6 +3,20 @@ import identity from '../utils/releaseIdentity.cjs';
 import genreCatalog from '../utils/genreCatalog.cjs';
 const { slugify } = identity;
 const artistKey = value => slugify(value);
+export function storedOfficialArtistName(profile, fallback = '') {
+  const original = profile?.artist?.name || fallback;
+  if (profile?.source !== 'OFFICIAL') return original;
+  const evidence = [];
+  for (const release of profile.discography || []) {
+    const rank = Math.min(...(release.sources || []).map(source => ['SPOTIFY','DEEZER','APPLE'].indexOf(source.provider)).filter(value => value >= 0));
+    if (!Number.isFinite(rank)) continue;
+    for (const artist of release.artists || []) {
+      const name = typeof artist === 'string' ? artist : artist?.name;
+      if (name && artistKey(name) === artistKey(original)) evidence.push({ name, rank });
+    }
+  }
+  return evidence.sort((a,b) => a.rank - b.rank)[0]?.name || original;
+}
 const titleKey = value => slugify(String(value || '').replace(/ - (Single|EP)$/i,''), true);
 export function mergeOfficialReleases(previous = [], incoming = []) {
   const variants=new Map();
@@ -131,8 +145,9 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
       const data=await json(`https://itunes.apple.com/lookup?id=${a.artistId}&entity=album&limit=200&country=mx`);
       return (data.results||[]).filter(item=>item.wrapperType==='collection' && item.artistId===a.artistId);
     }});
-    return {artist:{name:artist.name,image:'',genres:genreCatalog.normalizeGenres([artist.primaryGenreName])},provider:'APPLE',artistId:String(artist.artistId),complete:items.length<200,
-      releases:items.map(a=>({id:`itunes_${a.collectionId}`,name:a.collectionName,artists:[artist.name],releaseDate:a.releaseDate?.slice(0,10) || '',releaseYear:Number(a.releaseDate?.slice(0,4)) || null,
+    const officialName = items.find(item=>item.artistName && artistKey(item.artistName)===artistKey(name))?.artistName || artist.name;
+    return {artist:{name:officialName,image:'',genres:genreCatalog.normalizeGenres([artist.primaryGenreName])},provider:'APPLE',artistId:String(artist.artistId),complete:items.length<200,
+      releases:items.map(a=>({id:`itunes_${a.collectionId}`,name:a.collectionName,artists:[officialName],releaseDate:a.releaseDate?.slice(0,10) || '',releaseYear:Number(a.releaseDate?.slice(0,4)) || null,
         release_type:releaseType(a.collectionName, / - Single$/.test(a.collectionName)?'single':/ - EP$/.test(a.collectionName)?'ep':'album',a.trackCount),totalTracks:a.trackCount || null,
         explicit:a.collectionExplicitness==='explicit',genres:genreCatalog.normalizeGenres([a.primaryGenreName]),image:a.artworkUrl100?.replace('100x100bb','600x600bb') || '',source:'APPLE',
         sources:[{provider:'APPLE',id:String(a.collectionId),url:a.collectionViewUrl}]}))};
@@ -160,7 +175,7 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
     const results=await Promise.allSettled([spotify(),deezer(),apple()]);
     const accepted=results.filter(r=>r.status==='fulfilled').map(r=>r.value);
     ['SPOTIFY','DEEZER','APPLE'].forEach((provider,i)=>{providers[provider]=results[i].status==='fulfilled' ? {status:results[i].value.complete?'ok':'partial',count:results[i].value.releases.length,artistId:results[i].value.artistId} : {status:'unavailable'};});
-    return {success:accepted.some(a=>a.releases.length),source:'OFFICIAL',artist:{name,image:accepted.find(a=>a.artist.image)?.artist.image || '',genres:[...new Set(accepted.flatMap(a=>a.artist.genres))]},
+    return {success:accepted.some(a=>a.releases.length),source:'OFFICIAL',artist:{name:accepted.find(a=>a.releases.length && a.artist.name)?.artist.name || name,image:accepted.find(a=>a.artist.image)?.artist.image || '',genres:[...new Set(accepted.flatMap(a=>a.artist.genres))]},
       discography:mergeOfficialReleases([],accepted.flatMap(a=>a.releases)),providers,checkedAt:new Date().toISOString()};
   } finally {clearTimeout(timer);}
 }

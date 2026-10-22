@@ -6,7 +6,7 @@ export const albums = ['Azul','Rojo','Verde'].map((name,index) => ({
   tracks:[{id:`track-${index}`,name:'Canción de prueba',track_number:1}], total_tracks:1,
 }));
 export const reviews=albums.map((album,index)=>({
-  id:`review-${index}`, album_id:album.id, reviewer_name:'Miembro de Prueba',
+  id:`review-${index}`, album_id:album.id, reviewer_name:index===2?'Otra persona actual':'Miembro de Prueba',
   rating_general:8, comment:index===2?'':'Una reseña de prueba.', created_at:`2025-01-0${index+2}T00:00:00Z`,
 }));
 export const tables={albums, public_reviews:reviews, public_profiles:[], public_cover_ratings:[],record_club_upcoming:[],record_club_trending:[]};
@@ -18,3 +18,5 @@ tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estren
 // Historical variant rows remain readable, while the public catalogue groups them with the standard release.
 tables.albums.push({...albums[0],id:'clean-variant-fixture',album_name:'Azul (Clean)',tracks:[{id:'clean-track',name:'Canción de prueba',track_number:1}]});
 tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña de la variante limpia.',created_at:'2025-01-01T00:00:00Z'});
+
+tables.artist_discographies.push({slug:'the-weeknd',name:'the weeknd',refresh_after:'2099-01-01',updated_at:'2026-10-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd',genres:['Pop']},discography:[{id:'deezer_weeknd_fixture',name:'Starboy',artists:['The Weeknd'],release_type:'ALBUM',releaseDate:'2016-11-25',image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'weeknd_fixture'}]}]}});

@@ -195,3 +195,32 @@ test('legacy URLs and original IDs resolve one grouped work without hiding unrel
  assert.equal((await lookup.resolvePublicRelease('clean',[standard,clean],async()=>[])).album.id,'base');
  assert.equal((await lookup.resolvePublicRelease('blue',[standard,{...clean,id:'other',artist_name:'Another Artist'}],async()=>[])).ambiguous,true);
 });
+
+ test('official collection keeps provider capitalization instead of the lower-case URL name',async()=>{
+  const fetcher=async url=>{
+   let data;
+   if(url.includes('/search/artist')) data={data:[{id:1,name:'The Weeknd'}]};
+   else if(url.includes('/artist/1/albums')) data={data:[{id:10,title:'Starboy',nb_tracks:18,cover_xl:'https://example.test/cover.jpg',genres:{data:[{name:'Pop'}]}}]};
+   else if(url.includes('/album/10')) data={id:10,title:'Starboy',nb_tracks:18,cover_xl:'https://example.test/cover.jpg',genres:{data:[{name:'Pop'}]}};
+   else throw Error('Provider unavailable');
+   return {ok:true,json:async()=>data};
+  };
+  const profile=await collectOfficialArtist('the weeknd',{fetcher,env:{}});
+  assert.equal(profile.artist.name,'The Weeknd');
+ });
+
+ test('legacy names are recovered from matching official credits and persisted without another provider lookup',async()=>{
+  const {storedOfficialArtistName}=await import('../src/services/officialArtistCatalog.mjs');
+  const {repairStoredArtistName}=await import('../src/services/artistDiscographyStore.mjs');
+  let stored={name:'the weeknd',updated_at:'2026-10-01',refresh_after:'2099-01-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd'},discography:[release('Starboy','DEEZER','1',{artists:['The Weeknd','Someone Else']})]}};
+  let patch,scheduled;const filters=[];
+  const db={from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:stored})})}),update:value=>{
+   patch=value;const update={eq(key,value){filters.push([key,value]);return update;},then(resolve){stored={...stored,...patch};return Promise.resolve({}).then(resolve);}};return update;
+  }})};
+  const profile=await loadStoredArtist(db,'the-weeknd',{canDiscover:true,schedule:task=>scheduled=task,repairName:()=>repairStoredArtistName(db,'the-weeknd')});
+  assert.equal(profile.artist.name,'The Weeknd');
+  await scheduled();
+  assert.equal(stored.name,'The Weeknd');assert.equal(stored.profile.artist.name,'The Weeknd');
+  assert.equal(stored.profile.discography.length,1);assert.deepEqual(filters,[['slug','the-weeknd'],['updated_at','2026-10-01']]);
+  assert.equal(storedOfficialArtistName({source:'OFFICIAL',artist:{name:'billie eilish'},discography:[release('Album','SPOTIFY','2',{artists:['billie eilish']})]}),'billie eilish');
+ });

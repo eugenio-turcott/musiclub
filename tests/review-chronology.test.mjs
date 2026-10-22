@@ -24,3 +24,19 @@ test('chronology compares actual instants across timezones and puts missing date
   assert.deepEqual(chronology.sortReviewsNewestFirst(reviews).map(r => r.id), ['later','earlier','invalid','unknown']);
   assert.deepEqual(chronology.sortReviewsNewestFirst([]), []);
 });
+
+test('community highlights keep the newest review per person and ignore comment length', () => {
+ const reviews=[
+  {id:'old-long',reviewer_name:'Corpus',created_at:'2026-09-01',comment:'long '.repeat(200)},
+  {id:'latest',reviewer_name:'Santi',created_at:'2026-10-22',comment:''},
+  {id:'repeat',reviewer_name:' SANTI ',created_at:'2026-10-21'},
+  {id:'second',reviewer_name:'Abel',created_at:'2026-10-20'},
+  {id:'third',reviewer_name:'Otra persona',created_at:'2026-10-19'},
+ ];
+ assert.deepEqual(chronology.latestCommunityReviews(reviews).map(r=>r.id),['latest','second','third']);
+ assert.equal(chronology.latestCommunityReviews([{id:'a',user_id:'one',reviewer_name:'Antes'},{id:'b',user_id:'one',reviewer_name:'Después'}]).length,1);
+});
+
+ test('community highlights return fewer than three when fewer distinct authors exist',()=>{
+  assert.equal(chronology.latestCommunityReviews([{reviewer_name:'Only one'},{reviewer_name:'Only one'}]).length,1);
+ });

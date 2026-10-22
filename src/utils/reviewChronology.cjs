@@ -9,4 +9,14 @@ function sortReviewsNewestFirst(reviews = []) {
     return String(a.id || '').localeCompare(String(b.id || ''));
   });
 }
-module.exports = { sortReviewsNewestFirst };
+function latestCommunityReviews(reviews = [], limit = 3) {
+  const seen = new Set();
+  return sortReviewsNewestFirst(reviews).filter(review => {
+    const identity = review.user_id || review.author_email || review.reviewer_email || review.reviewer_name || 'anonymous';
+    const key = String(identity).normalize('NFC').trim().toLowerCase().replace(/\s+/g, ' ');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  }).slice(0, limit);
+}
+module.exports = { sortReviewsNewestFirst, latestCommunityReviews };

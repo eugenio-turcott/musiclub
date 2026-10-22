@@ -78,6 +78,8 @@ test('catalogue searches Musiclub first and renders Spotify-only fallback withou
   await page.route('**/api/spotify?*',route=>{
     const path=new URL(route.request().url()).searchParams.get('path') || '';
     if(!path.startsWith('/v1/search'))return route.fulfill({status:503,json:{error:'No detail fixture'}});
+    const query = new URL(path,'https://api.spotify.com').searchParams.get('q');
+    if (!['Azul','Órbita lejana'].includes(query)) return route.fulfill({json:{albums:{items:[],next:null},artists:{items:[]},tracks:{items:[]}}});
     searches++;
     return route.fulfill({json:{albums:{items:[{id:'1234567890123456789012',name:'Órbita lejana',artists:[{name:'Nuevo Artista'}],images:[{url:'/musiclub_logo.png'}],release_date:'2026-10-01',total_tracks:11,album_type:'album',external_urls:{spotify:'https://open.spotify.com/album/1234567890123456789012'}}],next:null}}});
   });
@@ -88,6 +90,7 @@ test('catalogue searches Musiclub first and renders Spotify-only fallback withou
   await page.getByRole('textbox',{name:'Buscar álbum, artista o curador en el catálogo'}).fill('Órbita lejana');
   await expect(page.getByRole('status').filter({hasText:'Resultados de Spotify'})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Órbita lejana',exact:true})).toBeVisible();
+  expect(searches).toBeGreaterThan(0);
   await expect(page.getByRole('link',{name:'Abrir Órbita lejana en Spotify',exact:true})).toHaveAttribute('href','https://open.spotify.com/album/1234567890123456789012');
   await page.getByRole('button',{name:'Ver Álbum en Musiclub',exact:true}).click();
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
@@ -313,18 +316,26 @@ test('genre viewer uses a gentle initial speed with reduced motion and never sto
 });
 
 
-test('home shows the same newest three reviews as the feed, including repeated authors and empty comments',async({page})=>{
+test('home shows the newest reviews from three distinct people while the full feed retains every review',async({page})=>{
   await page.goto('/');
   const section=page.locator('section').filter({has:page.getByRole('heading',{name:'La Voz de la Comunidad',exact:true})});
   const releaseLinks=section.getByRole('link',{name:'Ver lanzamiento →',exact:true});
   await expect(releaseLinks).toHaveCount(3);
   const expected=['/albumes/artista-de-prueba-verde','/albumes/artista-de-prueba-rojo','/albumes/artista-de-prueba-azul'];
   for(let i=0;i<3;i++)await expect(releaseLinks.nth(i)).toHaveAttribute('href',expected[i]);
-  await expect(section.getByText('Miembro de Prueba',{exact:true})).toHaveCount(3);
+  await expect(section.getByText('Miembro de Prueba',{exact:true})).toHaveCount(1);
+  await expect(section.getByText('Otra persona actual',{exact:true})).toHaveCount(1);
+  await expect(section.getByText('Otra persona',{exact:true})).toHaveCount(1);
   await expect(section).toContainText('Calificó y puntuó este lanzamiento en la comunidad.');
   await page.goto('/reviews');
   // The review list uses the same canonical release links and preserves descending dates.
   await expect(page.locator('h4').nth(0)).toHaveText('Verde');
   await expect(page.locator('h4').nth(1)).toHaveText('Rojo');
   await expect(page.locator('h4').nth(2)).toHaveText('Azul');
+});
+
+test('an artist discovered through a lower-case URL keeps official capitalization',async({page})=>{
+  await page.goto('/artista/the-weeknd');
+  await expect(page.getByRole('heading',{name:'The Weeknd',exact:true})).toBeVisible();
+  await expect(page).toHaveTitle(/^The Weeknd/);
 });

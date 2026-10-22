@@ -303,10 +303,10 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
     return null;
   }, [reviewedAlbumsList, currentVinylIndex, winner]);
 
-  // Las tres reseñas más recientes, con el mismo orden que el feed público.
+  // La reseña más reciente de cada persona, hasta tres personas distintas.
   const communityReviews = useMemo(() => {
     const latestList = [];
-    for (const rev of reviewChronology.sortReviewsNewestFirst(allReviews).slice(0, 3)) {
+    for (const rev of reviewChronology.latestCommunityReviews(allReviews)) {
       // Encontrar álbum asociado si no vino por join
       const matchedAlbum =
         rev.albums ||
