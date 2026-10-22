@@ -311,3 +311,20 @@ test('genre viewer uses a gentle initial speed with reduced motion and never sto
   await expect.poll(()=>record.getAttribute('style')).not.toBe(initial);
   await viewer.getByRole('button',{name:'Cerrar vinilo ampliado'}).click();
 });
+
+
+test('home shows the same newest three reviews as the feed, including repeated authors and empty comments',async({page})=>{
+  await page.goto('/');
+  const section=page.locator('section').filter({has:page.getByRole('heading',{name:'La Voz de la Comunidad',exact:true})});
+  const releaseLinks=section.getByRole('link',{name:'Ver lanzamiento →',exact:true});
+  await expect(releaseLinks).toHaveCount(3);
+  const expected=['/albumes/artista-de-prueba-verde','/albumes/artista-de-prueba-rojo','/albumes/artista-de-prueba-azul'];
+  for(let i=0;i<3;i++)await expect(releaseLinks.nth(i)).toHaveAttribute('href',expected[i]);
+  await expect(section.getByText('Miembro de Prueba',{exact:true})).toHaveCount(3);
+  await expect(section).toContainText('Calificó y puntuó este lanzamiento en la comunidad.');
+  await page.goto('/reviews');
+  // The review list uses the same canonical release links and preserves descending dates.
+  await expect(page.locator('h4').nth(0)).toHaveText('Verde');
+  await expect(page.locator('h4').nth(1)).toHaveText('Rojo');
+  await expect(page.locator('h4').nth(2)).toHaveText('Azul');
+});

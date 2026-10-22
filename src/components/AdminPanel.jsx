@@ -145,7 +145,7 @@ export function AdminPanel({ onClose, isPage = true }) {
     season_number: 1,
     name: '',
     start_date: '',
-    end_date: '',
+    end_date: null,
     is_active: false,
     description: '',
   });
@@ -303,7 +303,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       season_number: nextNumber,
       name: `Temporada ${nextNumber}`,
       start_date: new Date().toISOString().split('T')[0],
-      end_date: '',
+      end_date: null,
       is_active: false,
       description: '',
     });
@@ -317,7 +317,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       season_number: season.season_number || 1,
       name: season.name || '',
       start_date: season.start_date || '',
-      end_date: season.end_date || '',
+      end_date: season.end_date || null,
       is_active: Boolean(season.is_active),
       description: season.description || '',
     });

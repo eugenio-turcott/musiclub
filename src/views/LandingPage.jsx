@@ -1,4 +1,5 @@
 'use client';
+import reviewChronology from '../utils/reviewChronology.cjs';
 import { GenreIconStrip } from '../components/GenreIconStrip';
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
@@ -302,74 +303,54 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
     return null;
   }, [reviewedAlbumsList, currentVinylIndex, winner]);
 
-  // Reseñas comunitarias: Exactamente 3 reseñas de 3 usuarios DISTINTOS
+  // Las tres reseñas más recientes, con el mismo orden que el feed público.
   const communityReviews = useMemo(() => {
-    if (!allReviews || allReviews.length === 0) return [];
+    const latestList = [];
+    for (const rev of reviewChronology.sortReviewsNewestFirst(allReviews).slice(0, 3)) {
+      // Encontrar álbum asociado si no vino por join
+      const matchedAlbum =
+        rev.albums ||
+        albums.find(
+          (a) =>
+            a.id === rev.album_id ||
+            (a.album_name &&
+              a.album_name.toLowerCase() ===
+                (rev.album_name || '').toLowerCase()) ||
+            (a.album &&
+              a.album.toLowerCase() === (rev.album_name || '').toLowerCase())
+        );
 
-    const distinctList = [];
-    const seenUsers = new Set();
-
-    for (const rev of [...allReviews].filter(review => review.comment?.trim()).sort((a,b) => Math.min(b.comment.trim().length, 600) - Math.min(a.comment.trim().length, 600))) {
-      const userKey = (
-        rev.user_id ||
-        rev.author_email ||
-        rev.reviewer_email ||
-        rev.reviewer_name ||
-        ''
-      )
-        .toLowerCase()
-        .trim();
-
-      if (userKey && !seenUsers.has(userKey)) {
-        seenUsers.add(userKey);
-
-        // Encontrar álbum asociado si no vino por join
-        const matchedAlbum =
-          rev.albums ||
-          albums.find(
-            (a) =>
-              a.id === rev.album_id ||
-              (a.album_name &&
-                a.album_name.toLowerCase() ===
-                  (rev.album_name || '').toLowerCase()) ||
-              (a.album &&
-                a.album.toLowerCase() === (rev.album_name || '').toLowerCase())
+      // Resolver nombre legible de la canción favorita
+      let favTrackTitle = null;
+      const rawFav = rev.favorite_track || rev.favoriteTrack;
+      if (rawFav) {
+        const resolvedName = getTrackDisplayName(
+          rawFav,
+          matchedAlbum?.tracks || []
+        );
+        // Si el nombre resuelto sigue siendo un hash de Spotify de 20-25 caracteres alfanumérico, buscar en tracks o ignorar hash
+        if (/^[a-zA-Z0-9]{20,25}$/.test(resolvedName)) {
+          const trk = (matchedAlbum?.tracks || []).find(
+            (t) =>
+              t &&
+              (t.id === rawFav ||
+                t.spotify_id === rawFav ||
+                String(t.track_number) === String(rawFav))
           );
-
-        // Resolver nombre legible de la canción favorita
-        let favTrackTitle = null;
-        const rawFav = rev.favorite_track || rev.favoriteTrack;
-        if (rawFav) {
-          const resolvedName = getTrackDisplayName(
-            rawFav,
-            matchedAlbum?.tracks || []
-          );
-          // Si el nombre resuelto sigue siendo un hash de Spotify de 20-25 caracteres alfanumérico, buscar en tracks o ignorar hash
-          if (/^[a-zA-Z0-9]{20,25}$/.test(resolvedName)) {
-            const trk = (matchedAlbum?.tracks || []).find(
-              (t) =>
-                t &&
-                (t.id === rawFav ||
-                  t.spotify_id === rawFav ||
-                  String(t.track_number) === String(rawFav))
-            );
-            favTrackTitle = trk ? trk.name : null;
-          } else {
-            favTrackTitle = resolvedName;
-          }
+          favTrackTitle = trk ? trk.name : null;
+        } else {
+          favTrackTitle = resolvedName;
         }
-
-        distinctList.push({
-          ...rev,
-          matchedAlbum,
-          favTrackTitle,
-        });
-
-        if (distinctList.length === 3) break;
       }
-    }
 
-    return distinctList;
+      latestList.push({
+        ...rev,
+        matchedAlbum,
+        favTrackTitle,
+      });
+
+    }
+    return latestList;
   }, [allReviews, albums]);
 
   // Curated showcase albums based on active tab
@@ -1173,7 +1154,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                               ? new Date(review.created_at).toLocaleDateString(
                                   'es-ES',
                                   {
-                                    timeZone: 'UTC',
+                                    timeZone: 'America/Mexico_City',
                                     month: 'short',
                                     day: 'numeric',
                                   }

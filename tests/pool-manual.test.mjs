@@ -4,13 +4,15 @@ import fs from 'node:fs';
 import vm from 'node:vm';
 import { POOL_THEMES } from '../src/data/poolThemes.js';
 
-function serviceFixture({ entries = [], albums = [], rpc = async () => ({ data: false, error: null }) } = {}) {
+function serviceFixture({ entries = [], albums = [], rpc = async () => ({ data: false, error: null }), from } = {}) {
   const filters = [];
-  const supabase = { rpc, from: () => ({ select() { return this; }, eq(field, value) { filters.push([field,value]); return this; }, async order() { return { data: entries, error: null }; } }) };
+  const supabase = { rpc, from: from || (() => ({ select() { return this; }, eq(field, value) { filters.push([field,value]); return this; }, async order() { return { data: entries, error: null }; } })) };
   const source = fs.readFileSync(new URL('../src/services/poolService.js', import.meta.url), 'utf8').replace(/^import .*;\r?$/gm, '').replace(/export const /g, 'const ').replace('export default poolService;', 'poolService;');
-  const service = vm.runInNewContext(source, { supabase, supabaseService: { getAllAlbumsWithFullStats: async () => albums }, console, Date, window: undefined });
+  const stored = new Map();
+  const localStorage = { getItem: key => stored.get(key) || null, setItem: (key,value) => stored.set(key,value) };
+  const service = vm.runInNewContext(source, { localStorage, supabase, supabaseService: { getAllAlbumsWithFullStats: async () => albums }, console, Date, window: undefined });
   service.getSeasons = async () => [{ id: 'old', is_active: false }, { id: 'current', is_active: true, is_open: false }];
-  return { service, filters };
+  return { service, filters, stored };
 }
 
 test('an empty current Pool never falls back to unrelated catalog releases', async () => {
@@ -52,4 +54,23 @@ test('the club receives ten distinct Pool ideas with a rule and a group game', (
   assert.equal(POOL_THEMES.length, 10);
   assert.equal(new Set(POOL_THEMES.map(theme=>theme.id)).size, 10);
   assert.ok(POOL_THEMES.every(theme=>theme.rule && theme.game));
+});
+
+
+test('editing only a season emoji saves a NULL optional date and retains the start date',async()=>{
+  const updates=[];
+  const {service,stored}=serviceFixture({from:()=>({update(fields){updates.push({...fields});return {eq:async()=>({error:null})};}})});
+  service.getSeasons=async()=>[{id:'current',name:'Pool',start_date:'2026-10-22',end_date:null,is_active:false}];
+  await service.updateSeason('current',{name:'Pool 🖤',start_date:'2026-10-22',end_date:'',is_active:false});
+  assert.deepEqual(updates[0],{name:'Pool 🖤',start_date:'2026-10-22',end_date:null});
+  const saved=JSON.parse(stored.get('musiclub_seasons'))[0];
+  assert.equal(saved.name,'Pool 🖤');
+  assert.equal(saved.start_date,'2026-10-22');
+  assert.equal(saved.end_date,null);
+  await service.updateSeason('current',{appearance:{mode:'solid'}});
+  assert.equal(Object.hasOwn(updates[1],'end_date'),false);
+  assert.equal(Object.hasOwn(updates[1],'start_date'),false);
+  await service.updateSeason('current',{start_date:'',end_date:'2026-11-01'});
+  assert.equal(Object.hasOwn(updates[2],'start_date'),false);
+  assert.equal(updates[2].end_date,'2026-11-01');
 });
