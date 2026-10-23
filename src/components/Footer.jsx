@@ -24,7 +24,7 @@ export function Footer({ showAd = true }) {
         <div className="h-px w-12 sm:w-24 bg-linear-to-r from-transparent via-white/15 to-transparent" />
       </div>
 
-      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-white/30">
+      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-slate-400">
         <span className="font-semibold text-white/50 flex items-center gap-1.5">
           <img
             src="/musiclub_logo_corchea.png"
@@ -36,12 +36,12 @@ export function Footer({ showAd = true }) {
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <Link to="/sobre-musiclub" className="hover:text-pink-300 underline">Sobre Musiclub</Link>
         <Link to="/contacto" className="hover:text-pink-300 underline">Contacto</Link>
-        <Link to="/guias" className="hover:text-pink-300 underline">Guías para escuchar y reseñar</Link>
+        <Link to="/guias" className="hover:text-pink-300 underline">Guías de escucha y reseña</Link>
         <Link
           to="/faq"
           className="hover:text-[#f5576c] transition-colors flex items-center gap-1"
         >
-          <span>❓</span> FAQ & Guía
+          <span>❓</span> Preguntas frecuentes
         </Link>
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <Link

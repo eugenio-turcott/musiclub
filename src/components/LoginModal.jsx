@@ -95,7 +95,7 @@ export function LoginModal({
 
         <div className="relative z-10 text-center mb-6">
           <div className="w-14 h-14 mx-auto mb-3 rounded-2xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(245,87,108,0.2)]">
-            🎵
+            <img src="/musiclub_logo_corchea.png" alt="Nota musical de Musiclub" width={36} height={36} className="h-9 w-9 object-contain" />
           </div>
           <h3 id={titleId} className="text-2xl sm:text-3xl font-black text-white mb-2 tracking-tight">
             MUSICLUB

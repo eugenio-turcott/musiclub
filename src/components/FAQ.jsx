@@ -12,7 +12,7 @@ const FAQ_CATEGORIES = [
   { id: 'ruleta', label: 'Ruleta & Sorteos', icon: '🎰' },
   { id: 'reviews', label: 'Reseñas & Puntuación', icon: '📝' },
   { id: 'leaderboard', label: 'Leaderboard & Insignias', icon: '🏆' },
-  { id: 'catalogo', label: 'Catálogo & Spotify', icon: '💿' },
+  { id: 'catalogo', label: 'Catálogo & Pool', icon: '💿' },
   { id: 'perfil', label: 'Perfil & Ajustes', icon: '👤' },
   { id: 'admin', label: 'Moderación & Cuentas', icon: '🔧' },
 ];
@@ -22,30 +22,28 @@ const FAQ_DATA = [
   {
     id: 'que-es-musiclub',
     category: 'general',
-    question: '¿Qué es Musiclub y cuál es el objetivo de la plataforma?',
-    answer:
-      'Musiclub es el espacio oficial de nuestro club de música. Su objetivo es transformar la experiencia de escuchar y descubrir música en una dinámica interactiva, comunitaria y divertida. Permite que todos los miembros propongan discos, los seleccionen de forma aleatoria y transparente con una Ruleta estilo cyberpunk, califiquen cada canción y criterio técnico, y compitan en un Leaderboard con insignias por su participación.',
+    question: '¿Dónde puedo conocer el proyecto y sus fuentes?',
+    answer: 'Musiclub es un club independiente para descubrir música y compartir opiniones. En Sobre Musiclub explicamos el origen del proyecto, quién publica las reseñas y de dónde salen los datos musicales.',
+    href: '/sobre-musiclub', linkLabel: 'Conocer Musiclub y sus fuentes',
   },
   {
     id: 'flujo-semanal',
     category: 'general',
-    question: '¿Cómo es el ciclo o rutina semanal habitual en el club?',
-    answer:
-      'El ciclo habitual consta de 5 sencillos pasos:\n\n1. **Proponer**: Cualquier miembro registrado busca y añade álbumes desde Spotify al catálogo.\n2. **Sorteo**: En la reunión semanal o sesión programada, se tira de la palanca de la Máquina Musical para elegir el disco ganador.\n3. **Escucha**: Durante la semana, los miembros escuchan el álbum completo en su plataforma favorita (Spotify, YouTube, Apple Music, vinilo, etc.).\n4. **Reseñar**: Cada miembro califica las canciones pista por pista, los 6 criterios técnicos y escribe sus comentarios.\n5. **Rankings y Podio**: Los resultados actualizan el Top histórico del club y otorgan puntos e insignias en el Leaderboard.',
+    question: '¿Cómo participo en la temporada del Pool?',
+    answer: 'Inicia sesión, consulta la dinámica de la temporada y deposita una cápsula si las propuestas están abiertas y queda cupo. Cada persona puede proponer un solo release por temporada. La administración selecciona el ganador, abre o cierra sus reseñas y lo pasa al historial.',
+    href: '/pool', linkLabel: 'Ir al Pool Musical',
   },
   {
     id: 'es-gratis-spotify',
     category: 'general',
-    question: '¿Es gratis? ¿Necesito una cuenta de pago en Spotify?',
-    answer:
-      'Musiclub es 100% gratuito. No requieres una suscripción de pago de Spotify para usar la plataforma. Utilizamos la API oficial de Spotify únicamente para obtener información verídica de portadas, años y listas oficiales de canciones. Para escuchar los discos puedes utilizar la plataforma de streaming o formato físico que prefieras.',
+    question: '¿Tengo que pagar o tener Spotify Premium?',
+    answer: 'La participación actual en Musiclub es gratuita y no requiere Spotify Premium. Puedes escuchar cada release en el servicio o formato que prefieras. Los enlaces de escucha llevan a servicios externos y sus condiciones son independientes de Musiclub.',
   },
   {
     id: 'quien-puede-participar',
     category: 'general',
-    question: '¿Quién puede votar, proponer discos y escribir reseñas?',
-    answer:
-      'Cualquier visitante puede explorar la ruleta, consultar el catálogo de discos, ver rankings y leer las reseñas de la comunidad. Para poder proponer nuevos álbumes, calificar canciones, personalizar tu perfil y ganar insignias, solo necesitas iniciar sesión con tu cuenta de Google o correo electrónico.',
+    question: '¿Necesito una cuenta para participar?',
+    answer: 'Puedes consultar el catálogo, los géneros, el Pool y las reseñas sin iniciar sesión. Para publicar una reseña, calificar una portada, proponer un release o editar tu perfil, inicia sesión con Google. Las acciones de administración están reservadas a la administración.',
   },
 
   // 2. Ruleta & Sorteos
@@ -61,37 +59,34 @@ const FAQ_DATA = [
     category: 'ruleta',
     question: '¿Cómo funcionan las probabilidades y la selección de álbumes?',
     answer:
-      'Todos los álbumes que se encuentren en estado **ACTIVO** participan en el sorteo. Para evitar que las propuestas que llevan mucho tiempo esperando queden olvidadas en el fondo de la lista, la ruleta utiliza un **algoritmo de probabilidad ponderada por antigüedad**:\n\n• Los discos más antiguos en espera reciben hasta un **+40% de probabilidad adicional** sobre los discos recién añadidos.\n• Esto garantiza una rotación equilibrada y justa entre propuestas antiguas y nuevas, manteniendo viva la emoción del azar.',
+      'Todos los álbumes que se encuentren en estado **ACTIVO** participan en el sorteo. Para evitar que las propuestas que llevan mucho tiempo esperando queden olvidadas en el fondo de la lista, la ruleta utiliza un **algoritmo de probabilidad ponderada por antigüedad**:\n\n• Los discos más antiguos en espera reciben hasta un **+40% de peso en el sorteo** sobre los discos recién añadidos.\n• Esto favorece a las propuestas con más espera, sin garantizar qué disco ganará.',
   },
   {
     id: 'quien-tira-palanca',
     category: 'ruleta',
-    question: '¿Quién puede activar la ruleta y tirar la palanca?',
-    answer:
-      'La ruleta suele ser activada durante las reuniones o sesiones del club por el administrador o en consenso grupal para fijar el disco oficial de la semana. Una vez determinado el ganador, el resultado se sincroniza en tiempo real en la base de datos para que todos los usuarios vean el mismo álbum ganador.',
+    question: '¿Quién elige el disco oficial del Pool?',
+    answer: 'La administración puede usar la ruleta o elegir un candidato en espera. Explorar releases del Pool en Gashapon es una experiencia de descubrimiento: no sustituye ni cambia el ganador oficial.',
   },
   {
     id: 'que-pasa-al-ganar',
     category: 'ruleta',
-    question: '¿Qué pasa con el álbum después de que gana el sorteo?',
-    answer:
-      'El disco ganador pasa a mostrarse en la tarjeta destacada superior (**Álbum Ganador Actual**) con enlaces directos para escucharlo y calificarlo. Su estado puede cambiarse a **INACTIVO** para no volver a repetirse en futuros giros de la ruleta mientras no sea reiniciado por un administrador.',
+    question: '¿Qué pasa con una cápsula cuando gana?',
+    answer: 'Se muestra como ganador actual y deja de participar como candidato en espera. La administración controla cuándo se puede reseñar y cuándo pasa al historial. Ganar o pasar al historial no libera otra propuesta para la misma persona en esa temporada.',
   },
 
   // 3. Reseñas & Puntuación
   {
     id: 'criterios-tecnicos',
     category: 'reviews',
-    question: '¿Cuáles son los 6 Criterios Técnicos de evaluación (1 a 5 ⭐)?',
-    answer:
-      'Cada reseña permite evaluar 6 dimensiones clave del álbum en una escala de 1 a 5 estrellas:\n\n1. 🎛️ **Producción**: Calidad de mezcla, masterización, claridad estéreo y diseño sonoro.\n2. 🎵 **Composición**: Riqueza melódica, armonías, arreglos y estructura de las canciones.\n3. 📝 **Letras**: Profundidad poética, mensaje, recursos líricos y narrativa.\n4. 💡 **Originalidad**: Propuesta innovadora, frescura y distinción estilística.\n5. 🔗 **Cohesión**: Fluidez, narrativa y sentido de unidad como obra completa de inicio a fin.\n6. 🔄 **Replay Value**: Ganas de volver a reproducir el disco completo una y otra vez.',
+    question: '¿Dónde se explican los criterios para reseñar?',
+    answer: 'La guía de tu primera reseña explica cómo separar las canciones, los pilares y tu valoración general. Úsala si quieres orientarte antes de abrir el formulario.',
+    href: '/guias/escribir-primera-resena', linkLabel: 'Leer la guía de tu primera reseña',
   },
   {
     id: 'calificacion-canciones',
     category: 'reviews',
-    question: '¿Cómo funciona la calificación canción por canción (Tracklist)?',
-    answer:
-      'Al abrir el asistente de reseña (Review Wizard), se listan todas las canciones oficiales del álbum obtenidas desde Spotify. Puedes calificar cada pista individualmente en una escala de **1 a 10**. Si alguna canción no deseas calificarla, puedes dejarla sin puntaje y no afectará negativamente el promedio de las pistas.',
+    question: '¿Puedo publicar con canciones sin calificar?',
+    answer: 'Si la ficha tiene canciones disponibles, el formulario pide calificar todas antes de publicar. También debes completar los seis pilares y la nota general. El comentario es opcional. Si el release no tiene canciones disponibles, puedes continuar con los pilares y la nota general.',
   },
   {
     id: 'calificacion-general',
@@ -103,16 +98,15 @@ const FAQ_DATA = [
   {
     id: 'formula-puntaje',
     category: 'reviews',
-    question: '¿Cómo se calcula el puntaje final de una reseña?',
-    answer:
-      'El sistema calcula automáticamente una nota ponderada justa y equilibrada en escala de **1.0 a 10.0**:\n\n• **50% Canciones**: Promedio de todas las pistas individuales calificadas (escala 1 a 10).\n• **30% Criterios Técnicos**: Promedio de los 6 criterios (escala 1 a 5 convertida a 10).\n• **20% Calificación General**: Tu nota intuitiva global (escala 1 a 10).\n\n*(Nota: Si decides omitir la calificación pista por pista, la fórmula se ajusta automáticamente a 60% Criterios Técnicos y 40% Calificación General).*',
+    question: '¿Dónde puedo consultar la fórmula de las notas?',
+    answer: 'La metodología explica las escalas, los pesos de canciones, pilares y nota general, y cómo se obtiene el promedio del club. El número de reseñas aporta contexto, pero no suma puntos extra a la nota.',
+    href: '/guias/como-calificamos', linkLabel: 'Consultar la metodología de calificación',
   },
   {
     id: 'editar-resena',
     category: 'reviews',
-    question: '¿Puedo editar o actualizar una reseña que ya publiqué?',
-    answer:
-      '¡Sí! Si ya habías calificado un álbum y deseas cambiar alguna nota o comentario, simplemente abre el formulario de reseña del mismo álbum con tu sesión iniciada. El sistema cargará automáticamente tus puntuaciones anteriores para que puedas modificarlas y guardarlas.',
+    question: '¿Cómo edito una reseña publicada?',
+    answer: 'Abre la ficha del release con la misma cuenta que usaste para publicarla. El formulario recupera tus notas para que puedas modificarlas. En el Pool, la edición depende de que las reseñas estén habilitadas por la administración.',
   },
 
   // 4. Leaderboard, XP & Insignias
@@ -143,17 +137,15 @@ const FAQ_DATA = [
   {
     id: 'estados-albumes-catalogo',
     category: 'catalogo',
-    question:
-      '¿Qué significan los estados ACTIVO, INDIVIDUAL, GANADOR e INACTIVO?',
-    answer:
-      'En el catálogo encontrarás álbumes clasificados con diferentes etiquetas de color:\n\n• 🟢 **ACTIVO**: El disco forma parte de la bolsa de sorteos de la ruleta.\n• 🟣 **INDIVIDUAL**: Álbum añadido para escucha libre personal o voluntaria fuera del sorteo semanal.\n• 🟡 **GANADOR**: El álbum seleccionado en el sorteo vigente de la semana.\n• ⚪ **INACTIVO**: Álbum que ya fue escuchado o que ha sido retirado de la ruleta.',
+    question: '¿Estar en el catálogo significa estar en el Pool?',
+    answer: 'No. El catálogo reúne los releases disponibles en Musiclub. El Pool tiene sus propias propuestas por temporada: en espera, ganador actual e historial. Puedes encontrar un disco en el catálogo aunque nadie lo haya propuesto al Pool.',
   },
   {
     id: 'como-proponer-album',
     category: 'catalogo',
-    question: '¿Cómo propongo un nuevo álbum con el buscador de Spotify?',
-    answer:
-      'Inicia sesión y ve a la sección **Buscar Álbum en Spotify** (disponible en la página principal o catálogo). Escribe el nombre del disco o artista, selecciona el resultado oficial con autocompletado y elige si deseas agregarlo como propuesta para la ruleta (**Activo**) o para escucha personal (**Individual**). El sistema descargará automáticamente la portada oficial en alta definición, año y todas las canciones.',
+    question: '¿Cómo deposito o cambio mi cápsula?',
+    answer: 'Ve al Pool e inicia sesión. Usa Depositar cápsula para buscar un release y añadir una nota opcional. Si ya tienes una propuesta en espera, usa Editar mi cápsula: puedes cambiar el release o la nota mientras las propuestas sigan abiertas, incluso con el cupo lleno. La edición conserva tu lugar.',
+    href: '/pool', linkLabel: 'Consultar mi cápsula',
   },
   {
     id: 'calificacion-rankings',
@@ -183,16 +175,15 @@ const FAQ_DATA = [
   {
     id: 'panel-admin',
     category: 'admin',
-    question: '¿Qué funciones y herramientas tiene el Administrador?',
-    answer:
-      'Los usuarios con rol Administrador tienen acceso a la ruta protegida /admin, donde pueden:\n\n• Cambiar el estado de cualquier álbum (Activar, Desactivar, Individual).\n• Editar información de discos o eliminar propuestas duplicadas.\n• Moderar o eliminar reseñas que violen las normas de convivencia.\n• Controlar y reiniciar manualmente la selección de la máquina musical.',
+    question: '¿Qué acciones están reservadas a la administración?',
+    answer: 'La administración gestiona las temporadas y sus cupos, abre o cierra propuestas y reseñas, selecciona ganadores y revisa incidencias del catálogo y de la comunidad. Cada miembro puede editar su propia cápsula en espera y sus reseñas cuando corresponda; no las de otra persona.',
   },
   {
     id: 'privacidad-seguridad',
     category: 'admin',
-    question: '¿Cómo se protegen mis datos y mi cuenta?',
-    answer:
-      'La plataforma utiliza la infraestructura segura de **Supabase** con autenticación OAuth mediante Google y cifrado en tránsito. Musiclub nunca almacena contraseñas ni información bancaria, y tus datos solo se emplean para el funcionamiento interno de la comunidad musical.',
+    question: '¿Dónde consulto el uso de mis datos o pido ayuda?',
+    answer: 'En Privacidad encontrarás qué datos usa el sitio y las preferencias de medición. Contacto reúne los canales para soporte, correcciones y solicitudes sobre tu cuenta. No compartas contraseñas ni códigos de acceso.',
+    href: '/contacto', linkLabel: 'Contactar con Musiclub',
   },
 ];
 
@@ -237,7 +228,7 @@ export function FAQ({ isPage = false }) {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
-        title="Preguntas Frecuentes & Guía del Club | Musiclub"
+        title="Preguntas frecuentes y ayuda del sitio | Musiclub"
         description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Ruleta, el sistema de calificaciones, el Leaderboard y la dinámica del club."
         url="https://www.musiclub.org/faq"
         keywords="faq musiclub, preguntas frecuentes, como funciona musiclub, reglas del club de musica"
@@ -272,10 +263,7 @@ export function FAQ({ isPage = false }) {
                 Preguntas Frecuentes
               </h1>
               <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
-                Descubre cómo funciona la Ruleta Cyberpunk, el sistema de
-                calificaciones ponderadas, el cálculo de probabilidades, el
-                Leaderboard con insignias y toda la dinámica comunitaria de
-                Musiclub.
+                Respuestas rápidas para usar tu cuenta, publicar reseñas y participar en el Pool. Para aprender a escuchar y escribir sobre un disco, consulta las guías de escucha.
               </p>
             </div>
 
@@ -360,7 +348,7 @@ export function FAQ({ isPage = false }) {
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1">🎧</div>
               <div className="text-white font-bold text-xs sm:text-sm">
-                Spotify Sync
+                Fuentes musicales
               </div>
               <div className="text-white/40 text-[11px]">
                 Catálogo y pistas oficiales
@@ -369,6 +357,11 @@ export function FAQ({ isPage = false }) {
           </div>
         </div>
 
+        <nav aria-label="Recursos de ayuda" className="mb-6 flex flex-wrap gap-3 text-sm font-bold text-pink-200">
+          <Link to="/guias" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Guías de escucha y reseña →</Link>
+          <Link to="/privacy" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Privacidad</Link>
+          <Link to="/contacto" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Contactar con soporte</Link>
+        </nav>
         {/* Buscador y Controles */}
         <div className="bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 backdrop-blur-md flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
@@ -379,7 +372,7 @@ export function FAQ({ isPage = false }) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar pregunta o tema..."
+              aria-label="Buscar una pregunta frecuente" placeholder="Buscar pregunta o tema..."
               className="w-full bg-white/5 border border-white/10 rounded-xl pl-9 pr-3 py-2 text-white text-xs sm:text-sm focus:outline-none focus:border-[#f5576c] transition-colors placeholder:text-white/30"
             />
             {searchQuery && (
@@ -455,6 +448,8 @@ export function FAQ({ isPage = false }) {
                   }`}
                 >
                   <button
+                    aria-expanded={isOpen}
+                    aria-controls={`faq-answer-${item.id}`}
                     onClick={() => toggleItem(item.id)}
                     className="w-full p-4 sm:p-5 flex items-center justify-between gap-4 text-left group transition-colors"
                   >
@@ -478,8 +473,9 @@ export function FAQ({ isPage = false }) {
                   </button>
 
                   {isOpen && (
-                    <div className="px-4 sm:px-6 pb-5 pt-1 text-white/75 text-xs sm:text-sm leading-relaxed border-t border-white/5 whitespace-pre-line">
+                    <div id={`faq-answer-${item.id}`} className="px-4 sm:px-6 pb-5 pt-1 text-white/75 text-xs sm:text-sm leading-relaxed border-t border-white/5 whitespace-pre-line">
                       {item.answer}
+                      {item.href && <Link to={item.href} className="mt-3 block font-bold text-pink-300 underline">{item.linkLabel} →</Link>}
                     </div>
                   )}
                 </div>
