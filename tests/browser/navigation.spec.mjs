@@ -339,3 +339,37 @@ test('an artist discovered through a lower-case URL keeps official capitalizatio
   await expect(page.getByRole('heading',{name:'The Weeknd',exact:true})).toBeVisible();
   await expect(page).toHaveTitle(/^The Weeknd/);
 });
+
+
+test('a member edits their existing Pool capsule at full capacity and sees current profile names', async ({page}) => {
+ const member={id:'00000000-0000-4000-8000-000000000099',name:'Nombre actual',email:'member@example.test',role:'user'};
+ const entry={id:'00000000-0000-4000-8000-000000000088',season_id:'current',album_id:'00000000-0000-4000-8000-000000000001',user_id:member.id,nominated_by:'Old Google name',note:'Original note',status:'ACTIVO',reviews_enabled:false,created_at:'2025-01-01T00:00:00Z'};
+ // UI identity is local to this fixture. Database ownership is separately exercised with PostgreSQL.
+ await page.addInitScript(user=>localStorage.setItem('maquina_musical_user',JSON.stringify(user)),member);
+ await page.route('**/rest/v1/seasons*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:'current',name:'Fixture Pool',season_number:2,is_active:true,is_open:true,max_releases:1,start_date:'2025-01-01'}])}));
+ await page.route('**/rest/v1/public_pool_entries*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([entry])}));
+ await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:member.id,name:member.name,avatar_url:null}])}));
+ let edited=null,nominations=0;
+ await page.route('**/rest/v1/rpc/musiclub_nominate_pool_release',route=>{nominations++;return route.fulfill({status:400,contentType:'application/json',body:JSON.stringify({message:'Unexpected new nomination'})});});
+ await page.route('**/rest/v1/rpc/musiclub_edit_pool_release',route=>{
+  edited=route.request().postDataJSON(); entry.note=edited.p_note;
+  return route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,entryId:entry.id,albumId:entry.album_id})});
+ });
+ await page.goto('/pool');
+ const hero=page.getByRole('region',{name:'Pool activo',exact:true});
+ await expect(hero).toContainText('Cupo completo');
+ await expect(page.getByText('Por: Nombre actual',{exact:true})).toBeVisible();
+ await expect(page.getByText('Por: Old Google name',{exact:true})).toHaveCount(0);
+ await hero.getByRole('button',{name:'✎ Editar mi cápsula',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'📥 Editar mi cápsula',exact:true});
+ await expect(dialog.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+ await expect(dialog.locator('textarea')).toHaveValue('Original note');
+ await dialog.locator('textarea').fill('Updated note');
+ await dialog.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Volver al Pool',exact:true})).toBeVisible();
+ expect(edited.p_entry_id).toBe(entry.id); expect(edited.p_note).toBe('Updated note'); expect(nominations).toBe(0);
+ await dialog.getByRole('button',{name:'Volver al Pool',exact:true}).click();
+ await hero.getByRole('button',{name:'✎ Editar mi cápsula',exact:true}).click();
+ await expect(page.getByRole('dialog').locator('textarea')).toHaveValue('Updated note');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});

@@ -74,3 +74,27 @@ test('editing only a season emoji saves a NULL optional date and retains the sta
   assert.equal(Object.hasOwn(updates[2],'start_date'),false);
   assert.equal(updates[2].end_date,'2026-11-01');
 });
+
+
+test('Pool names follow current public profiles by user ID instead of saved Google names', async () => {
+ const {service}=serviceFixture({
+  entries:[], albums:[{id:'album',album_name:'Album',artist_name:'Artist'}],
+  from: table => table==='public_profiles' ? {select(){return this;},async in(){return {data:[{id:'member',name:'Corpus',avatar_url:'avatar.png'}],error:null};}} : {
+   select(){return this;},eq(){return this;},async order(){return {data:[{id:'entry',album_id:'album',user_id:'member',nominated_by:'Old Google Name',status:'ACTIVO'}],error:null};}
+  }
+ });
+ const result=await service.getPoolData();
+ assert.equal(result.active[0].added_by,'Corpus');
+ assert.equal(result.active[0].nominated_avatar,'avatar.png');
+ assert.equal(result.active[0].nominated_user_id,'member');
+});
+
+test('editing sends the stable entry ID to the protected RPC and propagates errors', async () => {
+ const calls=[];
+ const {service}=serviceFixture({rpc:async(name,args)=>{calls.push([name,args]);return {error:{message:'Solo puedes editar tu propia cápsula'}};}});
+ await assert.rejects(service.editPoolNomination({entryId:'entry',seasonId:'current',albumId:'replacement',note:'Changed'}),/propia cápsula/);
+ assert.equal(calls[0][0],'musiclub_edit_pool_release');
+ assert.equal(calls[0][1].p_entry_id,'entry');
+ assert.equal(calls[0][1].p_album_id,'replacement');
+ assert.equal(calls[0][1].p_season_id,'current');
+});

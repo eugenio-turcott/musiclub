@@ -207,10 +207,10 @@ export const poolService = {
       supabaseService.getAllAlbumsWithFullStats(),
     ]);
     if (error) throw new Error('No se pudieron cargar las propuestas del Pool');
-    const avatars = new Map();
+    const memberProfiles = new Map();
     const userIds = [...new Set((entries || []).map(entry => entry.user_id).filter(Boolean))];
     if (userIds.length) {
-      try { const { data: profiles } = await supabase.from('public_profiles').select('id,avatar_url').in('id', userIds); for (const profile of profiles || []) avatars.set(profile.id, profile.avatar_url); } catch {}
+      try { const { data: profiles } = await supabase.from('public_profiles').select('id,name,avatar_url').in('id', userIds); for (const profile of profiles || []) memberProfiles.set(profile.id, profile); } catch {}
     }
     const byId = new Map(albums.map(album => [album.id, album]));
     const active = [], history = [];
@@ -220,7 +220,9 @@ export const poolService = {
       if (!album) continue;
       const item = { ...album, id: album.id, pool_entry_id: entry.id,
         album: album.album_name, artista: album.artist_name, imagen: album.image_url,
-        status: entry.status, added_by: entry.nominated_by || 'Miembro', nominated_avatar: avatars.get(entry.user_id) || null,
+        status: entry.status, nominated_user_id: entry.user_id || null,
+        added_by: memberProfiles.get(entry.user_id)?.name?.trim() || entry.nominated_by || 'Miembro',
+        nominated_avatar: memberProfiles.get(entry.user_id)?.avatar_url || null,
         created_at: entry.created_at, nominated_at: entry.created_at, nomination_note: entry.note || '',
         reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true && album.reviews_enabled !== false,
         spotifyLink: entry.spotify_link || album.spotify_link,
@@ -257,6 +259,15 @@ export const poolService = {
   /**
    * Selecciona el álbum ganador de la semana en el Pool
    */
+  editPoolNomination: async ({ entryId, albumId, albumData, note = '', seasonId }) => {
+    const { data, error } = await supabase.rpc('musiclub_edit_pool_release', {
+      p_season_id: seasonId, p_entry_id: entryId, p_album_id: albumId || null,
+      p_album_data: albumData || {}, p_note: note,
+    });
+    if (error) throw new Error(error.message);
+    return data;
+  },
+
   selectWinner: async (albumId, seasonId) => {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'winner', p_album_id: albumId });

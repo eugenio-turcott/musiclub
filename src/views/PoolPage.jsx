@@ -50,6 +50,7 @@ export function PoolPage() {
     isPoolOpen,
     loading: poolLoading,
     nominateAlbum,
+    editNomination,
     selectWinner,
     archiveCurrentWinner,
     toggleWinnerReviews,
@@ -134,6 +135,10 @@ export function PoolPage() {
   }, [poolMarqueeItems.length]);
 
   // Nomination Modal States
+  const myEntry = user?.id ? [...activePool, ...(winner ? [winner] : []), ...poolHistory].find(entry => entry.nominated_user_id === user.id) : null;
+  const canEditMyEntry = Boolean(myEntry?.status === 'ACTIVO' && season.is_active && season.is_open);
+  const canNominate = !poolLoading && !poolError && (myEntry ? canEditMyEntry : isPoolOpen);
+  const [editingEntry, setEditingEntry] = useState(null);
   const nominationSelection = useRef(0);
   const [nominationSearch, setNominationSearch] = useState('');
   const [spotifyResults, setSpotifyResults] = useState([]);
@@ -143,7 +148,18 @@ export function PoolPage() {
   const [submittingNomination, setSubmittingNomination] = useState(false);
   const [nominationSuccess, setNominationSuccess] = useState(false);
   const [nominationError, setNominationError] = useState('');
-  const closeNomination = () => { if (submittingNomination) return; nominationSelection.current++; setShowNominateModal(false); setNominationSuccess(false); setSelectedAlbumToNominate(null); setNominationError(''); setNominationNote(''); };
+  const closeNomination = () => { if (submittingNomination) return; nominationSelection.current++; setShowNominateModal(false); setNominationSuccess(false); setSelectedAlbumToNominate(null); setNominationError(''); setNominationNote(''); setEditingEntry(null); setNominationSearch(''); setSpotifyResults([]); };
+  const openNomination = () => {
+    if (!user) { setShowLoginModal(true); return; }
+    if (!canNominate) return;
+    setNominationError(''); setNominationSuccess(false); setEditingEntry(myEntry || null);
+    setNominationNote(myEntry?.nomination_note || '');
+    setSelectedAlbumToNominate(myEntry ? {
+      albumId: myEntry.id, albumName: myEntry.album, artistName: myEntry.artista,
+      imageUrl: myEntry.imagen, genres: myEntry.genres || [], releaseType: myEntry.release_type,
+    } : null);
+    setShowNominateModal(true);
+  };
   const enrichGenres = item => enrichPoolReleaseGenres(item, {
     searchDeezer: searchDeezerAlbums, deezerDetails: getDeezerAlbumDetails,
     searchMusicBrainz: searchMusicBrainzReleases, musicBrainzDetails: getMusicBrainzReleaseGroupDetails,
@@ -258,15 +274,16 @@ export function PoolPage() {
 
   // Submit nomination
   const handleConfirmNomination = async () => {
-    if (!isPoolOpen) {
-      alert('El Pool se encuentra actualmente cerrado para nuevas propuestas.');
+    if (!(editingEntry ? canEditMyEntry && editingEntry.pool_entry_id === myEntry?.pool_entry_id : !myEntry && canNominate)) {
+      setNominationError('Las propuestas cambiaron. Actualiza el Pool para revisar tu cápsula.');
       return;
     }
     if (!selectedAlbumToNominate) return;
     setSubmittingNomination(true); setNominationError('');
     const motion = new Promise(resolve => setTimeout(resolve, 2300));
     try {
-      await nominateAlbum({
+      await (editingEntry ? editNomination : nominateAlbum)({
+        entryId: editingEntry?.pool_entry_id,
         albumId: selectedAlbumToNominate.albumId || null,
         albumData: selectedAlbumToNominate,
         user,
@@ -353,8 +370,8 @@ export function PoolPage() {
             ========================================================================= */}
         <PoolHero season={season} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
           winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
-          isOpen={isPoolOpen} isAdmin={isAdmin} busy={poolActionBusy}
-          onDeposit={() => user ? setShowNominateModal(true) : setShowLoginModal(true)}
+          isOpen={isPoolOpen} isAdmin={isAdmin} busy={poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
+          onDeposit={openNomination}
           onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
         {isAdmin && <PoolManualControls user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
@@ -732,7 +749,7 @@ export function PoolPage() {
                 </span>
               </button>
 
-              {!isPoolOpen ? (
+              {!canNominate ? (
                 <button
                   type="button"
                   disabled
@@ -740,19 +757,16 @@ export function PoolPage() {
                   title="El Pool se encuentra actualmente cerrado para nuevas propuestas"
                 >
                   <span className="opacity-70">🔒</span>
-                  <span>Proponer (Cerrado)</span>
+                  <span>{myEntry ? "Cápsula registrada" : "Proponer (Cerrado)"}</span>
                 </button>
               ) : (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (!user) setShowLoginModal(true);
-                    else setShowNominateModal(true);
-                  }}
+                  onClick={openNomination}
                   className="px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-black transition-all flex items-center gap-1.5 shadow-md hover:scale-105 cursor-pointer"
                 >
                   <span>➕</span>
-                  <span>Proponer</span>
+                  <span>{myEntry ? "Editar mi cápsula" : "Proponer"}</span>
                 </button>
               )}
             </div>
@@ -862,6 +876,7 @@ export function PoolPage() {
 
                   {/* Actions & Platform Badges */}
                   <div className="pt-2 mt-2 border-t border-white/5 flex flex-col gap-1.5">
+                    {alb.nominated_user_id === user?.id && <button type="button" disabled={!canEditMyEntry} onClick={openNomination} className="min-h-10 rounded-lg border border-pink-400/25 bg-pink-500/10 px-2 text-xs font-bold text-pink-200 hover:bg-pink-500/20 disabled:opacity-40" title={canEditMyEntry ? 'Cambiar el release o la nota de tu cápsula' : 'La edición está disponible mientras las propuestas estén abiertas'}>✎ Editar mi cápsula</button>}
                     {/* Quick Streaming Logos */}
                     <div className="flex items-center gap-1.5">
                       {(alb.spotifyLink || alb.spotify_link) && (
@@ -1121,11 +1136,11 @@ export function PoolPage() {
             ========================================================================= */}
         {showNominateModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-            <div className="relative max-h-[90dvh] overflow-y-auto w-full max-w-xl rounded-3xl bg-[#141628] border border-pink-500/30 p-6 sm:p-8 shadow-2xl space-y-5 text-left">
+            <div role="dialog" aria-modal="true" aria-labelledby="pool-nomination-title" className="relative max-h-[90dvh] overflow-y-auto w-full max-w-xl rounded-3xl bg-[#141628] border border-pink-500/30 p-6 sm:p-8 shadow-2xl space-y-5 text-left">
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
-                  <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
-                    <span>📥</span> Proponer Lanzamiento al Pool
+                  <h3 id="pool-nomination-title" className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
+                    <span>📥</span> {editingEntry ? "Editar mi cápsula" : "Proponer Lanzamiento al Pool"}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     {season.name} &bull; Sorteo Semanal
@@ -1146,7 +1161,7 @@ export function PoolPage() {
                 <div className="text-center space-y-3">
                   <PoolCapsuleDeposit album={selectedAlbumToNominate} user={user} phase={nominationSuccess ? 'saved' : 'saving'} />
                   <p className="text-sm font-bold text-white">{selectedAlbumToNominate?.albumName}</p>
-                  <p className="text-xs text-slate-400">{nominationSuccess ? `Guardada en ${season.name}. Las reseñas conservan su control manual.` : 'Espera a que se confirme el registro para ocupar tu lugar.'}</p>
+                  <p className="text-xs text-slate-400">{nominationSuccess ? `Guardada en ${season.name}. Tu lugar en el Pool se conserva.` : editingEntry ? 'Guardando los cambios en tu misma cápsula…' : 'Espera a que se confirme el registro para ocupar tu lugar.'}</p>
                   {nominationSuccess && <button onClick={closeNomination} className="min-h-11 rounded-xl bg-pink-500 px-5 text-sm font-bold text-white">Volver al Pool</button>}
                 </div>
               ) : !selectedAlbumToNominate ? (
@@ -1250,7 +1265,7 @@ export function PoolPage() {
                   </div>
 
                   <PoolCapsuleDeposit album={selectedAlbumToNominate} user={user} />
-                  <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs text-cyan-100">Tu propuesta se registra en <strong>{season.name}</strong>. Proponer no habilita las reseñas: el administrador elige el ganador y controla cuándo se puede calificar.</p>
+                  <p className="rounded-xl border border-cyan-400/20 bg-cyan-500/10 p-3 text-xs text-cyan-100">Una cápsula por persona en <strong>{season.name}</strong>. {editingEntry ? "Cambiar el release o su nota conserva tu lugar y no modifica las reseñas existentes." : "Puedes editarla mientras siga en espera y las propuestas estén abiertas."} Proponer no habilita las reseñas: el administrador elige el ganador y controla cuándo se puede calificar.</p>
                   {genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length ? <div className="flex flex-wrap gap-2">{genreCatalog.normalizeGenres(selectedAlbumToNominate.genres).map(genre => <GenreLabel key={genre} genre={genre} className="rounded-lg bg-white/5 px-2 py-1 text-xs" />)}</div> : !selectedAlbumToNominate.albumId && <label className="block text-xs text-slate-300">No encontramos el género automáticamente. Indica el principal para completar la cápsula.
                     <select value="" onChange={event => setSelectedAlbumToNominate(previous => ({...previous, genres: genreCatalog.normalizeGenres([event.target.value])}))} className="mt-1 min-h-11 w-full rounded-xl border border-white/20 bg-[#111424] p-2 text-white"><option value="">Elige un género para continuar</option>{genreCatalog.GENRES.map(genre => <option key={genre.id} value={genre.id}>{genre.name}</option>)}</select>
                   </label>}
@@ -1279,12 +1294,12 @@ export function PoolPage() {
                     <button
                       type="button"
                       onClick={handleConfirmNomination}
-                      disabled={submittingNomination || !isPoolOpen || (!selectedAlbumToNominate.albumId && !genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length)}
+                      disabled={submittingNomination || !canNominate || (!selectedAlbumToNominate.albumId && !genreCatalog.normalizeGenres(selectedAlbumToNominate.genres || []).length)}
                       className="px-6 py-2 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white text-xs font-black shadow-lg"
                     >
                       {submittingNomination
                         ? 'Registrando...'
-                        : 'Depositar mi cápsula'}
+                        : editingEntry ? "Guardar cambios" : "Depositar mi cápsula"}
                     </button>
                   </div>
                 </div>
