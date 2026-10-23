@@ -3,6 +3,16 @@ import { MusiclubVinyl } from './MusiclubVinyl';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LanguageSelector } from './LanguageSelector';
+import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from './common/ShareIcons';
+import { YouTubeLogo } from './common/PlatformLogos';
+
+const socialLinks = [
+  { name: 'Instagram', href: 'https://www.instagram.com/musicluborg/', Icon: InstagramIcon },
+  { name: 'Facebook', href: 'https://www.facebook.com/musicluborg/', Icon: FacebookIcon },
+  { name: 'TikTok', href: 'https://www.tiktok.com/@musicluborg', Icon: TikTokIcon },
+  { name: 'YouTube', href: 'https://www.youtube.com/@musicluboficial', Icon: YouTubeLogo },
+  { name: 'Reddit', href: 'https://www.reddit.com/user/musicluborg/', Icon: RedditIcon },
+];
 
 export function Footer({ showAd = true }) {
   return (
@@ -23,6 +33,25 @@ export function Footer({ showAd = true }) {
         </div>
         <div className="h-px w-12 sm:w-24 bg-linear-to-r from-transparent via-white/15 to-transparent" />
       </div>
+
+      <nav aria-label="Musiclub en redes sociales" className="mb-6 px-2">
+        <ul className="flex flex-wrap justify-center gap-2">
+          {socialLinks.map(({ name, href, Icon }) => (
+            <li key={name}>
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Musiclub en ${name} (se abre en otra pestaña)`}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 text-xs font-semibold text-slate-300 transition-colors hover:border-pink-400/40 hover:bg-pink-400/10 hover:text-pink-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-pink-300"
+              >
+                <span aria-hidden="true"><Icon className="h-4 w-4 shrink-0" /></span>
+                {name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
 
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 text-xs text-slate-400">
         <span className="font-semibold text-white/50 flex items-center gap-1.5">
