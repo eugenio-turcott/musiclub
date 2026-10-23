@@ -398,7 +398,7 @@ test('help pages separate practical questions from listening guides and preserve
  await page.getByRole('link',{name:'Consultar la metodología de calificación →',exact:true}).click();
  await expect(page).toHaveURL(/\/guias\/como-calificamos$/);
  await expect(page.getByRole('heading',{name:'Cómo se calcula una calificación en Musiclub',exact:true})).toBeVisible();
- await expect(page.locator('footer').getByRole('link',{name:'Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
+ await expect(page.locator('footer').getByRole('link',{name:'❓ Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
  await expect(page.locator('footer').getByRole('link',{name:'Guías de escucha y reseña',exact:true})).toHaveAttribute('href','/guias');
  await page.goto('/guias');
  await expect(page.getByRole('link',{name:'Ayuda para usar Musiclub →',exact:true})).toHaveAttribute('href','/faq');
