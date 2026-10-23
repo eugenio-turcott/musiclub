@@ -344,8 +344,15 @@ test('an artist discovered through a lower-case URL keeps official capitalizatio
 test('a member edits their existing Pool capsule at full capacity and sees current profile names', async ({page}) => {
  const member={id:'00000000-0000-4000-8000-000000000099',name:'Nombre actual',email:'member@example.test',role:'user'};
  const entry={id:'00000000-0000-4000-8000-000000000088',season_id:'current',album_id:'00000000-0000-4000-8000-000000000001',user_id:member.id,nominated_by:'Old Google name',note:'Original note',status:'ACTIVO',reviews_enabled:false,created_at:'2025-01-01T00:00:00Z'};
- // UI identity is local to this fixture. Database ownership is separately exercised with PostgreSQL.
- await page.addInitScript(user=>localStorage.setItem('maquina_musical_user',JSON.stringify(user)),member);
+ // This is a synthetic local-only Auth session; no real credential or production service is used.
+ const expiresAt=Math.floor(Date.now()/1000)+3600;
+ const authUser={id:member.id,email:member.email,role:'authenticated',app_metadata:{provider:'google'},user_metadata:{name:member.name}};
+ const token=['eyJhbGciOiJIUzI1NiJ9',Buffer.from(JSON.stringify({sub:member.id,exp:expiresAt,role:'authenticated'})).toString('base64url'),'fixture'].join('.');
+ await page.addInitScript(({user,session})=>{
+  localStorage.setItem('maquina_musical_user',JSON.stringify(user));
+  localStorage.setItem('sb-127-auth-token',JSON.stringify(session));
+ },{user:member,session:{access_token:token,refresh_token:'local-fixture',expires_at:expiresAt,expires_in:3600,token_type:'bearer',user:authUser}});
+ await page.route('**/rest/v1/profiles*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...member,avatar_url:null})}));
  await page.route('**/rest/v1/seasons*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:'current',name:'Fixture Pool',season_number:2,is_active:true,is_open:true,max_releases:1,start_date:'2025-01-01'}])}));
  await page.route('**/rest/v1/public_pool_entries*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([entry])}));
  await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:member.id,name:member.name,avatar_url:null}])}));
@@ -372,4 +379,37 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
  await hero.getByRole('button',{name:'✎ Editar mi cápsula',exact:true}).click();
  await expect(page.getByRole('dialog').locator('textarea')).toHaveValue('Updated note');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+
+test('a cached admin profile cannot keep an expired or missing session signed in', async ({page}) => {
+ await page.addInitScript(()=>localStorage.setItem('maquina_musical_user',JSON.stringify({id:'stale',email:'stale@example.test',name:'Stale admin',role:'admin'})));
+ await page.goto('/admin');
+ await expect(page.getByText('⛔ Acceso denegado',{exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>localStorage.getItem('maquina_musical_user'))).toBeNull();
+});
+
+
+test('help pages separate practical questions from listening guides and preserve footer navigation',async({page})=>{
+ await page.goto('/faq');
+ const question=page.getByRole('button',{name:/¿Dónde puedo consultar la fórmula de las notas/});
+ await question.click();
+ await expect(question).toHaveAttribute('aria-expanded','true');
+ await page.getByRole('link',{name:'Consultar la metodología de calificación →',exact:true}).click();
+ await expect(page).toHaveURL(/\/guias\/como-calificamos$/);
+ await expect(page.getByRole('heading',{name:'Cómo se calcula una calificación en Musiclub',exact:true})).toBeVisible();
+ await expect(page.locator('footer').getByRole('link',{name:'Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
+ await expect(page.locator('footer').getByRole('link',{name:'Guías de escucha y reseña',exact:true})).toHaveAttribute('href','/guias');
+ await page.goto('/guias');
+ await expect(page.getByRole('link',{name:'Ayuda para usar Musiclub →',exact:true})).toHaveAttribute('href','/faq');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+
+test('the sign-in dialog uses the Musiclub note artwork', async ({page}) => {
+ await page.goto('/');
+ await page.getByRole('button',{name:'👤 Iniciar sesión',exact:true}).click();
+ await expect(page.getByRole('dialog').getByRole('img',{name:'Nota musical de Musiclub',exact:true})).toHaveAttribute('src','/musiclub_logo_corchea.png');
+ await page.keyboard.press('Escape');
+ await expect(page.getByRole('dialog')).toHaveCount(0);
 });

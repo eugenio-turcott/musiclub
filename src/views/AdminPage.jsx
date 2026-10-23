@@ -7,7 +7,6 @@ import { useAuth } from '../hooks/useAuth';
 export function AdminPage() {
   const { isAdmin, loading } = useAuth();
 
-  console.log('AdminPage - isAdmin:', isAdmin, 'loading:', loading);
 
   if (loading) {
     return (

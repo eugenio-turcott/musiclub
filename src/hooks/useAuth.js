@@ -193,13 +193,8 @@ export function useAuth() {
       if (saved && isMounted) {
         const u = JSON.parse(saved);
         setUser(u);
-        setIsAdmin(
-          u?.role === 'admin' ||
-          ['tadeoemiliano@hotmail.com', 'eugenioturcott@gmail.com'].includes(
-            u?.email?.toLowerCase()
-          )
-        );
-        setLoading(false);
+        // Display data may be cached; administrative access awaits the real session.
+        setIsAdmin(false);
       }
     } catch {}
 
@@ -214,6 +209,12 @@ export function useAuth() {
         if (session?.user && isMounted) {
           setSession(session);
           await handleUserSessionRef.current(session);
+        } else if (isMounted) {
+          // A cached display profile is not an authenticated session.
+          setSession(null);
+          setUser(null);
+          setIsAdmin(false);
+          localStorage.removeItem('maquina_musical_user');
         }
       } catch (error) {
         console.error('Error loading session:', error);

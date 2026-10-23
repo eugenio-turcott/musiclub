@@ -47,7 +47,7 @@ export function TermsOfService() {
                       Comunidad
                     </p>
                     <p className="text-white font-black text-xs sm:text-sm leading-tight">
-                      Sin Fines de Lucro
+                      Club independiente
                     </p>
                   </div>
                 </div>
@@ -80,7 +80,7 @@ export function TermsOfService() {
                 <strong className="text-[#f5576c]">Musiclub</strong>. Al acceder
                 o utilizar nuestra plataforma web, aceptas regirte por los
                 presentes Términos de Servicio. Musiclub es un proyecto
-                recreativo y colaborativo sin fines de lucro, diseñado para
+                recreativo, independiente y colaborativo, diseñado para
                 fomentar la apreciación artística, la escucha colectiva de
                 álbumes y el debate musical constructivo.
               </p>
