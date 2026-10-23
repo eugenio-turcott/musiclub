@@ -98,6 +98,8 @@ npm run build
 npx playwright install --with-deps chromium
 ```
 
+En GitHub Actions se usa el Chrome ya instalado en la imagen Ubuntu 24.04, mediante `PLAYWRIGHT_CHANNEL=chrome`, para evitar reinstalar paquetes del sistema en cada ejecución. Se conservan los recorridos de escritorio y móvil. Referencias: [canales de Playwright](https://playwright.dev/docs/browsers) e [imagen de GitHub](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md).
+
 El servidor de pruebas usa los puertos 3101 y 54329. Sus datos y credenciales ficticias no corresponden a producción. Los antiguos archivos de pruebas con sintaxis Jest en `src/utils/` no forman parte de la suite actual; los comandos vigentes están en `package.json`.
 
 `tests/smoke-production.mjs` comprueba rutas, redirecciones, 404, mapas del sitio y rechazo de operaciones sin sesión. Por defecto consulta el servidor local en el puerto 3100; `TEST_BASE_URL` permite indicar el despliegue que se quiere verificar. No publica reseñas ni envía correos.
