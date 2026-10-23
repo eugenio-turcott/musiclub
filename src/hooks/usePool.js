@@ -82,6 +82,12 @@ export function usePool(seasonId) {
     [fetchPoolData, season.id]
   );
 
+  const editNomination = useCallback(async (proposal) => {
+    const result = await poolService.editPoolNomination({ ...proposal, seasonId: season.id });
+    await fetchPoolData();
+    return result;
+  }, [fetchPoolData, season.id]);
+
   const selectWinner = useCallback(
     async (albumId) => {
       const result = await poolService.selectWinner(albumId, season.id);
@@ -175,6 +181,7 @@ export function usePool(seasonId) {
     loading,
     error,
     nominateAlbum,
+    editNomination,
     selectWinner,
     archiveCurrentWinner,
     toggleWinnerReviews,
