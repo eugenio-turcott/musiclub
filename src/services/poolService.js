@@ -213,6 +213,15 @@ export const poolService = {
       try { const { data: profiles } = await supabase.from('public_profiles').select('id,name,avatar_url').in('id', userIds); for (const profile of profiles || []) memberProfiles.set(profile.id, profile); } catch {}
     }
     const byId = new Map(albums.map(album => [album.id, album]));
+    // A newly selected release may not be in the short-lived catalog cache yet.
+    const missingIds = [...new Set((entries || []).map(entry => entry.album_id).filter(id => !byId.has(id)))];
+    if (missingIds.length) {
+      const { data: releases, error: releaseError } = await supabase.from('albums')
+        .select('id,album_name,artist_name,image_url,release_type,release_date,release_year,genres,tracks,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled')
+        .in('id', missingIds);
+      if (releaseError) throw new Error('No se pudieron cargar los releases del Pool');
+      for (const release of releases || []) byId.set(release.id, release);
+    }
     const active = [], history = [];
     let winner = null;
     for (const entry of entries || []) {

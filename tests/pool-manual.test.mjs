@@ -98,3 +98,15 @@ test('editing sends the stable entry ID to the protected RPC and propagates erro
  assert.equal(calls[0][1].p_album_id,'replacement');
  assert.equal(calls[0][1].p_season_id,'current');
 });
+
+
+test('a changed capsule remains visible when the catalog cache lacks its new release', async () => {
+ const {service}=serviceFixture({from:table=>({
+  select(){return this;},eq(){return this;},
+  async order(){return {data:[{id:'entry',album_id:'new',user_id:'member',nominated_by:'Member',status:'ACTIVO'}],error:null};},
+  async in(){return {data:table==='albums'?[{id:'new',album_name:'New release',artist_name:'Artist'}]:[],error:null};}
+ })});
+ const result=await service.getPoolData();
+ assert.equal(result.active[0].id,'new'); assert.equal(result.active[0].pool_entry_id,'entry');
+ assert.equal(result.active[0].album,'New release'); assert.equal(result.season.entry_count,1);
+});
