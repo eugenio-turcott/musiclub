@@ -78,10 +78,11 @@ export function PoolRoomDirectory({ renderRoom }) {
       {!ready ? <p role="status" className="py-12 text-center text-purple-200">Cargando salas…</p> : <div role="tabpanel" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((room,index) => <article key={room.id} className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#171433] p-5">
           <div className="flex items-start justify-between gap-4"><span className="rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200">{room.visibility==='private'?'🔒 Privada':'◎ Pública'}</span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/>}</div>
-          <h2 className="mt-4 break-words text-xl font-black">{room.name}</h2>
-          <div className="mt-3 space-y-2 border-t border-white/10 pt-3"><h3 className="break-words text-base font-bold text-pink-200">{room.active_pool?.title || 'Sin Pool activo'}</h3><p className="break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p></div>
+          <h2 className="mt-4 break-words text-xl font-black">{room.active_pool?.title || 'Sin Pool activo'}</h2>
+          <p className="mt-2 break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p>
           <p className="mt-4 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
           <button className={`${button} mt-5 w-full`} onClick={() => open(room.id)}>Ver sala</button>
+          <p className="mt-4 break-words border-t border-white/10 pt-3 text-xs text-slate-400">Sala: {room.name}</p>
         </article>)}
         {!visible.length && !error && <p className="rounded-2xl border border-white/10 p-6 text-sm text-slate-300 md:col-span-2">{tab==='mine'?'Aquí aparecerán las salas que crees o a las que te unas.':'Todavía no hay salas públicas disponibles.'}</p>}
       </div>}

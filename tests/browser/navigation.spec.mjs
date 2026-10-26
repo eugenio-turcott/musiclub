@@ -73,7 +73,8 @@ test('Pool directory distinguishes public rooms, private invitations and an inde
   await page.goto('/pool');
   await expect(page.getByRole('heading',{name:/Cada sala.*Su propio Pool\./})).toBeVisible();
   await expect(page.getByRole('tab',{name:'Salas públicas',exact:true})).toHaveAttribute('aria-selected','true');
-  await expect(page.getByRole('heading',{name:'Musiclub · Sala del club',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Primera escucha',exact:true,level:2})).toBeVisible();
+  await expect(page.getByText('Sala: Musiclub · Sala del club',{exact:true})).toBeVisible();
   await expect(page.getByText('Administras esta sala',{exact:true})).toHaveCount(0);
   await page.getByRole('tab',{name:'Mis salas',exact:true}).click();
   await expect(page.getByText('Aquí aparecerán las salas que crees o a las que te unas.')).toBeVisible();
