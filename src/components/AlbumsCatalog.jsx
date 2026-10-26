@@ -1891,7 +1891,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                 )}
                                 <Link to={`/catalogo${page > 1 ? `?page=${page}` : ''}#explorador-catalogo`}
                                   aria-current={currentPage === page ? 'page' : undefined}
-                                  className={`min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
+                                  className={`inline-flex shrink-0 items-center justify-center min-w-[32px] h-8 rounded-xl text-xs font-bold transition-all border cursor-pointer ${
                                     currentPage === page
                                       ? 'bg-cyan-500 text-black border-cyan-400 shadow-md shadow-cyan-500/20 font-black'
                                       : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/10'
