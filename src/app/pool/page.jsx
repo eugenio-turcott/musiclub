@@ -2,9 +2,9 @@ import React from 'react';
 import { PoolPage } from '../../views/PoolPage';
 
 export const metadata = {
-  title: 'Pool Musical Comunitario y Temporadas',
+  title: 'Salas de escucha y Pool Musical',
   description:
-    'Participa en las nominaciones de álbumes de la semana, votaciones del pool musical y descubre la selección comunitaria en Musiclub.',
+    'Cada sala tiene su propio Pool. Descubre salas públicas o comparte una privada con tu grupo: propuestas, temporadas, selección e historial independientes.',
   alternates: {
     canonical: 'https://www.musiclub.org/pool',
   },

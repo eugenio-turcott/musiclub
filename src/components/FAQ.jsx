@@ -29,8 +29,8 @@ const FAQ_DATA = [
   {
     id: 'flujo-semanal',
     category: 'general',
-    question: '¿Cómo participo en la temporada del Pool?',
-    answer: 'Inicia sesión, consulta la dinámica de la temporada y deposita una cápsula si las propuestas están abiertas y queda cupo. Cada persona puede proponer un solo release por temporada. La administración selecciona el ganador, abre o cierra sus reseñas y lo pasa al historial.',
+    question: '¿Cómo participo en el Pool de una sala?',
+    answer: 'Inicia sesión y únete a una sala pública o acepta una invitación a una privada. Cada sala tiene sus propios Pools por temporada: propuestas, disco elegido e historial. Deposita una cápsula cuando las propuestas estén abiertas y quede cupo. Puedes proponer un release por persona y temporada en cada sala. Quien administra esa sala organiza su dinámica.',
     href: '/pool', linkLabel: 'Ir al Pool Musical',
   },
   {
@@ -43,7 +43,14 @@ const FAQ_DATA = [
     id: 'quien-puede-participar',
     category: 'general',
     question: '¿Necesito una cuenta para participar?',
-    answer: 'Puedes consultar el catálogo, los géneros, el Pool y las reseñas sin iniciar sesión. Para publicar una reseña, calificar una portada, proponer un release o editar tu perfil, inicia sesión con Google. Las acciones de administración están reservadas a la administración.',
+    answer: 'Puedes consultar el catálogo, los géneros, las salas públicas y las reseñas sin iniciar sesión. Las salas privadas solo son visibles para sus integrantes. Para publicar una reseña, calificar una portada, proponer un release o editar tu perfil, inicia sesión con Google. Las acciones de administración están reservadas a la administración.',
+  },
+
+  {
+    id: 'salas-publicas-privadas', category: 'general',
+    question: '¿Qué diferencia hay entre una sala pública y una privada?',
+    answer: 'Las públicas aparecen en el directorio y cualquier persona con sesión puede unirse. Las privadas solo las ven sus integrantes y requieren una invitación. Quien administra una sala puede crear o revocar sus invitaciones; duran siete días y crear una nueva invalida la anterior. Las propuestas, selección e historial se protegen dentro de la sala privada. Las reseñas en las fichas del catálogo siguen siendo públicas.',
+    href: '/pool', linkLabel: 'Explorar las salas de escucha',
   },
 
   // 2. Ruleta & Sorteos
@@ -65,7 +72,7 @@ const FAQ_DATA = [
     id: 'quien-tira-palanca',
     category: 'ruleta',
     question: '¿Quién elige el disco oficial del Pool?',
-    answer: 'La administración puede usar la ruleta o elegir un candidato en espera. Explorar releases del Pool en Gashapon es una experiencia de descubrimiento: no sustituye ni cambia el ganador oficial.',
+    answer: 'Quien administra cada sala puede usar la ruleta o elegir un candidato en espera de su propio Pool. Explorar releases del Pool en Gashapon es una experiencia de descubrimiento: no sustituye ni cambia el ganador oficial.',
   },
   {
     id: 'que-pasa-al-ganar',
@@ -138,13 +145,13 @@ const FAQ_DATA = [
     id: 'estados-albumes-catalogo',
     category: 'catalogo',
     question: '¿Estar en el catálogo significa estar en el Pool?',
-    answer: 'No. El catálogo reúne los releases disponibles en Musiclub. El Pool tiene sus propias propuestas por temporada: en espera, ganador actual e historial. Puedes encontrar un disco en el catálogo aunque nadie lo haya propuesto al Pool.',
+    answer: 'No. El catálogo reúne los releases disponibles en Musiclub. Cada sala tiene su propio Pool por temporada: propuestas en espera, disco elegido e historial independientes. Puedes encontrar un disco en el catálogo aunque nadie lo haya propuesto al Pool.',
   },
   {
     id: 'como-proponer-album',
     category: 'catalogo',
     question: '¿Cómo deposito o cambio mi cápsula?',
-    answer: 'Ve al Pool e inicia sesión. Usa Depositar cápsula para buscar un release y añadir una nota opcional. Si ya tienes una propuesta en espera, usa Editar mi cápsula: puedes cambiar el release o la nota mientras las propuestas sigan abiertas, incluso con el cupo lleno. La edición conserva tu lugar.',
+    answer: 'Entra a tu sala e inicia sesión. Usa Depositar cápsula para buscar un release y añadir una nota opcional. Si ya tienes una propuesta en espera, usa Editar mi cápsula: puedes cambiar el release o la nota mientras las propuestas sigan abiertas, incluso con el cupo lleno. La edición conserva tu lugar.',
     href: '/pool', linkLabel: 'Consultar mi cápsula',
   },
   {

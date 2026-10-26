@@ -1,3 +1,4 @@
+import { legacyPoolNotificationScope } from '../../../../server/poolNotificationScope';
 import { createHash } from 'node:crypto';
 import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
@@ -37,6 +38,8 @@ export async function POST(request) {
     } = body;
 
     const supabase = auth.db;
+    const scope = await legacyPoolNotificationScope(supabase, body.seasonId, body.albumId, 'GANADOR');
+    if (!scope) return NextResponse.json({ success: false, error: 'Los avisos generales solo corresponden al Pool de la sala original del club' }, { status: 403 });
     if (!supabase) {
       return NextResponse.json(
         { success: false, error: 'No se pudo inicializar cliente de base de datos' },
@@ -79,6 +82,7 @@ export async function POST(request) {
           .from('pool_entries')
           .select('nominated_by')
           .eq('album_id', albumId)
+          .eq('season_id', seasonId)
           .maybeSingle();
         if (pEntry?.nominated_by) nominatedBy = pEntry.nominated_by;
       } catch (e) {}
@@ -108,7 +112,7 @@ export async function POST(request) {
     }
 
     // 4. Despachar correo de ganador
-    const deliveryKey = 'pool-winner:' + createHash('sha256').update(JSON.stringify([albumData.id || albumData.album_name, [...recipients].sort(), lang])).digest('hex');
+    const deliveryKey = 'pool-winner:' + createHash('sha256').update(JSON.stringify([body.seasonId, albumData.id || albumData.album_name, [...recipients].sort(), lang])).digest('hex');
     const result = await deliverNotificationOnce(supabase, deliveryKey, () => sendPoolWinnerEmail({
       recipients,
       albumName: albumData.album_name || albumData.album,
@@ -116,7 +120,7 @@ export async function POST(request) {
       imageUrl: albumData.image_url || albumData.imagen,
       genres: albumData.genres || [],
       nominatedBy: nominatedBy || albumData.added_by || 'Miembro del Club',
-      seasonName: 'Temporada 1: El Origen del Club',
+      seasonName: scope.season.name,
       spotifyLink: albumData.spotify_link || albumData.spotifyLink,
       youtubeLink: albumData.youtube_link || albumData.youtubeLink,
       appleMusicLink: albumData.apple_music_link || albumData.appleMusicLink,

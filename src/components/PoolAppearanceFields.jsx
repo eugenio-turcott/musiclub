@@ -5,7 +5,7 @@ import { PoolHero } from './PoolHero';
 import presentation from '../utils/poolPresentation.cjs';
 import genres from '../utils/genreCatalog.cjs';
 
-export function PoolAppearanceFields({ value, name = '', description = '', onChange, onUploadingChange = () => {} }) {
+export function PoolAppearanceFields({ value, name = '', description = '', onChange, onUploadingChange = () => {}, canUpload = true }) {
   const a = presentation.poolAppearance(value);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
@@ -41,7 +41,7 @@ export function PoolAppearanceFields({ value, name = '', description = '', onCha
       <label className="sm:col-span-2">Imagen o GIF (enlace HTTPS, opcional)<input type="url" maxLength={2000} value={value?.mediaUrl || ''} onChange={e=>onChange({...a,mediaUrl:e.target.value})} placeholder="https://…" className={input} /></label>
       {a.mediaUrl && <label>Tamaño del detalle visual<select value={a.mediaSize} onChange={e=>change('mediaSize',Number(e.target.value))} className={input}><option value={96}>Pequeño</option><option value={128}>Mediano</option><option value={176}>Grande</option></select><span className="mt-1 block text-slate-400">En móvil siempre se adapta a un detalle de 80 px. La imagen se muestra completa.</span></label>}
       {a.mediaUrl && <button type="button" onClick={()=>change('mediaUrl','')} className="min-h-11 self-end rounded-xl border border-white/15 text-slate-300 hover:bg-white/5">Quitar imagen o GIF</button>}
-      <label className="sm:col-span-2">O sube una imagen / GIF · máximo 8 MB<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={upload} className={`${input} file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-purple-500/20 file:p-2 file:text-purple-200`} /></label>
+      {canUpload ? <label className="sm:col-span-2">O sube una imagen / GIF · máximo 8 MB<input type="file" accept="image/jpeg,image/png,image/webp,image/gif" disabled={uploading} onChange={upload} className={`${input} file:mr-3 file:cursor-pointer file:rounded-lg file:border-0 file:bg-purple-500/20 file:p-2 file:text-purple-200`} /></label> : <p className="sm:col-span-2 text-slate-400">Puedes usar una imagen pública por enlace para el diseño de esta sala.</p>}
       {uploading && <p role="status">Subiendo imagen…</p>}{error && <p role="alert" className="text-rose-300 sm:col-span-2">{error}</p>}
       <div className="min-w-0 sm:col-span-2"><span className="mb-2 block text-[10px] font-bold text-pink-200">ASÍ SE VERÁ · el nombre aparece una sola vez</span><PoolHero preview season={{name,description,appearance:a}} /></div>
     </div>

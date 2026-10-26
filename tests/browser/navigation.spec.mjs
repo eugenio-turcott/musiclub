@@ -8,6 +8,58 @@ test.beforeEach(async ({page})=>{
   });
 });
 
+test('Pool directory distinguishes public rooms, private invitations and an independent room view',async({page})=>{
+  await page.goto('/pool');
+  await expect(page.getByRole('heading',{name:/Cada sala.*Su propio Pool\./})).toBeVisible();
+  await expect(page.getByRole('tab',{name:'Salas públicas',exact:true})).toHaveAttribute('aria-selected','true');
+  await expect(page.getByRole('heading',{name:'Musiclub · Sala del club',exact:true})).toBeVisible();
+  await expect(page.getByText('Administras esta sala',{exact:true})).toHaveCount(0);
+  await page.getByRole('tab',{name:'Mis salas',exact:true}).click();
+  await expect(page.getByText('Aquí aparecerán las salas que crees o a las que te unas.')).toBeVisible();
+  await page.getByRole('tab',{name:'Salas públicas',exact:true}).click();
+  await page.getByRole('button',{name:'Ver sala',exact:true}).click();
+  await expect(page).toHaveURL(/sala=00000000-0000-4000-8000-000000000000/);
+  await expect(page.getByRole('heading',{name:'Primera escucha',exact:true})).toBeVisible();
+  await expect(page.getByText('Inicia sesión y únete a esta sala para participar.')).toBeVisible();
+  await expect(page.getByRole('button',{name:'Crear invitación',exact:true})).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.getByRole('button',{name:'← Todas las salas',exact:true}).click();
+  await page.goto('/pool?invitacion=00000000-0000-4000-8000-000000000099');
+  await expect(page.getByRole('button',{name:'Iniciar sesión para aceptar',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Primera escucha',exact:true})).toHaveCount(0);
+});
+
+test('a member can create a private room and manage its Pool without becoming a site administrator',async({page})=>{
+  const user={id:'00000000-0000-4000-8000-000000000081',email:'owner@example.test',user_metadata:{full_name:'Room owner'},app_metadata:{provider:'google'},aud:'authenticated',created_at:'2026-10-26T00:00:00Z'};
+  const roomId='00000000-0000-4000-8000-000000000082';
+  let created=null;
+  await page.addInitScript(({user})=>{
+    const payload=btoa(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600}));
+    localStorage.setItem('sb-127-auth-token',JSON.stringify({access_token:`eyJhbGciOiJIUzI1NiJ9.${payload}.fixture-only`,refresh_token:'fixture-only',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user}));
+  },{user});
+  await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
+  await page.route('**/rest/v1/profiles*',route=>route.fulfill({json:{...user,name:'Room owner',role:'user'}}));
+  await page.route('**/rest/v1/pool_rooms*',route=>route.fulfill({json:created?[{id:roomId,name:created.p_name,description:created.p_description,visibility:created.p_visibility,owner_id:user.id,created_at:user.created_at}]:[]}));
+  await page.route('**/rest/v1/pool_room_members*',route=>route.fulfill({json:created?[{room_id:roomId}]:[]}));
+  await page.route('**/rest/v1/seasons*',route=>route.fulfill({json:[{id:'private-season',room_id:roomId,name:'Primera escucha',description:'Test room',is_active:true,is_open:false,season_number:1,appearance:{}}]}));
+  await page.route('**/rest/v1/rpc/musiclub_create_pool_room',route=>{created=route.request().postDataJSON();return route.fulfill({json:roomId});});
+  await page.goto('/pool');
+  await page.getByRole('button',{name:'＋ Crear una sala',exact:true}).click();
+  const dialog=page.getByRole('dialog',{name:'Crea tu sala de escucha'});
+  await dialog.getByLabel('Nombre',{exact:true}).fill('Domingos de escucha');
+  await dialog.getByLabel('¿Qué van a escuchar juntos?',{exact:true}).fill('Un disco entre amistades');
+  await dialog.getByRole('radio',{name:/Privada/}).check();
+  await dialog.getByRole('button',{name:'Crear sala',exact:true}).click();
+  await expect(page).toHaveURL(new RegExp(`sala=${roomId}`));
+  expect(created).toEqual({p_name:'Domingos de escucha',p_description:'Un disco entre amistades',p_visibility:'private'});
+  await expect(page.getByRole('heading',{name:'Domingos de escucha',exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Crear invitación',exact:true})).toBeVisible();
+  await page.getByText('Administrar Pool · control manual',{exact:true}).click();
+  await expect(page.getByRole('button',{name:'Abrir propuestas para todos',exact:true})).toBeVisible();
+  await expect(page.getByText('Solo los integrantes pueden ver el Pool de esta sala. Las reseñas en las fichas del catálogo son públicas.',{exact:true})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
 test('Portadas stays on the selected release through scoring, tags, museum and navigation',async({page})=>{
   await page.goto('/portadas');
   const title=page.locator('h2');

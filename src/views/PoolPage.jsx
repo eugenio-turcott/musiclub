@@ -4,6 +4,7 @@ import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi
 import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
 import { PoolHero } from '../components/PoolHero';
 import { PoolManualControls } from '../components/PoolManualControls';
+import { PoolRoomDirectory, PoolRoomAccess } from '../components/PoolRoomDirectory';
 import { GenreLabel } from '../components/GenreLabel';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import { searchMusicBrainzReleases, getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
@@ -30,9 +31,13 @@ import {
 } from '../components/common/PlatformLogos';
 
 export function PoolPage() {
+  return <PoolRoomDirectory renderRoom={(room, actions) => <PoolRoomView key={room.id} room={room} onBack={actions.back} onRefreshRooms={actions.refresh}/>}/>;
+}
+
+function PoolRoomView({ room, onBack, onRefreshRooms }) {
   const {
     user,
-    isAdmin,
+    isAdmin: globalIsAdmin,
     loginWithGoogle,
     logout,
     loading: authLoading,
@@ -56,7 +61,10 @@ export function PoolPage() {
     toggleWinnerReviews,
     setPoolOpenStatus,
     refetch,
-  } = usePool();
+  } = usePool(undefined, room.id);
+
+  const isAdmin = globalIsAdmin || Boolean(user?.id && room.owner_id === user.id);
+  const canParticipate = room.joined || isAdmin;
 
   const { albums: catalogAlbums = [] } = useAlbums();
 
@@ -137,7 +145,7 @@ export function PoolPage() {
   // Nomination Modal States
   const myEntry = user?.id ? [...activePool, ...(winner ? [winner] : []), ...poolHistory].find(entry => entry.nominated_user_id === user.id) : null;
   const canEditMyEntry = Boolean(myEntry?.status === 'ACTIVO' && season.is_active && season.is_open);
-  const canNominate = !poolLoading && !poolError && (myEntry ? canEditMyEntry : isPoolOpen);
+  const canNominate = canParticipate && !poolLoading && !poolError && (myEntry ? canEditMyEntry : isPoolOpen);
   const [editingEntry, setEditingEntry] = useState(null);
   const nominationSelection = useRef(0);
   const [nominationSearch, setNominationSearch] = useState('');
@@ -328,8 +336,8 @@ export function PoolPage() {
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans flex flex-col justify-between">
       <SEO
-        title="Pool Musical Comunitario y Temporadas | Musiclub"
-        description="El Pool Musical comunitario de Musiclub. Descubre los álbumes propuestos para las temporadas, el álbum ganador de la semana y participa en las votaciones."
+        title="Salas de escucha y Pool Musical | Musiclub"
+        description="Cada sala tiene su propio Pool: propuestas, temporadas, disco elegido e historial. Descubre salas públicas o comparte una privada con tu grupo."
         url="https://www.musiclub.org/pool"
         keywords="pool musical, club de musica, album de la semana, votaciones de albumes, musiclub pool"
       />
@@ -338,7 +346,7 @@ export function PoolPage() {
         {/* Navigation Header */}
         <AppHeader
           user={user}
-          isAdmin={isAdmin}
+          isAdmin={globalIsAdmin}
           onLogin={() => setShowLoginModal(true)}
           onLogout={logout}
           loading={authLoading}
@@ -368,13 +376,15 @@ export function PoolPage() {
         {/* =========================================================================
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
+        <PoolRoomAccess room={room} user={user} canManage={isAdmin} onBack={onBack} onRefresh={onRefreshRooms}/>
+        {!canParticipate && <p className="rounded-xl border border-pink-300/20 bg-pink-300/5 p-4 text-sm text-pink-200">{user ? 'Únete a esta sala para depositar tu cápsula cuando se abran las propuestas.' : 'Inicia sesión y únete a esta sala para participar.'}</p>}
         <PoolHero season={season} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
           winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
-          isOpen={isPoolOpen} isAdmin={isAdmin} busy={poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
+          isOpen={isPoolOpen} isAdmin={isAdmin} busy={!canParticipate || poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
           onDeposit={openNomination}
           onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
-        {isAdmin && <PoolManualControls user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
+        {isAdmin && !poolLoading && !poolError && season.id && <PoolManualControls canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
 
         {/* =========================================================================
             2. WINNER SPOTLIGHT: ÁLBUM EN FOCO DE LA SEMANA

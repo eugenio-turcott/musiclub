@@ -1,3 +1,4 @@
+import { legacyPoolNotificationScope } from '../../../../server/poolNotificationScope';
 import { createHash } from 'node:crypto';
 import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
@@ -29,6 +30,8 @@ export async function POST(request) {
     }
 
     const supabase = auth.db;
+    const scope = await legacyPoolNotificationScope(supabase, body.seasonId, body.albumId, 'GRADUADO');
+    if (!scope) return NextResponse.json({ success: false, error: 'Los avisos generales solo corresponden al Pool de la sala original del club' }, { status: 403 });
     if (!supabase) {
       return NextResponse.json(
         { success: false, error: 'No se pudo conectar con la base de datos' },
@@ -89,7 +92,7 @@ export async function POST(request) {
     }
 
     // 4. Despachar correo de graduación
-    const deliveryKey = 'pool-graduated:' + createHash('sha256').update(JSON.stringify([album.id, reviewList.map(r => [r.id, r.rating_general, r.track_ratings, r.comment]), [...recipients].sort(), lang])).digest('hex');
+    const deliveryKey = 'pool-graduated:' + createHash('sha256').update(JSON.stringify([body.seasonId, album.id, reviewList.map(r => [r.id, r.rating_general, r.track_ratings, r.comment]), [...recipients].sort(), lang])).digest('hex');
     const result = await deliverNotificationOnce(supabase, deliveryKey, () => sendPoolGraduatedEmail({
       recipients,
       albumName: album.album_name,

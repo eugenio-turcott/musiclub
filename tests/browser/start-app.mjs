@@ -51,5 +51,5 @@ function run(args) {
   });
 }
 for(const signal of ['SIGINT','SIGTERM']) process.on(signal,()=>{child?.kill(signal);server.close();process.exit(0);});
-try { await run(['build']); await run(['start','--hostname','127.0.0.1','--port','3101']); }
+try { await run(['build',...(process.env.PLAYWRIGHT_WEBPACK==='1'?['--webpack']:[])]); await run(['start','--hostname','127.0.0.1','--port','3101']); }
 catch(error) {console.error(error.message);server.close();process.exitCode=1;}

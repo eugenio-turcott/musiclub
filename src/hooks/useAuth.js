@@ -209,6 +209,11 @@ export function useAuth() {
         if (session?.user && isMounted) {
           setSession(session);
           await handleUserSessionRef.current(session);
+          const poolReturn = sessionStorage.getItem('musiclub_pool_return');
+          sessionStorage.removeItem('musiclub_pool_return');
+          if (poolReturn && /^\/pool(?:\?|$)/.test(poolReturn) && poolReturn !== window.location.pathname + window.location.search) {
+            window.location.replace(poolReturn);
+          }
         } else if (isMounted) {
           // A cached display profile is not an authenticated session.
           setSession(null);
@@ -253,7 +258,11 @@ export function useAuth() {
       setIsRedirecting(true);
       setLoading(true);
 
-      const redirectTo = window.location.origin;
+      // Pool invitations must survive Google's return without allowing external redirects.
+      const redirectTo = window.location.pathname === '/pool'
+        ? `${window.location.origin}/pool${window.location.search}`
+        : window.location.origin;
+      if (window.location.pathname === '/pool') sessionStorage.setItem('musiclub_pool_return', `/pool${window.location.search}`);
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',

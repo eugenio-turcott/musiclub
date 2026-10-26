@@ -22,17 +22,20 @@ export function GashaponPage({ initialAlbums = [] }) {
   const poolId = new URLSearchParams(search).get('pool') || '';
   const [poolScope, setPoolScope] = useState(null);
   useEffect(() => {
-    if (!poolId) { setPoolScope(null); return; }
+    if (!poolId || authLoading) { setPoolScope(null); return; }
     let current = true;
     setPoolScope(null);
     (async () => {
+      const access = await supabase.rpc('musiclub_read_pool_season', { p_season: poolId });
+      if (access.error || access.data !== true) throw new Error('Sala no disponible');
       const { data, error } = await supabase.from('public_pool_entries').select('album_id,status').eq('season_id', poolId).in('status', ['ACTIVO', 'GANADOR', 'GRADUADO']);
-      if (current) setPoolScope({ id: poolId, entries: data || [], error: !!error });
-    })().catch(() => { if (current) setPoolScope({ id: poolId, entries: [], error: true }); });
+      if (current) setPoolScope({ id: poolId, userId: user?.id || null, entries: data || [], error: !!error });
+    })().catch(() => { if (current) setPoolScope({ id: poolId, userId: user?.id || null, entries: [], error: true }); });
     return () => { current = false; };
-  }, [poolId]);
-  const scopeReady = !poolId || poolScope?.id === poolId;
-  const scopedAlbums = useMemo(() => poolId ? presentation.poolReleases(albums, poolScope?.id === poolId ? poolScope.entries : []) : albums, [albums, poolId, poolScope]);
+  }, [poolId, user?.id, authLoading]);
+  const scopeMatches = !authLoading && poolScope?.id === poolId && poolScope?.userId === (user?.id || null);
+  const scopeReady = !poolId || scopeMatches;
+  const scopedAlbums = useMemo(() => poolId ? presentation.poolReleases(albums, scopeMatches ? poolScope.entries : []) : albums, [albums, poolId, poolScope, scopeMatches]);
 
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
@@ -85,7 +88,7 @@ export function GashaponPage({ initialAlbums = [] }) {
         {/* Contenido Principal del Gashapon */}
         <main className="py-4 sm:py-6">
           {poolId && <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-purple-300/20 bg-purple-500/10 p-4 text-sm text-purple-100"><div><p className="font-bold">🎰 Releases del Pool</p><p className="mt-1 text-xs text-slate-300">Solo propuestas activas, disco elegido e historial de esta temporada.</p></div><Link to="/gashapon" className="min-h-11 rounded-xl border border-white/15 px-3 py-3 text-xs font-bold hover:bg-white/10">Explorar catálogo completo</Link></div>}
-          {!scopeReady ? <p role="status" className="p-6 text-center text-purple-200">Cargando los releases del Pool…</p> : poolScope?.error ? <p role="alert" className="rounded-xl border border-rose-300/20 p-4 text-rose-200">No pudimos cargar los releases de este Pool. Recarga la página para intentarlo de nuevo.</p> : <GashaponMachine
+          {!scopeReady ? <p role="status" className="p-6 text-center text-purple-200">Cargando los releases del Pool…</p> : poolScope?.error ? <p role="alert" className="rounded-xl border border-rose-300/20 p-4 text-rose-200">Este Pool no está disponible para tu cuenta. Para una sala privada necesitas una invitación y una sesión válida.</p> : <GashaponMachine
             albums={scopedAlbums}
             collectionLabel={poolId ? 'releases del Pool' : 'releases del catálogo'}
             user={user}

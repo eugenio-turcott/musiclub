@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.34.0 · **Revisión del proyecto:** 23 de octubre de 2026.
+**Versión:** 9.35.0 · **Actualización de salas:** 26 de octubre de 2026.
 
 ## Qué incluye
 
@@ -10,7 +10,7 @@
 - Discografías persistidas en Supabase y contrastadas con Spotify, Deezer y Apple Music según disponibilidad. Se leen desde la BD y se actualizan en segundo plano. Una fuente incompleta o temporalmente caída no equivale a una discografía completa.
 - Agrupación de variantes de una misma obra sin perder sus reseñas. Las ediciones deluxe mantienen identidad propia.
 - Reseñas con canciones, seis criterios, nota general, comentario opcional, canción favorita y emociones. El inicio muestra las reseñas más recientes de hasta tres personas distintas.
-- Pool por temporadas: una cápsula por persona, cupo opcional, edición propia mientras esté en espera y las propuestas estén abiertas, ganador e historial. La edición conserva su lugar; los estados del Pool pertenecen a `pool_entries`, no a `albums`.
+- Pool por salas públicas y privadas, con temporadas independientes: una cápsula por persona, cupo opcional, edición propia mientras esté en espera y las propuestas estén abiertas, ganador e historial. La edición conserva su lugar; los estados del Pool pertenecen a `pool_entries`, no a `albums`.
 - Gashapon para descubrir releases del catálogo o únicamente los activos y del historial de una temporada: `/gashapon?pool=<id>`.
 - Calificación de portadas, perfiles, recomendaciones, playlists e insignias.
 - Géneros con identidad visual y visor interactivo de vinilos.
@@ -77,7 +77,8 @@ El esquema desplegado no se crea únicamente con `npm ci`. Las migraciones está
 
 - `albums`: datos de los releases.
 - `reviews`, `cover_ratings`, `profiles`: aportaciones y perfiles con políticas de acceso.
-- `seasons`, `pool_entries`: temporadas, propuestas y controles del Pool.
+- `pool_rooms`, `pool_room_members`, `pool_room_invites`: salas, pertenencia e invitaciones. Las privadas no aparecen en lecturas de personas ajenas.
+- `seasons`, `pool_entries`: temporadas, propuestas y controles del Pool, aislados por sala.
 - `artist_discographies`: perfiles y discografías persistidas.
 - Vistas `public_*`: proyecciones públicas que omiten datos privados de contacto.
 
@@ -172,3 +173,11 @@ Los workflows comprueban las pruebas críticas y la navegación en cambios de `m
 ## Contacto
 
 Soporte público: [musiclub.org@gmail.com](mailto:musiclub.org@gmail.com). Para reportar un error, incluye la ruta, lo ocurrido y lo esperado, sin contraseñas, códigos de acceso ni credenciales.
+
+### Salas de escucha · 9.35
+
+Aplica `supabase/migrations/20261026_v935_pool_rooms.sql` después de las migraciones existentes y antes de desplegar esta versión. La migración conserva los IDs y el historial del Pool anterior en la sala pública original. Cada sala dispone de un Pool activo independiente; su propietario controla propuestas, selección y temporadas.
+
+Las invitaciones privadas duran siete días; crear otra revoca las anteriores, sin expulsar a integrantes existentes. La salida de una sala privada revoca la lectura de sus propuestas. Las reseñas del catálogo siguen siendo públicas y se explica en la interfaz. Los avisos generales por correo se limitan a la sala original; las otras salas no disparan esos envíos. El acceso está protegido tanto en tablas como en la vista `public_pool_entries`, y el Gashapon vuelve a validar el acceso cuando cambia la sesión.
+
+Las pruebas de `tests/pool-rooms.test.mjs` ejecutan las políticas y funciones sobre PostgreSQL de prueba, incluyendo lecturas ajenas, invitaciones revocadas, edición propia y dos ganadores simultáneos en salas distintas.

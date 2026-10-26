@@ -33,7 +33,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
         <Link to={`/gashapon?pool=${encodeURIComponent(season.id)}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition hover:bg-white/10">🎰 Descubrir releases del Pool</Link>
         {!isOpen && isAdmin && <button type="button" disabled={busy || capacity.full} onClick={onOpen} className="min-h-11 rounded-xl px-3 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-40">Abrir propuestas</button>}
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-slate-400">Una cápsula por persona en cada temporada. Puedes cambiar tu release mientras esté en espera y las propuestas sigan abiertas.</p>
+      <p className="mt-3 text-xs leading-relaxed text-slate-400">Una cápsula por persona en cada temporada de esta sala. Puedes cambiar tu release mientras esté en espera y las propuestas sigan abiertas.</p>
       {!isOpen && <p className="mt-3 text-xs leading-relaxed text-slate-400">{capacity.full ? 'Todos los lugares están ocupados.' : 'Por ahora no se reciben nuevas cápsulas.'} Puedes explorar las propuestas y escuchar el disco elegido.</p>}
     </>}
     {(!preview || a.mediaUrl) && <div className="mt-6 flex flex-wrap items-center gap-5 border-t border-white/10 pt-4 sm:flex-nowrap sm:gap-8">

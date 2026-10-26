@@ -787,6 +787,9 @@ export const supabaseService = {
   // Obtener álbum ganador actual (Únicamente de pool_entries donde status = 'GANADOR')
   getCurrentWinner: async () => {
     try {
+      const { data: season, error: seasonError } = await supabase.from('seasons').select('id')
+        .eq('room_id', '00000000-0000-4000-8000-000000000000').eq('is_active', true).maybeSingle();
+      if (seasonError || !season) return null;
       const { data: poolWinner, error } = await supabase
         .from('public_pool_entries')
         .select(`
@@ -798,6 +801,7 @@ export const supabaseService = {
           album:album_id (*)
         `)
         .eq('status', 'GANADOR')
+        .eq('season_id', season.id)
         .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle();

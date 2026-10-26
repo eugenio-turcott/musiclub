@@ -2,6 +2,8 @@
 import { supabase, supabaseService } from './supabaseClient.js';
 import { authenticatedFetch } from './authenticatedFetch.js';
 
+export const DEFAULT_POOL_ROOM_ID = '00000000-0000-4000-8000-000000000000';
+
 /**
  * Metadata de las Temporadas de Musiclub
  */
@@ -56,29 +58,16 @@ export const poolService = {
   /**
    * Carga temporadas de forma asíncrona desde Supabase o localStorage
    */
-  getSeasons: async () => {
-    try {
+  getSeasons: async (roomId = DEFAULT_POOL_ROOM_ID) => {
       const { data, error } = await supabase
         .from('seasons')
         .select('*')
+        .eq('room_id', roomId)
         .order('season_number', { ascending: true });
-      if (!error && Array.isArray(data) && data.length > 0) {
-        localStorage.setItem('musiclub_seasons', JSON.stringify(data));
-        return data;
-      }
-    } catch (e) {
-      // Ignorar si la tabla seasons aún no está en Supabase
-    }
-    try {
-      const stored = localStorage.getItem('musiclub_seasons');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch (e) {}
-    return ALL_SEASONS;
+      if (error) throw new Error('No se pudieron cargar los Pools de esta sala');
+      // Never keep private room data in a shared browser's persistent cache.
+      if (roomId === DEFAULT_POOL_ROOM_ID) localStorage.setItem('musiclub_seasons', JSON.stringify(data || []));
+      return data || [];
   },
 
   /**
@@ -89,6 +78,7 @@ export const poolService = {
     const newId = seasonData.id || `temporada-${num}-${Date.now()}`;
     const newSeason = {
       id: newId,
+      room_id: seasonData.room_id || DEFAULT_POOL_ROOM_ID,
       season_number: num,
       name: seasonData.name || `Temporada ${num}`,
       start_date: seasonData.start_date || new Date().toISOString().split('T')[0],
@@ -102,19 +92,19 @@ export const poolService = {
 
     const { error: insertError } = await supabase.from('seasons').insert(newSeason);
     if (insertError) throw new Error(insertError.message);
-    if (seasonData.is_active) { await poolService.setActiveSeason(newId); newSeason.is_active = true; }
+    if (seasonData.is_active) { await poolService.setActiveSeason(newId, newSeason.room_id); newSeason.is_active = true; }
 
-    const current = await poolService.getSeasons();
+    const current = await poolService.getSeasons(newSeason.room_id);
     let updated = [...current.filter((s) => s.id !== newId), newSeason];
     if (newSeason.is_active) {
       updated = updated.map((s) => (s.id === newId ? s : { ...s, is_active: false }));
     }
     updated.sort((a, b) => (a.season_number || 0) - (b.season_number || 0));
-    localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
+    if (newSeason.room_id === DEFAULT_POOL_ROOM_ID) localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated } })
+        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated, roomId: newSeason.room_id } })
       );
     }
     return newSeason;
@@ -123,7 +113,7 @@ export const poolService = {
   /**
    * Actualiza una temporada existente
    */
-  updateSeason: async (seasonId, seasonData) => {
+  updateSeason: async (seasonId, seasonData, roomId = DEFAULT_POOL_ROOM_ID) => {
     const { is_active, ...fields } = seasonData;
     // Optional empty date inputs must be SQL NULL, never an empty date string.
     if (Object.hasOwn(fields, 'end_date')) fields.end_date = fields.end_date?.trim() || null;
@@ -131,19 +121,19 @@ export const poolService = {
     if (Object.hasOwn(fields, 'start_date') && !fields.start_date?.trim()) delete fields.start_date;
     const { error: updateError } = await supabase.from('seasons').update(fields).eq('id', seasonId);
     if (updateError) throw new Error(updateError.message);
-    if (is_active) await poolService.setActiveSeason(seasonId);
+    if (is_active) await poolService.setActiveSeason(seasonId, roomId);
 
-    const current = await poolService.getSeasons();
+    const current = await poolService.getSeasons(roomId);
     let updated = current.map((s) => (s.id === seasonId ? { ...s, ...fields } : s));
     if (seasonData.is_active) {
       updated = updated.map((s) => (s.id === seasonId ? s : { ...s, is_active: false }));
     }
     updated.sort((a, b) => (a.season_number || 0) - (b.season_number || 0));
-    localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
+    if (roomId === DEFAULT_POOL_ROOM_ID) localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated } })
+        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated, roomId } })
       );
     }
     return true;
@@ -152,20 +142,20 @@ export const poolService = {
   /**
    * Elimina una temporada
    */
-  deleteSeason: async (seasonId) => {
+  deleteSeason: async (seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
     const { error: deleteError } = await supabase.from('seasons').delete().eq('id', seasonId);
     if (deleteError) throw new Error(deleteError.message);
 
-    const current = await poolService.getSeasons();
+    const current = await poolService.getSeasons(roomId);
     let updated = current.filter((s) => s.id !== seasonId);
-    if (updated.length === 0) {
+    if (updated.length === 0 && roomId === DEFAULT_POOL_ROOM_ID) {
       updated = ALL_SEASONS;
     }
-    localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
+    if (roomId === DEFAULT_POOL_ROOM_ID) localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated } })
+        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated, roomId } })
       );
     }
     return true;
@@ -174,20 +164,20 @@ export const poolService = {
   /**
    * Activa una temporada específica
    */
-  setActiveSeason: async (seasonId) => {
+  setActiveSeason: async (seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
     const { error } = await supabase.rpc('musiclub_activate_season', { p_season_id: seasonId });
     if (error) throw new Error(error.message);
 
-    const current = await poolService.getSeasons();
+    const current = await poolService.getSeasons(roomId);
     const updated = current.map((s) => ({
       ...s,
       is_active: s.id === seasonId,
     }));
-    localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
+    if (roomId === DEFAULT_POOL_ROOM_ID) localStorage.setItem('musiclub_seasons', JSON.stringify(updated));
 
     if (typeof window !== 'undefined') {
       window.dispatchEvent(
-        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated } })
+        new CustomEvent('musiclub_seasons_change', { detail: { seasons: updated, roomId } })
       );
     }
     return true;
@@ -199,9 +189,10 @@ export const poolService = {
    * 2. Álbum Ganador actual (en foco esta semana)
    * 3. Álbumes Graduados / Históricos del Pool
    */
-  getPoolData: async (seasonId) => {
-    const seasons = await poolService.getSeasons();
-    const season = seasons.find(item => item.id === seasonId) || seasons.find(item => item.is_active) || DEFAULT_SEASON;
+  getPoolData: async (seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
+    const seasons = await poolService.getSeasons(roomId);
+    const season = seasonId ? seasons.find(item => item.id === seasonId) : seasons.find(item => item.is_active) || seasons[0];
+    if (!season) throw new Error('Esta sala no tiene un Pool disponible o no tienes acceso');
     const [{ data: entries, error }, albums] = await Promise.all([
       supabase.from('public_pool_entries').select('*').eq('season_id', season.id).order('created_at', { ascending: false }),
       supabaseService.getAllAlbumsWithFullStats(),
@@ -277,13 +268,13 @@ export const poolService = {
     return data;
   },
 
-  selectWinner: async (albumId, seasonId) => {
+  selectWinner: async (albumId, seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'winner', p_album_id: albumId });
     if (error) throw new Error(error.message);
 
     // 4. Disparar notificación por correo a todos los miembros sobre el nuevo ganador
-    if (typeof window !== 'undefined') {
+    if (roomId === DEFAULT_POOL_ROOM_ID && typeof window !== 'undefined') {
       try {
         authenticatedFetch('/api/notifications/pool-winner', {
           method: 'POST',
@@ -299,13 +290,13 @@ export const poolService = {
   /**
    * Gradúa el ganador actual y lo pasa al historial del Pool
    */
-  archiveCurrentWinner: async (albumId, seasonId) => {
+  archiveCurrentWinner: async (albumId, seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'graduate', p_album_id: albumId });
     if (error) throw new Error(error.message);
 
     // 3. Disparar notificación por correo a todos los miembros sobre la graduación y resultados
-    if (typeof window !== 'undefined') {
+    if (roomId === DEFAULT_POOL_ROOM_ID && typeof window !== 'undefined') {
       try {
         authenticatedFetch('/api/notifications/pool-graduated', {
           method: 'POST',
