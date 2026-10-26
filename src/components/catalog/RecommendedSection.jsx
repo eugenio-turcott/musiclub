@@ -160,7 +160,7 @@ export function RecommendedSection({ albums = [] }) {
   };
 
   return (
-    <section ref={sectionRef} data-motion-visible={isVisible} className="performance-section space-y-4 my-8">
+    <section ref={sectionRef} data-motion-visible={isVisible} className="space-y-4 my-8">
       {/* Header Banner */}
       <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">

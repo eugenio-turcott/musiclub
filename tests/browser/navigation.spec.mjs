@@ -350,7 +350,7 @@ test('a release added after the public catalogue cache was warmed opens immediat
 test('artists with only an upcoming release open immediately from local metadata',async({page})=>{
   await page.goto('/artista/artista-proximo');
   await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
-  await expect(page.getByRole('link',{name:'Estreno oficial',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
 });
 
 

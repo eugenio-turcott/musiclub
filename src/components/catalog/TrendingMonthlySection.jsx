@@ -217,11 +217,11 @@ export function TrendingMonthlySection({
 
       {/* Grid of items */}
       {loading ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 animate-pulse">
-          {Array.from({ length: 10 }).map((_, i) => (
+        <div key="trending-loading" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4.5 animate-pulse">
+          {Array.from({ length: 20 }).map((_, i) => (
             <div
               key={i}
-              className="bg-white/5 rounded-2xl aspect-[3/4] border border-white/5"
+              className={`bg-white/5 rounded-2xl aspect-[3/4] border border-white/5 ${i >= 10 ? 'hidden sm:block' : ''}`}
             />
           ))}
         </div>

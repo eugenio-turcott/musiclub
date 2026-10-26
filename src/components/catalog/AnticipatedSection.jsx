@@ -90,8 +90,8 @@ export function AnticipatedSection({
 
       {/* Grid of Anticipated Releases */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-pulse">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div key="upcoming-loading" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 animate-pulse">
+          {Array.from({ length: 10 }).map((_, i) => (
             <div
               key={i}
               className="bg-white/5 rounded-2xl aspect-[3/4] border border-white/5"
@@ -103,7 +103,7 @@ export function AnticipatedSection({
           No hay lanzamientos anticipados registrados en este momento.
         </div>
       ) : (
-        <div className="space-y-6">
+        <div key="upcoming-ready" className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             {displayedReleases.map((item, index) => {
               const targetUrl = `/albumes/${item.slug}`;
