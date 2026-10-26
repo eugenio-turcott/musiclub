@@ -187,7 +187,7 @@ test('artist pages preserve club discography and review badges',async({page})=>{
 });
 
 test('a closed Pool keeps proposals disabled without creating entries',async({page})=>{
-  await page.goto('/pool');
+  await page.goto('/pool?sala=00000000-0000-4000-8000-000000000000');
   const hero = page.getByRole('region',{name:'Pool activo',exact:true});
   await expect(hero.getByRole('heading',{level:1})).toBeVisible();
   await expect(hero.getByRole('heading',{level:1})).toHaveCount(1);
@@ -278,6 +278,7 @@ test('historical listening-variant links open one canonical release without losi
 
 
 test('Pool discovery keeps genre filters inside the selected season and accepts original edition IDs', async ({page}) => {
+  await page.route('**/rest/v1/rpc/musiclub_read_pool_season',route=>route.fulfill({json:true}));
   await page.route('**/rest/v1/public_pool_entries*', route => route.fulfill({contentType:'application/json',body:JSON.stringify([
     {album_id:'clean-variant-fixture',status:'GRADUADO'},
     {album_id:'00000000-0000-4000-8000-000000000002',status:'ACTIVO'},
@@ -405,7 +406,8 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
   localStorage.setItem('sb-127-auth-token',JSON.stringify(session));
  },{user:member,session:{access_token:token,refresh_token:'local-fixture',expires_at:expiresAt,expires_in:3600,token_type:'bearer',user:authUser}});
  await page.route('**/rest/v1/profiles*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify({...member,avatar_url:null})}));
- await page.route('**/rest/v1/seasons*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:'current',name:'Fixture Pool',season_number:2,is_active:true,is_open:true,max_releases:1,start_date:'2025-01-01'}])}));
+ await page.route('**/rest/v1/pool_room_members*',route=>route.fulfill({json:[{room_id:'00000000-0000-4000-8000-000000000000'}]}));
+ await page.route('**/rest/v1/seasons*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:'current',room_id:'00000000-0000-4000-8000-000000000000',name:'Fixture Pool',season_number:2,is_active:true,is_open:true,max_releases:1,start_date:'2025-01-01'}])}));
  await page.route('**/rest/v1/public_pool_entries*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([entry])}));
  await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({contentType:'application/json',body:JSON.stringify([{id:member.id,name:member.name,avatar_url:null}])}));
  let edited=null,nominations=0;
@@ -414,7 +416,7 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
   edited=route.request().postDataJSON(); entry.note=edited.p_note;
   return route.fulfill({contentType:'application/json',body:JSON.stringify({success:true,entryId:entry.id,albumId:entry.album_id})});
  });
- await page.goto('/pool');
+ await page.goto('/pool?sala=00000000-0000-4000-8000-000000000000');
  const hero=page.getByRole('region',{name:'Pool activo',exact:true});
  await expect(hero).toContainText('Cupo completo');
  await expect(page.getByText('Por: Nombre actual',{exact:true})).toBeVisible();
