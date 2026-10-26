@@ -25,10 +25,10 @@ test('an empty current Pool never falls back to unrelated catalog releases', asy
   assert.deepEqual(filters, [['season_id','current']]);
 });
 
-test('a database review closure wins over stale enabled flags in the catalog or entry', async () => {
+test('the room review flag is independent of the current visitor review access', async () => {
   const { service } = serviceFixture({ albums: [{id:'album',album_name:'Album',reviews_enabled:true}], entries: [{id:'entry',album_id:'album',status:'GANADOR',reviews_enabled:true}], rpc: async () => ({ data:false,error:null }) });
   const result = await service.getPoolData();
-  assert.equal(result.winner.reviews_enabled, false);
+  assert.equal(result.winner.reviews_enabled, true);
 });
 
 test('a rejected nomination reports the closure instead of inserting an orphaned album', async () => {

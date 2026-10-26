@@ -110,13 +110,17 @@ export function usePool(seasonId, roomId = DEFAULT_POOL_ROOM_ID) {
   const toggleWinnerReviews = useCallback(
     async (albumId, enabled) => {
       const result = await poolService.toggleWinnerReviews(albumId, enabled, season.id);
-      if (winner && winner.id === albumId) {
-        setWinner((prev) => (prev ? { ...prev, reviews_enabled: enabled } : null));
-      }
+      await fetchPoolData(true);
+      window.dispatchEvent(new Event('musiclub:review-access-change'));
       return result;
     },
-    [winner, season.id]
+    [season.id, fetchPoolData]
   );
+  const scheduleWinnerReviews = useCallback(async (albumId, date) => {
+    await poolService.scheduleWinnerReviews(albumId, date, season.id);
+    await fetchPoolData(true);
+    window.dispatchEvent(new Event('musiclub:review-access-change'));
+  }, [season.id, fetchPoolData]);
 
   const [isPoolOpen, setIsPoolOpen] = useState(() => poolService.isPoolOpen());
 
@@ -186,6 +190,7 @@ export function usePool(seasonId, roomId = DEFAULT_POOL_ROOM_ID) {
     selectWinner,
     archiveCurrentWinner,
     toggleWinnerReviews,
+    scheduleWinnerReviews,
     setPoolOpenStatus,
     openPool,
     closePool,

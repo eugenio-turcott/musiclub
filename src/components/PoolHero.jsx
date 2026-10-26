@@ -4,7 +4,7 @@ import { GenreArtwork } from './GenreArtwork';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import presentation from '../utils/poolPresentation.cjs';
 
-export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isAdmin = false, busy = false, onDeposit, onOpen, hasEntry = false, canEdit = false, preview = false }) {
+export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isAdmin = false, busy = false, onDeposit, onOpen, hasEntry = false, canEdit = false, preview = false, ownerName }) {
   const a = presentation.poolAppearance(season.appearance);
   const capacity = presentation.poolCapacity(season, season.entry_count || 0);
   const title = a.heading || season.name || 'Pool Musical Comunitario';
@@ -43,6 +43,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
         {capacity.limit && <div><dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Cápsulas / cupo</dt><dd className="mt-1 text-xl font-black text-purple-200">{capacity.used} <span className="text-sm text-slate-400">/ {capacity.limit}</span></dd></div>}
       </dl>}
       {a.mediaUrl && <img src={a.mediaUrl} alt="" style={{ '--pool-media-size': `${a.mediaSize}px` }} className="aspect-square w-20 shrink-0 rounded-2xl border border-white/10 bg-black/15 object-contain p-1 sm:w-[var(--pool-media-size)] sm:max-w-[24%]" onError={event => { event.currentTarget.hidden = true; }} />}
+      {!preview && ownerName && <p className="ml-auto max-w-60 self-end break-words text-right text-xs leading-relaxed text-slate-400">Dueño del Pool<br/><strong className="font-bold text-pink-200">{ownerName}</strong></p>}
     </div>}
   </section>;
 }

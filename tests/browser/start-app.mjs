@@ -19,6 +19,8 @@ const server=http.createServer((request,response)=>{
   if(request.method==='OPTIONS') { response.writeHead(204).end(); return; }
   if(request.method!=='GET'&&request.method!=='HEAD') {
     // Permit read-only RPCs. Other write attempts fail rather than reaching any provider.
+    if(request.url==='/rest/v1/rpc/musiclub_review_context') { response.end(JSON.stringify({catalog_allowed:true,allowed:true,requires_confirmation:false,pools:[]})); return; }
+    if(request.url==='/rest/v1/rpc/musiclub_can_review_album') { response.end('true'); return; }
     if(request.url.startsWith('/rest/v1/rpc/')) { response.end('[]'); return; }
     response.writeHead(403).end(JSON.stringify({message:'Writes disabled in browser fixtures'})); return;
   }

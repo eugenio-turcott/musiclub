@@ -80,8 +80,8 @@ export function ReviewSystem({
   onCancelEdit = null,
 }) {
   const auth = useAuth();
-  const reviewAccess = useReviewAccess(album?.id);
   const user = propUser || auth.user;
+  const reviewAccess = useReviewAccess(album?.id, user?.id);
   const loginWithGoogle = auth.loginWithGoogle;
 
   const [showReviewForm, setShowReviewForm] = useState(isIndividual);

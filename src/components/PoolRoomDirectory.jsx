@@ -57,7 +57,6 @@ export function PoolRoomDirectory({ renderRoom }) {
       <AppHeader user={user} isAdmin={isAdmin} onLogin={loginWithGoogle} onLogout={logout} loading={authLoading} showTitle={false}/>
       <section className="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-[#171433] p-6 sm:p-10">
         <MusiclubVinyl src="/musiclub_logo_3.png" alt="" className="pointer-events-none absolute -right-10 top-10 -z-10 h-64 w-64 opacity-20 sm:right-6 sm:h-80 sm:w-80"/>
-        <p className="text-xs font-black uppercase tracking-widest text-pink-300">Pool Musical · Salas de escucha</p>
         <h1 className="mt-4 max-w-xl text-4xl font-black leading-tight sm:text-6xl">Cada sala.<br/>Su propio Pool.</h1>
         <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">Descubre música con nuevas personas en una sala pública o comparte una sala privada con tu grupo. Cada sala tiene sus propias propuestas, temporadas, disco elegido e historial.</p>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -78,8 +77,9 @@ export function PoolRoomDirectory({ renderRoom }) {
       </div>
       {!ready ? <p role="status" className="py-12 text-center text-purple-200">Cargando salas…</p> : <div role="tabpanel" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {visible.map((room,index) => <article key={room.id} className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#171433] p-5">
-          <div className="flex items-start justify-between gap-4"><span className="rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200">{room.visibility==='private'?'🔒 Privada':'◎ Pública'}</span><MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/></div>
-          <h2 className="mt-4 break-words text-xl font-black">{room.name}</h2><p className="mt-2 min-h-12 whitespace-pre-line break-words text-sm leading-relaxed text-slate-300">{room.description || 'Un espacio para descubrir y escuchar en compañía.'}</p>
+          <div className="flex items-start justify-between gap-4"><span className="rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200">{room.visibility==='private'?'🔒 Privada':'◎ Pública'}</span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/>}</div>
+          <h2 className="mt-4 break-words text-xl font-black">{room.name}</h2>
+          <div className="mt-3 space-y-2 border-t border-white/10 pt-3"><h3 className="break-words text-base font-bold text-pink-200">{room.active_pool?.title || 'Sin Pool activo'}</h3><p className="break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p></div>
           <p className="mt-4 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
           <button className={`${button} mt-5 w-full`} onClick={() => open(room.id)}>Ver sala</button>
         </article>)}

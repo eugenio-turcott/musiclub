@@ -2,6 +2,7 @@
 import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
 import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
+import { WinnerReviewSchedule } from '../components/PoolReviewSchedule';
 import { PoolHero } from '../components/PoolHero';
 import { PoolManualControls } from '../components/PoolManualControls';
 import { PoolRoomDirectory, PoolRoomAccess } from '../components/PoolRoomDirectory';
@@ -59,6 +60,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
     selectWinner,
     archiveCurrentWinner,
     toggleWinnerReviews,
+    scheduleWinnerReviews,
     setPoolOpenStatus,
     refetch,
   } = usePool(undefined, room.id);
@@ -378,7 +380,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
             ========================================================================= */}
         <PoolRoomAccess room={room} user={user} canManage={isAdmin} onBack={onBack} onRefresh={onRefreshRooms}/>
         {!canParticipate && <p className="rounded-xl border border-pink-300/20 bg-pink-300/5 p-4 text-sm text-pink-200">{user ? 'Únete a esta sala para depositar tu cápsula cuando se abran las propuestas.' : 'Inicia sesión y únete a esta sala para participar.'}</p>}
-        <PoolHero season={season} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
+        <PoolHero season={season} ownerName={room.owner_name} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
           winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
           isOpen={isPoolOpen} isAdmin={isAdmin} busy={!canParticipate || poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
           onDeposit={openNomination}
@@ -532,6 +534,8 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                       <span>Ver Release</span>
                     </Link>
                   </div>
+
+                  <WinnerReviewSchedule key={winner.pool_entry_id || winner.id} winner={winner} canManage={isAdmin} onSave={scheduleWinnerReviews}/>
 
                   {/* Review Buttons & Admin Controls */}
                   <div className="pt-3 flex flex-wrap items-center justify-center md:justify-start gap-3">

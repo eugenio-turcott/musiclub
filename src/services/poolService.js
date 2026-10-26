@@ -221,10 +221,11 @@ export const poolService = {
       const item = { ...album, id: album.id, pool_entry_id: entry.id,
         album: album.album_name, artista: album.artist_name, imagen: album.image_url,
         status: entry.status, nominated_user_id: entry.user_id || null,
+        review_scheduled_for: entry.review_scheduled_for || null,
         added_by: memberProfiles.get(entry.user_id)?.name?.trim() || entry.nominated_by || 'Miembro',
         nominated_avatar: memberProfiles.get(entry.user_id)?.avatar_url || null,
         created_at: entry.created_at, nominated_at: entry.created_at, nomination_note: entry.note || '',
-        reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true && album.reviews_enabled !== false,
+        reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true,
         spotifyLink: entry.spotify_link || album.spotify_link,
         youtubeLink: entry.youtube_link || album.youtube_link,
         appleMusicLink: entry.apple_music_link || album.apple_music_link,
@@ -233,10 +234,6 @@ export const poolService = {
       if (entry.status === 'GANADOR') winner = item;
       else if (entry.status === 'ACTIVO') active.push(item);
       else history.push(item);
-    }
-    if (winner) {
-      const { data: allowed, error: gateError } = await supabase.rpc('musiclub_can_review_album', { p_album_id: winner.id });
-      winner.reviews_enabled = !gateError && allowed === true;
     }
     return { season: { ...season, entry_count: (entries || []).length }, active, winner, history, isFromDedicatedTable: true };
   },
@@ -315,6 +312,12 @@ export const poolService = {
   toggleWinnerReviews: async (albumId, reviewsEnabled, seasonId) => {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'reviews', p_album_id: albumId, p_enabled: reviewsEnabled });
+    if (error) throw new Error(error.message);
+    return true;
+  },
+
+  scheduleWinnerReviews: async (albumId, date, seasonId) => {
+    const { error } = await supabase.rpc('musiclub_schedule_pool_reviews', { p_season_id: seasonId, p_album_id: albumId, p_date: date || null });
     if (error) throw new Error(error.message);
     return true;
   },

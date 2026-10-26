@@ -1,5 +1,66 @@
 import { test, expect } from '@playwright/test';
 
+async function poolReviewer(page) {
+ const user={id:'00000000-0000-4000-8000-000000000081',email:'member@example.test',user_metadata:{full_name:'Corpus'},app_metadata:{provider:'google'},aud:'authenticated',created_at:'2026-10-26T00:00:00Z'};
+ await page.addInitScript(user=>{
+  const payload=btoa(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600}));
+  localStorage.setItem('sb-127-auth-token',JSON.stringify({access_token:`eyJhbGciOiJIUzI1NiJ9.${payload}.fixture-only`,refresh_token:'fixture-only',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user}));
+ },user);
+ await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
+ await page.route('**/rest/v1/profiles*',route=>route.fulfill({json:{...user,name:'Corpus',role:'user'}}));
+ return user;
+}
+
+for (const status of ['ACTIVO','GANADOR']) test(`a Pool member confirms an early review for ${status} without opening the Pool for others`,async({page})=>{
+ await poolReviewer(page);
+ let confirmed=false,confirmations=0;
+ const pool={entry_id:'00000000-0000-4000-8000-000000000088',room_id:'00000000-0000-4000-8000-000000000082',room_name:'Sala de prueba',pool_name:'Escuchas en negro',status,reviews_enabled:false,review_scheduled_for:'2026-11-02',version:4,blocked:true,confirmed:false};
+ const context=()=>({catalog_allowed:true,allowed:confirmed,requires_confirmation:true,pools:[{...pool,confirmed}]});
+ await page.route('**/rest/v1/rpc/musiclub_review_context',route=>route.fulfill({json:context()}));
+ await page.route('**/rest/v1/rpc/musiclub_can_review_album',route=>{expect(route.request().postDataJSON().p_album_id).toBe('00000000-0000-4000-8000-000000000001');return route.fulfill({json:confirmed});});
+ await page.route('**/rest/v1/rpc/musiclub_confirm_pool_review',route=>{
+  expect(route.request().postDataJSON().p_expected).toEqual([{entry_id:pool.entry_id,version:4}]);
+  confirmed=true;confirmations++;return route.fulfill({json:context()});
+ });
+ await page.goto('/albumes/artista-de-prueba-azul');
+ const cta=page.getByRole('button',{name:'⭐ Calificar y Reseñar',exact:true});
+ await expect(cta).toBeEnabled();
+ if(status==='GANADOR') await expect(page.getByText('Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
+ await cta.click();
+ const dialog=page.getByRole('dialog',{name:'¿Reseñar antes de la apertura del Pool?'});
+ await expect(dialog).toBeVisible();await expect(page.getByRole('heading',{name:'Escribir Reseña',exact:true})).toHaveCount(0);
+ await dialog.getByRole('button',{name:'Esperar al Pool'}).click();expect(confirmations).toBe(0);
+ await cta.click();await dialog.getByRole('button',{name:'Reseñar de todos modos'}).click();
+ await expect(dialog).toHaveCount(0);await expect(page.getByRole('heading',{name:'Escribir Reseña',exact:true})).toBeVisible();
+ expect(confirmations).toBe(1);expect(pool.reviews_enabled).toBe(false);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('the room owner schedules a winner review date without enabling reviews',async({page})=>{
+ const user=await poolReviewer(page),roomId='00000000-0000-4000-8000-000000000082';
+ let date=null,payload=null;
+ await page.route('**/rest/v1/pool_rooms*',route=>route.fulfill({json:[{id:roomId,name:'Sala de prueba',description:'Room description',visibility:'public',owner_id:user.id,created_at:user.created_at}]}));
+ await page.route('**/rest/v1/pool_room_members*',route=>route.fulfill({json:[{room_id:roomId}]}));
+ await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[{id:user.id,name:'Corpus'}]}));
+ await page.route('**/rest/v1/seasons*',route=>route.fulfill({json:[{id:'current',room_id:roomId,name:'Pool en negro',description:'Hidden pool description',is_active:true,is_open:false,season_number:1,appearance:{}}]}));
+ await page.route('**/rest/v1/public_pool_entries*',route=>route.fulfill({json:[{id:'00000000-0000-4000-8000-000000000088',season_id:'current',album_id:'00000000-0000-4000-8000-000000000001',user_id:user.id,nominated_by:'Corpus',status:'GANADOR',reviews_enabled:false,review_scheduled_for:date}]}));
+ await page.route('**/rest/v1/rpc/musiclub_schedule_pool_reviews',route=>{payload=route.request().postDataJSON();date=payload.p_date;return route.fulfill({json:true});});
+ await page.goto('/pool');
+ const card=page.getByRole('article').filter({hasText:'Sala de prueba'});
+ await expect(card.getByRole('heading',{name:'Pool en negro',exact:true})).toBeVisible();
+ await expect(card.getByText('Azul',{exact:true})).toBeVisible();
+ await expect(card.getByText('Hidden pool description',{exact:true})).toHaveCount(0);
+ await expect(page.getByText('POOL MUSICAL · SALAS DE ESCUCHA',{exact:true})).toHaveCount(0);
+ await card.getByRole('button',{name:'Ver sala',exact:true}).click();
+ await expect(page.getByText('Dueño del Pool')).toContainText('Corpus');
+ await page.getByLabel('Programar fecha de reseña',{exact:true}).fill('2026-11-02');
+ await page.getByRole('button',{name:'Guardar fecha',exact:true}).click();
+ await expect(page.getByText('🗓️ Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
+ expect(payload).toEqual({p_season_id:'current',p_album_id:'00000000-0000-4000-8000-000000000001',p_date:'2026-11-02'});
+ await expect(page.getByRole('button',{name:'✅ Habilitar Reviews',exact:true})).toBeVisible();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
 test.beforeEach(async ({page})=>{
   // External links/data must not send tests to production, telemetry or mail providers.
   await page.route('**/*',route=>{
@@ -26,7 +87,7 @@ test('Pool directory distinguishes public rooms, private invitations and an inde
   await page.getByRole('button',{name:'← Todas las salas',exact:true}).click();
   await page.goto('/pool?invitacion=00000000-0000-4000-8000-000000000099');
   await expect(page.getByRole('button',{name:'Iniciar sesión para aceptar',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Primera escucha',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Primera escucha',exact:true,level:1})).toHaveCount(0);
 });
 
 test('a member can create a private room and manage its Pool without becoming a site administrator',async({page})=>{

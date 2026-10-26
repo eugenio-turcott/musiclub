@@ -1,5 +1,6 @@
 'use client';
-import { useReviewAccess } from '../hooks/useReviewAccess';
+import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
+import { PoolReviewNotice, EarlyPoolReviewDialog } from './PoolReviewSchedule';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -212,7 +213,16 @@ export function AlbumDetail({
   const preloadedAlbum = propPreloadedAlbum || location?.state?.preloadedAlbum;
 
   const [album, setAlbum] = useState(() => normalizeAlbumData(preloadedAlbum));
-  const reviewAccess = useReviewAccess(album?.id);
+  const reviewGate = usePoolReviewGate(album?.id, user?.id);
+  const reviewAccess = reviewGate.allowed;
+  const [confirmationKey, setConfirmationKey] = useState(null);
+  const gateKey = `${album?.id || ''}:${user?.id || ''}`;
+  const canRequestReview = reviewGate.catalog_allowed === true && (reviewAccess === true || reviewGate.requires_confirmation === true);
+  const requestReview = () => {
+    if (showReviewSystem && reviewAccess === true) { setShowReviewSystem(false); return; }
+    if (reviewGate.requires_confirmation) { setConfirmationKey(gateKey); return; }
+    if (reviewAccess === true) setShowReviewSystem(true);
+  };
   const [loading, setLoading] = useState(() => !preloadedAlbum);
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
@@ -1397,6 +1407,8 @@ export function AlbumDetail({
                 </div>
               </div>
 
+              {!isAnticipated && <PoolReviewNotice pools={reviewGate.pools}/>}
+              {reviewGate.error && <p role="alert" className="text-sm text-amber-300">{reviewGate.error} <button onClick={reviewGate.refresh} className="underline">Reintentar</button></p>}
               {/* Action Buttons */}
               <div className="flex items-center justify-center md:justify-start gap-3 pt-2 flex-wrap">
                 {isAnticipated ? (
@@ -1422,12 +1434,12 @@ export function AlbumDetail({
                   </button>
                 ) : (
                   <button
-                    disabled={reviewAccess !== true}
-                    onClick={() => setShowReviewSystem((prev) => !prev)}
+                    disabled={!canRequestReview}
+                    onClick={requestReview}
                     className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <span>
-                      {reviewAccess === null ? 'Comprobando acceso…' : reviewAccess === false ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}
+                      {reviewAccess === null ? 'Comprobando acceso…' : !canRequestReview ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}
                     </span>
                   </button>
                 )}
@@ -1604,7 +1616,7 @@ export function AlbumDetail({
               </p>
             </div>
             <button
-              onClick={() => setShowReviewSystem(true)}
+              onClick={requestReview}
               className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-400 via-[#f5576c] to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2 shrink-0"
             >
               <span>⭐</span>
@@ -1613,6 +1625,7 @@ export function AlbumDetail({
           </div>
         ) : null}
 
+        {confirmationKey === gateKey && <EarlyPoolReviewDialog pools={reviewGate.pools || []} onClose={()=>setConfirmationKey(null)} onConfirm={async()=>{await reviewGate.confirm(); setConfirmationKey(null); setShowReviewSystem(true);}}/>}
         {/* REVIEW SYSTEM MODAL / SECTION (Interactive Rating Form) */}
         {showReviewSystem && !isAnticipated && reviewAccess === true && (
           <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4">
