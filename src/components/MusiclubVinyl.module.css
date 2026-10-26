@@ -22,3 +22,6 @@
   .slow,
   .fast { animation: none; }
 }
+
+.frame[data-motion-visible="false"] .slow,
+.frame[data-motion-visible="false"] .fast { animation-play-state: paused; }

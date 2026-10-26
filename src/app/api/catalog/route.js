@@ -1,11 +1,13 @@
-import { getPublicCatalog, getPublicAlbum } from '../../../server/catalog';
+import { getPublicCatalog, getPublicAlbum, getPublicCollection } from '../../../server/catalog';
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { authorize } from '../../../server/authorize';
 
 export async function GET(request) {
   try {
-    const slug = new URL(request.url).searchParams.get('slug');
+    const params = new URL(request.url).searchParams;
+    if (params.get('view') === 'collection') return NextResponse.json({albums:await getPublicCollection()}, {headers:{'Cache-Control':'public, s-maxage=300, stale-while-revalidate=60'}});
+    const slug = params.get('slug');
     const data = slug ? await getPublicAlbum(slug) : await getPublicCatalog();
     if (!data) return NextResponse.json({ error: 'Lanzamiento no encontrado' }, { status: 404 });
     const {rawAlbums,...response}=data;

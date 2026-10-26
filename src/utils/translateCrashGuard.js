@@ -131,7 +131,7 @@ export function registerUntranslatableEntities({
   }
 
   if (hasNew && typeof document !== 'undefined') {
-    protectMusicAndStatsElements();
+    scheduleProtection(document);
   }
 }
 
@@ -214,7 +214,7 @@ export function protectMusicAndStatsElements(root = null) {
   const targetRoot = root && root.querySelectorAll ? root : document;
 
   try {
-    targetRoot.querySelectorAll(UNTRANSLATABLE_SELECTORS).forEach((el) => {
+    [...(targetRoot.matches?.(UNTRANSLATABLE_SELECTORS) ? [targetRoot] : []), ...targetRoot.querySelectorAll(UNTRANSLATABLE_SELECTORS)].forEach((el) => {
       if (
         el.getAttribute('data-translatable') === 'true' ||
         el.getAttribute('translate') === 'yes'
@@ -230,9 +230,9 @@ export function protectMusicAndStatsElements(root = null) {
     });
 
     // Auto-detectar usernames (@username) o textos coincidentes con entidades registradas
-    const textNodesTarget = targetRoot.querySelectorAll(
+    const textNodesTarget = [...(targetRoot.nodeType === 1 ? [targetRoot] : []), ...targetRoot.querySelectorAll(
       'h1, h2, h3, h4, h5, h6, span, p, strong, b, a, div, li'
-    );
+    )];
     textNodesTarget.forEach((el) => {
       if (el.getAttribute('translate') === 'no') return;
 
@@ -265,7 +265,23 @@ export function protectMusicAndStatsElements(root = null) {
   }
 }
 
+const pendingProtectionRoots = new Set();
 let isObserverScheduled = false;
+function scheduleProtection(root) {
+  if (typeof document === 'undefined' || !root) return;
+  if (root === document) { pendingProtectionRoots.clear(); pendingProtectionRoots.add(document); }
+  else if (!pendingProtectionRoots.has(document)) pendingProtectionRoots.add(root);
+  if (isObserverScheduled) return;
+  isObserverScheduled = true;
+  // Coalesce many card registrations and mutations into one pass per frame.
+  requestAnimationFrame(() => {
+    isObserverScheduled = false;
+    const roots = [...pendingProtectionRoots]; pendingProtectionRoots.clear();
+    for (const item of roots) if (item === document || item.isConnected) {
+      if (!roots.some(other=>other!==item && other.contains?.(item))) protectMusicAndStatsElements(item);
+    }
+  });
+}
 let mutationObserverInstance = null;
 
 export function setupUntranslatableObserver() {
@@ -275,27 +291,8 @@ export function setupUntranslatableObserver() {
 
   try {
     mutationObserverInstance = new MutationObserver((mutations) => {
-      let shouldProtect = false;
-      for (let i = 0; i < mutations.length; i++) {
-        const m = mutations[i];
-        if (m.type === 'childList' && m.addedNodes.length > 0) {
-          shouldProtect = true;
-          break;
-        }
-      }
-      if (shouldProtect && !isObserverScheduled) {
-        isObserverScheduled = true;
-        if (typeof queueMicrotask === 'function') {
-          queueMicrotask(() => {
-            isObserverScheduled = false;
-            protectMusicAndStatsElements();
-          });
-        } else {
-          setTimeout(() => {
-            isObserverScheduled = false;
-            protectMusicAndStatsElements();
-          }, 0);
-        }
+      for (const mutation of mutations) for (const node of mutation.addedNodes) {
+        scheduleProtection(node.nodeType === 1 ? node : node.parentElement);
       }
     });
 
@@ -310,7 +307,7 @@ export function setupUntranslatableObserver() {
     // Interceptar cambios de URL (SPA navigation)
     const handleNavigation = () => {
       setTimeout(() => {
-        protectMusicAndStatsElements();
+        scheduleProtection(document);
       }, 50);
     };
 

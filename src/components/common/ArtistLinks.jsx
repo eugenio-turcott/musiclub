@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { splitArtists, slugifyArtist } from '../../utils/ratingUtils';
 import { supabaseService } from '../../services/supabaseClient';
@@ -22,7 +22,7 @@ export default function ArtistLinks({
   stopPropagation = true,
   onClick,
 }) {
-  const artists = artistName ? splitArtists(artistName) : [];
+  const artists = useMemo(()=>artistName ? splitArtists(artistName) : [],[artistName]);
 
   useEffect(() => {
     if (artistName) {

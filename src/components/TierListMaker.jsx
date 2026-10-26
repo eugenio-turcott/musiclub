@@ -8,8 +8,8 @@ import { getMelomanoLevel } from '../utils/badgeSystem';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 // SVG local data URIs que nunca fallan por red ni por CORS
-export const PLACEHOLDER_COVER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300' width='300' height='300'%3E%3Crect width='300' height='300' fill='%23121424'/%3E%3Ccircle cx='150' cy='150' r='100' fill='%231e2238' stroke='%23333852' stroke-width='4'/%3E%3Ccircle cx='150' cy='150' r='40' fill='%23f5576c' opacity='0.85'/%3E%3Ccircle cx='150' cy='150' r='12' fill='%23121424'/%3E%3Ctext x='150' y='275' font-family='sans-serif' font-size='16' font-weight='bold' fill='%236b7280' text-anchor='middle'%3EMUSICLUB%3C/text%3E%3C/svg%3E";
+import { PLACEHOLDER_COVER } from '../utils/coverPlaceholder';
+export { PLACEHOLDER_COVER };
 
 export const DEFAULT_TIERS = [
   {

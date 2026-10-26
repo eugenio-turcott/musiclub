@@ -10,7 +10,6 @@ import {
   slugifyArtist,
 } from '../utils/ratingUtils.js';
 import { calculateUserGamification } from '../utils/badgeSystem.js';
-import { enrichAlbumWithMusicBrainz } from './musicBrainzService.js';
 
 const supabaseUrl =
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
@@ -613,6 +612,7 @@ export const supabaseService = {
     // =========================================================================
     if ((!payload.mbid || !normalizeCanonicalGenres(payload.genres).length) && !albumData.skipMusicBrainzEnrichment) {
       try {
+        const { enrichAlbumWithMusicBrainz } = await import('./musicBrainzService.js');
         const mbData = await enrichAlbumWithMusicBrainz(
           payload.album_name,
           payload.artist_name

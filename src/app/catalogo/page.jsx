@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { AlbumsPage } from '../../views/AlbumsPage';
-import { getPublicCatalog } from '../../server/catalog';
+import { getPublicCollection } from '../../server/catalog';
 import { notFound } from 'next/navigation';
 
 export const revalidate = 300;
@@ -39,7 +39,7 @@ export async function generateMetadata({ searchParams }) {
     alternates: { canonical: `https://www.musiclub.org/catalogo${page > 1 ? `?page=${page}` : ''}` } };
 }
 export default async function CatalogoPage({ searchParams }) {
-  const { albums } = await getPublicCatalog();
+  const albums = await getPublicCollection();
   const query = String((await searchParams).q || '').slice(0, 150);
   const page = Number((await searchParams).page || 1);
   if (!Number.isInteger(page) || page < 1 || page > Math.ceil(albums.length / 20)) notFound();

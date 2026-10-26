@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { CoverImage } from './CoverImage';
@@ -8,21 +9,20 @@ import { Footer } from './Footer';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { slugifyArtist, getReleaseUrl } from '../utils/ratingUtils';
-import { PLACEHOLDER_COVER } from './TierListMaker';
+import { PLACEHOLDER_COVER } from '../utils/coverPlaceholder';
 import { fetchAlbumReleaseYear, getAlbumDetails } from '../services/spotifyApi';
 import {
   getTrendingReleases,
   getMonthlyTrendingReleases,
   getAnticipatedReleases,
-  getGlobalMusicStats,
 } from '../services/trendingService.js';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 import { ArtistLinks } from './common/ArtistLinks';
 import { TrendingMonthlySection } from './catalog/TrendingMonthlySection';
 import { AnticipatedSection } from './catalog/AnticipatedSection';
 import { RecommendedSection } from './catalog/RecommendedSection';
-import { CatalogArtistsView } from './catalog/CatalogArtistsView';
-import { CatalogGenresView } from './catalog/CatalogGenresView';
+const CatalogArtistsView = dynamic(()=>import('./catalog/CatalogArtistsView').then(module=>module.CatalogArtistsView), {loading:()=> <p role="status" className="p-6 text-slate-400">Cargando artistas…</p>});
+const CatalogGenresView = dynamic(()=>import('./catalog/CatalogGenresView').then(module=>module.CatalogGenresView), {loading:()=> <p role="status" className="p-6 text-slate-400">Cargando géneros…</p>});
 import { LoginModal } from './LoginModal';
 import { matchesCatalogQuery, searchSpotifyCatalog } from '../services/catalogSpotifySearch.mjs';
 import editions from '../utils/releaseEditions.cjs';
@@ -127,12 +127,6 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     lastFridayStr: 'Viernes',
   });
   const [anticipatedReleases, setAnticipatedReleases] = useState([]);
-  const [platformStats, setPlatformStats] = useState({
-    releases: 4127529,
-    artists: 2995843,
-    labels: 344849,
-  });
-
   const handleTabChange = (tabKey) => {
     setActiveMainTab(tabKey);
     const searchParams = new URLSearchParams(location.search);
@@ -199,7 +193,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
   // Filtro de exploración híbrida estilo Musiclub: ALL | TRENDING | REVIEWED
   const [browseFilter, setBrowseFilter] = useState('ALL');
   const [trendingReleases, setTrendingReleases] = useState([]);
-  const [loadingTrending, setLoadingTrending] = useState(false);
+  const [loadingTrending, setLoadingTrending] = useState(!initialQuery.trim());
+  const [loadingAnticipated, setLoadingAnticipated] = useState(!initialQuery.trim());
   const [proposingId, setProposingId] = useState(null);
   const [proposeError, setProposeError] = useState(null);
 
@@ -355,52 +350,20 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     }
   }, [loading, loadingTrending, albums.length, scrollToExplorer]);
 
-  // Carga simultánea y unificada: Álbumes en BD de Supabase + Novedades + Tendencias del Mes + Anticipados
+  // Each panel settles independently; the explorer never waits for discovery APIs.
   useEffect(() => {
-    async function loadCatalog() {
-      if (!initialAlbums.length) setLoading(true);
-      setError(null);
-      setLoadingTrending(true);
-      try {
-        const [clubData, trendingData, monthlyData, statsData] =
-          await Promise.allSettled([
-            initialAlbums.length ? Promise.resolve(initialAlbums) : supabaseService.getAllAlbumsWithFullStats(),
-            getTrendingReleases({ limit: 50 }),
-            getMonthlyTrendingReleases(),
-            getGlobalMusicStats(),
-          ]);
-
-        let clubList = [];
-        if (clubData.status === 'fulfilled' && clubData.value) {
-          clubList = clubData.value || [];
-          setAlbums(clubList);
-        }
-        if (
-          trendingData.status === 'fulfilled' &&
-          trendingData.value?.releases
-        ) {
-          setTrendingReleases(trendingData.value.releases);
-        }
-        if (monthlyData.status === 'fulfilled' && monthlyData.value) {
-          setMonthlyTrending(monthlyData.value);
-        }
-        if (statsData.status === 'fulfilled' && statsData.value) {
-          setPlatformStats(statsData.value);
-        }
-
-        // Obtener lanzamientos anticipados vinculando los de BD y la curaduría
-        const anticipated = await getAnticipatedReleases(clubList);
-        setAnticipatedReleases(anticipated);
-      } catch (err) {
-        console.error('Error loading albums catalog:', err);
-        setError('No se pudieron cargar los álbumes.');
-      } finally {
-        setLoading(false);
-        setLoadingTrending(false);
-        notifyContentLoaded('catalog');
-      }
+    let alive = true;
+    const collection = initialAlbums.length ? Promise.resolve(initialAlbums) : fetch('/api/catalog?view=collection').then(async response => {
+      if (!response.ok) throw new Error('No se pudo cargar el catálogo.');
+      return (await response.json()).albums;
+    });
+    collection.then(data=>{if(alive){setAlbums(data || []);setLoading(false);}}).catch(()=>{if(alive){setError('No se pudieron cargar los álbumes.');setLoading(false);}});
+    if (!initialQuery.trim()) {
+      getTrendingReleases({limit:50}).then(data=>{if(alive)setTrendingReleases(data?.releases || []);}).catch(()=>{});
+      getMonthlyTrendingReleases().then(data=>{if(alive && data)setMonthlyTrending(data);}).catch(()=>{}).finally(()=>{if(alive)setLoadingTrending(false);});
+      collection.then(data=>getAnticipatedReleases(data)).then(data=>{if(alive)setAnticipatedReleases(data || []);}).catch(()=>{}).finally(()=>{if(alive)setLoadingAnticipated(false);});
     }
-    loadCatalog();
+    return ()=>{alive=false;};
   }, []);
 
   // Resolver en background los años de lanzamiento oficiales desde Spotify para álbumes que no lo tengan
@@ -848,7 +811,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
+        <div data-catalog-hero className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -1028,7 +991,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             {/* 2. SECCIÓN DE RELEASES ANTICIPADOS (No calificables hasta estreno, indexables) */}
             <AnticipatedSection
               anticipatedReleases={anticipatedReleases}
-              loading={loading}
+              loading={loadingAnticipated}
             />
 
             {/* 3. SECCIÓN DE MÁS RECOMENDADOS POR LOS USUARIOS DEL CLUB */}

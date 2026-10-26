@@ -1,8 +1,10 @@
+import { useOnScreen } from '../../hooks/useOnScreen';
+import { CoverImage } from '../CoverImage';
 import { GenreIconStrip } from '../GenreIconStrip';
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
-import { PLACEHOLDER_COVER } from '../TierListMaker';
+import { PLACEHOLDER_COVER } from '../../utils/coverPlaceholder';
 import { getReleaseUrl } from '../../utils/ratingUtils';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
@@ -11,6 +13,7 @@ import { registerUntranslatableEntities } from '../../utils/translateCrashGuard'
  * Formato Slider continuo estilo En Rotación cuando hay más de 4 releases, ordenados estrictamente de mayor a menor.
  */
 export function RecommendedSection({ albums = [] }) {
+  const [sectionRef, isVisible] = useOnScreen();
   const [isSliderPaused, setIsSliderPaused] = useState(false);
 
   // Filtrar los álbumes que tienen calificación comunitaria y ordenarlos estrictamente de mayor a menor
@@ -47,7 +50,7 @@ export function RecommendedSection({ albums = [] }) {
 
   const sliderDuration = useMemo(() => {
     const baseCount = marqueeItems.length / 2;
-    return `${Math.max(25, Math.round(baseCount * 4.5))}s`;
+    return `${Math.max(24, Math.round(baseCount * 2.6))}s`;
   }, [marqueeItems.length]);
 
   // Blindaje universal contra traducción (V.8.11)
@@ -80,7 +83,7 @@ export function RecommendedSection({ albums = [] }) {
       >
         {/* Artwork */}
         <div className="relative aspect-square overflow-hidden bg-black/60">
-          <img
+          <CoverImage
             src={album.image_url || PLACEHOLDER_COVER}
             alt={album.album_name}
             loading="lazy"
@@ -157,7 +160,7 @@ export function RecommendedSection({ albums = [] }) {
   };
 
   return (
-    <section className="space-y-4 my-8">
+    <section ref={sectionRef} data-motion-visible={isVisible} className="performance-section space-y-4 my-8">
       {/* Header Banner */}
       <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
@@ -201,7 +204,7 @@ export function RecommendedSection({ albums = [] }) {
           {/* Pista del slider infinito en traslación perpetua */}
           <div
             className={`mb-6 animate-continuous-slider flex gap-3 sm:gap-5 w-max will-change-transform ${
-              isSliderPaused ? 'slider-paused' : ''
+              isSliderPaused || !isVisible ? 'slider-paused' : ''
             }`}
             style={{
               '--slider-duration': sliderDuration,

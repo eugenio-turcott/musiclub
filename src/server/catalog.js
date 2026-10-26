@@ -1,3 +1,4 @@
+import cards from '../utils/catalogCards.cjs';
 import editions from '../utils/releaseEditions.cjs';
 import reviewChronology from '../utils/reviewChronology.cjs';
 import 'server-only';
@@ -12,9 +13,10 @@ import releaseLookup from '../utils/publicReleaseLookup.cjs';
 import { getStoredArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
 
+const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
 function client() {
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL,
+  return createClient(publicDatabaseURL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
     { auth: { persistSession: false, autoRefreshToken: false } });
 }
@@ -26,7 +28,7 @@ async function allRows(db, table, fields, cached = true) {
       if (result.error) throw new Error(`No se pudo leer el catálogo público (${table})`);
       return result.data;
     };
-    const data = cached ? await unstable_cache(read, ['public-catalog-rows-v96', table, fields, String(from)], { revalidate: 300, tags: ['catalog'] })() : await read();
+    const data = cached ? await unstable_cache(read, ['public-catalog-rows-v937', publicDatabaseURL, table, fields, String(from)], { revalidate: 300, tags: ['catalog'] })() : await read();
     rows.push(...data);
     if (data.length < 100) return rows;
   }
@@ -59,6 +61,8 @@ export const getPublicCatalog = cache(async () => {
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
       total_users: profiles.length, top_score: Math.max(0, ...detailed.map(a => a.final_rating || 0)) } };
 });
+
+export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v937', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
 
 export const getPublicAlbum = cache(async slug => {
   const { albums, rawAlbums, reviews } = await getPublicCatalog();

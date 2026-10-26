@@ -164,6 +164,52 @@ test('catalogue search returns club releases with genre icons and an accessible 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
+test('collection responses stay lightweight while release details retain tracks and reviews',async({page})=>{
+ const collection=await (await page.request.get('/api/catalog?view=collection')).json();
+ expect(collection.albums.length).toBeGreaterThan(0);
+ for(const album of collection.albums) {expect(album).not.toHaveProperty('tracks');expect(album).not.toHaveProperty('reviews');expect(album).not.toHaveProperty('track_stats');}
+ const detail=await (await page.request.get('/api/catalog?slug=artista-de-prueba-azul')).json();
+ expect(detail.tracks.length).toBeGreaterThan(0);expect(detail.reviews.length).toBe(2);
+ const badge=await page.request.get('/genres/badges/v1/pop.svg');
+ expect(badge.ok()).toBe(true);expect(badge.headers()['cache-control']).toContain('immutable');
+ expect(await badge.text()).not.toMatch(/<image|href=/);
+});
+
+test('a slow discovery panel cannot delay the catalogue or upcoming releases',async({page})=>{
+ let releasePanel;
+ const waiting=new Promise(resolve=>{releasePanel=resolve;});
+ await page.route('**/api/trending?type=weekly*',async route=>{await waiting;await route.fulfill({json:{success:true,releases:[{id:'weekly-fixture',album_name:'Weekly pick',artist_name:'Fixture',image_url:'/musiclub_logo.png',genres:['Pop']}]}});});
+ try {
+  await page.goto('/catalogo');
+  await expect(page.getByRole('heading',{name:'Explorador de Catálogo y Colección',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Estreno oficial',exact:true})).toBeVisible();
+ } finally {releasePanel();}
+});
+
+test('decorative vinyl pauses offscreen, resumes onscreen and respects reduced motion',async({page})=>{
+ await page.goto('/catalogo');
+ const vinyl=page.locator('[data-catalog-hero] [data-musiclub-vinyl]');
+ await expect(vinyl).toHaveAttribute('data-motion-visible','true');
+ await expect(vinyl.locator('g').first()).toHaveCSS('animation-play-state','running');
+ await page.locator('footer').scrollIntoViewIfNeeded();
+ await expect(vinyl).toHaveAttribute('data-motion-visible','false');
+ await expect(vinyl.locator('g').first()).toHaveCSS('animation-play-state','paused');
+ await page.getByRole('heading',{name:'Catálogo Musical',exact:true}).scrollIntoViewIfNeeded();
+ await expect(vinyl).toHaveAttribute('data-motion-visible','true');
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await expect(vinyl.locator('g').first()).toHaveCSS('animation-name','none');
+});
+
+test('focusing a release prepares its route without loading every catalogue link',async({page})=>{
+ await page.goto('/catalogo?q=Azul');
+ const release=page.getByRole('link',{name:'Azul',exact:true}).first();
+ const prepared=page.waitForRequest(request=>request.url().includes('/albumes/artista-de-prueba-azul') && request.headers()['next-router-prefetch']==='1');
+ await release.focus();
+ await prepared;
+ await release.click();
+ await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
+});
+
 test('editorial selections change banners and retain real release links without overflowing',async({page})=>{
   await page.goto('/');
   const section=page.locator('section').filter({has:page.getByRole('heading',{name:'En el radar.',exact:true})});
@@ -304,7 +350,7 @@ test('a release added after the public catalogue cache was warmed opens immediat
 test('artists with only an upcoming release open immediately from local metadata',async({page})=>{
   await page.goto('/artista/artista-proximo');
   await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Estreno oficial',exact:true})).toBeVisible();
 });
 
 

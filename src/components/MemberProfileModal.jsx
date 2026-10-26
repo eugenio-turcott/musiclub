@@ -17,7 +17,7 @@ import {
   getReleaseUrl,
 } from '../utils/ratingUtils';
 import { CRITERIA_METRICS, MELOMANO_LEVELS } from './UserProfile';
-import { PLACEHOLDER_COVER } from './TierListMaker';
+import { PLACEHOLDER_COVER } from '../utils/coverPlaceholder';
 
 export function MemberProfileModal({
   isOpen,

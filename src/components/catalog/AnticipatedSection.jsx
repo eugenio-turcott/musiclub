@@ -1,8 +1,9 @@
+import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
-import { PLACEHOLDER_COVER } from '../TierListMaker';
+import { PLACEHOLDER_COVER } from '../../utils/coverPlaceholder';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 import { SpotifyLogo } from '../common/PlatformLogos';
 
@@ -148,7 +149,7 @@ export function AnticipatedSection({
                     className="relative aspect-square overflow-hidden bg-black/60 block group/cover cursor-pointer"
                     title={`Ver ${item.album_name}`}
                   >
-                    <img
+                    <CoverImage
                       src={item.image_url || PLACEHOLDER_COVER}
                       alt={item.album_name}
                       loading="lazy"

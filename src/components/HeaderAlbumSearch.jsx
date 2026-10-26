@@ -49,7 +49,9 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     if (clubAlbums.length > 0) return;
     setLoadingClub(true);
     try {
-      const data = await supabaseService.getAllAlbumsWithFullStats();
+      const response = await fetch('/api/catalog?view=collection');
+      if (!response.ok) throw new Error('No se pudo consultar el catálogo.');
+      const { albums: data } = await response.json();
       setClubAlbums(data || []);
     } catch (err) {
       console.error('Error cargando catálogo para buscador global:', err);

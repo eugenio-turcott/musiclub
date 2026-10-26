@@ -1,3 +1,4 @@
+import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
 import { GenreLabel } from '../GenreLabel';
 import { GenreArtwork } from '../GenreArtwork';
@@ -5,7 +6,7 @@ import genreCatalog from '../../utils/genreCatalog.cjs';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArtistLinks } from '../common/ArtistLinks';
-import { PLACEHOLDER_COVER } from '../TierListMaker';
+import { PLACEHOLDER_COVER } from '../../utils/coverPlaceholder';
 import { registerUntranslatableEntities } from '../../utils/translateCrashGuard';
 
 const ITEMS_PER_PAGE = 20;
@@ -22,7 +23,7 @@ export function TrendingMonthlySection({
   onQuickPropose,
   proposingId = null,
 }) {
-  const releases = editions.groupReleaseEditions(trendingData?.releases || []);
+  const releases = useMemo(()=>editions.groupReleaseEditions(trendingData?.releases || []),[trendingData?.releases]);
   const monthLabel = trendingData?.monthLabel || 'Tendencias de la Semana';
 
   const sectionRef = useRef(null);
@@ -287,7 +288,7 @@ export function TrendingMonthlySection({
                     className="block relative aspect-square overflow-hidden bg-black/60 group/art focus:outline-none"
                     title={`Ver detalles de ${item.album_name}`}
                   >
-                    <img
+                    <CoverImage
                       src={item.image_url || PLACEHOLDER_COVER}
                       alt={item.album_name}
                       loading="lazy"
