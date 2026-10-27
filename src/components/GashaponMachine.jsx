@@ -502,6 +502,8 @@ export function GashaponMachine({
     setCurrentCapsule(null); setSessionHistory([]); setMachineState('IDLE'); setIsModalOpen(false);
   }, [releaseLibrary.account]);
   const clearDiscardedCapsule = () => {
+    drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
+    setIsCrankAnimating(false);
     setIsModalOpen(false); setMachineState('IDLE'); setCurrentCapsule(null);
     const key = currentCapsule ? releaseLibraryHelpers.releaseKey(currentCapsule.album) : null;
     setSessionHistory(previous => previous.filter(item => releaseLibraryHelpers.releaseKey(item.album) !== key && !releaseLibraryHelpers.isDismissed(item.album, releaseLibrary.rows)));
