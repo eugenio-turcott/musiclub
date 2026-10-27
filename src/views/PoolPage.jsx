@@ -1,4 +1,5 @@
 'use client';
+import { ListenLaterButton } from '../components/ListenLaterButton';
 import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
 import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
@@ -533,6 +534,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                       <span>🔍</span>
                       <span>Ver Release</span>
                     </Link>
+                    <ListenLaterButton album={winner} />
                   </div>
 
                   <WinnerReviewSchedule key={winner.pool_entry_id || winner.id} winner={winner} canManage={isAdmin} onSave={scheduleWinnerReviews}/>
@@ -975,6 +977,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                       >
                         Ver Release →
                       </Link>
+                      <ListenLaterButton album={alb} />
 
                       {isAdmin && (
                         <button

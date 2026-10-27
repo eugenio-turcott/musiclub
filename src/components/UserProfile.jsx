@@ -7,6 +7,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { useAuth } from '../hooks/useAuth';
+import { ReleaseLibraryList } from './ReleaseLibraryList';
+import { ClockIcon } from './ListenLaterButton';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
 import { ReviewSystem } from './ReviewSystem';
@@ -125,7 +127,7 @@ export function UserProfile({ isPage = false }) {
     try {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'mailbox'].includes(tabParam)) {
+      if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'mailbox', 'later', 'discarded'].includes(tabParam)) {
         return tabParam;
       }
     } catch {
@@ -152,7 +154,7 @@ export function UserProfile({ isPage = false }) {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
-    if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox'].includes(tabParam)) {
+    if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox', 'later', 'discarded'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
   }, [location.search]);
@@ -710,6 +712,8 @@ export function UserProfile({ isPage = false }) {
 
       {/* PESTAÑAS DE NAVEGACIÓN TOUCH-FRIENDLY */}
       <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
+        <button type="button" onClick={() => setActiveTab('later')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'later' ? 'bg-pink-400/20 text-pink-200' : 'bg-white/5 text-white/70'}`}><ClockIcon />Escuchar más tarde</button>
+        <button type="button" onClick={() => setActiveTab('discarded')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'discarded' ? 'bg-purple-400/20 text-purple-200' : 'bg-white/5 text-white/70'}`}>Descartes del Gashapon</button>
         <button
           onClick={() => setActiveTab('mailbox')}
           className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
@@ -773,6 +777,8 @@ export function UserProfile({ isPage = false }) {
       </div>
 
       {/* CONTENIDO DE PESTAÑA: MIS REVIEWS */}
+      {activeTab === 'later' && <ReleaseLibraryList mode="later" />}
+      {activeTab === 'discarded' && <ReleaseLibraryList mode="discarded" />}
       {activeTab === 'reviews' && (
         <div id="reviews-section" className="space-y-4 sm:space-y-6 scroll-mt-24">
           {/* Barra de Filtro y Búsqueda */}

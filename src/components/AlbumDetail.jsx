@@ -2,6 +2,7 @@
 import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
 import { PoolReviewNotice, EarlyPoolReviewDialog } from './PoolReviewSchedule';
 import { MusiclubVinyl } from './MusiclubVinyl';
+import { ListenLaterButton } from './ListenLaterButton';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -1172,6 +1173,7 @@ export function AlbumDetail({
 
             {/* RIGHT / BOTTOM: Title, Artist, Ratings, Top Track, Actions */}
             <div className="flex-1 min-w-0 space-y-4 sm:space-y-5 text-center md:text-left w-full">
+              <ListenLaterButton album={album} className="w-full sm:w-auto" />
               {/* Curator Info & Metadata Badges */}
               <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-slate-400 flex-wrap">
                 {/* Release Type Badge */}

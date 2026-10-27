@@ -1,3 +1,4 @@
+import { ListenLaterButton } from '../ListenLaterButton';
 import { useOnScreen } from '../../hooks/useOnScreen';
 import { CoverImage } from '../CoverImage';
 import { GenreIconStrip } from '../GenreIconStrip';
@@ -145,7 +146,8 @@ export function RecommendedSection({ albums = [] }) {
             </div>
           )}
 
-          <div className="pt-2 border-t border-white/5 mt-auto">
+          <div className="pt-2 border-t border-white/5 mt-auto space-y-2">
+            <ListenLaterButton album={album} className="w-full" />
             <Link
               to={targetUrl}
               className="w-full py-1.5 px-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500 hover:text-black text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all flex items-center justify-center gap-1"

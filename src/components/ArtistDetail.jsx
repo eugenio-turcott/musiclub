@@ -1,4 +1,5 @@
 'use client';
+import { ListenLaterButton } from './ListenLaterButton';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 // src/components/ArtistDetail.jsx
@@ -710,6 +711,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
                         {/* Action Buttons */}
                         <div className="pt-3 mt-2 border-t border-white/5 space-y-1.5">
+                          <ListenLaterButton album={{ ...release, artist_name: artist?.name || formattedArtistName }} className="w-full" />
                           {existingInClub ? (
                             <Link
                               to={targetClubUrl}

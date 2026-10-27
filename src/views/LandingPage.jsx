@@ -1,4 +1,5 @@
 'use client';
+import { ListenLaterButton } from '../components/ListenLaterButton';
 import reviewChronology from '../utils/reviewChronology.cjs';
 import { GenreIconStrip } from '../components/GenreIconStrip';
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
@@ -492,15 +493,15 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
   // Renderizador unificado y responsivo de tarjetas de lanzamiento para el showcase
   const renderShowcaseCard = (album, key, isSliderMode = false) => (
-    <Link
+    <article
       key={key}
-      to={getReleaseUrl(album)}
       className={`group relative rounded-2xl bg-[#111322]/85 border border-white/10 hover:border-pink-500/50 p-3 sm:p-3.5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-pink-500/15 flex flex-col justify-between ${
         isSliderMode
           ? 'w-[200px] sm:w-[230px] md:w-[260px] shrink-0'
           : 'w-full'
       }`}
     >
+      <Link to={getReleaseUrl(album)} className="block min-w-0">
       {/* Artwork */}
       <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-black/40 mb-2.5">
         {album.imagen ? (
@@ -570,7 +571,9 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           ) : null}
         </div>
       </div>
-    </Link>
+      </Link>
+      <ListenLaterButton album={album} className="mt-3 w-full" />
+    </article>
   );
 
   return (

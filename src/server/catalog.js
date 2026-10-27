@@ -62,7 +62,7 @@ export const getPublicCatalog = cache(async () => {
       total_users: profiles.length, top_score: Math.max(0, ...detailed.map(a => a.final_rating || 0)) } };
 });
 
-export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v937', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
+export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v938', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
 
 export const getPublicAlbum = cache(async slug => {
   const { albums, rawAlbums, reviews } = await getPublicCatalog();

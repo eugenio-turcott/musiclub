@@ -1,3 +1,4 @@
+import { ListenLaterButton } from '../ListenLaterButton';
 import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
 import { GenreLabel } from '../GenreLabel';
@@ -381,6 +382,7 @@ export function TrendingMonthlySection({
 
                     {/* Action */}
                     <div className="pt-2 border-t border-white/5 mt-auto">
+                      <ListenLaterButton album={item} className="mb-2 w-full" />
                       {onQuickPropose ? (
                         <button
                           type="button"

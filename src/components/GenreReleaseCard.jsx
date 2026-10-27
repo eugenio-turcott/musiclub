@@ -1,6 +1,7 @@
 'use client';
 import { Link } from 'react-router-dom';
 import { CoverImage } from './CoverImage';
+import { ListenLaterButton } from './ListenLaterButton';
 import { ArtistLinks } from './common/ArtistLinks';
 import { getReleaseUrl } from '../utils/ratingUtils';
 
@@ -31,8 +32,9 @@ export function GenreReleaseCard({ album }) {
         <span className="min-w-0 truncate" title={favorite.name}>👑 <span translate="no" className="notranslate">{favorite.name}</span></span>
         {trackScore !== null && <span className="shrink-0 font-bold text-amber-300">{trackScore.toFixed(1).replace(/\.0$/, '')} ★</span>}
       </div>}
-      <div className="mt-auto border-t border-white/5 pt-2">
+      <div className="mt-auto space-y-2 border-t border-white/5 pt-2">
         <Link to={url} className={`flex min-h-10 w-full items-center justify-center gap-1.5 rounded-xl border px-2 py-2 text-center text-[11px] font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300 ${reviewed ? 'border-amber-500/30 bg-amber-500/15 text-amber-300 hover:bg-amber-500 hover:text-black' : 'border-white/10 bg-white/5 text-white/75 hover:border-cyan-300/30 hover:bg-cyan-400/10 hover:text-cyan-200'}`}><span aria-hidden="true">{reviewed ? '🎧' : '↗'}</span>{reviewed ? 'Ver Reseñas' : 'Ver lanzamiento'}</Link>
+        <ListenLaterButton album={album} className="w-full" />
       </div>
     </div>
   </article>;

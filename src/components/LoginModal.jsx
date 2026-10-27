@@ -9,6 +9,7 @@ export function LoginModal({
   onLogin,
   googleLoading,
   loading,
+  zIndex = 99999,
 }) {
   const [error, setError] = useState(null);
   const dialogRef = useRef(null);
@@ -68,6 +69,7 @@ export function LoginModal({
   const modalContent = (
     <div
       className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center z-[99999] p-3 sm:p-4 overflow-y-auto"
+      style={{ zIndex }}
       onClick={onClose}
     >
       <div

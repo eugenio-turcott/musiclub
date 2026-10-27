@@ -2,6 +2,7 @@ import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { CoverImage } from './CoverImage';
+import { ListenLaterButton } from './ListenLaterButton';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -1714,9 +1715,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                           )}
 
                           {/* Action Button at bottom of card */}
-                          <div className="pt-2 border-t border-white/5 mt-auto">
+                          <div className="pt-2 border-t border-white/5 mt-auto grid grid-cols-2 gap-2 sm:grid-cols-1">
                             {isCardInClub ? (
-                              <div className="w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
+                              <div className="min-h-11 w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
                                 <span>🎧</span>
                                 <span>Ver {getCatalogReleaseLabel(album.release_type || album.releaseType)}</span>
                               </div>
@@ -1766,6 +1767,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                 </span>
                               </button>
                             )}
+                            <ListenLaterButton album={album} />
                           </div>
                         </div>
                       </div>

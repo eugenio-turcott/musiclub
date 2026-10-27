@@ -17,6 +17,11 @@ import { GenreArtwork } from './GenreArtwork';
 import { GashaponGenres } from './GashaponGenres';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import vinylEditions from '../utils/vinylEditions.cjs';
+import { Link } from 'react-router-dom';
+import { useReleaseLibrary } from './ReleaseLibraryProvider';
+import { GashaponReleaseActions } from './GashaponReleaseActions';
+import { ReleaseLibraryList } from './ReleaseLibraryList';
+import releaseLibraryHelpers from '../utils/releaseLibrary.cjs';
 
 // 20 cápsulas arcade coloridas y dinámicas (definición completa de apariencia dentro y fuera del domo)
 const DOME_CAPSULES = [
@@ -456,6 +461,10 @@ export function GashaponMachine({
   refetchAlbums = null,
   onReviewSubmitted = null,
 }) {
+  const releaseLibrary = useReleaseLibrary();
+  const [checkingPreferences, setCheckingPreferences] = useState(false);
+  const [preferenceMessage, setPreferenceMessage] = useState('');
+  const checkingRef = useRef(false);
   // Estados principales de la máquina:
   // 'IDLE' -> 'CRANKING' -> 'DROPPING' -> 'LANDED' -> 'OPENING' -> 'REVEALED'
   const [machineState, setMachineState] = useState('IDLE');
@@ -488,6 +497,19 @@ export function GashaponMachine({
   const modalRef = useRef(null);
   const modalOpenerRef = useRef(null);
   const [modalStage, setModalStage] = useState('DROPPING'); // 'DROPPING' | 'READY' | 'OPENING' | 'REVEALED'
+  useEffect(() => {
+    drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
+    setCurrentCapsule(null); setSessionHistory([]); setMachineState('IDLE'); setIsModalOpen(false);
+  }, [releaseLibrary.account]);
+  const clearDiscardedCapsule = () => {
+    setIsModalOpen(false); setMachineState('IDLE'); setCurrentCapsule(null);
+    const key = currentCapsule ? releaseLibraryHelpers.releaseKey(currentCapsule.album) : null;
+    setSessionHistory(previous => previous.filter(item => releaseLibraryHelpers.releaseKey(item.album) !== key && !releaseLibraryHelpers.isDismissed(item.album, releaseLibrary.rows)));
+    setPreferenceMessage('Release descartado. No volverá a salir hasta que lo reactives en tu historial.');
+  };
+  useEffect(() => {
+    if (currentCapsule && releaseLibraryHelpers.isDismissed(currentCapsule.album, releaseLibrary.rows)) clearDiscardedCapsule();
+  }, [releaseLibrary.rows, currentCapsule]);
 
   // Auto-registrar cápsula actual contra traducción (V.8.11)
   useEffect(() => {
@@ -571,11 +593,11 @@ export function GashaponMachine({
 
   // Pool base: TODOS los releases del catálogo
   const eligibleAlbums = useMemo(() => {
-    if (!albums || albums.length === 0) return [];
+    if (!albums || albums.length === 0 || releaseLibrary.loading || releaseLibrary.error) return [];
     return albums.filter(
-      (alb) => alb && (alb.id || alb.album || alb.album_name)
+      (alb) => alb && (alb.id || alb.album || alb.album_name) && !releaseLibraryHelpers.isDismissed(alb, releaseLibrary.rows)
     );
-  }, [albums]);
+  }, [albums, releaseLibrary.rows, releaseLibrary.loading, releaseLibrary.error]);
 
   // Pool de álbumes filtrado según la pestaña activa (Pendientes, Todo el Pool, o por release_type)
   const filteredPool = useMemo(() => {
@@ -655,9 +677,20 @@ export function GashaponMachine({
   }, []);
 
   // Función para tirar de la manivela y girar el Gashapon
-  const handleSpinGashapon = () => {
+  const handleSpinGashapon = async () => {
     if (openingRef.current || ['CRANKING','DROPPING','OPENING'].includes(machineState)) return;
-    if (filteredPool.length === 0) return;
+    if (filteredPool.length === 0 || checkingRef.current || releaseLibrary.pending.length) return;
+    checkingRef.current = true;
+    setCheckingPreferences(true); setPreferenceMessage('');
+    const beforeDraw = drawRef.current;
+    let available;
+    try {
+      const latest = await releaseLibrary.refresh();
+      if (latest.account !== releaseLibrary.account || beforeDraw !== drawRef.current || !isMountedRef.current) return;
+      available = filteredPool.filter(album => !releaseLibraryHelpers.isDismissed(album, latest.rows));
+    } catch (error) { setPreferenceMessage(error.message); return; }
+    finally { checkingRef.current = false; if (isMountedRef.current) setCheckingPreferences(false); }
+    if (!available.length) { setPreferenceMessage('No quedan releases con estos filtros. Puedes cambiar los filtros o reactivar alguno en tu historial.'); return; }
 
     modalOpenerRef.current = document.activeElement;
     const drawId = ++drawRef.current;
@@ -675,7 +708,7 @@ export function GashaponMachine({
       gashaponSound.playGlobeShake();
     }, 150);
 
-    const selection = genreCatalog.drawGenreCapsule(filteredPool, selectedGenre);
+    const selection = genreCatalog.drawGenreCapsule(available, selectedGenre);
     if (!selection) { setMachineState('IDLE'); setIsCrankAnimating(false); return; }
     const edition = vinylEditions.drawVinylEdition(currentCapsule?.edition);
     const capsuleData = { ...selection, edition: edition.id, theme: { ...selection.theme, glow: edition.glow }, pulledAt: Date.now(), isReviewed: userReviewMap.has(selection.album.id) };
@@ -747,6 +780,7 @@ export function GashaponMachine({
 
   // Re-inspeccionar una cápsula en modal grande desde el historial
   const handleInspectCapsule = (item) => {
+    if (releaseLibraryHelpers.isDismissed(item.album, releaseLibrary.rows)) return;
     drawRef.current++; clearTimeout(openingTimerRef.current); openingRef.current = false;
     setCurrentCapsule(item);
     setMachineState('REVEALED');
@@ -788,6 +822,13 @@ export function GashaponMachine({
       ref={containerRef}
       className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12"
     >
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-purple-300/20 bg-purple-400/5 p-3 text-xs">
+        <Link to="/profile?tab=later" className="inline-flex min-h-11 items-center rounded-xl px-3 font-bold text-pink-200 hover:bg-white/5">Escuchar más tarde</Link>
+        <a href="#gashapon-discard-history" onClick={() => { const history = document.getElementById('gashapon-discard-history'); if (history) history.open = true; }} className="inline-flex min-h-11 items-center rounded-xl px-3 font-bold text-purple-200 hover:bg-white/5">Historial de descartes ({releaseLibrary.rows.filter(row => row.gashapon_dismissed).length})</a>
+      </div>
+      {checkingPreferences && <p role="status" className="text-center text-sm text-purple-200">Comprobando tus descartes…</p>}
+      {preferenceMessage && <p role="status" className="rounded-xl border border-purple-300/20 p-3 text-sm text-purple-100">{preferenceMessage}</p>}
+      {releaseLibrary.error && <div role="alert" className="rounded-xl border border-rose-300/20 p-3 text-sm text-rose-200">{releaseLibrary.error} No giraremos hasta recuperar tus descartes.<button type="button" onClick={() => releaseLibrary.refresh().catch(() => {})} className="ml-2 min-h-11 px-3 font-bold underline">Volver a cargar</button></div>}
       {/* Toast flotante de XP Ganado */}
       {xpToast && (
         <div className="fixed top-20 right-4 z-50 animate-xp-bounce bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-white/60 flex items-center gap-3 font-black">
@@ -1333,6 +1374,7 @@ export function GashaponMachine({
               </div>
 
               {/* SISTEMA DE CALIFICACIÓN OFICIAL */}
+              <GashaponReleaseActions album={currentCapsule.album} onDiscard={clearDiscardedCapsule} />
               <div
                 ref={reviewSectionRef}
                 className="rounded-3xl p-5 sm:p-7 bg-linear-to-br from-[#131427] to-[#0b0d18] border border-white/15 shadow-2xl space-y-4"
@@ -1382,6 +1424,10 @@ export function GashaponMachine({
       </div>
 
       {/* HISTORIAL / COLECCIÓN DE CÁPSULAS DE ESTA SESIÓN */}
+      <details id="gashapon-discard-history" className="scroll-mt-8 rounded-2xl border border-white/10 bg-black/20 p-4">
+        <summary className="min-h-11 cursor-pointer py-3 text-sm font-bold text-purple-200">Historial permanente de descartes · ver y reactivar</summary>
+        <ReleaseLibraryList mode="discarded" />
+      </details>
       {sessionHistory.length > 0 && (
         <div className="rounded-3xl p-5 sm:p-6 bg-black/30 border border-white/10 space-y-3">
           <div className="flex items-center justify-between">
@@ -1590,6 +1636,7 @@ export function GashaponMachine({
                   </div>
 
                   {/* BOTONES DE ACCIÓN DEL MODAL */}
+                  <GashaponReleaseActions album={currentCapsule.album} onDiscard={clearDiscardedCapsule} />
                   <div className="w-full pt-4 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
                     <button
                       type="button"

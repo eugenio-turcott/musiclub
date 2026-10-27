@@ -586,6 +586,8 @@ export function AppHeader({
 
                   {/* Opciones del menú */}
                   <div className="space-y-1">
+                    <Link to="/profile?tab=later" onClick={() => setIsUserMenuOpen(false)} className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-pink-200 hover:bg-white/10 sm:text-sm"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Escuchar más tarde</Link>
+                    <Link to="/profile?tab=discarded" onClick={() => setIsUserMenuOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-2 text-xs font-medium text-purple-200 hover:bg-white/10 sm:text-sm">Descartes del Gashapon</Link>
                     <Link
                       to="/profile"
                       onClick={() => setIsUserMenuOpen(false)}

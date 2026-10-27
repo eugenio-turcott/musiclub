@@ -1,4 +1,5 @@
 'use client';
+import { ListenLaterButton } from './ListenLaterButton';
 import { GenreIconStrip } from './GenreIconStrip';
 import { CoverImage } from './CoverImage';
 import React, { useState, useEffect, useMemo } from 'react';
@@ -530,6 +531,7 @@ export function HourlyRecommendedRelease({
 
             {/* Primary Action Buttons */}
             <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-3">
+              <ListenLaterButton album={album} className="w-full sm:w-auto" />
               <button
                 type="button"
                 onClick={() => setShowReviewForm((prev) => !prev)}

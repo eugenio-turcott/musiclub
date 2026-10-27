@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.35.0 · **Actualización de salas:** 26 de octubre de 2026.
+**Versión:** 9.38.0 · **Última actualización:** 27 de octubre de 2026.
 
 ## Qué incluye
 
@@ -12,6 +12,7 @@
 - Reseñas con canciones, seis criterios, nota general, comentario opcional, canción favorita y emociones. El inicio muestra las reseñas más recientes de hasta tres personas distintas.
 - Pool por salas públicas y privadas, con temporadas independientes: una cápsula por persona, cupo opcional, edición propia mientras esté en espera y las propuestas estén abiertas, ganador e historial. La edición conserva su lugar; los estados del Pool pertenecen a `pool_entries`, no a `albums`.
 - Gashapon para descubrir releases del catálogo o únicamente los activos y del historial de una temporada: `/gashapon?pool=<id>`.
+- Lista privada «Escuchar más tarde» y descartes persistentes del Gashapon. Las preferencias pertenecen a la cuenta autenticada; variantes de una misma obra comparten estado y deluxe permanece separado. El historial permite reactivar descartes; guardar para después no modifica los sorteos.
 - Calificación de portadas, perfiles, recomendaciones, playlists e insignias.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
@@ -74,6 +75,8 @@ Configura las direcciones de redirección de Google/Supabase para el entorno cor
 ### Base de datos
 
 El esquema desplegado no se crea únicamente con `npm ci`. Las migraciones están en `supabase/migrations/` y algunas dependen del esquema anterior: revísalas en orden sobre un entorno de desarrollo antes de aplicarlas. No ejecutes todos los scripts de mantenimiento contra producción de forma indiscriminada.
+
+Las listas privadas requieren `supabase/migrations/20261027_v938_release_library.sql`. La tabla `user_release_preferences` usa RLS por `auth.uid()` y una función que cambia cada preferencia de forma independiente. No se guardan preferencias personales en el catálogo público. El Gashapon espera la lectura de descartes y la verifica antes de cada giro; si falla la lectura, bloquea el sorteo y ofrece reintentar.
 
 - `albums`: datos de los releases.
 - `reviews`, `cover_ratings`, `profiles`: aportaciones y perfiles con políticas de acceso.

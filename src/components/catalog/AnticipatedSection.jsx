@@ -1,3 +1,4 @@
+import { ListenLaterButton } from '../ListenLaterButton';
 import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -211,6 +212,7 @@ export function AnticipatedSection({
 
                     {/* Locked Rating notice, Tracks info & Spotify / Ver Actions */}
                     <div className="pt-2 border-t border-white/5 mt-auto space-y-2">
+                      <ListenLaterButton album={item} className="w-full" />
                       <div className="flex items-center justify-between gap-2 text-[10px]">
                         <div className="text-amber-300/80 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1.5 flex-1 min-w-0">
                           <span>🔒</span>

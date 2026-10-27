@@ -1,5 +1,5 @@
 // Collection cards never need song lists, review bodies or provider metadata.
-const fields = ['id','album_name','artist_name','image_url','release_type','release_year','release_date','created_at','genres','review_count','final_rating','total_tracks','status','reviews_enabled'];
+const fields = ['id','album_name','artist_name','image_url','release_type','release_year','release_date','created_at','genres','review_count','final_rating','total_tracks','status','reviews_enabled','spotify_link','apple_music_link','youtube_link','other_link'];
 function catalogCard(album) {
  const card = {};
  for (const key of fields) if (album[key] !== undefined) card[key] = album[key];

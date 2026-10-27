@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../utils/translateCrashGuard';
 import { SiteMetrics } from '../components/SiteMetrics';
+import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
 
 export function ClientProviders({ children }) {
   useEffect(() => {
@@ -39,7 +40,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      {children}
+      <ReleaseLibraryProvider>{children}</ReleaseLibraryProvider>
       <SiteMetrics />
     </ErrorBoundary>
   );
