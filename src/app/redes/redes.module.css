@@ -1,0 +1,51 @@
+.page { min-height: 100svh; background: #101023; color: #f9f5ff; position: relative; overflow: hidden; isolation: isolate; }
+.page::before { content: ''; position: absolute; inset: 0; z-index: -1; background: radial-gradient(ellipse at 50% 0%, #64419433, transparent 52%), linear-gradient(#a99fe606 1px, transparent 1px), linear-gradient(90deg, #a99fe606 1px, transparent 1px); background-size: auto, 28px 28px, 28px 28px; }
+.records { pointer-events: none; position: absolute; inset: 0; z-index: -1; overflow: hidden; }
+.records img { position: absolute; opacity: .42; filter: saturate(.8); }
+.recordOne { width: 300px; left: calc(50% - 660px); top: 100px; transform: rotate(-22deg); }
+.recordTwo { width: 230px; right: calc(50% - 610px); top: 430px; transform: rotate(16deg); }
+.recordThree { width: 240px; left: calc(50% - 600px); top: 810px; transform: rotate(28deg); }
+.main { width: min(100% - 40px, 580px); margin: 0 auto; padding: 52px 0 30px; }
+.header { text-align: center; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-size: 39px; font-weight: 900; letter-spacing: -1.9px; }
+.brand img { width: 45px; height: 49px; object-fit: contain; }
+.dot { color: #f57fba; }
+.eyebrow { color: #c3b4df; font-size: 9px; font-weight: 700; letter-spacing: 1.8px; margin: 24px auto 16px; max-width: 330px; line-height: 1.7; }
+.header h1 { font-size: clamp(35px, 7vw, 49px); font-weight: 900; line-height: 1.04; letter-spacing: -1.8px; margin: 0; }
+.intro { font-size: 15px; line-height: 1.6; color: #bcb7cf; margin: 18px 0 28px; }
+.featured { display: flex; align-items: center; gap: 16px; padding: 17px 19px; border-radius: 20px; background: #f781b6; color: #21142f; text-decoration: none; box-shadow: 0 10px 34px #f781b614; transition: background .18s ease, transform .18s ease; }
+.featured > img { width: 55px; height: 55px; object-fit: contain; }
+.featured > span { flex: 1; }
+.featured strong { display: block; font-size: 21px; font-weight: 900; line-height: 1.25; }
+.featured small { display: block; font-size: 12px; margin-top: 4px; }
+.featured > svg, .card > svg { width: 20px; height: 20px; flex-shrink: 0; }
+.featured:hover { background: #ff9cc9; transform: translateY(-2px); }
+.networks { display: grid; gap: 10px; margin-top: 20px; }
+.card { display: flex; align-items: center; gap: 15px; min-height: 84px; padding: 15px 19px; border: 1px solid #ffffff13; border-radius: 17px; background: #1a192f; text-decoration: none; transition: border-color .18s ease, background .18s ease; }
+.card:hover { border-color: var(--network-color, #b5a3ed); background: #24213a; }
+.icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; color: var(--network-color, #b5a3ed); border-radius: 12px; background: #ffffff07; }
+.iconSvg, .icon svg { width: 21px; height: 21px; }
+.cardText { flex: 1; min-width: 0; }
+.cardTitle { display: flex; flex-wrap: wrap; align-items: baseline; gap: 5px 10px; font-size: 17px; font-weight: 800; }
+.cardTitle > span { font-size: 11px; color: #a7a0bf; font-weight: 400; overflow-wrap: anywhere; }
+.cardText > small { display: block; color: #aaa3bf; font-size: 12px; line-height: 1.5; margin-top: 2px; }
+.card > svg { color: #827894; width: 16px; height: 16px; }
+.personal { margin-top: 24px; border-style: dashed; background: transparent; }
+.personal .cardTitle { font-size: 15px; }
+.footer { display: flex; align-items: center; flex-direction: column; gap: 9px; margin-top: 29px; text-align: center; font-size: 11px; color: #938ba9; }
+.footer a:hover { color: #ffd0e8; }
+.footer span { color: #726a88; }
+.page a:focus-visible { outline: 3px solid #ffe19b; outline-offset: 5px; }
+@media (max-width: 480px) {
+  .main { width: calc(100% - 32px); padding-top: 35px; }
+  .recordOne { left: -220px; top: 90px; opacity: .2 !important; }
+  .recordTwo { right: -185px; top: 440px; opacity: .16 !important; }
+  .recordThree { display: none; }
+  .card { padding: 14px; gap: 12px; }
+  .featured { padding: 16px 14px; gap: 12px; }
+  .featured strong { font-size: 20px; }
+  .featured small { font-size: 11px; }
+  .intro { font-size: 14px; }
+  .desktopBreak { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .page a { transition: none; } .featured:hover { transform: none; } }
