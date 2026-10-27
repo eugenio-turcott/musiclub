@@ -1,20 +1,26 @@
 'use client';
+import { useState } from 'react';
 import Image from 'next/image';
+import sources from '../utils/coverImageSource.cjs';
+import { PLACEHOLDER_COVER } from '../utils/coverPlaceholder';
 
-export function CoverImage({ src, alt = '', loading = 'lazy', sizes = '(max-width: 640px) 45vw, 240px', ...props }) {
-  // This CDN already resizes and compresses covers; avoid a second image proxy.
-  try {
-    const image = new URL(src);
-    if (image.hostname === 'cdn.rcrd.club') {
-      const source = width => { const url = new URL(image); url.searchParams.set('width', String(width)); return url.href; };
-      return <img width={320} height={320} src={source(480)} srcSet={[240,480,720].map(width=>`${source(width)} ${width}w`).join(', ')} sizes={sizes} alt={alt} loading={loading} decoding="async" {...props}/>;
-    }
-  } catch {}
-  let optimized = String(src || '').startsWith('/');
-  try {
-    const host = new URL(src).hostname;
-    optimized ||= ['i.scdn.co', 'mosaic.scdn.co', 't.scdn.co', 'coverartarchive.org', 'archive.org', 'images.unsplash.com', 'lh3.googleusercontent.com', 'cdn.rcrd.club', 'cdn-images.dzcdn.net', 'i.pinimg.com'].includes(host) || host.endsWith('.supabase.co') ||
-      (host === 'www.serebii.net' && new URL(src).pathname.startsWith('/dungeonrescueteamdx/pokemon/'));
-  } catch {}
-  return <Image width={320} height={320} sizes={sizes} src={src || '/musiclub_logo_corchea.png'} alt={alt} loading={loading} unoptimized={!optimized} {...props} />;
+export function CoverImage({ src, ...props }) {
+  // A different release starts a fresh load, even when React reuses the card.
+  return <CoverImageSource key={src || ''} src={src} {...props} />;
+}
+
+function CoverImageSource({ src, alt = '', loading = 'lazy', sizes = '(max-width: 640px) 45vw, 240px', onError, ...props }) {
+  const [attempt, setAttempt] = useState(0);
+  const source = sources.coverImageSource(src, attempt);
+  const handleError = source.fallback ? undefined : event => {
+    // Changing src alone leaves responsive candidates active in the browser.
+    event.currentTarget.removeAttribute('srcset');
+    event.currentTarget.removeAttribute('sizes');
+    setAttempt(attempt + 1);
+    if (attempt === 1) onError?.(event);
+  };
+  const common = { width: 320, height: 320, ...props, alt, loading, decoding: 'async', onError: handleError };
+  if (source.fallback) return <img {...common} src={PLACEHOLDER_COVER} />;
+  if (source.optimized) return <Image {...common} src={source.src} sizes={sizes} />;
+  return <img {...common} src={source.src} srcSet={source.srcSet} sizes={source.srcSet ? sizes : undefined} />;
 }
