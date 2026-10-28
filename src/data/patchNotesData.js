@@ -10,6 +10,7 @@ export const GITHUB_REPO_NAME = 'musiclub-albumes';
 export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
+  {version:'V.9.40.0',title:'Musiclub recupera el color',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-500 to-cyan-400',authorName:'Eugenio Turcott',summary:'Íconos con color, dibujos distintos para cada función y una cabecera de release más compacta.',changes:[{type:'improvement',title:'Cada función, su identidad',description:'Pool, Gashapon, configuración y administración ya tienen dibujos diferentes. Los íconos usan colores vivos, rellenos y un grosor coherente.'},{type:'improvement',title:'Tu siguiente reseña, más cerca',description:'Canción Top y Pistas comparten una columna en dos filas. A la cola está junto a Reseñar, con el mismo tamaño de letra.'},{type:'fix',title:'Verificaciones del catálogo',description:'Las pruebas de las acciones de las tarjetas buscan ahora en la tarjeta correspondiente, conservando la comprobación del guardado y de su distribución responsiva.'}]},
   {version:'V.9.39.0',title:'Más espacio para cada escucha',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'Las fichas y tarjetas se reorganizan para explorar, reseñar y guardar releases con más claridad.',changes:[{type:'improvement',title:'Calificaciones de un vistazo',description:'Un medidor circular pasa de rojo a verde según la nota. General ocupa una columna propia junto a los seis criterios.'},{type:'feature',title:'Los sonidos del release',description:'Explora los vinilos de sus géneros junto al tracklist, con desplazamiento interno cuando hay varios.'},{type:'improvement',title:'Tarjetas y perfil más claros',description:'Ver release y A la cola comparten espacio. Tus listas están junto a Para Ti en el perfil y salen del menú de usuario.'},{type:'improvement',title:'Una interfaz con íconos',description:'Íconos vectoriales de grosor uniforme sustituyen los emojis de navegación, formularios y controles. Las reacciones a reseñas conservan sus emojis.'}]},
   {version:'V.9.38.0',title:'Tus próximas escuchas, a tu manera',date:'2026-10-27',sha:'',associatedShas:[],tag:'Descubrimiento',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'Guarda releases para después y decide cuáles pueden volver a aparecer en tu Gashapon.',changes:[{type:'feature',title:'Escuchar más tarde',description:'Las fichas incluyen un botón con reloj para guardar o quitar releases. Encuentra tu lista privada en el perfil; se conserva al cambiar de dispositivo.'},{type:'feature',title:'Descartes del Gashapon',description:'Descarta un resultado para excluirlo de tus sorteos. Su historial permanece disponible para reactivarlo cuando quieras, sin afectar al resto del club ni a tu lista de próximas escuchas.'},{type:'improvement',title:'Escucha desde el resultado',description:'El resultado del Gashapon incluye Spotify, Apple Music, YouTube Music y Deezer. Se usan los enlaces disponibles del release y búsquedas por artista y título cuando no hay un enlace directo.'}]},
   {version:'V.9.37.0',title:'Musiclub se mueve más ligero',date:'2026-10-26',sha:'',associatedShas:[],tag:'Rendimiento',tagColor:'from-cyan-500 to-purple-500',authorName:'Eugenio Turcott',summary:'El catálogo carga tarjetas ligeras y cada sección aparece sin esperar a las demás.',changes:[{type:'improvement',title:'Catálogo más ligero',description:'Las listas de canciones y los detalles completos se reservan para la ficha del disco. Los filtros siguen funcionando sobre todo el catálogo.'},{type:'improvement',title:'Navegación preparada al acercarte',description:'Los enlaces se preparan al pasar el cursor o enfocarlos con el teclado, respetando el ahorro de datos.'},{type:'improvement',title:'Animaciones e imágenes eficientes',description:'Los movimientos se pausan fuera de pantalla, las portadas se adaptan a su tamaño y los iconos conservan su diseño con menos trabajo para el navegador.'}]},
@@ -1007,9 +1008,9 @@ export const CURATED_PATCH_NOTES = [
     "version": "V.8.6",
     "title": "Tarjetas de Reseñas para Historias de Celular con Mayor Legibilidad y Elegancia",
     "date": "2026-09-15",
-    "sha": "e5c4a23",
+    "sha": "524dc77",
     "associatedShas": [
-      "e5c4a23"
+      "524dc77"
     ],
     "tag": "Diseño para Celular",
     "tagColor": "from-pink-500 via-purple-500 to-indigo-500",
@@ -1135,14 +1136,14 @@ export const CURATED_PATCH_NOTES = [
     "version": "V.8.4",
     "title": "Explorador de Tendencias del Año y Mejor Búsqueda en la Web",
     "date": "2026-09-10",
-    "sha": "0ead842",
+    "sha": "1b4a294",
     "associatedShas": [
-      "0ead842",
-      "92dff34",
-      "96bd466",
-      "bb626a3",
-      "6396867",
-      "47ce38d"
+      "1b4a294",
+      "9f2e43d",
+      "10da8a2",
+      "6bcac5d",
+      "6d20d5b",
+      "a79a5e1"
     ],
     "tag": "Tendencias del Año",
     "tagColor": "from-orange-500 via-amber-500 to-cyan-500",
@@ -1190,10 +1191,10 @@ export const CURATED_PATCH_NOTES = [
     "version": "V.8.3",
     "title": "Perfiles de Artistas Impecables: Discografías Completas y Cero Confusiones de Bandas",
     "date": "2026-09-10",
-    "sha": "9ab5784",
+    "sha": "eefab24",
     "associatedShas": [
-      "9ab5784",
-      "2166fef"
+      "eefab24",
+      "d2d91cc"
     ],
     "tag": "Perfiles de Artistas",
     "tagColor": "from-pink-500 via-purple-500 to-indigo-600",
@@ -1251,7 +1252,7 @@ export const CURATED_PATCH_NOTES = [
     "version": "V.8.2",
     "title": "Biblioteca Expandida a Más de 2,200 Álbumes y Selección de Canciones Favoritas",
     "date": "2026-09-10",
-    "sha": "d8391f5",
+    "sha": "03ac4a2",
     "tag": "Gran Catálogo",
     "tagColor": "from-cyan-500 via-blue-500 to-indigo-600",
     "authorName": "Eugenio Turcott",
@@ -1645,7 +1646,7 @@ export const CURATED_PATCH_NOTES = [
     "version": "V.7.0",
     "title": "Comunidad Más Viva: Reacciones y Comentarios en Reseñas, y Calificación Instantánea de Discos",
     "date": "2026-09-07",
-    "sha": "471330b",
+    "sha": "ddc5b1c",
     "tag": "Comunidad Musical",
     "tagColor": "from-fuchsia-600 via-pink-600 to-rose-500",
     "authorName": "Eugenio Turcott",
@@ -3002,7 +3003,7 @@ export function mergeGithubCommitsWithCuratedNotes(githubCommits = []) {
       }
     }
     // IMPORTANTE: Los commits individuales intermedios que no son una versión oficial
-    // NO se muestran como pseudo-versiones ('v47ce38d'). Se consolidan en su versión oficial.
+    // NO se muestran como pseudo-versiones ('va79a5e1'). Se consolidan en su versión oficial.
   });
 
   // Agregar cualquier nota curada que aún no haya sido devuelta por la API

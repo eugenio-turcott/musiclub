@@ -29,3 +29,36 @@ test('interface labels render vector icons while keeping their descriptive text 
   assert.match(html,/<svg/);assert.match(html,/stroke-width="1\.8"/);
   assert.match(html,/Ver álbum · © Musiclub/);assert.doesNotMatch(html,/🎧/);
 });
+
+
+test('different interface symbols have unique artwork and key destinations have distinct identities', () => {
+  const require=createRequire(import.meta.url);
+  const {GLYPH_ICONS}=require('../src/utils/interfaceIcons.cjs');
+  const {ICON_BODIES,ICON_COLORS}=require('../src/utils/interfaceArtwork.cjs');
+  const normalized=new Map(),drawings=new Set();
+  for(const [glyph,name] of Object.entries(GLYPH_ICONS)){
+    const canonical=glyph.replaceAll('\uFE0F','');
+    if(normalized.has(canonical)) continue;
+    normalized.set(canonical,name);
+    assert.ok(ICON_BODIES[name],`Missing drawing for ${glyph}`);
+    assert.ok(ICON_COLORS[name],`Missing color for ${glyph}`);
+    assert.ok(!drawings.has(ICON_BODIES[name]),`Repeated drawing for ${glyph}: ${name}`);
+    drawings.add(ICON_BODIES[name]);
+  }
+  assert.notEqual(ICON_BODIES.pool,ICON_BODIES.gashapon);
+  assert.notEqual(ICON_BODIES.settings,ICON_BODIES.admin);
+});
+
+test('interface symbols used by pages and controls all have an explicit drawing', () => {
+  const require=createRequire(import.meta.url);
+  const {GLYPH_ICONS}=require('../src/utils/interfaceIcons.cjs');
+  const walk=dir=>fs.readdirSync(dir,{withFileTypes:true}).flatMap(entry=>entry.isDirectory()?walk(new URL(entry.name+'/',dir)):[new URL(entry.name,dir)]);
+  const files=[...walk(new URL('../src/components/',import.meta.url)),...walk(new URL('../src/views/',import.meta.url)),new URL('../src/utils/badgeSystem.js',import.meta.url),new URL('../src/utils/ratingUtils.js',import.meta.url)];
+  const expression=/\p{Extended_Pictographic}(?:\uFE0F|[\u{1F3FB}-\u{1F3FF}])?(?:\u200D\p{Extended_Pictographic}(?:\uFE0F|[\u{1F3FB}-\u{1F3FF}])?)*/gu;
+  for(const file of files.filter(url=>/\.(jsx|js)$/.test(url.pathname)&&!/WhatsAppEmojiPicker|ReviewInteractions/.test(url.pathname))){
+    for(const match of fs.readFileSync(file,'utf8').matchAll(expression)){
+      if(['©','®','™'].includes(match[0]))continue;
+      assert.ok(GLYPH_ICONS[match[0]],`Missing explicit interface icon for ${match[0]} in ${file.pathname}`);
+    }
+  }
+});

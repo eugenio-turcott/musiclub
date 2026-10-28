@@ -1,5 +1,5 @@
 'use client';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
 import { PoolReviewNotice, EarlyPoolReviewDialog } from './PoolReviewSchedule';
 import { ScoreGauge } from './ScoreGauge';
@@ -1307,9 +1307,9 @@ export function AlbumDetail({
               </div>
 
               {/* Score Highlight Box */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2">
+              <div className="release-score-grid grid grid-cols-2 gap-2.5 sm:gap-3 pt-2">
                 {/* Score Card */}
-                <div className="col-span-2 sm:col-span-1 bg-[#0c0e1a]/90 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
+                <div className="min-w-0 bg-[#0c0e1a]/90 backdrop-blur-md border border-white/15 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
                   <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Calificación Final
                   </span>
@@ -1321,8 +1321,9 @@ export function AlbumDetail({
                   </span>
                 </div>
 
+                <div className="release-meta-stack grid min-w-0 grid-rows-2 gap-2.5 sm:gap-3">
                 {/* Crown / Top Track Box */}
-                <div className="col-span-2 sm:col-span-1 bg-[#14111d]/90 backdrop-blur-md border border-amber-400/40 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
+                <div className="min-w-0 bg-[#14111d]/90 backdrop-blur-md border border-amber-400/40 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
                   <div className="flex items-center justify-center md:justify-start gap-1 text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider">
                     <span><InterfaceText>{"👑"}</InterfaceText></span>
                     <span>Canción Top</span>
@@ -1332,7 +1333,7 @@ export function AlbumDetail({
                       <div>
                         <p
                           translate="no"
-                          className="notranslate text-sm sm:text-base font-black text-amber-200 truncate"
+                          className="notranslate line-clamp-2 break-words text-sm sm:text-base font-black text-amber-200"
                           title={topTrack.name}
                         >
                           {topTrack.name}
@@ -1358,7 +1359,7 @@ export function AlbumDetail({
                 </div>
 
                 {/* Total Tracks & Status */}
-                <div className="col-span-2 sm:col-span-1 bg-black/40 border border-white/10 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between">
+                <div className="min-w-0 bg-black/40 border border-white/10 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between">
                   <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Pistas
                   </span>
@@ -1371,14 +1372,14 @@ export function AlbumDetail({
                         album.expected_tracks ??
                         0;
                       if (count > 0) {
-                        return <InterfaceText>{`${count} 🎵`}</InterfaceText>;
+                        return <span className="inline-flex items-center gap-2">{count}<UiIcon name="tracks" /></span>;
                       }
                       if (isAnticipated) {
                         return (
                           <span className="text-base sm:text-lg text-amber-300 font-bold"><InterfaceText>{" Por anunciar 🎵 "}</InterfaceText></span>
                         );
                       }
-                      return <InterfaceText>{"0 🎵"}</InterfaceText>;
+                      return <span className="inline-flex items-center gap-2">0<UiIcon name="tracks" /></span>;
                     })()}
                   </div>
                   <span className="text-[10px] text-slate-500 mt-1">
@@ -1388,12 +1389,14 @@ export function AlbumDetail({
                     </strong>
                   </span>
                 </div>
+                </div>
               </div>
 
               {!isAnticipated && <PoolReviewNotice pools={reviewGate.pools}/>}
               {reviewGate.error && <p role="alert" className="text-sm text-amber-300">{reviewGate.error} <button onClick={reviewGate.refresh} className="underline">Reintentar</button></p>}
               {/* Action Buttons */}
-              <div className="flex items-center justify-center md:justify-start gap-3 pt-2 flex-wrap">
+              <div className="release-detail-actions flex items-center justify-center md:justify-start gap-3 pt-2 flex-wrap">
+                <div className="release-primary-actions">
                 {isAnticipated ? (
                   <button
                     type="button"
@@ -1419,13 +1422,14 @@ export function AlbumDetail({
                   <button
                     disabled={!canRequestReview}
                     onClick={requestReview}
-                    className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+                    className="min-h-12 px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
-                    <span>
-                      <InterfaceText>{reviewAccess === null ? 'Comprobando acceso…' : !canRequestReview ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}</InterfaceText>
-                    </span>
+                    <UiIcon name={reviewAccess === null ? 'hourglass' : !canRequestReview ? 'lock' : userReview ? 'edit' : 'review'} className="h-5 w-5" />
+                    <span>{reviewAccess === null ? 'Comprobando acceso…' : !canRequestReview ? 'Reseñas cerradas' : userReview ? 'Editar reseña' : 'Reseñar'}</span>
                   </button>
                 )}
+                <ListenLaterButton album={album} prominent className="w-auto" />
+                </div>
 
                 <Link
                   to={`/artista/${slugifyArtist(album.artist_name)}`}
@@ -1443,7 +1447,6 @@ export function AlbumDetail({
                   <span>←</span>
                   <span>Ver Catálogo</span>
                 </Link>
-                <ListenLaterButton album={album} className="w-auto" />
               </div>
             </div>
           </div>

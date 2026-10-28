@@ -16,12 +16,28 @@ test('release details show score gauge, tall general criterion and a separate ge
 
 test('catalogue cards split viewing and queue into equally sized vector controls', async ({page}) => {
   await page.goto('/catalogo?q=Azul');
-  const actions=page.locator('#explorador-catalogo .release-card-actions');
+  const actions=page.locator('[data-catalog-release] .release-card-actions');
   await expect(actions).toHaveCount(1);
   await expect(actions.getByText('A la cola',{exact:true})).toBeVisible();
   const bounds=await actions.locator(':scope > *').evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height,top:r.top};}));
   expect(Math.abs(bounds[0].width-bounds[1].width)).toBeLessThan(2);
   expect(Math.abs(bounds[0].top-bounds[1].top)).toBeLessThan(2);
   await expect(actions.locator('svg')).toHaveCount(2);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+
+test('the release hero stacks top song and tracks, and places the queue directly after reviewing', async ({page}) => {
+  await page.goto('/albumes/artista-de-prueba-azul');
+  await expect(page.locator('.release-meta-stack > div')).toHaveCount(2);
+  const boxes=await page.locator('.release-meta-stack > div').evaluateAll(items=>items.map(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width};}));
+  expect(Math.abs(boxes[0].x-boxes[1].x)).toBeLessThan(1);
+  expect(boxes[1].y).toBeGreaterThan(boxes[0].y);
+  const row=page.locator('.release-detail-actions');
+  await expect(row.getByRole('button',{name:'Reseñar',exact:true})).toBeVisible();
+  const queue=row.getByRole('button',{name:'Escuchar más tarde: Azul',exact:true});
+  await expect(queue).toBeVisible();
+  const fontSizes=await row.locator('button').evaluateAll(items=>items.slice(0,2).map(el=>getComputedStyle(el).fontSize));
+  expect(fontSizes[0]).toBe(fontSizes[1]);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

@@ -23,7 +23,7 @@ for (const status of ['ACTIVO','GANADOR']) test(`a Pool member confirms an early
   confirmed=true;confirmations++;return route.fulfill({json:context()});
  });
  await page.goto('/albumes/artista-de-prueba-azul');
- const cta=page.getByRole('button',{name:'Calificar y Reseñar',exact:true});
+ const cta=page.getByRole('button',{name:'Reseñar',exact:true});
  await expect(cta).toBeEnabled();
  if(status==='GANADOR') await expect(page.getByText('Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
  await cta.click();

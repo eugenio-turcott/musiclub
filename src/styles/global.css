@@ -882,4 +882,13 @@
  .criteria-general > div:first-child > span { font-size: 2rem; }
 }
 
-.ui-icon { display: inline-block; width: 1.05em; height: 1.05em; flex-shrink: 0; vertical-align: -.12em; }
+.ui-icon { display: inline-block; flex-shrink: 0; vertical-align: -.12em; }
+.ui-icon:not([class*="w-"]) { width: 1.05em; height: 1.05em; }
+
+.release-primary-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; width: 100%; align-items: stretch; }
+.release-primary-actions > * { min-width: 0; }
+.release-primary-actions button { width: 100%; height: 100%; padding-left: .75rem; padding-right: .75rem; justify-content: center; }
+@media (min-width: 640px) {
+ .release-primary-actions { display: flex; width: auto; }
+ .release-primary-actions button { width: auto; padding-left: 1.5rem; padding-right: 1.5rem; }
+}

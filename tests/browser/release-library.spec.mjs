@@ -25,7 +25,7 @@ async function libraryAccount(page) {
 test('listen later saves from a card without navigating, survives reload and can be removed from the profile', async ({ page }) => {
   await libraryAccount(page);
   await page.goto('/catalogo?q=Azul');
-  const card = page.locator('#explorador-catalogo');
+  const card = page.locator('[data-catalog-release]');
   await card.getByRole('button', { name: 'Escuchar más tarde: Azul', exact: true }).click();
   await expect(page).toHaveURL(/\/catalogo/);
   await expect(card.getByRole('button', { name: 'Quitar de Escuchar más tarde: Azul', exact: true })).toHaveAttribute('aria-pressed', 'true');

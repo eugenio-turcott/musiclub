@@ -1,5 +1,5 @@
 'use client';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/AppHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
@@ -227,7 +227,7 @@ export function AppHeader({
                   : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/25'
               }`}
             >
-              <span className="text-sm"><InterfaceText>{"🗳️"}</InterfaceText></span>
+              <span className="text-sm"><UiIcon name="pool" /></span>
               <span>
                 Pool<span className="hidden lg:inline"> Musical</span>
               </span>
@@ -242,7 +242,7 @@ export function AppHeader({
                   : 'text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
               }`}
             >
-              <span className="text-sm"><InterfaceText>{"🎰"}</InterfaceText></span>
+              <span className="text-sm"><UiIcon name="gashapon" /></span>
               <span>Gashapon</span>
             </Link>
 
@@ -418,19 +418,7 @@ export function AppHeader({
               aria-label={`Abrir centro de notificaciones${unreadCount > 0 ? `, ${unreadCount} nuevas` : ''}`}
               aria-expanded={isNotificationsOpen}
             >
-              <svg
-                className="w-4 h-4 sm:w-4.5 sm:h-4.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                />
-              </svg>
+              <UiIcon name="bell" className="h-4 w-4 sm:h-4.5 sm:w-4.5" />
 
               {/* Badge Contador de Notificaciones No Leídas */}
               {unreadCount > 0 && (
@@ -631,7 +619,7 @@ export function AppHeader({
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <span className="text-base"><InterfaceText>{"🔧"}</InterfaceText></span>
+                          <span className="text-base"><UiIcon name="admin" /></span>
                           <span>Panel de Admin</span>
                         </div>
                         <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full border border-rose-500/30">
@@ -767,7 +755,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl"><InterfaceText>{"🗳️"}</InterfaceText></span>
+                  <span className="text-xl"><UiIcon name="pool" /></span>
                   <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-pink-500/30 text-pink-200 border border-pink-500/40">
                     Semanal
                   </span>
@@ -791,7 +779,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl"><InterfaceText>{"🎰"}</InterfaceText></span>
+                  <span className="text-xl"><UiIcon name="gashapon" /></span>
                   <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-400/30 text-amber-200 border border-amber-400/40">
                     Arcade
                   </span>

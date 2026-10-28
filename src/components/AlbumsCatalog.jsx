@@ -1598,6 +1598,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                     return (
                       <div
                         key={album.id}
+                        data-catalog-release={album.id}
                         onClick={handleCardClick}
                         role="button"
                         tabIndex={0}
