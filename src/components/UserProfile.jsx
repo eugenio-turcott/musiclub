@@ -1,7 +1,10 @@
 'use client';
-import { InterfaceText } from './UiIcon';
-import { MusiclubVinyl } from './MusiclubVinyl';
-import { GenreLabel } from './GenreLabel';
+import { InterfaceText, UiIcon } from './UiIcon';
+import { ProfileIdentity } from './account/ProfileIdentity';
+import { ProfileNavigation, PROFILE_SECTIONS } from './account/AccountElements';
+import ReviewCriteria from './ReviewCriteria';
+import ReviewTrackRatings from './ReviewTrackRatings';
+import MoodIcon from './MoodIcon';
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
@@ -9,7 +12,6 @@ import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { useAuth } from '../hooks/useAuth';
 import { ReleaseLibraryList } from './ReleaseLibraryList';
-import { ClockIcon } from './ListenLaterButton';
 import { useAlbums } from '../hooks/useAlbums';
 import { useUserReviews } from '../hooks/useUserReviews';
 import { ReviewSystem } from './ReviewSystem';
@@ -18,7 +20,6 @@ import {
   getTrackDisplayName,
   getEmotionFromReview,
   getReviewFavoriteTrack,
-  isFavoriteTrackMatch,
   getReleaseUrl,
 } from '../utils/ratingUtils';
 import { calculateUserGamification } from '../utils/badgeSystem';
@@ -26,7 +27,7 @@ import { Recommendations } from './Recommendations';
 import { SongMailbox } from './SongMailbox';
 import { SendSongRecommendationModal } from './SendSongRecommendationModal';
 import { TierListMaker, PLACEHOLDER_COVER } from './TierListMaker';
-import { ShareReviewModal, InstagramIcon, SpotifyIcon } from './ShareReviewModal';
+import { ShareReviewModal } from './ShareReviewModal';
 import { supabaseService } from '../services/supabaseClient';
 
 export const PLACEHOLDER_AVATAR =
@@ -141,7 +142,6 @@ export function UserProfile({ isPage = false }) {
   const [sortBy, setSortBy] = useState('date_desc'); // 'date_desc' | 'date_asc' | 'score_desc' | 'score_asc'
   const [reviewsPage, setReviewsPage] = useState(1);
   const [reviewsPerPage, setReviewsPerPage] = useState(10);
-  const [expandedReviewId, setExpandedReviewId] = useState(null);
   const [editingReviewItem, setEditingReviewItem] = useState(null);
   const [sharingReviewItem, setSharingReviewItem] = useState(null);
   const [leaderboardList, setLeaderboardList] = useState([]);
@@ -503,277 +503,15 @@ export function UserProfile({ isPage = false }) {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
+    <div className="account-page w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
       {/* Universal Standard App Header */}
       <AppHeader showTitle={false} />
 
-      {/* TARJETA DE PRESENTACIÓN DEL PERFIL */}
-      <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 bg-linear-to-br from-[#131326] via-[#0d1020] to-[#080913] border border-white/10 shadow-2xl overflow-hidden backdrop-blur-xl">
-        <div className="absolute top-0 right-0 w-72 sm:w-96 h-72 sm:h-96 bg-linear-to-bl from-[#f5576c]/15 via-[#f093fb]/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute -bottom-20 -left-20 w-60 sm:w-80 h-60 sm:h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-        <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-          <MusiclubVinyl
-            src="/musiclub_logo.png"
-            alt=""
-            className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(245,87,108,0.3)]"
-          />
-        </div>
-
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-4 sm:gap-6 md:gap-8 text-center md:text-left">
-          {/* Avatar con aura decorativa */}
-          <div className="relative group shrink-0">
-            <div className="absolute -inset-1.5 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 rounded-full blur-md opacity-70 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full overflow-hidden border-4 border-white/20 bg-black/60 shadow-2xl flex items-center justify-center">
-              {user.avatar ? (
-                <img
-                  src={user.avatar}
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.target.src = PLACEHOLDER_AVATAR;
-                  }}
-                />
-              ) : (
-                <span className="text-3xl sm:text-4xl font-bold bg-linear-to-tr from-[#f5576c] to-[#f093fb] bg-clip-text text-transparent">
-                  {(user.name || 'U')[0].toUpperCase()}
-                </span>
-              )}
-            </div>
-            {isAdmin && (
-              <div
-                className="absolute -bottom-1 -right-1 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[9px] sm:text-[10px] font-black px-2 sm:px-2.5 py-0.5 rounded-full border border-white/20 shadow-lg"
-                title="Administrador"
-              >
-                ADMIN
-              </div>
-            )}
-          </div>
-
-          {/* Información del Usuario */}
-          <div className="flex-1 min-w-0 w-full space-y-3">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="min-w-0">
-                <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                  <h1
-                    translate="no"
-                    className="notranslate username-tag text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight truncate max-w-full"
-                  >
-                    {user.name || 'Melómano de Musiclub'}
-                  </h1>
-                  <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#121426]/90 backdrop-blur-md text-white/90 border border-white/15 whitespace-nowrap shadow-sm">
-                    <InterfaceText>{isAdmin ? '🛡️ Admin' : '🎧 Miembro'}</InterfaceText>
-                  </span>
-                </div>
-                <p className="text-white/40 text-xs sm:text-sm font-mono mt-0.5 break-all">
-                  {user.email}
-                </p>
-              </div>
-
-              <Link
-                to="/settings"
-                className="inline-flex items-center justify-center gap-1.5 text-xs text-white/90 hover:text-white bg-[#121426]/90 hover:bg-[#1a1e38] px-3 py-1.5 rounded-xl border border-white/20 backdrop-blur-md shadow-md transition-all font-medium self-center sm:self-auto active:scale-95"
-              >
-                <span><InterfaceText>{"✏️"}</InterfaceText></span> Editar Perfil
-              </Link>
-            </div>
-
-            {/* Biografía */}
-            {user.bio ? (
-              <p className="text-white/90 text-xs sm:text-sm italic w-full bg-black/75 backdrop-blur-md p-2.5 sm:p-3 rounded-xl sm:rounded-2xl border border-white/10 shadow-lg leading-relaxed break-words text-left">
-                "{user.bio}"
-              </p>
-            ) : (
-              <p className="text-white/30 text-xs italic text-center md:text-left">
-                Aún no has agregado una biografía. Puedes agregarla en Configuración.
-              </p>
-            )}
-
-            {/* Badges & XP Header Pill */}
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
-              <span className="text-xs bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
-                <span><InterfaceText>{"✨"}</InterfaceText></span> {(userGamification.totalXp || 0).toLocaleString()} XP de Club
-              </span>
-
-              {userGamification.badges?.slice(0, 3).map((b) => (
-                <span
-                  key={b.id}
-                  title={b.tooltip || b.desc || b.label}
-                  className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
-                >
-                  <InterfaceText>{b.label}</InterfaceText>
-                </span>
-              ))}
-            </div>
-
-            {/* Tags / Artista / Álbum / Géneros */}
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
-              {user.favorite_artist && (
-                <span className="text-[11px] sm:text-xs bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span><InterfaceText>{"👑"}</InterfaceText></span> Artista:{' '}
-                  <strong
-                    translate="no"
-                    className="notranslate artist-name truncate max-w-[150px]"
-                  >
-                    {user.favorite_artist}
-                  </strong>
-                </span>
-              )}
-
-              {user.favorite_album && (
-                <span className="text-[11px] sm:text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span><InterfaceText>{"💿"}</InterfaceText></span> Álbum:{' '}
-                  <strong
-                    translate="no"
-                    className="notranslate music-title truncate max-w-[150px]"
-                  >
-                    {user.favorite_album}
-                  </strong>
-                </span>
-              )}
-
-              {user.favorite_genres && Array.isArray(user.favorite_genres) && user.favorite_genres.length > 0 && (
-                user.favorite_genres.map((genre, idx) => (
-                  <span
-                    key={idx}
-                    className="text-[11px] sm:text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2.5 py-0.5 rounded-full"
-                  >
-                    <GenreLabel genre={genre} link size={18} />
-                  </span>
-                ))
-              )}
-
-              {user.spotify_url && (
-                <a
-                  href={user.spotify_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs bg-[#1DB954]/20 text-[#1DB954] hover:bg-[#1DB954]/30 border border-[#1DB954]/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold transition-all active:scale-95"
-                >
-                  <SpotifyIcon className="w-3.5 h-3.5 text-[#1DB954]" />
-                  <span>Spotify</span>
-                </a>
-              )}
-
-              {user.instagram_url && (
-                <a
-                  href={user.instagram_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] sm:text-xs bg-pink-500/20 text-pink-300 hover:bg-pink-500/30 border border-pink-500/30 px-2.5 py-1 rounded-full flex items-center gap-1.5 font-semibold transition-all active:scale-95"
-                >
-                  <InstagramIcon className="w-3.5 h-3.5 text-pink-400" />
-                  <span>Instagram</span>
-                </a>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* MÉTRICAS RÁPIDAS EN CABECERA */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-4 pt-4 sm:mt-6 sm:pt-6 border-t border-white/10">
-          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
-            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Score XP
-            </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{(userGamification.totalXp || 0).toLocaleString()}
-            </span>
-          </div>
-
-          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
-            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Reviews Totales
-            </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-linear-to-r from-[#f5576c] to-[#f093fb]">
-              {stats.totalReviews}
-            </span>
-          </div>
-
-          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
-            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Promedio Dado
-            </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400"><InterfaceText>{" ★ "}</InterfaceText>{stats.averageScore.toFixed(1)}
-            </span>
-          </div>
-
-          <div className="bg-black/40 rounded-xl sm:rounded-2xl p-2.5 sm:p-4 border border-white/5 text-center flex flex-col justify-center">
-            <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
-              Tracks Calificados
-            </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-cyan-400">
-              {stats.totalTracksRated}
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* PESTAÑAS DE NAVEGACIÓN TOUCH-FRIENDLY */}
-      <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
-        <button
-          onClick={() => setActiveTab('mailbox')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
-            activeTab === 'mailbox'
-              ? 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
-              : 'text-white/80 hover:text-white bg-linear-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
-          }`}
-        >
-          <span><InterfaceText>{"💌"}</InterfaceText></span> Buzón de Canciones
-          {unreadMailboxCount > 0 && (
-            <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">
-              {unreadMailboxCount}
-            </span>
-          )}
-        </button>
-
-        <button
-          onClick={() => setActiveTab('recommendations')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
-            activeTab === 'recommendations'
-              ? 'bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 text-slate-950 shadow-lg shadow-[#f5576c]/30 font-black'
-              : 'text-white/80 hover:text-white bg-white/5 hover:bg-white/10'
-          }`}
-        >
-          <span><InterfaceText>{"✨"}</InterfaceText></span> Para Ti
-        </button>
-        <button type="button" onClick={() => setActiveTab('later')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'later' ? 'bg-pink-400/20 text-pink-200' : 'bg-white/5 text-white/70'}`}><ClockIcon />Escuchar más tarde</button>
-        <button type="button" onClick={() => setActiveTab('discarded')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'discarded' ? 'bg-purple-400/20 text-purple-200' : 'bg-white/5 text-white/70'}`}><InterfaceText>{"🎰"}</InterfaceText>Descartes del Gashapon</button>
-
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
-            activeTab === 'reviews'
-              ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-lg shadow-[#f5576c]/20'
-              : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
-          }`}
-        >
-          <span><InterfaceText>{"🎧"}</InterfaceText></span> Mis Reviews ({stats.totalReviews})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('badges')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
-            activeTab === 'badges'
-              ? 'bg-linear-to-r from-amber-400 to-yellow-500 text-black shadow-lg shadow-amber-400/20 font-black'
-              : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
-          }`}
-        >
-          <span><InterfaceText>{"🎖️"}</InterfaceText></span> Insignias & Niveles ({userGamification.badges?.length || 0})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('stats')}
-          className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
-            activeTab === 'stats'
-              ? 'bg-linear-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/20'
-              : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
-          }`}
-        >
-          <span><InterfaceText>{"📊"}</InterfaceText></span> Estadísticas Detalladas
-        </button>
-
-      </div>
+      <ProfileIdentity user={user} isAdmin={isAdmin} gamification={userGamification} stats={stats}/>
+      <div className="profile-workspace">
+        <ProfileNavigation activeTab={activeTab} onChange={setActiveTab} reviewCount={stats.totalReviews} badgeCount={userGamification.badges?.length || 0} unreadCount={unreadMailboxCount}/>
+        <section id="profile-panel" className="profile-panel" aria-label={PROFILE_SECTIONS.find(section=>section.id===activeTab)?.title}>
+          <header className="profile-panel-heading"><h2>{PROFILE_SECTIONS.find(section=>section.id===activeTab)?.title}</h2><p>{PROFILE_SECTIONS.find(section=>section.id===activeTab)?.description}</p></header>
 
       {/* CONTENIDO DE PESTAÑA: MIS REVIEWS */}
       {activeTab === 'later' && <ReleaseLibraryList mode="later" />}
@@ -838,15 +576,13 @@ export function UserProfile({ isPage = false }) {
             </div>
           ) : filteredReviews.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+              <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-3 sm:gap-4">
                 {paginatedReviews.map((item, idx) => {
-                const hasTrackRatings = item.track_ratings && Object.keys(item.track_ratings).length > 0;
-                const isExpanded = expandedReviewId === item.id;
 
                 return (
                   <div
                     key={item.id || idx}
-                    className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col justify-between space-y-3 sm:space-y-4"
+                    className="rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 hover:border-white/20 transition-all shadow-xl flex flex-col space-y-3 sm:space-y-4"
                   >
                     {/* Encabezado del Álbum */}
                     <div className="flex items-start gap-3 sm:gap-4">
@@ -900,7 +636,7 @@ export function UserProfile({ isPage = false }) {
                                 className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                                 title={emo.description}
                               >
-                                <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                                <MoodIcon mood={emo.id} size={32}/>
                                 <span><InterfaceText>{emo.label}</InterfaceText></span>
                               </span>
                             ) : null;
@@ -939,90 +675,8 @@ export function UserProfile({ isPage = false }) {
                       );
                     })()}
 
-                    {/* Mini Desglose de Criterios (4 columnas responsivas) */}
-                    <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-2 border-t border-white/5">
-                      {[
-                        { label: '🎛️ Prod', val: item.rating_produccion, max: 5 },
-                        { label: '🎵 Comp', val: item.rating_composicion, max: 5 },
-                        { label: '📝 Letras', val: item.rating_letras, max: 5 },
-                        { label: '⭐ Gral', val: item.rating_general, max: 10 },
-                      ].map((crit, cIdx) => (
-                        <div key={cIdx} className="bg-black/30 p-1 sm:p-1.5 rounded-lg text-center border border-white/5">
-                          <div className="text-white/40 text-[8px] sm:text-[9px] uppercase truncate"><InterfaceText>{crit.label}</InterfaceText></div>
-                          <div className="text-white font-bold text-[11px] sm:text-xs mt-0.5">
-                            {crit.val ?? '-'}/{crit.max}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Canciones Calificadas con Acordeón Interactivo */}
-                    {hasTrackRatings && (
-                      <div className="pt-1">
-                        <button
-                          type="button"
-                          onClick={() => setExpandedReviewId(isExpanded ? null : item.id)}
-                          className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
-                        >
-                          <span><InterfaceText>{"🎵 "}</InterfaceText>{Object.keys(item.track_ratings).length} canciones evaluadas</span>
-                          <span className="text-[10px] text-white/40">
-                            {isExpanded ? 'Ocultar ▲' : 'Ver tracks ▼'}
-                          </span>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="mt-2 p-2 sm:p-3 rounded-xl bg-black/50 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 animate-fadeIn">
-                            {Object.entries(item.track_ratings).map(([trackKey, score], tIdx) => {
-                              const tracksSource = item.albums?.tracks || albumMap.get(item.album_id)?.tracks;
-                              const trackName = getTrackDisplayName(
-                                trackKey,
-                                tracksSource
-                              );
-                              const isFav = isFavoriteTrackMatch(
-                                trackKey,
-                                getReviewFavoriteTrack(item),
-                                tracksSource,
-                                tIdx
-                              );
-                              return (
-                                <div
-                                  key={tIdx}
-                                  className={`flex items-center justify-between text-xs py-1 px-2 rounded-lg border transition-all ${
-                                    isFav
-                                      ? 'bg-amber-500/20 border-amber-400/40 text-amber-200 shadow-sm'
-                                      : 'bg-white/5 border-white/5'
-                                  }`}
-                                >
-                                  <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
-                                    <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
-                                    <span
-                                      translate="no"
-                                      className={`notranslate track-name truncate text-[11px] sm:text-xs ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`}
-                                      title={trackName}
-                                    >
-                                      {trackName}
-                                    </span>
-                                  </div>
-                                  <span
-                                    className={`font-black text-[11px] sm:text-xs shrink-0 ${
-                                      isFav
-                                        ? 'text-amber-300'
-                                        : score >= 8
-                                        ? 'text-emerald-400'
-                                        : score >= 6
-                                        ? 'text-cyan-400'
-                                        : 'text-amber-400'
-                                    }`}
-                                  >
-                                    {score}/10
-                                  </span>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <ReviewCriteria review={item}/>
+                    <ReviewTrackRatings review={item} tracks={item.albums?.tracks || albumMap.get(item.album_id)?.tracks}/>
                     {/* Acciones de la Review: Botón Editar, Compartir Story y Ver Página del Álbum */}
                     <div className="flex items-center justify-between gap-1.5 sm:gap-2 pt-2.5 border-t border-white/10 mt-auto">
                       <button
@@ -1032,8 +686,7 @@ export function UserProfile({ isPage = false }) {
                         title="Editar las calificaciones y comentario de esta review"
                       >
                         <span><InterfaceText>{"✏️"}</InterfaceText></span>
-                        <span className="hidden xs:inline">Editar</span>
-                        <span className="xs:hidden">Edit</span>
+                        <span>Editar</span>
                       </button>
 
                       <button
@@ -1043,7 +696,7 @@ export function UserProfile({ isPage = false }) {
                         title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
                       >
                         <span><InterfaceText>{"📱"}</InterfaceText></span>
-                        <span>Story</span>
+                        <span>Compartir</span>
                       </button>
 
                       <Link
@@ -1054,7 +707,7 @@ export function UserProfile({ isPage = false }) {
                         className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border border-white/10 text-xs font-semibold transition-all shadow-sm active:scale-95"
                         title="Ir a la página del lanzamiento"
                       >
-                        <span className="hidden xs:inline">Ver</span>
+                        <span>Ver</span>
                         <span>➔</span>
                       </Link>
                     </div>
@@ -1260,7 +913,7 @@ export function UserProfile({ isPage = false }) {
               </div>
               <div className="text-center sm:text-right px-4 py-2 bg-amber-400/10 border border-amber-400/40 rounded-2xl">
                 <p className="text-[10px] text-amber-200/80 font-bold uppercase tracking-wider">Total Acumulado</p>
-                <p className="text-2xl sm:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{(userGamification.totalXp || 0).toLocaleString()} XP
+                <p className="text-2xl sm:text-3xl font-black text-amber-300"><UiIcon name="sparkles" size={22} tone="inherit"/>{(userGamification.totalXp || 0).toLocaleString()} XP
                 </p>
               </div>
             </div>
@@ -1646,6 +1299,9 @@ export function UserProfile({ isPage = false }) {
           <Recommendations user={user} />
         </div>
       )}
+
+        </section>
+      </div>
 
       {/* MODAL PARA ENVIAR RECOMENDACIÓN DE CANCIÓN */}
       <SendSongRecommendationModal

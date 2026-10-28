@@ -1742,7 +1742,7 @@ export const supabaseService = {
                 score: getWeightedReviewScore(highestReview) ?? highestReview.rating_general,
               }
             : null,
-          lowest_review: lowestReview
+          lowest_review: validScoresCount >= 2 && lowestReview
             ? {
                 album: lowestReview.albums?.album_name || 'Álbum',
                 artist: lowestReview.albums?.artist_name || 'Artista',

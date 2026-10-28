@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.0.1 · **Última actualización:** 28 de octubre de 2026.
+**Versión:** 10.1.0 · **Última actualización:** 28 de octubre de 2026.
 
 ## Qué incluye
 
@@ -14,6 +14,8 @@
 - Gashapon para descubrir releases del catálogo o únicamente los activos y del historial de una temporada: `/gashapon?pool=<id>`.
 - Lista privada «Escuchar más tarde» y descartes persistentes del Gashapon. Las preferencias pertenecen a la cuenta autenticada; variantes de una misma obra comparten estado y deluxe permanece separado. El historial permite reactivar descartes; guardar para después no modifica los sorteos.
 - Calificación de portadas, perfiles, recomendaciones, playlists e insignias.
+- Mi Perfil reúne identidad musical, nivel, reseñas y listas privadas, con navegación lateral en escritorio y desplazamiento horizontal en móvil. Configuración separa identidad, favoritos y enlaces, muestra una vista previa y conserva el borrador en el navegador hasta guardar o revertir los cambios.
+- Leaderboard con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
 

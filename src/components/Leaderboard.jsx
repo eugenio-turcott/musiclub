@@ -1,7 +1,7 @@
 'use client';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { supabaseService } from '../services/supabaseClient';
@@ -82,6 +82,25 @@ export function Leaderboard({ isPage = false }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
   const [showBadgesGuide, setShowBadgesGuide] = useState(false);
+  const badgesDialogRef = useRef(null);
+  useEffect(() => {
+    if (!showBadgesGuide) return;
+    const previousFocus=document.activeElement, previousOverflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';
+    const dialog=badgesDialogRef.current;
+    dialog?.querySelector('button')?.focus();
+    const keydown=event=>{
+      if(event.key==='Escape'){event.preventDefault();setShowBadgesGuide(false);}
+      if(event.key==='Tab'){
+        const controls=[...dialog.querySelectorAll('button,a[href],[tabindex="0"]')];
+        const first=controls[0],last=controls.at(-1);
+        if(event.shiftKey && document.activeElement===first){event.preventDefault();last?.focus();}
+        else if(!event.shiftKey && document.activeElement===last){event.preventDefault();first?.focus();}
+      }
+    };
+    document.addEventListener('keydown',keydown);
+    return ()=>{document.body.style.overflow=previousOverflow;document.removeEventListener('keydown',keydown);if(previousFocus?.isConnected)previousFocus.focus();};
+  },[showBadgesGuide]);
   const [isSendSongModalOpen, setIsSendSongModalOpen] = useState(false);
   const [sendSongRecipient, setSendSongRecipient] = useState(null);
   const [expandedBadgesUsers, setExpandedBadgesUsers] = useState({});
@@ -360,9 +379,9 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-amber-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20"><InterfaceText>{" 📝 "}</InterfaceText></span>
+              <span className="leaderboard-stat-icon text-amber-300 p-2.5 sm:p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"><UiIcon name="review" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Total Reviews
                 </p>
                 <p
@@ -379,9 +398,9 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" 👥 "}</InterfaceText></span>
+              <span className="leaderboard-stat-icon text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="users" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Miembros
                 </p>
                 <p
@@ -398,9 +417,9 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" 🎚️ "}</InterfaceText></span>
+              <span className="leaderboard-stat-icon text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="notes" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Pistas Calificadas
                 </p>
                 <p
@@ -417,9 +436,9 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><InterfaceText>{" ⭐ "}</InterfaceText></span>
+              <span className="leaderboard-stat-icon text-emerald-300 p-2.5 sm:p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><UiIcon name="star" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Promedio del Club
                 </p>
                 <p
@@ -488,7 +507,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-slate-400/20 to-slate-200/20 border border-slate-300/40 text-slate-200 text-xs font-black mb-2.5">
-                    <span><InterfaceText>{"✨"}</InterfaceText></span>
+                    <span><UiIcon name="sparkles" size={19} tone="inherit"/></span>
                     <span>
                       {(podiumUsers[0].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -553,7 +572,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 border border-amber-400/60 text-amber-300 text-xs font-black mb-2.5 shadow-[0_0_12px_rgba(251,191,36,0.3)]">
-                    <span><InterfaceText>{"✨"}</InterfaceText></span>
+                    <span><UiIcon name="sparkles" size={19} tone="inherit"/></span>
                     <span>
                       {(podiumUsers[1].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -615,7 +634,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-amber-700/20 to-amber-600/20 border border-amber-600/40 text-amber-200 text-xs font-black mb-2.5">
-                    <span><InterfaceText>{"✨"}</InterfaceText></span>
+                    <span><UiIcon name="sparkles" size={19} tone="inherit"/></span>
                     <span>
                       {(podiumUsers[2].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -742,6 +761,7 @@ export function Leaderboard({ isPage = false }) {
                 return (
                   <div
                     key={itemUser.id || itemUser.email || index}
+                    data-leaderboard-member={userKey}
                     onClick={() => setSelectedUserDetail(itemUser)}
                     className={`bg-[#141624]/90 border transition-all duration-300 rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#191c2e] cursor-pointer relative overflow-hidden group shadow-md hover:shadow-xl ${
                       isSelf
@@ -860,7 +880,7 @@ export function Leaderboard({ isPage = false }) {
                           <p className="text-[9px] text-amber-300/80 font-bold uppercase tracking-wider leading-tight">
                             Score XP
                           </p>
-                          <p className="text-sm sm:text-base font-black text-amber-300 leading-tight"><InterfaceText>{" ✨ "}</InterfaceText>{(itemUser.total_xp || 0).toLocaleString()}
+                          <p className="leaderboard-xp-score inline-flex items-center gap-1.5 text-sm sm:text-base font-black text-amber-300 leading-tight"><UiIcon name="sparkles" size={19} tone="inherit"/>{(itemUser.total_xp || 0).toLocaleString()}
                           </p>
                         </div>
 
@@ -945,7 +965,7 @@ export function Leaderboard({ isPage = false }) {
                                 : itemUser.highest_review.score}{' '}<InterfaceText>{" ⭐) "}</InterfaceText></span>
                           </div>
                         )}
-                        {itemUser.lowest_review && (
+                        {Number(itemUser.review_count) >= 2 && itemUser.lowest_review && (
                           <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
                             <span><InterfaceText>{"📉"}</InterfaceText></span>
                             <span className="text-slate-400 whitespace-nowrap">
@@ -1095,7 +1115,8 @@ export function Leaderboard({ isPage = false }) {
           onClick={() => setShowBadgesGuide(false)}
         >
           <div
-            className="bg-[#151724] border border-amber-500/30 rounded-2xl sm:rounded-3xl max-w-4xl w-full p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
+            ref={badgesDialogRef} role="dialog" aria-modal="true" aria-labelledby="badges-guide-title"
+            className="badges-guide bg-[#151724] border border-amber-500/30 rounded-2xl sm:rounded-3xl max-w-4xl w-full p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 shadow-2xl relative max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
@@ -1113,7 +1134,7 @@ export function Leaderboard({ isPage = false }) {
                 <span><InterfaceText>{"📖"}</InterfaceText></span>
                 <span>Sistema de Gamificación, Tiers y Puntos XP</span>
               </div>
-              <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
+              <h2 id="badges-guide-title" className="text-xl sm:text-3xl font-black text-white tracking-tight">
                 Guía Oficial de Insignias y Puntos
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
@@ -1173,16 +1194,17 @@ export function Leaderboard({ isPage = false }) {
               {BADGES_GUIDE_DATA.map((cat, idx) => (
                 <div
                   key={idx}
-                  className="bg-black/30 border border-white/5 rounded-2xl p-3.5 sm:p-5 space-y-3.5 sm:space-y-4"
+                  style={{'--badge-accent': ['#fcd34d','#67e8f9','#d8b4fe'][idx]}}
+                  className="badges-guide-category border rounded-2xl p-3.5 sm:p-5 space-y-3.5 sm:space-y-4"
                 >
                   <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                    <span className="text-lg sm:text-xl"><InterfaceText>{cat.icon}</InterfaceText></span>
+                    <span className="badges-category-icon"><InterfaceText>{cat.icon}</InterfaceText></span>
                     <div>
                       <h3 className="text-sm sm:text-base font-bold text-white">
                         {cat.category}
                       </h3>
                       <p className="text-[11px] sm:text-xs text-slate-400">
-                        {cat.description}
+                        <InterfaceText>{cat.description}</InterfaceText>
                       </p>
                     </div>
                   </div>
@@ -1206,7 +1228,7 @@ export function Leaderboard({ isPage = false }) {
                             </span>
                           </div>
                           <p className="text-xs text-slate-300 leading-snug">
-                            {b.desc}
+                            <InterfaceText>{b.desc}</InterfaceText>
                           </p>
                         </div>
                       ))}
@@ -1223,11 +1245,11 @@ export function Leaderboard({ isPage = false }) {
                         >
                           <div className="flex items-center justify-between flex-wrap gap-1.5">
                             <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                              <span><InterfaceText>{grp.icon}</InterfaceText></span>
+                              <span className="badges-group-icon"><InterfaceText>{grp.icon}</InterfaceText></span>
                               <span>{grp.name}</span>
                             </h4>
                             <p className="text-[10px] sm:text-[11px] text-slate-400">
-                              {grp.description}
+                              <InterfaceText>{grp.description}</InterfaceText>
                             </p>
                           </div>
 
@@ -1241,7 +1263,7 @@ export function Leaderboard({ isPage = false }) {
                                   <span
                                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${t.color} cursor-help hover:scale-105 transition-transform`}
                                   >
-                                    {t.name}
+                                    <InterfaceText>{t.name}</InterfaceText>
                                   </span>
                                   <span className="text-[9px] font-black text-amber-300">
                                     {t.xp}
@@ -1250,7 +1272,7 @@ export function Leaderboard({ isPage = false }) {
                                 <div className="flex items-center justify-between text-[10px] text-slate-400 pt-0.5">
                                   <span>Tier {t.tierRoman}</span>
                                   <span className="font-semibold text-slate-300">
-                                    {t.req}
+                                    <InterfaceText>{t.req}</InterfaceText>
                                   </span>
                                 </div>
                               </div>

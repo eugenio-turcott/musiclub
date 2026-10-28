@@ -1,5 +1,5 @@
 import MoodIcon from './MoodIcon';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -391,7 +391,7 @@ export function MemberProfileModal({
                 <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
                   Score XP
                 </span>
-                <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{totalXp.toLocaleString()}
+                <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300"><UiIcon name="sparkles" size={22} tone="inherit"/>{totalXp.toLocaleString()}
                 </span>
               </div>
 
