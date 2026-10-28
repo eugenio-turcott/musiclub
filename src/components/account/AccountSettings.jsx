@@ -7,12 +7,13 @@ import { Footer } from '../Footer';
 import { UiIcon } from '../UiIcon';
 import { GenreLabel } from '../GenreLabel';
 import { SpotifyIcon, InstagramIcon } from '../ShareReviewModal';
-import { AccountAvatar, AccountSection } from './AccountElements';
+import { AccountAvatar, AccountPage, AccountSection } from './AccountElements';
+import { FavoriteGenreSearch, individualFavoriteGenres } from './FavoriteGenreSearch';
 
-const AVAILABLE_GENRES=['Rock','Indie','Hip-Hop','Pop','Electrónica','Synthwave','R&B / Soul','Jazz','Metal','Punk','Folk','Reggae','Ambient','Shoegaze','Clásica','Latino / Trap'];
+const AVAILABLE_GENRES=['Rock','Indie','Hip-Hop','Pop','Electrónica','Synthwave','R&B','Soul','Jazz','Metal','Punk','Folk','Reggae','Ambient','Shoegaze','Clásica','Latino','Trap'];
 const EMPTY={name:'',avatar:'',bio:'',favoriteArtist:'',favoriteAlbum:'',selectedGenres:[],spotifyUrl:'',instagramUrl:''};
 function userFields(user) {
-  return {name:user?.name || '',avatar:user?.avatar_url || user?.avatar || '',bio:user?.bio || '',favoriteArtist:user?.favorite_artist || '',favoriteAlbum:user?.favorite_album || '',selectedGenres:Array.isArray(user?.favorite_genres)?user.favorite_genres:[],spotifyUrl:user?.spotify_url || '',instagramUrl:user?.instagram_url || ''};
+  return {name:user?.name || '',avatar:user?.avatar_url || user?.avatar || '',bio:user?.bio || '',favoriteArtist:user?.favorite_artist || '',favoriteAlbum:user?.favorite_album || '',selectedGenres:individualFavoriteGenres(Array.isArray(user?.favorite_genres)?user.favorite_genres:[]),spotifyUrl:user?.spotify_url || '',instagramUrl:user?.instagram_url || ''};
 }
 const signature=form=>JSON.stringify({...form,selectedGenres:[...form.selectedGenres].sort()});
 
@@ -21,7 +22,6 @@ export function AccountSettings() {
   const [form,setForm]=useState(EMPTY);
   const [baseline,setBaseline]=useState(EMPTY);
   const [initializedKey,setInitializedKey]=useState(null);
-  const [customGenre,setCustomGenre]=useState('');
   const [saving,setSaving]=useState(false);
   const [draftSaved,setDraftSaved]=useState(false);
   const [success,setSuccess]=useState('');
@@ -38,7 +38,7 @@ export function AccountSettings() {
       const saved=JSON.parse(localStorage.getItem(draftKey) || 'null');
       if(saved && typeof saved==='object'){
         for(const key of Object.keys(EMPTY)) {
-          if(key==='selectedGenres' && Array.isArray(saved[key]))restored[key]=saved[key].filter(value=>typeof value==='string');
+          if(key==='selectedGenres' && Array.isArray(saved[key]))restored[key]=individualFavoriteGenres(saved[key]);
           else if(key!=='selectedGenres' && typeof saved[key]==='string')restored[key]=saved[key];
         }
       }
@@ -58,14 +58,10 @@ export function AccountSettings() {
   const genres=useMemo(()=>[...new Set([...AVAILABLE_GENRES,...form.selectedGenres])],[form.selectedGenres]);
   const change=(key,value)=>{setForm(previous=>({...previous,[key]:value}));setSuccess('');setError('');};
   const toggleGenre=genre=>change('selectedGenres',form.selectedGenres.includes(genre)?form.selectedGenres.filter(item=>item!==genre):[...form.selectedGenres,genre]);
-  const addGenre=()=>{
-    const genre=customGenre.trim();
-    if(genre && !form.selectedGenres.some(item=>item.toLocaleLowerCase()===genre.toLocaleLowerCase()))change('selectedGenres',[...form.selectedGenres,genre]);
-    setCustomGenre('');
-  };
+  const addGenre=genre=>{if(!form.selectedGenres.includes(genre))change('selectedGenres',[...form.selectedGenres,genre]);};
   const reset=()=>{
     if(!window.confirm('¿Quieres descartar los cambios no guardados y restaurar tu información actual?'))return;
-    const current=userFields(user);setBaseline(current);setForm(current);setCustomGenre('');setError('');setSuccess('');
+    const current=userFields(user);setBaseline(current);setForm(current);setError('');setSuccess('');
     try {localStorage.removeItem(draftKey);} catch {}
   };
   const submit=async event=>{
@@ -85,9 +81,9 @@ export function AccountSettings() {
 
   if(!user) return <div className="account-page w-full max-w-7xl mx-auto space-y-6"><AppHeader showTitle={false}/><section className="account-access-state"><UiIcon name="settings" size={44}/><h1>Configuración de perfil</h1><p>{authLoading?'Cargando tu cuenta…':'Inicia sesión para personalizar tu perfil y tus gustos musicales.'}</p><Link className="account-primary-action" to="/">Ir a Musiclub<UiIcon name="arrow" tone="inherit"/></Link></section><Footer/></div>;
   if(initializedKey!==draftKey)return <div className="min-h-[70vh] flex items-center justify-center text-slate-300" role="status">Preparando tu perfil…</div>;
-  return <div className="account-page w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
+  return <AccountPage className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
     <AppHeader showTitle={false}/>
-    <header className="account-page-heading"><div><p className="account-eyebrow">Tu cuenta, a tu manera</p><h1>Configuración de perfil</h1><p>Una foto, tus favoritos y un poco de ti. Así te verá el club.</p></div><Link to="/profile" className="account-secondary-action"><UiIcon name="user" tone="inherit"/>Ver mi perfil</Link></header>
+    <header className="account-page-heading"><h1>Configuración de perfil</h1><Link to="/profile" className="account-secondary-action"><UiIcon name="user" tone="inherit"/>Ver mi perfil</Link></header>
     <nav className="settings-section-links" aria-label="Secciones de Configuración"><a href="#settings-identity"><UiIcon name="user" tone="inherit"/>Identidad</a><a href="#settings-music"><UiIcon name="headphones" tone="inherit"/>Gustos musicales</a><a href="#settings-links"><UiIcon name="link" tone="inherit"/>Enlaces</a></nav>
     <form onSubmit={submit} className="settings-form">
       <div className="settings-layout">
@@ -100,7 +96,7 @@ export function AccountSettings() {
           <AccountSection id="settings-music" icon="headphones" title="Tu identidad musical" description="Los favoritos y sonidos que te representan." accent="purple">
             <div className="settings-field-grid"><div><label htmlFor="settings-artist">Artista o banda favorita</label><input id="settings-artist" value={form.favoriteArtist} onChange={event=>change('favoriteArtist',event.target.value)} placeholder="Ese nombre que siempre vuelve"/></div><div><label htmlFor="settings-album">Álbum favorito</label><input id="settings-album" value={form.favoriteAlbum} onChange={event=>change('favoriteAlbum',event.target.value)} placeholder="El disco al que siempre regresas"/></div></div>
             <div><p id="settings-genres-label" className="settings-field-label">Tus géneros favoritos</p><div className="settings-genre-options" role="group" aria-labelledby="settings-genres-label">{genres.map(genre=><button key={genre} type="button" aria-pressed={form.selectedGenres.includes(genre)} onClick={()=>toggleGenre(genre)}><GenreLabel genre={genre} size={20}/>{form.selectedGenres.includes(genre)&&<UiIcon name="check" size={16} tone="inherit"/>}</button>)}</div></div>
-            <div><label htmlFor="settings-custom-genre">¿Falta alguno?</label><div className="settings-add-genre"><input id="settings-custom-genre" value={customGenre} onChange={event=>setCustomGenre(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'){event.preventDefault();addGenre();}}} placeholder="Escribe otro género"/><button type="button" className="account-secondary-action" onClick={addGenre} disabled={!customGenre.trim()}><UiIcon name="plus" tone="inherit"/>Agregar</button></div></div>
+            <FavoriteGenreSearch selected={form.selectedGenres} onAdd={addGenre}/>
           </AccountSection>
           <AccountSection id="settings-links" icon="link" title="Donde también suenas" description="Comparte tus perfiles de música y redes." accent="cyan">
             <div><label htmlFor="settings-spotify"><SpotifyIcon className="w-4 h-4 text-[#1DB954]"/>Perfil de Spotify</label><input id="settings-spotify" type="url" value={form.spotifyUrl} onChange={event=>change('spotifyUrl',event.target.value)} placeholder="https://open.spotify.com/user/..."/></div>
@@ -117,5 +113,5 @@ export function AccountSettings() {
       <div className="settings-save-bar"><div><strong>{saving?'Guardando…':hasChanges?'Cambios sin guardar':'Tu perfil está al día'}</strong><span>{hasChanges?'Se publicarán al guardar.':'Puedes volver a editarlo cuando quieras.'}</span></div><div className="settings-save-actions"><button type="button" className="account-secondary-action" disabled={saving || !hasChanges} onClick={reset}><UiIcon name="repeat" tone="inherit"/>Revertir cambios</button><button type="submit" className="account-primary-action" disabled={saving || !hasChanges}><UiIcon name={saving?'hourglass':'save'} tone="inherit"/>{saving?'Guardando…':'Guardar cambios'}</button></div></div>
     </form>
     <Footer/>
-  </div>;
+  </AccountPage>;
 }

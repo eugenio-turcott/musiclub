@@ -1,6 +1,26 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UiIcon } from '../UiIcon';
+
+export function AccountPage({ children, className = '' }) {
+  const pageRef = useRef(null);
+  useEffect(() => {
+    const page = pageRef.current;
+    const header = page.querySelector(':scope > header');
+    const saveBar = page.querySelector('.settings-save-bar');
+    const measure = () => {
+      // Layout height is stable even while an ancestor's entrance animation scales it.
+      page.style.setProperty('--account-sticky-top', `${(header?.offsetHeight || 88) + 16}px`);
+      page.style.setProperty('--account-sticky-bottom', `${saveBar ? saveBar.offsetHeight + 28 : 16}px`);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (header) observer.observe(header);
+    if (saveBar) observer.observe(saveBar);
+    return () => observer.disconnect();
+  }, []);
+  return <div ref={pageRef} className={`account-page ${className}`}>{children}</div>;
+}
 
 export function AccountAvatar({ src, name, className = '' }) {
   const [failed, setFailed] = useState(false);

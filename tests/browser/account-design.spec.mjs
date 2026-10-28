@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { albums } from './fixtures.mjs';
+import { albums, reviews } from './fixtures.mjs';
 
 const memberId='00000000-0000-4000-8000-000000000081';
-async function account(page,{failSave=false}={}) {
+async function account(page,{failSave=false,reviewCount=2}={}) {
   const profile={id:memberId,email:'member@example.test',name:'Camila de Prueba',avatar_url:'http://127.0.0.1:3101/musiclub_logo.png',bio:'Buscando discos para escuchar de principio a fin.',favorite_artist:'Radiohead',favorite_album:'In Rainbows',favorite_genres:['Rock','Jazz'],role:'user'};
   const user={id:memberId,email:profile.email,user_metadata:{full_name:profile.name,avatar_url:profile.avatar_url},app_metadata:{provider:'google'},aud:'authenticated',created_at:'2026-10-01T00:00:00Z'};
   const writes=[];
-  const reviews=albums.slice(0,2).map((album,index)=>({id:`personal-review-${index}`,user_id:memberId,album_id:album.id,reviewer_name:profile.name,reviewer_email:profile.email,rating_general:8+index,comment:'Una reseña local de prueba.',created_at:`2026-10-0${index+1}T00:00:00Z`,albums:album}));
+  const reviews=Array.from({length:reviewCount},(_,index)=>({id:`personal-review-${index}`,user_id:memberId,album_id:albums[index%albums.length].id,reviewer_name:profile.name,reviewer_email:profile.email,rating_general:8+index%2,comment:'Una reseña local de prueba.',created_at:`2026-10-${String(index+1).padStart(2,'0')}T00:00:00Z`,albums:albums[index%albums.length]}));
   await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
   await page.addInitScript(user=>{
     const payload=btoa(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600}));
@@ -58,6 +58,12 @@ test('profile navigation preserves personal sections and adapts to the screen',a
  await nav.getByRole('button',{name:'Descartes del Gashapon',exact:true}).click();await expect(page.getByRole('region',{name:'Descartes del Gashapon',exact:true})).toBeVisible();
  await nav.getByRole('button',{name:/Mis Reviews/}).click();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ const original=page.viewportSize();
+ for(const width of [320,768]){
+   await page.setViewportSize({width,height:800});
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.setViewportSize(original);
  await page.evaluate(()=>window.scrollTo(0,0));
  mkdirSync('outputs/v101-proof',{recursive:true});await page.screenshot({path:`outputs/v101-proof/profile-${testInfo.project.name}.png`});
 });
@@ -88,4 +94,72 @@ test('a failed profile update preserves the draft and never displays a saved con
  await expect(page.locator('.settings-feedback').getByRole('alert')).toContainText('No se pudo guardar');await expect(page.getByText('Cambios guardados. Tu perfil está actualizado.')).toHaveCount(0);
  await expect(page.getByLabel('Acerca de ti',{exact:true})).toHaveValue('Conservar este borrador.');
  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('musiclub_settings_draft_00000000-0000-4000-8000-000000000081')).bio)).toBe('Conservar este borrador.');
+});
+
+test('account side panels stay below the header and fit short desktop and tablet screens',async({page},testInfo)=>{
+ test.skip(testInfo.project.name!=='desktop','Side panels are inline on mobile.');
+ await account(page,{reviewCount:12});
+ for(const path of ['/profile','/settings']){
+   await page.goto(path);
+   const panel=page.locator(path==='/profile'?'.profile-navigation':'.settings-preview');
+   await expect(panel).toBeVisible();
+   for(const viewport of [{width:1280,height:720},{width:1024,height:600},{width:1280,height:480}]){
+     await page.setViewportSize(viewport);
+     await page.evaluate(()=>{
+       const layout=document.querySelector('.profile-workspace, .settings-layout');
+       window.scrollTo(0,layout.getBoundingClientRect().top+scrollY-parseFloat(getComputedStyle(document.querySelector('.account-page')).getPropertyValue('--account-sticky-top'))+60);
+     });
+     await expect.poll(()=>panel.evaluate(el=>{
+       const rect=el.getBoundingClientRect();
+       const header=el.closest('.account-page').querySelector(':scope > header').getBoundingClientRect();
+       return {fits:rect.top>=header.bottom+12 && rect.bottom<=innerHeight-12,top:rect.top,bottom:rect.bottom,headerBottom:header.bottom,height:innerHeight,stickyTop:getComputedStyle(el).top};
+     })).toMatchObject({fits:true});
+     if(viewport.height===720){mkdirSync('outputs/v1011-proof',{recursive:true});await page.screenshot({path:`outputs/v1011-proof/${path.slice(1)}-sticky.png`});}
+     if(path==='/profile'){
+       await panel.getByRole('button',{name:'Estadísticas Detalladas',exact:true}).scrollIntoViewIfNeeded();
+       await expect(panel.getByRole('button',{name:'Estadísticas Detalladas',exact:true})).toBeInViewport();
+     } else {
+       await expect.poll(()=>panel.evaluate(el=>el.getBoundingClientRect().bottom<=document.querySelector('.settings-save-bar').getBoundingClientRect().top-10)).toBe(true);
+     }
+     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+   }
+ }
+});
+
+test('favorite genres split old combined choices and search selects only registered genres',async({page})=>{
+ const {profile,writes}=await account(page);
+ profile.favorite_genres=['R&B / Soul','Latino / Trap'];
+ await page.goto('/settings');
+ await expect(page.getByText('Tu cuenta, a tu manera',{exact:true})).toHaveCount(0);
+ await expect(page.getByText('Una foto, tus favoritos y un poco de ti. Así te verá el club.',{exact:true})).toHaveCount(0);
+ const choices=page.getByRole('group',{name:'Tus géneros favoritos'});
+ for(const name of ['R&B','Soul','Latino','Trap'])await expect(choices.getByRole('button',{name,exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(choices.getByRole('button',{name:'R&B / Soul',exact:true})).toHaveCount(0);
+ await choices.getByRole('button',{name:'Soul',exact:true}).click();
+ await expect(choices.getByRole('button',{name:'R&B',exact:true})).toHaveAttribute('aria-pressed','true');
+ const search=page.getByRole('combobox',{name:'¿Falta alguno?',exact:true});
+ await search.fill('dream pop');
+ await expect(page.getByRole('option',{name:'Dream Pop',exact:true})).toBeVisible();
+ await search.press('Enter');
+ await expect(choices.getByRole('button',{name:'Dream Pop',exact:true})).toHaveAttribute('aria-pressed','true');
+ await search.fill('género inventado qzx');await search.press('Enter');expect(writes).toHaveLength(0);
+ await expect(page.getByRole('status').filter({hasText:'No hay géneros disponibles'})).toBeVisible();
+ await search.fill('');await page.getByRole('button',{name:'Guardar cambios',exact:true}).click();
+ await expect(page.getByRole('status')).toHaveText('Cambios guardados. Tu perfil está actualizado.');
+ expect(profile.favorite_genres).toEqual(['R&B','Latino','Trap','Dream Pop']);
+ for(const width of [320,768]){
+   await page.setViewportSize({width,height:800});
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+});
+
+test('leaderboard excludes zero-review profiles from cards, podium and totals',async({page})=>{
+ await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[{id:'no-review-member',name:'Sin reseñas',bio:'No debe aparecer en el ranking',favorite_artist:'Artista cero'}]}));
+ await page.route('**/rest/v1/public_reviews*',route=>route.fulfill({json:reviews}));
+ await page.goto('/leaderboard');
+ await expect(page.locator('[data-leaderboard-member]')).toHaveCount(3);
+ await expect(page.getByText('Sin reseñas',{exact:true})).toHaveCount(0);
+ await expect(page.getByText('Miembros con reseñas (3)',{exact:true})).toBeVisible();
+ await page.getByPlaceholder('Buscar por nombre, artista favorito, género...').fill('Sin reseñas');
+ await expect(page.locator('[data-leaderboard-member]')).toHaveCount(0);
 });

@@ -78,7 +78,6 @@ export function Leaderboard({ isPage = false }) {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('xp_desc'); // xp_desc | reviews_desc | rating_desc | rating_asc | albums_desc | tracks_desc | name_asc
-  const [filterType, setFilterType] = useState('all'); // all | with_reviews | with_albums
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
   const [showBadgesGuide, setShowBadgesGuide] = useState(false);
@@ -108,7 +107,7 @@ export function Leaderboard({ isPage = false }) {
   // Resetear paginación al cambiar búsqueda, orden o filtros
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, sortBy, filterType]);
+  }, [searchQuery, sortBy]);
 
   useEffect(() => {
     async function fetchLeaderboard() {
@@ -116,7 +115,7 @@ export function Leaderboard({ isPage = false }) {
       setError(null);
       try {
         const data = await supabaseService.getDetailedLeaderboard();
-        setUsers(data || []);
+        setUsers((data || []).filter(member => Number(member.review_count) >= 1));
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
         setError('No se pudo cargar el Leaderboard.');
@@ -191,11 +190,6 @@ export function Leaderboard({ isPage = false }) {
   const filteredUsers = useMemo(() => {
     let result = [...users];
 
-    // Filter by type
-    if (filterType === 'with_reviews') {
-      result = result.filter((u) => u.review_count > 0);
-    }
-
     // Filter by search query
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
@@ -252,7 +246,7 @@ export function Leaderboard({ isPage = false }) {
     });
 
     return result;
-  }, [users, searchQuery, sortBy, filterType]);
+  }, [users, searchQuery, sortBy]);
 
   // Paginación: 15 usuarios por página
   const totalPages = Math.max(
@@ -302,7 +296,7 @@ export function Leaderboard({ isPage = false }) {
   // Top 3 for Podium (ordered by XP and Reviews)
   const podiumUsers = useMemo(() => {
     const sortedForPodium = [...users]
-      .filter((u) => u.review_count > 0 || (u.total_xp || 0) > 0)
+      .filter((u) => Number(u.review_count) >= 1)
       .sort(
         (a, b) =>
           (b.total_xp || 0) - (a.total_xp || 0) ||
@@ -682,29 +676,7 @@ export function Leaderboard({ isPage = false }) {
             />
           </div>
 
-          {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto no-scrollbar pb-1 md:pb-0">
-            <button
-              onClick={() => setFilterType('all')}
-              className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                filterType === 'all'
-                  ? 'bg-amber-400 text-black shadow-md font-bold'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
-              }`}
-            >
-              Todos ({users.length})
-            </button>
-            <button
-              onClick={() => setFilterType('with_reviews')}
-              className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
-                filterType === 'with_reviews'
-                  ? 'bg-amber-400 text-black shadow-md font-bold'
-                  : 'bg-white/5 text-slate-300 hover:bg-white/10 border border-white/5'
-              }`}
-            >
-              Con Reviews ({users.filter((u) => u.review_count > 0).length})
-            </button>
-          </div>
+          <p className="text-xs text-slate-400 shrink-0">Miembros con reseñas ({users.length})</p>
 
           {/* Sort Selector */}
           <div className="flex items-center gap-2">

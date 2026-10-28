@@ -75,7 +75,6 @@ html:has(.account-page), body:has(.account-page) { overflow-x: clip; }
 
 .account-page-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 20px; padding: 12px 0 3px; }
 .account-page-heading h1 { font-size: clamp(30px,4vw,44px); font-weight: 900; line-height: 1.12; letter-spacing: -.04em; color: white; margin: 10px 0; }
-.account-page-heading > div > p:last-child { color: #aaa1b6; font-size: 13px; line-height: 1.7; max-width: 55ch; }
 .settings-section-links { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .settings-section-links a { display: inline-flex; align-items: center; gap: 8px; padding: 9px 12px; min-height: 40px; color: #c7bad4; font-size: 12px; font-weight: 700; border: 1px solid #ffffff12; border-radius: 10px; transition: background .2s,color .2s; }
 .settings-section-links a:hover { color: #f9a8d4; background: #f472b60d; }
@@ -104,8 +103,15 @@ html:has(.account-page), body:has(.account-page) { overflow-x: clip; }
 .settings-genre-options button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; border-radius: 10px; border: 1px solid #ffffff12; padding: 8px 10px; background: #ffffff04; color: #a89ab6; font-size: 11px; font-weight: 600; transition: border-color .2s,background .2s,color .2s; }
 .settings-genre-options button:hover { border-color: #d8b4fe60; color: #eee2f8; }
 .settings-genre-options button[aria-pressed='true'] { color: #e9d5ff; border-color: #c084fc70; background: #a855f71a; }
-.settings-add-genre { display: flex; gap: 8px; }
-.settings-add-genre .account-secondary-action { flex-shrink: 0; }
+.favorite-genre-search { min-width: 0; }
+.favorite-genre-search-input { position: relative; color: #d8b4fe; }
+.favorite-genre-search-input > .ui-icon { position: absolute; top: 50%; left: 14px; transform: translateY(-50%); pointer-events: none; }
+.favorite-genre-search-input input { padding-left: 43px; }
+.favorite-genre-results { margin-top: 9px; padding: 5px; border: 1px solid #d8b4fe30; border-radius: 12px; background: #090c16; }
+.favorite-genre-results ul { max-height: 265px; overflow-y: auto; scrollbar-width: thin; }
+.favorite-genre-results button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 44px; padding: 10px; border-radius: 8px; color: #d8cfe3; font-size: 12px; text-align: left; transition: background .2s, color .2s; }
+.favorite-genre-results button:is(:hover,[aria-selected='true']) { background: #c084fc18; color: #f0dcff; }
+.favorite-genre-results > p { padding: 10px; font-size: 12px; line-height: 1.6; color: #a99bb7; }
 .settings-preview { min-width: 0; order: -1; }
 .settings-preview-label { display: flex; align-items: center; gap: 7px; margin: 0 0 12px 4px; font-size: 11px; font-weight: 700; color: #a99ab7; }
 .settings-preview-card { display: flex; align-items: center; flex-direction: column; text-align: center; padding: 26px 20px; border: 1px solid #f9a8d426; border-radius: 24px; background: radial-gradient(ellipse at 50% 0%,#9b456a2b,transparent 70%),linear-gradient(155deg,#1a1628,#10131f); position: relative; overflow: hidden; }
@@ -160,12 +166,12 @@ html:has(.account-page), body:has(.account-page) { overflow-x: clip; }
  .profile-identity-layout { grid-template-columns: 150px minmax(0,1fr) 255px; gap: 28px; }
  .profile-level-card { grid-column: auto; }
  .profile-workspace { grid-template-columns: 232px minmax(0,1fr); gap: 28px; }
- .profile-navigation { position: sticky; top: 22px; padding: 13px; }
+ .profile-navigation { position: sticky; top: var(--account-sticky-top,104px); max-height: calc(100dvh - var(--account-sticky-top,104px) - 16px); overflow-y: auto; scrollbar-width: thin; padding: 13px; }
  .profile-navigation > .account-eyebrow { display: block; padding: 8px 10px 15px; }
  .profile-navigation-items { flex-direction: column; gap: 5px; overflow: visible; padding-bottom: 0; }
  .profile-navigation button { flex-shrink: 1; padding: 12px 10px; font-size: 11px; }
  .profile-navigation button > span { white-space: normal; }
  .settings-layout { grid-template-columns: minmax(0,1fr) 315px; gap: 28px; }
- .settings-preview { order: 0; position: sticky; top: 22px; }
+ .settings-preview { order: 0; position: sticky; top: var(--account-sticky-top,104px); max-height: calc(100dvh - var(--account-sticky-top,104px) - var(--account-sticky-bottom,110px)); overflow-y: auto; scrollbar-width: thin; scrollbar-color: #d8b4fe50 transparent; }
 }
 @media (prefers-reduced-motion: reduce) { .account-primary-action:hover, .account-secondary-action:hover { transform: none; } }

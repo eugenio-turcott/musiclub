@@ -1,7 +1,7 @@
 'use client';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { ProfileIdentity } from './account/ProfileIdentity';
-import { ProfileNavigation, PROFILE_SECTIONS } from './account/AccountElements';
+import { AccountPage, ProfileNavigation, PROFILE_SECTIONS } from './account/AccountElements';
 import ReviewCriteria from './ReviewCriteria';
 import ReviewTrackRatings from './ReviewTrackRatings';
 import MoodIcon from './MoodIcon';
@@ -503,7 +503,7 @@ export function UserProfile({ isPage = false }) {
   }
 
   return (
-    <div className="account-page w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
+    <AccountPage className="w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
       {/* Universal Standard App Header */}
       <AppHeader showTitle={false} />
 
@@ -1317,7 +1317,7 @@ export function UserProfile({ isPage = false }) {
 
       {/* Global Footer */}
       <Footer />
-    </div>
+    </AccountPage>
   );
 }
 
