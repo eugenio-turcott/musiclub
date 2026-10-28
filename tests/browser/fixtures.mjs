@@ -14,6 +14,9 @@ tables.pool_rooms=[{id:'00000000-0000-4000-8000-000000000000',name:'Musiclub · 
 tables.pool_room_members=[];
 tables.seasons=[{id:'fixture-season',room_id:tables.pool_rooms[0].id,season_number:1,name:'Primera escucha',description:'Un Pool de esta sala.',is_active:true,is_open:false,appearance:{},max_releases:null}];
 tables.public_pool_entries=[];
+tables.seasons[0].season_number=2;
+tables.seasons.push({id:'fixture-past-season',room_id:tables.pool_rooms[0].id,season_number:1,name:'El origen del club',description:'Nuestra primera escucha compartida.',is_active:false,is_open:false,appearance:{},start_date:'2025-01-01',end_date:'2025-02-01'});
+tables.public_pool_entries.push({id:'past-entry',season_id:'fixture-past-season',album_id:albums[0].id,status:'GRADUADO',created_at:'2025-01-01T00:00:00Z',nominated_by:'Miembro de Prueba'});
 
 tables.artist_discographies=[{slug:'artista-de-prueba',name:'Artista de Prueba',refresh_after:'2099-01-01T00:00:00Z',checked_at:'2026-10-20T00:00:00Z',profile:{source:'OFFICIAL',artist:{name:'Artista de Prueba',image:'/musiclub_logo.png',genres:['Pop']},providers:{DEEZER:{status:'ok'}},discography:[{id:'deezer_fixture',name:'Edición exclusiva oficial',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-02-01',releaseYear:2025,image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'fixture'}]}]}}];
 

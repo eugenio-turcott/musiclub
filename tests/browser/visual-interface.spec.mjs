@@ -73,3 +73,45 @@ test('plain action buttons have visible hover feedback', async ({page}) => {
   await button.hover();
   await expect.poll(()=>button.evaluate(el=>getComputedStyle(el).filter)).not.toBe(original);
 });
+
+test('previous Pools are closed archives and opening a room never downloads the full catalogue', async ({page}) => {
+  const requests=[];
+  page.on('request',request=>requests.push(new URL(request.url())));
+  await page.goto('/pool');
+  const previous=page.getByRole('link',{name:'El origen del club Cerrado',exact:true});
+  await expect(previous).toBeVisible();
+  await previous.click();
+  const archive=page.getByRole('region',{name:'Pool cerrado',exact:true});
+  await expect(archive.getByRole('heading',{name:'El origen del club',exact:true})).toBeVisible();
+  await expect(archive).toContainText('Este Pool ya terminó.');
+  await expect(page.getByRole('heading',{name:/Historial de Ganadores/})).toBeVisible();
+  await expect(page.getByRole('button',{name:/Depositar cápsula|Editar mi cápsula|Abrir propuestas|Ruleta del Pool/})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
+  expect(requests.some(url=>url.pathname==='/api/catalog')).toBe(false);
+  for(const url of requests.filter(url=>url.pathname==='/rest/v1/albums')) expect(url.searchParams.get('id')).toMatch(/^in\.\(/);
+  const selectedSeasonReads=requests.filter(url=>url.pathname==='/rest/v1/seasons' && url.searchParams.get('select')==='*');
+  expect(selectedSeasonReads).toHaveLength(1);
+  await page.getByRole('link',{name:'Pool actual',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Pool activo',exact:true})).toBeVisible();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('inline labels center text with their icons instead of aligning on text baselines', async ({page}) => {
+  await page.goto('/');
+  const labels=page.locator('.interface-label').filter({visible:true});
+  await expect(labels.first()).toBeVisible();
+  const geometry=await labels.evaluateAll(items=>items.filter(el=>el.querySelector('svg') && el.querySelector('.interface-label-text')).map(el=>{
+    const icon=el.querySelector('svg').getBoundingClientRect(),text=el.querySelector('.interface-label-text').getBoundingClientRect();
+    return {delta:Math.abs((icon.top+icon.height/2)-(text.top+text.height/2))};
+  }));
+  expect(geometry.length).toBeGreaterThan(5);
+  for(const item of geometry) expect(item.delta).toBeLessThan(1);
+  await page.goto('/portadas');
+  const photography=page.getByRole('button',{name:'Fotografía',exact:true});
+  await expect(photography).toBeVisible();
+  const delta=await photography.evaluate(el=>{
+    const icon=el.querySelector('svg').getBoundingClientRect(),text=el.querySelector('.interface-label-text').getBoundingClientRect();
+    return Math.abs((icon.top+icon.height/2)-(text.top+text.height/2));
+  });
+  expect(delta).toBeLessThan(1);
+});

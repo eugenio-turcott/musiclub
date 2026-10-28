@@ -1,7 +1,7 @@
 'use client';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { poolRoomService, poolInviteToken } from '../services/poolRoomService';
 import { AppHeader } from './AppHeader';
@@ -83,6 +83,13 @@ export function PoolRoomDirectory({ renderRoom }) {
           <p className="mt-2 break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p>
           <p className="mt-4 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
           <button className={`${button} mt-5 w-full`} onClick={() => open(room.id)}>Ver sala</button>
+          {room.past_pools?.length > 0 && <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
+            <h3 className="text-xs font-bold text-slate-300">Pools anteriores</h3>
+            {room.past_pools.map(pool => <Link key={pool.id} to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-sm transition hover:border-purple-300/40 hover:bg-purple-500/10">
+              <span className="min-w-0 break-words font-bold text-purple-100">{pool.appearance?.heading?.trim() || pool.name}</span>
+              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-slate-400"><UiIcon name="lock"/>Cerrado</span>
+            </Link>)}
+          </div>}
           <p className="mt-4 break-words border-t border-white/10 pt-3 text-xs text-slate-400">Sala: {room.name}</p>
         </article>)}
         {!visible.length && !error && <p className="rounded-2xl border border-white/10 p-6 text-sm text-slate-300 md:col-span-2">{tab==='mine'?'Aquí aparecerán las salas que crees o a las que te unas.':'Todavía no hay salas públicas disponibles.'}</p>}

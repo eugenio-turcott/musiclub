@@ -13,7 +13,16 @@ export function UiIcon({ name = 'music', className = '', size, tone = 'auto', ..
 
 // Only explicit interface labels use this helper; user-authored content stays intact.
 export function InterfaceText({ children }) {
-  const parts = icons.iconParts(children);
-  if (!parts) return children;
-  return parts.map((part, index) => part.icon ? <UiIcon key={index} name={part.icon} /> : part.text);
+  const parsed = icons.iconParts(children);
+  const parts = parsed?.reduce((items, part) => {
+    const previous = items.at(-1);
+    if (part.text != null && previous?.text != null) previous.text += part.text;
+    else items.push({...part});
+    return items;
+  }, []);
+  if (!parts?.some(part => part.icon)) return children;
+  const content = parts.every(part => part.icon || !part.text.trim())
+    ? parts.filter(part => part.icon).map((part, index) => <UiIcon key={index} name={part.icon} />)
+    : <span className="interface-label">{parts.map((part, index) => part.icon ? <UiIcon key={index} name={part.icon} /> : part.text.trim() && <span key={index} className="interface-label-text">{part.text.trim()}</span>)}</span>;
+  return <>{/^\s/.test(children) && ' '}{content}{/\s$/.test(children) && ' '}</>;
 }

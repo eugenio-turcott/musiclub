@@ -1,5 +1,6 @@
 // src/services/poolService.js
-import { supabase, supabaseService } from './supabaseClient.js';
+import { supabase, buildAlbumWithFullStats } from './supabaseClient.js';
+import { loadPoolData } from './poolData.mjs';
 import { authenticatedFetch } from './authenticatedFetch.js';
 
 export const DEFAULT_POOL_ROOM_ID = '00000000-0000-4000-8000-000000000000';
@@ -189,54 +190,7 @@ export const poolService = {
    * 2. Álbum Ganador actual (en foco esta semana)
    * 3. Álbumes Graduados / Históricos del Pool
    */
-  getPoolData: async (seasonId, roomId = DEFAULT_POOL_ROOM_ID) => {
-    const seasons = await poolService.getSeasons(roomId);
-    const season = seasonId ? seasons.find(item => item.id === seasonId) : seasons.find(item => item.is_active) || seasons[0];
-    if (!season) throw new Error('Esta sala no tiene un Pool disponible o no tienes acceso');
-    const [{ data: entries, error }, albums] = await Promise.all([
-      supabase.from('public_pool_entries').select('*').eq('season_id', season.id).order('created_at', { ascending: false }),
-      supabaseService.getAllAlbumsWithFullStats(),
-    ]);
-    if (error) throw new Error('No se pudieron cargar las propuestas del Pool');
-    const memberProfiles = new Map();
-    const userIds = [...new Set((entries || []).map(entry => entry.user_id).filter(Boolean))];
-    if (userIds.length) {
-      try { const { data: profiles } = await supabase.from('public_profiles').select('id,name,avatar_url').in('id', userIds); for (const profile of profiles || []) memberProfiles.set(profile.id, profile); } catch {}
-    }
-    const byId = new Map(albums.map(album => [album.id, album]));
-    // A newly selected release may not be in the short-lived catalog cache yet.
-    const missingIds = [...new Set((entries || []).map(entry => entry.album_id).filter(id => !byId.has(id)))];
-    if (missingIds.length) {
-      const { data: releases, error: releaseError } = await supabase.from('albums')
-        .select('id,album_name,artist_name,image_url,release_type,release_date,release_year,genres,tracks,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled')
-        .in('id', missingIds);
-      if (releaseError) throw new Error('No se pudieron cargar los releases del Pool');
-      for (const release of releases || []) byId.set(release.id, release);
-    }
-    const active = [], history = [];
-    let winner = null;
-    for (const entry of entries || []) {
-      const album = byId.get(entry.album_id);
-      if (!album) continue;
-      const item = { ...album, id: album.id, pool_entry_id: entry.id,
-        album: album.album_name, artista: album.artist_name, imagen: album.image_url,
-        status: entry.status, nominated_user_id: entry.user_id || null,
-        review_scheduled_for: entry.review_scheduled_for || null,
-        added_by: memberProfiles.get(entry.user_id)?.name?.trim() || entry.nominated_by || 'Miembro',
-        nominated_avatar: memberProfiles.get(entry.user_id)?.avatar_url || null,
-        created_at: entry.created_at, nominated_at: entry.created_at, nomination_note: entry.note || '',
-        reviews_enabled: entry.status === 'GANADOR' && entry.reviews_enabled === true,
-        spotifyLink: entry.spotify_link || album.spotify_link,
-        youtubeLink: entry.youtube_link || album.youtube_link,
-        appleMusicLink: entry.apple_music_link || album.apple_music_link,
-        otherLink: entry.other_link || album.other_link,
-      };
-      if (entry.status === 'GANADOR') winner = item;
-      else if (entry.status === 'ACTIVO') active.push(item);
-      else history.push(item);
-    }
-    return { season: { ...season, entry_count: (entries || []).length }, active, winner, history, isFromDedicatedTable: true };
-  },
+  getPoolData: (seasonId, roomId = DEFAULT_POOL_ROOM_ID) => loadPoolData(supabase, buildAlbumWithFullStats, seasonId, roomId),
 
   /**
    * Nomina / Propone un álbum al Pool Activo de la temporada

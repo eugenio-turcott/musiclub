@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient.js';
+import presentation from '../utils/poolPresentation.cjs';
 
 async function call(name, args) {
   const { data, error } = await supabase.rpc(name, args);
@@ -8,21 +9,20 @@ async function call(name, args) {
 
 export const poolRoomService = {
   async list(userId) {
-    const { data: rooms, error } = await supabase.from('pool_rooms').select('id,name,description,visibility,owner_id,created_at').order('created_at');
+    const [{ data: rooms, error }, membershipResult] = await Promise.all([
+      supabase.from('pool_rooms').select('id,name,description,visibility,owner_id,created_at').order('created_at'),
+      userId ? supabase.from('pool_room_members').select('room_id').eq('user_id', userId) : {data:[]},
+    ]);
     if (error) throw new Error('No se pudieron cargar las salas. Inténtalo de nuevo en unos momentos.');
-    let memberships = new Set();
-    if (userId) {
-      const result = await supabase.from('pool_room_members').select('room_id').eq('user_id', userId);
-      if (result.error) throw new Error('No se pudo comprobar tu acceso a las salas');
-      memberships = new Set((result.data || []).map(item => item.room_id));
-    }
+    if (membershipResult.error) throw new Error('No se pudo comprobar tu acceso a las salas');
+    const memberships = new Set((membershipResult.data || []).map(item => item.room_id));
     if (!rooms?.length) return [];
     const { data: seasons, error: seasonsError } = await supabase.from('seasons')
-      .select('id,room_id,name,appearance').eq('is_active', true).in('room_id', rooms.map(room => room.id));
+      .select('id,room_id,name,description,appearance,is_active,is_open,season_number,start_date,end_date').in('room_id', rooms.map(room => room.id));
     if (seasonsError) throw new Error('No se pudieron cargar los Pools de las salas');
     const ownerIds = [...new Set(rooms.map(room => room.owner_id).filter(Boolean))];
     const [entriesResult, ownersResult] = await Promise.all([
-      seasons?.length ? supabase.from('public_pool_entries').select('season_id,album_id').eq('status','GANADOR').in('season_id',seasons.map(season=>season.id)) : {data:[]},
+      seasons?.some(season => season.is_active) ? supabase.from('public_pool_entries').select('season_id,album_id').eq('status','GANADOR').in('season_id',seasons.filter(season=>season.is_active).map(season=>season.id)) : {data:[]},
       ownerIds.length ? supabase.from('public_profiles').select('id,name').in('id',ownerIds) : {data:[]},
     ]);
     if (entriesResult.error || ownersResult.error) throw new Error('No se pudo completar la información de las salas');
@@ -30,12 +30,14 @@ export const poolRoomService = {
     const releases = albumIds.length ? await supabase.from('albums').select('id,album_name,image_url').in('id',albumIds) : {data:[]};
     if (releases.error) throw new Error('No se pudieron cargar los discos elegidos');
     return rooms.map(room => {
-      const season = (seasons || []).find(item=>item.room_id===room.id);
+      const roomSeasons = (seasons || []).filter(item=>item.room_id===room.id);
+      const season = roomSeasons.find(item=>item.is_active);
       const entry = (entriesResult.data || []).find(item=>item.season_id===season?.id);
       const winner = (releases.data || []).find(item=>item.id===entry?.album_id);
       const owner = (ownersResult.data || []).find(item=>item.id===room.owner_id);
       return { ...room, owner_name: owner?.name?.trim() || (room.owner_id ? 'Miembro de Musiclub' : 'Administración de Musiclub'),
         active_pool: season ? {...season,title:season.appearance?.heading?.trim() || season.name,winner:winner || null} : null,
+        past_pools: presentation.pastPools(roomSeasons),
         joined: memberships.has(room.id) || Boolean(userId && room.owner_id === userId) };
     });
   },

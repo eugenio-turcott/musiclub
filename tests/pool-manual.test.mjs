@@ -2,15 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { loadPoolData } from '../src/services/poolData.mjs';
+import presentation from '../src/utils/poolPresentation.cjs';
 import { POOL_THEMES } from '../src/data/poolThemes.js';
 
-function serviceFixture({ entries = [], albums = [], rpc = async () => ({ data: false, error: null }), from } = {}) {
+function serviceFixture({ entries = [], albums = [], profiles = [], rpc = async () => ({ data: false, error: null }), from } = {}) {
   const filters = [];
-  const supabase = { rpc, from: from || (() => ({ select() { return this; }, eq(field, value) { filters.push([field,value]); return this; }, async order() { return { data: entries, error: null }; } })) };
+  const data = {seasons:[{id:'old',room_id:'00000000-0000-4000-8000-000000000000',is_active:false},{id:'current',room_id:'00000000-0000-4000-8000-000000000000',is_active:true,is_open:false}],public_pool_entries:entries,albums,public_profiles:profiles,public_reviews:[]};
+  const supabase = { rpc, from: from || (table => {
+    let rows=data[table] || [];
+    return {select(){return this;},eq(field,value){filters.push([field,value]);rows=rows.filter(row=>row[field]===undefined || row[field]===value);return this;},
+      in(field,values){rows=rows.filter(row=>values.includes(row[field]));return this;},order(){return this;},range(a,b){rows=rows.slice(a,b+1);return this;},
+      then(resolve,reject){return Promise.resolve({data:rows,error:null}).then(resolve,reject);}};
+  }) };
   const source = fs.readFileSync(new URL('../src/services/poolService.js', import.meta.url), 'utf8').replace(/^import .*;\r?$/gm, '').replace(/export const /g, 'const ').replace('export default poolService;', 'poolService;');
   const stored = new Map();
   const localStorage = { getItem: key => stored.get(key) || null, setItem: (key,value) => stored.set(key,value) };
-  const service = vm.runInNewContext(source, { localStorage, supabase, supabaseService: { getAllAlbumsWithFullStats: async () => albums }, console, Date, window: undefined });
+  const service = vm.runInNewContext(source, { localStorage, supabase, loadPoolData, buildAlbumWithFullStats: album => album, console, Date, window: undefined });
   service.getSeasons = async () => [{ id: 'old', is_active: false }, { id: 'current', is_active: true, is_open: false }];
   return { service, filters, stored };
 }
@@ -22,7 +30,7 @@ test('an empty current Pool never falls back to unrelated catalog releases', asy
   assert.equal(result.active.length, 0);
   assert.equal(result.history.length, 0);
   assert.equal(result.winner, null);
-  assert.deepEqual(filters, [['season_id','current']]);
+  assert.deepEqual(filters, [['room_id','00000000-0000-4000-8000-000000000000'],['season_id','current']]);
 });
 
 test('the room review flag is independent of the current visitor review access', async () => {
@@ -78,10 +86,8 @@ test('editing only a season emoji saves a NULL optional date and retains the sta
 
 test('Pool names follow current public profiles by user ID instead of saved Google names', async () => {
  const {service}=serviceFixture({
-  entries:[], albums:[{id:'album',album_name:'Album',artist_name:'Artist'}],
-  from: table => table==='public_profiles' ? {select(){return this;},async in(){return {data:[{id:'member',name:'Corpus',avatar_url:'avatar.png'}],error:null};}} : {
-   select(){return this;},eq(){return this;},async order(){return {data:[{id:'entry',album_id:'album',user_id:'member',nominated_by:'Old Google Name',status:'ACTIVO'}],error:null};}
-  }
+  entries:[{id:'entry',album_id:'album',user_id:'member',nominated_by:'Old Google Name',status:'ACTIVO'}],
+  albums:[{id:'album',album_name:'Album',artist_name:'Artist'}],profiles:[{id:'member',name:'Corpus',avatar_url:'avatar.png'}]
  });
  const result=await service.getPoolData();
  assert.equal(result.active[0].added_by,'Corpus');
@@ -101,12 +107,35 @@ test('editing sends the stable entry ID to the protected RPC and propagates erro
 
 
 test('a changed capsule remains visible when the catalog cache lacks its new release', async () => {
- const {service}=serviceFixture({from:table=>({
-  select(){return this;},eq(){return this;},
-  async order(){return {data:[{id:'entry',album_id:'new',user_id:'member',nominated_by:'Member',status:'ACTIVO'}],error:null};},
-  async in(){return {data:table==='albums'?[{id:'new',album_name:'New release',artist_name:'Artist'}]:[],error:null};}
- })});
+ const {service}=serviceFixture({entries:[{id:'entry',album_id:'new',user_id:'member',nominated_by:'Member',status:'ACTIVO'}],albums:[{id:'new',album_name:'New release',artist_name:'Artist'}]});
  const result=await service.getPoolData();
  assert.equal(result.active[0].id,'new'); assert.equal(result.active[0].pool_entry_id,'entry');
  assert.equal(result.active[0].album,'New release'); assert.equal(result.season.entry_count,1);
+});
+
+
+test('past Pools exclude future drafts and preserve their own room history', () => {
+ const seasons=[{id:'past',season_number:1,is_active:false},{id:'current',season_number:2,is_active:true},{id:'draft',season_number:3,is_active:false}];
+ assert.deepEqual(presentation.pastPools(seasons).map(pool=>pool.id),['past']);
+ assert.equal(presentation.pastPools([{id:'closed',is_active:false,end_date:'2025-01-01'}]).length,1);
+ assert.equal(presentation.pastPools([{id:'draft',is_active:false}]).length,0);
+});
+
+test('Pool reads stay scoped and paginate only reviews for its own releases',async()=>{
+ const reads=[];
+ const db={from(table){const query={table,filters:[],range:null};reads.push(query);return {
+  select(){return this;},eq(column,value){query.filters.push([column,value]);return this;},in(column,values){query.filters.push([column,values]);return this;},order(){return this;},range(a,b){query.range=[a,b];return this;},
+  then(resolve,reject){
+   const data=table==='seasons'?[{id:'selected',room_id:'room',is_active:true}]:table==='public_pool_entries'?[{id:'entry',album_id:'only',status:'GRADUADO'}]:table==='albums'?[{id:'only',album_name:'One release'}]:table==='public_reviews'?Array.from({length:query.range[0]===0?1000:1},(_,i)=>({id:query.range[0]+i,album_id:'only',rating_general:8})):[];
+   return Promise.resolve({data,error:null}).then(resolve,reject);
+  }
+ };}};
+ let counted=0;
+ const result=await loadPoolData(db,(album,reviews)=>{counted=reviews.length;return {...album,review_count:reviews.length};},'selected','room');
+ assert.equal(counted,1001);assert.equal(result.history[0].review_count,1001);
+ assert.deepEqual(reads.filter(query=>query.table==='albums').map(query=>query.filters),[[['id',['only']]]]);
+ assert.deepEqual(reads.filter(query=>query.table==='public_reviews').map(query=>query.range),[[0,999],[1000,1999]]);
+ assert.equal(reads.filter(query=>query.table==='seasons').length,1);
+ assert.equal(reads.some(query=>query.table==='public_profiles'),false);
+ await assert.rejects(loadPoolData(db,album=>album,'inaccessible','room'),/no tienes acceso/);
 });

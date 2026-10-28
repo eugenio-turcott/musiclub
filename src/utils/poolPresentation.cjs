@@ -17,4 +17,11 @@ function poolReleases(albums = [], entries = []) {
   const ids = new Set(entries.filter(entry => ['ACTIVO', 'GANADOR', 'GRADUADO'].includes(entry.status)).map(entry => String(entry.album_id)));
   return albums.filter(album => [album.id, ...(album.edition_member_ids || [])].some(id => ids.has(String(id))));
 }
-module.exports = { DEFAULT_APPEARANCE, poolAppearance, poolBackground, poolCapacity, poolReleases };
+function pastPools(seasons = [], today = new Date().toISOString().slice(0, 10)) {
+  const active = seasons.find(season => season.is_active);
+  return seasons.filter(season => !season.is_active && (
+    (active && Number(season.season_number) < Number(active.season_number)) ||
+    (season.end_date && season.end_date <= today)
+  )).sort((a, b) => Number(b.season_number) - Number(a.season_number));
+}
+module.exports = { DEFAULT_APPEARANCE, poolAppearance, poolBackground, poolCapacity, poolReleases, pastPools };

@@ -29,6 +29,7 @@ const server=http.createServer((request,response)=>{
   let rows=[...(tables[table]||[])];
   for(const [column,filter] of url.searchParams) {
     if(filter.startsWith('eq.')) rows=rows.filter(row=>String(row[column])===filter.slice(3));
+    if(filter.startsWith('in.(')) { const values=filter.slice(4,-1).split(',').map(value=>value.replace(/^"|"$/g,'')); rows=rows.filter(row=>values.includes(String(row[column]))); }
   }
   response.setHeader('Content-Range',`0-${Math.max(0,rows.length-1)}/${rows.length}`);
   if(request.headers.accept?.includes('vnd.pgrst.object+json')) {

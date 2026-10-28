@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.41.0 · **Última actualización:** 27 de octubre de 2026.
+**Versión:** 9.42.0 · **Última actualización:** 27 de octubre de 2026.
 
 ## Qué incluye
 
@@ -186,3 +186,9 @@ Aplica `supabase/migrations/20261026_v935_pool_rooms.sql` después de las migrac
 Las invitaciones privadas duran siete días; crear otra revoca las anteriores, sin expulsar a integrantes existentes. La salida de una sala privada revoca la lectura de sus propuestas. Las reseñas del catálogo siguen siendo públicas y se explica en la interfaz. Los avisos generales por correo se limitan a la sala original; las otras salas no disparan esos envíos. El acceso está protegido tanto en tablas como en la vista `public_pool_entries`, y el Gashapon vuelve a validar el acceso cuando cambia la sesión.
 
 Las pruebas de `tests/pool-rooms.test.mjs` ejecutan las políticas y funciones sobre PostgreSQL de prueba, incluyendo lecturas ajenas, invitaciones revocadas, edición propia y dos ganadores simultáneos en salas distintas.
+
+### Pools anteriores y carga por sala
+
+El directorio y cada sala enlazan los pools anteriores con estado **Cerrado**. La vista histórica conserva propuestas y ganadores; no ofrece acciones de depósito, edición o sorteo. Los pools futuros todavía sin activar no se presentan como historial.
+
+La carga de una sala consulta únicamente sus propuestas, releases y reseñas, sin descargar el catálogo completo ni repetir la consulta inicial de temporadas. El buscador carga el catálogo al usarlo; el formulario de reseña y la ruleta se descargan al abrirlos. Las etiquetas compartidas alinean íconos y texto por el centro.

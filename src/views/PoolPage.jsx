@@ -1,5 +1,8 @@
 'use client';
-import { InterfaceText } from '../components/UiIcon';
+import { InterfaceText, UiIcon } from '../components/UiIcon';
+import dynamic from 'next/dynamic';
+import presentation from '../utils/poolPresentation.cjs';
+import { publicCatalog } from '../services/publicCatalog';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
@@ -14,16 +17,13 @@ import { searchMusicBrainzReleases, getMusicBrainzReleaseGroupDetails } from '..
 import { MusiclubVinyl } from '../components/MusiclubVinyl';
 // src/pages/PoolPage.jsx
 import React, { useState, useMemo, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
 import { Footer } from '../components/Footer';
 import { SEO } from '../components/SEO';
-import { ReviewSystem } from '../components/ReviewSystem';
-import { SlotMachine } from '../components/SlotMachine';
 import { LoginModal } from '../components/LoginModal';
 import { usePool } from '../hooks/usePool';
 import { useAuth } from '../hooks/useAuth';
-import { useAlbums } from '../hooks/useAlbums';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
 import {
@@ -33,11 +33,16 @@ import {
   DeezerLogo,
 } from '../components/common/PlatformLogos';
 
+const ReviewSystem = dynamic(() => import('../components/ReviewSystem').then(module => module.ReviewSystem));
+const SlotMachine = dynamic(() => import('../components/SlotMachine').then(module => module.SlotMachine));
+
 export function PoolPage() {
-  return <PoolRoomDirectory renderRoom={(room, actions) => <PoolRoomView key={room.id} room={room} onBack={actions.back} onRefreshRooms={actions.refresh}/>}/>;
+  const {search} = useLocation();
+  const requestedSeasonId = new URLSearchParams(search).get('temporada') || undefined;
+  return <PoolRoomDirectory renderRoom={(room, actions) => <PoolRoomView key={`${room.id}:${requestedSeasonId || 'active'}`} requestedSeasonId={requestedSeasonId} room={room} onBack={actions.back} onRefreshRooms={actions.refresh}/>}/>;
 }
 
-function PoolRoomView({ room, onBack, onRefreshRooms }) {
+function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
   const {
     user,
     isAdmin: globalIsAdmin,
@@ -65,12 +70,14 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
     scheduleWinnerReviews,
     setPoolOpenStatus,
     refetch,
-  } = usePool(undefined, room.id);
+  } = usePool(requestedSeasonId, room.id, requestedSeasonId ? room.past_pools?.find(pool=>pool.id===requestedSeasonId) : room.active_pool);
 
-  const isAdmin = globalIsAdmin || Boolean(user?.id && room.owner_id === user.id);
-  const canParticipate = room.joined || isAdmin;
+  const isRoomAdmin = globalIsAdmin || Boolean(user?.id && room.owner_id === user.id);
+  const isAdmin = isRoomAdmin && season.is_active === true;
+  const canParticipate = room.joined || isRoomAdmin;
+  const archived = Boolean(season.id && !season.is_active);
+  const previousPools = presentation.pastPools(seasons);
 
-  const { albums: catalogAlbums = [] } = useAlbums();
 
 
   // Candidatos de pool_entries para la Ruleta / Máquina Musical
@@ -231,6 +238,8 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
     if (!nominationSearch.trim()) return;
     setSearchingRemote(true);
     try {
+      const [catalog, spotify, mb] = await Promise.allSettled([publicCatalog(), searchAlbum(nominationSearch), searchMusicBrainzReleases(nominationSearch, 12)]);
+      const catalogAlbums = catalog.status === 'fulfilled' ? catalog.value.albums || [] : [];
       const query = nominationSearch.trim().toLowerCase();
       const local = catalogAlbums.filter(album => `${album.album_name || album.album} ${album.artist_name || album.artista}`.toLowerCase().includes(query)).slice(0,15).map(album => ({
         albumId: album.id, id: album.id, albumName: album.album_name || album.album, artistName: album.artist_name || album.artista,
@@ -238,7 +247,6 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
         releaseDate: album.release_date, releaseYear: album.release_year, releaseType: album.release_type,
         spotifyLink: album.spotify_link, youtubeLink: album.youtube_link, appleMusicLink: album.apple_music_link, otherLink: album.other_link,
       }));
-      const [spotify, mb] = await Promise.allSettled([searchAlbum(nominationSearch), searchMusicBrainzReleases(nominationSearch, 12)]);
       const remote = spotify.status === 'fulfilled' && spotify.value?.success ? (spotify.value.albums || []).map(album => ({
         id: album.id, albumName: album.name, artistName: Array.isArray(album.artists) ? album.artists.join(', ') : album.artist,
         imageUrl: album.image, releaseDate: album.releaseDate, releaseYear: album.releaseYear, releaseType: album.release_type || album.releaseType || 'ALBUM',
@@ -380,20 +388,24 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
         {/* =========================================================================
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
-        <PoolRoomAccess room={room} user={user} canManage={isAdmin} onBack={onBack} onRefresh={onRefreshRooms}/>
-        {!canParticipate && <p className="rounded-xl border border-pink-300/20 bg-pink-300/5 p-4 text-sm text-pink-200">{user ? 'Únete a esta sala para depositar tu cápsula cuando se abran las propuestas.' : 'Inicia sesión y únete a esta sala para participar.'}</p>}
-        <PoolHero season={season} ownerName={room.owner_name} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
+        <PoolRoomAccess room={room} user={user} canManage={isRoomAdmin} onBack={onBack} onRefresh={onRefreshRooms}/>
+        {previousPools.length > 0 && <nav aria-label="Pools de esta sala" className="flex flex-wrap gap-2">
+          <Link to={`/pool?sala=${encodeURIComponent(room.id)}`} aria-current={!requestedSeasonId ? 'page' : undefined} className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold ${!archived ? 'border-pink-300/40 bg-pink-500/15 text-pink-200' : 'border-white/10 text-slate-300 hover:bg-white/5'}`}><UiIcon name="pool"/>Pool actual</Link>
+          {previousPools.map(pool=><Link key={pool.id} to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} aria-current={season.id === pool.id ? 'page' : undefined} className={`inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border px-4 py-2 text-sm ${season.id === pool.id ? 'border-purple-300/40 bg-purple-500/15 text-purple-100' : 'border-white/10 text-slate-300 hover:bg-white/5'}`}><UiIcon name="lock"/><span className="min-w-0 break-words">{pool.appearance?.heading?.trim() || pool.name} <span className="text-xs text-slate-400">· Cerrado</span></span></Link>)}
+        </nav>}
+        {!archived && !canParticipate && <p className="rounded-xl border border-pink-300/20 bg-pink-300/5 p-4 text-sm text-pink-200">{user ? 'Únete a esta sala para depositar tu cápsula cuando se abran las propuestas.' : 'Inicia sesión y únete a esta sala para participar.'}</p>}
+        <PoolHero season={season} archived={archived} ownerName={room.owner_name} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
           winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
           isOpen={isPoolOpen} isAdmin={isAdmin} busy={!canParticipate || poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
           onDeposit={openNomination}
           onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
-        {isAdmin && !poolLoading && !poolError && season.id && <PoolManualControls canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={catalogAlbums[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
+        {isAdmin && !poolLoading && !poolError && season.id && <PoolManualControls canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={winner || activePool[0] || poolHistory[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
 
         {/* =========================================================================
             2. WINNER SPOTLIGHT: ÁLBUM EN FOCO DE LA SEMANA
             ========================================================================= */}
-        {winner ? (
+        {poolLoading && !winner ? <div role="status" className="animate-pulse rounded-3xl border border-white/10 bg-white/5 p-8 text-sm text-slate-300">Cargando los releases de este Pool…</div> : winner ? (
           <section className="relative text-left">
             <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#1b1e3d] via-[#101226] to-[#0a0a14] border-2 border-pink-500/40 p-6 sm:p-8 md:p-10 shadow-2xl">
               <div className="absolute top-0 right-0 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -650,10 +662,10 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
           <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-4">
             <span className="text-4xl"><InterfaceText>{"🎰"}</InterfaceText></span>
             <h3 className="text-xl font-bold text-white">
-              No hay un disco ganador seleccionado actualmente
+              {archived ? 'Este Pool forma parte de nuestra historia' : 'No hay un disco ganador seleccionado actualmente'}
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
-              {activePool.length ? <>Usa la Ruleta o el Gashapon Arcade para sortear el próximo release de los{' '}
+              {archived ? 'Explora sus propuestas y los releases que se escucharon en comunidad.' : activePool.length ? <>Usa la Ruleta o el Gashapon Arcade para sortear el próximo release de los{' '}
               <span
                 translate="no"
                 className="notranslate font-bold text-pink-400"
@@ -680,15 +692,14 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1">
               <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                Candidatos del Pool Activo (
+                {archived ? 'Propuestas de este Pool (' : 'Candidatos del Pool Activo ('}
                 <span translate="no" className="notranslate" data-stat="number">
                   {poolLoading ? '...' : activePool.length}
                 </span>
                 )
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm">
-                Propuestas de la comunidad listas para los próximos sorteos
-                semanales.
+                {archived ? 'Releases que quedaron propuestos al cerrar este Pool.' : 'Propuestas de la comunidad listas para los próximos sorteos semanales.'}
               </p>
             </div>
 
@@ -745,7 +756,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            {!archived && <div className="flex items-center gap-2">
               <button
                 type="button"
                 onClick={() => setShowSlotMachine((prev) => !prev)}
@@ -777,7 +788,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                   <span>{myEntry ? "Editar mi cápsula" : "Proponer"}</span>
                 </button>
               )}
-            </div>
+            </div>}
           </div>
 
           {/* Collapsible Slot Machine for the Pool */}
@@ -843,7 +854,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                 No se encontraron propuestas con ese filtro
               </p>
               <p className="text-slate-400 text-xs">
-                Sé el primero en proponer un nuevo lanzamiento al Pool Activo.
+                {archived ? 'Consulta abajo los discos elegidos durante este Pool.' : 'Sé el primero en proponer un nuevo lanzamiento al Pool Activo.'}
               </p>
             </div>
           ) : (
