@@ -46,7 +46,7 @@ test('the room owner schedules a winner review date without enabling reviews',as
  await page.route('**/rest/v1/public_pool_entries*',route=>route.fulfill({json:[{id:'00000000-0000-4000-8000-000000000088',season_id:'current',album_id:'00000000-0000-4000-8000-000000000001',user_id:user.id,nominated_by:'Corpus',status:'GANADOR',reviews_enabled:false,review_scheduled_for:date}]}));
  await page.route('**/rest/v1/rpc/musiclub_schedule_pool_reviews',route=>{payload=route.request().postDataJSON();date=payload.p_date;return route.fulfill({json:true});});
  await page.goto('/pool');
- const card=page.getByRole('article').filter({hasText:'Sala de prueba'});
+ const card=page.getByRole('article').filter({hasText:'Pool en negro'});
  await expect(card.getByRole('heading',{name:'Pool en negro',exact:true})).toBeVisible();
  await expect(card.getByText('Azul',{exact:true})).toBeVisible();
  await expect(card.getByText('Hidden pool description',{exact:true})).toHaveCount(0);
@@ -74,7 +74,7 @@ test('Pool directory distinguishes public rooms, private invitations and an inde
   await expect(page.getByRole('heading',{name:/Cada sala.*Su propio Pool\./})).toBeVisible();
   await expect(page.getByRole('tab',{name:'Salas públicas',exact:true})).toHaveAttribute('aria-selected','true');
   await expect(page.getByRole('heading',{name:'Primera escucha',exact:true,level:2})).toBeVisible();
-  await expect(page.getByText('Sala: Musiclub · Sala del club',{exact:true})).toBeVisible();
+  await expect(page.getByText('Sala: Musiclub · Sala del club',{exact:true})).toHaveCount(0);
   await expect(page.getByText('Administras esta sala',{exact:true})).toHaveCount(0);
   await page.getByRole('tab',{name:'Mis salas',exact:true}).click();
   await expect(page.getByText('Aquí aparecerán las salas que crees o a las que te unas.')).toBeVisible();
@@ -212,6 +212,7 @@ test('focusing a release prepares its route without loading every catalogue link
 });
 
 test('editorial selections change banners and retain real release links without overflowing',async({page})=>{
+  await page.clock.install();
   await page.goto('/');
   const section=page.locator('section').filter({has:page.getByRole('heading',{name:'En el radar.',exact:true})});
   await section.scrollIntoViewIfNeeded();
@@ -226,10 +227,11 @@ test('editorial selections change banners and retain real release links without 
   await expect(section).not.toContainText('SELECCIÓN DE LOS ADMINS');
   await expect(section).not.toContainText('Tres miradas');
   await expect(section).not.toContainText('MunRis');
-  await section.getByRole('button',{name:'Release siguiente'}).click();
+  await expect(section.getByRole('button',{name:/Release siguiente|Release anterior|Pausar carrusel|Reanudar carrusel/})).toHaveCount(0);
+  const progress=section.getByRole('progressbar',{name:'Tiempo para la siguiente diapositiva',exact:true});
+  await expect(progress).toBeVisible();
+  await page.clock.runFor(7200);
   await expect(section.getByRole('link',{name:'Descubrir Popstar de Tinashe'})).toBeVisible();
-  await section.getByRole('button',{name:'Release anterior'}).click();
-  await expect(section.getByRole('button',{name:'Mostrar Release Underground'})).toHaveAttribute('aria-current','true');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 

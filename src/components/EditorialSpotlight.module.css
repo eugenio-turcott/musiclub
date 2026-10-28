@@ -12,15 +12,18 @@
 .caption a { flex-shrink:0; display:flex; gap:12px; align-items:center; color:#f3b6d4; min-height:44px; font-size:12px; font-weight:750; }
 .red .caption { background:linear-gradient(100deg,#281619,#10101d); }
 .lime .caption { background:linear-gradient(100deg,#14252c,#10101d); }
-.controls { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-top:12px; }
-.dots,.navigation { display:flex; align-items:center; gap:6px; }
-.controls button { cursor:pointer; color:#eee1f4; border:1px solid #ffffff20; background:#ffffff06; border-radius:50%; width:44px; height:44px; font-size:21px; transition:background .2s,border-color .2s; }
-.controls button:hover { background:#ffffff13; border-color:#f0a4d5; }
-.dots .dot { border:0; background:transparent; border-radius:12px; width:36px; display:grid; place-items:center; }
-.dot span { display:block; width:7px; height:7px; border-radius:9px; background:#83758d; transition:width .35s,background .35s; }
-.dot.active span { width:27px; background:linear-gradient(100deg,#ff5686,#dc91f0); box-shadow:0 0 14px #ec76bd40; }
+.controls { display:flex; align-items:center; gap:20px; margin-top:14px; }
+.progressSegments { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; min-width:0; flex:1; }
+.segment { min-width:0; min-height:44px; padding:8px 0; text-align:left; background:transparent; border:0; cursor:pointer; color:#aaa0ba; }
+.segmentTrack { display:block; overflow:hidden; height:4px; border-radius:6px; background:#ffffff18; }
+.segmentTrack > span { display:block; width:100%; height:100%; transform-origin:left; background:linear-gradient(90deg,#ff5686,#dc91f0); transition:transform .1s linear; }
+.segmentLabel { display:block; margin-top:8px; font-size:11px; font-weight:700; overflow-wrap:anywhere; }
+.segment[aria-current="true"] { color:#f9c6e5; }
+.remaining { flex-shrink:0; color:#b6aac6; font-size:11px; font-variant-numeric:tabular-nums; }
 .section a:focus-visible,.controls button:focus-visible { outline:2px solid #f49ec7; outline-offset:3px; }
 .srOnly { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 @keyframes arrive { from { opacity:.2; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
 @media(max-width:639px) { .section{margin:36px 0}.heading{gap:10px;margin-bottom:14px}.category{font-size:10px;padding:7px 10px}.billboard{border-radius:16px}.caption{padding:12px 15px;gap:10px}.caption h3{font-size:14px}.caption p{font-size:11px}.caption a{font-size:11px;gap:5px}.navigation{gap:5px} }
-@media(prefers-reduced-motion:reduce) { .slide{animation:none}.controls button,.dot span{transition:none} }
+@media(prefers-reduced-motion:reduce) { .slide{animation:none}.segmentTrack > span{transition:none} }
+
+@media(max-width:639px){.controls{flex-wrap:wrap;gap:4px}.progressSegments{flex-basis:100%;gap:9px}.segmentLabel{font-size:10px}.remaining{margin-left:auto}}

@@ -177,7 +177,7 @@ const GLYPH_ICONS = {
   "⛔": "ban",
   "ℹ️": "info",
   "❓": "question",
-  "🤔": "help",
+  "🤔": "thoughtful",
   "🧐": "loupe",
   "🤷‍♂️": "shrug",
   "🌐": "globe",

@@ -25,6 +25,7 @@ import {
   getReleaseUrl,
   getWeightedReviewScore,
   getEmotionFromReview,
+  getCommunityTopAlbum,
   getTrackDisplayName,
 } from '../utils/ratingUtils';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
@@ -152,7 +153,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             .filter(Boolean)
         ).size;
         const totalMembersCount = statsData?.total_users ?? uniqueReviewersCount;
-        const topScore = topData?.[0]?.avg_rating || statsData?.top_score || null;
+        const topScore = getCommunityTopAlbum(data.albums)?.final_rating ?? null;
         setGlobalStats({
           total_reviews: totalReviewsCount,
           total_albums: statsData?.total_albums ?? albums.length,
@@ -870,12 +871,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 data-stat="number"
               >
                 <span><InterfaceText>{"⭐"}</InterfaceText></span>{' '}
-                {globalStats.top_score
+                {globalStats.top_score != null
                   ? Number(globalStats.top_score).toFixed(1)
                   : '—'}
               </span>
               <span className="text-xs text-white/50 font-medium uppercase tracking-wider mt-1">
-                Top Score Comunitario
+                <span title="Álbum con la mayor nota y al menos 2 reseñas">Top Score Comunitario</span>
               </span>
             </div>
           </div>

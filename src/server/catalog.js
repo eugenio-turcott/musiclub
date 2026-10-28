@@ -7,7 +7,7 @@ import { cache } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { buildAlbumWithFullStats } from '../services/supabaseClient';
 import { PUBLIC_REVIEW_FIELDS, publicData } from '../utils/publicData';
-import { slugifyArtist, splitArtists, getReleaseUrl } from '../utils/ratingUtils';
+import { slugifyArtist, splitArtists, getReleaseUrl, getCommunityTopAlbum } from '../utils/ratingUtils';
 import releaseIdentity from '../utils/releaseIdentity.cjs';
 import releaseLookup from '../utils/publicReleaseLookup.cjs';
 import { getStoredArtistProfile } from './artistProfile';
@@ -59,7 +59,7 @@ export const getPublicCatalog = cache(async () => {
   } : null })))),
     stats: { total_reviews: reviews.length, total_albums: detailed.length,
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
-      total_users: profiles.length, top_score: Math.max(0, ...detailed.map(a => a.final_rating || 0)) } };
+      total_users: profiles.length, top_score: getCommunityTopAlbum(detailed)?.final_rating ?? null } };
 });
 
 export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v938', publicDatabaseURL], { revalidate:300,tags:['catalog'] });

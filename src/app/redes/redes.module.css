@@ -8,10 +8,10 @@
 .main { width: min(100% - 40px, 580px); margin: 0 auto; padding: 52px 0 30px; }
 .header { text-align: center; }
 .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; font-size: 39px; font-weight: 900; letter-spacing: -1.9px; }
-.brand img { width: 45px; height: 49px; object-fit: contain; }
+.brand img { width: 108px; height: 118px; object-fit: contain; }
 .dot { color: #f57fba; }
 .eyebrow { color: #c3b4df; font-size: 9px; font-weight: 700; letter-spacing: 1.8px; margin: 24px auto 16px; max-width: 330px; line-height: 1.7; }
-.header h1 { font-size: clamp(35px, 7vw, 49px); font-weight: 900; line-height: 1.04; letter-spacing: -1.8px; margin: 0; }
+.header h1 { font-size: clamp(35px, 7vw, 49px); font-weight: 900; line-height: 1.04; letter-spacing: -1.8px; margin: 20px 0 30px; }
 .intro { font-size: 15px; line-height: 1.6; color: #bcb7cf; margin: 18px 0 28px; }
 .featured { display: flex; align-items: center; gap: 16px; padding: 17px 19px; border-radius: 20px; background: #f781b6; color: #21142f; text-decoration: none; box-shadow: 0 10px 34px #f781b614; transition: background .18s ease, transform .18s ease; }
 .featured > img { width: 55px; height: 55px; object-fit: contain; }
@@ -49,3 +49,5 @@
   .desktopBreak { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .page a { transition: none; } .featured:hover { transform: none; } }
+
+.legal { display:flex; align-items:center; justify-content:center; gap:20px; }

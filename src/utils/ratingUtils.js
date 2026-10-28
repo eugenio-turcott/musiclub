@@ -300,6 +300,27 @@ export function getEmotionFromReview(review) {
   return getEmotionForScore(weightedScore);
 }
 
+// Emotions are categories, so a community mood uses the most shared response.
+// Keep ties visible instead of inventing a numerical average between feelings.
+export function getCommunityMood(reviews = []) {
+  const votes = reviews.filter(review => review && ((review.feeling || review.emotion) || (getWeightedReviewScore(review) ?? review.rating_general) != null));
+  if (!votes.length) return null;
+  const counts = new Map();
+  for (const review of votes) {
+    const emotion = getEmotionFromReview(review);
+    counts.set(emotion.id, (counts.get(emotion.id) || 0) + 1);
+  }
+  const most = Math.max(...counts.values());
+  return {emotions:EMOTIONS.filter(emotion => counts.get(emotion.id) === most), count:most, total:votes.length,
+    inferred:votes.some(review => !review.feeling && !review.emotion)};
+}
+
+export function getCommunityTopAlbum(albums = []) {
+  return albums.filter(album => getReleaseTypeCategory(album.release_type).type === 'ALBUM' && Number(album.review_count ?? album.reviews?.length) >= 2 &&
+    (album.final_rating ?? album.avg_rating) != null && Number.isFinite(Number(album.final_rating ?? album.avg_rating)))
+    .sort((a,b) => Number(b.final_rating ?? b.avg_rating) - Number(a.final_rating ?? a.avg_rating) || Number(b.review_count) - Number(a.review_count))[0] || null;
+}
+
 /**
  * Obtiene la canción con mayor calificación de un mapa de track_ratings.
  * Si varias canciones comparten la nota más alta, desempata aleatoriamente si randomIfTie es true.

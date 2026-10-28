@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.42.0 · **Última actualización:** 27 de octubre de 2026.
+**Versión:** 9.43.0 · **Última actualización:** 27 de octubre de 2026.
 
 ## Qué incluye
 
@@ -192,3 +192,9 @@ Las pruebas de `tests/pool-rooms.test.mjs` ejecutan las políticas y funciones s
 El directorio y cada sala enlazan los pools anteriores con estado **Cerrado**. La vista histórica conserva propuestas y ganadores; no ofrece acciones de depósito, edición o sorteo. Los pools futuros todavía sin activar no se presentan como historial.
 
 La carga de una sala consulta únicamente sus propuestas, releases y reseñas, sin descargar el catálogo completo ni repetir la consulta inicial de temporadas. El buscador carga el catálogo al usarlo; el formulario de reseña y la ruleta se descargan al abrirlos. Las etiquetas compartidas alinean íconos y texto por el centro.
+
+### Navegación y lectura visual
+
+Los pools anteriores tienen tarjetas propias en el directorio. El radar avanza automáticamente cada siete segundos mientras está visible, con barras de progreso y sin controles de pausa o flechas. El Top Score Comunitario incluye únicamente álbumes con al menos dos reseñas.
+
+La ficha presenta el ánimo más compartido junto a la calificación; los empates aparecen como ánimo mixto. Las reseñas antiguas sin emoción explícita pueden aportar una estimación por nota, identificada en la interfaz. Géneros, información, contacto y guías comparten el encabezado general; Redes conserva su portada independiente con GitHub y enlaces legales.

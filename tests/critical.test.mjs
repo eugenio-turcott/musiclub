@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import identity from '../src/utils/releaseIdentity.cjs';
 import sitemap from '../src/utils/sitemapData.cjs';
 import { publicData, jsonLd } from '../src/utils/publicData.js';
-import { getReleaseUrl } from '../src/utils/ratingUtils.js';
+import { getReleaseUrl, getCommunityTopAlbum, getCommunityMood } from '../src/utils/ratingUtils.js';
 
 test('Unicode album identities survive encoded route parameters and HTTP redirects', () => {
   const path = getReleaseUrl({ artist_name: 'Аигел', album_name: '1190' });
@@ -60,4 +60,22 @@ test('JSON-LD cannot close its script element and preserves the original text', 
   const value = { name: '</script><script>alert(1)</script>' };
   assert.ok(!jsonLd(value).includes('<'));
   assert.deepEqual(JSON.parse(jsonLd(value)), value);
+});
+
+
+test('community top score requires an album with two reviews and preserves real zero scores',()=>{
+ const albums=[{id:'single',release_type:'SINGLE',review_count:20,final_rating:10},{id:'ep',release_type:'EP',review_count:4,final_rating:10},{id:'one',release_type:'ALBUM',review_count:1,final_rating:10},{id:'valid',release_type:'ALBUM',review_count:2,final_rating:8.9}];
+ assert.equal(getCommunityTopAlbum(albums).id,'valid');
+ assert.equal(getCommunityTopAlbum(albums.slice(0,3)),null);
+ assert.equal(getCommunityTopAlbum([{release_type:'ALBUM',review_count:2,final_rating:0}]).final_rating,0);
+ assert.equal(getCommunityTopAlbum([{release_type:'ALBUM',review_count:3,final_rating:null}]),null);
+});
+
+test('community mood honors explicit feelings, reports ties and avoids inventing an unrated mood',()=>{
+ assert.equal(getCommunityMood([]),null);
+ assert.equal(getCommunityMood([{}]),null);
+ const mood=getCommunityMood([{feeling:'intrigado',rating_general:10},{feeling:'intrigado',rating_general:9},{feeling:'euforico',rating_general:10}]);
+ assert.deepEqual(mood.emotions.map(item=>item.id),['intrigado']);assert.equal(mood.count,2);assert.equal(mood.total,3);assert.equal(mood.inferred,false);
+ assert.equal(getCommunityMood([{feeling:'melancolico'},{feeling:'inspirado'}]).emotions.length,2);
+ assert.equal(getCommunityMood([{rating_general:8}]).inferred,true);
 });

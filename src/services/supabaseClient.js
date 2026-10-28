@@ -4,6 +4,7 @@ import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
 import {
   getWeightedReviewScore,
+  getCommunityTopAlbum,
   calculateReviewBonus,
   calculateAlbumTopTrack,
   findAlbumBySlug,
@@ -1390,10 +1391,7 @@ export const supabaseService = {
       ]);
 
       const reviews = reviewsRes.data || [];
-      const topScore =
-        topAlbums && topAlbums.length > 0 && topAlbums[0].avg_rating
-          ? topAlbums[0].avg_rating
-          : 9.8;
+      const topScore = getCommunityTopAlbum(topAlbums)?.avg_rating ?? null;
 
       if (!reviews || reviews.length === 0) {
         return {
@@ -1479,7 +1477,7 @@ export const supabaseService = {
         total_albums: 0,
         total_reviewed_albums: 0,
         total_users: 0,
-        top_score: 9.8,
+        top_score: null,
       };
     }
   },

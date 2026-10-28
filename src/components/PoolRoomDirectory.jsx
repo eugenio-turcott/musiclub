@@ -77,21 +77,22 @@ export function PoolRoomDirectory({ renderRoom }) {
         <form className="flex w-full gap-2 sm:w-auto" onSubmit={event => { event.preventDefault(); accept(invitation); }}><label className="min-w-0 flex-1"><span className="sr-only">Enlace o código de invitación</span><input className="min-h-12 w-full rounded-xl border border-white/15 bg-[#15132d] px-3 text-sm sm:w-64" placeholder="Enlace o código de invitación" value={invitation} onChange={e => setInvitation(e.target.value)}/></label><button className="min-h-12 rounded-xl border border-pink-300/30 px-4 text-sm font-bold text-pink-200" disabled={busy || !invitation.trim()}>Entrar</button></form>
       </div>
       {!ready ? <p role="status" className="py-12 text-center text-purple-200">Cargando salas…</p> : <div role="tabpanel" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {visible.map((room,index) => <article key={room.id} className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#171433] p-5">
-          <div className="flex items-start justify-between gap-4"><span className="rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200"><InterfaceText>{room.visibility==='private'?'🔒 Privada':'◎ Pública'}</InterfaceText></span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/>}</div>
-          <h2 className="mt-4 break-words text-xl font-black">{room.active_pool?.title || 'Sin Pool activo'}</h2>
-          <p className="mt-2 break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p>
-          <p className="mt-4 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
-          <button className={`${button} mt-5 w-full`} onClick={() => open(room.id)}>Ver sala</button>
-          {room.past_pools?.length > 0 && <div className="mt-5 space-y-2 border-t border-white/10 pt-4">
-            <h3 className="text-xs font-bold text-slate-300">Pools anteriores</h3>
-            {room.past_pools.map(pool => <Link key={pool.id} to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} className="flex min-h-12 items-center justify-between gap-3 rounded-xl border border-white/10 bg-black/15 px-3 py-2 text-sm transition hover:border-purple-300/40 hover:bg-purple-500/10">
-              <span className="min-w-0 break-words font-bold text-purple-100">{pool.appearance?.heading?.trim() || pool.name}</span>
-              <span className="inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-slate-400"><UiIcon name="lock"/>Cerrado</span>
-            </Link>)}
-          </div>}
-          <p className="mt-4 break-words border-t border-white/10 pt-3 text-xs text-slate-400">Sala: {room.name}</p>
-        </article>)}
+        {visible.flatMap((room, index) => [
+          <article key={room.id} data-pool-card="current" className="relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#171433] p-5">
+            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200"><UiIcon name={room.visibility==='private'?'lock':'globe'}/>{room.visibility==='private'?'Privada':'Pública'}</span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/>}</div>
+            <h2 className="mt-4 break-words text-xl font-black">{room.active_pool?.title || 'Sin Pool activo'}</h2>
+            <p className="mt-2 break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p>
+            <p className="mt-4 mb-6 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
+            <button className={`${button} mt-auto w-full`} onClick={() => open(room.id)}>Ver sala</button>
+          </article>,
+          ...(room.past_pools || []).map(pool => <article key={`${room.id}:${pool.id}`} data-pool-card="closed" className="relative flex flex-col overflow-hidden rounded-2xl border border-amber-300/15 bg-linear-to-br from-[#1c1830] to-[#111221] p-5">
+            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-200"><UiIcon name="lock"/>Cerrado</span><MusiclubVinyl src={pool.appearance?.logo || '/musiclub_logo_3.png'} alt="" className="h-20 w-20 shrink-0 opacity-80"/></div>
+            <h2 className="mt-4 break-words text-xl font-black">{pool.appearance?.heading?.trim() || pool.name}</h2>
+            <p className="mt-2 text-sm leading-relaxed text-slate-300">Las escuchas que compartimos siguen aquí. Explora sus propuestas y discos elegidos.</p>
+            <p className="mt-4 mb-6 text-xs text-amber-200/70">Pool anterior · No recibe propuestas</p>
+            <Link to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} className="mt-auto inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-purple-300/25 bg-purple-500/15 px-5 py-3 text-sm font-black text-purple-100 hover:bg-purple-500/25"><UiIcon name="archive"/>Ver historial</Link>
+          </article>)
+        ])}
         {!visible.length && !error && <p className="rounded-2xl border border-white/10 p-6 text-sm text-slate-300 md:col-span-2">{tab==='mine'?'Aquí aparecerán las salas que crees o a las que te unas.':'Todavía no hay salas públicas disponibles.'}</p>}
       </div>}
       <p className="text-xs leading-relaxed text-slate-400">Una sala privada protege sus propuestas, su selección y su historial. Las reseñas que publiques en las fichas del catálogo siguen siendo públicas.</p>

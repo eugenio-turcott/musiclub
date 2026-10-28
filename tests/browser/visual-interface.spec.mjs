@@ -25,7 +25,7 @@ test('catalogue cards split viewing and queue into equally sized vector controls
   await expect(actions.locator('svg')).toHaveCount(2);
   const icons=await actions.locator('[data-ui-icon]').evaluateAll(items=>items.map(el=>({width:el.getBoundingClientRect().width,height:el.getBoundingClientRect().height,color:getComputedStyle(el).color,parentColor:getComputedStyle(el.closest('button,a')).color})));
   expect(icons).toHaveLength(2);
-  for(const icon of icons){expect(icon.width).toBe(24);expect(icon.height).toBe(24);expect(icon.color).toBe(icon.parentColor);}
+  for(const icon of icons){expect(icon.width).toBe(20);expect(icon.height).toBe(20);expect(icon.color).toBe(icon.parentColor);}
 
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
@@ -78,7 +78,10 @@ test('previous Pools are closed archives and opening a room never downloads the 
   const requests=[];
   page.on('request',request=>requests.push(new URL(request.url())));
   await page.goto('/pool');
-  const previous=page.getByRole('link',{name:'El origen del club Cerrado',exact:true});
+  const closedCard=page.locator('[data-pool-card="closed"]').filter({has:page.getByRole('heading',{name:'El origen del club',exact:true})});
+  await expect(page.locator('[data-pool-card="current"]')).toHaveCount(1);
+  await expect(closedCard).toContainText('Cerrado');
+  const previous=closedCard.getByRole('link',{name:'Ver historial',exact:true});
   await expect(previous).toBeVisible();
   await previous.click();
   const archive=page.getByRole('region',{name:'Pool cerrado',exact:true});
@@ -114,4 +117,39 @@ test('inline labels center text with their icons instead of aligning on text bas
     return Math.abs((icon.top+icon.height/2)-(text.top+text.height/2));
   });
   expect(delta).toBeLessThan(1);
+});
+
+
+test('the release mood sits beside the final score and uses a face for thoughtful reviews',async({page})=>{
+ await page.goto('/albumes/artista-de-prueba-azul');
+ const mood=page.locator('[data-community-mood]');
+ await expect(mood).toContainText('Intrigado / Reflexivo');
+ await expect(mood.locator('[data-ui-icon="thoughtful"]')).toBeVisible();
+ const left=await page.getByRole('img',{name:/Calificación final:/}).boundingBox(),right=await mood.boundingBox();
+ expect(right.x).toBeGreaterThan(left.x);expect(Math.abs(right.y-left.y)).toBeLessThan(70);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('genre and information pages share the application navigation and adapt their layout',async({page})=>{
+ for(const [path,title] of [['/generos/pop','Pop'],['/sobre-musiclub','Un club para escuchar y compartir'],['/contacto','Hablemos de Musiclub'],['/guias','Escucha, opina y descubre']]){
+  await page.goto(path);await expect(page.getByRole('heading',{level:1,name:title,exact:true})).toBeVisible();
+  await expect(page.getByRole('link',{name:'Pool Musical',exact:true}).filter({visible:true})).toHaveCount(page.viewportSize().width>=1280?1:0);
+  const language=page.locator('footer').getByRole('button',{name:'Cambiar idioma: Español',exact:true});
+  await expect(language.locator('[data-ui-icon="globe"]')).toHaveCount(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  if(path==='/generos/pop' && page.viewportSize().width>=640){
+   const vinyl=await page.getByRole('button',{name:'Ampliar vinilo de Pop',exact:true}).boundingBox(),titleBox=await page.getByRole('heading',{level:1,name:'Pop',exact:true}).boundingBox();
+   expect(vinyl.x+vinyl.width).toBeLessThan(titleBox.x);
+  }
+ }
+});
+
+test('social links use the larger logo, concise heading and complete repository and legal links',async({page})=>{
+ await page.goto('/redes');await expect(page.getByRole('heading',{level:1,name:'Redes Sociales de Musiclub',exact:true})).toBeVisible();
+ await expect(page.getByRole('link',{name:/GitHub: repositorio público/})).toHaveAttribute('href','https://github.com/eugenio-turcott/musiclub-albumes');
+ await expect(page.getByRole('link',{name:'¿Sugerencias? musiclub.org@gmail.com',exact:true})).toBeVisible();
+ const legal=page.getByRole('navigation',{name:'Información legal',exact:true});await expect(legal.getByRole('link',{name:'Términos',exact:true})).toHaveAttribute('href','/terms');
+ await expect(page.locator('body')).not.toContainText('RESEÑAS, DISCOS Y GENTE');
+ await expect(page.locator('body')).not.toContainText('Hecho con música, para compartir música.');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

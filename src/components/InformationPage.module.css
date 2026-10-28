@@ -1,0 +1,16 @@
+.main { margin:32px 0 0; }
+.hero { position:relative; overflow:hidden; border:1px solid #ffffff15; border-radius:28px; padding:clamp(24px,5vw,58px); background:radial-gradient(ellipse at 100% 0%,#863cc933,transparent 65%),linear-gradient(125deg,#19162c,#0e1020); }
+.hero::after { content:''; position:absolute; pointer-events:none; right:-60px; top:-100px; width:330px; height:330px; border:1px solid #f9a8d425; border-radius:50%; box-shadow:0 0 0 30px #f9a8d405,0 0 0 60px #f9a8d404; }
+.eyebrow { color:#f9a8d4; font-size:10px; font-weight:800; letter-spacing:.2em; text-transform:uppercase; }
+.hero h1 { position:relative; z-index:1; max-width:21ch; font-size:clamp(32px,5vw,58px); line-height:1.1; font-weight:900; letter-spacing:-.035em; margin-top:16px; text-wrap:balance; }
+.intro { position:relative; max-width:70ch; color:#c3bdcf; font-size:15px; line-height:1.85; margin-top:20px; }
+.navigation { display:flex; flex-wrap:wrap; gap:10px; margin:20px 0 28px; }
+.navigation a { display:inline-flex; align-items:center; min-height:44px; border:1px solid #ffffff15; border-radius:12px; padding:8px 16px; color:#cbbcd9; background:#141426; font-size:12px; font-weight:700; }
+.navigation a:hover { background:#34223e; border-color:#f9a8d455; color:#fff; }
+.content { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:start; gap:20px; color:#beb9cb; font-size:14px; line-height:1.9; }
+.content > section,.content > article { min-width:0; height:100%; padding:clamp(20px,3vw,30px); border:1px solid #ffffff10; border-radius:22px; background:linear-gradient(130deg,#171629,#101221); }
+.content > :not(section):not(article),.content > section:last-child:nth-child(odd),.content > article:last-child:nth-child(odd) { grid-column:1/-1; }
+.content h2 { color:#f8f4ff; font-size:21px; line-height:1.35; font-weight:800; letter-spacing:-.02em; }
+.content a { text-underline-offset:4px; }
+.content a:hover { color:#fff; }
+@media(max-width:639px) { .main{margin-top:22px}.content{grid-template-columns:minmax(0,1fr);gap:14px}.navigation{gap:7px}.navigation a{font-size:11px;padding:8px 12px}.intro{font-size:14px}.hero{border-radius:22px} }

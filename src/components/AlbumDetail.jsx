@@ -28,6 +28,7 @@ import {
   getReleaseUrl,
   getTrackDisplayName,
   getEmotionFromReview,
+  getCommunityMood,
   getReviewFavoriteTrack,
   isFavoriteTrackMatch,
   calculateAlbumTopTrack,
@@ -926,6 +927,7 @@ export function AlbumDetail({
     !isNaN(Number(album.final_rating))
       ? Number(album.final_rating)
       : null;
+  const communityMood = getCommunityMood(album?.reviews || []);
 
   const canonicalPath = album
     ? getReleaseUrl(album, album.release_type || spotifyMeta?.releaseType)
@@ -1319,6 +1321,15 @@ export function AlbumDetail({
                     {album.review_count || 0}{' '}
                     {album.review_count === 1 ? 'reseña' : 'reseñas'}
                   </span>
+                </div>
+
+                <div data-community-mood className={`release-mood-card min-w-0 rounded-2xl border p-3 sm:p-4 flex flex-col items-center justify-between gap-3 text-center ${communityMood?.emotions.length === 1 ? communityMood.emotions[0].badgeClass : 'border-purple-300/20 bg-purple-500/10 text-purple-200'}`}>
+                  <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Ánimo de la comunidad</span>
+                  {communityMood ? <>
+                    <span className="flex flex-wrap items-center justify-center gap-2" aria-hidden="true">{communityMood.emotions.map(emotion=><UiIcon key={emotion.id} name={emotion.id === 'intrigado' ? 'thoughtful' : ({euforico:'amazement',inspirado:'smile',relajado:'calm',melancolico:'sad',indiferente:'neutral',asco:'dislike'})[emotion.id]} tone="inherit" size={communityMood.emotions.length > 1 ? 32 : 48}/>)}</span>
+                    <span className="text-sm font-black">{communityMood.emotions.length === 1 ? communityMood.emotions[0].label : 'Ánimo mixto'}</span>
+                    <span className="text-[10px] opacity-75">{communityMood.emotions.length === 1 ? `${communityMood.count} de ${communityMood.total} reseñas` : 'Distintas emociones con la misma presencia'}{communityMood.inferred && <span className="block mt-1">Incluye emociones estimadas por puntuación</span>}</span>
+                  </> : <><UiIcon name="smile" tone="inherit" size={48}/><span className="text-xs opacity-75">Aún sin opiniones</span></>}
                 </div>
 
                 <div className="release-meta-stack grid min-w-0 grid-rows-2 gap-2.5 sm:gap-3">

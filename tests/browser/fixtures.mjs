@@ -27,3 +27,5 @@ tables.albums.push({...albums[0],id:'clean-variant-fixture',album_name:'Azul (Cl
 tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña de la variante limpia.',created_at:'2025-01-01T00:00:00Z'});
 
 tables.artist_discographies.push({slug:'the-weeknd',name:'the weeknd',refresh_after:'2099-01-01',updated_at:'2026-10-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd',genres:['Pop']},discography:[{id:'deezer_weeknd_fixture',name:'Starboy',artists:['The Weeknd'],release_type:'ALBUM',releaseDate:'2016-11-25',image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'weeknd_fixture'}]}]}});
+
+for(const review of tables.public_reviews.filter(review=>[albums[0].id,'clean-variant-fixture'].includes(review.album_id))) review.feeling='intrigado';

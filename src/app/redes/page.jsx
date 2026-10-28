@@ -3,7 +3,7 @@ import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from '../../compo
 import { YouTubeLogo } from '../../components/common/PlatformLogos';
 import styles from './redes.module.css';
 
-const title = 'Todas las redes del club';
+const title = 'Redes Sociales de Musiclub';
 const description = 'Encuentra las cuentas oficiales de Musiclub: Instagram, Facebook, TikTok, Reddit y YouTube. Descubre también el proyecto personal de Eugenio en LinkedIn.';
 
 export const metadata = {
@@ -42,12 +42,9 @@ export default function SocialLinksPage() {
     <main className={styles.main}>
       <header className={styles.header}>
         <Link href="/" className={styles.brand} aria-label="Ir a Musiclub">
-          <img src="/musiclub_logo_corchea.png" alt="" width="62" height="68" />
-          <span>musiclub<span className={styles.dot}>.</span></span>
+          <img src="/musiclub_logo_corchea.png" alt="Musiclub" width="108" height="118" />
         </Link>
-        <p className={styles.eyebrow}>RESEÑAS, DISCOS Y GENTE CON BUENAS RECOMENDACIONES</p>
-        <h1>El club también<br />suena por aquí<span className={styles.dot}>.</span></h1>
-        <p className={styles.intro}>Encuentra tu siguiente disco. Comparte lo que escuchas.<br className={styles.desktopBreak} /> Súmate a la conversación donde más te guste.</p>
+        <h1>Redes Sociales de Musiclub</h1>
       </header>
 
       <Link href="/" className={styles.featured}>
@@ -58,7 +55,7 @@ export default function SocialLinksPage() {
       <nav aria-label="Cuentas oficiales de Musiclub" className={styles.networks}>
         {networks.map(({ name, handle, href, Icon, color, detail }) => <a key={name} href={href} target="_blank" rel="noopener noreferrer" className={styles.card} style={{ '--network-color': color }} aria-label={`${name}: ${handle} (se abre en otra pestaña)`}>
           <span className={styles.icon} aria-hidden="true"><Icon className={styles.iconSvg} /></span>
-          <span className={styles.cardText}><span className={styles.cardTitle}>{name}<span>{handle}</span></span><small>{detail}</small></span><Arrow />
+          <span className={styles.cardText}><span className={styles.cardTitle}>{name}<span translate="no" className="notranslate username-tag">{handle}</span></span><small>{detail}</small></span><Arrow />
         </a>)}
       </nav>
 
@@ -66,7 +63,11 @@ export default function SocialLinksPage() {
         <span className={styles.icon}><LinkedInIcon /></span>
         <span className={styles.cardText}><span className={styles.cardTitle}>Detrás de Musiclub</span><small>Eugenio Turcott · Proyecto personal en LinkedIn</small></span><Arrow />
       </a>
-      <footer className={styles.footer}><a href="mailto:musiclub.org@gmail.com">¿Platicamos? musiclub.org@gmail.com</a><span>Hecho con música, para compartir música.</span><Link href="/privacy">Privacidad</Link></footer>
+      <a href="https://github.com/eugenio-turcott/musiclub-albumes" target="_blank" rel="noopener noreferrer" className={`${styles.card} ${styles.personal}`} aria-label="GitHub: repositorio público de Musiclub (se abre en otra pestaña)">
+        <span className={styles.icon}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 .7a11.5 11.5 0 0 0-3.64 22.4c.57.1.78-.25.78-.55v-2.1c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.69 0-1.26.45-2.28 1.18-3.08-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.16 1.18a11.1 11.1 0 0 1 5.76 0c2.2-1.49 3.16-1.18 3.16-1.18.62 1.58.23 2.75.11 3.04.73.8 1.18 1.82 1.18 3.08 0 4.42-2.69 5.39-5.26 5.68.42.36.78 1.06.78 2.14v3.18c0 .31.21.66.79.55A11.5 11.5 0 0 0 12 .7Z"/></svg></span>
+        <span className={styles.cardText}><span className={styles.cardTitle}>GitHub</span><small>El repositorio público de Musiclub</small></span><Arrow/>
+      </a>
+      <footer className={styles.footer}><a href="mailto:musiclub.org@gmail.com">¿Sugerencias? musiclub.org@gmail.com</a><nav aria-label="Información legal" className={styles.legal}><Link href="/privacy">Privacidad</Link><Link href="/terms">Términos</Link></nav></footer>
     </main>
   </div>;
 }

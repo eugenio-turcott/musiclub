@@ -12,7 +12,8 @@ export function GenreDetail({ genre, albums }) {
   const [page, setPage] = useState(1);
   const pages = Math.max(1, Math.ceil(albums.length / 24));
   const pressing = visuals.genreRevealArtwork(genre.id);
-  return <div className="mx-auto w-full max-w-7xl space-y-6 px-3 pb-12 sm:px-6">
+  return <div className="min-h-screen cyber-grid p-3 sm:p-6">
+    <div className="mx-auto w-full max-w-7xl space-y-6">
     <AppHeader showTitle={false} />
     <section className={styles.hero} style={{'--genre-color':pressing.base, '--genre-accent':pressing.accent, '--genre-light':pressing.highlight}} aria-labelledby="genre-title">
       <Link to="/catalogo?tab=genres" className={styles.back}><span aria-hidden="true">←</span> Explorar géneros</Link>
@@ -31,5 +32,6 @@ export function GenreDetail({ genre, albums }) {
     </section>}
     {pages > 1 && <nav aria-label="Páginas de lanzamientos" className="flex items-center justify-center gap-4 text-sm"><button disabled={page===1} onClick={()=>setPage(value=>value-1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Anterior</button><span>{page} / {pages}</span><button disabled={page===pages} onClick={()=>setPage(value=>value+1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Siguiente</button></nav>}
     <Footer />
+    </div>
   </div>;
 }

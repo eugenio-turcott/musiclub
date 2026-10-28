@@ -316,7 +316,7 @@ export function LanguageSelector({ variant = 'header' }) {
         >
           <span><InterfaceText>{"🌐"}</InterfaceText></span>
           <span>
-            <UiIcon name="globe" /> {activeObj.name}
+            {activeObj.name}
           </span>
           <span className="text-[10px] text-slate-500">▼</span>
         </button>

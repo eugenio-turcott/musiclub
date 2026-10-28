@@ -1,5 +1,4 @@
 'use client';
-import { InterfaceText } from './UiIcon';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import picks from '../data/editorialSpotlights.json';
@@ -8,46 +7,46 @@ import { getReleaseUrl } from '../utils/ratingUtils';
 import styles from './EditorialSpotlight.module.css';
 
 const entries = editorial.activeSpotlights(picks);
+const SLIDE_DURATION = 7000;
 export function EditorialSpotlight() {
   const id = useId();
   const section = useRef(null);
   const touch = useRef(null);
   const swiped = useRef(false);
   const [selected, setSelected] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const [focused, setFocused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [cycle, setCycle] = useState(0);
   const [visible, setVisible] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(true);
   const [announcement, setAnnouncement] = useState('');
   useEffect(() => {
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReducedMotion(media.matches);
-    update();
-    media.addEventListener('change', update);
     const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.25 });
     if (section.current) observer.observe(section.current);
     entries.forEach(entry => { const image = new Image(); image.src = entry.artwork; });
-    return () => { media.removeEventListener('change', update); observer.disconnect(); };
+    return () => observer.disconnect();
   }, []);
   useEffect(() => {
-    if (paused || hovered || focused || !visible || reducedMotion || entries.length < 2) return;
+    setProgress(0);
+    if (!visible || entries.length < 2) return;
+    let started = performance.now();
     const timer = window.setInterval(() => {
-      if (!document.hidden) setSelected(index => (index + 1) % entries.length);
-    }, 7000);
+      // Do not consume a slide's time while its browser tab is hidden.
+      if (document.hidden) { started = performance.now(); setProgress(0); return; }
+      const elapsed = performance.now() - started;
+      if (elapsed >= SLIDE_DURATION) { setProgress(0); setSelected(index => (index + 1) % entries.length); }
+      else setProgress(elapsed / SLIDE_DURATION * 100);
+    }, 100);
     return () => window.clearInterval(timer);
-  }, [paused, hovered, focused, visible, reducedMotion, selected]);
+  }, [visible, selected, cycle]);
   if (!entries.length) return null;
   const current = entries[selected];
   const choose = index => {
     const next = (index + entries.length) % entries.length;
     setSelected(next);
+    setCycle(value => value + 1);
     setAnnouncement(`${entries[next].category}: ${entries[next].artist}, ${entries[next].release}`);
   };
   const url = getReleaseUrl({ album_name: current.release, artist_name: current.artist, release_type: 'ALBUM' });
-  return <section ref={section} aria-labelledby={`${id}-title`} aria-roledescription="carrusel" className={styles.section}
-    onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-    onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
+  return <section ref={section} aria-labelledby={`${id}-title`} aria-roledescription="carrusel" className={styles.section}>
     <header className={styles.heading}><h2 id={`${id}-title`}>En el radar.</h2><span className={styles.category}>{current.category}</span></header>
     <div className={`${styles.billboard} ${styles[current.tone]}`}>
       <div key={current.id} className={styles.slide} role="group" aria-roledescription="diapositiva" aria-label={`${selected + 1} de ${entries.length}: ${current.category}`}
@@ -65,13 +64,12 @@ export function EditorialSpotlight() {
         <div className={styles.caption}><div><h3 translate="no">{current.artist}</h3><p translate="no">{current.release}</p></div><Link to={url} aria-label={`Ver el release ${current.release}`}>Ver release <span aria-hidden="true">↗</span></Link></div>
       </div>
     </div>
-    <div className={styles.controls} aria-label="Controles del carrusel">
-      <div className={styles.dots}>{entries.map((entry, index) => <button key={entry.id} type="button" aria-label={`Mostrar ${entry.category}`} aria-current={selected === index ? 'true' : undefined} onClick={() => choose(index)} className={`${styles.dot} ${selected === index ? styles.active : ''}`}><span/></button>)}</div>
-      <div className={styles.navigation}>
-        {!reducedMotion && <button type="button" onClick={() => setPaused(value => !value)} aria-label={paused ? 'Reanudar carrusel' : 'Pausar carrusel'}><InterfaceText>{paused ? '▶' : 'Ⅱ'}</InterfaceText></button>}
-        <button type="button" onClick={() => choose(selected - 1)} aria-label="Release anterior">←</button>
-        <button type="button" onClick={() => choose(selected + 1)} aria-label="Release siguiente">→</button>
-      </div>
+    <div className={styles.controls} aria-label="Progreso del carrusel automático">
+      <div className={styles.progressSegments}>{entries.map((entry, index) => <button key={entry.id} type="button" aria-label={`Mostrar ${entry.category}`} aria-current={selected === index ? 'true' : undefined} onClick={() => choose(index)} className={styles.segment}>
+        <span className={styles.segmentTrack}><span style={{transform:`scaleX(${index < selected ? 1 : index === selected ? progress/100 : 0})`}}/></span>
+        <span className={styles.segmentLabel}>{entry.category}</span>
+      </button>)}</div>
+      <span role="progressbar" aria-label="Tiempo para la siguiente diapositiva" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)} className={styles.remaining}>Siguiente en {Math.max(1,Math.ceil((100-progress)/100*SLIDE_DURATION/1000))} s</span>
     </div>
     <p className={styles.srOnly} aria-live="polite" aria-atomic="true">{announcement}</p>
   </section>;
