@@ -29,3 +29,7 @@ tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'cl
 tables.artist_discographies.push({slug:'the-weeknd',name:'the weeknd',refresh_after:'2099-01-01',updated_at:'2026-10-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd',genres:['Pop']},discography:[{id:'deezer_weeknd_fixture',name:'Starboy',artists:['The Weeknd'],release_type:'ALBUM',releaseDate:'2016-11-25',image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'weeknd_fixture'}]}]}});
 
 for(const review of tables.public_reviews.filter(review=>[albums[0].id,'clean-variant-fixture'].includes(review.album_id))) review.feeling='intrigado';
+
+albums[0].tracks.push({id:'qa-second',name:'Segunda canción',track_number:2},{id:'qa-third',name:'Tercera canción',track_number:3});
+albums[0].total_tracks=3;
+Object.assign(reviews[0],{rating_produccion:5,rating_composicion:4,rating_letras:3,rating_originalidad:4,rating_cohesion:5,rating_replay:4,track_ratings:{'qa-third':9,'track-0':9,'qa-second':10},favorite_track:'qa-second'});

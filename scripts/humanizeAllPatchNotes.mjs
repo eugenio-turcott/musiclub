@@ -503,7 +503,7 @@ async function run() {
     " */",
     "",
     "export const GITHUB_REPO_OWNER = 'eugenio-turcott';",
-    "export const GITHUB_REPO_NAME = 'musiclub-albumes';",
+    "export const GITHUB_REPO_NAME = 'musiclub';",
     "export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;",
     "",
     "export const CURATED_PATCH_NOTES = ",

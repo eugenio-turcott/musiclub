@@ -1,9 +1,12 @@
+import tracklists from '../utils/releaseTracks.cjs';
 // src/services/albumEnrichmentService.js
 import { supabase } from './supabaseClient.js';
 import { searchAlbum, getAlbumDetails } from './spotifyApi.js';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
 import { normalizeReleaseType } from './musicBrainzService.js';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
+
+const {sameReleaseTitle,sameArtistCredit} = tracklists;
 
 const USER_AGENT = 'Musiclub/1.0 ( https://www.musiclub.org ; contact@musiclub.org )';
 const MUSICBRAINZ_API_BASE = 'https://musicbrainz.org/ws/2';
@@ -35,7 +38,8 @@ export async function fetchMusicBrainzDetails(artistName, albumName) {
     const rgs = rgJson['release-groups'] || [];
     if (rgs.length === 0) return null;
 
-    const rg = rgs[0];
+    const rg = rgs.find(item=>sameReleaseTitle(item.title,albumName) && (!artistName || sameArtistCredit(item['artist-credit'],artistName)));
+    if (!rg) return null;
     const mbid = rg.id;
 
     // 2. Obtener Releases y Relaciones del Release Group
@@ -54,7 +58,7 @@ export async function fetchMusicBrainzDetails(artistName, albumName) {
     }
 
     const rgData = await detailsRes.json();
-    const releases = rgData.releases || [];
+    const releases = (rgData.releases || []).filter(item=>sameReleaseTitle(item.title,albumName));
 
     // Priorizar releases oficiales, con código de barras y pistas
     const sortedReleases = [...releases].sort((a, b) => {
@@ -168,11 +172,12 @@ export async function fetchDeezerDetails(artistName, albumName) {
     const cleanAlb = (albumName || '').replace(/\([^)]*\)/g, '').trim();
     const q = cleanArt ? `artist:"${cleanArt}" album:"${cleanAlb}"` : cleanAlb;
 
-    const searchRes = await searchDeezerAlbums(q, 3);
+    const searchRes = await searchDeezerAlbums(q, 20);
     const albums = searchRes?.albums || [];
     if (albums.length === 0) return null;
 
-    const candidate = albums[0];
+    const candidate = albums.find(item => sameReleaseTitle(item.name || item.album_name || item.title, albumName) && (!artistName || sameArtistCredit(item.artists || item.artist,artistName)));
+    if (!candidate) return null;
     const cleanId = String(candidate.deezer_id || candidate.id).replace('deezer_', '');
     const details = await getDeezerAlbumDetails(cleanId);
     if (!details) return candidate;
@@ -246,7 +251,7 @@ export async function fetchSpotifyDetails(artistName, albumName, spotifyId = nul
   try {
     if (spotifyId) {
       const details = await getAlbumDetails(spotifyId);
-      if (details?.success && details.album) {
+      if (details?.success && details.album && sameReleaseTitle(details.album.name || details.album.album_name,albumName) && (!artistName || sameArtistCredit(details.album.artists || details.album.artist,artistName))) {
         return formatSpotifyAlbum(details.album);
       }
     }
@@ -257,13 +262,8 @@ export async function fetchSpotifyDetails(artistName, albumName, spotifyId = nul
 
     const searchRes = await searchAlbum(query);
     if (searchRes?.success && searchRes.albums?.length > 0) {
-      // Priorizar lanzamientos tipo 'album' y con mayor número de tracks sobre sencillos
-      const best = [...searchRes.albums].sort((a, b) => {
-        const aIsAlb = (a.album_type === 'album' || a.release_type === 'ALBUM') ? 2 : (a.album_type === 'ep' ? 1 : 0);
-        const bIsAlb = (b.album_type === 'album' || b.release_type === 'ALBUM') ? 2 : (b.album_type === 'ep' ? 1 : 0);
-        if (bIsAlb !== aIsAlb) return bIsAlb - aIsAlb;
-        return (b.totalTracks || b.total_tracks || 0) - (a.totalTracks || a.total_tracks || 0);
-      })[0];
+      const best = searchRes.albums.find(item => sameReleaseTitle(item.name || item.album_name, albumName) && (!artistName || sameArtistCredit(item.artists || item.artist,artistName)));
+      if (!best) return null;
 
       const details = await getAlbumDetails(best.id);
       if (details?.success && details.album) {
@@ -288,6 +288,7 @@ function formatSpotifyAlbum(album) {
 
   return {
     id: album.id,
+    name: album.name || album.album_name,
     image_url: album.image || null,
     spotify_url: album.external_urls?.spotify || `https://open.spotify.com/album/${album.id}`,
     release_date: album.releaseDate || null,
@@ -324,22 +325,9 @@ export function build21ColumnPayload({
     rawItem.image_url ||
     null;
 
-  // 2. Tracklist oficial con duración y track_number
-  // Prioridad: Tracks existentes (si ya tienen IDs de Spotify/reseñas) > Spotify > Deezer > MusicBrainz > Record Club
-  let finalTracks = [];
-  if (Array.isArray(rawItem.tracks) && rawItem.tracks.length > 0 && typeof rawItem.tracks[0] === 'object' && rawItem.tracks[0].id) {
-    finalTracks = rawItem.tracks;
-  } else if (spotifyData?.tracks && spotifyData.tracks.length > 0) {
-    finalTracks = spotifyData.tracks;
-  } else if (deezerData?.tracks && deezerData.tracks.length > 0) {
-    finalTracks = deezerData.tracks;
-  } else if (mbData?.tracks && mbData.tracks.length > 0) {
-    finalTracks = mbData.tracks;
-  } else if (Array.isArray(rcTracks) && rcTracks.length > 0) {
-    finalTracks = rcTracks;
-  } else if (Array.isArray(rawItem.tracks) && rawItem.tracks.length > 0) {
-    finalTracks = rawItem.tracks;
-  }
+  // Prefer real titles over provisional names, retaining IDs used by reviews.
+  const selectedTracks = tracklists.selectTracklist(rawItem.tracks, spotifyData?.tracks, deezerData?.tracks, mbData?.tracks, rcTracks);
+  const finalTracks = tracklists.mergeTracklist(Array.isArray(rawItem.tracks) ? rawItem.tracks : [], selectedTracks);
 
   // 3. Enlaces a las 4 plataformas de streaming
   const spotifyLink =
@@ -462,7 +450,7 @@ export async function findAlbumInDatabase(albumName, artistName, mbid = null) {
         .eq('mbid', mbid)
         .maybeSingle();
 
-      if (mbidMatch) return mbidMatch;
+      if (mbidMatch && sameReleaseTitle(mbidMatch.album_name,albumName)) return mbidMatch;
     }
 
     // 2. Coincidencia exacta de nombre y artista
@@ -536,7 +524,8 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
     existing &&
     ((isExistingSingle && incomingIsAlbum) ||
       ((releaseItem.total_tracks || 0) > existingTracksCount && (releaseItem.total_tracks || 0) >= 2) ||
-      (!existing.tracks || existing.tracks.length === 0));
+      (!existing.tracks || existing.tracks.length === 0) ||
+      tracklists.tracklistIssues(existing).length > 0);
 
   if (existing && !shouldUpgrade) {
     return {
@@ -570,8 +559,9 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
 
   // 4. Si ya existía y necesitaba actualización (graduación de single a álbum completo)
   if (existing) {
-    const finalTracks = payload.tracks && payload.tracks.length > 0 ? payload.tracks : existing.tracks;
-    const finalTotalTracks = payload.total_tracks || (finalTracks ? finalTracks.length : existing.total_tracks);
+    const selectedTracks = tracklists.selectTracklist(existing.tracks, payload.tracks);
+    const finalTracks = tracklists.mergeTracklist(existing.tracks, selectedTracks);
+    const finalTotalTracks = finalTracks.length || existing.total_tracks;
     const { data: updated, error: updateError } = await db
     .from('albums')
       .update({

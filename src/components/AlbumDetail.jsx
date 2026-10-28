@@ -1,4 +1,7 @@
 'use client';
+import MoodIcon from './MoodIcon';
+import ReviewCriteria from './ReviewCriteria';
+import ReviewTrackRatings from './ReviewTrackRatings';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
 import { PoolReviewNotice, EarlyPoolReviewDialog } from './PoolReviewSchedule';
@@ -30,7 +33,6 @@ import {
   getEmotionFromReview,
   getCommunityMood,
   getReviewFavoriteTrack,
-  isFavoriteTrackMatch,
   calculateAlbumTopTrack,
 } from '../utils/ratingUtils';
 import {
@@ -231,7 +233,6 @@ export function AlbumDetail({
   const [loading, setLoading] = useState(() => !preloadedAlbum);
   const [error, setError] = useState(null);
   const [showReviewSystem, setShowReviewSystem] = useState(false);
-  const [expandedReviews, setExpandedReviews] = useState({});
   const [spotifyMeta, setSpotifyMeta] = useState(null);
   const [sharingReview, setSharingReview] = useState(null);
 
@@ -795,13 +796,6 @@ export function AlbumDetail({
     }
   };
 
-  const toggleReviewExpanded = (reviewId) => {
-    setExpandedReviews((prev) => ({
-      ...prev,
-      [reviewId]: !prev[reviewId],
-    }));
-  };
-
   // Structured JSON-LD Schema for Google Rich Review Snippets (Metacritic / AOTY style)
   const schemaData = useMemo(() => {
     if (!album) return null;
@@ -1326,10 +1320,10 @@ export function AlbumDetail({
                 <div data-community-mood className={`release-mood-card min-w-0 rounded-2xl border p-3 sm:p-4 flex flex-col items-center justify-between gap-3 text-center ${communityMood?.emotions.length === 1 ? communityMood.emotions[0].badgeClass : 'border-purple-300/20 bg-purple-500/10 text-purple-200'}`}>
                   <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-wider">Ánimo de la comunidad</span>
                   {communityMood ? <>
-                    <span className="flex flex-wrap items-center justify-center gap-2" aria-hidden="true">{communityMood.emotions.map(emotion=><UiIcon key={emotion.id} name={emotion.id === 'intrigado' ? 'thoughtful' : ({euforico:'amazement',inspirado:'smile',relajado:'calm',melancolico:'sad',indiferente:'neutral',asco:'dislike'})[emotion.id]} tone="inherit" size={communityMood.emotions.length > 1 ? 48 : 'clamp(76px, 7vw, 104px)'}/>)}</span>
+                    <span className="flex flex-wrap items-center justify-center gap-2" aria-hidden="true">{communityMood.emotions.map(emotion=><MoodIcon key={emotion.id} mood={emotion.id} size={communityMood.emotions.length > 1 ? 56 : 'clamp(76px, 7vw, 104px)'}/>)}</span>
                     <span className="text-base sm:text-lg leading-tight font-black">{communityMood.emotions.length === 1 ? communityMood.emotions[0].label : 'Ánimo mixto'}</span>
                     <span className="text-[10px] opacity-75">{communityMood.emotions.length === 1 ? `${communityMood.count} de ${communityMood.total} reseñas` : 'Distintas emociones con la misma presencia'}{communityMood.inferred && <span className="block mt-1">Incluye emociones estimadas por puntuación</span>}</span>
-                  </> : <><UiIcon name="smile" tone="inherit" size="clamp(76px, 7vw, 104px)"/><span className="text-xs opacity-75">Aún sin opiniones</span></>}
+                  </> : <><MoodIcon mood="unknown" size="clamp(76px, 7vw, 104px)"/><span className="text-xs opacity-75">Aún sin opiniones</span></>}
                 </div>
 
                 <div className="release-meta-stack grid min-w-0 grid-rows-2 gap-2.5 sm:gap-3">
@@ -1893,10 +1887,6 @@ export function AlbumDetail({
                 const favTrackName = favTrack
                   ? getTrackDisplayName(favTrack, album.tracks)
                   : null;
-                const isExpanded = expandedReviews[rev.id || revIdx];
-                const hasTrackRatings =
-                  rev.track_ratings &&
-                  Object.keys(rev.track_ratings).length > 0;
                 const isOwnReview = Boolean(
                   user &&
                   ((rev.user_id &&
@@ -1957,7 +1947,7 @@ export function AlbumDetail({
                             className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${emotion.badgeClass}`}
                             title={emotion.description}
                           >
-                            <span className="text-xl"><InterfaceText>{emotion.emoji}</InterfaceText></span>
+                            <MoodIcon mood={emotion.id} size={36}/>
                             <span className="hidden sm:block">
                               <InterfaceText>{emotion.label}</InterfaceText>
                             </span>
@@ -1994,97 +1984,8 @@ export function AlbumDetail({
                       </div>
                     )}
 
-                    {/* Mini Criteria Chips */}
-                    <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-1 border-t border-white/5">
-                      <InterfaceText>{[
-                        {
-                          label: '🎛️ Prod',
-                          val: rev.rating_produccion,
-                          max: 5,
-                        },
-                        {
-                          label: '🎵 Comp',
-                          val: rev.rating_composicion,
-                          max: 5,
-                        },
-                        { label: '📝 Letras', val: rev.rating_letras, max: 5 },
-                        { label: '⭐ Gral', val: rev.rating_general, max: 10 },
-                      ].map((crit, cIdx) => (
-                        <div
-                          key={cIdx}
-                          className="bg-black/30 p-1 rounded-lg text-center border border-white/5"
-                        >
-                          <div className="text-white/40 text-[8px] uppercase truncate">
-                            <InterfaceText>{crit.label}</InterfaceText>
-                          </div>
-                          <div className="text-white font-bold text-[11px] mt-0.5">
-                            {crit.val ?? '-'}/{crit.max}
-                          </div>
-                        </div>
-                      ))}</InterfaceText>
-                    </div>
-
-                    {/* Collapsible Tracks */}
-                    {hasTrackRatings && (
-                      <div className="pt-1">
-                        <button
-                          type="button"
-                          onClick={() => toggleReviewExpanded(rev.id || revIdx)}
-                          className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
-                        >
-                          <span><InterfaceText>{" 🎵 "}</InterfaceText>{Object.keys(rev.track_ratings).length} canciones
-                            evaluadas
-                          </span>
-                          <span className="text-[10px] text-white/40">
-                            {isExpanded ? 'Ocultar ▲' : 'Ver tracks ▼'}
-                          </span>
-                        </button>
-
-                        {isExpanded && (
-                          <div className="mt-2 p-2 sm:p-3 rounded-xl bg-black/50 border border-white/5 max-h-48 overflow-y-auto custom-scrollbar space-y-1.5 animate-fadeIn">
-                            {Object.entries(rev.track_ratings).map(
-                              ([trackKey, tScore], tIdx) => {
-                                const tName = getTrackDisplayName(
-                                  trackKey,
-                                  album.tracks
-                                );
-                                const isFav = isFavoriteTrackMatch(
-                                  trackKey,
-                                  favTrack,
-                                  album.tracks,
-                                  tIdx
-                                );
-                                return (
-                                  <div
-                                    key={tIdx}
-                                    className={`flex items-center justify-between text-xs py-1 px-2 rounded-lg border transition-all ${
-                                      isFav
-                                        ? 'bg-amber-500/20 border-amber-400/40 text-amber-200 shadow-sm'
-                                        : 'bg-white/5 border-white/5'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
-                                      <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
-                                      <span
-                                        className={`truncate text-[11px] ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`}
-                                        title={tName}
-                                      >
-                                        {tName}
-                                      </span>
-                                    </div>
-                                    <span
-                                      className={`font-black text-[11px] shrink-0 ${isFav ? 'text-amber-300' : 'text-emerald-400'}`}
-                                    >
-                                      {tScore}/10
-                                    </span>
-                                  </div>
-                                );
-                              }
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <ReviewCriteria review={rev}/>
+                    <ReviewTrackRatings review={rev} tracks={album.tracks}/>
 
                     {/* Interacciones de la Comunidad: Reacciones y Comentarios */}
                     <ReviewInteractions

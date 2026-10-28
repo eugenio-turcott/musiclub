@@ -157,7 +157,8 @@ export function getTrackDisplayName(trackKey, tracks = []) {
           String(t.id) === cleanKey ||
           t.spotify_id === cleanKey ||
           String(t.spotify_id) === cleanKey ||
-          t.uri === strKey)
+          t.uri === strKey ||
+          (t.id_aliases || []).map(String).includes(cleanKey))
     );
     if (foundById && foundById.name) return foundById.name;
 
@@ -188,6 +189,29 @@ export function getTrackDisplayName(trackKey, tracks = []) {
   }
 
   return strKey;
+}
+
+/** Resolve stored IDs before numeric positions; ties keep the release's tracklist order. */
+export function getSortedTrackRatings(ratings = {}, tracks = [], favoriteKey = null) {
+  if (typeof tracks === 'string') { try { tracks = JSON.parse(tracks); } catch { tracks = []; } }
+  const list = Array.isArray(tracks) ? tracks : [];
+  const normalize = value => String(value ?? '').replace(/^spotify:track:/i, '').trim().toLowerCase();
+  const resolve = key => {
+    const normalized = normalize(key);
+    const exact = list.findIndex(track => [typeof track === 'string' ? track : track?.name, track?.id, track?.spotify_id, track?.uri, ...(track?.id_aliases || [])].some(value => value != null && normalize(value) === normalized));
+    if (exact >= 0) return exact;
+    if (/^\d+$/.test(normalized)) {
+      const index = Number(normalized) === 0 ? 0 : Number(normalized) - 1;
+      if (list[index] != null) return index;
+    }
+    return -1;
+  };
+  const favoriteIndex = favoriteKey == null ? -1 : resolve(favoriteKey);
+  return Object.entries(ratings || {}).filter(([,score]) => score != null && score !== '' && Number.isFinite(Number(score))).map(([key,score], order) => {
+    const index = resolve(key);
+    const track = list[index];
+    return { key, score: Number(score), index, order, name: index >= 0 ? (typeof track === 'string' ? track : track.name || track.track_name || getTrackDisplayName(key,list)) : getTrackDisplayName(key,list), isFavorite: favoriteIndex >= 0 ? index === favoriteIndex : favoriteKey != null && normalize(key) === normalize(favoriteKey) };
+  }).sort((a,b) => b.score - a.score || (a.index < 0 ? Infinity : a.index) - (b.index < 0 ? Infinity : b.index) || a.order - b.order);
 }
 
 // ==========================================================
@@ -403,6 +427,10 @@ const KNOWN_INDIVISIBLE_ARTISTS = [
   'tony! toni! toné!',
   'bell biv devoe',
   'sun ra and his arkestra'
+  ,'piri & tommy', 'simon & garfunkel', 'belle & sebastian', 'years & years',
+  'aly & aj', 'hall & oates', 'brooks & dunn', 'of mice & men', 'mumford & sons',
+  'bomba estéreo', 'king gizzard & the lizard wizard', 'amyl and the sniffers',
+  'kevis & maykyy', 'harris & ford', 'tegan and sara', 'tegan & sara'
 ];
 
 /**
@@ -432,26 +460,17 @@ export function splitArtists(artistString) {
     }
   }
 
-  // Separar colaboraciones explícitas con feat., ft., featuring, with
-  const featParts = raw.split(/\s+(?:feat\.?|ft\.?|featuring|with)\s+/i);
-
-  const rawArtists = [];
-  featParts.forEach((part) => {
-    let hasExc = false;
-    for (const exc of KNOWN_INDIVISIBLE_ARTISTS) {
-      if (part.toLowerCase().includes(exc)) {
-        hasExc = true;
-        break;
-      }
-    }
-
-    if (hasExc) {
-      rawArtists.push(part.trim());
-    } else {
-      const subParts = part.split(',').map((s) => s.trim()).filter(Boolean);
-      rawArtists.push(...subParts);
-    }
-  });
+  // Protect punctuation inside established artist names before splitting credits.
+  const protectedNames = [];
+  let protectedRaw = raw;
+  for (const name of [...KNOWN_INDIVISIBLE_ARTISTS].sort((a,b)=>b.length-a.length)) {
+    const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    protectedRaw = protectedRaw.replace(new RegExp(`(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`, 'giu'), match => {
+      protectedNames.push(match);
+      return `\uE000${protectedNames.length-1}\uE001`;
+    });
+  }
+  const rawArtists = protectedRaw.split(/\s+(?:feat\.?|ft\.?|featuring|with|&)\s+|,/i).map(part => part.replace(/\uE000(\d+)\uE001/g, (_,index)=>protectedNames[Number(index)]));
 
   return rawArtists
     .map((name) => {

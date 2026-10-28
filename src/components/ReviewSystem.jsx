@@ -1,3 +1,4 @@
+import MoodIcon from './MoodIcon';
 import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useReviewAccess } from '../hooks/useReviewAccess';
@@ -856,7 +857,7 @@ export function ReviewSystem({
                         className={`text-[11px] px-2.5 py-1 rounded-full border font-bold flex items-center gap-1.5 shadow-sm ${emotionObj.badgeClass}`}
                         title={emotionObj.description}
                       >
-                        <span className="text-xl"><InterfaceText>{emotionObj.emoji}</InterfaceText></span>
+                        <span className="text-xl"><MoodIcon mood={emotionObj.id} size={32}/></span>
                         <span className="hidden sm:inline">
                           <InterfaceText>{emotionObj.label}</InterfaceText>
                         </span>
@@ -2095,7 +2096,7 @@ export function ReviewSystem({
                             const suggested = getEmotionForScore(currentScore);
                             return (
                               <span className="text-xs text-pink-300/90 bg-pink-500/10 px-3 py-1 rounded-xl border border-pink-500/20 self-start sm:self-auto font-mono flex items-center gap-1.5 shrink-0">
-                                <span><InterfaceText>{"💡 Sugerido:"}</InterfaceText></span> <InterfaceText>{suggested.emoji}</InterfaceText>{' '}
+                                <span><InterfaceText>{"💡 Sugerido:"}</InterfaceText></span> <MoodIcon mood={suggested.id} size={32}/>{' '}
                                 <InterfaceText>{suggested.label}</InterfaceText>
                               </span>
                             );
@@ -2136,7 +2137,7 @@ export function ReviewSystem({
                                 title={emo.description}
                               >
                                 <span className="text-2xl sm:text-3xl transition-transform group-hover:scale-110">
-                                  <InterfaceText>{emo.emoji}</InterfaceText>
+                                  <MoodIcon mood={emo.id} size={44}/>
                                 </span>
                                 <span className="text-xs font-bold mt-2 leading-tight line-clamp-2">
                                   <InterfaceText>{emo.label}</InterfaceText>
@@ -2407,7 +2408,7 @@ export function ReviewSystem({
                               className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                               title={emo.description}
                             >
-                              <span className="text-xl"><InterfaceText>{emo.emoji}</InterfaceText></span>
+                              <span className="text-xl"><MoodIcon mood={emo.id} size={44}/></span>
                               <span className="hidden sm:inline">
                                 <InterfaceText>{emo.label}</InterfaceText>
                               </span>

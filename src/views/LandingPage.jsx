@@ -1,4 +1,5 @@
 'use client';
+import MoodIcon from '../components/MoodIcon';
 import { InterfaceText, UiIcon } from '../components/UiIcon';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import reviewChronology from '../utils/reviewChronology.cjs';
@@ -1220,7 +1221,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {emotion && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                            <InterfaceText>{emotion.emoji}</InterfaceText> <InterfaceText>{emotion.label}</InterfaceText>
+                            <MoodIcon mood={emotion.id} size={32}/> <InterfaceText>{emotion.label}</InterfaceText>
                           </span>
                         )}
                         {review.favTrackTitle && (

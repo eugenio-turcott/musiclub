@@ -12,6 +12,7 @@ import releaseIdentity from '../utils/releaseIdentity.cjs';
 import releaseLookup from '../utils/publicReleaseLookup.cjs';
 import { getStoredArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
+import tracklists from '../utils/releaseTracks.cjs';
 
 const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
@@ -86,10 +87,7 @@ export const getPublicAlbum = cache(async slug => {
   const announcedTracks = await unstable_cache(
     () => fetchRecordClubTracks(data.id), ['upcoming-tracks-v916', data.id], { revalidate: 900 }
   )();
-  const tracks = announcedTracks.length ? announcedTracks.map(track => {
-    const saved = storedTracks.find(t => (t.disc_number || 1) === (track.disc_number || 1) && t.track_number === track.track_number);
-    return /^Track\s+\d+$/i.test(track.name || '') && saved?.name && !/^Track\s+\d+$/i.test(saved.name) ? saved : track;
-  }) : storedTracks;
+  const tracks = tracklists.mergeTracklist(storedTracks, tracklists.selectTracklist(storedTracks,announcedTracks));
   const future = Boolean(data.release_date && data.release_date.slice(0,10) > new Date().toISOString().slice(0,10));
   return publicData({ ...data, id: data.id, reviews: [], review_count: 0, final_rating: null,
     tracks, track_stats: tracks, criteria_averages: {},

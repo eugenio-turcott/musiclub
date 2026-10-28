@@ -1,3 +1,4 @@
+import MoodIcon from './MoodIcon';
 import { InterfaceText } from './UiIcon';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -591,7 +592,7 @@ export function MemberProfileModal({
                                       className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                                       title={emo.description}
                                     >
-                                      <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                                      <span><MoodIcon mood={emo.id} size={32}/></span>
                                       <span><InterfaceText>{emo.label}</InterfaceText></span>
                                     </span>
                                   ) : null;

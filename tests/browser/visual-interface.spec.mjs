@@ -124,10 +124,33 @@ test('the release mood sits beside the final score and uses a face for thoughtfu
  await page.goto('/albumes/artista-de-prueba-azul');
  const mood=page.locator('[data-community-mood]');
  await expect(mood).toContainText('Intrigado / Reflexivo');
- await expect(mood.locator('[data-ui-icon="thoughtful"]')).toBeVisible();
+ await expect(mood.locator('[data-mood-icon="intrigado"]')).toBeVisible();
  const left=await page.getByRole('img',{name:/Calificación final:/}).boundingBox(),right=await mood.boundingBox();
  expect(right.x).toBeGreaterThan(left.x);expect(Math.abs(right.y-left.y)).toBeLessThan(70);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('both review surfaces show seven icon criteria and collapsed ratings ordered by score and original tracklist',async({page})=>{
+ for(const path of ['/reviews','/albumes/artista-de-prueba-azul']){
+  await page.goto(path);
+  const criteria=page.locator('.review-criteria').first();
+  await expect(criteria.locator('.review-criterion')).toHaveCount(7);
+  await expect(criteria.locator('[data-ui-icon="sliders"]')).toBeVisible();
+  await expect(criteria).not.toContainText('Prod.');
+  const details=page.locator('details.review-track-ratings').first();
+  await expect(details).not.toHaveAttribute('open');
+  await details.locator('summary').click();
+  await expect(details.locator('li')).toHaveCount(3);
+  const rows=await details.locator('li').allTextContents();
+  expect(rows[0]).toContain('Segunda canción');expect(rows[1]).toContain('Canción de prueba');expect(rows[2]).toContain('Tercera canción');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+});
+
+test('a release with no reviews uses a question inside a circle for its unknown mood',async({page})=>{
+ await page.goto('/albumes/artista-proximo-estreno-oficial');
+ await expect(page.locator('[data-community-mood] [data-mood-icon="unknown"]')).toBeVisible();
+ await expect(page.locator('[data-community-mood]')).toContainText('Aún sin opiniones');
 });
 
 test('genre and information pages share the application navigation and adapt their layout',async({page})=>{
@@ -146,7 +169,7 @@ test('genre and information pages share the application navigation and adapt the
 
 test('social links use the larger logo, concise heading and complete repository and legal links',async({page})=>{
  await page.goto('/redes');await expect(page.getByRole('heading',{level:1,name:'Redes Sociales de Musiclub',exact:true})).toBeVisible();
- await expect(page.getByRole('link',{name:/GitHub: repositorio público/})).toHaveAttribute('href','https://github.com/eugenio-turcott/musiclub-albumes');
+ await expect(page.getByRole('link',{name:/GitHub: repositorio público/})).toHaveAttribute('href','https://github.com/eugenio-turcott/musiclub');
  await expect(page.getByRole('link',{name:'¿Sugerencias? musiclub.org@gmail.com',exact:true})).toBeVisible();
  const legal=page.getByRole('navigation',{name:'Información legal',exact:true});await expect(legal.getByRole('link',{name:'Términos',exact:true})).toHaveAttribute('href','/terms');
  await expect(page.locator('body')).not.toContainText('RESEÑAS, DISCOS Y GENTE');

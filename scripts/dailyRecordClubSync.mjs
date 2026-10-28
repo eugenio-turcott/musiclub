@@ -1,3 +1,4 @@
+import tracklists from '../src/utils/releaseTracks.cjs';
 import { deliverNotificationOnce } from '../src/services/notificationDelivery.js';
 import 'dotenv/config';
 import path from 'path';
@@ -795,68 +796,46 @@ async function syncRecordClubReleasesWithAlbums() {
       .select('id, album_name, artist_name, total_tracks, release_type, spotify_url, spotify_id');
     const { data: albList, error: albErr } = await supabase
       .from('albums')
-      .select('id, album_name, artist_name, total_tracks, tracks, release_type, spotify_link, image_url');
+      .select('id, album_name, artist_name, total_tracks, tracks, release_type, release_date, spotify_link, image_url');
 
     if (rcErr || albErr || !rcList || !albList) return;
 
     const albumMap = new Map();
     albList.forEach((a) => {
-      const kExact = normalizeKey(a.artist_name, a.album_name);
+      const kExact = `${normalizeKey(a.artist_name,'')}:::${tracklists.providerTitleKey(a.album_name)}`;
       albumMap.set(kExact, a);
-      const cleanAlb = (a.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
-      albumMap.set(normalizeKey(a.artist_name, cleanAlb), a);
     });
 
     let updatedRcCount = 0;
     let updatedAlbumsCount = 0;
 
     for (const rc of rcList) {
-      const kExact = normalizeKey(rc.artist_name, rc.album_name);
-      const cleanAlb = (rc.album_name || '').replace(/\([^)]*\)/g, '').replace(/\[[^\]]*\]/g, '').trim();
-      const kClean = normalizeKey(rc.artist_name, cleanAlb);
-      const matchedAlb = albumMap.get(kExact) || albumMap.get(kClean);
+      const kExact = `${normalizeKey(rc.artist_name,'')}:::${tracklists.providerTitleKey(rc.album_name)}`;
+      const matchedAlb = albumMap.get(kExact);
 
       if (matchedAlb) {
         const albTracksCount = matchedAlb.total_tracks || (Array.isArray(matchedAlb.tracks) ? matchedAlb.tracks.length : 0);
         const rcTracksCount = rc.total_tracks || 0;
 
-        // Caso A: albums tiene más pistas o es álbum completo y rc_releases no
-        if (albTracksCount > rcTracksCount || (matchedAlb.release_type === 'ALBUM' && rc.release_type === 'SENCILLO')) {
-          await supabase
-            .from('record_club_releases')
-            .update({
-              total_tracks: albTracksCount,
-              release_type: matchedAlb.release_type || 'ALBUM',
-            })
-            .eq('id', rc.id);
-          updatedRcCount++;
+        const graduating = rc.release_type === 'ALBUM' && matchedAlb.release_type === 'SENCILLO';
+        const needsRefresh = tracklists.tracklistIssues(matchedAlb).length > 0 || rcTracksCount !== albTracksCount || graduating;
+        if (needsRefresh) {
+          const fetched = await fetchRecordClubTracks(rc.id);
+          const selected = tracklists.selectTracklist(matchedAlb.tracks, fetched);
+          const merged = tracklists.mergeTracklist(matchedAlb.tracks, selected);
+          if (merged.length && !merged.some(tracklists.isPlaceholderTrack)) {
+            const {error} = await supabase.from('albums').update({tracks:merged,total_tracks:merged.length,
+              ...(graduating && merged.length > 1 ? {release_type:rc.release_type} : {}),
+              ...(!matchedAlb.spotify_link && rc.spotify_url ? {spotify_link:rc.spotify_url} : {})
+            }).eq('id',matchedAlb.id);
+            if (!error) {
+              updatedAlbumsCount++;
+              const {error:rcError}=await supabase.from('record_club_releases').update({total_tracks:merged.length}).eq('id',rc.id);
+              if(!rcError) updatedRcCount++;
+            }
+          }
         }
-        // Caso B: rc_releases tiene más pistas o es álbum completo y albums sigue como sencillo
-        else if (rcTracksCount > albTracksCount || (rc.release_type === 'ALBUM' && matchedAlb.release_type === 'SENCILLO')) {
-          const tracks = await fetchRecordClubTracks(rc.id);
-          const updatePayload = {
-            total_tracks: rcTracksCount,
-            release_type: rc.release_type || 'ALBUM',
-          };
-          if (tracks.length > 0) {
-            updatePayload.tracks = tracks;
-          }
-          if (rc.spotify_url && !matchedAlb.spotify_link) {
-            updatePayload.spotify_link = rc.spotify_url;
-          }
-          if (!matchedAlb.genres || matchedAlb.genres.length === 0) {
-            updatePayload.genres = normalizeCanonicalGenres([
-              ...(rc.genre_category ? [rc.genre_category] : []),
-              ...(Array.isArray(matchedAlb.genres) ? matchedAlb.genres : [])
-            ], 12);
-            if (!updatePayload.genres.length) delete updatePayload.genres;
-          }
-          await supabase
-            .from('albums')
-            .update(updatePayload)
-            .eq('id', matchedAlb.id);
-          updatedAlbumsCount++;
-        }
+
       }
     }
 

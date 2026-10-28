@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.43.1 · **Última actualización:** 27 de octubre de 2026.
+**Versión:** 10.0.0 · **Última actualización:** 28 de octubre de 2026.
 
 ## Qué incluye
 
@@ -198,3 +198,11 @@ La carga de una sala consulta únicamente sus propuestas, releases y reseñas, s
 Los pools anteriores tienen tarjetas propias en el directorio. El radar avanza automáticamente cada siete segundos mientras está visible, con barras de progreso y sin controles de pausa o flechas. El Top Score Comunitario incluye únicamente álbumes con al menos dos reseñas.
 
 La ficha presenta el ánimo más compartido junto a la calificación; los empates aparecen como ánimo mixto. Las reseñas antiguas sin emoción explícita pueden aportar una estimación por nota, identificada en la interfaz. Géneros, información, contacto y guías comparten el encabezado general; Redes conserva su portada independiente con GitHub y enlaces legales.
+
+### Reseñas y tracklists · 10.0.0
+
+Las reseñas del feed y de cada release muestran los seis criterios y General con íconos y nombres accesibles. Las canciones evaluadas se despliegan bajo demanda, ordenadas por nota descendente y, en empates, por su posición en el tracklist. Los estados de ánimo usan caras vectoriales propias; la ausencia de reseñas se indica con una interrogación.
+
+`npm run tracks:audit` revisa los releases publicados del catálogo y los próximos estrenos que ya alcanzaron su fecha: detecta listas vacías, nombres provisionales y conteos incompletos. Es de sólo lectura y guarda el informe en `outputs/v10-track-audit/`. Los estrenos futuros conservan sus pistas anunciadas. La sincronización compara la calidad de los títulos, conserva los identificadores usados por las reseñas y evita que una respuesta parcial borre canciones conocidas. Las búsquedas de enriquecimiento contrastan el título y la edición solicitada, manteniendo Deluxe separado.
+
+El repositorio oficial es [eugenio-turcott/musiclub](https://github.com/eugenio-turcott/musiclub). El nombre anterior redirige al actual.

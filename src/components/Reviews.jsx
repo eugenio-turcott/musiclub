@@ -1,4 +1,9 @@
 'use client';
+import MoodIcon from './MoodIcon';
+import ReviewCriteria from './ReviewCriteria';
+import ReviewTrackRatings from './ReviewTrackRatings';
+import { UiIcon } from './UiIcon';
+import ArtistLinks from './common/ArtistLinks';
 import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
@@ -17,7 +22,6 @@ import {
   getTrackDisplayName,
   getEmotionFromReview,
   getReviewFavoriteTrack,
-  isFavoriteTrackMatch,
 } from '../utils/ratingUtils';
 import { notifyContentLoaded } from '../utils/translateCrashGuard';
 
@@ -36,7 +40,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
   // Estadísticas básicas
   const [totalReviews, setTotalReviews] = useState(initialReviews.length);
   const [avgRating, setAvgRating] = useState(() => getAlbumWeightedAverage(initialReviews) || '0.0');
-  const [totalMembers, setTotalMembers] = useState(21);
+  const [totalMembers, setTotalMembers] = useState(() => new Set(initialReviews.map(r=>r.user_id || r.reviewer_name).filter(Boolean)).size);
 
   const loadReviews = useCallback(async () => {
     if (!initialReviews.length) setLoading(true);
@@ -51,6 +55,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
 
       const reviewsData = reviewsRes.data || [];
       const profilesData = profilesRes?.data || [];
+      setTotalMembers(Math.max(Number(catalog.stats?.total_users) || 0, new Set(reviewsData.map(r=>r.user_id || r.reviewer_name).filter(Boolean)).size));
 
       if (profilesData && profilesData.length > 0) {
         setTotalMembers(profilesData.length);
@@ -259,9 +264,9 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-pink-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-xl group-hover:bg-pink-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20"><InterfaceText>{" 📝 "}</InterfaceText></span>
+              <span className="text-pink-300 p-2.5 sm:p-3 rounded-xl bg-pink-500/10 border border-pink-500/20"><UiIcon name="review" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Total Reviews
                 </p>
                 <p
@@ -278,9 +283,9 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" ⭐ "}</InterfaceText></span>
+              <span className="text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="star" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Promedio Ponderado
                 </p>
                 <p
@@ -288,7 +293,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                   className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
                   data-stat="score"
                 >
-                  <InterfaceText>{loading || avgRating === '...' ? '★ ...' : `★ ${avgRating}`}</InterfaceText>
+                  {loading || avgRating === '...' ? '...' : avgRating}
                 </p>
               </div>
             </div>
@@ -297,9 +302,9 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><InterfaceText>{" 💿 "}</InterfaceText></span>
+              <span className="text-emerald-300 p-2.5 sm:p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><UiIcon name="disc" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Álbumes Evaluados
                 </p>
                 <p
@@ -319,9 +324,9 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20"><InterfaceText>{" 👥 "}</InterfaceText></span>
+              <span className="text-purple-300 p-2.5 sm:p-3 rounded-xl bg-purple-500/10 border border-purple-500/20"><UiIcon name="users" size={30} tone="inherit"/></span>
               <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
+                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
                   Críticos & Miembros
                 </p>
                 <p
@@ -329,7 +334,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                   className="notranslate text-lg sm:text-2xl font-black text-purple-400"
                   data-stat="number"
                 >
-                  {loading ? '...' : totalMembers || 21}
+                  {loading ? '...' : totalMembers}
                 </p>
               </div>
             </div>
@@ -441,7 +446,6 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
               const weightedScore = getWeightedReviewScore(review);
               const rating =
                 weightedScore !== null ? weightedScore : review.rating_general;
-              const trackRatings = review.track_ratings || {};
               const isOwnReview = Boolean(
                 user &&
                 ((review.user_id &&
@@ -469,7 +473,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                         <img
                           src={album.image_url}
                           alt={album.album_name}
-                          className="w-18 h-18 sm:w-20 sm:h-20 min-w-[72px] min-h-[72px] sm:min-w-[80px] sm:min-h-[80px] object-cover rounded-xl border border-white/10 shadow-lg group-hover:border-pink-500/40 transition-colors"
+                          className="w-28 h-28 sm:w-32 sm:h-32 object-cover rounded-xl border border-white/10 shadow-lg group-hover:border-pink-500/40 transition-colors"
                           onError={(e) => {
                             e.target.src =
                               '/musiclub_logo_corchea.png';
@@ -496,7 +500,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                             translate="no"
                             className="notranslate artist-name text-slate-400 text-xs sm:text-sm font-medium mt-0.5 truncate"
                           >
-                            {album?.artist_name || 'Artista desconocido'}
+                            {album?.artist_name ? <ArtistLinks artistName={album.artist_name}/> : 'Artista desconocido'}
                           </p>
                         </div>
 
@@ -563,7 +567,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                               className={`text-[10px] px-2 py-0.5 mb-2 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                               title={emo.description}
                             >
-                              <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                              <MoodIcon mood={emo.id} size={34}/>
                               <span><InterfaceText>{emo.label}</InterfaceText></span>
                             </span>
                           ) : null;
@@ -606,80 +610,8 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                         );
                       })()}
 
-                      {/* Categorías de calificación */}
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {[
-                          { key: 'rating_produccion', label: '🎛️ Prod.' },
-                          { key: 'rating_composicion', label: '🎵 Comp.' },
-                          { key: 'rating_letras', label: '📝 Letras' },
-                          { key: 'rating_originalidad', label: '💡 Orig.' },
-                          { key: 'rating_cohesion', label: '🔗 Cohes.' },
-                          { key: 'rating_replay', label: '🔄 Replay' },
-                        ].map(
-                          ({ key, label }) =>
-                            review[key] && (
-                              <span
-                                key={key}
-                                className="text-[10px] text-slate-300 bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/5 font-medium"
-                              >
-                                <InterfaceText>{label}</InterfaceText>:{' '}
-                                <strong className="text-pink-300">
-                                  {review[key]}
-                                </strong>
-                              </span>
-                            )
-                        )}
-                      </div>
-
-                      {/* Ratings por canción */}
-                      {Object.keys(trackRatings).length > 0 && (
-                        <div className="mt-2.5 pt-2 border-t border-white/5">
-                          <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1.5 font-bold flex items-center gap-1">
-                            <span><InterfaceText>{"🎵"}</InterfaceText></span> Calificaciones individuales por
-                            track:
-                          </p>
-                          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
-                            {Object.entries(trackRatings).map(
-                              ([trackId, score], trIdx) => {
-                                const trackName = getTrackDisplayName(
-                                  trackId,
-                                  album?.tracks
-                                );
-                                const isFav = isFavoriteTrackMatch(
-                                  trackId,
-                                  getReviewFavoriteTrack(review),
-                                  album?.tracks,
-                                  trIdx
-                                );
-                                return (
-                                  <span
-                                    key={trackId}
-                                    className={`text-[10px] px-2.5 py-0.5 rounded-lg border flex items-center gap-1 transition-all ${
-                                      isFav
-                                        ? 'text-amber-200 bg-amber-500/20 border-amber-400/40 font-bold shadow-sm'
-                                        : 'text-slate-300 bg-black/40 border-white/5'
-                                    }`}
-                                  >
-                                    <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
-                                    <span
-                                      className="max-w-[150px] truncate"
-                                      title={trackName}
-                                    >
-                                      {trackName}
-                                    </span>
-                                    :{' '}
-                                    <strong
-                                      className={`font-bold ${isFav ? 'text-amber-300' : 'text-cyan-300'}`}
-                                    >
-                                      {score}
-                                    </strong>
-                                  </span>
-                                );
-                              }
-                            )}
-                          </div>
-                        </div>
-                      )}
+                      <ReviewCriteria review={review}/>
+                      <ReviewTrackRatings review={review} tracks={album?.tracks} summaryLabel="Calificaciones individuales por track"/>
 
                       {/* Interacciones: Reacciones y Comentarios */}
                       <ReviewInteractions

@@ -980,7 +980,6 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                       >
                         Ver Release →
                       </Link>
-                      <ListenLaterButton album={alb} />
 
                       {isAdmin && (
                         <button
