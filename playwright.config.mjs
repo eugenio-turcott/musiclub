@@ -7,7 +7,7 @@ export default defineConfig({
   expect:{timeout:15000},
   workers:1,
   retries:process.env.CI?1:0,
-  reporter:[['list'],['html',{open:'never'}]],
+  reporter:[['list'],['html',{open:'never'}],...(process.env.CI?[['github']]:[])],
   use:{...(process.env.PLAYWRIGHT_CHANNEL ? {channel:process.env.PLAYWRIGHT_CHANNEL} : {}),baseURL:'http://127.0.0.1:3101',trace:'retain-on-failure',screenshot:'only-on-failure'},
   projects:[{name:'desktop',use:{...devices['Desktop Chrome']}},{name:'mobile',use:{...devices['Pixel 7']}}],
   webServer:{command:'node tests/browser/start-app.mjs',url:'http://127.0.0.1:3101',timeout:180000,reuseExistingServer:process.env.PLAYWRIGHT_REUSE_SERVER==='1'},
