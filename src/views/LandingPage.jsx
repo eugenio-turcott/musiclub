@@ -1220,8 +1220,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       {/* Emotion & Favorite Track Tags */}
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {emotion && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                            <MoodIcon mood={emotion.id} size={32}/> <InterfaceText>{emotion.label}</InterfaceText>
+                          <span data-community-mood-icon role="img" aria-label={`Estado de ánimo: ${emotion.label}`} title={emotion.label} className={`inline-flex items-center justify-center p-1 rounded-full border ${emotion.badgeClass}`}>
+                            <MoodIcon mood={emotion.id} size={32}/>
                           </span>
                         )}
                         {review.favTrackTitle && (

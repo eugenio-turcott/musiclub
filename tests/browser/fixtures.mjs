@@ -33,3 +33,5 @@ for(const review of tables.public_reviews.filter(review=>[albums[0].id,'clean-va
 albums[0].tracks.push({id:'qa-second',name:'Segunda canción',track_number:2},{id:'qa-third',name:'Tercera canción',track_number:3});
 albums[0].total_tracks=3;
 Object.assign(reviews[0],{rating_produccion:5,rating_composicion:4,rating_letras:3,rating_originalidad:4,rating_cohesion:5,rating_replay:4,track_ratings:{'qa-third':9,'track-0':9,'qa-second':10},favorite_track:'qa-second'});
+// A lone perfect score must never displace an album with two community reviews.
+reviews[2].rating_general=10;

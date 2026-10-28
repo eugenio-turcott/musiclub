@@ -10,7 +10,7 @@ import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
-import { slugifyArtist, getReleaseUrl } from '../utils/ratingUtils';
+import { slugifyArtist, getReleaseUrl, getCommunityTopAlbum } from '../utils/ratingUtils';
 import { PLACEHOLDER_COVER } from '../utils/coverPlaceholder';
 import { fetchAlbumReleaseYear, getAlbumDetails } from '../services/spotifyApi';
 import {
@@ -620,12 +620,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
     const albumsWithRatings = albums.filter(
       (a) => a.final_rating !== null && a.review_count > 0
     );
-    const topRatedAlbum =
-      albumsWithRatings.length > 0
-        ? [...albumsWithRatings].sort(
-            (a, b) => b.final_rating - a.final_rating
-          )[0]
-        : null;
+    const topRatedAlbum = getCommunityTopAlbum(albums);
 
     const mostReviewedAlbum =
       [...albums].sort((a, b) => b.review_count - a.review_count)[0] || null;
@@ -903,7 +898,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               Promedio: {globalStats.avgClubScore}<InterfaceText>{" ⭐ por álbum "}</InterfaceText></p>
           </div>
 
-          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-yellow-500/40 transition-all shadow-lg">
+          <div data-catalog-top className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-yellow-500/40 transition-all shadow-lg">
             <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
               Top del Club
             </span>
@@ -917,7 +912,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             <p className="text-[11px] text-yellow-200/80 font-semibold mt-1">
               <InterfaceText>{globalStats.topRatedAlbum
                 ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}`
-                : 'Sin calificar'}</InterfaceText>
+                : 'Sin álbumes con al menos 2 reseñas'}</InterfaceText>
             </p>
           </div>
         </div>

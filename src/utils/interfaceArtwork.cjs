@@ -19,7 +19,7 @@ const ICON_BODIES = {
   "arrowLeft": "<path d=\"M20 12H4 m6-6-6 6 6 6\"/>",
   "arrowUp": "<path d=\"M12 20V4 m-6 6 6-6 6 6\"/>",
   "arrowDown": "<path d=\"M12 4v16 m-6-6 6 6 6-6\"/>",
-  "link": "<path d=\"m10 13 4-4 M8 16l-1 1a4 4 0 0 1-6-6l5-5a4 4 0 0 1 6 0 M16 8l1-1a4 4 0 0 1 6 6l-5 5a4 4 0 0 1-6 0\"/>",
+  "link": "<g transform=\"rotate(-45 12 12)\"><rect x=\"2.5\" y=\"8.5\" width=\"12\" height=\"7\" rx=\"3.5\"/><rect x=\"9.5\" y=\"8.5\" width=\"12\" height=\"7\" rx=\"3.5\"/></g>",
   "heart": "<path d=\"M20 5a5 5 0 0 0-8 1 5 5 0 0 0-8-1c-5 5 2 11 8 16 6-5 13-11 8-16Z\"/>",
   "chat": "<path d=\"M21 11a9 8 0 0 1-9 8H4l-2 3V11a9 8 0 0 1 19 0Z\"/>",
   "mail": "<path d=\"M3 5h18v14H3Z m0 0 9 8 9-8\"/>",

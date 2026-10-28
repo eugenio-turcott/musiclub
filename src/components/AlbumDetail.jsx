@@ -1880,7 +1880,7 @@ export function AlbumDetail({
           </div>
 
           {album.reviews && album.reviews.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="community-review-grid grid grid-cols-1 items-start md:grid-cols-2 gap-4">
               {album.reviews.map((rev, revIdx) => {
                 const emotion = getEmotionFromReview(rev);
                 const favTrack = getReviewFavoriteTrack(rev);
@@ -1905,7 +1905,7 @@ export function AlbumDetail({
                 return (
                   <div
                     key={rev.id || revIdx}
-                    className="bg-linear-to-br from-[#121422] to-[#0b0d18] border border-white/5 hover:border-white/15 rounded-2xl p-4 sm:p-5 flex flex-col justify-between space-y-3 shadow-xl transition-all"
+                    className="community-review-card min-w-0 bg-linear-to-br from-[#121422] to-[#0b0d18] border border-white/5 hover:border-white/15 rounded-2xl p-4 sm:p-5 flex flex-col justify-start space-y-3 shadow-xl transition-all"
                   >
                     {/* Review Header */}
                     <div className="flex items-start justify-between gap-3">

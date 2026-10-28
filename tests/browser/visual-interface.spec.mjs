@@ -153,6 +153,34 @@ test('a release with no reviews uses a question inside a circle for its unknown 
  await expect(page.locator('[data-community-mood]')).toContainText('Aún sin opiniones');
 });
 
+test('expanding track ratings does not stretch or redistribute a neighboring community review',async({page})=>{
+ await page.goto('/albumes/artista-de-prueba-azul');
+ const neighbor=page.locator('.community-review-card').nth(1);
+ await page.evaluate(()=>document.fonts.ready.then(()=>true));
+ const layout=()=>neighbor.evaluate(el=>({height:el.getBoundingClientRect().height,criteriaOffset:el.querySelector('.review-criteria').getBoundingClientRect().y-el.getBoundingClientRect().y}));
+ const before=await layout();
+ await page.locator('.community-review-card').first().locator('details summary').click();
+ const after=await layout();
+ expect(Math.abs(after.height-before.height)).toBeLessThan(1);
+ expect(Math.abs(after.criteriaOffset-before.criteriaOffset)).toBeLessThan(1);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('catalogue Top del Club excludes a single perfect review and home mood badges contain only artwork',async({page})=>{
+ await page.goto('/catalogo');
+ const top=page.locator('[data-catalog-top]');
+ await expect(top).toContainText('Azul');
+ await expect(top).not.toContainText('Verde');
+ await page.goto('/');
+ const moods=page.locator('[data-community-mood-icon]');
+ await expect(moods).toHaveCount(3);
+ for(const badge of await moods.all()){
+   await expect(badge.locator('[data-mood-icon]')).toBeVisible();
+   expect((await badge.textContent()).trim()).toBe('');
+   await expect(badge).toHaveAttribute('aria-label',/^Estado de ánimo:/);
+ }
+});
+
 test('genre and information pages share the application navigation and adapt their layout',async({page})=>{
  for(const [path,title] of [['/generos/pop','Pop'],['/sobre-musiclub','Un club para escuchar y compartir'],['/contacto','Hablemos de Musiclub'],['/guias','Escucha, opina y descubre']]){
   await page.goto(path);await expect(page.getByRole('heading',{level:1,name:title,exact:true})).toBeVisible();

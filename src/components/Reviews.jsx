@@ -523,7 +523,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           <img
                             src={review.reviewer_avatar}
                             alt={review.reviewer_name || 'Reviewer'}
-                            className="w-5 h-5 rounded-full object-cover border border-white/20 shadow-sm shrink-0"
+                            className="reviewer-avatar w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border border-white/20 shadow-sm shrink-0"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling)
@@ -532,17 +532,16 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           />
                         ) : null}
                         <div
-                          className={`w-5 h-5 rounded-full bg-linear-to-tr from-pink-500 to-purple-500 text-white items-center justify-center font-bold text-[10px] shadow-sm shrink-0 ${
+                          className={`reviewer-avatar w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-tr from-pink-500 to-purple-500 text-white items-center justify-center font-bold text-base sm:text-lg shadow-sm shrink-0 ${
                             review.reviewer_avatar ? 'hidden' : 'flex'
                           }`}
                         >
-                          {(review.reviewer_avatar ||
-                            review.reviewer_name ||
+                          {(review.reviewer_name ||
                             'A')[0].toUpperCase()}
                         </div>
                         <span
                           translate="no"
-                          className="notranslate username-tag text-slate-200 font-bold"
+                          className="notranslate username-tag text-sm sm:text-base text-slate-200 font-bold break-words"
                         >
                           {review.reviewer_name || 'Anónimo'}
                         </span>

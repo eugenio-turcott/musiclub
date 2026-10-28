@@ -478,9 +478,11 @@ export function HourlyRecommendedRelease({
               </div>
 
               {reviewComment ? (
-                <p className="text-xs sm:text-sm text-white/80 italic leading-relaxed line-clamp-3 bg-black/20 p-3 rounded-xl border border-white/5">
-                  "{reviewComment}"
-                </p>
+                <div className="bg-black/20 p-3 rounded-xl border border-white/5">
+                  <p data-hourly-review-excerpt className="text-xs sm:text-sm text-white/80 italic leading-relaxed line-clamp-3 break-words">
+                    "{reviewComment}"
+                  </p>
+                </div>
               ) : (
                 <p className="text-xs text-white/50 italic bg-black/20 p-2.5 rounded-xl border border-white/5">
                   El primer crítico otorgó su calificación sin comentarios
