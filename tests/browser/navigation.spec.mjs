@@ -23,7 +23,7 @@ for (const status of ['ACTIVO','GANADOR']) test(`a Pool member confirms an early
   confirmed=true;confirmations++;return route.fulfill({json:context()});
  });
  await page.goto('/albumes/artista-de-prueba-azul');
- const cta=page.getByRole('button',{name:'⭐ Calificar y Reseñar',exact:true});
+ const cta=page.getByRole('button',{name:'Calificar y Reseñar',exact:true});
  await expect(cta).toBeEnabled();
  if(status==='GANADOR') await expect(page.getByText('Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
  await cta.click();
@@ -55,9 +55,9 @@ test('the room owner schedules a winner review date without enabling reviews',as
  await expect(page.getByText('Dueño del Pool')).toContainText('Corpus');
  await page.getByLabel('Programar fecha de reseña',{exact:true}).fill('2026-11-02');
  await page.getByRole('button',{name:'Guardar fecha',exact:true}).click();
- await expect(page.getByText('🗓️ Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
+ await expect(page.getByText('Fecha de reseña: 2 de noviembre de 2026',{exact:true})).toBeVisible();
  expect(payload).toEqual({p_season_id:'current',p_album_id:'00000000-0000-4000-8000-000000000001',p_date:'2026-11-02'});
- await expect(page.getByRole('button',{name:'✅ Habilitar Reviews',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Habilitar Reviews',exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
@@ -133,9 +133,9 @@ test('Portadas stays on the selected release through scoring, tags, museum and n
     await page.waitForTimeout(300);
     await expect(title).toHaveText(original);
   }
-  await page.getByRole('button',{name:'📷 Fotografía',exact:true}).click();
+  await page.getByRole('button',{name:'Fotografía',exact:true}).click();
   await expect(title).toHaveText(original);
-  await page.getByRole('button',{name:'🔍 Modo Museo',exact:true}).click();
+  await page.getByRole('button',{name:'Modo Museo',exact:true}).click();
   await expect(page.getByRole('button',{name:'Cerrar Modo Museo'})).toBeVisible();
   await expect(title).toHaveText(original);
   await page.getByRole('button',{name:'Cerrar Modo Museo'}).click();
@@ -270,7 +270,7 @@ test('anonymous ratings ask for a session without publishing a community vote',a
   page.on('request',request=>{if(request.method()==='POST'&&request.url().includes('/rest/v1/cover_ratings'))writes.push(request.url());});
   await page.goto('/portadas');
   await expect(page.locator('h2')).toHaveText(/Azul|Rojo|Verde/);
-  await page.getByRole('button',{name:'✨ Guardar Calificación de Portada'}).click();
+  await page.getByRole('button',{name:'Guardar Calificación de Portada'}).click();
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
   expect(writes).toHaveLength(0);
 });
@@ -299,7 +299,7 @@ test('a closed Pool keeps proposals disabled without creating entries',async({pa
   const hero = page.getByRole('region',{name:'Pool activo',exact:true});
   await expect(hero.getByRole('heading',{level:1})).toBeVisible();
   await expect(hero.getByRole('heading',{level:1})).toHaveCount(1);
-  await expect(hero.getByRole('button',{name:'🔒 Propuestas cerradas',exact:true})).toBeDisabled();
+  await expect(hero.getByRole('button',{name:'Propuestas cerradas',exact:true})).toBeDisabled();
 });
 
 test('unavailable cover votes produce a visible error instead of a fake saved total',async({page})=>{
@@ -392,14 +392,14 @@ test('Pool discovery keeps genre filters inside the selected season and accepts 
     {album_id:'00000000-0000-4000-8000-000000000002',status:'ACTIVO'},
   ])}));
   await page.goto('/gashapon?pool=temporada-1');
-  await expect(page.getByText('🎰 Releases del Pool',{exact:true})).toBeVisible();
-  await expect(page.getByRole('button',{name:'🎲 Todos los Releases (2)',exact:true})).toBeVisible();
+  await expect(page.getByText('Releases del Pool',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Todos los Releases (2)',exact:true})).toBeVisible();
   await expect(page.getByRole('button',{name:'Filtrar Gashapon por Jazz',exact:true})).toHaveCount(0);
   await page.getByRole('button',{name:'Filtrar Gashapon por Pop',exact:true}).click();
   await expect(page.getByRole('status').filter({hasText:'1 lanzamientos disponibles'})).toBeVisible();
   await page.getByRole('link',{name:'Explorar catálogo completo',exact:true}).click();
   await expect(page).toHaveURL(/\/gashapon$/);
-  await expect(page.getByText('🎰 Releases del Pool',{exact:true})).toHaveCount(0);
+  await expect(page.getByText('Releases del Pool',{exact:true})).toHaveCount(0);
 });
 
 
@@ -529,8 +529,8 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
  await expect(hero).toContainText('Cupo completo');
  await expect(page.getByText('Por: Nombre actual',{exact:true})).toBeVisible();
  await expect(page.getByText('Por: Old Google name',{exact:true})).toHaveCount(0);
- await hero.getByRole('button',{name:'✎ Editar mi cápsula',exact:true}).click();
- const dialog=page.getByRole('dialog',{name:'📥 Editar mi cápsula',exact:true});
+ await hero.getByRole('button',{name:'Editar mi cápsula',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Editar mi cápsula',exact:true});
  await expect(dialog.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
  await expect(dialog.locator('textarea')).toHaveValue('Original note');
  await dialog.locator('textarea').fill('Updated note');
@@ -538,7 +538,7 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
  await expect(dialog.getByRole('button',{name:'Volver al Pool',exact:true})).toBeVisible();
  expect(edited.p_entry_id).toBe(entry.id); expect(edited.p_note).toBe('Updated note'); expect(nominations).toBe(0);
  await dialog.getByRole('button',{name:'Volver al Pool',exact:true}).click();
- await hero.getByRole('button',{name:'✎ Editar mi cápsula',exact:true}).click();
+ await hero.getByRole('button',{name:'Editar mi cápsula',exact:true}).click();
  await expect(page.getByRole('dialog').locator('textarea')).toHaveValue('Updated note');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
@@ -547,7 +547,7 @@ test('a member edits their existing Pool capsule at full capacity and sees curre
 test('a cached admin profile cannot keep an expired or missing session signed in', async ({page}) => {
  await page.addInitScript(()=>localStorage.setItem('maquina_musical_user',JSON.stringify({id:'stale',email:'stale@example.test',name:'Stale admin',role:'admin'})));
  await page.goto('/admin');
- await expect(page.getByText('⛔ Acceso denegado',{exact:true})).toBeVisible();
+ await expect(page.getByText('Acceso denegado',{exact:true})).toBeVisible();
  expect(await page.evaluate(()=>localStorage.getItem('maquina_musical_user'))).toBeNull();
 });
 
@@ -560,7 +560,7 @@ test('help pages separate practical questions from listening guides and preserve
  await page.getByRole('link',{name:'Consultar la metodología de calificación →',exact:true}).click();
  await expect(page).toHaveURL(/\/guias\/como-calificamos$/);
  await expect(page.getByRole('heading',{name:'Cómo se calcula una calificación en Musiclub',exact:true})).toBeVisible();
- await expect(page.locator('footer').getByRole('link',{name:'❓ Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
+ await expect(page.locator('footer').getByRole('link',{name:'Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
  await expect(page.locator('footer').getByRole('link',{name:'Guías de escucha y reseña',exact:true})).toHaveAttribute('href','/guias');
  await page.goto('/guias');
  await expect(page.getByRole('link',{name:'Ayuda para usar Musiclub →',exact:true})).toHaveAttribute('href','/faq');
@@ -570,7 +570,7 @@ test('help pages separate practical questions from listening guides and preserve
 
 test('the sign-in dialog uses the Musiclub note artwork', async ({page}) => {
  await page.goto('/');
- await page.getByRole('button',{name:'👤 Iniciar sesión',exact:true}).click();
+ await page.getByRole('button',{name:'Iniciar sesión',exact:true}).click();
  await expect(page.getByRole('dialog').getByRole('img',{name:'Nota musical de Musiclub',exact:true})).toHaveAttribute('src','/musiclub_logo_corchea.png');
  await page.keyboard.press('Escape');
  await expect(page.getByRole('dialog')).toHaveCount(0);

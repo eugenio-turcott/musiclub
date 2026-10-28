@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 // src/pages/NotFoundPage.jsx
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -38,9 +39,7 @@ export function NotFoundPage() {
                 <div className="absolute inset-4 rounded-full border border-cyan-500/10" />
                 <div className="absolute inset-6 rounded-full border border-white/5" />
               </div>
-              <div className="text-5xl sm:text-6xl animate-bounce" style={{ animationDuration: '2.5s' }}>
-                💿
-              </div>
+              <div className="text-5xl sm:text-6xl animate-bounce" style={{ animationDuration: '2.5s' }}><InterfaceText>{" 💿 "}</InterfaceText></div>
             </div>
             {/* 404 Floating Tag */}
             <span className="absolute -bottom-2 -right-2 bg-linear-to-r from-[#f5576c] to-purple-600 text-white font-mono text-xs sm:text-sm font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
@@ -71,7 +70,7 @@ export function NotFoundPage() {
               className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-cyan-500/20 hover:to-blue-500/10 border border-white/10 hover:border-cyan-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
-                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🏠</span>
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform"><InterfaceText>{"🏠"}</InterfaceText></span>
                 <p className="font-bold text-white text-sm">Inicio</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Volver a la portada principal</p>
               </div>
@@ -85,7 +84,7 @@ export function NotFoundPage() {
               className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-purple-500/20 hover:to-pink-500/10 border border-white/10 hover:border-purple-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
-                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">💿</span>
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform"><InterfaceText>{"💿"}</InterfaceText></span>
                 <p className="font-bold text-white text-sm">Catálogo</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Ver todos los álbumes y reviews</p>
               </div>
@@ -99,7 +98,7 @@ export function NotFoundPage() {
               className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-amber-500/20 hover:to-yellow-500/10 border border-white/10 hover:border-amber-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
-                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🏆</span>
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform"><InterfaceText>{"🏆"}</InterfaceText></span>
                 <p className="font-bold text-white text-sm">Leaderboard</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Top discos y mejores notas</p>
               </div>
@@ -113,7 +112,7 @@ export function NotFoundPage() {
               className="p-4 rounded-2xl bg-linear-to-br from-white/5 to-white/[0.02] hover:from-rose-500/20 hover:to-red-500/10 border border-white/10 hover:border-rose-500/40 transition-all text-left group flex flex-col justify-between shadow-lg"
             >
               <div>
-                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform">🎲</span>
+                <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform"><InterfaceText>{"🎲"}</InterfaceText></span>
                 <p className="font-bold text-white text-sm">Gashapon</p>
                 <p className="text-[11px] text-slate-400 mt-0.5">Ruleta y descubrimientos</p>
               </div>

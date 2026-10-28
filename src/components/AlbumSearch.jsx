@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect } from 'react';
 import { searchAlbum, getAlbumDetails } from '../services/spotifyApi';
@@ -271,9 +272,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
       <div className="mt-8 pt-6 border-t border-white/5">
         <div className="bg-linear-to-r from-[#17192f]/95 via-[#1e1b38]/95 to-[#121426]/95 p-4 sm:p-5 rounded-2xl sm:rounded-3xl border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 sm:gap-4 shadow-xl hover:border-pink-500/30 transition-all">
           <div className="flex items-start sm:items-center gap-3 sm:gap-3.5 min-w-0">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30 shrink-0 mt-0.5 sm:mt-0">
-              💿
-            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30 shrink-0 mt-0.5 sm:mt-0"><InterfaceText>{" 💿 "}</InterfaceText></div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 flex-wrap">
                 <h4 className="text-white font-black text-sm sm:text-base leading-tight">
@@ -294,7 +293,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             onClick={() => setIsOpen(true)}
             className="w-full md:w-auto px-5 sm:px-6 py-2.5 sm:py-3 bg-linear-to-r from-[#f5576c] via-[#f093fb] to-pink-500 text-white font-black text-xs sm:text-sm uppercase tracking-wider rounded-xl sm:rounded-2xl shadow-lg shadow-[#f5576c]/25 hover:shadow-[#f5576c]/40 hover:scale-[1.02] active:scale-95 transition-all duration-300 flex items-center justify-center gap-2 shrink-0"
           >
-            <span className="text-base">➕</span>
+            <span className="text-base"><InterfaceText>{"➕"}</InterfaceText></span>
             <span>Proponer Álbum</span>
           </button>
         </div>
@@ -308,9 +307,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
         {/* Cabecera cuando está expandido */}
         <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm shadow-md shrink-0">
-              🎵
-            </div>
+            <div className="w-8 h-8 rounded-xl bg-linear-to-tr from-pink-500 to-purple-600 flex items-center justify-center text-sm shadow-md shrink-0"><InterfaceText>{" 🎵 "}</InterfaceText></div>
             <div className="min-w-0">
               <h3 className="text-white font-black text-sm sm:text-base truncate">
                 Proponer Álbum
@@ -348,13 +345,12 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             disabled={loading}
             className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-2xl text-sm font-bold hover:scale-[1.02] transition-all disabled:opacity-50 whitespace-nowrap shadow-lg shadow-[#f5576c]/20 cursor-pointer"
           >
-            {loading ? '🔍 Buscando...' : '🔍 Buscar'}
+            <InterfaceText>{loading ? '🔍 Buscando...' : '🔍 Buscar'}</InterfaceText>
           </button>
         </form>
 
         {error && (
-          <div className="text-[#f5576c] text-xs mb-3 bg-[#f5576c]/10 px-3 py-2 rounded-lg border border-[#f5576c]/10">
-            ⚠️ {error}
+          <div className="text-[#f5576c] text-xs mb-3 bg-[#f5576c]/10 px-3 py-2 rounded-lg border border-[#f5576c]/10"><InterfaceText>{" ⚠️ "}</InterfaceText>{error}
           </div>
         )}
 
@@ -395,16 +391,16 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 >
                   <div className="relative w-full aspect-square rounded-lg mb-2 overflow-hidden bg-black/40">
                     <img
-                      src={album.image || 'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵'}
+                      src={album.image || '/musiclub_logo_corchea.png'}
                       alt={album.name}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
+                        e.target.src = '/musiclub_logo_corchea.png';
                       }}
                     />
                     <div className="absolute top-1.5 right-1.5 flex flex-col gap-1 items-end">
                       <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}>
-                        {typeBadge.label}
+                        <InterfaceText>{typeBadge.label}</InterfaceText>
                       </span>
                     </div>
                   </div>
@@ -441,7 +437,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                   alt={existingAlbum.album}
                   className="w-24 h-24 object-cover rounded-xl shadow-lg border-2 border-yellow-500/30"
                 />
-                <div className="absolute -top-2 -right-2 text-xl">⚠️</div>
+                <div className="absolute -top-2 -right-2 text-xl"><InterfaceText>{"⚠️"}</InterfaceText></div>
               </div>
               <div className="flex-1 text-center sm:text-left">
                 <h4 className="text-white text-lg font-bold flex items-center gap-2 justify-center sm:justify-start">
@@ -497,19 +493,16 @@ export function AlbumSearch({ onAlbumCreated, user }) {
             <div className="flex flex-col sm:flex-row gap-5">
               <div className="relative w-full sm:w-48 aspect-square shrink-0">
                 <img
-                  src={albumDetails.image || 'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'}
+                  src={albumDetails.image || '/musiclub_logo_corchea.png'}
                   alt={albumDetails.name}
                   className="w-full h-full object-cover rounded-2xl shadow-xl border border-white/10"
                 />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
-                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#1DB954]/20 text-[#1ed760] border border-[#1DB954]/30">
-                    🟢 Spotify
-                  </span>
+                  <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-[#1DB954]/20 text-[#1ed760] border border-[#1DB954]/30"><InterfaceText>{" 🟢 Spotify "}</InterfaceText></span>
                   {albumDetails.releaseYear && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10">
-                      📅 {albumDetails.releaseYear}
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/10 text-white/70 border border-white/10"><InterfaceText>{" 📅 "}</InterfaceText>{albumDetails.releaseYear}
                     </span>
                   )}
                 </div>
@@ -535,7 +528,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                     Tipo de Lanzamiento:
                   </label>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {[
+                    <InterfaceText>{[
                       { id: 'ALBUM', label: '✨ Álbum', desc: 'LP / Disco completo' },
                       { id: 'EP', label: '💿 EP', desc: 'Extended Play' },
                       { id: 'SENCILLO', label: '🎵 Sencillo', desc: 'Single / Canción' },
@@ -553,10 +546,10 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                               : 'bg-white/5 hover:bg-white/10 text-white/60 border-white/10'
                           }`}
                         >
-                          {t.label}
+                          <InterfaceText>{t.label}</InterfaceText>
                         </button>
                       );
-                    })}
+                    })}</InterfaceText>
                   </div>
                 </div>
 
@@ -584,7 +577,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 {albumDetails.tracks && albumDetails.tracks.length > 0 && (
                   <div className="mt-3 max-h-32 overflow-y-auto custom-scrollbar bg-black/20 p-2.5 rounded-xl border border-white/5">
                     <p className="text-white/50 text-xs mb-1 font-semibold flex items-center gap-1.5">
-                      <span>🎵</span> Lista de Canciones:
+                      <span><InterfaceText>{"🎵"}</InterfaceText></span> Lista de Canciones:
                     </p>
                     <ul className="text-white/30 text-xs space-y-1">
                       {albumDetails.tracks.map((track, idx) => (
@@ -610,7 +603,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                     disabled={creating}
                     className="px-6 py-2.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-[#f5576c]/20 flex items-center gap-2"
                   >
-                    <span>{creating ? '🔄 Guardando...' : '✅ Confirmar y Proponer'}</span>
+                    <span><InterfaceText>{creating ? '🔄 Guardando...' : '✅ Confirmar y Proponer'}</InterfaceText></span>
                   </button>
 
                   <button
@@ -639,8 +632,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
                 className="w-24 h-24 object-cover rounded-xl shadow-lg shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <h4 className="text-white text-lg font-bold flex items-center gap-2">
-                  ✅ <span translate="no" className="notranslate music-title">{savedAlbum.album}</span>
+                <h4 className="text-white text-lg font-bold flex items-center gap-2"><InterfaceText>{" ✅ "}</InterfaceText><span translate="no" className="notranslate music-title">{savedAlbum.album}</span>
                   <span className="text-[10px] text-blue-400 bg-blue-400/10 px-2 py-0.5 rounded-full border border-blue-400/20">
                     Individual
                   </span>
@@ -666,7 +658,7 @@ export function AlbumSearch({ onAlbumCreated, user }) {
 
             <div className="mt-3 bg-blue-500/5 border border-blue-500/10 rounded-xl p-3">
               <p className="text-white/40 text-xs flex items-center gap-2">
-                <span className="text-blue-400">📌</span>
+                <span className="text-blue-400"><InterfaceText>{"📌"}</InterfaceText></span>
                 Este álbum es <span className="text-white/60">
                   Individual
                 </span>{' '}

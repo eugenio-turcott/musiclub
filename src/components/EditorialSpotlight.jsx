@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import picks from '../data/editorialSpotlights.json';
@@ -67,7 +68,7 @@ export function EditorialSpotlight() {
     <div className={styles.controls} aria-label="Controles del carrusel">
       <div className={styles.dots}>{entries.map((entry, index) => <button key={entry.id} type="button" aria-label={`Mostrar ${entry.category}`} aria-current={selected === index ? 'true' : undefined} onClick={() => choose(index)} className={`${styles.dot} ${selected === index ? styles.active : ''}`}><span/></button>)}</div>
       <div className={styles.navigation}>
-        {!reducedMotion && <button type="button" onClick={() => setPaused(value => !value)} aria-label={paused ? 'Reanudar carrusel' : 'Pausar carrusel'}>{paused ? '▶' : 'Ⅱ'}</button>}
+        {!reducedMotion && <button type="button" onClick={() => setPaused(value => !value)} aria-label={paused ? 'Reanudar carrusel' : 'Pausar carrusel'}><InterfaceText>{paused ? '▶' : 'Ⅱ'}</InterfaceText></button>}
         <button type="button" onClick={() => choose(selected - 1)} aria-label="Release anterior">←</button>
         <button type="button" onClick={() => choose(selected + 1)} aria-label="Release siguiente">→</button>
       </div>

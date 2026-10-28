@@ -32,6 +32,8 @@ test('listen later saves from a card without navigating, survives reload and can
   await page.reload();
   await expect(card.getByRole('button', { name: 'Quitar de Escuchar más tarde: Azul', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('/profile?tab=later');
+  await expect(page.getByRole('button', {name:'Para Ti', exact:true})).toBeVisible();
+  await expect(page.locator('a[href="/profile?tab=later"], a[href="/profile?tab=discarded"]')).toHaveCount(0);
   const list = page.getByRole('region', { name: 'Escuchar más tarde', exact: true });
   await expect(list.getByText('1 release', { exact: true })).toBeVisible();
   await list.getByRole('button', { name: 'Quitar de Escuchar más tarde: Azul', exact: true }).click();
@@ -42,19 +44,19 @@ test('listen later saves from a card without navigating, survives reload and can
 test('Gashapon shows four platforms, permanently excludes a discard, and restores it only from history', async ({ page }) => {
   await libraryAccount(page);
   await page.goto('/gashapon?genero=pop');
-  await page.getByRole('button', { name: '⚡', exact: true }).click();
-  await page.getByRole('button', { name: '✨ ¡GIRAR GASHAPON! ✨', exact: true }).click();
+  await page.getByRole('button', { name: 'Giro rápido', exact: true }).click();
+  await page.getByRole('button', { name: '¡GIRAR GASHAPON!', exact: true }).click();
   const dialog = page.getByRole('dialog');
   await expect(dialog.getByRole('heading', { name: 'Tu próxima escucha', exact: true })).toBeVisible();
   for (const name of ['Spotify', 'Apple Music', 'YouTube Music', 'Deezer']) await expect(dialog.getByRole('link', { name, exact: true })).toBeVisible();
   await dialog.getByRole('button', { name: 'Descartar del Gashapon', exact: true }).click();
   await expect(dialog).toHaveCount(0);
   await page.reload();
-  await expect(page.getByRole('button', { name: '✨ ¡GIRAR GASHAPON! ✨', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '¡GIRAR GASHAPON!', exact: true })).toBeDisabled();
   await page.getByRole('link', { name: 'Historial de descartes (1)', exact: true }).click();
   const history = page.getByRole('region', { name: 'Historial de descartes del Gashapon', exact: true });
   await history.getByRole('button', { name: 'Reactivar en el Gashapon', exact: true }).click();
   await expect(history.getByText('Reactivado en el Gashapon', { exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '✨ ¡GIRAR GASHAPON! ✨', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '¡GIRAR GASHAPON!', exact: true })).toBeEnabled();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

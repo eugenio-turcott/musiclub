@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/NotificationsDropdown.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -84,9 +85,7 @@ export function NotificationsDropdown({
       <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         {/* Bloque de Título y campana */}
         <div className="flex items-center gap-2 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner">
-            🔔
-          </div>
+          <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner"><InterfaceText>{" 🔔 "}</InterfaceText></div>
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
@@ -125,7 +124,7 @@ export function NotificationsDropdown({
               className="text-[11px] text-white/60 hover:text-rose-300 bg-white/5 hover:bg-rose-500/20 border border-white/10 hover:border-rose-500/30 p-1.5 px-2 rounded-lg transition-all font-medium flex items-center gap-1 cursor-pointer"
               title="Eliminar todas las notificaciones"
             >
-              <span>🗑️</span>
+              <span><InterfaceText>{"🗑️"}</InterfaceText></span>
               <span className="sm:hidden text-[10px]">Limpiar</span>
             </button>
           )}
@@ -150,7 +149,7 @@ export function NotificationsDropdown({
           </div>
         ) : notifications.length === 0 ? (
           <div className="py-10 px-4 text-center text-white/40 text-xs flex flex-col items-center justify-center gap-2">
-            <span className="text-3xl">📭</span>
+            <span className="text-3xl"><InterfaceText>{"📭"}</InterfaceText></span>
             <span className="font-semibold text-white/70 text-sm">
               No tienes notificaciones pendientes
             </span>
@@ -200,12 +199,12 @@ export function NotificationsDropdown({
                       item.image ? 'hidden' : 'flex'
                     }`}
                   >
-                    {item.icon}
+                    <InterfaceText>{item.icon}</InterfaceText>
                   </div>
                   {/* Badge de icono superpuesto si hay imagen */}
                   {item.image && (
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-black/80 border border-white/20 flex items-center justify-center text-[9px]">
-                      {item.icon}
+                      <InterfaceText>{item.icon}</InterfaceText>
                     </div>
                   )}
                 </div>
@@ -267,7 +266,7 @@ export function NotificationsDropdown({
           onClick={() => refreshNotifications()}
           className="text-pink-300 hover:text-white transition-colors flex items-center gap-1 font-semibold cursor-pointer"
         >
-          <span>🔄</span>
+          <span><InterfaceText>{"🔄"}</InterfaceText></span>
           <span>Actualizar</span>
         </button>
       </div>

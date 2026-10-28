@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import reviewChronology from '../utils/reviewChronology.cjs';
 import { GenreIconStrip } from '../components/GenreIconStrip';
@@ -512,9 +513,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-3xl text-white/20">
-            💿
-          </div>
+          <div className="w-full h-full flex items-center justify-center text-3xl text-white/20"><InterfaceText>{" 💿 "}</InterfaceText></div>
         )}
 
         <GenreIconStrip genres={album.genres} className="absolute left-2 top-2 z-10" />
@@ -525,17 +524,13 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           album.score !== null &&
           Number(album.score) > 0) ? (
           <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md border border-amber-400/40 text-[10px] sm:text-xs font-black text-amber-300 shadow-md flex items-center gap-1">
-            <span>⭐</span>
+            <span><InterfaceText>{"⭐"}</InterfaceText></span>
             <span>{Number(album.score).toFixed(1)}</span>
           </div>
         ) : selectedAlbumTab === 'active' || album.status === 'POOL_ACTIVO' ? (
-          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-linear-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider">
-            🔥 POOL
-          </div>
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-linear-to-r from-pink-600 to-rose-600 text-[9px] font-black text-white shadow-md uppercase tracking-wider"><InterfaceText>{" 🔥 POOL "}</InterfaceText></div>
         ) : (
-          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-cyan-600/80 backdrop-blur-md text-[9px] font-black text-white shadow-md uppercase tracking-wider">
-            💎 NUEVO
-          </div>
+          <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-cyan-600/80 backdrop-blur-md text-[9px] font-black text-white shadow-md uppercase tracking-wider"><InterfaceText>{" 💎 NUEVO "}</InterfaceText></div>
         )}
       </div>
 
@@ -572,7 +567,10 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         </div>
       </div>
       </Link>
-      <ListenLaterButton album={album} className="mt-3 w-full" />
+      <div className="release-card-actions mt-3 grid grid-cols-2 gap-2">
+        <Link to={getReleaseUrl(album)} className="release-action-tile flex items-center justify-center rounded-xl border border-white/15 bg-white/5 text-[11px] font-bold text-slate-200"><InterfaceText>{"💿"}</InterfaceText><span>Ver release</span></Link>
+        <ListenLaterButton album={album} tile className="w-full" />
+      </div>
     </article>
   );
 
@@ -646,7 +644,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   to="/catalogo"
                   className="w-full sm:w-auto px-6 py-3.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-sm rounded-2xl shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <span>💿</span>
+                  <span><InterfaceText>{"💿"}</InterfaceText></span>
                   <span>Explorar Catálogo</span>
                 </Link>
 
@@ -654,7 +652,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   to="/pool"
                   className="w-full sm:w-auto px-5 py-3.5 bg-pink-500/15 hover:bg-pink-500/25 text-pink-300 hover:text-white font-bold text-sm rounded-2xl border border-pink-500/30 hover:border-pink-500/50 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <span>🗳️</span>
+                  <span><InterfaceText>{"🗳️"}</InterfaceText></span>
                   <span>Pool Musical (Temporada 1)</span>
                 </Link>
 
@@ -662,7 +660,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   to="/gashapon"
                   className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold text-sm rounded-2xl border border-white/15 hover:border-white/30 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
-                  <span>🎰</span>
+                  <span><InterfaceText>{"🎰"}</InterfaceText></span>
                   <span>Gashapon Arcade</span>
                 </Link>
 
@@ -672,7 +670,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                     onClick={handleLogin}
                     className="w-full sm:w-auto px-5 py-3.5 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white font-semibold text-xs sm:text-sm rounded-2xl border border-white/10 transition-all flex items-center justify-center gap-2"
                   >
-                    <span>✨</span>
+                    <span><InterfaceText>{"✨"}</InterfaceText></span>
                     <span>Únete al Club</span>
                   </button>
                 )}
@@ -680,7 +678,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
               {/* Community Proof */}
               <div className="pt-2 flex items-center gap-3 text-xs text-white/50">
-                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-purple-300/30 bg-purple-500/15 text-base">🎧</span>
+                <span aria-hidden="true" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-purple-300/30 bg-purple-500/15 text-base"><InterfaceText>{"🎧"}</InterfaceText></span>
                 <span>
                   Álbumes, EPs y canciones evaluadas con pasión por la comunidad
                 </span>
@@ -708,12 +706,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       </span>
                       {currentVinylAlbum?.release_type && (
                         <span className="hidden sm:inline-block text-[9px] font-bold uppercase tracking-wider text-white/50 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
-                          {currentVinylAlbum.release_type === 'EP'
+                          <InterfaceText>{currentVinylAlbum.release_type === 'EP'
                             ? '💽 EP'
                             : currentVinylAlbum.release_type === 'SENCILLO' ||
                                 currentVinylAlbum.release_type === 'SINGLE'
                               ? '🎵 Sencillo'
-                              : '💿 Álbum'}
+                              : '💿 Álbum'}</InterfaceText>
                         </span>
                       )}
                     </div>
@@ -751,7 +749,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                           />
                         ) : (
                           <div className="w-full h-full flex flex-col items-center justify-center bg-linear-to-tr from-[#1b1c38] to-[#121324] text-white/40">
-                            <span className="text-4xl mb-2">💿</span>
+                            <span className="text-4xl mb-2"><InterfaceText>{"💿"}</InterfaceText></span>
                             <span className="text-xs font-bold">
                               Musiclub Pick
                             </span>
@@ -785,7 +783,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                     <div className="pt-3 flex items-center justify-between border-t border-white/10 mt-3">
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 text-xs sm:text-sm font-black shadow-sm">
-                          <span>⭐</span>
+                          <span><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span>
                             {currentVinylAlbum?.avg_rating !== undefined &&
                             currentVinylAlbum?.avg_rating !== null
@@ -871,7 +869,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 className="notranslate text-2xl sm:text-3xl lg:text-4xl font-black text-amber-300 tracking-tight flex items-center gap-1"
                 data-stat="number"
               >
-                <span>⭐</span>{' '}
+                <span><InterfaceText>{"⭐"}</InterfaceText></span>{' '}
                 {globalStats.top_score
                   ? Number(globalStats.top_score).toFixed(1)
                   : '—'}
@@ -901,9 +899,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg border border-white/20">
-                    🏆 GANADOR
-                  </div>
+                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3 py-1 rounded-full shadow-lg border border-white/20"><InterfaceText>{" 🏆 GANADOR "}</InterfaceText></div>
                 </div>
 
                 {/* Album Info */}
@@ -946,7 +942,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         rel="noopener noreferrer"
                         className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all flex items-center gap-1.5"
                       >
-                        <span>🎵</span>
+                        <span><InterfaceText>{"🎵"}</InterfaceText></span>
                         <span>Spotify</span>
                       </a>
                     )}
@@ -957,7 +953,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         rel="noopener noreferrer"
                         className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-white/80 hover:text-white transition-all flex items-center gap-1.5"
                       >
-                        <span>▶️</span>
+                        <span><InterfaceText>{"▶️"}</InterfaceText></span>
                         <span>YouTube</span>
                       </a>
                     )}
@@ -965,7 +961,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       to={getReleaseUrl(winner)}
                       className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-pink-300 hover:text-pink-200 transition-all flex items-center gap-1.5"
                     >
-                      <span>🔍</span>
+                      <span><InterfaceText>{"🔍"}</InterfaceText></span>
                       <span>Ver Análisis Completo</span>
                     </Link>
                   </div>
@@ -979,17 +975,15 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         className="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
                         <span>
-                          {showReviewModal
+                          <InterfaceText>{showReviewModal
                             ? '✕ Cerrar Reseña'
                             : isWinnerReviewed
                               ? '✏️ Modificar Mi Reseña'
-                              : '⭐ Calificar y Reseñar'}
+                              : '⭐ Calificar y Reseñar'}</InterfaceText>
                         </span>
                       </button>
                     ) : (
-                      <span className="text-xs text-white/40 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10">
-                        🔒 Reseñas pausadas por moderación
-                      </span>
+                      <span className="text-xs text-white/40 bg-white/5 px-3 py-1.5 rounded-xl border border-white/10"><InterfaceText>{" 🔒 Reseñas pausadas por moderación "}</InterfaceText></span>
                     )}
 
                     {isWinnerReviewed && (
@@ -1005,11 +999,11 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                         disabled={togglingReviews}
                         className="text-xs px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/60 hover:text-white transition-all cursor-pointer"
                       >
-                        {togglingReviews
+                        <InterfaceText>{togglingReviews
                           ? '...'
                           : reviewsEnabled
                             ? '🔒 Deshabilitar Reviews'
-                            : '✅ Habilitar Reviews'}
+                            : '✅ Habilitar Reviews'}</InterfaceText>
                       </button>
                     )}
                   </div>
@@ -1038,7 +1032,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 <div className="mt-6 pt-6 border-t border-white/10 animate-fadeIn">
                   <div className="flex items-center justify-between pb-3">
                     <h4 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                      <span>⭐</span>
+                      <span><InterfaceText>{"⭐"}</InterfaceText></span>
                       <span>
                         {isWinnerReviewed
                           ? 'Actualizar tu Calificación'
@@ -1169,7 +1163,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
                       {weighted !== null && (
                         <div className="px-2.5 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-xs font-black flex items-center gap-1">
-                          <span>⭐</span>
+                          <span><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span>
                             {typeof weighted === 'number'
                               ? weighted.toFixed(1)
@@ -1191,9 +1185,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                           className="w-10 h-10 rounded-lg object-cover border border-white/10 shrink-0"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg shrink-0">
-                          💿
-                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-black/40 flex items-center justify-center text-lg shrink-0"><InterfaceText>{" 💿 "}</InterfaceText></div>
                       )}
                       <div className="min-w-0 flex-1">
                         <p
@@ -1227,15 +1219,14 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       <div className="flex flex-wrap items-center gap-1.5 pt-1">
                         {emotion && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                            {emotion.emoji} {emotion.label}
+                            <InterfaceText>{emotion.emoji}</InterfaceText> <InterfaceText>{emotion.label}</InterfaceText>
                           </span>
                         )}
                         {review.favTrackTitle && (
                           <span
                             translate="no"
                             className="notranslate track-name text-[10px] px-2 py-0.5 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-300 truncate max-w-[200px]"
-                          >
-                            👑 {review.favTrackTitle}
+                          ><InterfaceText>{" 👑 "}</InterfaceText>{review.favTrackTitle}
                           </span>
                         )}
                       </div>
@@ -1276,7 +1267,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
             <div className="max-w-2xl space-y-2 mb-8 sm:mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-xs font-bold uppercase tracking-wider">
-                <span>🔄</span>
+                <span><InterfaceText>{"🔄"}</InterfaceText></span>
                 <span>Dinámica Comunitaria</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
@@ -1297,7 +1288,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   1
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>📥</span> El Pool Activo
+                  <span><InterfaceText>{"📥"}</InterfaceText></span> El Pool Activo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Los miembros proponen sus{' '}
@@ -1313,7 +1304,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   2
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>🎰</span> Sorteo en Vivo
+                  <span><InterfaceText>{"🎰"}</InterfaceText></span> Sorteo en Vivo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Mediante la <strong>Máquina Musical</strong>, el admin
@@ -1328,13 +1319,11 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   3
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>🎧</span> Escucha & Reseña
+                  <span><InterfaceText>{"🎧"}</InterfaceText></span> Escucha & Reseña
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Todos escuchamos el lanzamiento y publicamos nuestra{' '}
-                  <strong>review multi-criterio</strong> (Producción,
-                  Composición, Letras, Cohesión, Replay y Canción Favorita 👑).
-                </p>
+                  <strong>review multi-criterio</strong><InterfaceText>{" (Producción, Composición, Letras, Cohesión, Replay y Canción Favorita 👑). "}</InterfaceText></p>
               </div>
 
               {/* Step 4 */}
@@ -1343,7 +1332,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   4
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span>🏆</span> Catálogo & Archivo
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Catálogo & Archivo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Una vez evaluado, el álbum pasa a graduarse en el{' '}
@@ -1357,9 +1346,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Temporada 1 Callout */}
             <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
               <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold">
-                  🔒 Recepción de Propuestas: Cerrada
-                </span>
+                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold"><InterfaceText>{" 🔒 Recepción de Propuestas: Cerrada "}</InterfaceText></span>
                 <p className="text-xs text-slate-300 text-center sm:text-left">
                   ✦ <strong>Temporada 1 en curso:</strong> Iniciada el 11 de
                   julio de 2026. Puedes escuchar y valorar cualquier álbum hoy, aunque las propuestas estén cerradas. Consulta el estado actual en el Pool.
@@ -1369,7 +1356,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 to="/pool"
                 className="px-5 py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2 shrink-0 hover:scale-105"
               >
-                <span>🗳️</span>
+                <span><InterfaceText>{"🗳️"}</InterfaceText></span>
                 <span>Entrar al Pool de la Temporada 1 →</span>
               </Link>
             </div>
@@ -1397,9 +1384,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 1: Pool Musical por Temporadas */}
             <div className="group relative rounded-3xl bg-linear-to-br from-pink-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-2xl">
-                  🗳️
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🗳️ "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-pink-300 transition-colors">
                   Pool Musical por Temporadas
                 </h3>
@@ -1423,9 +1408,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 2: Reviews Multi-Criterio */}
             <div className="group relative rounded-3xl bg-linear-to-br from-rose-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl">
-                  📝
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 📝 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-rose-300 transition-colors">
                   Reviews Multi-Criterio & Track Favorito
                 </h3>
@@ -1449,9 +1432,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 3: Recomendaciones 'Para Ti' */}
             <div className="group relative rounded-3xl bg-linear-to-br from-indigo-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl">
-                  ✨
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" ✨ "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-indigo-300 transition-colors">
                   Algoritmo 'Para Ti' & ADN Musical
                 </h3>
@@ -1475,9 +1456,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 4: Leaderboard & Salón de la Fama */}
             <div className="group relative rounded-3xl bg-linear-to-br from-amber-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl">
-                  🏆
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🏆 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-amber-300 transition-colors">
                   Leaderboard & Gamificación
                 </h3>
@@ -1501,9 +1480,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 5: Buzón & Playlists */}
             <div className="group relative rounded-3xl bg-linear-to-br from-cyan-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl">
-                  📬
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 📬 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors">
                   Buzón Musical & Playlists
                 </h3>
@@ -1527,9 +1504,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 6: Buscador Universal con Spotify */}
             <div className="group relative rounded-3xl bg-linear-to-br from-emerald-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl">
-                  🔍
-                </div>
+                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🔍 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors">
                   Buscador Directo
                 </h3>
@@ -1590,8 +1565,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
-                >
-                  🔥 Pool Activo ({activePool?.length || 0})
+                ><InterfaceText>{" 🔥 Pool Activo ("}</InterfaceText>{activePool?.length || 0})
                 </button>
                 )}
                 <button
@@ -1605,9 +1579,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
-                >
-                  ⭐ Top Obras Maestras
-                </button>
+                ><InterfaceText>{" ⭐ Top Obras Maestras "}</InterfaceText></button>
                 <button
                   type="button"
                   onClick={() => {
@@ -1619,9 +1591,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
-                >
-                  💎 Recientes
-                </button>
+                ><InterfaceText>{" 💎 Recientes "}</InterfaceText></button>
               </div>
             </div>
           </div>
@@ -1763,7 +1733,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 disabled={isQuickPicking || activeAlbums.length === 0}
                 className="px-6 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span className="text-xl">🎲</span>
+                <span className="text-xl"><InterfaceText>{"🎲"}</InterfaceText></span>
                 <span>
                   {isQuickPicking ? 'Eligiendo...' : 'Girar Selector Rápido'}
                 </span>
@@ -1810,7 +1780,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   onClick={handleLogin}
                   className="px-8 py-4 bg-white text-black hover:bg-white/90 font-black text-sm rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                 >
-                  <span>🚀</span>
+                  <span><InterfaceText>{"🚀"}</InterfaceText></span>
                   <span>Iniciar Sesión con Google</span>
                 </button>
               ) : (
@@ -1818,7 +1788,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   to="/profile"
                   className="px-8 py-4 bg-white text-black hover:bg-white/90 font-black text-sm rounded-2xl shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                 >
-                  <span>👤</span>
+                  <span><InterfaceText>{"👤"}</InterfaceText></span>
                   <span>Ir a Mi Perfil de Crítico</span>
                 </Link>
               )}
@@ -1827,7 +1797,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 to="/faq"
                 className="px-6 py-4 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-2xl border border-white/20 transition-all flex items-center gap-2"
               >
-                <span>❓</span>
+                <span><InterfaceText>{"❓"}</InterfaceText></span>
                 <span>Guía & Preguntas Frecuentes</span>
               </Link>
             </div>

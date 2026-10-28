@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/GashaponMachine.jsx
 import React, {
@@ -447,7 +448,7 @@ const renderReleaseTypeBadge = (album) => {
     <span
       className={`text-[11px] px-2.5 py-0.5 rounded-full border font-bold ${config.cls}`}
     >
-      {config.label}
+      <InterfaceText>{config.label}</InterfaceText>
     </span>
   );
 };
@@ -834,7 +835,7 @@ export function GashaponMachine({
       {/* Toast flotante de XP Ganado */}
       {xpToast && (
         <div className="fixed top-20 right-4 z-50 animate-xp-bounce bg-linear-to-r from-amber-400 via-yellow-400 to-amber-500 text-slate-950 px-5 py-3 rounded-2xl shadow-[0_0_30px_rgba(251,191,36,0.6)] border-2 border-white/60 flex items-center gap-3 font-black">
-          <span className="text-2xl animate-spin-slow">✨</span>
+          <span className="text-2xl animate-spin-slow"><InterfaceText>{"✨"}</InterfaceText></span>
           <div>
             <p className="text-xs uppercase tracking-wider font-bold opacity-80">
               {xpToast.message}
@@ -889,7 +890,7 @@ export function GashaponMachine({
                 soundEnabled ? 'Silenciar sonidos' : 'Activar efectos de sonido'
               }
             >
-              <span>{soundEnabled ? '🔊' : '🔇'}</span>
+              <span><InterfaceText>{soundEnabled ? '🔊' : '🔇'}</InterfaceText></span>
               <span className="hidden xs:inline">
                 {soundEnabled ? 'FX On' : 'Mute'}
               </span>
@@ -905,8 +906,9 @@ export function GashaponMachine({
                   : 'bg-white/5 text-white/50 border-white/10 hover:text-white'
               }`}
               title="Acelera la animación de giro y apertura"
+              aria-label="Giro rápido"
             >
-              <span>⚡</span>
+              <span><InterfaceText>{"⚡"}</InterfaceText></span>
               <span className="hidden xs:inline">
                 {isFastMode ? 'Turbo On' : 'Turbo Off'}
               </span>
@@ -914,7 +916,7 @@ export function GashaponMachine({
 
             {/* Token Badge */}
             <div className="px-3.5 py-2 rounded-xl bg-linear-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center gap-1.5">
-              <span>🪙</span>
+              <span><InterfaceText>{"🪙"}</InterfaceText></span>
               <span>Monedas: ∞</span>
             </div>
           </div>
@@ -938,7 +940,7 @@ export function GashaponMachine({
                 : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
             }`}
           >
-            <span>⏳</span> Pendientes por Calificar ({pendingCount})
+            <span><InterfaceText>{"⏳"}</InterfaceText></span> Pendientes por Calificar ({pendingCount})
           </button>
 
           <button
@@ -950,7 +952,7 @@ export function GashaponMachine({
                 : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
             }`}
           >
-            <span>🎲</span> Todos los Releases ({totalEligibleCount})
+            <span><InterfaceText>{"🎲"}</InterfaceText></span> Todos los Releases ({totalEligibleCount})
           </button>
 
           {albumCount > 0 && (
@@ -963,7 +965,7 @@ export function GashaponMachine({
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
-              <span>💿</span> Solo Álbumes ({albumCount})
+              <span><InterfaceText>{"💿"}</InterfaceText></span> Solo Álbumes ({albumCount})
             </button>
           )}
 
@@ -977,7 +979,7 @@ export function GashaponMachine({
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
-              <span>💽</span> Solo EPs ({epCount})
+              <span><InterfaceText>{"💽"}</InterfaceText></span> Solo EPs ({epCount})
             </button>
           )}
 
@@ -991,7 +993,7 @@ export function GashaponMachine({
                   : 'bg-white/5 text-white/70 border-white/10 hover:bg-white/10'
               }`}
             >
-              <span>🎵</span> Solo Sencillos ({singleCount})
+              <span><InterfaceText>{"🎵"}</InterfaceText></span> Solo Sencillos ({singleCount})
             </button>
           )}
         </div>
@@ -1025,7 +1027,7 @@ export function GashaponMachine({
                   machineState === 'CRANKING' ? 'animate-spin' : ''
                 }`}
               >
-                <span className="text-amber-300 text-sm font-black">⚙️</span>
+                <span className="text-amber-300 text-sm font-black"><InterfaceText>{"⚙️"}</InterfaceText></span>
               </div>
 
               {/* CÁPSULAS FLOTANDO/AGITÁNDOSE DENTRO DE LA CÚPULA (20 Cápsulas Arcade) */}
@@ -1071,7 +1073,7 @@ export function GashaponMachine({
                 >
                   {/* Centro metálico con estrías */}
                   <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-linear-to-br from-amber-400 to-yellow-600 border-2 border-white/40 shadow-inner flex items-center justify-center">
-                    <span className="text-sm sm:text-base font-black">🎵</span>
+                    <span className="text-sm sm:text-base font-black"><InterfaceText>{"🎵"}</InterfaceText></span>
                   </div>
 
                   {/* Mango de la perilla */}
@@ -1103,9 +1105,9 @@ export function GashaponMachine({
                 }`}
               >
                 <span>
-                  {machineState === 'CRANKING'
+                  <InterfaceText>{machineState === 'CRANKING'
                     ? '🌀 Girando...'
-                    : '✨ ¡GIRAR GASHAPON! ✨'}
+                    : '✨ ¡GIRAR GASHAPON! ✨'}</InterfaceText>
                 </span>
               </button>
 
@@ -1117,9 +1119,7 @@ export function GashaponMachine({
 
                 {/* Si no hay cápsula que haya caído */}
                 {machineState === 'IDLE' && (
-                  <p className="text-white/40 text-xs italic text-center">
-                    Gira la perilla para recibir tu cápsula 🔮
-                  </p>
+                  <p className="text-white/40 text-xs italic text-center"><InterfaceText>{" Gira la perilla para recibir tu cápsula 🔮 "}</InterfaceText></p>
                 )}
 
                 {/* Cápsula cayendo o en bandeja */}
@@ -1129,9 +1129,7 @@ export function GashaponMachine({
                   currentCapsule && (
                     <div className="relative z-10 flex flex-col items-center animate-capsule-drop">
                       {/* Partículas de brillo */}
-                      <div className="absolute -top-3 text-sm animate-ping">
-                        ✨
-                      </div>
+                      <div className="absolute -top-3 text-sm animate-ping"><InterfaceText>{" ✨ "}</InterfaceText></div>
 
                       {/* Botón de Cápsula Interactiva */}
                       <button
@@ -1164,9 +1162,7 @@ export function GashaponMachine({
                           }
                         }}
                         className="mt-1.5 text-[11px] font-black text-amber-300 bg-amber-400/20 hover:bg-amber-400/30 px-3 py-0.5 rounded-full border border-amber-400/40 animate-pulse cursor-pointer"
-                      >
-                        ¡Ver en Popup y Abrir! 🎁
-                      </button>
+                      ><InterfaceText>{" ¡Ver en Popup y Abrir! 🎁 "}</InterfaceText></button>
                     </div>
                   )}
 
@@ -1192,9 +1188,7 @@ export function GashaponMachine({
                           setIsModalOpen(true);
                         }}
                         className="text-[10px] text-amber-300 hover:text-amber-200 underline font-bold cursor-pointer"
-                      >
-                        Ver cápsula en grande 🔮
-                      </button>
+                      ><InterfaceText>{" Ver cápsula en grande 🔮 "}</InterfaceText></button>
                     )}
                   </div>
                 )}
@@ -1210,9 +1204,7 @@ export function GashaponMachine({
             machineState === 'IDLE' ||
             machineState === 'CRANKING') && (
             <div className="rounded-3xl p-8 sm:p-12 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 text-center flex flex-col items-center justify-center min-h-[380px] space-y-4">
-              <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl shadow-2xl animate-float-slow">
-                🎰
-              </div>
+              <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl shadow-2xl animate-float-slow"><InterfaceText>{" 🎰 "}</InterfaceText></div>
               <div className="space-y-1.5 max-w-md">
                 <h3 className="text-xl sm:text-2xl font-black text-white">
                   ¿Listo para tu siguiente joya musical?
@@ -1233,7 +1225,7 @@ export function GashaponMachine({
                 disabled={filteredPool.length === 0}
                 className="px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs sm:text-sm rounded-xl shadow-lg shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
               >
-                <span>🪙</span> ¡Probar Suerte Ahora!
+                <span><InterfaceText>{"🪙"}</InterfaceText></span> ¡Probar Suerte Ahora!
               </button>
             </div>
           )}
@@ -1258,7 +1250,7 @@ export function GashaponMachine({
                       zIndex: 30,
                     }}
                   >
-                    {spark.emoji}
+                    <InterfaceText>{spark.emoji}</InterfaceText>
                   </div>
                 ))}
 
@@ -1284,12 +1276,12 @@ export function GashaponMachine({
                       className="text-xs font-bold px-3 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/90 border border-white/20 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95"
                       title="Ver presentación de la cápsula en pantalla completa"
                     >
-                      <span>🔮</span> Ver Cápsula en Grande
+                      <span><InterfaceText>{"🔮"}</InterfaceText></span> Ver Cápsula en Grande
                     </button>
 
                     {userReviewMap.has(currentCapsule.album.id) ? (
                       <span className="text-xs font-black px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                        <span>✓</span> Ya Calificado (★{' '}
+                        <span>✓</span><InterfaceText>{" Ya Calificado (★"}</InterfaceText>{' '}
                         {(
                           getWeightedReviewScore(
                             userReviewMap.get(currentCapsule.album.id)
@@ -1301,7 +1293,7 @@ export function GashaponMachine({
                       </span>
                     ) : (
                       <span className="text-xs font-black px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40 flex items-center gap-1">
-                        <span>⏳</span> Pendiente por Calificar (+120 XP)
+                        <span><InterfaceText>{"⏳"}</InterfaceText></span> Pendiente por Calificar (+120 XP)
                       </span>
                     )}
                   </div>
@@ -1324,7 +1316,7 @@ export function GashaponMachine({
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           e.target.src =
-                            'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵';
+                            '/musiclub_logo_corchea.png';
                         }}
                       />
                     </div>
@@ -1353,8 +1345,7 @@ export function GashaponMachine({
                     <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
                       {currentCapsule.album.tracks &&
                         Array.isArray(currentCapsule.album.tracks) && (
-                          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70">
-                            🎵 {currentCapsule.album.tracks.length} tracks
+                          <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/70"><InterfaceText>{" 🎵 "}</InterfaceText>{currentCapsule.album.tracks.length} tracks
                           </span>
                         )}
 
@@ -1367,7 +1358,7 @@ export function GashaponMachine({
                           rel="noopener noreferrer"
                           className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#1DB954]/20 hover:bg-[#1DB954]/30 text-[#1DB954] border border-[#1DB954]/40 font-bold transition-all flex items-center gap-1"
                         >
-                          <span>▶</span> Escuchar en Spotify
+                          <span><InterfaceText>{"▶"}</InterfaceText></span> Escuchar en Spotify
                         </a>
                       )}
                     </div>
@@ -1383,7 +1374,7 @@ export function GashaponMachine({
               >
                 <div className="flex items-center justify-between pb-3 border-b border-white/10 gap-2 flex-wrap">
                   <div className="flex items-center gap-2">
-                    <span className="text-lg">⭐</span>
+                    <span className="text-lg"><InterfaceText>{"⭐"}</InterfaceText></span>
                     <h4 className="text-white font-black text-sm sm:text-base">
                       Calificar Este Release y Ganar XP
                     </h4>
@@ -1434,7 +1425,7 @@ export function GashaponMachine({
         <div className="rounded-3xl p-5 sm:p-6 bg-black/30 border border-white/10 space-y-3">
           <div className="flex items-center justify-between">
             <h4 className="text-white font-bold text-xs sm:text-sm flex items-center gap-2">
-              <span>🗂️</span> Cápsulas Abiertas en Esta Sesión (
+              <span><InterfaceText>{"🗂️"}</InterfaceText></span> Cápsulas Abiertas en Esta Sesión (
               {sessionHistory.length})
             </h4>
             <span className="text-white/40 text-[11px]">
@@ -1465,7 +1456,7 @@ export function GashaponMachine({
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         e.target.src =
-                          'https://via.placeholder.com/150/1a1a2e/ffffff?text=🎵';
+                          '/musiclub_logo_corchea.png';
                       }}
                     />
                     <div className="absolute top-1 right-1 text-xs">
@@ -1538,7 +1529,7 @@ export function GashaponMachine({
                   zIndex: 60,
                 }}
               >
-                {spark.emoji}
+                <InterfaceText>{spark.emoji}</InterfaceText>
               </div>
             ))}
 
@@ -1595,8 +1586,7 @@ export function GashaponMachine({
                       <div className="flex flex-wrap items-center justify-center gap-1.5 pt-1">
                         {currentCapsule.album.tracks &&
                           Array.isArray(currentCapsule.album.tracks) && (
-                            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80">
-                              🎵 {currentCapsule.album.tracks.length} tracks
+                            <span className="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/80"><InterfaceText>{" 🎵 "}</InterfaceText>{currentCapsule.album.tracks.length} tracks
                             </span>
                           )}
 
@@ -1609,7 +1599,7 @@ export function GashaponMachine({
                             rel="noopener noreferrer"
                             className="text-[11px] px-2.5 py-0.5 rounded-full bg-[#1DB954]/20 hover:bg-[#1DB954]/30 text-[#1DB954] border border-[#1DB954]/40 font-bold transition-all flex items-center gap-1"
                           >
-                            <span>▶</span> Spotify
+                            <span><InterfaceText>{"▶"}</InterfaceText></span> Spotify
                           </a>
                         )}
                       </div>
@@ -1618,7 +1608,7 @@ export function GashaponMachine({
                       <div className="pt-1">
                         {userReviewMap.has(currentCapsule.album.id) ? (
                           <span className="inline-flex items-center gap-1 text-xs font-black px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                            <span>✓</span> Ya Calificado (★{' '}
+                            <span>✓</span><InterfaceText>{" Ya Calificado (★"}</InterfaceText>{' '}
                             {(
                               getWeightedReviewScore(
                                 userReviewMap.get(currentCapsule.album.id)
@@ -1630,7 +1620,7 @@ export function GashaponMachine({
                           </span>
                         ) : (
                           <span className="inline-flex items-center gap-1 text-xs font-black px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                            <span>⏳</span> Pendiente por Calificar (+120 XP)
+                            <span><InterfaceText>{"⏳"}</InterfaceText></span> Pendiente por Calificar (+120 XP)
                           </span>
                         )}
                       </div>
@@ -1654,7 +1644,7 @@ export function GashaponMachine({
                       onClick={handleGoToReviewFromModal}
                       className="w-full sm:w-auto px-6 py-3 rounded-xl bg-linear-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:brightness-110 text-white font-black text-xs sm:text-sm shadow-xl shadow-[#f5576c]/30 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      <span>⭐</span>
+                      <span><InterfaceText>{"⭐"}</InterfaceText></span>
                       <span>¡Calificar Este Release Ahora!</span>
                     </button>
                   </div>

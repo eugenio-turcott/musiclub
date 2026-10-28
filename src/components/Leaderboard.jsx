@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import React, { useState, useEffect, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
@@ -345,7 +346,7 @@ export function Leaderboard({ isPage = false }) {
                 onClick={() => setShowBadgesGuide(true)}
                 className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-[#181a28]/95 backdrop-blur-md border border-amber-400/50 hover:border-amber-400 text-amber-300 hover:text-white font-bold text-xs sm:text-sm transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
               >
-                <span>📖</span>
+                <span><InterfaceText>{"📖"}</InterfaceText></span>
                 <span>
                   ¿Cómo funciona el Score XP y las Insignias? Ver Guía
                 </span>
@@ -359,9 +360,7 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-amber-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
-                📝
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20"><InterfaceText>{" 📝 "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Total Reviews
@@ -380,9 +379,7 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                👥
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" 👥 "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Miembros
@@ -401,9 +398,7 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                🎚️
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" 🎚️ "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Pistas Calificadas
@@ -422,9 +417,7 @@ export function Leaderboard({ isPage = false }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                ⭐
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><InterfaceText>{" ⭐ "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Promedio del Club
@@ -453,7 +446,7 @@ export function Leaderboard({ isPage = false }) {
                     className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]"
                   />
                 </span>
-                <span>👑 Podio de Honor</span>
+                <span><InterfaceText>{"👑 Podio de Honor"}</InterfaceText></span>
               </h2>
               <span className="text-[11px] sm:text-xs text-amber-300 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-400/20 font-bold">
                 Clasificación por Puntuación XP
@@ -467,9 +460,7 @@ export function Leaderboard({ isPage = false }) {
                   onClick={() => setSelectedUserDetail(podiumUsers[0])}
                   className="bg-[#141622]/90 border border-slate-700/50 hover:border-slate-400/80 rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-1 cursor-pointer shadow-lg relative group order-2 md:order-1"
                 >
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 font-black text-xs px-3 py-0.5 rounded-full shadow-md">
-                    🥈 #2 Puesto
-                  </div>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-slate-300 text-slate-900 font-black text-xs px-3 py-0.5 rounded-full shadow-md"><InterfaceText>{" 🥈 #2 Puesto "}</InterfaceText></div>
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-linear-to-tr from-slate-400 to-slate-200 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[0]} size="podium_silver" />
                   </div>
@@ -497,7 +488,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-slate-400/20 to-slate-200/20 border border-slate-300/40 text-slate-200 text-xs font-black mb-2.5">
-                    <span>✨</span>
+                    <span><InterfaceText>{"✨"}</InterfaceText></span>
                     <span>
                       {(podiumUsers[0].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -509,8 +500,7 @@ export function Leaderboard({ isPage = false }) {
                     </span>
                     <span className="text-slate-500">•</span>
                     <span className="text-slate-300">
-                      Prom: {podiumUsers[0].avg_score.toFixed(1)} ⭐
-                    </span>
+                      Prom: {podiumUsers[0].avg_score.toFixed(1)}<InterfaceText>{" ⭐ "}</InterfaceText></span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[0].badges?.slice(0, 3).map((b) => (
@@ -519,7 +509,7 @@ export function Leaderboard({ isPage = false }) {
                         title={b.tooltip || b.desc || b.label}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                       >
-                        {b.label}
+                        <InterfaceText>{b.label}</InterfaceText>
                       </span>
                     ))}
                   </div>
@@ -533,7 +523,7 @@ export function Leaderboard({ isPage = false }) {
                   className="bg-linear-to-b from-[#221f14] via-[#1a1820] to-[#141522] border-2 border-amber-400/60 hover:border-amber-300 rounded-2xl sm:rounded-3xl p-5 sm:p-6 text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-2 cursor-pointer shadow-[0_0_30px_rgba(251,191,36,0.15)] relative group order-1 md:order-2 md:-mt-4"
                 >
                   <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-linear-to-r from-amber-400 to-yellow-500 text-black font-black text-xs px-4 py-1 rounded-full shadow-lg flex items-center gap-1">
-                    <span>👑</span>
+                    <span><InterfaceText>{"👑"}</InterfaceText></span>
                     <span>#1 Campeón del Club</span>
                   </div>
                   <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full p-1.5 bg-linear-to-tr from-amber-400 via-yellow-300 to-amber-500 mb-2.5 sm:mb-3 mt-2 sm:mt-3 shadow-[0_0_20px_rgba(251,191,36,0.4)] flex items-center justify-center overflow-hidden">
@@ -563,7 +553,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 border border-amber-400/60 text-amber-300 text-xs font-black mb-2.5 shadow-[0_0_12px_rgba(251,191,36,0.3)]">
-                    <span>✨</span>
+                    <span><InterfaceText>{"✨"}</InterfaceText></span>
                     <span>
                       {(podiumUsers[1].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -575,8 +565,7 @@ export function Leaderboard({ isPage = false }) {
                     </span>
                     <span className="text-amber-400/40">•</span>
                     <span className="text-white font-bold">
-                      Prom: {podiumUsers[1].avg_score.toFixed(1)} ⭐
-                    </span>
+                      Prom: {podiumUsers[1].avg_score.toFixed(1)}<InterfaceText>{" ⭐ "}</InterfaceText></span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[1].badges?.slice(0, 3).map((b) => (
@@ -585,7 +574,7 @@ export function Leaderboard({ isPage = false }) {
                         title={b.tooltip || b.desc || b.label}
                         className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-md cursor-help hover:scale-105 transition-transform`}
                       >
-                        {b.label}
+                        <InterfaceText>{b.label}</InterfaceText>
                       </span>
                     ))}
                   </div>
@@ -598,9 +587,7 @@ export function Leaderboard({ isPage = false }) {
                   onClick={() => setSelectedUserDetail(podiumUsers[2])}
                   className="bg-[#141622]/90 border border-amber-800/40 hover:border-amber-600/70 rounded-2xl p-4 sm:p-5 text-center flex flex-col items-center transition-all duration-300 hover:-translate-y-1 cursor-pointer shadow-lg relative group order-3"
                 >
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-amber-100 font-black text-xs px-3 py-0.5 rounded-full shadow-md">
-                    🥉 #3 Puesto
-                  </div>
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-700 text-amber-100 font-black text-xs px-3 py-0.5 rounded-full shadow-md"><InterfaceText>{" 🥉 #3 Puesto "}</InterfaceText></div>
                   <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full p-1 bg-linear-to-tr from-amber-700 to-amber-500 mb-2.5 sm:mb-3 mt-1 sm:mt-2 flex items-center justify-center overflow-hidden">
                     <UserAvatar user={podiumUsers[2]} size="podium_bronze" />
                   </div>
@@ -628,7 +615,7 @@ export function Leaderboard({ isPage = false }) {
 
                   {/* XP Badge */}
                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-linear-to-r from-amber-700/20 to-amber-600/20 border border-amber-600/40 text-amber-200 text-xs font-black mb-2.5">
-                    <span>✨</span>
+                    <span><InterfaceText>{"✨"}</InterfaceText></span>
                     <span>
                       {(podiumUsers[2].total_xp || 0).toLocaleString()} XP
                     </span>
@@ -640,8 +627,7 @@ export function Leaderboard({ isPage = false }) {
                     </span>
                     <span className="text-slate-500">•</span>
                     <span className="text-slate-300">
-                      Prom: {podiumUsers[2].avg_score.toFixed(1)} ⭐
-                    </span>
+                      Prom: {podiumUsers[2].avg_score.toFixed(1)}<InterfaceText>{" ⭐ "}</InterfaceText></span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[2].badges?.slice(0, 3).map((b) => (
@@ -650,7 +636,7 @@ export function Leaderboard({ isPage = false }) {
                         title={b.tooltip || b.desc || b.label}
                         className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                       >
-                        {b.label}
+                        <InterfaceText>{b.label}</InterfaceText>
                       </span>
                     ))}
                   </div>
@@ -667,9 +653,7 @@ export function Leaderboard({ isPage = false }) {
         >
           {/* Search Bar */}
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
-              🔍
-            </span>
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
             <input
               type="text"
               placeholder="Buscar por nombre, artista favorito, género..."
@@ -713,14 +697,12 @@ export function Leaderboard({ isPage = false }) {
               onChange={(e) => setSortBy(e.target.value)}
               className="bg-black/60 border border-amber-400/30 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-amber-400 font-semibold cursor-pointer w-full sm:w-auto"
             >
-              <option value="xp_desc">👑 Mayor Puntuación (XP)</option>
-              <option value="reviews_desc">📝 Más Reviews</option>
-              <option value="tracks_desc">🎚️ Más Pistas Calificadas</option>
-              <option value="rating_desc">⭐ Mayor Promedio Otorgado</option>
-              <option value="rating_asc">
-                🎯 Más Exigente (Menor Promedio)
-              </option>
-              <option value="name_asc">🔤 Nombre (A-Z)</option>
+              <option value="xp_desc"> Mayor Puntuación (XP)</option>
+              <option value="reviews_desc"> Más Reviews</option>
+              <option value="tracks_desc"> Más Pistas Calificadas</option>
+              <option value="rating_desc"> Mayor Promedio Otorgado</option>
+              <option value="rating_asc">  Más Exigente (Menor Promedio) </option>
+              <option value="name_asc"> Nombre (A-Z)</option>
             </select>
           </div>
         </div>
@@ -739,7 +721,7 @@ export function Leaderboard({ isPage = false }) {
           </div>
         ) : filteredUsers.length === 0 ? (
           <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-2">
-            <span className="text-4xl">🔍</span>
+            <span className="text-4xl"><InterfaceText>{"🔍"}</InterfaceText></span>
             <h3 className="text-lg font-bold text-white">
               No se encontraron usuarios
             </h3>
@@ -772,13 +754,13 @@ export function Leaderboard({ isPage = false }) {
                       <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
                         {/* Rank Badge */}
                         <div className="shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center font-black text-xs sm:text-sm text-slate-300 group-hover:border-amber-400/40 group-hover:text-amber-300 transition-colors mt-0.5 sm:mt-0">
-                          {userRank === 1
+                          <InterfaceText>{userRank === 1
                             ? '🥇'
                             : userRank === 2
                               ? '🥈'
                               : userRank === 3
                                 ? '🥉'
-                                : `#${userRank}`}
+                                : `#${userRank}`}</InterfaceText>
                         </div>
 
                         {/* Avatar */}
@@ -845,7 +827,7 @@ export function Leaderboard({ isPage = false }) {
                                   title={b.tooltip || b.desc || b.label}
                                   className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
                                 >
-                                  {b.label}
+                                  <InterfaceText>{b.label}</InterfaceText>
                                 </span>
                               ))}
 
@@ -878,8 +860,7 @@ export function Leaderboard({ isPage = false }) {
                           <p className="text-[9px] text-amber-300/80 font-bold uppercase tracking-wider leading-tight">
                             Score XP
                           </p>
-                          <p className="text-sm sm:text-base font-black text-amber-300 leading-tight">
-                            ✨ {(itemUser.total_xp || 0).toLocaleString()}
+                          <p className="text-sm sm:text-base font-black text-amber-300 leading-tight"><InterfaceText>{" ✨ "}</InterfaceText>{(itemUser.total_xp || 0).toLocaleString()}
                           </p>
                         </div>
 
@@ -921,9 +902,9 @@ export function Leaderboard({ isPage = false }) {
                               Promedio
                             </p>
                             <p className="text-xs sm:text-sm font-black text-emerald-400">
-                              {itemUser.avg_score > 0
+                              <InterfaceText>{itemUser.avg_score > 0
                                 ? `${itemUser.avg_score.toFixed(1)} ⭐`
-                                : '—'}
+                                : '—'}</InterfaceText>
                             </p>
                           </div>
                         </div>
@@ -947,7 +928,7 @@ export function Leaderboard({ isPage = false }) {
                       <div className="mt-2.5 pt-2 border-t border-white/5 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
                         {itemUser.highest_review && (
                           <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
-                            <span>🌟</span>
+                            <span><InterfaceText>{"🌟"}</InterfaceText></span>
                             <span className="text-slate-400 whitespace-nowrap">
                               Favorito:
                             </span>
@@ -961,14 +942,12 @@ export function Leaderboard({ isPage = false }) {
                               (
                               {typeof itemUser.highest_review.score === 'number'
                                 ? itemUser.highest_review.score.toFixed(1)
-                                : itemUser.highest_review.score}{' '}
-                              ⭐)
-                            </span>
+                                : itemUser.highest_review.score}{' '}<InterfaceText>{" ⭐) "}</InterfaceText></span>
                           </div>
                         )}
                         {itemUser.lowest_review && (
                           <div className="flex items-center gap-1.5 bg-black/40 px-2.5 py-0.5 rounded-lg border border-white/5 min-w-0">
-                            <span>📉</span>
+                            <span><InterfaceText>{"📉"}</InterfaceText></span>
                             <span className="text-slate-400 whitespace-nowrap">
                               Más severo:
                             </span>
@@ -982,9 +961,7 @@ export function Leaderboard({ isPage = false }) {
                               (
                               {typeof itemUser.lowest_review.score === 'number'
                                 ? itemUser.lowest_review.score.toFixed(1)
-                                : itemUser.lowest_review.score}{' '}
-                              ⭐)
-                            </span>
+                                : itemUser.lowest_review.score}{' '}<InterfaceText>{" ⭐) "}</InterfaceText></span>
                           </div>
                         )}
                       </div>
@@ -1133,7 +1110,7 @@ export function Leaderboard({ isPage = false }) {
             {/* Modal Header */}
             <div className="space-y-2 text-center sm:text-left pr-6 sm:pr-8">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-amber-400/10 border border-amber-400/20 text-amber-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider">
-                <span>📖</span>
+                <span><InterfaceText>{"📖"}</InterfaceText></span>
                 <span>Sistema de Gamificación, Tiers y Puntos XP</span>
               </div>
               <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight">
@@ -1149,11 +1126,11 @@ export function Leaderboard({ isPage = false }) {
             {/* XP Formula Card */}
             <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 border border-amber-400/30 rounded-2xl p-3.5 sm:p-5 space-y-3">
               <h3 className="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
-                <span>⚡</span> ¿Cómo ganar Puntos XP de Club?
+                <span><InterfaceText>{"⚡"}</InterfaceText></span> ¿Cómo ganar Puntos XP de Club?
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
                 <div className="bg-black/40 border border-white/5 p-2.5 sm:p-3 rounded-xl text-center">
-                  <span className="text-base sm:text-lg">🎧</span>
+                  <span className="text-base sm:text-lg"><InterfaceText>{"🎧"}</InterfaceText></span>
                   <p className="text-[11px] sm:text-xs font-bold text-white mt-1">
                     Álbum Reseñado
                   </p>
@@ -1162,7 +1139,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
                 </div>
                 <div className="bg-black/40 border border-white/5 p-2.5 sm:p-3 rounded-xl text-center">
-                  <span className="text-base sm:text-lg">✍️</span>
+                  <span className="text-base sm:text-lg"><InterfaceText>{"✍️"}</InterfaceText></span>
                   <p className="text-[11px] sm:text-xs font-bold text-white mt-1">
                     Con Comentario
                   </p>
@@ -1171,7 +1148,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
                 </div>
                 <div className="bg-black/40 border border-white/5 p-2.5 sm:p-3 rounded-xl text-center">
-                  <span className="text-base sm:text-lg">🎚️</span>
+                  <span className="text-base sm:text-lg"><InterfaceText>{"🎚️"}</InterfaceText></span>
                   <p className="text-[11px] sm:text-xs font-bold text-white mt-1">
                     Pista Calificada
                   </p>
@@ -1180,7 +1157,7 @@ export function Leaderboard({ isPage = false }) {
                   </p>
                 </div>
                 <div className="bg-black/40 border border-white/5 p-2.5 sm:p-3 rounded-xl text-center">
-                  <span className="text-base sm:text-lg">👑</span>
+                  <span className="text-base sm:text-lg"><InterfaceText>{"👑"}</InterfaceText></span>
                   <p className="text-[11px] sm:text-xs font-bold text-white mt-1">
                     Récord #1 del Club
                   </p>
@@ -1199,7 +1176,7 @@ export function Leaderboard({ isPage = false }) {
                   className="bg-black/30 border border-white/5 rounded-2xl p-3.5 sm:p-5 space-y-3.5 sm:space-y-4"
                 >
                   <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                    <span className="text-lg sm:text-xl">{cat.icon}</span>
+                    <span className="text-lg sm:text-xl"><InterfaceText>{cat.icon}</InterfaceText></span>
                     <div>
                       <h3 className="text-sm sm:text-base font-bold text-white">
                         {cat.category}
@@ -1222,7 +1199,7 @@ export function Leaderboard({ isPage = false }) {
                             <span
                               className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.badgeClass} shadow-sm cursor-help hover:scale-105 transition-transform`}
                             >
-                              {b.title}
+                              <InterfaceText>{b.title}</InterfaceText>
                             </span>
                             <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                               {b.xp}
@@ -1246,7 +1223,7 @@ export function Leaderboard({ isPage = false }) {
                         >
                           <div className="flex items-center justify-between flex-wrap gap-1.5">
                             <h4 className="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
-                              <span>{grp.icon}</span>
+                              <span><InterfaceText>{grp.icon}</InterfaceText></span>
                               <span>{grp.name}</span>
                             </h4>
                             <p className="text-[10px] sm:text-[11px] text-slate-400">
@@ -1288,8 +1265,7 @@ export function Leaderboard({ isPage = false }) {
             </div>
 
             {/* Footer Tip */}
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-linear-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-200/80">
-              💡{' '}
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-linear-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border border-amber-500/20 text-center text-xs text-amber-200/80"><InterfaceText>{" 💡"}</InterfaceText>{' '}
               <em>
                 ¡Cada reseña, comentario y aporte suma directamente a tu Score
                 de Club y te acerca a la siguiente insignia!

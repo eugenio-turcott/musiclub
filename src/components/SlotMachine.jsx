@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/SlotMachine.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
@@ -413,7 +414,7 @@ export function SlotMachine({
             <div className="flex items-center gap-2">
               {user && (
                 <span className="text-[10px] text-white/30">
-                  {isAdmin ? '👑 Admin' : `👤 ${user.name || user.email}`}
+                  <InterfaceText>{isAdmin ? '👑 Admin' : `👤 ${user.name || user.email}`}</InterfaceText>
                 </span>
               )}
             </div>
@@ -454,9 +455,7 @@ export function SlotMachine({
 
                     {isWinnerReel && (
                       <div className="absolute inset-0 bg-linear-to-t from-[#f5576c]/30 via-transparent to-transparent flex items-end justify-center pb-2 sm:pb-3">
-                        <span className="text-[#f5576c] text-[10px] sm:text-xs font-bold animate-pulse flex items-center gap-2 bg-black/80 px-2 sm:px-3 py-1 rounded-full backdrop-blur-sm border border-[#f5576c]/30">
-                          ⚡ JACKPOT ⚡
-                        </span>
+                        <span className="text-[#f5576c] text-[10px] sm:text-xs font-bold animate-pulse flex items-center gap-2 bg-black/80 px-2 sm:px-3 py-1 rounded-full backdrop-blur-sm border border-[#f5576c]/30"><InterfaceText>{" ⚡ JACKPOT ⚡ "}</InterfaceText></span>
                       </div>
                     )}
 
@@ -521,14 +520,14 @@ export function SlotMachine({
                   <span className="absolute -inset-0.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] rounded-full blur opacity-50 animate-pulse"></span>
                 )}
                 <span className="relative flex items-center justify-center gap-1.5 sm:gap-3">
-                  <span className="text-lg sm:text-2xl">🎰</span>
+                  <span className="text-lg sm:text-2xl"><InterfaceText>{"🎰"}</InterfaceText></span>
                   <span className="truncate">
                     {isSpinningLocal || isSpinning
                       ? 'GIRANDO...'
                       : '¡TIRAR PALANCA!'}
                   </span>
                   <span className="text-[10px] sm:text-xs tracking-wider opacity-50">
-                    {!isSpinningLocal && !isSpinning && '▶'}
+                    <InterfaceText>{!isSpinningLocal && !isSpinning && '▶'}</InterfaceText>
                   </span>
                 </span>
               </button>
@@ -538,7 +537,7 @@ export function SlotMachine({
                 className="relative px-4 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-xs sm:text-base transition-all duration-300 bg-gray-800/50 text-white/30 cursor-not-allowed border border-white/5 max-w-full"
               >
                 <span className="relative flex items-center justify-center gap-1.5 sm:gap-3">
-                  <span className="text-lg sm:text-2xl">🔒</span>
+                  <span className="text-lg sm:text-2xl"><InterfaceText>{"🔒"}</InterfaceText></span>
                   <span className="truncate">
                     {user ? 'Solo Admin puede girar' : 'Inicia sesión para girar'}
                   </span>

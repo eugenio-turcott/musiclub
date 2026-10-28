@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import editions from '../utils/releaseEditions.cjs';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/HeaderAlbumSearch.jsx
@@ -518,7 +519,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           className="w-full flex items-center justify-between px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white text-xs font-semibold transition-all"
         >
           <span className="flex items-center gap-2">
-            <span>🔍</span>
+            <span><InterfaceText>{"🔍"}</InterfaceText></span>
             <span>Buscar álbum...</span>
           </span>
           <span className="text-[10px] text-pink-300 bg-pink-500/10 px-2.5 py-0.5 rounded-full border border-pink-500/20 font-bold">
@@ -541,7 +542,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
               />
 
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none flex items-center justify-center">
-                {isSearching ? (
+                <InterfaceText>{isSearching ? (
                   <MusiclubVinyl
                     src="/musiclub_logo.png"
                     alt=""
@@ -549,7 +550,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
                   />
                 ) : (
                   '🔍'
-                )}
+                )}</InterfaceText>
               </span>
 
               {query && (
@@ -607,13 +608,13 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
                         <img
                           src={
                             item.image ||
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                            '/musiclub_logo_corchea.png'
                           }
                           alt={item.name}
                           className="w-9 h-9 rounded-lg object-cover shrink-0 border border-white/10"
                           onError={(e) => {
                             e.target.src =
-                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                              '/musiclub_logo_corchea.png';
                           }}
                         />
                         <div className="min-w-0 flex-1 text-left">
@@ -704,9 +705,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           {/* Cabecera del Dropdown */}
           <div className="p-3.5 sm:p-4 border-b border-white/10 bg-white/[0.03] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner">
-                🔍
-              </div>
+              <div className="w-8 h-8 rounded-xl bg-pink-500/15 border border-pink-500/30 text-pink-400 flex items-center justify-center text-sm shrink-0 shadow-inner"><InterfaceText>{" 🔍 "}</InterfaceText></div>
               <div className="min-w-0">
                 <h3 className="text-sm sm:text-base font-bold text-white tracking-wide truncate">
                   Buscar Álbumes & Releases
@@ -742,11 +741,11 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
               />
 
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-xs pointer-events-none">
-                {isSearching ? (
+                <InterfaceText>{isSearching ? (
                   <span className="inline-block w-3.5 h-3.5 border-2 border-[#f5576c] border-t-transparent rounded-full animate-spin"></span>
                 ) : (
                   '🔍'
-                )}
+                )}</InterfaceText>
               </span>
 
               {query && (
@@ -774,7 +773,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 max-h-[360px]">
             {!query.trim() ? (
               <div className="py-8 px-4 text-center space-y-2">
-                <div className="text-3xl">🎵</div>
+                <div className="text-3xl"><InterfaceText>{"🎵"}</InterfaceText></div>
                 <p className="text-white font-bold text-xs">
                   Explora el catálogo universal de música
                 </p>
@@ -827,13 +826,13 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
                         <img
                           src={
                             item.image ||
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                            '/musiclub_logo_corchea.png'
                           }
                           alt={item.name}
                           className="w-full h-full rounded-lg object-cover border border-white/10 shadow-sm"
                           onError={(e) => {
                             e.target.src =
-                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                              '/musiclub_logo_corchea.png';
                           }}
                         />
                       </div>
@@ -868,7 +867,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
                         item.rating !== null &&
                         item.rating !== undefined ? (
                           <div className="flex items-center gap-1 bg-amber-500/15 border border-amber-500/30 px-2 py-1 rounded-lg text-amber-300 text-xs font-black">
-                            <span>⭐</span>
+                            <span><InterfaceText>{"⭐"}</InterfaceText></span>
                             <span>{Number(item.rating).toFixed(1)}</span>
                           </div>
                         ) : (

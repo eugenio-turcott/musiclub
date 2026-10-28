@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/ShareTierListModal.jsx
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
@@ -506,9 +507,7 @@ export default function ShareTierListModal({
                   ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
                   : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
               }`}
-            >
-              📱 Celular (Story 9:16)
-            </button>
+            ><InterfaceText>{" 📱 Celular (Story 9:16) "}</InterfaceText></button>
             <button
               type="button"
               disabled={isGenerating}
@@ -518,9 +517,7 @@ export default function ShareTierListModal({
                   ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white border-pink-400 shadow-[0_0_12px_rgba(236,72,153,0.45)] scale-105'
                   : 'bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10'
               }`}
-            >
-              🖥️ Panorámica (Feed)
-            </button>
+            ><InterfaceText>{" 🖥️ Panorámica (Feed) "}</InterfaceText></button>
           </div>
         </div>
 
@@ -584,7 +581,7 @@ export default function ShareTierListModal({
                 className={`py-1.5 px-1 rounded-lg ${p.bgClass} border ${p.borderClass} flex flex-col items-center justify-center gap-0.5 active:scale-90 transition-transform cursor-pointer disabled:opacity-50 shadow-sm`}
                 title={`Compartir en ${p.name}`}
               >
-                {p.icon}
+                <InterfaceText>{p.icon}</InterfaceText>
                 <span className="text-[9px] font-bold truncate max-w-full">
                   {p.name}
                 </span>

@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useRef } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import { searchTracks } from '../services/spotifyApi';
@@ -345,9 +346,7 @@ export function SendSongRecommendationModal({
         {/* Cabecera del Modal */}
         <div className="flex items-center justify-between pb-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30">
-              💌
-            </div>
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl sm:text-2xl shadow-lg shadow-[#f5576c]/30"><InterfaceText>{" 💌 "}</InterfaceText></div>
             <div>
               <h2 className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
                 Buzón Musical: Enviar Canción
@@ -371,13 +370,13 @@ export function SendSongRecommendationModal({
         {/* Notificaciones de Éxito / Error */}
         {errorMsg && (
           <div className="mt-3 p-3 rounded-xl bg-red-500/20 border border-red-500/40 text-red-200 text-xs font-semibold flex items-center gap-2 animate-fadeIn shrink-0">
-            <span>⚠️</span> {errorMsg}
+            <span><InterfaceText>{"⚠️"}</InterfaceText></span> {errorMsg}
           </div>
         )}
 
         {successMsg && (
           <div className="mt-3 p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs font-bold flex items-center gap-2 animate-fadeIn shrink-0">
-            <span>✨</span> {successMsg}
+            <span><InterfaceText>{"✨"}</InterfaceText></span> {successMsg}
           </div>
         )}
 
@@ -386,7 +385,7 @@ export function SendSongRecommendationModal({
           {/* 1. SELECCIÓN DE DESTINATARIO */}
           <div className="space-y-1.5" ref={dropdownRef}>
             <label className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center gap-1.5">
-              <span>👤</span> Para (Miembro del Club): *
+              <span><InterfaceText>{"👤"}</InterfaceText></span> Para (Miembro del Club): *
             </label>
 
             {selectedRecipient ? (
@@ -508,10 +507,10 @@ export function SendSongRecommendationModal({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <span>🔍</span> Buscar Canción en Spotify (Autocompletar)
+                <span><InterfaceText>{"🔍"}</InterfaceText></span> Buscar Canción en Spotify (Autocompletar)
               </span>
               <span className="text-[10px] text-[#1DB954] font-medium lowercase">
-                {isSongLocked ? 'Canción Seleccionada 🔒' : 'Powered by Spotify'}
+                <InterfaceText>{isSongLocked ? 'Canción Seleccionada 🔒' : 'Powered by Spotify'}</InterfaceText>
               </span>
             </label>
 
@@ -543,9 +542,7 @@ export function SendSongRecommendationModal({
                   ✕
                 </button>
               ) : isSearchingSpotify ? (
-                <div className="absolute right-3.5 top-3 text-xs text-[#1DB954] animate-spin">
-                  ⏳
-                </div>
+                <div className="absolute right-3.5 top-3 text-xs text-[#1DB954] animate-spin"><InterfaceText>{" ⏳ "}</InterfaceText></div>
               ) : null}
 
               {/* Resultados de Búsqueda de Spotify */}
@@ -564,9 +561,7 @@ export function SendSongRecommendationModal({
                           className="w-10 h-10 rounded-lg object-cover shrink-0 shadow"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0">
-                          🎵
-                        </div>
+                        <div className="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-base shrink-0"><InterfaceText>{" 🎵 "}</InterfaceText></div>
                       )}
                       <div className="truncate flex-grow">
                         <span
@@ -582,9 +577,7 @@ export function SendSongRecommendationModal({
                           {t.artistName} {t.albumName && `• ${t.albumName}`}
                         </span>
                       </div>
-                      <span className="text-[10px] bg-[#1DB954]/20 text-[#1DB954] px-2 py-0.5 rounded-full font-bold shrink-0">
-                        Elegir 🎵
-                      </span>
+                      <span className="text-[10px] bg-[#1DB954]/20 text-[#1DB954] px-2 py-0.5 rounded-full font-bold shrink-0"><InterfaceText>{" Elegir 🎵 "}</InterfaceText></span>
                     </div>
                   ))}
                 </div>
@@ -658,7 +651,7 @@ export function SendSongRecommendationModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
             <div>
               <label className="text-[11px] font-bold text-[#1DB954] block mb-1 flex items-center gap-1">
-                <span>🎵</span> Spotify URL:
+                <span><InterfaceText>{"🎵"}</InterfaceText></span> Spotify URL:
               </label>
               <input
                 type="url"
@@ -671,7 +664,7 @@ export function SendSongRecommendationModal({
 
             <div>
               <label className="text-[11px] font-bold text-red-400 block mb-1 flex items-center gap-1">
-                <span>▶️</span> YouTube Music:
+                <span><InterfaceText>{"▶️"}</InterfaceText></span> YouTube Music:
               </label>
               <input
                 type="url"
@@ -684,7 +677,7 @@ export function SendSongRecommendationModal({
 
             <div>
               <label className="text-[11px] font-bold text-pink-300 block mb-1 flex items-center gap-1">
-                <span>🍎</span> Apple Music:
+                <span><InterfaceText>{"🍎"}</InterfaceText></span> Apple Music:
               </label>
               <input
                 type="url"
@@ -697,7 +690,7 @@ export function SendSongRecommendationModal({
 
             <div>
               <label className="text-[11px] font-bold text-purple-400 block mb-1 flex items-center gap-1">
-                <span>🟣</span> Deezer:
+                <span><InterfaceText>{"🟣"}</InterfaceText></span> Deezer:
               </label>
               <input
                 type="url"
@@ -713,7 +706,7 @@ export function SendSongRecommendationModal({
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-white/80 uppercase tracking-wider flex items-center justify-between">
               <span className="flex items-center gap-1.5">
-                <span>✍️</span> Tu Dedicatoria / Mensaje en la Cartita:
+                <span><InterfaceText>{"✍️"}</InterfaceText></span> Tu Dedicatoria / Mensaje en la Cartita:
               </span>
               <span className="text-[10px] text-white/40">{message.length}/300 car.</span>
             </label>
@@ -756,7 +749,7 @@ export function SendSongRecommendationModal({
               <div className="relative rounded-2xl p-4 bg-linear-to-br from-[#1d1f3b] via-[#15172d] to-[#0d0f1e] border-2 border-[#f5576c]/40 shadow-xl overflow-hidden text-left">
                 {/* Sello postal */}
                 <div className="absolute top-3 right-3 w-10 h-12 rounded-lg bg-linear-to-tr from-amber-400 to-rose-500 border border-white/40 shadow flex flex-col items-center justify-center text-white select-none">
-                  <span className="text-xs">🎵</span>
+                  <span className="text-xs"><InterfaceText>{"🎵"}</InterfaceText></span>
                   <span className="text-[7px] font-mono font-black uppercase">CLUB</span>
                 </div>
 
@@ -768,9 +761,7 @@ export function SendSongRecommendationModal({
                       className="w-12 h-12 rounded-xl object-cover shadow border border-white/20 shrink-0"
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0 shadow">
-                      💿
-                    </div>
+                    <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0 shadow"><InterfaceText>{" 💿 "}</InterfaceText></div>
                   )}
                   <div className="truncate">
                     <h4 className="text-sm font-black text-white truncate">{songTitle}</h4>
@@ -810,11 +801,11 @@ export function SendSongRecommendationModal({
             >
               {submitting ? (
                 <>
-                  <span className="animate-spin">🌀</span> Enviando...
+                  <span className="animate-spin"><InterfaceText>{"🌀"}</InterfaceText></span> Enviando...
                 </>
               ) : (
                 <>
-                  <span>💌</span> Enviar Cartita (+50 XP)
+                  <span><InterfaceText>{"💌"}</InterfaceText></span> Enviar Cartita (+50 XP)
                 </>
               )}
             </button>

@@ -1,5 +1,6 @@
 'use client';
 // src/components/HeroMusicCanvas.jsx
+import { drawInterfaceText } from '../utils/drawInterfaceText';
 import React, { useEffect, useRef } from 'react';
 
 const MUSICAL_SYMBOLS = [
@@ -123,7 +124,8 @@ export function HeroMusicCanvas({ containerRef }) {
         ctx.globalAlpha = p.opacity;
 
         ctx.font = `${p.size}px sans-serif`;
-        ctx.fillText(p.char, 0, 0);
+        ctx.fillStyle = '#f093fb';
+        drawInterfaceText(ctx, p.char, 0, 0);
 
         ctx.restore();
       }

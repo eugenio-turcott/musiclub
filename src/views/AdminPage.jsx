@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 // src/pages/AdminPage.jsx
 import React from 'react';
 import { AdminPanel } from '../components/AdminPanel';
@@ -20,7 +21,7 @@ export function AdminPage() {
     return (
       <div className="min-h-screen cyber-grid flex items-center justify-center">
         <div className="text-white/60 text-center">
-          <p className="text-xl">⛔ Acceso denegado</p>
+          <p className="text-xl"><InterfaceText>{"⛔ Acceso denegado"}</InterfaceText></p>
           <p className="text-sm mt-2">No tienes permisos de administrador</p>
           <a
             href="/"

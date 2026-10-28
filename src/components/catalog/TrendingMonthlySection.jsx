@@ -1,3 +1,4 @@
+import { InterfaceText } from '../UiIcon';
 import { ListenLaterButton } from '../ListenLaterButton';
 import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
@@ -142,7 +143,7 @@ export function TrendingMonthlySection({
       <div className="bg-linear-to-r from-pink-500/20 via-purple-500/15 to-orange-500/15 border border-pink-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-black uppercase tracking-wider">
-            <span>🔥</span>
+            <span><InterfaceText>{"🔥"}</InterfaceText></span>
             <span>Tendencias de la Semana</span>
             <span className="text-white/40">•</span>
             <span className="text-amber-300">Top 100</span>
@@ -157,7 +158,7 @@ export function TrendingMonthlySection({
         </div>
 
         <div className="flex items-center gap-2 shrink-0 self-start md:self-auto bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl">
-          <span className="text-sm">🗓️</span>
+          <span className="text-sm"><InterfaceText>{"🗓️"}</InterfaceText></span>
           <div className="text-left">
             <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">
               Ciclo Semanal
@@ -178,9 +179,7 @@ export function TrendingMonthlySection({
               placeholder={`Buscar entre los ${releases.length} lanzamientos de la semana...`}
               className="w-full bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 pl-9 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-pink-500/60 focus:ring-1 focus:ring-pink-500/40 transition-all"
             />
-            <span className="absolute left-3 top-2.5 text-xs text-slate-400">
-              🔍
-            </span>
+            <span className="absolute left-3 top-2.5 text-xs text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
             {searchQuery && (
               <button
                 type="button"
@@ -321,7 +320,7 @@ export function TrendingMonthlySection({
                     {hasClubRating ? (
                       <div className="absolute top-2 right-2 z-10">
                         <span className="bg-[#12131F]/90 text-amber-300 font-black text-xs px-2 py-0.5 rounded-lg border border-amber-400/50 shadow-xl flex items-center gap-1 backdrop-blur-md">
-                          <span>⭐</span>
+                          <span><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span>{Number(finalScore).toFixed(1)}</span>
                         </span>
                       </div>
@@ -381,8 +380,7 @@ export function TrendingMonthlySection({
                     </div>
 
                     {/* Action */}
-                    <div className="pt-2 border-t border-white/5 mt-auto">
-                      <ListenLaterButton album={item} className="mb-2 w-full" />
+                    <div className="release-card-actions pt-2 border-t border-white/5 mt-auto grid grid-cols-2 gap-2">
                       {onQuickPropose ? (
                         <button
                           type="button"
@@ -392,7 +390,7 @@ export function TrendingMonthlySection({
                             onQuickPropose(item);
                           }}
                           disabled={isProposing}
-                          className={`w-full py-1.5 px-2.5 rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 ${
+                          className={`release-action-tile w-full py-1.5 px-2.5 rounded-xl text-[11px] font-black transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-60 ${
                             isProposing
                               ? 'bg-pink-500/25 text-pink-200 border border-pink-400/50'
                               : 'bg-pink-500/15 hover:bg-pink-500 hover:text-black text-pink-300 border border-pink-500/30'
@@ -420,21 +418,22 @@ export function TrendingMonthlySection({
                               />
                             </svg>
                           ) : (
-                            <span>✍️</span>
+                            <span><InterfaceText>{"✍️"}</InterfaceText></span>
                           )}
                           <span>
-                            {isProposing ? 'Abriendo...' : 'Reseñar en Club'}
+                            {isProposing ? 'Abriendo...' : 'Reseñar'}
                           </span>
                         </button>
                       ) : (
                         <Link
                           to={targetUrl}
-                          className="w-full py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-[11px] font-bold transition-all flex items-center justify-center gap-1"
+                          className="release-action-tile w-full py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-[11px] font-bold transition-all flex items-center justify-center gap-1"
                         >
-                          <span>🎧</span>
-                          <span>Ver Ficha</span>
+                          <span><InterfaceText>{"🎧"}</InterfaceText></span>
+                          <span>Ver release</span>
                         </Link>
                       )}
+                      <ListenLaterButton album={item} tile className="w-full" />
                     </div>
                   </div>
                 </div>

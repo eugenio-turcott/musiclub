@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { supabaseService } from '../services/supabaseClient';
 import {
@@ -157,9 +158,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-linear-to-tr from-[#f5576c] via-[#f093fb] to-cyan-400 p-[2px] shadow-lg shadow-[#f5576c]/25 shrink-0 flex items-center justify-center">
-              <div className="w-full h-full bg-[#101226] rounded-[14px] flex items-center justify-center text-2xl sm:text-3xl">
-                📬
-              </div>
+              <div className="w-full h-full bg-[#101226] rounded-[14px] flex items-center justify-center text-2xl sm:text-3xl"><InterfaceText>{" 📬 "}</InterfaceText></div>
             </div>
 
             <div>
@@ -184,7 +183,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             onClick={() => onOpenSendModal && onOpenSendModal()}
             className="w-full md:w-auto px-5 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white font-black text-xs sm:text-sm uppercase tracking-wider shadow-lg shadow-[#f5576c]/30 flex items-center justify-center gap-2 transition-all"
           >
-            <span>✨</span> Recomendar una Canción (+50 XP)
+            <span><InterfaceText>{"✨"}</InterfaceText></span> Recomendar una Canción (+50 XP)
           </button>
         </div>
       </div>
@@ -201,7 +200,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                 : 'text-white/60 hover:text-white'
             }`}
           >
-            <span>📥</span> Recibidas ({receivedList.length})
+            <span><InterfaceText>{"📥"}</InterfaceText></span> Recibidas ({receivedList.length})
             {unreadCount > 0 && (
               <span className="w-5 h-5 rounded-full bg-amber-400 text-slate-950 text-[10px] flex items-center justify-center font-black">
                 {unreadCount}
@@ -217,7 +216,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                 : 'text-white/60 hover:text-white'
             }`}
           >
-            <span>📤</span> Enviadas por Mí ({sentList.length})
+            <span><InterfaceText>{"📤"}</InterfaceText></span> Enviadas por Mí ({sentList.length})
           </button>
         </div>
 
@@ -251,7 +250,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                 Todas
               </option>
               <option value="unread" className="bg-[#101226]">
-                Nuevas 🌟
+                Nuevas
               </option>
               <option value="read" className="bg-[#101226]">
                 Escuchadas ✓
@@ -264,14 +263,14 @@ export function SongMailbox({ user, onOpenSendModal }) {
       {/* LISTADO DE CARTITAS MUSICALES */}
       {loading ? (
         <div className="py-16 text-center text-white/50 text-sm animate-pulse flex flex-col items-center justify-center gap-3">
-          <span className="text-3xl animate-bounce">💌</span>
+          <span className="text-3xl animate-bounce"><InterfaceText>{"💌"}</InterfaceText></span>
           <span>Abriendo tu buzón musical...</span>
         </div>
       ) : activeSubTab === 'received' ? (
         // CARTITAS RECIBIDAS
         filteredReceived.length === 0 ? (
           <div className="py-16 text-center rounded-3xl bg-white/5 border border-white/10 p-8 flex flex-col items-center justify-center gap-3">
-            <span className="text-5xl">📫</span>
+            <span className="text-5xl"><InterfaceText>{"📫"}</InterfaceText></span>
             <h4 className="text-lg font-black text-white">No tienes cartitas musicales aquí</h4>
             <p className="text-white/50 text-xs sm:text-sm max-w-md">
               {searchQuery || filterReadStatus !== 'all'
@@ -281,9 +280,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             <button
               onClick={() => onOpenSendModal && onOpenSendModal()}
               className="mt-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
-            >
-              💌 Enviar primera recomendación
-            </button>
+            ><InterfaceText>{" 💌 Enviar primera recomendación "}</InterfaceText></button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -301,7 +298,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                   {/* Sello Postal */}
                   <div className="w-12 h-14 rounded-lg bg-linear-to-tr from-amber-400 via-rose-500 to-purple-600 p-[1px] shadow-md transform rotate-2">
                     <div className="w-full h-full bg-[#101226]/90 rounded-[7px] border border-dashed border-white/30 flex flex-col items-center justify-center p-1">
-                      <span className="text-xs">🎵</span>
+                      <span className="text-xs"><InterfaceText>{"🎵"}</InterfaceText></span>
                       <span className="text-[7px] font-mono font-black uppercase text-amber-300">
                         POSTAL
                       </span>
@@ -345,9 +342,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shadow-lg border border-white/10 shrink-0"
                       />
                     ) : (
-                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-linear-to-tr from-[#f5576c] via-[#f093fb] to-indigo-600 flex items-center justify-center text-2xl shrink-0 shadow-lg">
-                        💿
-                      </div>
+                      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-linear-to-tr from-[#f5576c] via-[#f093fb] to-indigo-600 flex items-center justify-center text-2xl shrink-0 shadow-lg"><InterfaceText>{" 💿 "}</InterfaceText></div>
                     )}
 
                     <div className="truncate flex-grow">
@@ -381,7 +376,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                   {rec.message && (
                     <div className="relative mb-4 bg-white/5 border border-white/10 p-3.5 rounded-2xl">
                       <div className="text-[10px] uppercase font-bold text-white/40 tracking-wider mb-1 flex items-center gap-1">
-                        <span>✍️</span> Dedicatoria:
+                        <span><InterfaceText>{"✍️"}</InterfaceText></span> Dedicatoria:
                       </div>
                       <p className="text-xs sm:text-sm text-white/90 italic leading-relaxed whitespace-pre-line font-serif">
                         "{rec.message}"
@@ -450,7 +445,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                           : 'text-emerald-300 bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/30'
                       }`}
                     >
-                      {rec.is_read ? '✓ Marcar no leída' : '✨ Marcar como escuchada'}
+                      <InterfaceText>{rec.is_read ? '✓ Marcar no leída' : '✨ Marcar como escuchada'}</InterfaceText>
                     </button>
 
                     <div className="flex items-center gap-2">
@@ -468,7 +463,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         className="px-3 py-1.5 rounded-xl text-white/90 hover:text-white bg-white/10 hover:bg-white/20 border border-white/10 font-bold transition-all flex items-center gap-1.5 active:scale-95"
                         title="Recomendarle una canción de vuelta"
                       >
-                        <span>💌</span> Responder
+                        <span><InterfaceText>{"💌"}</InterfaceText></span> Responder
                       </button>
 
                       <button
@@ -477,9 +472,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         disabled={deletingId === rec.id}
                         className="p-1.5 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                         title="Eliminar cartita"
-                      >
-                        🗑️
-                      </button>
+                      ><InterfaceText>{" 🗑️ "}</InterfaceText></button>
                     </div>
                   </div>
                 </div>
@@ -491,7 +484,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
         // CANCIONES ENVIADAS POR EL USUARIO
         filteredSent.length === 0 ? (
           <div className="py-16 text-center rounded-3xl bg-white/5 border border-white/10 p-8 flex flex-col items-center justify-center gap-3">
-            <span className="text-5xl">📤</span>
+            <span className="text-5xl"><InterfaceText>{"📤"}</InterfaceText></span>
             <h4 className="text-lg font-black text-white">No has enviado recomendaciones aún</h4>
             <p className="text-white/50 text-xs sm:text-sm max-w-md">
               Sorprende a tus compañeros del club recomendándoles esas canciones especiales que tanto te gustan.
@@ -499,9 +492,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
             <button
               onClick={() => onOpenSendModal && onOpenSendModal()}
               className="mt-2 px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs shadow-lg"
-            >
-              💌 Recomendar mi primera canción
-            </button>
+            ><InterfaceText>{" 💌 Recomendar mi primera canción "}</InterfaceText></button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
@@ -539,7 +530,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                           : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
                       }`}
                     >
-                      {rec.is_read ? '✓ Escuchada' : '⏳ Pendiente'}
+                      <InterfaceText>{rec.is_read ? '✓ Escuchada' : '⏳ Pendiente'}</InterfaceText>
                     </span>
                   </div>
 
@@ -552,9 +543,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                         className="w-12 h-12 rounded-xl object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0">
-                        💿
-                      </div>
+                      <div className="w-12 h-12 rounded-xl bg-linear-to-tr from-[#f5576c] to-[#f093fb] flex items-center justify-center text-xl shrink-0"><InterfaceText>{" 💿 "}</InterfaceText></div>
                     )}
                     <div className="truncate">
                       <h4
@@ -599,9 +588,7 @@ export function SongMailbox({ user, onOpenSendModal }) {
                     disabled={deletingId === rec.id}
                     className="p-1 text-white/40 hover:text-red-400 text-xs"
                     title="Eliminar de enviados"
-                  >
-                    🗑️ Eliminar
-                  </button>
+                  ><InterfaceText>{" 🗑️ Eliminar "}</InterfaceText></button>
                 </div>
               </div>
             ))}

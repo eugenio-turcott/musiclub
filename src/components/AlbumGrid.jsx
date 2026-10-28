@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/AlbumGrid.jsx
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -352,7 +353,7 @@ export function AlbumGrid({
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       onError={(e) => {
                         e.target.src =
-                          'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
+                          '/musiclub_logo_corchea.png';
                       }}
                     />
                     {/* Palomita si el usuario ya dio review */}
@@ -377,9 +378,7 @@ export function AlbumGrid({
                     )}
 
                     {album.status === 'GANADOR' && (
-                      <div className="absolute top-1 right-1 text-sm sm:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]">
-                        🏆
-                      </div>
+                      <div className="absolute top-1 right-1 text-sm sm:text-base drop-shadow-[0_2px_8px_rgba(0,0,0,0.6)]"><InterfaceText>{" 🏆 "}</InterfaceText></div>
                     )}
 
                     {isAdmin && (
@@ -400,7 +399,7 @@ export function AlbumGrid({
                             disabled={syncingAlbum === album.id}
                             className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20 hover:bg-blue-500/30 transition-all disabled:opacity-50 whitespace-nowrap"
                           >
-                            {syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}
+                            <InterfaceText>{syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}</InterfaceText>
                           </button>
                         )}
                       </div>
@@ -440,12 +439,9 @@ export function AlbumGrid({
                         </p>
                         <div className="flex items-center justify-between gap-1 mt-1">
                           {album.status === 'GANADOR' ? (
-                            <span className="text-[8px] text-[#f5576c] font-bold">
-                              🏆 GANADOR
-                            </span>
+                            <span className="text-[8px] text-[#f5576c] font-bold"><InterfaceText>{" 🏆 GANADOR "}</InterfaceText></span>
                           ) : album.spotify_verified && album.tracks && album.tracks.length > 0 ? (
-                            <span className="text-[8px] text-white/40">
-                              🎵 {album.tracks.length} <span>canciones</span>
+                            <span className="text-[8px] text-white/40"><InterfaceText>{" 🎵 "}</InterfaceText>{album.tracks.length} <span>canciones</span>
                             </span>
                           ) : <span />}
                           <span className="text-[9px] text-pink-300 font-bold">
@@ -533,7 +529,7 @@ export function AlbumGrid({
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   onError={(e) => {
                     e.target.src =
-                      'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
+                      '/musiclub_logo_corchea.png';
                   }}
                 />
 
@@ -576,7 +572,7 @@ export function AlbumGrid({
                         disabled={syncingAlbum === album.id}
                         className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20 hover:bg-blue-500/30 transition-all disabled:opacity-50 whitespace-nowrap"
                       >
-                        {syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}
+                        <InterfaceText>{syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}</InterfaceText>
                       </button>
                     )}
                   </div>
@@ -618,8 +614,7 @@ export function AlbumGrid({
                     {album.spotify_verified &&
                       album.tracks &&
                       album.tracks.length > 0 && (
-                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
-                          🎵 {album.tracks.length} <span>canciones</span>
+                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2"><InterfaceText>{" 🎵 "}</InterfaceText>{album.tracks.length} <span>canciones</span>
                         </p>
                       )}
 
@@ -680,7 +675,7 @@ export function AlbumGrid({
         <div className="mt-8 pt-6 border-t border-white/5">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
             <h3 className="text-xl sm:text-2xl md:text-3xl text-gray-400/80 uppercase tracking-normal flex items-center gap-2">
-              <span className="text-2xl">💤</span>
+              <span className="text-2xl"><InterfaceText>{"💤"}</InterfaceText></span>
               Álbumes Inactivos
               <span className="text-xs font-normal text-white/30 bg-white/5 px-3 py-1 rounded-full border border-white/5">
                 Disponibles para reviews
@@ -710,7 +705,7 @@ export function AlbumGrid({
                   className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   onError={(e) => {
                     e.target.src =
-                      'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵';
+                      '/musiclub_logo_corchea.png';
                   }}
                 />
 
@@ -753,7 +748,7 @@ export function AlbumGrid({
                         disabled={syncingAlbum === album.id}
                         className="text-[8px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full border border-blue-500/20 hover:bg-blue-500/30 transition-all disabled:opacity-50 whitespace-nowrap"
                       >
-                        {syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}
+                        <InterfaceText>{syncingAlbum === album.id ? '🔄' : '🔍 Verificar'}</InterfaceText>
                       </button>
                     )}
                   </div>
@@ -795,8 +790,7 @@ export function AlbumGrid({
                     {album.spotify_verified &&
                       album.tracks &&
                       album.tracks.length > 0 && (
-                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2">
-                          🎵 {album.tracks.length} <span>canciones</span>
+                        <p className="text-white/40 text-[9px] sm:text-[10px] mb-2"><InterfaceText>{" 🎵 "}</InterfaceText>{album.tracks.length} <span>canciones</span>
                         </p>
                       )}
 
@@ -840,8 +834,7 @@ export function AlbumGrid({
       )}
 
       {error && (
-        <div className="mt-3 text-center text-[#f5576c] text-xs bg-[#f5576c]/10 px-4 py-2 rounded-lg border border-[#f5576c]/10">
-          ⚠️ {error}
+        <div className="mt-3 text-center text-[#f5576c] text-xs bg-[#f5576c]/10 px-4 py-2 rounded-lg border border-[#f5576c]/10"><InterfaceText>{" ⚠️ "}</InterfaceText>{error}
         </div>
       )}
     </div>

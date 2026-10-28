@@ -233,11 +233,14 @@ export function useAuth() {
     // Escuchar cambios en autenticación
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!isMounted) return;
       if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
         setIsRedirecting(false);
         setSession(session);
-        await handleUserSessionRef.current(session);
+        // Supabase holds its auth lock during this callback. Profile queries
+        // must start after it returns so other mounted views can read the session.
+        queueMicrotask(() => { if (isMounted) handleUserSessionRef.current(session); });
       } else if (event === 'SIGNED_OUT') {
         setSession(null);
         setUser(null);

@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/TierListMaker.jsx
 import React, { useState, useMemo, useEffect } from 'react';
@@ -850,7 +851,7 @@ export function TierListMaker({
             title="Descargar imagen PNG de tu Tier List en alta resolución"
           >
             <span>
-              {isGeneratingImage ? '⏳' : imageGeneratedSuccess ? '✅' : '📸'}
+              <InterfaceText>{isGeneratingImage ? '⏳' : imageGeneratedSuccess ? '✅' : '📸'}</InterfaceText>
             </span>
             <span>
               {isGeneratingImage
@@ -885,9 +886,7 @@ export function TierListMaker({
             placeholder="Buscar álbum o artista en el Tier List..."
             className="w-full bg-black/40 border border-white/10 focus:border-pink-500/60 rounded-xl px-3.5 py-2 pl-8.5 text-xs text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-pink-500/40 transition-all"
           />
-          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 text-xs">
-            🔍
-          </span>
+          <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-white/30 text-xs"><InterfaceText>{" 🔍 "}</InterfaceText></span>
           {searchTerm && (
             <button
               type="button"
@@ -955,7 +954,7 @@ export function TierListMaker({
                     <span
                       className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-base shadow-md ${tier.mobileBadgeBg}`}
                     >
-                      {tier.label}
+                      <InterfaceText>{tier.label}</InterfaceText>
                     </span>
                     <div>
                       <h4 className="text-white font-black text-sm leading-tight">
@@ -998,8 +997,7 @@ export function TierListMaker({
                                   e.target.src = PLACEHOLDER_COVER;
                                 }}
                               />
-                              <div className="absolute top-1 right-1 bg-black/85 backdrop-blur-sm px-2 py-0.5 rounded-lg border border-white/10 text-xs font-black text-amber-300 shadow-md">
-                                ★ {item.score === 10 ? '10' : item.score.toFixed(1)}
+                              <div className="absolute top-1 right-1 bg-black/85 backdrop-blur-sm px-2 py-0.5 rounded-lg border border-white/10 text-xs font-black text-amber-300 shadow-md"><InterfaceText>{" ★ "}</InterfaceText>{item.score === 10 ? '10' : item.score.toFixed(1)}
                               </div>
                             </div>
                             <div className="p-2">
@@ -1060,7 +1058,7 @@ export function TierListMaker({
                   className={`w-28 sm:w-36 shrink-0 flex flex-col items-center justify-center p-2.5 text-center select-none ${tier.headerBg} ${tier.headerText} shadow-md`}
                 >
                   <span className="text-2xl sm:text-3xl font-black leading-none drop-shadow-md mb-0.5">
-                    {tier.label}
+                    <InterfaceText>{tier.label}</InterfaceText>
                   </span>
                   <span className="text-xs sm:text-sm font-black uppercase tracking-wider opacity-95 text-center leading-snug break-words max-w-full px-1">
                     {tier.name}
@@ -1108,8 +1106,7 @@ export function TierListMaker({
 
                           {/* Badge de Calificación */}
                           <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/90 via-black/60 to-transparent p-1 flex items-center justify-between">
-                            <span className="text-[9px] sm:text-[10px] font-black text-amber-300 drop-shadow">
-                              ★ {item.score === 10 ? '10' : item.score.toFixed(1)}
+                            <span className="text-[9px] sm:text-[10px] font-black text-amber-300 drop-shadow"><InterfaceText>{" ★ "}</InterfaceText>{item.score === 10 ? '10' : item.score.toFixed(1)}
                             </span>
                           </div>
 
@@ -1129,8 +1126,7 @@ export function TierListMaker({
                                 {item.artista}
                               </p>
                             </div>
-                            <span className="text-[8.5px] text-amber-300 font-bold">
-                              ★ {item.score.toFixed(1)}
+                            <span className="text-[8.5px] text-amber-300 font-bold"><InterfaceText>{" ★ "}</InterfaceText>{item.score.toFixed(1)}
                             </span>
                           </div>
                         </div>
@@ -1148,7 +1144,7 @@ export function TierListMaker({
       {/* PIE DE INFORMACIÓN */}
       <div className="flex items-center justify-between text-[11px] text-white/40 pt-1 px-1">
         <span className="flex items-center gap-1.5">
-          <span>✨</span>
+          <span><InterfaceText>{"✨"}</InterfaceText></span>
           <span>Clasificación 100% automática basada en tus reseñas.</span>
         </span>
         <span className="font-semibold text-pink-300/80">

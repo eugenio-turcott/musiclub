@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -99,50 +100,36 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
     const raw = (type || 'ALBUM').toUpperCase();
     if (raw === 'EP') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-indigo-300 bg-indigo-500/15 border border-indigo-400/30">
-          💽 EP
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-indigo-300 bg-indigo-500/15 border border-indigo-400/30"><InterfaceText>{" 💽 EP "}</InterfaceText></span>
       );
     }
     if (raw === 'SENCILLO' || raw === 'SINGLE') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-pink-300 bg-pink-500/15 border border-pink-400/30">
-          🎵 Sencillo
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-pink-300 bg-pink-500/15 border border-pink-400/30"><InterfaceText>{" 🎵 Sencillo "}</InterfaceText></span>
       );
     }
     if (raw === 'COMPILACION' || raw === 'COMPILATION') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-amber-300 bg-amber-500/15 border border-amber-400/30">
-          📦 Compilación
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-amber-300 bg-amber-500/15 border border-amber-400/30"><InterfaceText>{" 📦 Compilación "}</InterfaceText></span>
       );
     }
     if (raw === 'EN VIVO' || raw === 'LIVE') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/15 border border-emerald-400/30">
-          🎤 En Vivo
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-emerald-300 bg-emerald-500/15 border border-emerald-400/30"><InterfaceText>{" 🎤 En Vivo "}</InterfaceText></span>
       );
     }
     if (raw === 'SOUNDTRACK') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-purple-300 bg-purple-500/15 border border-purple-400/30">
-          🎬 Soundtrack
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-purple-300 bg-purple-500/15 border border-purple-400/30"><InterfaceText>{" 🎬 Soundtrack "}</InterfaceText></span>
       );
     }
     if (raw === 'REMIX') {
       return (
-        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30">
-          🎛️ Remix
-        </span>
+        <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30"><InterfaceText>{" 🎛️ Remix "}</InterfaceText></span>
       );
     }
     return (
-      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30">
-        💿 Álbum
-      </span>
+      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full text-cyan-300 bg-cyan-500/15 border border-cyan-400/30"><InterfaceText>{" 💿 Álbum "}</InterfaceText></span>
     );
   };
 
@@ -272,9 +259,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-pink-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-xl group-hover:bg-pink-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20">
-                📝
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-pink-500/10 border border-pink-500/20"><InterfaceText>{" 📝 "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Total Reviews
@@ -293,9 +278,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20">
-                ⭐
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><InterfaceText>{" ⭐ "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Promedio Ponderado
@@ -305,7 +288,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                   className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
                   data-stat="score"
                 >
-                  {loading || avgRating === '...' ? '★ ...' : `★ ${avgRating}`}
+                  <InterfaceText>{loading || avgRating === '...' ? '★ ...' : `★ ${avgRating}`}</InterfaceText>
                 </p>
               </div>
             </div>
@@ -314,9 +297,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
             <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
-                💿
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><InterfaceText>{" 💿 "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Álbumes Evaluados
@@ -338,9 +319,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           >
             <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-all" />
             <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                👥
-              </span>
+              <span className="text-xl sm:text-3xl p-2 sm:p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/20"><InterfaceText>{" 👥 "}</InterfaceText></span>
               <div className="min-w-0">
                 <p className="text-[10px] sm:text-xs text-slate-400 font-medium truncate">
                   Críticos & Miembros
@@ -361,9 +340,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
         <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">
           {/* Search Bar */}
           <div className="relative flex-1">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
-              🔍
-            </span>
+            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
             <input
               type="text"
               placeholder="Buscar por álbum, artista, reviewer o comentario..."
@@ -396,9 +373,9 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
               className="bg-black/60 border border-white/10 rounded-xl text-xs text-white px-2.5 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:border-pink-400 font-semibold cursor-pointer"
             >
               <option value="todos">Todas las notas</option>
-              <option value="alta">⭐ Alta (8 - 10)</option>
-              <option value="media">⭐ Media (5 - 7.9)</option>
-              <option value="baja">⭐ Baja (&lt; 5)</option>
+              <option value="alta"> Alta (8 - 10)</option>
+              <option value="media"> Media (5 - 7.9)</option>
+              <option value="baja"> Baja (&lt; 5)</option>
             </select>
 
             <button
@@ -406,7 +383,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
               className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all text-xs font-semibold flex items-center gap-1.5 active:scale-95 shrink-0"
               title="Actualizar reviews"
             >
-              <span>🔄</span>{' '}
+              <span><InterfaceText>{"🔄"}</InterfaceText></span>{' '}
               <span className="hidden sm:inline">Refrescar</span>
             </button>
           </div>
@@ -414,7 +391,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
 
         {error && (
           <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-center text-rose-300 text-xs sm:text-sm flex items-center justify-center gap-2">
-            <span>⚠️</span> {error}
+            <span><InterfaceText>{"⚠️"}</InterfaceText></span> {error}
           </div>
         )}
 
@@ -435,7 +412,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           </div>
         ) : filteredReviews.length === 0 ? (
           <div className="p-12 bg-white/5 border border-white/5 rounded-3xl text-center space-y-2">
-            <span className="text-4xl">🔍</span>
+            <span className="text-4xl"><InterfaceText>{"🔍"}</InterfaceText></span>
             <h3 className="text-lg font-bold text-white">
               No se encontraron reseñas
             </h3>
@@ -495,7 +472,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                           className="w-18 h-18 sm:w-20 sm:h-20 min-w-[72px] min-h-[72px] sm:min-w-[80px] sm:min-h-[80px] object-cover rounded-xl border border-white/10 shadow-lg group-hover:border-pink-500/40 transition-colors"
                           onError={(e) => {
                             e.target.src =
-                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                              '/musiclub_logo_corchea.png';
                           }}
                         />
                       </div>
@@ -528,7 +505,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                             rating
                           )}`}
                         >
-                          <span>★</span>
+                          <span><InterfaceText>{"★"}</InterfaceText></span>
                           <span>{rating ? rating.toFixed(2) : 'N/A'}</span>
                           <span className="text-[10px] opacity-70 font-normal">
                             / 10
@@ -586,8 +563,8 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                               className={`text-[10px] px-2 py-0.5 mb-2 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                               title={emo.description}
                             >
-                              <span>{emo.emoji}</span>
-                              <span>{emo.label}</span>
+                              <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                              <span><InterfaceText>{emo.label}</InterfaceText></span>
                             </span>
                           ) : null;
                         })()}
@@ -613,7 +590,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                         return (
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
                             <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="text-xl">⭐</span>
+                              <span className="text-xl"><InterfaceText>{"⭐"}</InterfaceText></span>
                               <span className="text-amber-400/80 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
                                 Canción Favorita:
                               </span>
@@ -645,7 +622,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                                 key={key}
                                 className="text-[10px] text-slate-300 bg-white/5 px-2.5 py-0.5 rounded-lg border border-white/5 font-medium"
                               >
-                                {label}:{' '}
+                                <InterfaceText>{label}</InterfaceText>:{' '}
                                 <strong className="text-pink-300">
                                   {review[key]}
                                 </strong>
@@ -658,7 +635,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                       {Object.keys(trackRatings).length > 0 && (
                         <div className="mt-2.5 pt-2 border-t border-white/5">
                           <p className="text-slate-400 text-[10px] uppercase tracking-wider mb-1.5 font-bold flex items-center gap-1">
-                            <span>🎵</span> Calificaciones individuales por
+                            <span><InterfaceText>{"🎵"}</InterfaceText></span> Calificaciones individuales por
                             track:
                           </p>
                           <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto custom-scrollbar">
@@ -683,7 +660,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                                         : 'text-slate-300 bg-black/40 border-white/5'
                                     }`}
                                   >
-                                    <span>{isFav ? '⭐' : '🎵'}</span>
+                                    <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                                     <span
                                       className="max-w-[150px] truncate"
                                       title={trackName}
@@ -722,7 +699,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                             title="Compartir tu review en redes sociales en formato celular / story"
                           >
-                            <span>📱</span>
+                            <span><InterfaceText>{"📱"}</InterfaceText></span>
                             <span>Compartir Story</span>
                           </button>
                         </div>
@@ -763,8 +740,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
 
         {/* Footer info & Navigation Footer */}
         <div className="pt-6 border-t border-white/5 text-center">
-          <p className="text-slate-500 text-xs font-mono">
-            📝 {totalReviews} reseñas registradas en la comunidad de Musiclub
+          <p className="text-slate-500 text-xs font-mono"><InterfaceText>{" 📝 "}</InterfaceText>{totalReviews} reseñas registradas en la comunidad de Musiclub
           </p>
         </div>
 

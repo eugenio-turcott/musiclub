@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/WinnerDisplay.jsx
 import React, { useState, useEffect } from 'react';
 import { ReviewSystem } from './ReviewSystem';
@@ -128,22 +129,16 @@ export function WinnerDisplay({
             )}
 
             {/* Badge de ganador superpuesto */}
-            <div className="absolute -top-4 -right-4 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-[#f5576c]/30 animate-bounce border-2 border-white/20">
-              🏆 GANADOR
-            </div>
+            <div className="absolute -top-4 -right-4 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg shadow-[#f5576c]/30 animate-bounce border-2 border-white/20"><InterfaceText>{" 🏆 GANADOR "}</InterfaceText></div>
 
             {/* Estrella decorativa */}
-            <div className="absolute -bottom-3 -left-3 text-3xl animate-pulse drop-shadow-lg">
-              ⭐
-            </div>
+            <div className="absolute -bottom-3 -left-3 text-3xl animate-pulse drop-shadow-lg"><InterfaceText>{" ⭐ "}</InterfaceText></div>
           </div>
 
           {/* Info del ganador */}
           <div className="flex-1 text-center md:text-left">
             <div className="flex flex-wrap items-center gap-2 justify-center md:justify-start mb-3">
-              <span className="text-[#f5576c] text-xs font-bold tracking-[0.2em] uppercase bg-[#f5576c]/20 px-4 py-1.5 rounded-full border border-[#f5576c]/30 shadow-lg shadow-[#f5576c]/10">
-                🎉 SELECCIONADO POR LA MÁQUINA
-              </span>
+              <span className="text-[#f5576c] text-xs font-bold tracking-[0.2em] uppercase bg-[#f5576c]/20 px-4 py-1.5 rounded-full border border-[#f5576c]/30 shadow-lg shadow-[#f5576c]/10"><InterfaceText>{" 🎉 SELECCIONADO POR LA MÁQUINA "}</InterfaceText></span>
               <span className="text-white/30 text-xs bg-white/5 px-3 py-1 rounded-full border border-white/5">
                 {new Date().toLocaleDateString('es-ES', {
                   day: 'numeric',
@@ -173,7 +168,7 @@ export function WinnerDisplay({
             <div className="flex flex-wrap items-center gap-3 mt-3 justify-center md:justify-start">
               {winner.added_by && (
                 <span className="text-white/40 text-xs flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/5">
-                  <span className="text-[#f5576c]">💡</span>
+                  <span className="text-[#f5576c]"><InterfaceText>{"💡"}</InterfaceText></span>
                   <span>Sugerido por:</span>{' '}
                   <span
                     translate="no"
@@ -189,9 +184,7 @@ export function WinnerDisplay({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/30 hover:text-white/70 transition-all text-xs flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 hover:bg-white/10 hover:border-[#f5576c]/20"
-                >
-                  🎵 Spotify
-                </a>
+                ><InterfaceText>{" 🎵 Spotify "}</InterfaceText></a>
               )}
               {winner.youtubeLink && (
                 <a
@@ -199,9 +192,7 @@ export function WinnerDisplay({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-white/30 hover:text-white/70 transition-all text-xs flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 hover:bg-white/10 hover:border-[#f5576c]/20"
-                >
-                  ▶️ YouTube
-                </a>
+                ><InterfaceText>{" ▶️ YouTube "}</InterfaceText></a>
               )}
             </div>
 
@@ -227,11 +218,11 @@ export function WinnerDisplay({
                       : 'bg-white/5 text-white/40 border border-white/10 hover:bg-white/10'
                   }`}
                 >
-                  {toggling
+                  <InterfaceText>{toggling
                     ? '🔄'
                     : reviewsEnabled
                       ? '✅ Reviews habilitados'
-                      : '🔒 Habilitar reviews'}
+                      : '🔒 Habilitar reviews'}</InterfaceText>
                 </button>
               )}
 
@@ -247,11 +238,11 @@ export function WinnerDisplay({
                     className="px-5 sm:px-6 py-2.5 sm:py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-xl shadow-[#f5576c]/25 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 border border-white/20"
                   >
                     <span>
-                      {showReview
+                      <InterfaceText>{showReview
                         ? '✕ Cerrar Reseña'
                         : isReviewed
                           ? '✏️ Modificar Mi Reseña'
-                          : '⭐ Calificar y Reseñar'}
+                          : '⭐ Calificar y Reseñar'}</InterfaceText>
                     </span>
                   </button>
                 </div>
@@ -265,7 +256,7 @@ export function WinnerDisplay({
           <div className="mt-6 rounded-3xl bg-[#0e101d] border border-[#f5576c]/30 sm:border-[#f5576c]/40 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4 text-left">
             <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                <span className="text-xl sm:text-2xl">⭐</span>
+                <span className="text-xl sm:text-2xl"><InterfaceText>{"⭐"}</InterfaceText></span>
                 <h3 className="text-base sm:text-xl font-black text-white truncate">
                   {isReviewed ? 'Actualizar tu Reseña' : 'Escribir Reseña'}
                 </h3>

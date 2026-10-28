@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/TermsOfService.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -22,7 +23,7 @@ export function TermsOfService({ onClose }) {
           <div className="flex justify-between items-start border-b border-white/10 pb-6 mb-8">
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/30 text-[#f5576c] text-xs font-extrabold uppercase tracking-widest shadow-sm mb-3">
-                <span>📋</span> Normas & Convivencia Comunitaria
+                <span><InterfaceText>{"📋"}</InterfaceText></span> Normas & Convivencia Comunitaria
               </div>
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-[#f093fb] to-[#f5576c] tracking-tight">
                 TÉRMINOS DE SERVICIO
@@ -31,7 +32,7 @@ export function TermsOfService({ onClose }) {
                 Última actualización: Versión 6.3 · Septiembre 2026
               </p>
             </div>
-            <div className="text-4xl hidden sm:block">🎰</div>
+            <div className="text-4xl hidden sm:block"><InterfaceText>{"🎰"}</InterfaceText></div>
           </div>
 
           <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">

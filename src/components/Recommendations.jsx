@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
@@ -273,7 +274,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
           ) : (
             <div className="w-full md:w-auto bg-black/40 border border-amber-500/20 rounded-2xl p-4 text-center md:text-left min-w-0 md:min-w-[260px] md:max-w-sm">
               <div className="text-amber-400 font-bold text-sm flex items-center justify-center md:justify-start gap-1.5 mb-1">
-                <span>🌱</span> Historial Inicial
+                <span><InterfaceText>{"🌱"}</InterfaceText></span> Historial Inicial
               </div>
               <p className="text-white/60 text-xs">
                 Has calificado{' '}
@@ -300,7 +301,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
-            <span>💿</span> Para Ti{' '}
+            <span><InterfaceText>{"💿"}</InterfaceText></span> Para Ti{' '}
             <span translate="no" className="notranslate" data-stat="number">
               ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).length})
             </span>
@@ -314,7 +315,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
-            <span>🧬</span> Tu ADN Musical
+            <span><InterfaceText>{"🧬"}</InterfaceText></span> Tu ADN Musical
           </button>
 
           <button
@@ -325,7 +326,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                 : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
             }`}
           >
-            <span>🚀</span> Nuevos Descubrimientos
+            <span><InterfaceText>{"🚀"}</InterfaceText></span> Nuevos Descubrimientos
           </button>
         </div>
       </div>
@@ -371,8 +372,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     ? 'bg-linear-to-r from-emerald-400 to-teal-500 text-slate-950 font-black shadow-md'
                     : 'text-white/50 hover:text-white bg-white/5'
                 }`}
-              >
-                🌟 {genreData.personalized ? 'Afinidad por géneros' : 'Selección del club'}{' '}
+              ><InterfaceText>{" 🌟 "}</InterfaceText>{genreData.personalized ? 'Afinidad por géneros' : 'Selección del club'}{' '}
                 <span translate="no" className="notranslate" data-stat="number">
                   ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).slice(0, 8).length})
                 </span>
@@ -385,8 +385,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     ? 'bg-white/20 text-white border border-white/30'
                     : 'text-white/50 hover:text-white bg-white/5'
                 }`}
-              >
-                ⚡ Todas las Sugerencias{' '}
+              ><InterfaceText>{" ⚡ Todas las Sugerencias"}</InterfaceText>{' '}
                 <span translate="no" className="notranslate" data-stat="number">
                   ({loading ? '...' : genres.filterByGenre(recommendations, selectedGenre).length})
                 </span>
@@ -400,8 +399,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                       ? 'bg-cyan-500 text-black font-black'
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
-                >
-                  💎 Aclamados del Club{' '}
+                ><InterfaceText>{" 💎 Aclamados del Club"}</InterfaceText>{' '}
                   <span
                     translate="no"
                     className="notranslate"
@@ -420,8 +418,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                       ? 'bg-indigo-500 text-white font-black'
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
-                >
-                  🤝 Melómanos Afines{' '}
+                ><InterfaceText>{" 🤝 Melómanos Afines"}</InterfaceText>{' '}
                   <span
                     translate="no"
                     className="notranslate"
@@ -440,8 +437,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                       ? 'bg-amber-400 text-black font-black'
                       : 'text-white/50 hover:text-white bg-white/5'
                   }`}
-                >
-                  📝 Más Reseñados{' '}
+                ><InterfaceText>{" 📝 Más Reseñados"}</InterfaceText>{' '}
                   <span
                     translate="no"
                     className="notranslate"
@@ -512,17 +508,17 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                         )} shadow-md`}
                         data-stat="genre"
                       >
-                        {badgeGenre ? <><GenreArtwork genre={badgeGenre} size={24} className="h-6 w-6 shrink-0" /><span className="truncate">{badgeGenre}</span></> : '💿 Selección del club'}
+                        <InterfaceText>{badgeGenre ? <><GenreArtwork genre={badgeGenre} size={24} className="h-6 w-6 shrink-0" /><span className="truncate">{badgeGenre}</span></> : '💿 Selección del club'}</InterfaceText>
                       </span>
 
                       <span className="text-[11px] font-semibold text-white/50 bg-black/40 px-2.5 py-0.5 rounded-full border border-white/5">
-                        {album.status === 'GANADOR'
+                        <InterfaceText>{album.status === 'GANADOR'
                           ? '👑 Ganador'
                           : album.status === 'ACTIVO'
                             ? '🎰 En Máquina'
                             : album.status === 'INDIVIDUAL'
                               ? '🎧 Escucha Libre'
-                              : '💿 Archivo'}
+                              : '💿 Archivo'}</InterfaceText>
                       </span>
                     </div>
 
@@ -533,7 +529,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                           src={
                             album.image_url ||
                             album.imagen ||
-                            'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵'
+                            '/musiclub_logo_corchea.png'
                           }
                           alt={album.album_name || album.album}
                           className="w-full h-full object-cover"
@@ -561,8 +557,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                             translate="no"
                             className="notranslate text-amber-300 font-bold text-xs flex items-center gap-1"
                             data-stat="score"
-                          >
-                            ⭐{' '}
+                          ><InterfaceText>{" ⭐"}</InterfaceText>{' '}
                             {(
                               album.final_rating ||
                               album.avg_rating ||
@@ -594,7 +589,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                               key={idx}
                               className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} text-white shadow-sm flex items-center gap-1`}
                             >
-                              <span>{b.emoji}</span> {b.label}
+                              <span><InterfaceText>{b.emoji}</InterfaceText></span> <InterfaceText>{b.label}</InterfaceText>
                             </span>
                           ))}
                         </div>
@@ -607,14 +602,14 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                         onClick={() => user ? setSelectedAlbumForReview(album) : loginWithGoogle()}
                         className="w-full py-2 px-3 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-1.5"
                       >
-                        <span>⭐</span> Calificar
+                        <span><InterfaceText>{"⭐"}</InterfaceText></span> Calificar
                       </button>
 
                       <button
                         onClick={() => setSelectedAlbumForDetail(album)}
                         className="w-full py-2 px-3 rounded-xl bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-xs font-semibold border border-white/10 active:scale-95 transition-all flex items-center justify-center gap-1.5"
                       >
-                        <span>🔍</span> Detalle
+                        <span><InterfaceText>{"🔍"}</InterfaceText></span> Detalle
                       </button>
                     </div>
                   </div>
@@ -623,7 +618,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
             </div>
           ) : (
             <div className="py-16 text-center space-y-4 bg-black/20 rounded-3xl border border-white/5 p-6">
-              <div className="text-4xl">🎉</div>
+              <div className="text-4xl"><InterfaceText>{"🎉"}</InterfaceText></div>
               <h3 className="text-lg font-bold text-white">
                 {selectedGenre === 'all' ? '¡Has calificado todo este segmento!' : 'Sin sugerencias en esta selección'}
               </h3>
@@ -652,7 +647,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
           <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
               <div>
-                <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2"><span>📊</span> Tus géneros musicales</h3>
+                <h3 className="text-lg sm:text-xl font-black text-white flex items-center gap-2"><span><InterfaceText>{"📊"}</InterfaceText></span> Tus géneros musicales</h3>
                 <p className="text-white/50 text-xs">{genreData.personalized ? 'Tus escuchas y las calificaciones que les diste.' : 'Califica diez lanzamientos para descubrir tu perfil por géneros.'}</p>
               </div>
               <span className="text-xs font-mono bg-white/5 px-3 py-1 rounded-full text-cyan-300 border border-white/10 self-start sm:self-auto">{genreData.ratedCount} lanzamientos calificados</span>
@@ -675,7 +670,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
             {/* Artistas con mayor afinidad */}
             <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>👑</span> Tus Artistas de Mayor Calificación
+                <span><InterfaceText>{"👑"}</InterfaceText></span> Tus Artistas de Mayor Calificación
               </h3>
               {tasteProfile.topArtists && tasteProfile.topArtists.length > 0 ? (
                 <div className="space-y-2.5">
@@ -704,8 +699,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                         translate="no"
                         className="notranslate text-amber-300 font-bold text-xs"
                         data-stat="score"
-                      >
-                        ★ {art.avgScore.toFixed(1)} prom.
+                      ><InterfaceText>{" ★ "}</InterfaceText>{art.avgScore.toFixed(1)} prom.
                       </span>
                     </div>
                   ))}
@@ -721,7 +715,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
             {/* Melómanos Afines (Taste Twins) */}
             <div className="rounded-3xl p-6 bg-linear-to-br from-[#121424] to-[#0a0d18] border border-white/10 shadow-xl space-y-4">
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>🤝</span> Melómanos Afines de Musiclub
+                <span><InterfaceText>{"🤝"}</InterfaceText></span> Melómanos Afines de Musiclub
               </h3>
               <p className="text-white/50 text-xs">
                 Usuarios con quienes tienes la mayor correlación de
@@ -801,7 +795,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-black/40 p-4 rounded-2xl border border-white/10">
             <div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>🚀</span> Nuevos Descubrimientos Musicales
+                <span><InterfaceText>{"🚀"}</InterfaceText></span> Nuevos Descubrimientos Musicales
               </h3>
               <p className="text-white/50 text-xs">
                 Discos fuera del catálogo sugeridos según tu afinidad musical.
@@ -818,7 +812,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
               disabled={loadingDiscoveries || !genreData.personalized}
               className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50 active:scale-95 shadow-md"
             >
-              <span>🔄</span> Refrescar Sugerencias
+              <span><InterfaceText>{"🔄"}</InterfaceText></span> Refrescar Sugerencias
             </button>
           </div>
 
@@ -845,15 +839,13 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                         <img
                           src={
                             alb.image ||
-                            'https://via.placeholder.com/300/1a1a2e/ffffff?text=🎵'
+                            '/musiclub_logo_corchea.png'
                           }
                           alt=""
                           translate="no"
                           className="notranslate w-full h-full object-cover"
                         />
-                        <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] text-emerald-300 font-bold border border-emerald-400/30">
-                          ✨ Radar Sonoro
-                        </span>
+                        <span className="absolute top-2 right-2 bg-black/70 backdrop-blur-md px-2 py-0.5 rounded-full text-[10px] text-emerald-300 font-bold border border-emerald-400/30"><InterfaceText>{" ✨ Radar Sonoro "}</InterfaceText></span>
                       </div>
 
                       <div>
@@ -891,7 +883,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                           </>
                         ) : (
                           <>
-                            <span>🎧</span> Escuchar Individual
+                            <span><InterfaceText>{"🎧"}</InterfaceText></span> Escuchar Individual
                           </>
                         )}
                       </button>
@@ -933,7 +925,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                   src={
                     selectedAlbumForReview.image_url ||
                     selectedAlbumForReview.imagen ||
-                    'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                    '/musiclub_logo_corchea.png'
                   }
                   alt={
                     selectedAlbumForReview.album_name ||
@@ -1001,7 +993,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                   src={
                     selectedAlbumForDetail.image_url ||
                     selectedAlbumForDetail.imagen ||
-                    'https://via.placeholder.com/200/1a1a2e/ffffff?text=🎵'
+                    '/musiclub_logo_corchea.png'
                   }
                   alt={
                     selectedAlbumForDetail.album_name ||
@@ -1018,7 +1010,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     )} inline-block mb-1`}
                     data-stat="score"
                   >
-                    {genreData.personalized && selectedAlbumForDetail.matchingGenres?.length ? <GenreLabel genre={selectedAlbumForDetail.matchingGenres[0]} size={20} link /> : '💿 Selección del club'}
+                    <InterfaceText>{genreData.personalized && selectedAlbumForDetail.matchingGenres?.length ? <GenreLabel genre={selectedAlbumForDetail.matchingGenres[0]} size={20} link /> : '💿 Selección del club'}</InterfaceText>
                   </span>
                   <h3
                     translate="no"
@@ -1048,8 +1040,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                       translate="no"
                       className="notranslate text-amber-300 font-bold text-xs bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-full"
                       data-stat="score"
-                    >
-                      ⭐{' '}
+                    ><InterfaceText>{" ⭐"}</InterfaceText>{' '}
                       {(
                         selectedAlbumForDetail.final_rating ||
                         selectedAlbumForDetail.avg_rating ||
@@ -1061,8 +1052,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                       translate="no"
                       className="notranslate text-white/60 text-xs bg-white/5 border border-white/10 px-3 py-1 rounded-full"
                       data-stat="count"
-                    >
-                      📝 {selectedAlbumForDetail.review_count || 0} Reviews
+                    ><InterfaceText>{" 📝 "}</InterfaceText>{selectedAlbumForDetail.review_count || 0} Reviews
                     </span>
                   </div>
                 </div>
@@ -1135,9 +1125,7 @@ export function Recommendations({ isPage = false, user: propUser = null, initial
                     else loginWithGoogle();
                   }}
                   className="flex-1 py-3 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white font-bold text-xs hover:opacity-90 transition-all shadow-lg"
-                >
-                  ⭐ Calificar Este Álbum Ahora
-                </button>
+                ><InterfaceText>{" ⭐ Calificar Este Álbum Ahora "}</InterfaceText></button>
 
                 {selectedAlbumForDetail.spotify_link && (
                   <a

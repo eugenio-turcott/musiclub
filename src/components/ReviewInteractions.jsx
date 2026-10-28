@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/ReviewInteractions.jsx
 import React, {
   useState,
@@ -307,8 +308,8 @@ export function ReviewInteractions({
       {authNotice && (
         <div className="text-xs bg-pink-500/15 border border-pink-500/30 text-pink-200 px-3 py-1.5 rounded-xl flex items-center justify-between gap-2 animate-fadeIn shadow-sm">
           <div className="flex items-center gap-1.5">
-            <span>🔒</span>
-            <span>{authNotice}</span>
+            <span><InterfaceText>{"🔒"}</InterfaceText></span>
+            <span><InterfaceText>{authNotice}</InterfaceText></span>
           </div>
           <button
             type="button"
@@ -403,9 +404,9 @@ export function ReviewInteractions({
                     setIsFullPickerOpen(true);
                   }}
                   className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-sm sm:text-base hover:scale-115 bg-white/5 hover:bg-white/15 text-cyan-300 hover:text-white border border-white/15 transition-all active:scale-95 shrink-0"
-                  title="Más emojis (WhatsApp style con buscador y categorías) ➕"
+                  title="Más emojis (WhatsApp style con buscador y categorías)"
                 >
-                  ➕
+                  <InterfaceText>{"➕"}</InterfaceText>
                 </button>
               </div>
             )}
@@ -439,7 +440,7 @@ export function ReviewInteractions({
           }`}
           title="Ver o agregar comentarios a esta reseña"
         >
-          <span>💬</span>
+          <span><InterfaceText>{"💬"}</InterfaceText></span>
           <span>
             {comments.length > 0
               ? `${comments.length} ${comments.length === 1 ? 'comentario' : 'comentarios'}`
@@ -457,7 +458,7 @@ export function ReviewInteractions({
           {/* Lista de comentarios existentes */}
           {comments.length === 0 ? (
             <div className="py-3 px-4 rounded-xl bg-black/20 border border-white/5 text-center text-slate-400 text-xs">
-              <span className="text-base mr-1">💬</span>
+              <span className="text-base mr-1"><InterfaceText>{"💬"}</InterfaceText></span>
               <span>
                 Aún no hay comentarios en esta reseña. ¡Inicia la conversación!
               </span>
@@ -518,9 +519,7 @@ export function ReviewInteractions({
                         </span>
 
                         {isReviewerComment && (
-                          <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold shrink-0">
-                            ✍️ Autor
-                          </span>
+                          <span className="text-[9px] px-1.5 py-0.2 rounded-md bg-amber-500/20 text-amber-300 border border-amber-400/30 font-bold shrink-0"><InterfaceText>{" ✍️ Autor "}</InterfaceText></span>
                         )}
 
                         <span className="text-white/20 text-[10px]">•</span>
@@ -536,9 +535,7 @@ export function ReviewInteractions({
                           onClick={() => handleDeleteComment(comm.id)}
                           className="text-slate-500 hover:text-rose-400 text-xs px-1.5 py-0.5 rounded opacity-0 group-hover/comment:opacity-100 transition-opacity"
                           title="Eliminar este comentario"
-                        >
-                          🗑️
-                        </button>
+                        ><InterfaceText>{" 🗑️ "}</InterfaceText></button>
                       )}
                     </div>
 
@@ -596,7 +593,7 @@ export function ReviewInteractions({
             </form>
           ) : (
             <div className="p-3 rounded-xl bg-white/5 border border-white/10 text-center flex items-center justify-center gap-2 text-xs text-slate-400">
-              <span>🔒</span>
+              <span><InterfaceText>{"🔒"}</InterfaceText></span>
               <span>
                 <strong className="text-white">Inicia sesión</strong> para
                 comentar y responder a esta reseña.

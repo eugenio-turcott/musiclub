@@ -1,3 +1,4 @@
+import { InterfaceText } from '../UiIcon';
 import { ListenLaterButton } from '../ListenLaterButton';
 import { CoverImage } from '../CoverImage';
 import editions from '../../utils/releaseEditions.cjs';
@@ -58,7 +59,7 @@ export function AnticipatedSection({
       <div className="bg-linear-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider">
-            <span>⏳</span>
+            <span><InterfaceText>{"⏳"}</InterfaceText></span>
             <span>Releases Anticipados</span>
             <span className="text-white/40">•</span>
             <span className="text-amber-200">
@@ -77,7 +78,7 @@ export function AnticipatedSection({
         </div>
 
         <div className="flex items-center gap-2 shrink-0 self-start md:self-auto bg-amber-500/10 border border-amber-500/25 px-4 py-2.5 rounded-2xl text-amber-200">
-          <span className="text-base">🔒</span>
+          <span className="text-base"><InterfaceText>{"🔒"}</InterfaceText></span>
           <div className="text-left">
             <span className="block text-[10px] uppercase font-bold tracking-wider text-amber-400">
               Norma de Comunidad
@@ -162,9 +163,7 @@ export function AnticipatedSection({
 
                     {/* Anticipated Badge */}
                     <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-500 text-black border border-amber-400 shadow-md">
-                        ⏳ Próximo
-                      </span>
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-amber-500 text-black border border-amber-400 shadow-md"><InterfaceText>{" ⏳ Próximo "}</InterfaceText></span>
                       <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-black/85 border border-amber-500/40 text-amber-300 backdrop-blur-md">
                         #{rank}
                       </span>
@@ -173,8 +172,7 @@ export function AnticipatedSection({
                     {/* Estreno Date Badge Overlay */}
                     <div className="absolute bottom-2 left-2 z-10">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-[10px] font-mono font-bold text-amber-200 bg-amber-800/70 px-2 py-0.5 rounded border border-amber-500/40">
-                          📅{' '}
+                        <span className="text-[10px] font-mono font-bold text-amber-200 bg-amber-800/70 px-2 py-0.5 rounded border border-amber-500/40"><InterfaceText>{" 📅"}</InterfaceText>{' '}
                           {item.release_date
                             ? new Date(
                                 `${item.release_date}T00:00:00`
@@ -212,10 +210,9 @@ export function AnticipatedSection({
 
                     {/* Locked Rating notice, Tracks info & Spotify / Ver Actions */}
                     <div className="pt-2 border-t border-white/5 mt-auto space-y-2">
-                      <ListenLaterButton album={item} className="w-full" />
                       <div className="flex items-center justify-between gap-2 text-[10px]">
                         <div className="text-amber-300/80 bg-amber-500/10 px-2 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1.5 flex-1 min-w-0">
-                          <span>🔒</span>
+                          <span><InterfaceText>{"🔒"}</InterfaceText></span>
                           <span className="truncate">Estreno oficial</span>
                         </div>
                         <div className="bg-black/50 border border-white/10 px-2 py-1 rounded-lg text-slate-300 font-mono whitespace-nowrap">
@@ -232,16 +229,17 @@ export function AnticipatedSection({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="release-card-actions grid grid-cols-2 gap-2">
                         <Link
                           to={targetUrl}
-                          className={`py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
+                          className={`release-action-tile py-1.5 px-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-200 hover:text-white border border-white/10 text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow-sm ${
                             spotifyUrl ? 'flex-1' : 'w-full'
                           }`}
                         >
-                          <span>🔍</span>
-                          <span>Ver Release</span>
+                          <span><InterfaceText>{"🔍"}</InterfaceText></span>
+                          <span>Ver release</span>
                         </Link>
+                        <ListenLaterButton album={item} tile className="w-full" />
                       </div>
                     </div>
                   </div>

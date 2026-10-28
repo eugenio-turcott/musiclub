@@ -1,3 +1,4 @@
+import { InterfaceText } from '../UiIcon';
 import { ListenLaterButton } from '../ListenLaterButton';
 import { useOnScreen } from '../../hooks/useOnScreen';
 import { CoverImage } from '../CoverImage';
@@ -100,13 +101,12 @@ export function RecommendedSection({ albums = [] }) {
             <span className="text-amber-300 text-xs font-black">
               {score.toFixed(2)}
             </span>
-            <span className="text-[10px]">⭐</span>
+            <span className="text-[10px]"><InterfaceText>{"⭐"}</InterfaceText></span>
           </div>
 
           {/* Bottom Overlay: Reviews count */}
           <div className="absolute bottom-0 inset-x-0 bg-linear-to-t from-black/90 via-black/50 to-transparent p-2 flex items-end justify-between text-[10px] text-slate-300">
-            <span className="bg-black/60 px-1.5 py-0.5 rounded border border-white/10">
-              📝 {album.review_count || (album.reviews && album.reviews.length) || 0} reseñas
+            <span className="bg-black/60 px-1.5 py-0.5 rounded border border-white/10"><InterfaceText>{" 📝 "}</InterfaceText>{album.review_count || (album.reviews && album.reviews.length) || 0} reseñas
             </span>
             {album.release_year && (
               <span className="font-mono text-slate-300 font-bold">
@@ -139,22 +139,21 @@ export function RecommendedSection({ albums = [] }) {
 
           {album.best_track && (
             <div className="bg-white/5 border border-white/5 rounded-xl p-1.5 text-[10px] flex items-center justify-between text-slate-300">
-              <span className="truncate pr-1">👑 <span translate="no" className="notranslate track-name">{album.best_track.name}</span></span>
+              <span className="truncate pr-1"><InterfaceText>{"👑 "}</InterfaceText><span translate="no" className="notranslate track-name">{album.best_track.name}</span></span>
               <span className="text-amber-300 font-bold whitespace-nowrap">
-                {album.best_track.avg_rating} ⭐
-              </span>
+                {album.best_track.avg_rating}<InterfaceText>{" ⭐ "}</InterfaceText></span>
             </div>
           )}
 
-          <div className="pt-2 border-t border-white/5 mt-auto space-y-2">
-            <ListenLaterButton album={album} className="w-full" />
-            <Link
+          <div className="release-card-actions pt-2 border-t border-white/5 mt-auto grid grid-cols-2 gap-2">
+                        <Link
               to={targetUrl}
-              className="w-full py-1.5 px-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500 hover:text-black text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all flex items-center justify-center gap-1"
+              className="release-action-tile w-full py-1.5 px-2.5 rounded-xl bg-amber-500/15 hover:bg-amber-500 hover:text-black text-amber-300 border border-amber-500/30 text-[11px] font-bold transition-all flex items-center justify-center gap-1"
             >
-              <span>🎧</span>
-              <span>Ver Reseñas</span>
+              <span><InterfaceText>{"🎧"}</InterfaceText></span>
+              <span>Ver release</span>
             </Link>
+            <ListenLaterButton album={album} tile className="w-full" />
           </div>
         </div>
       </div>
@@ -167,7 +166,7 @@ export function RecommendedSection({ albums = [] }) {
       <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-orange-500/10 border border-amber-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-black uppercase tracking-wider">
-            <span>⭐</span>
+            <span><InterfaceText>{"⭐"}</InterfaceText></span>
             <span>Aclamación del Club</span>
             <span className="text-white/40">•</span>
             <span className="text-amber-200">Recomendaciones</span>
@@ -181,7 +180,7 @@ export function RecommendedSection({ albums = [] }) {
         </div>
 
         <div className="flex items-center gap-2 bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl text-amber-300">
-          <span className="text-lg">🏆</span>
+          <span className="text-lg"><InterfaceText>{"🏆"}</InterfaceText></span>
           <span className="text-xs font-bold">Top Puntuaciones Verificadas</span>
         </div>
       </div>

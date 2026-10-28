@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/LoginModal.jsx
 import { useState, useEffect, useRef, useId } from 'react';
 import { createPortal } from 'react-dom';
@@ -108,8 +109,7 @@ export function LoginModal({
         </div>
 
         {error && (
-          <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 text-xs p-3 rounded-xl mb-4 relative z-10 text-left">
-            ⚠️ {error}
+          <div role="alert" className="bg-red-500/20 border border-red-500/30 text-red-300 text-xs p-3 rounded-xl mb-4 relative z-10 text-left"><InterfaceText>{" ⚠️ "}</InterfaceText>{error}
           </div>
         )}
 

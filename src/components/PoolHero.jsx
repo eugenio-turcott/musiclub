@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { Link } from 'react-router-dom';
 import { GenreArtwork } from './GenreArtwork';
 import { MusiclubVinyl } from './MusiclubVinyl';
@@ -16,7 +17,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
       {a.vinyl === 'genre' ? <GenreArtwork genre={a.genre} size={320} animated className="h-full w-full" /> : <MusiclubVinyl src={a.logo} alt="" className="h-full w-full animate-spin-slow" />}
     </div>}
     <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
-      <span className="rounded-full border border-purple-300/20 bg-purple-500/15 px-3 py-1.5 text-purple-200">♫ Temporada {season.season_number || 1}</span>
+      <span className="rounded-full border border-purple-300/20 bg-purple-500/15 px-3 py-1.5 text-purple-200"><InterfaceText>{"♫ Temporada "}</InterfaceText>{season.season_number || 1}</span>
       <span className={`rounded-full border px-3 py-1.5 ${isOpen ? 'border-emerald-400/25 bg-emerald-500/10 text-emerald-200' : 'border-amber-400/25 bg-amber-500/10 text-amber-200'}`}>{capacity.full ? 'Cupo completo' : isOpen ? 'Propuestas abiertas' : 'Propuestas cerradas'}</span>
       {date && <span className="text-slate-400">Desde {date}</span>}
     </div>
@@ -29,8 +30,8 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
     {a.intro && season.description && a.intro.trim() !== season.description.trim() && <details className="mt-4 max-w-3xl rounded-xl border border-white/10 bg-black/10 p-3 text-sm text-slate-300"><summary className="cursor-pointer font-bold text-purple-200">Cómo participar · reglas del Pool</summary><p className="mt-3 whitespace-pre-line break-words leading-relaxed">{season.description}</p></details>}
     {!preview && <>
       <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
-        <button type="button" disabled={busy || (hasEntry ? !canEdit : !isOpen)} onClick={onDeposit} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] px-5 text-sm font-black text-white shadow-lg shadow-pink-500/10 transition hover:brightness-110 disabled:cursor-not-allowed disabled:from-white/5 disabled:to-white/5 disabled:text-slate-500 disabled:shadow-none">{hasEntry ? canEdit ? '✎ Editar mi cápsula' : 'Mi cápsula ya está registrada' : isOpen ? '＋ Depositar cápsula' : '🔒 Propuestas cerradas'}</button>
-        <Link to={`/gashapon?pool=${encodeURIComponent(season.id)}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition hover:bg-white/10">🎰 Descubrir releases del Pool</Link>
+        <button type="button" disabled={busy || (hasEntry ? !canEdit : !isOpen)} onClick={onDeposit} className="flex min-h-12 items-center justify-center gap-2 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] px-5 text-sm font-black text-white shadow-lg shadow-pink-500/10 transition hover:brightness-110 disabled:cursor-not-allowed disabled:from-white/5 disabled:to-white/5 disabled:text-slate-500 disabled:shadow-none"><InterfaceText>{hasEntry ? canEdit ? '✎ Editar mi cápsula' : 'Mi cápsula ya está registrada' : isOpen ? '＋ Depositar cápsula' : '🔒 Propuestas cerradas'}</InterfaceText></button>
+        <Link to={`/gashapon?pool=${encodeURIComponent(season.id)}`} className="flex min-h-12 items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 text-sm font-bold text-white transition hover:bg-white/10"><InterfaceText>{"🎰 Descubrir releases del Pool"}</InterfaceText></Link>
         {!isOpen && isAdmin && <button type="button" disabled={busy || capacity.full} onClick={onOpen} className="min-h-11 rounded-xl px-3 text-xs font-bold text-emerald-300 hover:bg-emerald-500/10 disabled:opacity-40">Abrir propuestas</button>}
       </div>
       <p className="mt-3 text-xs leading-relaxed text-slate-400">Una cápsula por persona en cada temporada de esta sala. Puedes cambiar tu release mientras esté en espera y las propuestas sigan abiertas.</p>

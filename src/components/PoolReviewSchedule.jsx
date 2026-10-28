@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -12,7 +13,7 @@ export function WinnerReviewSchedule({ winner, canManage, onSave }) {
   const [message, setMessage] = useState('');
   useEffect(() => { setDate(winner.review_scheduled_for || ''); setMessage(''); }, [winner.id, winner.review_scheduled_for]);
   return <div className="mt-4 rounded-2xl border border-pink-400/20 bg-pink-400/5 p-3 text-left">
-    <p className="text-sm font-bold text-pink-200">🗓️ Fecha de reseña: {reviewDate(winner.review_scheduled_for)}</p>
+    <p className="text-sm font-bold text-pink-200"><InterfaceText>{"🗓️ Fecha de reseña: "}</InterfaceText>{reviewDate(winner.review_scheduled_for)}</p>
     <p className="mt-1 text-xs text-slate-400">{winner.reviews_enabled ? 'Reseñas habilitadas para la sala.' : 'La apertura de reseñas la decide quien administra el Pool.'}</p>
     {canManage && <form className="mt-3 flex flex-wrap items-end gap-2" onSubmit={async event => {
       event.preventDefault(); setBusy(true); setMessage('');
@@ -45,7 +46,7 @@ export function EarlyPoolReviewDialog({ pools, onConfirm, onClose }) {
   const [error, setError] = useState('');
   useEffect(() => { const element=dialog.current; element.showModal(); return ()=>element.close(); }, []);
   return createPortal(<dialog ref={dialog} aria-labelledby="early-pool-title" onCancel={event=>{event.preventDefault(); if (!busy) onClose();}} className="m-auto w-[calc(100%_-_2rem)] max-w-lg rounded-3xl border border-pink-400/30 bg-[#151426] p-6 text-white shadow-2xl backdrop:bg-black/80 backdrop:backdrop-blur-sm">
-    <span className="text-3xl" aria-hidden="true">🎧</span>
+    <span className="text-3xl" aria-hidden="true"><InterfaceText>{"🎧"}</InterfaceText></span>
     <h2 id="early-pool-title" className="mt-3 text-2xl font-black">¿Reseñar antes de la apertura del Pool?</h2>
     <p className="mt-3 text-sm text-slate-300">Este release forma parte de tus Pools. La escucha compartida aún está pendiente:</p>
     <div className="my-4 space-y-3">{pools.filter(pool=>pool.blocked).map(pool=><div key={pool.entry_id} className="rounded-xl bg-white/5 p-3 text-sm"><p className="font-bold text-pink-200">{pool.pool_name}</p><p className="text-xs text-slate-400">{pool.room_name}</p><p className="mt-1">{pool.status==='GANADOR' ? `Fecha de reseña: ${reviewDate(pool.review_scheduled_for)}` : 'Propuesta activa · Todavía no es un ganador pasado'}</p></div>)}</div>

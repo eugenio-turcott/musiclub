@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 // src/pages/GashaponPage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -87,7 +88,7 @@ export function GashaponPage({ initialAlbums = [] }) {
 
         {/* Contenido Principal del Gashapon */}
         <main className="py-4 sm:py-6">
-          {poolId && <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-purple-300/20 bg-purple-500/10 p-4 text-sm text-purple-100"><div><p className="font-bold">🎰 Releases del Pool</p><p className="mt-1 text-xs text-slate-300">Solo propuestas activas, disco elegido e historial de esta temporada.</p></div><Link to="/gashapon" className="min-h-11 rounded-xl border border-white/15 px-3 py-3 text-xs font-bold hover:bg-white/10">Explorar catálogo completo</Link></div>}
+          {poolId && <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-purple-300/20 bg-purple-500/10 p-4 text-sm text-purple-100"><div><p className="font-bold"><InterfaceText>{"🎰 Releases del Pool"}</InterfaceText></p><p className="mt-1 text-xs text-slate-300">Solo propuestas activas, disco elegido e historial de esta temporada.</p></div><Link to="/gashapon" className="min-h-11 rounded-xl border border-white/15 px-3 py-3 text-xs font-bold hover:bg-white/10">Explorar catálogo completo</Link></div>}
           {!scopeReady ? <p role="status" className="p-6 text-center text-purple-200">Cargando los releases del Pool…</p> : poolScope?.error ? <p role="alert" className="rounded-xl border border-rose-300/20 p-4 text-rose-200">Este Pool no está disponible para tu cuenta. Para una sala privada necesitas una invitación y una sesión válida.</p> : <GashaponMachine
             albums={scopedAlbums}
             collectionLabel={poolId ? 'releases del Pool' : 'releases del catálogo'}

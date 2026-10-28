@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -809,7 +810,7 @@ export function AdminPanel({ onClose, isPage = true }) {
         {/* Toast Feedback */}
         {actionSuccess && (
           <div className="fixed bottom-6 right-6 z-50 px-5 py-3.5 bg-emerald-500 text-slate-950 font-black rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce">
-            <span>✨</span>
+            <span><InterfaceText>{"✨"}</InterfaceText></span>
             <span>{actionSuccess}</span>
           </div>
         )}
@@ -840,7 +841,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                     : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40'
                 }`}
               >
-                <span>{isPoolOpen ? '🔓' : '🔒'}</span>
+                <span><InterfaceText>{isPoolOpen ? '🔓' : '🔒'}</InterfaceText></span>
                 <span>
                   {isPoolOpen
                     ? 'Pool Abierto (Clic para Cerrar)'
@@ -853,7 +854,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 onClick={loadAllData}
                 className="px-4 py-2.5 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 text-white font-bold text-xs sm:text-sm transition-all flex items-center gap-2"
               >
-                <span>🔄</span>
+                <span><InterfaceText>{"🔄"}</InterfaceText></span>
                 <span>{loading ? 'Cargando...' : 'Actualizar'}</span>
               </button>
 
@@ -870,8 +871,7 @@ export function AdminPanel({ onClose, isPage = true }) {
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl text-xs">
-              ⚠️ {error}
+            <div className="mt-4 p-3 bg-red-500/20 border border-red-500/30 text-red-300 rounded-xl text-xs"><InterfaceText>{" ⚠️ "}</InterfaceText>{error}
             </div>
           )}
 
@@ -931,7 +931,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
-            <span>🗳️</span>
+            <span><InterfaceText>{"🗳️"}</InterfaceText></span>
             <span>Pool Semanal</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {poolActive.length + (poolWinner ? 1 : 0)}
@@ -947,7 +947,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
-            <span>🏆</span>
+            <span><InterfaceText>{"🏆"}</InterfaceText></span>
             <span>Temporadas (Seasons)</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {seasons.length}
@@ -963,7 +963,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
-            <span>💿</span>
+            <span><InterfaceText>{"💿"}</InterfaceText></span>
             <span>Catálogo Universal</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {albums.length}
@@ -979,7 +979,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
-            <span>📝</span>
+            <span><InterfaceText>{"📝"}</InterfaceText></span>
             <span>Moderación de Reseñas</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {reviews.length}
@@ -995,7 +995,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'
             }`}
           >
-            <span>👥</span>
+            <span><InterfaceText>{"👥"}</InterfaceText></span>
             <span>Usuarios & Perfiles</span>
             <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {profiles.length}
@@ -1011,7 +1011,7 @@ export function AdminPanel({ onClose, isPage = true }) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">{isPoolOpen ? '🔓' : '🔒'}</span>
+                    <span className="text-xl"><InterfaceText>{isPoolOpen ? '🔓' : '🔒'}</InterfaceText></span>
                     <h2 className="text-lg font-black text-white">
                       Estado de Recepción del Pool:{' '}
                       {isPoolOpen ? 'ABIERTO' : 'CERRADO'}
@@ -1034,7 +1034,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   }`}
                 >
                   <span>
-                    {isPoolOpen ? '🔒 Pausar Recepción' : '🔓 Abrir Recepción'}
+                    <InterfaceText>{isPoolOpen ? '🔒 Pausar Recepción' : '🔓 Abrir Recepción'}</InterfaceText>
                   </span>
                 </button>
               </div>
@@ -1042,7 +1042,7 @@ export function AdminPanel({ onClose, isPage = true }) {
               {/* Season Selector Card */}
               <div className="p-4 rounded-2xl bg-black/30 border border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
                 <div className="flex items-center gap-3">
-                  <span>🏆</span>
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span>
                   <div>
                     <span className="font-bold text-pink-400">
                       Temporada en Foco: {activeSeason.name}
@@ -1086,7 +1086,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             <div className="p-6 rounded-3xl bg-[#14172a] border border-pink-500/20 shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <span>🏆</span> Disco en Foco de la Semana (Ganador)
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Disco en Foco de la Semana (Ganador)
                 </h3>
                 {poolWinner && (
                   <span className="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 text-xs font-bold">
@@ -1134,9 +1134,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                       }`}
                     >
                       <span>
-                        {poolWinner.reviews_enabled
+                        <InterfaceText>{poolWinner.reviews_enabled
                           ? '🔒 Pausar Reseñas'
-                          : '✅ Habilitar Reseñas'}
+                          : '✅ Habilitar Reseñas'}</InterfaceText>
                       </span>
                     </button>
 
@@ -1145,7 +1145,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                       onClick={() => handleArchiveWinner(poolWinner.id)}
                       className="px-3.5 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all flex items-center gap-1.5"
                     >
-                      <span>🎓 Graduar al Historial</span>
+                      <span><InterfaceText>{"🎓 Graduar al Historial"}</InterfaceText></span>
                     </button>
                   </div>
                 </div>
@@ -1167,7 +1167,7 @@ export function AdminPanel({ onClose, isPage = true }) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h3 className="text-lg font-black text-white flex items-center gap-2">
-                    <span>🗳️</span> Candidatos Activos en el Pool (
+                    <span><InterfaceText>{"🗳️"}</InterfaceText></span> Candidatos Activos en el Pool (
                     {poolActive.length})
                   </h3>
                   <p className="text-xs text-slate-400">
@@ -1213,9 +1213,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                             onClick={() => handleSetWinner(item.id)}
                             className="px-2.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 text-xs font-bold transition-all"
                             title="Hacer Ganador de la Semana"
-                          >
-                            🏆 Ganador
-                          </button>
+                          ><InterfaceText>{" 🏆 Ganador "}</InterfaceText></button>
                           <button
                             type="button"
                             onClick={() => handleRemoveFromPool(item.id)}
@@ -1252,7 +1250,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             <div className="p-6 rounded-3xl bg-[#14172a] border border-white/10 shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <span>🏆</span> Control de Temporadas de Musiclub
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Control de Temporadas de Musiclub
                 </h3>
                 <p className="text-xs text-slate-400">
                   Crea, edita o elimina temporadas. Administra cuál es la
@@ -1266,7 +1264,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 onClick={handleOpenCreateSeason}
                 className="px-5 py-2.5 rounded-2xl bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white font-black text-xs sm:text-sm shadow-lg transition-all flex items-center gap-2 self-start sm:self-auto cursor-pointer"
               >
-                <span>➕</span>
+                <span><InterfaceText>{"➕"}</InterfaceText></span>
                 <span>Crear Nueva Temporada</span>
               </button>
             </div>
@@ -1289,9 +1287,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                           Temporada #{s.season_number || 1}
                         </span>
                         {s.is_active ? (
-                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold">
-                            🟢 Activa / Oficial
-                          </span>
+                          <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold"><InterfaceText>{" 🟢 Activa / Oficial "}</InterfaceText></span>
                         ) : (
                           <span className="px-2.5 py-0.5 rounded-full bg-white/5 text-slate-400 border border-white/10 text-[10px] font-semibold">
                             Archivada / Inactiva
@@ -1309,17 +1305,13 @@ export function AdminPanel({ onClose, isPage = true }) {
                         onClick={() => handleOpenEditSeason(s)}
                         className="px-2.5 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-xs font-bold transition-all"
                         title="Editar Temporada"
-                      >
-                        ✏️
-                      </button>
+                      ><InterfaceText>{" ✏️ "}</InterfaceText></button>
                       <button
                         type="button"
                         onClick={() => setShowDeleteSeasonConfirm(s)}
                         className="px-2.5 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-xs font-bold transition-all"
                         title="Eliminar Temporada"
-                      >
-                        🗑️
-                      </button>
+                      ><InterfaceText>{" 🗑️ "}</InterfaceText></button>
                     </div>
                   </div>
 
@@ -1345,9 +1337,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                         type="button"
                         onClick={() => handleActivateSeason(s.id)}
                         className="px-3 py-1 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 text-xs font-bold transition-all cursor-pointer"
-                      >
-                        🌟 Activar Esta Temporada
-                      </button>
+                      ><InterfaceText>{" 🌟 Activar Esta Temporada "}</InterfaceText></button>
                     )}
                   </div>
                 </div>
@@ -1371,7 +1361,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                 <div className="bg-[#121528] border border-white/20 rounded-3xl p-6 sm:p-8 max-w-lg w-full text-left space-y-4 shadow-2xl relative my-8">
                   <div className="flex items-center justify-between pb-3 border-b border-white/10">
                     <h3 className="text-lg font-black text-white flex items-center gap-2">
-                      <span>🏆</span>
+                      <span><InterfaceText>{"🏆"}</InterfaceText></span>
                       <span>
                         {isCreatingSeason
                           ? 'Crear Nueva Temporada'
@@ -1539,7 +1529,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             {showDeleteSeasonConfirm && (
               <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
                 <div className="bg-[#151726] border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
-                  <span className="text-4xl">⚠️</span>
+                  <span className="text-4xl"><InterfaceText>{"⚠️"}</InterfaceText></span>
                   <h3 className="text-lg font-black text-white">
                     ¿Eliminar esta temporada?
                   </h3>
@@ -1579,9 +1569,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             {/* Search & Filter Bar */}
             <div className="p-4 rounded-2xl bg-[#14172a] border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               <div className="relative flex-1">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                  🔍
-                </span>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
                 <input
                   type="text"
                   placeholder="Buscar en el catálogo por álbum, artista o curador..."
@@ -1598,14 +1586,14 @@ export function AdminPanel({ onClose, isPage = true }) {
                   onChange={(e) => setCatalogFormatFilter(e.target.value)}
                   className="bg-black/40 border border-white/10 rounded-xl text-xs text-white px-3 py-2 focus:outline-none"
                 >
-                  <option value="ALL">📁 Todos los Formatos</option>
-                  <option value="ALBUM">💿 Álbumes</option>
-                  <option value="EP">💽 EPs</option>
-                  <option value="SENCILLO">🎵 Sencillos</option>
-                  <option value="COMPILACION">📦 Compilaciones</option>
-                  <option value="EN VIVO">🎤 En Vivo</option>
-                  <option value="SOUNDTRACK">🎬 Soundtracks</option>
-                  <option value="REMIX">🎛️ Remixes</option>
+                  <option value="ALL"> Todos los Formatos</option>
+                  <option value="ALBUM"> Álbumes</option>
+                  <option value="EP"> EPs</option>
+                  <option value="SENCILLO"> Sencillos</option>
+                  <option value="COMPILACION"> Compilaciones</option>
+                  <option value="EN VIVO"> En Vivo</option>
+                  <option value="SOUNDTRACK"> Soundtracks</option>
+                  <option value="REMIX"> Remixes</option>
                 </select>
               </div>
             </div>
@@ -1668,8 +1656,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                           </td>
                           <td className="p-3.5">
                             {album.avg_rating || album.final_rating ? (
-                              <span className="font-bold text-amber-300">
-                                ⭐{' '}
+                              <span className="font-bold text-amber-300"><InterfaceText>{" ⭐"}</InterfaceText>{' '}
                                 {Number(
                                   album.avg_rating || album.final_rating
                                 ).toFixed(1)}
@@ -1684,17 +1671,13 @@ export function AdminPanel({ onClose, isPage = true }) {
                               onClick={() => handleOpenEditModal(album)}
                               className="px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[11px] font-bold transition-all"
                               title="Editar Metadata"
-                            >
-                              ✏️ Editar
-                            </button>
+                            ><InterfaceText>{" ✏️ Editar "}</InterfaceText></button>
                             <button
                               type="button"
                               onClick={() => handleSendToPool(album)}
                               className="px-2.5 py-1 rounded-lg bg-pink-500/15 hover:bg-pink-500/25 text-pink-300 border border-pink-500/30 text-[11px] font-bold transition-all"
                               title="Proponer al Pool"
-                            >
-                              🗳️ Al Pool
-                            </button>
+                            ><InterfaceText>{" 🗳️ Al Pool "}</InterfaceText></button>
                             <button
                               type="button"
                               onClick={() => {
@@ -1703,9 +1686,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                               }}
                               className="px-2 py-1 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 text-[11px] font-bold transition-all"
                               title="Eliminar Álbum"
-                            >
-                              🗑️
-                            </button>
+                            ><InterfaceText>{" 🗑️ "}</InterfaceText></button>
                           </td>
                         </tr>
                       ))
@@ -1734,9 +1715,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             {/* Search & Filter */}
             <div className="p-4 rounded-2xl bg-[#14172a] border border-white/10 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
               <div className="relative flex-1">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                  🔍
-                </span>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
                 <input
                   type="text"
                   placeholder="Buscar por crítico, álbum o comentario..."
@@ -1752,11 +1731,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                 className="bg-black/40 border border-white/10 rounded-xl text-xs text-white px-3 py-2 focus:outline-none"
               >
                 <option value="ALL">Todas las Reseñas</option>
-                <option value="WITH_COMMENT">
-                  💬 Con Comentarios Escritos
-                </option>
-                <option value="TOP">🌟 Calificaciones Altas (≥ 8.5)</option>
-                <option value="LOW">📉 Calificaciones Bajas (≤ 6.0)</option>
+                <option value="WITH_COMMENT">  Con Comentarios Escritos </option>
+                <option value="TOP"> Calificaciones Altas (≥ 8.5)</option>
+                <option value="LOW"> Calificaciones Bajas (≤ 6.0)</option>
               </select>
             </div>
 
@@ -1796,8 +1773,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
                       {/* Criteria Score Breakdown */}
                       <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px]">
-                        <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
-                          ⭐ General: {rev.rating_general}
+                        <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold"><InterfaceText>{" ⭐ General: "}</InterfaceText>{rev.rating_general}
                         </span>
                         {rev.rating_produccion && (
                           <span className="text-slate-400">
@@ -1830,8 +1806,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                             <span
                               className="text-pink-300 font-semibold"
                               title={trackName}
-                            >
-                              👑 Track: {trackName}
+                            ><InterfaceText>{" 👑 Track: "}</InterfaceText>{trackName}
                             </span>
                           );
                         })()}
@@ -1853,9 +1828,9 @@ export function AdminPanel({ onClose, isPage = true }) {
                       }
                       className="px-3 py-1.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold transition-all shrink-0"
                     >
-                      {deletingReviewId === rev.id
+                      <InterfaceText>{deletingReviewId === rev.id
                         ? 'Eliminando...'
-                        : '🗑️ Eliminar Reseña'}
+                        : '🗑️ Eliminar Reseña'}</InterfaceText>
                     </button>
                   </div>
                 ))
@@ -1880,9 +1855,7 @@ export function AdminPanel({ onClose, isPage = true }) {
           <div className="space-y-4 text-left">
             <div className="p-4 rounded-2xl bg-[#14172a] border border-white/10 flex items-center justify-between gap-3">
               <div className="relative flex-1">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
-                  🔍
-                </span>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
                 <input
                   type="text"
                   placeholder="Buscar usuario por nombre, email o rol..."
@@ -1987,7 +1960,7 @@ export function AdminPanel({ onClose, isPage = true }) {
             <div className="bg-[#121528] border border-white/20 rounded-3xl p-6 sm:p-8 max-w-xl w-full text-left space-y-4 shadow-2xl relative my-8">
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
                 <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <span>✏️</span> Editar Lanzamiento
+                  <span><InterfaceText>{"✏️"}</InterfaceText></span> Editar Lanzamiento
                 </h3>
                 <button
                   type="button"
@@ -2020,7 +1993,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                       onClick={handleSyncSpotifyMetadata}
                       className="px-2.5 py-1 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold transition-all flex items-center gap-1"
                     >
-                      <span>🔄</span>
+                      <span><InterfaceText>{"🔄"}</InterfaceText></span>
                       <span>
                         {isSyncingSpotify
                           ? 'Sincronizando...'
@@ -2101,13 +2074,13 @@ export function AdminPanel({ onClose, isPage = true }) {
                       }
                       className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-white focus:outline-none"
                     >
-                      <option value="ALBUM">💿 Álbum</option>
-                      <option value="EP">💽 EP</option>
-                      <option value="SENCILLO">🎵 Sencillo</option>
-                      <option value="COMPILACION">📦 Compilación</option>
-                      <option value="EN VIVO">🎤 En Vivo</option>
-                      <option value="SOUNDTRACK">🎬 Soundtrack</option>
-                      <option value="REMIX">🎛️ Remix</option>
+                      <option value="ALBUM"> Álbum</option>
+                      <option value="EP"> EP</option>
+                      <option value="SENCILLO"> Sencillo</option>
+                      <option value="COMPILACION"> Compilación</option>
+                      <option value="EN VIVO"> En Vivo</option>
+                      <option value="SOUNDTRACK"> Soundtrack</option>
+                      <option value="REMIX"> Remix</option>
                     </select>
                   </div>
 
@@ -2289,7 +2262,7 @@ export function AdminPanel({ onClose, isPage = true }) {
         {showDeleteConfirm && selectedAlbumForAction && (
           <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
             <div className="bg-[#151726] border border-red-500/30 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-4 shadow-2xl">
-              <span className="text-4xl">⚠️</span>
+              <span className="text-4xl"><InterfaceText>{"⚠️"}</InterfaceText></span>
               <h3 className="text-lg font-black text-white">
                 ¿Eliminar permanentemente este álbum?
               </h3>

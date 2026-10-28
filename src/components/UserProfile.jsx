@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -117,7 +118,7 @@ export const MELOMANO_LEVELS = [
 ];
 
 export function UserProfile({ isPage = false }) {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { albums } = useAlbums();
   const { userReviews, loading: reviewsLoading, refetchUserReviews } = useUserReviews(user);
   const navigate = useNavigate();
@@ -481,12 +482,12 @@ export function UserProfile({ isPage = false }) {
     }
   };
 
+  if (!user && authLoading) return <div className="flex min-h-[70vh] items-center justify-center text-sm text-slate-300" role="status">Cargando tu perfil…</div>;
+
   if (!user) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-4 sm:p-6 text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl sm:text-4xl mb-4 shadow-xl">
-          🔒
-        </div>
+        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-3xl sm:text-4xl mb-4 shadow-xl"><InterfaceText>{" 🔒 "}</InterfaceText></div>
         <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Acceso a Perfil</h2>
         <p className="text-white/50 text-xs sm:text-sm max-w-md mb-6 leading-relaxed">
           Inicia sesión para consultar tu información general, historial de reviews y estadísticas musicales personalizadas.
@@ -562,7 +563,7 @@ export function UserProfile({ isPage = false }) {
                     {user.name || 'Melómano de Musiclub'}
                   </h1>
                   <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[#121426]/90 backdrop-blur-md text-white/90 border border-white/15 whitespace-nowrap shadow-sm">
-                    {isAdmin ? '🛡️ Admin' : '🎧 Miembro'}
+                    <InterfaceText>{isAdmin ? '🛡️ Admin' : '🎧 Miembro'}</InterfaceText>
                   </span>
                 </div>
                 <p className="text-white/40 text-xs sm:text-sm font-mono mt-0.5 break-all">
@@ -574,7 +575,7 @@ export function UserProfile({ isPage = false }) {
                 to="/settings"
                 className="inline-flex items-center justify-center gap-1.5 text-xs text-white/90 hover:text-white bg-[#121426]/90 hover:bg-[#1a1e38] px-3 py-1.5 rounded-xl border border-white/20 backdrop-blur-md shadow-md transition-all font-medium self-center sm:self-auto active:scale-95"
               >
-                <span>✏️</span> Editar Perfil
+                <span><InterfaceText>{"✏️"}</InterfaceText></span> Editar Perfil
               </Link>
             </div>
 
@@ -592,7 +593,7 @@ export function UserProfile({ isPage = false }) {
             {/* Badges & XP Header Pill */}
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
               <span className="text-xs bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
-                <span>✨</span> {(userGamification.totalXp || 0).toLocaleString()} XP de Club
+                <span><InterfaceText>{"✨"}</InterfaceText></span> {(userGamification.totalXp || 0).toLocaleString()} XP de Club
               </span>
 
               {userGamification.badges?.slice(0, 3).map((b) => (
@@ -601,7 +602,7 @@ export function UserProfile({ isPage = false }) {
                   title={b.tooltip || b.desc || b.label}
                   className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                 >
-                  {b.label}
+                  <InterfaceText>{b.label}</InterfaceText>
                 </span>
               ))}
             </div>
@@ -610,7 +611,7 @@ export function UserProfile({ isPage = false }) {
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
               {user.favorite_artist && (
                 <span className="text-[11px] sm:text-xs bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span>👑</span> Artista:{' '}
+                  <span><InterfaceText>{"👑"}</InterfaceText></span> Artista:{' '}
                   <strong
                     translate="no"
                     className="notranslate artist-name truncate max-w-[150px]"
@@ -622,7 +623,7 @@ export function UserProfile({ isPage = false }) {
 
               {user.favorite_album && (
                 <span className="text-[11px] sm:text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                  <span>💿</span> Álbum:{' '}
+                  <span><InterfaceText>{"💿"}</InterfaceText></span> Álbum:{' '}
                   <strong
                     translate="no"
                     className="notranslate music-title truncate max-w-[150px]"
@@ -676,8 +677,7 @@ export function UserProfile({ isPage = false }) {
             <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
               Score XP
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300">
-              ✨ {(userGamification.totalXp || 0).toLocaleString()}
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{(userGamification.totalXp || 0).toLocaleString()}
             </span>
           </div>
 
@@ -694,8 +694,7 @@ export function UserProfile({ isPage = false }) {
             <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
               Promedio Dado
             </span>
-            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400">
-              ★ {stats.averageScore.toFixed(1)}
+            <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400"><InterfaceText>{" ★ "}</InterfaceText>{stats.averageScore.toFixed(1)}
             </span>
           </div>
 
@@ -712,8 +711,6 @@ export function UserProfile({ isPage = false }) {
 
       {/* PESTAÑAS DE NAVEGACIÓN TOUCH-FRIENDLY */}
       <div className="flex items-center gap-1.5 sm:gap-2 border-b border-white/10 pb-2 overflow-x-auto no-scrollbar scroll-smooth snap-x -mx-1 px-1 sm:mx-0 sm:px-0">
-        <button type="button" onClick={() => setActiveTab('later')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'later' ? 'bg-pink-400/20 text-pink-200' : 'bg-white/5 text-white/70'}`}><ClockIcon />Escuchar más tarde</button>
-        <button type="button" onClick={() => setActiveTab('discarded')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'discarded' ? 'bg-purple-400/20 text-purple-200' : 'bg-white/5 text-white/70'}`}>Descartes del Gashapon</button>
         <button
           onClick={() => setActiveTab('mailbox')}
           className={`px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl sm:rounded-2xl font-bold text-xs sm:text-sm transition-all flex items-center gap-1.5 sm:gap-2 whitespace-nowrap shrink-0 snap-start active:scale-95 ${
@@ -722,7 +719,7 @@ export function UserProfile({ isPage = false }) {
               : 'text-white/80 hover:text-white bg-linear-to-r from-[#f5576c]/15 to-[#f093fb]/15 hover:from-[#f5576c]/25 hover:to-[#f093fb]/25 border border-[#f5576c]/30'
           }`}
         >
-          <span>💌</span> Buzón de Canciones
+          <span><InterfaceText>{"💌"}</InterfaceText></span> Buzón de Canciones
           {unreadMailboxCount > 0 && (
             <span className="px-1.5 py-0.2 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black">
               {unreadMailboxCount}
@@ -738,8 +735,10 @@ export function UserProfile({ isPage = false }) {
               : 'text-white/80 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
-          <span>✨</span> Para Ti (Recomendaciones)
+          <span><InterfaceText>{"✨"}</InterfaceText></span> Para Ti
         </button>
+        <button type="button" onClick={() => setActiveTab('later')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'later' ? 'bg-pink-400/20 text-pink-200' : 'bg-white/5 text-white/70'}`}><ClockIcon />Escuchar más tarde</button>
+        <button type="button" onClick={() => setActiveTab('discarded')} className={`inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-xl px-4 text-xs font-bold ${activeTab === 'discarded' ? 'bg-purple-400/20 text-purple-200' : 'bg-white/5 text-white/70'}`}><InterfaceText>{"🎰"}</InterfaceText>Descartes del Gashapon</button>
 
         <button
           onClick={() => setActiveTab('reviews')}
@@ -749,7 +748,7 @@ export function UserProfile({ isPage = false }) {
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
-          <span>🎧</span> Mis Reviews ({stats.totalReviews})
+          <span><InterfaceText>{"🎧"}</InterfaceText></span> Mis Reviews ({stats.totalReviews})
         </button>
 
         <button
@@ -760,7 +759,7 @@ export function UserProfile({ isPage = false }) {
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
-          <span>🎖️</span> Insignias & Niveles ({userGamification.badges?.length || 0})
+          <span><InterfaceText>{"🎖️"}</InterfaceText></span> Insignias & Niveles ({userGamification.badges?.length || 0})
         </button>
 
         <button
@@ -771,7 +770,7 @@ export function UserProfile({ isPage = false }) {
               : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
           }`}
         >
-          <span>📊</span> Estadísticas Detalladas
+          <span><InterfaceText>{"📊"}</InterfaceText></span> Estadísticas Detalladas
         </button>
 
       </div>
@@ -791,7 +790,7 @@ export function UserProfile({ isPage = false }) {
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full bg-white/5 border border-white/10 rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm text-white placeholder-white/40 focus:outline-none focus:border-[#f5576c] transition-all pl-8 sm:pl-9"
               />
-              <span className="absolute left-2.5 sm:left-3 top-2 sm:top-2.5 text-white/40 text-xs sm:text-sm">🔍</span>
+              <span className="absolute left-2.5 sm:left-3 top-2 sm:top-2.5 text-white/40 text-xs sm:text-sm"><InterfaceText>{"🔍"}</InterfaceText></span>
               {searchTerm && (
                 <button
                   onClick={() => setSearchTerm('')}
@@ -874,8 +873,7 @@ export function UserProfile({ isPage = false }) {
                           >
                             {item.album.album}
                           </h3>
-                          <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0">
-                            ★ {item.weightedScore.toFixed(1)}
+                          <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0"><InterfaceText>{" ★ "}</InterfaceText>{item.weightedScore.toFixed(1)}
                           </span>
                         </div>
                         <p
@@ -902,8 +900,8 @@ export function UserProfile({ isPage = false }) {
                                 className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                                 title={emo.description}
                               >
-                                <span>{emo.emoji}</span>
-                                <span>{emo.label}</span>
+                                <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                                <span><InterfaceText>{emo.label}</InterfaceText></span>
                               </span>
                             ) : null;
                           })()}
@@ -926,7 +924,7 @@ export function UserProfile({ isPage = false }) {
                       const favName = getTrackDisplayName(favTrack, tracksSource);
                       return (
                         <div className="flex items-center gap-1.5 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
-                          <span className="text-sm">⭐</span>
+                          <span className="text-sm"><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                             Canción Favorita:
                           </span>
@@ -950,7 +948,7 @@ export function UserProfile({ isPage = false }) {
                         { label: '⭐ Gral', val: item.rating_general, max: 10 },
                       ].map((crit, cIdx) => (
                         <div key={cIdx} className="bg-black/30 p-1 sm:p-1.5 rounded-lg text-center border border-white/5">
-                          <div className="text-white/40 text-[8px] sm:text-[9px] uppercase truncate">{crit.label}</div>
+                          <div className="text-white/40 text-[8px] sm:text-[9px] uppercase truncate"><InterfaceText>{crit.label}</InterfaceText></div>
                           <div className="text-white font-bold text-[11px] sm:text-xs mt-0.5">
                             {crit.val ?? '-'}/{crit.max}
                           </div>
@@ -966,7 +964,7 @@ export function UserProfile({ isPage = false }) {
                           onClick={() => setExpandedReviewId(isExpanded ? null : item.id)}
                           className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
                         >
-                          <span>🎵 {Object.keys(item.track_ratings).length} canciones evaluadas</span>
+                          <span><InterfaceText>{"🎵 "}</InterfaceText>{Object.keys(item.track_ratings).length} canciones evaluadas</span>
                           <span className="text-[10px] text-white/40">
                             {isExpanded ? 'Ocultar ▲' : 'Ver tracks ▼'}
                           </span>
@@ -996,7 +994,7 @@ export function UserProfile({ isPage = false }) {
                                   }`}
                                 >
                                   <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
-                                    <span>{isFav ? '⭐' : '🎵'}</span>
+                                    <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                                     <span
                                       translate="no"
                                       className={`notranslate track-name truncate text-[11px] sm:text-xs ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`}
@@ -1033,7 +1031,7 @@ export function UserProfile({ isPage = false }) {
                         className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                         title="Editar las calificaciones y comentario de esta review"
                       >
-                        <span>✏️</span>
+                        <span><InterfaceText>{"✏️"}</InterfaceText></span>
                         <span className="hidden xs:inline">Editar</span>
                         <span className="xs:hidden">Edit</span>
                       </button>
@@ -1044,7 +1042,7 @@ export function UserProfile({ isPage = false }) {
                         className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                         title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
                       >
-                        <span>📱</span>
+                        <span><InterfaceText>{"📱"}</InterfaceText></span>
                         <span>Story</span>
                       </button>
 
@@ -1155,7 +1153,7 @@ export function UserProfile({ isPage = false }) {
           </>
           ) : (
             <div className="text-center py-12 sm:py-16 bg-black/30 rounded-2xl sm:rounded-3xl border border-dashed border-white/10 p-6 sm:p-8">
-              <div className="text-3xl sm:text-4xl mb-3">🎧</div>
+              <div className="text-3xl sm:text-4xl mb-3"><InterfaceText>{"🎧"}</InterfaceText></div>
               <h3 className="text-white font-bold text-sm sm:text-base mb-1">
                 {searchTerm ? 'No se encontraron reviews con esa búsqueda' : 'Aún no tienes reviews registradas'}
               </h3>
@@ -1168,7 +1166,7 @@ export function UserProfile({ isPage = false }) {
                 to="/"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs font-bold rounded-xl shadow-lg shadow-[#f5576c]/20 hover:scale-105 active:scale-95 transition-all"
               >
-                <span>🎵</span> Explorar Álbumes
+                <span><InterfaceText>{"🎵"}</InterfaceText></span> Explorar Álbumes
               </Link>
             </div>
           )}
@@ -1186,9 +1184,7 @@ export function UserProfile({ isPage = false }) {
                 {/* Header del modal */}
                 <div className="flex items-center justify-between pb-3 border-b border-white/10">
                   <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg shrink-0">
-                      ✏️
-                    </div>
+                    <div className="w-10 h-10 rounded-xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-lg shrink-0"><InterfaceText>{" ✏️ "}</InterfaceText></div>
                     <div className="min-w-0">
                       <h3 className="text-base sm:text-lg font-bold text-white truncate">
                         Editar Review: {editingReviewItem.album?.album || editingReviewItem.album?.album_name}
@@ -1256,7 +1252,7 @@ export function UserProfile({ isPage = false }) {
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div>
                 <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span>🏆</span> Progreso en el Leaderboard
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Progreso en el Leaderboard
                 </span>
                 <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
                   Puntuación de Club (Score XP)
@@ -1264,8 +1260,7 @@ export function UserProfile({ isPage = false }) {
               </div>
               <div className="text-center sm:text-right px-4 py-2 bg-amber-400/10 border border-amber-400/40 rounded-2xl">
                 <p className="text-[10px] text-amber-200/80 font-bold uppercase tracking-wider">Total Acumulado</p>
-                <p className="text-2xl sm:text-3xl font-black text-amber-300">
-                  ✨ {(userGamification.totalXp || 0).toLocaleString()} XP
+                <p className="text-2xl sm:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{(userGamification.totalXp || 0).toLocaleString()} XP
                 </p>
               </div>
             </div>
@@ -1273,7 +1268,7 @@ export function UserProfile({ isPage = false }) {
             {/* Desglose de Fuentes de XP */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
               <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base">🎧</span>
+                <span className="text-base"><InterfaceText>{"🎧"}</InterfaceText></span>
                 <p className="text-xs text-slate-400 mt-1 font-medium">Actividad Base</p>
                 <p className="text-lg font-black text-white mt-0.5">
                   +{userGamification.activityXp || 0} XP
@@ -1282,7 +1277,7 @@ export function UserProfile({ isPage = false }) {
               </div>
 
               <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base">⚡</span>
+                <span className="text-base"><InterfaceText>{"⚡"}</InterfaceText></span>
                 <p className="text-xs text-slate-400 mt-1 font-medium">Insignias y Tiers</p>
                 <p className="text-lg font-black text-amber-300 mt-0.5">
                   +{userGamification.badgesXp || 0} XP
@@ -1291,7 +1286,7 @@ export function UserProfile({ isPage = false }) {
               </div>
 
               <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base">👑</span>
+                <span className="text-base"><InterfaceText>{"👑"}</InterfaceText></span>
                 <p className="text-xs text-slate-400 mt-1 font-medium">Récords #1</p>
                 <p className="text-lg font-black text-cyan-300 mt-0.5">
                   +{userGamification.recordXp || 0} XP
@@ -1306,7 +1301,7 @@ export function UserProfile({ isPage = false }) {
             <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
               <div>
                 <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                  <span>🎖️</span> Tus Insignias Activas ({userGamification.badges?.length || 0})
+                  <span><InterfaceText>{"🎖️"}</InterfaceText></span> Tus Insignias Activas ({userGamification.badges?.length || 0})
                 </h3>
                 <p className="text-white/40 text-xs mt-0.5">
                   Las insignias multinivel evolucionan visualmente al nivel más alto que hayas desbloqueado.
@@ -1331,7 +1326,7 @@ export function UserProfile({ isPage = false }) {
                       <span
                         className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
                       >
-                        {b.label}
+                        <InterfaceText>{b.label}</InterfaceText>
                       </span>
                       <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                         +{b.xp} XP
@@ -1356,7 +1351,7 @@ export function UserProfile({ isPage = false }) {
           <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
             <div>
               <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                <span>📈</span> Progreso y Próximos Desbloqueos
+                <span><InterfaceText>{"📈"}</InterfaceText></span> Progreso y Próximos Desbloqueos
               </h3>
               <p className="text-white/40 text-xs mt-0.5">
                 Sigue tu avance para desbloquear el siguiente rango y sumar más puntos XP a tu perfil.
@@ -1373,7 +1368,7 @@ export function UserProfile({ isPage = false }) {
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                        <span>{bp.icon}</span>
+                        <span><InterfaceText>{bp.icon}</InterfaceText></span>
                         <span>{bp.categoryName}</span>
                       </span>
                       <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
@@ -1404,7 +1399,7 @@ export function UserProfile({ isPage = false }) {
                       </div>
                     ) : (
                       <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
-                        <span>👑</span> ¡Has alcanzado el Tier Máximo en esta categoría!
+                        <span><InterfaceText>{"👑"}</InterfaceText></span> ¡Has alcanzado el Tier Máximo en esta categoría!
                       </div>
                     )}
                   </div>
@@ -1431,7 +1426,7 @@ export function UserProfile({ isPage = false }) {
             {/* Desglose por Criterios */}
             <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
               <h3 className="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                <span>🎛️</span> Promedio Otorgado por Criterio
+                <span><InterfaceText>{"🎛️"}</InterfaceText></span> Promedio Otorgado por Criterio
               </h3>
               <p className="text-white/40 text-xs">
                 Muestra la exigencia y tendencia de tus calificaciones según cada aspecto del álbum.
@@ -1445,7 +1440,7 @@ export function UserProfile({ isPage = false }) {
                     <div key={crit.key} className="space-y-1">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-white/70 font-medium flex items-center gap-1 text-[11px] sm:text-xs">
-                          <span>{crit.icon}</span> {crit.label}
+                          <span><InterfaceText>{crit.icon}</InterfaceText></span> <InterfaceText>{crit.label}</InterfaceText>
                         </span>
                         <span className="text-white font-bold text-[11px] sm:text-xs">
                           {avg.toFixed(2)} / {crit.max}
@@ -1468,7 +1463,7 @@ export function UserProfile({ isPage = false }) {
               {/* Más Alto */}
               <div className="bg-linear-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
                 <div className="flex items-center gap-1.5 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
-                  <span>🏆</span> Tu Álbum Mejor Calificado
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Tu Álbum Mejor Calificado
                 </div>
                 {stats.highestRatedAlbum ? (() => {
                   const highAlb =
@@ -1496,8 +1491,7 @@ export function UserProfile({ isPage = false }) {
                         <p className="text-white/60 text-[11px] sm:text-xs truncate">
                           {artistTitle}
                         </p>
-                        <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm">
-                          ★ {(getWeightedReviewScore(stats.highestRatedAlbum) ?? stats.highestRatedAlbum.rating_general)?.toFixed(1)} / 10
+                        <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm"><InterfaceText>{" ★ "}</InterfaceText>{(getWeightedReviewScore(stats.highestRatedAlbum) ?? stats.highestRatedAlbum.rating_general)?.toFixed(1)} / 10
                         </span>
                       </div>
                     </div>
@@ -1510,7 +1504,7 @@ export function UserProfile({ isPage = false }) {
               {/* Más Exigente / Bajo */}
               <div className="bg-linear-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
                 <div className="flex items-center gap-1.5 text-rose-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
-                  <span>⚡</span> Calificación Más Exigente
+                  <span><InterfaceText>{"⚡"}</InterfaceText></span> Calificación Más Exigente
                 </div>
                 {stats.lowestRatedAlbum ? (() => {
                   const lowAlb =
@@ -1544,8 +1538,7 @@ export function UserProfile({ isPage = false }) {
                         >
                           {artistTitle}
                         </p>
-                        <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm">
-                          ★ {(getWeightedReviewScore(stats.lowestRatedAlbum) ?? stats.lowestRatedAlbum.rating_general)?.toFixed(1)} / 10
+                        <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm"><InterfaceText>{" ★ "}</InterfaceText>{(getWeightedReviewScore(stats.lowestRatedAlbum) ?? stats.lowestRatedAlbum.rating_general)?.toFixed(1)} / 10
                         </span>
                       </div>
                     </div>
@@ -1562,7 +1555,7 @@ export function UserProfile({ isPage = false }) {
                     <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                     >
-                      {currentMelomanoLevel.icon}
+                      <InterfaceText>{currentMelomanoLevel.icon}</InterfaceText>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1570,7 +1563,7 @@ export function UserProfile({ isPage = false }) {
                           Nivel {currentMelomanoLevel.level}
                         </span>
                         <h4 className="text-white font-black text-xs sm:text-sm truncate">
-                          {currentMelomanoLevel.title}
+                          <InterfaceText>{currentMelomanoLevel.title}</InterfaceText>
                         </h4>
                       </div>
                       <p className="text-white/50 text-[11px] sm:text-xs truncate mt-0.5">
@@ -1593,7 +1586,7 @@ export function UserProfile({ isPage = false }) {
                   <div className="space-y-1.5 pt-1">
                     <div className="flex items-center justify-between text-[11px]">
                       <span className="text-white/60 truncate pr-2">
-                        Siguiente: <strong className="text-pink-300 font-bold">{currentMelomanoLevel.next.title}</strong>
+                        Siguiente: <strong className="text-pink-300 font-bold"><InterfaceText>{currentMelomanoLevel.next.title}</InterfaceText></strong>
                       </span>
                       <span className="text-white font-semibold shrink-0">
                         +{currentMelomanoLevel.xpRemaining} XP ({currentMelomanoLevel.progressPercent}%)
@@ -1608,7 +1601,7 @@ export function UserProfile({ isPage = false }) {
                   </div>
                 ) : (
                   <div className="text-xs text-amber-300 font-bold flex items-center gap-1.5 pt-1">
-                    <span>👑</span> ¡Has alcanzado el Rango Melómano Supremo del Club!
+                    <span><InterfaceText>{"👑"}</InterfaceText></span> ¡Has alcanzado el Rango Melómano Supremo del Club!
                   </div>
                 )}
 

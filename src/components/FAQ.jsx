@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -278,7 +279,7 @@ export function FAQ({ isPage = false }) {
             <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="px-3.5 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-2 shadow-2xl">
-                  <span className="text-xs">💡</span>
+                  <span className="text-xs"><InterfaceText>{"💡"}</InterfaceText></span>
                   <div className="text-left">
                     <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
                       Base de Respuestas
@@ -308,7 +309,7 @@ export function FAQ({ isPage = false }) {
                   onClick={expandAll}
                   className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
                 >
-                  <span>📖</span>
+                  <span><InterfaceText>{"📖"}</InterfaceText></span>
                   <span>Desplegar Todo</span>
                 </button>
                 <button
@@ -316,7 +317,7 @@ export function FAQ({ isPage = false }) {
                   onClick={collapseAll}
                   className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
                 >
-                  <span>📁</span>
+                  <span><InterfaceText>{"📁"}</InterfaceText></span>
                   <span>Colapsar</span>
                 </button>
               </div>
@@ -326,7 +327,7 @@ export function FAQ({ isPage = false }) {
           {/* Tarjetas de Resumen Rápido */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-white/10">
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
-              <div className="text-2xl mb-1">🎰</div>
+              <div className="text-2xl mb-1"><InterfaceText>{"🎰"}</InterfaceText></div>
               <div className="text-white font-bold text-xs sm:text-sm">
                 Ruleta Ponderada
               </div>
@@ -335,7 +336,7 @@ export function FAQ({ isPage = false }) {
               </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
-              <div className="text-2xl mb-1">📝</div>
+              <div className="text-2xl mb-1"><InterfaceText>{"📝"}</InterfaceText></div>
               <div className="text-white font-bold text-xs sm:text-sm">
                 Reseñas Ponderadas
               </div>
@@ -344,7 +345,7 @@ export function FAQ({ isPage = false }) {
               </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
-              <div className="text-2xl mb-1">🏆</div>
+              <div className="text-2xl mb-1"><InterfaceText>{"🏆"}</InterfaceText></div>
               <div className="text-white font-bold text-xs sm:text-sm">
                 Leaderboard & Badges
               </div>
@@ -353,7 +354,7 @@ export function FAQ({ isPage = false }) {
               </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
-              <div className="text-2xl mb-1">🎧</div>
+              <div className="text-2xl mb-1"><InterfaceText>{"🎧"}</InterfaceText></div>
               <div className="text-white font-bold text-xs sm:text-sm">
                 Fuentes musicales
               </div>
@@ -372,9 +373,7 @@ export function FAQ({ isPage = false }) {
         {/* Buscador y Controles */}
         <div className="bg-black/60 border border-white/10 rounded-2xl p-4 mb-6 backdrop-blur-md flex flex-col sm:flex-row gap-3 items-center justify-between">
           <div className="relative w-full sm:w-80">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm">
-              🔍
-            </span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
             <input
               type="text"
               value={searchQuery}
@@ -422,8 +421,8 @@ export function FAQ({ isPage = false }) {
                     : 'bg-black/40 text-white/60 border-white/10 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span>{cat.icon}</span>
-                <span>{cat.label}</span>
+                <span><InterfaceText>{cat.icon}</InterfaceText></span>
+                <span><InterfaceText>{cat.label}</InterfaceText></span>
               </button>
             );
           })}
@@ -433,7 +432,7 @@ export function FAQ({ isPage = false }) {
         <div className="space-y-3">
           {filteredFAQs.length === 0 ? (
             <div className="bg-black/60 border border-white/10 rounded-2xl p-10 text-center text-white/50">
-              <div className="text-4xl mb-2">🔎</div>
+              <div className="text-4xl mb-2"><InterfaceText>{"🔎"}</InterfaceText></div>
               <p className="font-bold text-white/80">
                 No se encontraron preguntas coincidentes
               </p>
@@ -504,23 +503,17 @@ export function FAQ({ isPage = false }) {
             <Link
               to="/"
               className="text-[#f5576c] hover:underline font-semibold"
-            >
-              🎧 Ir al Inicio de Musiclub
-            </Link>
+            ><InterfaceText>{" 🎧 Ir al Inicio de Musiclub "}</InterfaceText></Link>
             <span className="text-white/20">·</span>
             <Link
               to="/leaderboard"
               className="text-[#f5576c] hover:underline font-semibold"
-            >
-              🏆 Ver Leaderboard
-            </Link>
+            ><InterfaceText>{" 🏆 Ver Leaderboard "}</InterfaceText></Link>
             <span className="text-white/20">·</span>
             <Link
               to="/catalogo"
               className="text-[#f5576c] hover:underline font-semibold"
-            >
-              💿 Explorar Catálogo
-            </Link>
+            ><InterfaceText>{" 💿 Explorar Catálogo "}</InterfaceText></Link>
           </div>
         </div>
 

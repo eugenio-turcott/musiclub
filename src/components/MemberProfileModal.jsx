@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -205,7 +206,7 @@ export function MemberProfileModal({
                 onClick={() => setIsSendSongModalOpen(true)}
                 className="hidden xs:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/20 transition-all cursor-pointer"
               >
-                <span>💌</span>
+                <span><InterfaceText>{"💌"}</InterfaceText></span>
                 <span>Recomendar Canción</span>
               </button>
             )}
@@ -269,7 +270,7 @@ export function MemberProfileModal({
                         {memberUser.name || 'Melómano de Musiclub'}
                       </h1>
                       <span className="text-[10px] sm:text-xs font-semibold px-2.5 py-0.5 rounded-full bg-white/10 text-white/80 border border-white/10 whitespace-nowrap">
-                        {isAdmin ? '🛡️ Admin' : '🎧 Miembro'}
+                        <InterfaceText>{isAdmin ? '🛡️ Admin' : '🎧 Miembro'}</InterfaceText>
                       </span>
                     </div>
                     {memberUser.email && (
@@ -285,7 +286,7 @@ export function MemberProfileModal({
                       onClick={() => setIsSendSongModalOpen(true)}
                       className="inline-flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-linear-to-r from-[#f5576c] via-[#f093fb] to-cyan-400 hover:brightness-110 active:scale-95 text-white text-xs font-black shadow-md shadow-[#f5576c]/25 transition-all self-center sm:self-auto cursor-pointer"
                     >
-                      <span>💌</span> Recomendarle Canción
+                      <span><InterfaceText>{"💌"}</InterfaceText></span> Recomendarle Canción
                     </button>
                   )}
                 </div>
@@ -304,7 +305,7 @@ export function MemberProfileModal({
                 {/* Badges & XP Header Pill */}
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
                   <span className="text-xs bg-linear-to-r from-amber-400/20 via-yellow-400/30 to-amber-400/20 text-amber-300 border border-amber-400/50 px-3 py-1 rounded-full flex items-center gap-1.5 font-black shadow-[0_0_12px_rgba(251,191,36,0.25)]">
-                    <span>✨</span> {totalXp.toLocaleString()} XP de Club
+                    <span><InterfaceText>{"✨"}</InterfaceText></span> {totalXp.toLocaleString()} XP de Club
                   </span>
 
                   {memberUser.badges?.slice(0, 3).map((b) => (
@@ -313,7 +314,7 @@ export function MemberProfileModal({
                       title={b.tooltip || b.desc || b.label}
                       className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
                     >
-                      {b.label}
+                      <InterfaceText>{b.label}</InterfaceText>
                     </span>
                   ))}
                 </div>
@@ -322,7 +323,7 @@ export function MemberProfileModal({
                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-1">
                   {memberUser.favorite_artist && (
                     <span className="text-[11px] sm:text-xs bg-purple-500/15 text-purple-300 border border-purple-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                      <span>👑</span> Artista:{' '}
+                      <span><InterfaceText>{"👑"}</InterfaceText></span> Artista:{' '}
                       <strong
                         translate="no"
                         className="notranslate artist-name truncate max-w-[150px]"
@@ -334,7 +335,7 @@ export function MemberProfileModal({
 
                   {memberUser.favorite_album && (
                     <span className="text-[11px] sm:text-xs bg-amber-500/15 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full flex items-center gap-1 font-medium">
-                      <span>💿</span> Álbum:{' '}
+                      <span><InterfaceText>{"💿"}</InterfaceText></span> Álbum:{' '}
                       <strong
                         translate="no"
                         className="notranslate music-title truncate max-w-[150px]"
@@ -389,8 +390,7 @@ export function MemberProfileModal({
                 <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
                   Score XP
                 </span>
-                <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300">
-                  ✨ {totalXp.toLocaleString()}
+                <span className="text-xl sm:text-2xl md:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{totalXp.toLocaleString()}
                 </span>
               </div>
 
@@ -407,8 +407,7 @@ export function MemberProfileModal({
                 <span className="text-white/40 text-[9px] sm:text-[10px] uppercase font-bold tracking-wider block mb-0.5 sm:mb-1">
                   Promedio Dado
                 </span>
-                <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400">
-                  ★{' '}
+                <span className="text-xl sm:text-2xl md:text-3xl font-black text-emerald-400"><InterfaceText>{" ★"}</InterfaceText>{' '}
                   {(memberUser.avg_score || 0) > 0
                     ? memberUser.avg_score.toFixed(1)
                     : '—'}
@@ -436,7 +435,7 @@ export function MemberProfileModal({
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
-              <span>🎧</span> Reviews ({normalizedReviews.length})
+              <span><InterfaceText>{"🎧"}</InterfaceText></span> Reviews ({normalizedReviews.length})
             </button>
 
             <button
@@ -447,7 +446,7 @@ export function MemberProfileModal({
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
-              <span>🎖️</span> Insignias & Niveles (
+              <span><InterfaceText>{"🎖️"}</InterfaceText></span> Insignias & Niveles (
               {memberUser.badges?.length || 0})
             </button>
 
@@ -459,7 +458,7 @@ export function MemberProfileModal({
                   : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10'
               }`}
             >
-              <span>📊</span> Estadísticas Detalladas
+              <span><InterfaceText>{"📊"}</InterfaceText></span> Estadísticas Detalladas
             </button>
           </div>
 
@@ -563,8 +562,7 @@ export function MemberProfileModal({
                                 >
                                   {item.album.album}
                                 </h3>
-                                <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0">
-                                  ★ {item.weightedScore.toFixed(1)}
+                                <span className="text-emerald-400 font-black text-xs sm:text-sm px-2 py-0.5 rounded-lg bg-emerald-500/15 border border-emerald-500/30 shrink-0"><InterfaceText>{" ★ "}</InterfaceText>{item.weightedScore.toFixed(1)}
                                 </span>
                               </div>
                               <p
@@ -593,8 +591,8 @@ export function MemberProfileModal({
                                       className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                                       title={emo.description}
                                     >
-                                      <span>{emo.emoji}</span>
-                                      <span>{emo.label}</span>
+                                      <span><InterfaceText>{emo.emoji}</InterfaceText></span>
+                                      <span><InterfaceText>{emo.label}</InterfaceText></span>
                                     </span>
                                   ) : null;
                                 })()}
@@ -621,7 +619,7 @@ export function MemberProfileModal({
                             );
                             return (
                               <div className="flex items-center gap-1.5 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 px-2.5 py-1 rounded-xl text-amber-200 font-medium shadow-sm">
-                                <span className="text-sm">⭐</span>
+                                <span className="text-sm"><InterfaceText>{"⭐"}</InterfaceText></span>
                                 <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                                   Canción Favorita:
                                 </span>
@@ -638,7 +636,7 @@ export function MemberProfileModal({
 
                           {/* Mini Desglose de Criterios (4 columnas responsivas) */}
                           <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-2 border-t border-white/5">
-                            {[
+                            <InterfaceText>{[
                               {
                                 label: '🎛️ Prod',
                                 val: item.rating_produccion,
@@ -665,13 +663,13 @@ export function MemberProfileModal({
                                 className="bg-black/30 p-1 sm:p-1.5 rounded-lg text-center border border-white/5"
                               >
                                 <div className="text-white/40 text-[8px] sm:text-[9px] uppercase truncate">
-                                  {crit.label}
+                                  <InterfaceText>{crit.label}</InterfaceText>
                                 </div>
                                 <div className="text-white font-bold text-[11px] sm:text-xs mt-0.5">
                                   {crit.val ?? '-'}/{crit.max}
                                 </div>
                               </div>
-                            ))}
+                            ))}</InterfaceText>
                           </div>
 
                           {/* Canciones Calificadas con Acordeón Interactivo */}
@@ -686,8 +684,7 @@ export function MemberProfileModal({
                                 }
                                 className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all cursor-pointer"
                               >
-                                <span>
-                                  🎵 {Object.keys(item.track_ratings).length}{' '}
+                                <span><InterfaceText>{" 🎵 "}</InterfaceText>{Object.keys(item.track_ratings).length}{' '}
                                   canciones evaluadas
                                 </span>
                                 <span className="text-[10px] text-white/40">
@@ -722,7 +719,7 @@ export function MemberProfileModal({
                                           }`}
                                         >
                                           <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
-                                            <span>{isFav ? '⭐' : '🎵'}</span>
+                                            <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                                             <span
                                               translate="no"
                                               className={`notranslate track-name truncate text-[11px] sm:text-xs ${
@@ -783,7 +780,7 @@ export function MemberProfileModal({
                               className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                               title="Compartir review en formato celular para Instagram, TikTok, WhatsApp y más"
                             >
-                              <span>📱</span>
+                              <span><InterfaceText>{"📱"}</InterfaceText></span>
                               <span>Story</span>
                             </button>
 
@@ -883,7 +880,7 @@ export function MemberProfileModal({
                 </>
               ) : (
                 <div className="text-center py-12 sm:py-16 bg-black/30 rounded-2xl sm:rounded-3xl border border-white/10 p-6 sm:p-8">
-                  <div className="text-3xl sm:text-4xl mb-3">🎧</div>
+                  <div className="text-3xl sm:text-4xl mb-3"><InterfaceText>{"🎧"}</InterfaceText></div>
                   <h3 className="text-white font-bold text-sm sm:text-base">
                     {searchTerm
                       ? 'No se encontraron reseñas con ese filtro'
@@ -907,7 +904,7 @@ export function MemberProfileModal({
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                   <div>
                     <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🏆</span> Progreso en el Leaderboard
+                      <span><InterfaceText>{"🏆"}</InterfaceText></span> Progreso en el Leaderboard
                     </span>
                     <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
                       Puntuación de Club (Score XP)
@@ -917,8 +914,7 @@ export function MemberProfileModal({
                     <p className="text-[10px] text-amber-200/80 font-bold uppercase tracking-wider">
                       Total Acumulado
                     </p>
-                    <p className="text-2xl sm:text-3xl font-black text-amber-300">
-                      ✨ {totalXp.toLocaleString()} XP
+                    <p className="text-2xl sm:text-3xl font-black text-amber-300"><InterfaceText>{" ✨ "}</InterfaceText>{totalXp.toLocaleString()} XP
                     </p>
                   </div>
                 </div>
@@ -926,7 +922,7 @@ export function MemberProfileModal({
                 {/* Desglose de Fuentes de XP */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                    <span className="text-base">🎧</span>
+                    <span className="text-base"><InterfaceText>{"🎧"}</InterfaceText></span>
                     <p className="text-xs text-slate-400 mt-1 font-medium">
                       Actividad Base
                     </p>
@@ -939,7 +935,7 @@ export function MemberProfileModal({
                   </div>
 
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                    <span className="text-base">⚡</span>
+                    <span className="text-base"><InterfaceText>{"⚡"}</InterfaceText></span>
                     <p className="text-xs text-slate-400 mt-1 font-medium">
                       Insignias y Tiers
                     </p>
@@ -952,7 +948,7 @@ export function MemberProfileModal({
                   </div>
 
                   <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                    <span className="text-base">👑</span>
+                    <span className="text-base"><InterfaceText>{"👑"}</InterfaceText></span>
                     <p className="text-xs text-slate-400 mt-1 font-medium">
                       Récords #1
                     </p>
@@ -971,7 +967,7 @@ export function MemberProfileModal({
                 <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
                   <div>
                     <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                      <span>🎖️</span> Insignias Activas (
+                      <span><InterfaceText>{"🎖️"}</InterfaceText></span> Insignias Activas (
                       {memberUser.badges?.length || 0})
                     </h3>
                     <p className="text-white/40 text-xs mt-0.5">
@@ -992,7 +988,7 @@ export function MemberProfileModal({
                           <span
                             className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
                           >
-                            {b.label}
+                            <InterfaceText>{b.label}</InterfaceText>
                           </span>
                           <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                             +{b.xp} XP
@@ -1019,7 +1015,7 @@ export function MemberProfileModal({
                   <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
                     <div>
                       <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                        <span>📈</span> Progreso y Próximos Desbloqueos
+                        <span><InterfaceText>{"📈"}</InterfaceText></span> Progreso y Próximos Desbloqueos
                       </h3>
                       <p className="text-white/40 text-xs mt-0.5">
                         Avance hacia el siguiente rango de cada categoría para
@@ -1037,7 +1033,7 @@ export function MemberProfileModal({
                           >
                             <div className="flex items-center justify-between">
                               <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                                <span>{bp.icon}</span>
+                                <span><InterfaceText>{bp.icon}</InterfaceText></span>
                                 <span>{bp.categoryName}</span>
                               </span>
                               <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
@@ -1076,7 +1072,7 @@ export function MemberProfileModal({
                               </div>
                             ) : (
                               <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
-                                <span>👑</span> ¡Nivel Máximo Alcanzado en esta
+                                <span><InterfaceText>{"👑"}</InterfaceText></span> ¡Nivel Máximo Alcanzado en esta
                                 categoría!
                               </div>
                             )}
@@ -1096,7 +1092,7 @@ export function MemberProfileModal({
                 {/* Desglose por Criterios */}
                 <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl space-y-3.5">
                   <h3 className="text-white font-bold text-sm sm:text-base flex items-center gap-2">
-                    <span>🎛️</span> Promedio Otorgado por Criterio
+                    <span><InterfaceText>{"🎛️"}</InterfaceText></span> Promedio Otorgado por Criterio
                   </h3>
                   <p className="text-white/40 text-xs">
                     Muestra la exigencia y tendencia de sus calificaciones según
@@ -1114,7 +1110,7 @@ export function MemberProfileModal({
                         <div key={crit.key} className="space-y-1">
                           <div className="flex justify-between items-center text-xs">
                             <span className="text-white/70 font-medium flex items-center gap-1 text-[11px] sm:text-xs">
-                              <span>{crit.icon}</span> {crit.label}
+                              <span><InterfaceText>{crit.icon}</InterfaceText></span> <InterfaceText>{crit.label}</InterfaceText>
                             </span>
                             <span className="text-white font-bold text-[11px] sm:text-xs">
                               {avg > 0 ? avg.toFixed(2) : '—'} / {crit.max}
@@ -1137,7 +1133,7 @@ export function MemberProfileModal({
                   {/* Más Alto */}
                   <div className="bg-linear-to-br from-[#101b2b] to-[#0a121e] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-emerald-500/30 shadow-xl">
                     <div className="flex items-center gap-1.5 text-emerald-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
-                      <span>🏆</span> Álbum Mejor Calificado
+                      <span><InterfaceText>{"🏆"}</InterfaceText></span> Álbum Mejor Calificado
                     </div>
                     {memberUser.highest_review ? (
                       <div className="flex items-center gap-3 sm:gap-4">
@@ -1159,8 +1155,7 @@ export function MemberProfileModal({
                           <p className="text-white/60 text-[11px] sm:text-xs truncate">
                             {memberUser.highest_review.artist}
                           </p>
-                          <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm">
-                            ★{' '}
+                          <span className="inline-block mt-1 text-emerald-400 font-extrabold text-xs sm:text-sm"><InterfaceText>{" ★"}</InterfaceText>{' '}
                             {typeof memberUser.highest_review.score === 'number'
                               ? memberUser.highest_review.score.toFixed(1)
                               : memberUser.highest_review.score}{' '}
@@ -1178,7 +1173,7 @@ export function MemberProfileModal({
                   {/* Más Exigente / Bajo */}
                   <div className="bg-linear-to-br from-[#24131a] to-[#140a0f] rounded-2xl sm:rounded-3xl p-3.5 sm:p-5 border border-rose-500/30 shadow-xl">
                     <div className="flex items-center gap-1.5 text-rose-300 text-[10px] sm:text-xs font-bold uppercase tracking-wider mb-2.5 sm:mb-3">
-                      <span>⚡</span> Calificación Más Exigente
+                      <span><InterfaceText>{"⚡"}</InterfaceText></span> Calificación Más Exigente
                     </div>
                     {memberUser.lowest_review ? (
                       <div className="flex items-center gap-3 sm:gap-4">
@@ -1206,8 +1201,7 @@ export function MemberProfileModal({
                           >
                             {memberUser.lowest_review.artist}
                           </p>
-                          <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm">
-                            ★{' '}
+                          <span className="inline-block mt-1 text-rose-400 font-extrabold text-xs sm:text-sm"><InterfaceText>{" ★"}</InterfaceText>{' '}
                             {typeof memberUser.lowest_review.score === 'number'
                               ? memberUser.lowest_review.score.toFixed(1)
                               : memberUser.lowest_review.score}{' '}
@@ -1229,7 +1223,7 @@ export function MemberProfileModal({
                         <div
                           className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                         >
-                          {currentMelomanoLevel.icon}
+                          <InterfaceText>{currentMelomanoLevel.icon}</InterfaceText>
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1237,7 +1231,7 @@ export function MemberProfileModal({
                               Nivel {currentMelomanoLevel.level}
                             </span>
                             <h4 className="text-white font-black text-xs sm:text-sm truncate">
-                              {currentMelomanoLevel.title}
+                              <InterfaceText>{currentMelomanoLevel.title}</InterfaceText>
                             </h4>
                           </div>
                           <p className="text-white/50 text-[11px] sm:text-xs truncate mt-0.5">
@@ -1262,7 +1256,7 @@ export function MemberProfileModal({
                           <span className="text-white/60 truncate pr-2">
                             Siguiente:{' '}
                             <strong className="text-pink-300 font-bold">
-                              {currentMelomanoLevel.next.title}
+                              <InterfaceText>{currentMelomanoLevel.next.title}</InterfaceText>
                             </strong>
                           </span>
                           <span className="text-white font-semibold shrink-0">
@@ -1281,7 +1275,7 @@ export function MemberProfileModal({
                       </div>
                     ) : (
                       <div className="text-xs text-amber-300 font-bold flex items-center gap-1.5 pt-1">
-                        <span>👑</span> ¡Rango Melómano Supremo del Club!
+                        <span><InterfaceText>{"👑"}</InterfaceText></span> ¡Rango Melómano Supremo del Club!
                       </div>
                     )}
 

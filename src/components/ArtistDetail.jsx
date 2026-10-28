@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { ListenLaterButton } from './ListenLaterButton';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
@@ -278,7 +279,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         {/* Error State */}
         {!loading && error && (
           <div className="bg-red-500/10 border border-red-500/20 rounded-3xl p-8 text-center max-w-2xl mx-auto space-y-4">
-            <div className="text-4xl">⚠️</div>
+            <div className="text-4xl"><InterfaceText>{"⚠️"}</InterfaceText></div>
             <h2 className="text-2xl font-black text-white">
               No pudimos encontrar al artista
             </h2>
@@ -308,7 +309,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         {/* Notificación discreta de error (solo en caso de fallo real) */}
         {proposeMessage && (
           <div className="fixed bottom-6 right-6 z-50 bg-[#121428]/95 border border-rose-500/40 text-rose-200 px-4 py-2.5 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2 text-xs">
-            <span>⚠️</span>
+            <span><InterfaceText>{"⚠️"}</InterfaceText></span>
             <span>{proposeMessage}</span>
             <button
               type="button"
@@ -357,7 +358,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                   </div>
                   {Boolean(artist.popularity && artist.popularity > 0) && (
                     <div className="absolute -bottom-2 -right-2 bg-linear-to-r from-[#1db954] to-emerald-400 text-black font-black text-xs px-3 py-1 rounded-full shadow-lg border border-black/20 flex items-center gap-1">
-                      <span>🔥 {artist.popularity}%</span>
+                      <span><InterfaceText>{"🔥 "}</InterfaceText>{artist.popularity}%</span>
                     </div>
                   )}
                 </div>
@@ -413,8 +414,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                         En Musiclub
                       </span>
                       <span className="text-xl sm:text-2xl font-black text-white mt-0.5 block">
-                        {clubStats.total} 💿
-                      </span>
+                        {clubStats.total}<InterfaceText>{" 💿 "}</InterfaceText></span>
                     </div>
 
                     <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
@@ -422,9 +422,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                         Nota Promedio
                       </span>
                       <span className="text-xl sm:text-2xl font-black text-amber-400 mt-0.5 block">
-                        {clubStats.avgRating
+                        <InterfaceText>{clubStats.avgRating
                           ? `${clubStats.avgRating} ⭐`
-                          : 'N/A'}
+                          : 'N/A'}</InterfaceText>
                       </span>
                     </div>
 
@@ -433,8 +433,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                         Total Reviews
                       </span>
                       <span className="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5 block">
-                        {clubStats.totalReviews} ✍️
-                      </span>
+                        {clubStats.totalReviews}<InterfaceText>{" ✍️ "}</InterfaceText></span>
                     </div>
                   </div>
 
@@ -466,7 +465,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-white font-black text-xl sm:text-2xl flex items-center gap-2">
-                    <span>💿</span>
+                    <span><InterfaceText>{"💿"}</InterfaceText></span>
                     <span>Discografía</span>
                   </h3>
                   <p className="text-slate-400 text-xs sm:text-sm mt-0.5">
@@ -496,7 +495,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
               {/* Category Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
-                {[
+                <InterfaceText>{[
                   {
                     id: 'ALL',
                     label: 'Todos',
@@ -539,8 +538,8 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                           : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border-white/10'
                       }`}
                     >
-                      <span>{tab.icon}</span>
-                      <span>{tab.label}</span>
+                      <span><InterfaceText>{tab.icon}</InterfaceText></span>
+                      <span><InterfaceText>{tab.label}</InterfaceText></span>
                       <span
                         className={`text-[10px] px-1.5 py-0.2 rounded-full ${isActive ? 'bg-black/20 text-black' : 'bg-white/10 text-slate-300'}`}
                       >
@@ -548,7 +547,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                       </span>
                     </button>
                   );
-                })}
+                })}</InterfaceText>
               </div>
 
               {/* Discography Grid */}
@@ -656,7 +655,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                               <span
                                 className={`text-[9px] font-black uppercase px-2 py-0.5 rounded-md border backdrop-blur-md shadow-sm ${typeBadge.color}`}
                               >
-                                {typeBadge.label}
+                                <InterfaceText>{typeBadge.label}</InterfaceText>
                               </span>
                             </div>
 
@@ -664,8 +663,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                             {existingInClub && (
                               <div className="absolute top-2 right-2 z-10">
                                 {existingInClub.final_rating ? (
-                                  <span className="bg-amber-300/80 text-amber-800 font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-700/50 flex items-center gap-0.5">
-                                    🎶{' '}
+                                  <span className="bg-amber-300/80 text-amber-800 font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-amber-700/50 flex items-center gap-0.5"><InterfaceText>{" 🎶"}</InterfaceText>{' '}
                                     {Number(
                                       existingInClub.final_rating
                                     ).toFixed(1)}
@@ -710,16 +708,15 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                         </div>
 
                         {/* Action Buttons */}
-                        <div className="pt-3 mt-2 border-t border-white/5 space-y-1.5">
-                          <ListenLaterButton album={{ ...release, artist_name: artist?.name || formattedArtistName }} className="w-full" />
+                        <div className="release-card-actions pt-3 mt-2 border-t border-white/5 grid grid-cols-2 gap-2">
                           {existingInClub ? (
                             <Link
                               to={targetClubUrl}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-full py-2 px-3 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
+                              className="release-action-tile w-full py-2 px-3 rounded-xl bg-linear-to-r from-cyan-500 to-blue-600 text-black font-black text-[11px] text-center flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95 transition-all"
                             >
-                              <span>🎧</span>
-                              <span>Ver en Club</span>
+                              <span><InterfaceText>{"🎧"}</InterfaceText></span>
+                              <span>Ver release</span>
                             </Link>
                           ) : (
                             <button
@@ -729,7 +726,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                 handleQuickPropose(release);
                               }}
                               disabled={Boolean(proposingId) && release.id && proposingId === release.id}
-                              className={`w-full py-2 px-3 rounded-xl font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-60 ${
+                              className={`release-action-tile w-full py-2 px-3 rounded-xl font-bold text-[11px] text-center flex items-center justify-center gap-1.5 transition-all active:scale-95 disabled:opacity-60 ${
                                 Boolean(proposingId) && release.id && proposingId === release.id
                                   ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/40'
                                   : 'bg-white/5 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 border border-white/10 hover:border-cyan-400/30'
@@ -757,15 +754,16 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                                   />
                                 </svg>
                               ) : (
-                                <span>✍️</span>
+                                <span><InterfaceText>{"✍️"}</InterfaceText></span>
                               )}
                               <span>
                                 {Boolean(proposingId) && release.id && proposingId === release.id
                                   ? 'Abriendo...'
-                                  : release.clubUrl ? 'Ver lanzamiento' : release.releaseDate > new Date().toLocaleDateString('en-CA') ? 'Próximo estreno' : 'Reseñar en Club'}
+                                  : release.clubUrl ? 'Ver lanzamiento' : release.releaseDate > new Date().toLocaleDateString('en-CA') ? 'Próximo estreno' : 'Reseñar'}
                               </span>
                             </button>
                           )}
+                          <ListenLaterButton album={{ ...release, artist_name: artist?.name || formattedArtistName }} tile className="w-full" />
                         </div>
                       </div>
                     );

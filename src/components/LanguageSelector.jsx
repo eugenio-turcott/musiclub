@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText, UiIcon } from './UiIcon';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   triggerReTranslate,
@@ -313,9 +314,9 @@ export function LanguageSelector({ variant = 'header' }) {
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border border-white/10 text-xs transition-all cursor-pointer font-medium shadow-sm hover:scale-105 active:scale-95"
           aria-label={`Cambiar idioma: ${activeObj.name}`}
         >
-          <span>🌐</span>
+          <span><InterfaceText>{"🌐"}</InterfaceText></span>
           <span>
-            {activeObj.flag} {activeObj.name}
+            <UiIcon name="globe" /> {activeObj.name}
           </span>
           <span className="text-[10px] text-slate-500">▼</span>
         </button>
@@ -333,7 +334,7 @@ export function LanguageSelector({ variant = 'header' }) {
           <div className="fixed left-3 right-3 bottom-16 z-[160] sm:fixed-none sm:absolute sm:left-1/2 sm:-translate-x-1/2 sm:bottom-full sm:mb-2 sm:w-64 max-w-[calc(100vw-1.5rem)] bg-[#0c0e1c]/98 border border-cyan-500/40 rounded-2xl p-2.5 shadow-2xl backdrop-blur-2xl animate-fadeIn divide-y divide-white/10 space-y-1.5 text-left">
             <div className="flex items-center justify-between pb-1 px-1">
               <span className="text-[11px] uppercase font-bold tracking-wider text-slate-300 flex items-center gap-1.5">
-                <span>🌐</span> Idioma / Language
+                <span><InterfaceText>{"🌐"}</InterfaceText></span> Idioma / Language
               </span>
               <button
                 type="button"
@@ -359,7 +360,7 @@ export function LanguageSelector({ variant = 'header' }) {
                     }`}
                   >
                     <span className="flex items-center gap-2 truncate">
-                      <span className="text-base">{lang.flag}</span>
+                      <span className="text-base"><UiIcon name="globe" /></span>
                       <span className="truncate">{lang.name}</span>
                       {isOriginal && (
                         <span className="text-[8px] text-pink-400 font-mono uppercase bg-pink-500/10 px-1 rounded">
@@ -397,7 +398,7 @@ export function LanguageSelector({ variant = 'header' }) {
         aria-label="Seleccionar idioma"
         aria-expanded={isOpen}
       >
-        <span className="text-sm leading-none">{activeObj.flag}</span>
+        <span className="text-sm leading-none"><UiIcon name="globe" /></span>
         <span className="hidden sm:inline font-mono text-[10px] uppercase tracking-wider text-cyan-300 font-bold">
           {activeObj.short}
         </span>
@@ -433,7 +434,7 @@ export function LanguageSelector({ variant = 'header' }) {
           {/* Cabecera Responsiva */}
           <div className="flex items-center justify-between pb-2 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <span className="text-base">🌐</span>
+              <span className="text-base"><InterfaceText>{"🌐"}</InterfaceText></span>
               <span className="text-xs sm:text-sm font-bold text-white">
                 Idioma / Language
               </span>
@@ -455,9 +456,7 @@ export function LanguageSelector({ variant = 'header' }) {
 
           {/* Buscador rápido de idioma */}
           <div className="relative">
-            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs">
-              🔍
-            </span>
+            <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400 text-xs"><InterfaceText>{" 🔍 "}</InterfaceText></span>
             <input
               type="text"
               placeholder="Buscar idioma / Search language..."
@@ -498,15 +497,13 @@ export function LanguageSelector({ variant = 'header' }) {
                     }`}
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="text-lg leading-none">{lang.flag}</span>
+                      <span className="text-lg leading-none"><UiIcon name="globe" /></span>
                       <div className="flex flex-col min-w-0">
                         <span className="font-semibold truncate">
                           {lang.name}
                         </span>
                         {isOriginal && (
-                          <span className="text-[9px] text-pink-400/90 font-mono font-bold">
-                            ★ Versión Original
-                          </span>
+                          <span className="text-[9px] text-pink-400/90 font-mono font-bold"><InterfaceText>{" ★ Versión Original "}</InterfaceText></span>
                         )}
                       </div>
                     </div>

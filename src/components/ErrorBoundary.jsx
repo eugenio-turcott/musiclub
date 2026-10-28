@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 // src/components/ErrorBoundary.jsx
 import React from 'react';
 
@@ -40,9 +41,7 @@ export class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-[#0a0a14] text-white flex flex-col items-center justify-center p-6 text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-3xl shadow-lg shadow-pink-500/20">
-            ⚠️
-          </div>
+          <div className="w-16 h-16 rounded-2xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-3xl shadow-lg shadow-pink-500/20"><InterfaceText>{" ⚠️ "}</InterfaceText></div>
           <div className="space-y-1.5 max-w-md">
             <h2 className="text-xl font-black text-white">
               Ha ocurrido un detalle en la interfaz

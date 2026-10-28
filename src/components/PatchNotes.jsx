@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/PatchNotes.jsx
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -229,7 +230,7 @@ export function PatchNotes({ isPage = false }) {
           <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
             <div className="flex items-center gap-2 flex-wrap">
               <div className="px-3.5 py-2 rounded-2xl bg-[#0e1022]/95 border border-white/20 backdrop-blur-xl flex items-center gap-2 shadow-2xl">
-                <span className="text-xs">📦</span>
+                <span className="text-xs"><InterfaceText>{"📦"}</InterfaceText></span>
                 <div className="text-left">
                   <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
                     Registradas
@@ -260,7 +261,7 @@ export function PatchNotes({ isPage = false }) {
               className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
               title="Volver a consultar los commits de GitHub"
             >
-              <span className={loading ? 'animate-spin' : ''}>🔄</span>
+              <span className={loading ? 'animate-spin' : ''}><InterfaceText>{"🔄"}</InterfaceText></span>
               <span>
                 {loading ? 'Actualizando...' : 'Actualizar Novedades'}
               </span>
@@ -272,7 +273,7 @@ export function PatchNotes({ isPage = false }) {
         <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-white/50">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 text-pink-300 font-medium">
-              <span>🎵</span>
+              <span><InterfaceText>{"🎵"}</InterfaceText></span>
               <span>Comunidad Oficial Musiclub</span>
             </span>
             <span>•</span>
@@ -311,9 +312,7 @@ export function PatchNotes({ isPage = false }) {
             placeholder="Buscar por función, corrección, versión o palabra clave..."
             className="w-full pl-9 pr-8 py-2 bg-black/40 border border-white/15 focus:border-[#f5576c] rounded-xl text-white text-xs sm:text-sm placeholder-white/40 focus:outline-none transition-all"
           />
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs sm:text-sm">
-            🔍
-          </span>
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 text-xs sm:text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
@@ -348,7 +347,7 @@ export function PatchNotes({ isPage = false }) {
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
               }`}
             >
-              {tab.label}
+              <InterfaceText>{tab.label}</InterfaceText>
             </button>
           ))}
         </div>
@@ -369,7 +368,7 @@ export function PatchNotes({ isPage = false }) {
       <div className="space-y-6">
         {paginatedNotes.length === 0 ? (
           <div className="text-center py-12 p-6 rounded-3xl bg-white/5 border border-white/10 text-white/50 space-y-2">
-            <span className="text-4xl block">🔍</span>
+            <span className="text-4xl block"><InterfaceText>{"🔍"}</InterfaceText></span>
             <p className="text-base font-bold text-white">
               No se encontraron notas de versión
             </p>
@@ -401,16 +400,14 @@ export function PatchNotes({ isPage = false }) {
                       <span
                         className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${release.tagColor || 'from-blue-500 to-indigo-500'} text-white shadow-sm`}
                       >
-                        {release.tag}
+                        <InterfaceText>{release.tag}</InterfaceText>
                       </span>
                     )}
                     {isPending && (
-                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 animate-pulse">
-                        ⚡ Próxima versión lista
-                      </span>
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30 animate-pulse"><InterfaceText>{" ⚡ Próxima versión lista "}</InterfaceText></span>
                     )}
                     <span className="text-white/40 text-xs flex items-center gap-1">
-                      <span>📅</span>
+                      <span><InterfaceText>{"📅"}</InterfaceText></span>
                       <span>{release.date}</span>
                     </span>
                   </div>
@@ -450,11 +447,11 @@ export function PatchNotes({ isPage = false }) {
                 {/* Título y Resumen */}
                 <div>
                   <h3 className="text-lg sm:text-xl font-black text-white group-hover:text-pink-200 transition-colors">
-                    {release.title}
+                    <InterfaceText>{release.title}</InterfaceText>
                   </h3>
                   {release.summary && (
                     <p className="text-white/70 text-xs sm:text-sm mt-1.5 leading-relaxed">
-                      {release.summary}
+                      <InterfaceText>{release.summary}</InterfaceText>
                     </p>
                   )}
                 </div>
@@ -506,16 +503,16 @@ export function PatchNotes({ isPage = false }) {
                             <span
                               className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-1 shrink-0 mt-0.5 ${badgeStyle}`}
                             >
-                              <span>{badgeIcon}</span>
+                              <span><InterfaceText>{badgeIcon}</InterfaceText></span>
                               <span>{badgeLabel}</span>
                             </span>
                             <div className="min-w-0 flex-1">
                               <p className="text-white font-bold text-xs sm:text-sm">
-                                {change.title}
+                                <InterfaceText>{change.title}</InterfaceText>
                               </p>
                               {change.description && (
                                 <p className="text-white/60 text-xs mt-0.5 leading-relaxed">
-                                  {change.description}
+                                  <InterfaceText>{change.description}</InterfaceText>
                                 </p>
                               )}
                             </div>

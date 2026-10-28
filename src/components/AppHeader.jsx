@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/AppHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
@@ -208,7 +209,7 @@ export function AppHeader({
                   : 'text-white/75 hover:text-white hover:bg-white/10'
               }`}
             >
-              <span className="text-sm">💿</span>
+              <span className="text-sm"><InterfaceText>{"💿"}</InterfaceText></span>
               <span>Catálogo</span>
             </Link>
 
@@ -226,7 +227,7 @@ export function AppHeader({
                   : 'text-pink-300 hover:text-white bg-pink-500/10 hover:bg-pink-500/20 border border-pink-500/25'
               }`}
             >
-              <span className="text-sm">🗳️</span>
+              <span className="text-sm"><InterfaceText>{"🗳️"}</InterfaceText></span>
               <span>
                 Pool<span className="hidden lg:inline"> Musical</span>
               </span>
@@ -241,7 +242,7 @@ export function AppHeader({
                   : 'text-amber-300 hover:text-white bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30'
               }`}
             >
-              <span className="text-sm">🎰</span>
+              <span className="text-sm"><InterfaceText>{"🎰"}</InterfaceText></span>
               <span>Gashapon</span>
             </Link>
 
@@ -258,7 +259,7 @@ export function AppHeader({
                   : 'text-purple-300/80 hover:text-purple-100 hover:bg-purple-500/10 border border-transparent hover:border-purple-500/20'
               }`}
             >
-              <span className="text-sm">🖼️</span>
+              <span className="text-sm"><InterfaceText>{"🖼️"}</InterfaceText></span>
               <span>Portadas</span>
             </Link>
 
@@ -277,7 +278,7 @@ export function AppHeader({
                     : 'text-white/70 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span className="text-sm">👥</span>
+                <span className="text-sm"><InterfaceText>{"👥"}</InterfaceText></span>
                 <span className="hidden lg:inline">Comunidad</span>
                 <span className="lg:hidden">Más</span>
                 <svg
@@ -318,7 +319,7 @@ export function AppHeader({
                           : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <span className="text-base">✨</span>
+                      <span className="text-base"><InterfaceText>{"✨"}</InterfaceText></span>
                       <div className="flex flex-col text-left">
                         <span className="font-semibold">Para Ti</span>
                         <span className="text-[10px] text-slate-400 font-normal">
@@ -335,7 +336,7 @@ export function AppHeader({
                           : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <span className="text-base">📝</span>
+                      <span className="text-base"><InterfaceText>{"📝"}</InterfaceText></span>
                       <div className="flex flex-col text-left">
                         <span className="font-semibold">Feed de Reviews</span>
                         <span className="text-[10px] text-slate-400 font-normal">
@@ -352,7 +353,7 @@ export function AppHeader({
                           : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <span className="text-base">🏆</span>
+                      <span className="text-base"><InterfaceText>{"🏆"}</InterfaceText></span>
                       <div className="flex flex-col text-left">
                         <span className="font-semibold">Leaderboard</span>
                         <span className="text-[10px] text-slate-400 font-normal">
@@ -369,7 +370,7 @@ export function AppHeader({
                           : 'text-slate-300 hover:bg-white/5 hover:text-white'
                       }`}
                     >
-                      <span className="text-base">🎵</span>
+                      <span className="text-base"><InterfaceText>{"🎵"}</InterfaceText></span>
                       <div className="flex flex-col text-left">
                         <span className="font-semibold">Playlists</span>
                         <span className="text-[10px] text-slate-400 font-normal">
@@ -486,7 +487,7 @@ export function AppHeader({
                     className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-white/20 object-cover shrink-0"
                     onError={(e) => {
                       e.target.src =
-                        'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                        '/musiclub_logo_corchea.png';
                     }}
                   />
                 ) : (
@@ -534,7 +535,7 @@ export function AppHeader({
                   {/* Cabecera para móvil con botón cerrar */}
                   <div className="flex sm:hidden items-center justify-between pb-1.5 border-b border-white/10">
                     <span className="text-[11px] font-bold text-pink-300 flex items-center gap-1.5">
-                      <span>👤</span>
+                      <span><InterfaceText>{"👤"}</InterfaceText></span>
                       <span>Mi Cuenta & Perfil</span>
                     </span>
                     <button
@@ -556,7 +557,7 @@ export function AppHeader({
                         className="w-10 h-10 rounded-full border border-pink-500/40 object-cover shrink-0"
                         onError={(e) => {
                           e.target.src =
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                            '/musiclub_logo_corchea.png';
                         }}
                       />
                     ) : (
@@ -575,9 +576,7 @@ export function AppHeader({
                         {user.email || 'Miembro del Club'}
                       </p>
                       {isAdmin && (
-                        <span className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#f5576c]/20 text-[#f5576c] border border-[#f5576c]/30">
-                          🛡️ Administrador
-                        </span>
+                        <span className="inline-block mt-1 text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#f5576c]/20 text-[#f5576c] border border-[#f5576c]/30"><InterfaceText>{" 🛡️ Administrador "}</InterfaceText></span>
                       )}
                     </div>
                   </div>
@@ -586,8 +585,6 @@ export function AppHeader({
 
                   {/* Opciones del menú */}
                   <div className="space-y-1">
-                    <Link to="/profile?tab=later" onClick={() => setIsUserMenuOpen(false)} className="flex min-h-11 items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium text-pink-200 hover:bg-white/10 sm:text-sm"><svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>Escuchar más tarde</Link>
-                    <Link to="/profile?tab=discarded" onClick={() => setIsUserMenuOpen(false)} className="flex min-h-11 items-center rounded-xl px-3 py-2 text-xs font-medium text-purple-200 hover:bg-white/10 sm:text-sm">Descartes del Gashapon</Link>
                     <Link
                       to="/profile"
                       onClick={() => setIsUserMenuOpen(false)}
@@ -598,7 +595,7 @@ export function AppHeader({
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base">👤</span>
+                        <span className="text-base"><InterfaceText>{"👤"}</InterfaceText></span>
                         <span>Mi Perfil</span>
                       </div>
                       <span className="text-[10px] text-white/40">
@@ -616,7 +613,7 @@ export function AppHeader({
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base">⚙️</span>
+                        <span className="text-base"><InterfaceText>{"⚙️"}</InterfaceText></span>
                         <span>Configuración</span>
                       </div>
                       <span className="text-[10px] text-white/40">Ajustes</span>
@@ -634,7 +631,7 @@ export function AppHeader({
                         }`}
                       >
                         <div className="flex items-center gap-2.5">
-                          <span className="text-base">🔧</span>
+                          <span className="text-base"><InterfaceText>{"🔧"}</InterfaceText></span>
                           <span>Panel de Admin</span>
                         </div>
                         <span className="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full border border-rose-500/30">
@@ -653,7 +650,7 @@ export function AppHeader({
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <span className="text-base">❓</span>
+                        <span className="text-base"><InterfaceText>{"❓"}</InterfaceText></span>
                         <span>Guía & FAQ</span>
                       </div>
                       <span className="text-[10px] text-white/40">Ayuda</span>
@@ -672,9 +669,7 @@ export function AppHeader({
                     className="w-full flex items-center justify-between px-3 py-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold text-rose-400 hover:text-rose-200 hover:bg-rose-500/15 transition-all text-left group cursor-pointer"
                   >
                     <div className="flex items-center gap-2.5">
-                      <span className="text-base group-hover:translate-x-0.5 transition-transform">
-                        🚪
-                      </span>
+                      <span className="text-base group-hover:translate-x-0.5 transition-transform"><InterfaceText>{" 🚪 "}</InterfaceText></span>
                       <span>Cerrar Sesión</span>
                     </div>
                     <span className="text-xs text-rose-400/60">Salir</span>
@@ -689,7 +684,7 @@ export function AppHeader({
               disabled={!mounted || loading}
               className="px-2 sm:px-4 py-1.5 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-xs sm:text-sm font-bold rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 shadow-md shadow-[#f5576c]/20 flex items-center gap-1.5 cursor-pointer"
             >
-              <span className="hidden min-[380px]:inline">👤</span>
+              <span className="hidden min-[380px]:inline"><InterfaceText>{"👤"}</InterfaceText></span>
               <span>{!mounted || loading ? '...' : 'Iniciar sesión'}</span>
             </button>
           )}
@@ -772,7 +767,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl">🗳️</span>
+                  <span className="text-xl"><InterfaceText>{"🗳️"}</InterfaceText></span>
                   <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-pink-500/30 text-pink-200 border border-pink-500/40">
                     Semanal
                   </span>
@@ -796,7 +791,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl">🎰</span>
+                  <span className="text-xl"><InterfaceText>{"🎰"}</InterfaceText></span>
                   <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded-full bg-amber-400/30 text-amber-200 border border-amber-400/40">
                     Arcade
                   </span>
@@ -820,7 +815,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl">💿</span>
+                  <span className="text-xl"><InterfaceText>{"💿"}</InterfaceText></span>
                 </div>
                 <span className="font-bold text-xs text-white">Catálogo</span>
                 <span className="text-[10px] text-white/50 leading-tight mt-0.5">
@@ -843,7 +838,7 @@ export function AppHeader({
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="text-xl">🖼️</span>
+                  <span className="text-xl"><InterfaceText>{"🖼️"}</InterfaceText></span>
                 </div>
                 <span className="font-bold text-xs text-white">Portadas</span>
                 <span className="text-[10px] text-purple-200/60 leading-tight mt-0.5">
@@ -868,7 +863,7 @@ export function AppHeader({
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
                 }`}
               >
-                <span className="text-base">✨</span>
+                <span className="text-base"><InterfaceText>{"✨"}</InterfaceText></span>
                 <span>Para Ti</span>
               </Link>
               <Link
@@ -880,7 +875,7 @@ export function AppHeader({
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
                 }`}
               >
-                <span className="text-base">📝</span>
+                <span className="text-base"><InterfaceText>{"📝"}</InterfaceText></span>
                 <span>Reviews</span>
               </Link>
               <Link
@@ -892,7 +887,7 @@ export function AppHeader({
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
                 }`}
               >
-                <span className="text-base">🏆</span>
+                <span className="text-base"><InterfaceText>{"🏆"}</InterfaceText></span>
                 <span>Leaderboard</span>
               </Link>
               <Link
@@ -904,7 +899,7 @@ export function AppHeader({
                     : 'text-white/80 bg-white/5 hover:bg-white/10 border border-white/5'
                 }`}
               >
-                <span className="text-base">🎵</span>
+                <span className="text-base"><InterfaceText>{"🎵"}</InterfaceText></span>
                 <span>Playlists</span>
               </Link>
             </div>
@@ -928,7 +923,7 @@ export function AppHeader({
                 }}
                 className="hover:text-white transition-colors flex items-center gap-1.5 text-pink-300 font-semibold cursor-pointer"
               >
-                <span>🔔</span>
+                <span><InterfaceText>{"🔔"}</InterfaceText></span>
                 <span>Notificaciones</span>
                 {unreadCount > 0 && (
                   <span
@@ -946,7 +941,7 @@ export function AppHeader({
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="hover:text-white transition-colors flex items-center gap-1 text-slate-300 hover:text-white"
               >
-                <span>❓</span> Guía & FAQ
+                <span><InterfaceText>{"❓"}</InterfaceText></span> Guía & FAQ
               </Link>
             </div>
           </div>
@@ -981,18 +976,10 @@ export function AppHeader({
             style={{ transform: 'translate3d(-50%, -50%, 0)' }}
           ></div>
 
-          <div className="hidden sm:flex absolute left-6 top-8 text-2xl opacity-60 animate-float-slow select-none pointer-events-none">
-            🎵
-          </div>
-          <div className="hidden sm:flex absolute left-14 bottom-6 text-lg opacity-40 animate-float-reverse select-none pointer-events-none">
-            ✨
-          </div>
-          <div className="hidden sm:flex absolute right-6 top-8 text-2xl opacity-60 animate-float-reverse select-none pointer-events-none">
-            🎧
-          </div>
-          <div className="hidden sm:flex absolute right-14 bottom-6 text-lg opacity-40 animate-float-slow select-none pointer-events-none">
-            ⚡
-          </div>
+          <div className="hidden sm:flex absolute left-6 top-8 text-2xl opacity-60 animate-float-slow select-none pointer-events-none"><InterfaceText>{" 🎵 "}</InterfaceText></div>
+          <div className="hidden sm:flex absolute left-14 bottom-6 text-lg opacity-40 animate-float-reverse select-none pointer-events-none"><InterfaceText>{" ✨ "}</InterfaceText></div>
+          <div className="hidden sm:flex absolute right-6 top-8 text-2xl opacity-60 animate-float-reverse select-none pointer-events-none"><InterfaceText>{" 🎧 "}</InterfaceText></div>
+          <div className="hidden sm:flex absolute right-14 bottom-6 text-lg opacity-40 animate-float-slow select-none pointer-events-none"><InterfaceText>{" ⚡ "}</InterfaceText></div>
 
           <div className="relative z-10 flex flex-col items-center">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 backdrop-blur-md shadow-sm mb-2 hover:border-[#f5576c]/40 hover:bg-white/10 transition-all duration-300">

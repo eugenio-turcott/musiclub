@@ -1,6 +1,9 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
 import { PoolReviewNotice, EarlyPoolReviewDialog } from './PoolReviewSchedule';
+import { ScoreGauge } from './ScoreGauge';
+import { ReleaseGenresPanel } from './ReleaseGenresPanel';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { ListenLaterButton } from './ListenLaterButton';
 import { GenreLabel } from './GenreLabel';
@@ -985,7 +988,7 @@ export function AlbumDetail({
         <div className="max-w-6xl mx-auto space-y-8">
           <AppHeader showTitle={false} />
           <div className="p-10 bg-white/5 border border-white/10 rounded-3xl text-center space-y-4 max-w-lg mx-auto mt-12 shadow-2xl">
-            <span className="text-5xl">💿</span>
+            <span className="text-5xl"><InterfaceText>{"💿"}</InterfaceText></span>
             <h2 className="text-2xl font-black text-white">
               Lanzamiento no encontrado
             </h2>
@@ -1043,7 +1046,7 @@ export function AlbumDetail({
             }
             className="hover:text-cyan-400 transition-colors font-medium"
           >
-            {releaseTypeCategory.label}
+            <InterfaceText>{releaseTypeCategory.label}</InterfaceText>
           </Link>
           <span>/</span>
           <span
@@ -1075,13 +1078,13 @@ export function AlbumDetail({
                 <img
                   src={
                     album.image_url ||
-                    'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵'
+                    '/musiclub_logo_corchea.png'
                   }
                   alt={album.album_name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   onError={(e) => {
                     e.target.src =
-                      'https://via.placeholder.com/400/1a1a2e/ffffff?text=🎵';
+                      '/musiclub_logo_corchea.png';
                   }}
                 />
 
@@ -1090,7 +1093,7 @@ export function AlbumDetail({
                   (album.added_by_email === user.email ||
                     album.added_by === user.name) && (
                     <div className="absolute top-3 left-3 z-20 bg-yellow-400 text-black text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-lg flex items-center gap-1">
-                      <span>★</span>
+                      <span><InterfaceText>{"★"}</InterfaceText></span>
                       <span>TU ÁLBUM</span>
                     </div>
                   )}
@@ -1173,7 +1176,6 @@ export function AlbumDetail({
 
             {/* RIGHT / BOTTOM: Title, Artist, Ratings, Top Track, Actions */}
             <div className="flex-1 min-w-0 space-y-4 sm:space-y-5 text-center md:text-left w-full">
-              <ListenLaterButton album={album} className="w-full sm:w-auto" />
               {/* Curator Info & Metadata Badges */}
               <div className="flex items-center justify-center md:justify-start gap-2 text-xs text-slate-400 flex-wrap">
                 {/* Release Type Badge */}
@@ -1219,7 +1221,7 @@ export function AlbumDetail({
                     <span
                       className={`font-black text-[11px] px-2.5 py-0.5 rounded-full border shadow-sm uppercase tracking-wider ${badge.cls}`}
                     >
-                      {badge.label}
+                      <InterfaceText>{badge.label}</InterfaceText>
                     </span>
                   );
                 })()}
@@ -1235,7 +1237,7 @@ export function AlbumDetail({
                   if (!year) return null;
                   return (
                     <span className="font-bold text-slate-300 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                      <span>📅</span>
+                      <span><InterfaceText>{"📅"}</InterfaceText></span>
                       <span>{year}</span>
                     </span>
                   );
@@ -1245,7 +1247,7 @@ export function AlbumDetail({
 
                 {album.tracks && album.tracks.length > 0 && (
                   <span className="font-bold text-slate-200 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                    <span>🎵</span>
+                    <span><InterfaceText>{"🎵"}</InterfaceText></span>
                     <span>
                       {album.tracks.length}{' '}
                       {album.tracks.length === 1 ? 'Canción' : 'Canciones'}
@@ -1311,27 +1313,8 @@ export function AlbumDetail({
                   <span className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                     Calificación Final
                   </span>
-                  <div className="flex items-baseline justify-center md:justify-start gap-1.5 mt-1">
-                    {score !== null && !isNaN(score) ? (
-                      <>
-                        <span className="text-2xl sm:text-3xl md:text-4xl font-black text-amber-400">
-                          {score.toFixed(2)}
-                        </span>
-                        <span className="text-sm sm:text-base text-amber-300">
-                          ⭐
-                        </span>
-                        {Number(album.bonus) > 0 && (
-                          <span className="text-[10px] font-bold text-cyan-300 bg-cyan-500/20 px-1.5 py-0.5 rounded-md ml-1">
-                            +{Number(album.bonus).toFixed(2)}
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="text-sm font-bold text-slate-400">
-                        Sin calificar
-                      </span>
-                    )}
-                  </div>
+                  <ScoreGauge value={score} />
+                  {Number(album.bonus) > 0 && <span className="text-center text-[10px] font-bold text-cyan-300">Incluye +{Number(album.bonus).toFixed(2)} de bonus</span>}
                   <span className="text-[10px] text-slate-500 mt-1">
                     {album.review_count || 0}{' '}
                     {album.review_count === 1 ? 'reseña' : 'reseñas'}
@@ -1341,7 +1324,7 @@ export function AlbumDetail({
                 {/* Crown / Top Track Box */}
                 <div className="col-span-2 sm:col-span-1 bg-[#14111d]/90 backdrop-blur-md border border-amber-400/40 rounded-2xl p-3 sm:p-4 text-center md:text-left flex flex-col justify-between shadow-xl">
                   <div className="flex items-center justify-center md:justify-start gap-1 text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider">
-                    <span>👑</span>
+                    <span><InterfaceText>{"👑"}</InterfaceText></span>
                     <span>Canción Top</span>
                   </div>
                   <div className="mt-1">
@@ -1355,10 +1338,10 @@ export function AlbumDetail({
                           {topTrack.name}
                         </p>
                         <p className="text-xs font-bold text-amber-400 mt-0.5">
-                          {topTrack.avg_rating} ⭐{' '}
-                          {topTrack.star_votes > 1
+                          {topTrack.avg_rating}<InterfaceText>{" ⭐"}</InterfaceText>{' '}
+                          <InterfaceText>{topTrack.star_votes > 1
                             ? `(${topTrack.star_votes} votos ⭐)`
-                            : ''}
+                            : ''}</InterfaceText>
                         </p>
                       </div>
                     ) : (
@@ -1388,16 +1371,14 @@ export function AlbumDetail({
                         album.expected_tracks ??
                         0;
                       if (count > 0) {
-                        return `${count} 🎵`;
+                        return <InterfaceText>{`${count} 🎵`}</InterfaceText>;
                       }
                       if (isAnticipated) {
                         return (
-                          <span className="text-base sm:text-lg text-amber-300 font-bold">
-                            Por anunciar 🎵
-                          </span>
+                          <span className="text-base sm:text-lg text-amber-300 font-bold"><InterfaceText>{" Por anunciar 🎵 "}</InterfaceText></span>
                         );
                       }
-                      return '0 🎵';
+                      return <InterfaceText>{"0 🎵"}</InterfaceText>;
                     })()}
                   </div>
                   <span className="text-[10px] text-slate-500 mt-1">
@@ -1424,7 +1405,7 @@ export function AlbumDetail({
                     }`}
                     title="Programa un recordatorio por correo y notificación en la plataforma el día de su estreno oficial"
                   >
-                    <span>{isSubscribed ? '✅' : '🔔'}</span>
+                    <span><InterfaceText>{isSubscribed ? '✅' : '🔔'}</InterfaceText></span>
                     <span>
                       {isSubscribed
                         ? 'Notificación Programada'
@@ -1441,7 +1422,7 @@ export function AlbumDetail({
                     className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-extrabold text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   >
                     <span>
-                      {reviewAccess === null ? 'Comprobando acceso…' : !canRequestReview ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}
+                      <InterfaceText>{reviewAccess === null ? 'Comprobando acceso…' : !canRequestReview ? '🔒 Reseñas cerradas' : userReview ? '✏️ Modificar Mi Reseña' : '⭐ Calificar y Reseñar'}</InterfaceText>
                     </span>
                   </button>
                 )}
@@ -1451,7 +1432,7 @@ export function AlbumDetail({
                   data-translatable="true"
                   className="px-5 py-3 rounded-2xl bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-300 hover:text-cyan-200 font-bold text-xs sm:text-sm border border-cyan-500/30 transition-all flex items-center gap-2"
                 >
-                  <span aria-hidden="true">🎤</span>
+                  <span aria-hidden="true"><InterfaceText>{"🎤"}</InterfaceText></span>
                   <span translate="yes" data-translatable="true">Discografía</span>
                 </Link>
 
@@ -1462,6 +1443,7 @@ export function AlbumDetail({
                   <span>←</span>
                   <span>Ver Catálogo</span>
                 </Link>
+                <ListenLaterButton album={album} className="w-auto" />
               </div>
             </div>
           </div>
@@ -1471,7 +1453,7 @@ export function AlbumDetail({
         {notifySuccessMsg && (
           <div className="p-4 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-200 text-xs sm:text-sm font-bold flex items-center justify-between gap-3 animate-fadeIn shadow-xl">
             <div className="flex items-center gap-2">
-              <span className="text-xl">🎉</span>
+              <span className="text-xl"><InterfaceText>{"🎉"}</InterfaceText></span>
               <span>{notifySuccessMsg}</span>
             </div>
             <button
@@ -1504,9 +1486,7 @@ export function AlbumDetail({
                 </button>
 
                 <div className="text-center space-y-2">
-                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30">
-                    🔔
-                  </div>
+                  <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-amber-400 to-orange-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-amber-500/30"><InterfaceText>{" 🔔 "}</InterfaceText></div>
                   <h3 className="text-lg sm:text-xl font-black text-white">
                     Notificarme en el Estreno
                   </h3>
@@ -1548,7 +1528,7 @@ export function AlbumDetail({
                       disabled={subscribing}
                       className="flex-1 py-2.5 rounded-xl bg-linear-to-r from-amber-400 to-orange-500 hover:from-amber-300 hover:to-orange-400 text-black font-extrabold text-xs shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
                     >
-                      <span>{subscribing ? 'Guardando...' : '🔔 Activar Notificación'}</span>
+                      <span><InterfaceText>{subscribing ? 'Guardando...' : '🔔 Activar Notificación'}</InterfaceText></span>
                     </button>
                   </div>
                 </form>
@@ -1562,7 +1542,7 @@ export function AlbumDetail({
           <div className="rounded-3xl bg-linear-to-r from-amber-500/15 via-orange-500/10 to-yellow-500/10 border border-amber-500/30 p-5 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1.5 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-black uppercase tracking-wider">
-                <span>⏳</span> Lanzamiento Anticipado
+                <span><InterfaceText>{"⏳"}</InterfaceText></span> Lanzamiento Anticipado
               </div>
               <h3 className="text-base sm:text-lg font-black text-white">
                 Este lanzamiento aún no está disponible para calificación
@@ -1589,11 +1569,11 @@ export function AlbumDetail({
                     : 'bg-amber-400 hover:bg-amber-300 text-black shadow-amber-500/25 cursor-pointer hover:scale-105 active:scale-95'
                 }`}
               >
-                <span>{isSubscribed ? '✅' : '🔔'}</span>
+                <span><InterfaceText>{isSubscribed ? '✅' : '🔔'}</InterfaceText></span>
                 <span>{isSubscribed ? 'Notificación activa' : 'Notificarme al Estrenar'}</span>
               </button>
               <div className="px-4 py-2.5 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 font-extrabold text-xs sm:text-sm flex items-center gap-2">
-                <span>📅</span>
+                <span><InterfaceText>{"📅"}</InterfaceText></span>
                 <span>
                   Estreno:{' '}
                   {album.release_date ||
@@ -1607,7 +1587,7 @@ export function AlbumDetail({
           <div className="rounded-3xl bg-linear-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 border border-cyan-500/30 p-4 sm:p-6 backdrop-blur-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4 animate-fadeIn">
             <div className="space-y-1 text-center sm:text-left">
               <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-[11px] font-bold uppercase tracking-wider">
-                <span>✨</span> Álbum Disponible On-Demand
+                <span><InterfaceText>{"✨"}</InterfaceText></span> Álbum Disponible On-Demand
               </div>
               <h3 className="text-base sm:text-lg font-black text-white">
                 ¡Sé el primer miembro de Musiclub en calificar este álbum!
@@ -1621,7 +1601,7 @@ export function AlbumDetail({
               onClick={requestReview}
               className="px-6 py-3 rounded-2xl bg-linear-to-r from-cyan-400 via-[#f5576c] to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-cyan-500/20 active:scale-95 transition-all flex items-center gap-2 shrink-0"
             >
-              <span>⭐</span>
+              <span><InterfaceText>{"⭐"}</InterfaceText></span>
               <span>Calificar Álbum Ahora</span>
             </button>
           </div>
@@ -1633,7 +1613,7 @@ export function AlbumDetail({
           <div className="rounded-3xl bg-[#0e101d] border border-cyan-500/30 p-3 sm:p-5 md:p-7 shadow-2xl animate-fadeIn space-y-3 sm:space-y-4">
             <div className="flex items-center justify-between pb-3 sm:pb-4 border-b border-white/10">
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
-                <span className="text-xl sm:text-2xl">⭐</span>
+                <span className="text-xl sm:text-2xl"><InterfaceText>{"⭐"}</InterfaceText></span>
                 <h3 className="text-base sm:text-xl font-black text-white truncate">
                   {userReview ? 'Actualizar tu Reseña' : 'Escribir Reseña'}
                 </h3>
@@ -1681,7 +1661,7 @@ export function AlbumDetail({
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <span>📊</span>
+              <span><InterfaceText>{"📊"}</InterfaceText></span>
               <span>Desglose de Criterios</span>
             </h2>
             <span className="text-xs text-slate-400">
@@ -1689,7 +1669,7 @@ export function AlbumDetail({
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div className="criteria-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             {CRITERIA_METRICS.map((crit) => {
               const avg = album.criteria_averages?.[crit.key];
               const pct = avg ? (avg / crit.max) * 100 : 0;
@@ -1697,13 +1677,13 @@ export function AlbumDetail({
               return (
                 <div
                   key={crit.key}
-                  className="bg-[#121422]/90 border border-white/5 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between space-y-2 hover:border-white/15 transition-all shadow-lg"
+                  className={`bg-[#121422]/90 border border-white/5 rounded-2xl p-3.5 sm:p-4 flex flex-col justify-between space-y-2 hover:border-white/15 transition-all shadow-lg ${crit.key === 'rating_general' ? 'criteria-general sm:col-span-2 lg:col-span-1 lg:col-start-4 lg:row-start-1 lg:row-span-2' : ''}`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-                        <span>{crit.icon}</span>
-                        <span>{crit.label}</span>
+                        <span><InterfaceText>{crit.icon}</InterfaceText></span>
+                        <span><InterfaceText>{crit.label}</InterfaceText></span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">
                         {crit.desc}
@@ -1730,11 +1710,12 @@ export function AlbumDetail({
         </div>
 
         {/* TRACKLIST & RATINGS SECTION */}
-        <div className="space-y-4">
+        <div className="release-track-genres-grid">
+        <section className="min-w-0 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                <span>🎵</span>
+                <span><InterfaceText>{"🎵"}</InterfaceText></span>
                 <span>Tracklist y Puntuación por Canción</span>
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">
@@ -1744,9 +1725,9 @@ export function AlbumDetail({
             </div>
             {topTrack && (
               <span className="text-xs bg-amber-500/15 text-amber-300 border border-amber-400/30 px-3 py-1 rounded-full font-bold flex items-center gap-1">
-                <span>👑 Top:</span>
+                <span><InterfaceText>{"👑 Top:"}</InterfaceText></span>
                 <span className="truncate max-w-[150px]">{topTrack.name}</span>
-                <span>({topTrack.avg_rating} ⭐)</span>
+                <span>({topTrack.avg_rating}<InterfaceText>{" ⭐)"}</InterfaceText></span>
               </span>
             )}
           </div>
@@ -1772,7 +1753,7 @@ export function AlbumDetail({
                 <div>
                   {isAnticipated && (
                     <div className="mb-3 px-3.5 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-medium flex items-center gap-2">
-                      <span>🎵</span>
+                      <span><InterfaceText>{"🎵"}</InterfaceText></span>
                       <span>{renderedTracks.some(track => /^Track\s+\d+$/i.test(track.name || ''))
                         ? `Lista parcial: ${renderedTracks.length} posiciones; los títulos pendientes se actualizarán cuando se anuncien.`
                         : `Tracklist anunciado para el estreno oficial (${renderedTracks.length} canciones).`}</span>
@@ -1800,7 +1781,7 @@ export function AlbumDetail({
                             <span
                               className={`text-xs font-mono w-6 text-center ${isTop ? 'text-amber-400 font-black' : 'text-slate-500'}`}
                             >
-                              {isTop ? '👑' : `#${t.track_number || idx + 1}`}
+                              <InterfaceText>{isTop ? '👑' : `#${t.track_number || idx + 1}`}</InterfaceText>
                             </span>
                             <div className="min-w-0">
                               <p
@@ -1849,9 +1830,9 @@ export function AlbumDetail({
                                             : 'bg-white/5 text-slate-500 border-white/5'
                                   }`}
                                 >
-                                  {hasTrackRating
+                                  <InterfaceText>{hasTrackRating
                                     ? `${numRating.toFixed(1)} ⭐`
-                                    : '—'}
+                                    : '—'}</InterfaceText>
                                 </span>
                               );
                             })()}
@@ -1863,7 +1844,7 @@ export function AlbumDetail({
                 </div>
               ) : isAnticipated ? (
                 <div className="text-center py-8 text-amber-300/80 text-xs font-medium space-y-1.5">
-                  <p className="text-sm font-bold">⏳ Lista de canciones por anunciar</p>
+                  <p className="text-sm font-bold"><InterfaceText>{"⏳ Lista de canciones por anunciar"}</InterfaceText></p>
                   <p className="text-slate-400 text-[11px] max-w-md mx-auto">
                     El tracklist oficial se sincronizará automáticamente conforme sea anunciado o publicado por el artista.
                   </p>
@@ -1875,13 +1856,15 @@ export function AlbumDetail({
               );
             })()}
           </div>
+        </section>
+        <ReleaseGenresPanel genres={album.genres || []} />
         </div>
 
         {/* COMMUNITY REVIEWS SECTION */}
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-              <span>💬</span>
+              <span><InterfaceText>{"💬"}</InterfaceText></span>
               <span>
                 Reseñas de la Comunidad ({album.reviews?.length || 0})
               </span>
@@ -1960,14 +1943,13 @@ export function AlbumDetail({
                             className={`text-[10px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 ${emotion.badgeClass}`}
                             title={emotion.description}
                           >
-                            <span className="text-xl">{emotion.emoji}</span>
+                            <span className="text-xl"><InterfaceText>{emotion.emoji}</InterfaceText></span>
                             <span className="hidden sm:block">
-                              {emotion.label}
+                              <InterfaceText>{emotion.label}</InterfaceText>
                             </span>
                           </span>
                         )}
-                        <span className="text-emerald-400 font-black text-xs sm:text-sm px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30">
-                          ★ {rev.weighted_score ?? rev.rating_general ?? '—'}
+                        <span className="text-emerald-400 font-black text-xs sm:text-sm px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30"><InterfaceText>{" ★ "}</InterfaceText>{rev.weighted_score ?? rev.rating_general ?? '—'}
                         </span>
                       </div>
                     </div>
@@ -1983,7 +1965,7 @@ export function AlbumDetail({
                     {favTrackName && (
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2 sm:px-2.5 sm:py-1 rounded-xl text-amber-200 font-medium shadow-sm">
                         <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-sm">⭐</span>
+                          <span className="text-sm"><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span className="text-amber-400/80 font-bold text-[10px] uppercase tracking-wider">
                             Canción Favorita:
                           </span>
@@ -2000,7 +1982,7 @@ export function AlbumDetail({
 
                     {/* Mini Criteria Chips */}
                     <div className="grid grid-cols-4 gap-1 sm:gap-1.5 pt-1 border-t border-white/5">
-                      {[
+                      <InterfaceText>{[
                         {
                           label: '🎛️ Prod',
                           val: rev.rating_produccion,
@@ -2019,13 +2001,13 @@ export function AlbumDetail({
                           className="bg-black/30 p-1 rounded-lg text-center border border-white/5"
                         >
                           <div className="text-white/40 text-[8px] uppercase truncate">
-                            {crit.label}
+                            <InterfaceText>{crit.label}</InterfaceText>
                           </div>
                           <div className="text-white font-bold text-[11px] mt-0.5">
                             {crit.val ?? '-'}/{crit.max}
                           </div>
                         </div>
-                      ))}
+                      ))}</InterfaceText>
                     </div>
 
                     {/* Collapsible Tracks */}
@@ -2036,8 +2018,7 @@ export function AlbumDetail({
                           onClick={() => toggleReviewExpanded(rev.id || revIdx)}
                           className="w-full text-left flex items-center justify-between text-white/50 hover:text-white text-[10px] sm:text-xs font-semibold py-1 px-2 rounded-lg bg-white/5 hover:bg-white/10 transition-all"
                         >
-                          <span>
-                            🎵 {Object.keys(rev.track_ratings).length} canciones
+                          <span><InterfaceText>{" 🎵 "}</InterfaceText>{Object.keys(rev.track_ratings).length} canciones
                             evaluadas
                           </span>
                           <span className="text-[10px] text-white/40">
@@ -2069,7 +2050,7 @@ export function AlbumDetail({
                                     }`}
                                   >
                                     <div className="flex items-center gap-1.5 truncate pr-2 min-w-0">
-                                      <span>{isFav ? '⭐' : '🎵'}</span>
+                                      <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                                       <span
                                         className={`truncate text-[11px] ${isFav ? 'font-bold text-amber-200' : 'text-white/80'}`}
                                         title={tName}
@@ -2109,7 +2090,7 @@ export function AlbumDetail({
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                           title="Compartir tu review en redes sociales en formato celular / story"
                         >
-                          <span>📱</span>
+                          <span><InterfaceText>{"📱"}</InterfaceText></span>
                           <span>Compartir Story</span>
                         </button>
                       </div>
@@ -2120,7 +2101,7 @@ export function AlbumDetail({
             </div>
           ) : (
             <div className="p-8 bg-white/5 border border-white/5 rounded-3xl text-center space-y-2 text-slate-400 text-xs">
-              <span className="text-3xl">📝</span>
+              <span className="text-3xl"><InterfaceText>{"📝"}</InterfaceText></span>
               <p className="font-semibold text-white">
                 Sé el primero en calificar este álbum
               </p>

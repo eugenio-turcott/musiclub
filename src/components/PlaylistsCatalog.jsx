@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -487,7 +488,7 @@ export function PlaylistsCatalog({ isPage = true }) {
               onClick={openProposeModal}
               className="w-full md:w-auto px-5 py-3 bg-linear-to-r from-pink-500 via-purple-600 to-indigo-600 hover:from-pink-600 hover:to-indigo-700 text-white font-bold rounded-2xl shadow-xl shadow-pink-500/20 hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm shrink-0"
             >
-              <span>➕</span> Recomendar Playlist
+              <span><InterfaceText>{"➕"}</InterfaceText></span> Recomendar Playlist
             </button>
           </div>
         </div>
@@ -497,9 +498,7 @@ export function PlaylistsCatalog({ isPage = true }) {
           <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 justify-between items-stretch sm:items-center">
             {/* Search */}
             <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
-                🔍
-              </span>
+              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
               <input
                 type="text"
                 value={searchTerm}
@@ -527,9 +526,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                 onChange={(e) => setSortBy(e.target.value)}
                 className="bg-black/40 border border-white/10 text-white text-xs sm:text-sm rounded-xl px-3 py-2 sm:py-2.5 focus:outline-none focus:border-pink-500/60 transition-colors cursor-pointer"
               >
-                <option value="approval">🔥 Mayor Aprobación (%)</option>
-                <option value="votes">🗳️ Más Votadas</option>
-                <option value="recent">⏱️ Más Recientes</option>
+                <option value="approval"> Mayor Aprobación (%)</option>
+                <option value="votes"> Más Votadas</option>
+                <option value="recent"> Más Recientes</option>
               </select>
             </div>
           </div>
@@ -548,8 +547,8 @@ export function PlaylistsCatalog({ isPage = true }) {
                       : 'bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5'
                   }`}
                 >
-                  <span>{mood.icon}</span>
-                  <span>{mood.label}</span>
+                  <span><InterfaceText>{mood.icon}</InterfaceText></span>
+                  <span><InterfaceText>{mood.label}</InterfaceText></span>
                 </button>
               );
             })}
@@ -566,9 +565,7 @@ export function PlaylistsCatalog({ isPage = true }) {
           </div>
         ) : filteredPlaylists.length === 0 ? (
           <div className="p-8 sm:p-12 bg-white/5 border border-white/10 rounded-2xl sm:rounded-3xl text-center space-y-4 max-w-xl mx-auto my-6 sm:my-8">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pink-500/10 border border-pink-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mx-auto shadow-inner">
-              🎵
-            </div>
+            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-pink-500/10 border border-pink-500/30 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl mx-auto shadow-inner"><InterfaceText>{" 🎵 "}</InterfaceText></div>
             <div className="space-y-1">
               <h3 className="text-base sm:text-xl font-bold text-white">
                 {playlists.length === 0
@@ -585,7 +582,7 @@ export function PlaylistsCatalog({ isPage = true }) {
               onClick={openProposeModal}
               className="inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-lg shadow-pink-500/25"
             >
-              <span>➕</span> Recomendar Playlist
+              <span><InterfaceText>{"➕"}</InterfaceText></span> Recomendar Playlist
             </button>
           </div>
         ) : (
@@ -631,7 +628,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                       <span
                         className={`absolute top-3 right-3 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-black border shadow-lg ${stats.badge.colorClass}`}
                       >
-                        {stats.rate !== null ? `👍 ${stats.rate}%` : '✨ Nuevo'}
+                        <InterfaceText>{stats.rate !== null ? `👍 ${stats.rate}%` : '✨ Nuevo'}</InterfaceText>
                       </span>
                     </div>
 
@@ -719,7 +716,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                                 </>
                               ) : (
                                 <>
-                                  <span>🔗</span> Enlace Web
+                                  <span><InterfaceText>{"🔗"}</InterfaceText></span> Enlace Web
                                 </>
                               )}
                             </a>
@@ -735,11 +732,10 @@ export function PlaylistsCatalog({ isPage = true }) {
                     <div className="bg-black/40 p-3 rounded-xl border border-white/5 space-y-2">
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-bold text-white flex items-center gap-1.5">
-                          <span>📊</span> Aprobación:
+                          <span><InterfaceText>{"📊"}</InterfaceText></span> Aprobación:
                         </span>
                         <span className="text-slate-300 font-mono text-[11px]">
-                          {stats.likes} 👍 · {stats.dislikes} 👎 (
-                          {stats.totalVotes} votos)
+                          {stats.likes}<InterfaceText>{" 👍 · "}</InterfaceText>{stats.dislikes}<InterfaceText>{" 👎 ( "}</InterfaceText>{stats.totalVotes} votos)
                         </span>
                       </div>
 
@@ -773,7 +769,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                         {playlist.user_vote !== null &&
                           playlist.user_vote !== undefined && (
                             <span className="text-[10px] text-pink-300 bg-pink-500/15 px-2 py-0.5 rounded-md font-semibold">
-                              Tu voto: {playlist.user_vote ? '👍 Sí' : '👎 No'}
+                              Tu voto: <InterfaceText>{playlist.user_vote ? '👍 Sí' : '👎 No'}</InterfaceText>
                             </span>
                           )}
                       </div>
@@ -789,7 +785,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                               : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30'
                           }`}
                         >
-                          <span>👍</span> Sí, me gustó
+                          <span><InterfaceText>{"👍"}</InterfaceText></span> Sí, me gustó
                         </button>
 
                         <button
@@ -802,7 +798,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                               : 'bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/30'
                           }`}
                         >
-                          <span>👎</span> No me gustó
+                          <span><InterfaceText>{"👎"}</InterfaceText></span> No me gustó
                         </button>
                       </div>
 
@@ -820,7 +816,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                           }
                           className="text-pink-300/80 hover:text-pink-200 hover:underline flex items-center gap-1 font-medium"
                         >
-                          <span>💬</span>{' '}
+                          <span><InterfaceText>{"💬"}</InterfaceText></span>{' '}
                           {playlist.user_comment
                             ? 'Editar mi comentario'
                             : 'Dejar comentario'}
@@ -856,7 +852,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                                   translate="no"
                                   className="notranslate username-tag font-bold text-slate-200"
                                 >
-                                  {c.liked ? '👍' : '👎'}{' '}
+                                  <InterfaceText>{c.liked ? '👍' : '👎'}</InterfaceText>{' '}
                                   {c.reviewer_name || 'Miembro'}
                                 </span>
                               </div>
@@ -888,7 +884,7 @@ export function PlaylistsCatalog({ isPage = true }) {
               >
                 <div className="flex justify-between items-center border-b border-white/10 pb-3">
                   <div className="flex items-center gap-2">
-                    <span className="text-xl">🎵</span>
+                    <span className="text-xl"><InterfaceText>{"🎵"}</InterfaceText></span>
                     <div>
                       <h3 className="text-base sm:text-lg font-bold text-white leading-tight">
                         Recomendar Playlist
@@ -910,7 +906,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                   {/* Entrada Principal: URL de la Playlist */}
                   <div className="space-y-1.5">
                     <label className="text-xs text-pink-300 font-bold block flex items-center gap-1.5">
-                      <span>🔗</span> Enlace URL de la Playlist *
+                      <span><InterfaceText>{"🔗"}</InterfaceText></span> Enlace URL de la Playlist *
                     </label>
                     <div className="relative">
                       <input
@@ -929,7 +925,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                       )}
                     </div>
                     <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                      <span>✨</span> Autocompleta automáticamente la portada y
+                      <span><InterfaceText>{"✨"}</InterfaceText></span> Autocompleta automáticamente la portada y
                       el título.
                     </p>
                   </div>
@@ -948,13 +944,11 @@ export function PlaylistsCatalog({ isPage = true }) {
                             }}
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-xl text-slate-500">
-                            🎵
-                          </div>
+                          <div className="w-full h-full flex items-center justify-center text-xl text-slate-500"><InterfaceText>{" 🎵 "}</InterfaceText></div>
                         )}
                         {detectedPlatformInfo && (
                           <span className="absolute bottom-1 right-1 text-xs">
-                            {detectedPlatformInfo.icon}
+                            <InterfaceText>{detectedPlatformInfo.icon}</InterfaceText>
                           </span>
                         )}
                       </div>
@@ -1053,12 +1047,12 @@ export function PlaylistsCatalog({ isPage = true }) {
                       />
                       {user ? (
                         <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1 truncate">
-                          <span>🟢</span> Conectado como{' '}
+                          <span><InterfaceText>{"🟢"}</InterfaceText></span> Conectado como{' '}
                           {user.name || user.email?.split('@')[0]}
                         </p>
                       ) : (
                         <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1">
-                          <span>💡</span> Inicia sesión con Google para
+                          <span><InterfaceText>{"💡"}</InterfaceText></span> Inicia sesión con Google para
                           autocompletar.
                         </p>
                       )}
@@ -1078,24 +1072,14 @@ export function PlaylistsCatalog({ isPage = true }) {
                         }
                         className="w-full bg-black/50 border border-white/10 text-white text-xs sm:text-sm rounded-xl px-3.5 py-2 focus:outline-none focus:border-pink-500/60 cursor-pointer"
                       >
-                        <option value="Chill & Focus">☕ Chill & Focus</option>
-                        <option value="Energía & Fiesta">
-                          ⚡ Energía & Fiesta
-                        </option>
-                        <option value="Nostalgia & Melancolía">
-                          🌙 Nostalgia & Melancolía
-                        </option>
-                        <option value="Roadtrip & Viaje">
-                          🚗 Roadtrip & Viaje
-                        </option>
-                        <option value="Indie, Rock & Alt">
-                          🎸 Indie, Rock & Alt
-                        </option>
-                        <option value="Electrónica & Beat">
-                          🎛️ Electrónica & Beat
-                        </option>
-                        <option value="Joyas Ocultas">💎 Joyas Ocultas</option>
-                        <option value="General">✨ General</option>
+                        <option value="Chill & Focus"> Chill & Focus</option>
+                        <option value="Energía & Fiesta">  Energía & Fiesta </option>
+                        <option value="Nostalgia & Melancolía">  Nostalgia & Melancolía </option>
+                        <option value="Roadtrip & Viaje">  Roadtrip & Viaje </option>
+                        <option value="Indie, Rock & Alt">  Indie, Rock & Alt </option>
+                        <option value="Electrónica & Beat">  Electrónica & Beat </option>
+                        <option value="Joyas Ocultas"> Joyas Ocultas</option>
+                        <option value="General"> General</option>
                       </select>
                     </div>
                   </div>
@@ -1119,14 +1103,11 @@ export function PlaylistsCatalog({ isPage = true }) {
                   </div>
 
                   {formError && (
-                    <div className="text-rose-400 text-xs bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20">
-                      ⚠️ {formError}
+                    <div className="text-rose-400 text-xs bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20"><InterfaceText>{" ⚠️ "}</InterfaceText>{formError}
                     </div>
                   )}
                   {formSuccess && (
-                    <div className="text-emerald-400 text-xs bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20">
-                      ✅ ¡Playlist publicada con éxito!
-                    </div>
+                    <div className="text-emerald-400 text-xs bg-emerald-500/10 p-2.5 rounded-xl border border-emerald-500/20"><InterfaceText>{" ✅ ¡Playlist publicada con éxito! "}</InterfaceText></div>
                   )}
 
                   <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
@@ -1142,9 +1123,9 @@ export function PlaylistsCatalog({ isPage = true }) {
                       disabled={formSubmitting || isFetchingMeta}
                       className="w-full sm:w-1/2 py-2.5 bg-linear-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-lg flex items-center justify-center gap-1.5 disabled:opacity-50"
                     >
-                      {formSubmitting
+                      <InterfaceText>{formSubmitting
                         ? 'Publicando...'
-                        : 'Publicar Playlist 🚀'}
+                        : 'Publicar Playlist 🚀'}</InterfaceText>
                     </button>
                   </div>
                 </form>
@@ -1163,7 +1144,7 @@ export function PlaylistsCatalog({ isPage = true }) {
               >
                 <div className="flex justify-between items-center border-b border-white/10 pb-3">
                   <h4 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <span>💬</span> Tu Opinión de la Playlist
+                    <span><InterfaceText>{"💬"}</InterfaceText></span> Tu Opinión de la Playlist
                   </h4>
                   <button
                     onClick={() => setCommentModalPlaylist(null)}
@@ -1191,9 +1172,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                           ? 'bg-emerald-500 text-white border-emerald-400 shadow-md'
                           : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
                       }`}
-                    >
-                      👍 Sí, me gustó
-                    </button>
+                    ><InterfaceText>{" 👍 Sí, me gustó "}</InterfaceText></button>
                     <button
                       type="button"
                       onClick={() => setPendingVoteLiked(false)}
@@ -1202,9 +1181,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                           ? 'bg-rose-500 text-white border-rose-400 shadow-md'
                           : 'bg-rose-500/10 text-rose-300 border-rose-500/30'
                       }`}
-                    >
-                      👎 No me gustó
-                    </button>
+                    ><InterfaceText>{" 👎 No me gustó "}</InterfaceText></button>
                   </div>
 
                   <textarea
@@ -1227,9 +1204,7 @@ export function PlaylistsCatalog({ isPage = true }) {
                       type="button"
                       onClick={handleConfirmVoteWithComment}
                       className="w-full sm:w-1/2 py-2 bg-linear-to-r from-pink-500 to-purple-600 text-white rounded-xl text-xs font-bold shadow-lg"
-                    >
-                      Guardar Voto ✨
-                    </button>
+                    ><InterfaceText>{" Guardar Voto ✨ "}</InterfaceText></button>
                   </div>
                 </div>
               </div>

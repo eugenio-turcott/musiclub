@@ -1,4 +1,6 @@
 'use client';
+import { drawInterfaceText } from '../utils/drawInterfaceText';
+import { InterfaceText } from './UiIcon';
 // Loaded only when the sharing dialog is opened.
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
@@ -748,7 +750,7 @@ export async function generateReviewStoryCanvas({
       ctx.font = '900 36px "Gabarito", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText(`★ ${finalScore} /10`, pillX + pillW / 2, pillY + pillH / 2);
+      drawInterfaceText(ctx, `★ ${finalScore} /10`, pillX + pillW / 2, pillY + pillH / 2);
 
       // Fila inferior de impresiones del crítico (Emoción y/o Canción Favorita)
       if (hasReviewerExtra) {
@@ -770,7 +772,7 @@ export async function generateReviewStoryCanvas({
           if (ctx.measureText(emoText).width > 420) {
             emoText = emoText.slice(0, 24) + '…';
           }
-          ctx.fillText(emoText, 92, rowCenterY);
+          drawInterfaceText(ctx, emoText, 92, rowCenterY);
 
           // Canción favorita a la derecha integrada armónicamente
           ctx.textAlign = 'right';
@@ -786,13 +788,13 @@ export async function generateReviewStoryCanvas({
             }
             favText += '…';
           }
-          ctx.fillText(favText, 1016 - 28, rowCenterY);
+          drawInterfaceText(ctx, favText, 1016 - 28, rowCenterY);
         } else if (emotion) {
           // Solo emoción
           ctx.textAlign = 'left';
           ctx.font = '800 25px "Gabarito", sans-serif';
           ctx.fillStyle = '#ffffff';
-          ctx.fillText(
+          drawInterfaceText(ctx,
             `${emotion.emoji || '🎵'} ${emotion.label}`,
             92,
             rowCenterY
@@ -884,7 +886,7 @@ export async function generateReviewStoryCanvas({
         ctx.textBaseline = 'middle';
         ctx.font = '700 18px "Gabarito", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-        ctx.fillText(`${c.icon} ${c.label}`, bx + boxW / 2, by + 30);
+        drawInterfaceText(ctx, `${c.icon} ${c.label}`, bx + boxW / 2, by + 30);
 
         ctx.font = '900 32px "Gabarito", -apple-system, BlinkMacSystemFont, sans-serif';
         ctx.fillStyle = '#ffffff';
@@ -903,7 +905,7 @@ export async function generateReviewStoryCanvas({
       ctx.textAlign = 'left';
       ctx.font = '800 20px "Gabarito", sans-serif';
       ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-      ctx.fillText('🎵 TRACKS DESTACADOS:', 88, curY + 36);
+      drawInterfaceText(ctx, '🎵 TRACKS DESTACADOS:', 88, curY + 36);
 
       let pillRowY = curY + trackCardPaddingY + trackHeaderH;
       for (let r = 0; r < trackRows.length; r++) {
@@ -1534,8 +1536,7 @@ export function ShareReviewModal({
                 <h3 className="text-white font-black text-xs sm:text-sm truncate">
                   Compartir Review
                 </h3>
-                <span className="px-1.5 py-0.5 rounded-md bg-linear-to-r from-pink-500/20 to-purple-500/20 text-pink-300 text-[10px] font-black border border-pink-500/30 shrink-0">
-                  ★ {finalScore}
+                <span className="px-1.5 py-0.5 rounded-md bg-linear-to-r from-pink-500/20 to-purple-500/20 text-pink-300 text-[10px] font-black border border-pink-500/30 shrink-0"><InterfaceText>{" ★ "}</InterfaceText>{finalScore}
                 </span>
               </div>
               <p className="text-white/50 text-[11px] truncate leading-tight">
@@ -1664,7 +1665,7 @@ export function ShareReviewModal({
                   className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold shrink-0 border transition-all active:scale-95 cursor-pointer disabled:opacity-50 ${p.bgClass} ${p.borderClass}`}
                   title={`Compartir en ${p.name}`}
                 >
-                  <div className="shrink-0">{p.icon}</div>
+                  <div className="shrink-0"><InterfaceText>{p.icon}</InterfaceText></div>
                   <span className="leading-none">{p.name}</span>
                 </button>
               ))}

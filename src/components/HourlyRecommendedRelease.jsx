@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { ListenLaterButton } from './ListenLaterButton';
 import { GenreIconStrip } from './GenreIconStrip';
 import { CoverImage } from './CoverImage';
@@ -318,7 +319,7 @@ export function HourlyRecommendedRelease({
 
             {/* Reseñas Registradas badge (1 a 3) */}
             <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-pink-500/15 border border-pink-500/30 text-pink-300 text-[11px] sm:text-xs font-bold">
-              <span>⚖️</span>
+              <span><InterfaceText>{"⚖️"}</InterfaceText></span>
               <span>
                 {reviewCount === 1
                   ? 'Solo 1 Reseña Registrada'
@@ -330,7 +331,7 @@ export function HourlyRecommendedRelease({
           {/* Countdown timer */}
           <div className="flex items-center gap-2 self-start sm:self-auto">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-black/60 border border-white/10 text-white/80 text-xs font-mono">
-              <span className="text-amber-400 font-bold">⏳ Rota en:</span>
+              <span className="text-amber-400 font-bold"><InterfaceText>{"⏳ Rota en:"}</InterfaceText></span>
               <span className="font-black text-amber-300">
                 {minutesLeft}m {secondsLeft}s
               </span>
@@ -356,7 +357,7 @@ export function HourlyRecommendedRelease({
                   />
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center bg-white/5 text-white/40">
-                    <span className="text-5xl mb-2">💿</span>
+                    <span className="text-5xl mb-2"><InterfaceText>{"💿"}</InterfaceText></span>
                     <span className="text-xs font-bold">Sin Carátula</span>
                   </div>
                 )}
@@ -365,11 +366,11 @@ export function HourlyRecommendedRelease({
                 <GenreIconStrip genres={album.genres} className="absolute left-3 top-12 z-10" size={26} />
                 {/* Badge Release Type */}
                 <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-white">
-                  {releaseType === 'EP'
+                  <InterfaceText>{releaseType === 'EP'
                     ? '💽 EP'
                     : releaseType === 'SENCILLO' || releaseType === 'SINGLE'
                       ? '🎵 Sencillo'
-                      : '💿 Álbum'}
+                      : '💿 Álbum'}</InterfaceText>
                 </div>
 
                 {/* Cover Rating Shortcut Link */}
@@ -378,7 +379,7 @@ export function HourlyRecommendedRelease({
                   className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-pink-500/80 hover:bg-pink-500 backdrop-blur-md text-white text-[11px] font-bold shadow-lg transition-transform hover:scale-105 flex items-center gap-1.5"
                   title="Calificar la portada de este disco en la nueva Galería de Arte"
                 >
-                  <span>🖼️</span>
+                  <span><InterfaceText>{"🖼️"}</InterfaceText></span>
                   <span>Calificar Portada</span>
                 </Link>
               </div>
@@ -389,7 +390,7 @@ export function HourlyRecommendedRelease({
           <div className="lg:col-span-7 flex flex-col space-y-4 text-center lg:text-left">
             <div className="space-y-1.5">
               <div className="flex items-center justify-center lg:justify-start gap-2 text-xs font-bold text-amber-400">
-                <span>🎯</span>
+                <span><InterfaceText>{"🎯"}</InterfaceText></span>
                 <span className="uppercase tracking-wider">
                   {reviewCount === 1
                     ? '¡Se busca segundo voto para desempatar!'
@@ -467,7 +468,7 @@ export function HourlyRecommendedRelease({
 
                 {firstReviewScore !== null && (
                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/20 border border-amber-400/40 text-amber-300 font-black text-sm shadow-sm shrink-0">
-                    <span>⭐</span>
+                    <span><InterfaceText>{"⭐"}</InterfaceText></span>
                     <span>{Number(firstReviewScore).toFixed(1)}</span>
                     <span className="text-[10px] text-amber-200/60 font-normal">
                       / 10
@@ -490,9 +491,8 @@ export function HourlyRecommendedRelease({
               {/* Promedio global si hay más de 1 reseña */}
               {reviewCount > 1 && currentAverageScore && (
                 <div className="pt-1 flex items-center gap-2 text-xs text-amber-200/90 bg-amber-500/10 px-3 py-1.5 rounded-xl border border-amber-500/20 w-fit">
-                  <span>📊 Promedio actual de las {reviewCount} reseñas:</span>
-                  <span className="font-black text-amber-300">
-                    ⭐ {currentAverageScore}
+                  <span><InterfaceText>{"📊 Promedio actual de las "}</InterfaceText>{reviewCount} reseñas:</span>
+                  <span className="font-black text-amber-300"><InterfaceText>{" ⭐ "}</InterfaceText>{currentAverageScore}
                   </span>
                   <span className="text-[10px] text-amber-200/50">/ 10</span>
                 </div>
@@ -502,7 +502,7 @@ export function HourlyRecommendedRelease({
             {/* Context Notice / Instructions */}
             {isCurrentUserReviewer ? (
               <div className="p-3 rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-200 text-xs flex items-center gap-2">
-                <span>🎖️</span>
+                <span><InterfaceText>{"🎖️"}</InterfaceText></span>
                 <span>
                   {reviewCount === 1 ? (
                     <>
@@ -537,7 +537,7 @@ export function HourlyRecommendedRelease({
                 onClick={() => setShowReviewForm((prev) => !prev)}
                 className="w-full sm:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] via-[#e11d48] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm rounded-2xl shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>✍️</span>
+                <span><InterfaceText>{"✍️"}</InterfaceText></span>
                 <span>
                   {showReviewForm
                     ? 'Ocultar Formulario de Calificación'
@@ -553,7 +553,7 @@ export function HourlyRecommendedRelease({
                 to={releaseUrl}
                 className="w-full sm:w-auto px-5 py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm rounded-2xl border border-white/15 hover:border-white/30 transition-all flex items-center justify-center gap-2"
               >
-                <span>💿</span>
+                <span><InterfaceText>{"💿"}</InterfaceText></span>
                 <span>Ver Ficha Completa</span>
               </Link>
             </div>
@@ -562,7 +562,7 @@ export function HourlyRecommendedRelease({
             {(spotifyUrl || appleMusicUrl || youtubeUrl || otherUrl) && (
               <div className="pt-2">
                 <div className="text-[11px] text-white/50 font-bold uppercase tracking-wider mb-2 flex items-center justify-center lg:justify-start gap-1.5">
-                  <span>🎧</span>
+                  <span><InterfaceText>{"🎧"}</InterfaceText></span>
                   <span>Escuchar en streaming:</span>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -640,7 +640,7 @@ export function HourlyRecommendedRelease({
           <div className="mt-8 pt-6 border-t border-white/10 animate-fadeIn">
             <div className="flex items-center justify-between pb-4">
               <h4 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                <span>✍️</span>
+                <span><InterfaceText>{"✍️"}</InterfaceText></span>
                 <span>
                   Calificar "{albumTitle}" ({artistName})
                 </span>

@@ -862,3 +862,24 @@
 @media (prefers-reduced-motion: reduce) {
   .animate-continuous-slider { animation: none !important; transform: none !important; }
 }
+
+/* Release detail and compact, equally weighted card actions. */
+.score-gauge { width: min(100%, 180px); margin: .25rem auto 0; }
+.score-gauge svg { display: block; width: 100%; height: auto; }
+.criteria-general { border-color: #f093fb30; background: linear-gradient(145deg, #f093fb0c, #121422); }
+.release-track-genres-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1.5rem; align-items: start; }
+.release-genres-scroll { display: grid; gap: .75rem; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); }
+.release-genres-many { max-height: 31rem; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #f093fb70 transparent; }
+.release-card-actions > * { min-width: 0; }
+.release-action-tile { min-height: 76px !important; flex-direction: column; gap: .4rem !important; padding: .65rem .3rem !important; text-align: center; font-size: 11px; }
+.release-action-tile svg { width: 25px; height: 25px; flex-shrink: 0; }
+@media (min-width: 1024px) {
+ .release-track-genres-grid { grid-template-columns: minmax(0, 1fr) minmax(220px, .32fr); gap: 1.75rem; }
+ .release-genres-scroll:not(.release-genres-many) { grid-template-columns: minmax(0, 1fr); }
+ .release-genres-many { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+ .criteria-general { justify-content: center; gap: 1.5rem; }
+ .criteria-general > div:first-child { flex-direction: column; align-items: center; gap: .75rem; text-align: center; }
+ .criteria-general > div:first-child > span { font-size: 2rem; }
+}
+
+.ui-icon { display: inline-block; width: 1.05em; height: 1.05em; flex-shrink: 0; vertical-align: -.12em; }

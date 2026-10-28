@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useReviewAccess } from '../hooks/useReviewAccess';
 import { supabaseService } from '../services/supabaseClient';
@@ -746,7 +747,7 @@ export function ReviewSystem({
 
   if (!album) return null;
 
-  if (reviewAccess !== true) return <div role="status" className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-5 text-center text-sm text-amber-100">{reviewAccess === null ? 'Comprobando disponibilidad de reseñas…' : '🔒 Las reseñas de este release están cerradas. El administrador controla cuándo se habilitan.'}</div>;
+  if (reviewAccess !== true) return <div role="status" className="rounded-2xl border border-amber-400/20 bg-amber-500/10 p-5 text-center text-sm text-amber-100"><InterfaceText>{reviewAccess === null ? 'Comprobando disponibilidad de reseñas…' : '🔒 Las reseñas de este release están cerradas. El administrador controla cuándo se habilitan.'}</InterfaceText></div>;
 
   return (
     <div className={isModal ? 'space-y-4' : 'space-y-6'}>
@@ -786,7 +787,7 @@ export function ReviewSystem({
                   className="w-full sm:w-auto px-4 py-2.5 bg-linear-to-r from-pink-500/25 via-purple-500/25 to-indigo-500/25 hover:from-pink-500/35 hover:to-indigo-500/35 text-pink-300 hover:text-white border border-pink-400/40 hover:border-pink-400/70 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(245,87,108,0.2)] active:scale-95 shrink-0 cursor-pointer"
                   title="Compartir review en redes sociales en formato celular / story"
                 >
-                  <span>📱</span> Compartir Story
+                  <span><InterfaceText>{"📱"}</InterfaceText></span> Compartir Story
                 </button>
 
                 <button
@@ -794,7 +795,7 @@ export function ReviewSystem({
                   onClick={handleStartEditing}
                   className="w-full sm:w-auto px-4 py-2.5 bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-cyan-500/20 hover:from-cyan-500/30 hover:to-blue-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/60 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(6,182,212,0.15)] active:scale-95 shrink-0 cursor-pointer"
                 >
-                  <span>✏️</span> Editar Review
+                  <span><InterfaceText>{"✏️"}</InterfaceText></span> Editar Review
                 </button>
               </div>
             </div>
@@ -855,15 +856,14 @@ export function ReviewSystem({
                         className={`text-[11px] px-2.5 py-1 rounded-full border font-bold flex items-center gap-1.5 shadow-sm ${emotionObj.badgeClass}`}
                         title={emotionObj.description}
                       >
-                        <span className="text-xl">{emotionObj.emoji}</span>
+                        <span className="text-xl"><InterfaceText>{emotionObj.emoji}</InterfaceText></span>
                         <span className="hidden sm:inline">
-                          {emotionObj.label}
+                          <InterfaceText>{emotionObj.label}</InterfaceText>
                         </span>
                       </span>
                     ) : null;
                   })()}
-                  <div className="text-2xl sm:text-3xl font-black text-emerald-300 flex items-center gap-1.5">
-                    ★{' '}
+                  <div className="text-2xl sm:text-3xl font-black text-emerald-300 flex items-center gap-1.5"><InterfaceText>{" ★"}</InterfaceText>{' '}
                     {getWeightedReviewScore(existingUserReview)?.toFixed(2) ??
                       existingUserReview.rating_general ??
                       '10'}
@@ -917,7 +917,7 @@ export function ReviewSystem({
                           : ''
                       }`}
                     >
-                      <span className="text-xs text-white/70">{label}</span>
+                      <span className="text-xs text-white/70"><InterfaceText>{label}</InterfaceText></span>
                       <span
                         className={`font-bold font-mono text-sm px-2 py-0.5 rounded-lg border ${getRatingBadgeColor(val, max)}`}
                       >
@@ -939,7 +939,7 @@ export function ReviewSystem({
                 return (
                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/20 via-yellow-500/10 to-transparent border border-amber-400/40 p-3 rounded-xl text-amber-200 font-medium">
                     <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="text-base">⭐</span>
+                      <span className="text-base"><InterfaceText>{"⭐"}</InterfaceText></span>
                       <span className="text-amber-400 font-bold uppercase tracking-wider text-[11px]">
                         Canción Favorita:
                       </span>
@@ -959,7 +959,7 @@ export function ReviewSystem({
                 Object.keys(existingUserReview.track_ratings).length > 0 && (
                   <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
                     <div className="text-white/40 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🎵</span> Canciones Calificadas:
+                      <span><InterfaceText>{"🎵"}</InterfaceText></span> Canciones Calificadas:
                     </div>
                     <div className="flex flex-wrap gap-2 max-h-44 overflow-y-auto custom-scrollbar pr-1">
                       {Object.entries(existingUserReview.track_ratings).map(
@@ -987,7 +987,7 @@ export function ReviewSystem({
                                   : 'bg-black/50 border-white/10 text-white/80'
                               }`}
                             >
-                              <span>{isFav ? '⭐' : '🎵'}</span>
+                              <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                               <span
                                 className="max-w-[160px] truncate"
                                 title={trackName}
@@ -996,8 +996,7 @@ export function ReviewSystem({
                               </span>
                               <span
                                 className={`font-bold font-mono ml-1 ${isFav ? 'text-amber-300' : 'text-emerald-300'}`}
-                              >
-                                ★ {rating}
+                              ><InterfaceText>{" ★ "}</InterfaceText>{rating}
                               </span>
                               {isFav && (
                                 <span className="text-[9px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded font-black uppercase tracking-wider">
@@ -1053,7 +1052,7 @@ export function ReviewSystem({
                             : 'text-[#f5576c]'
                       }
                     >
-                      {isEditing ? '✏️' : isIndividual ? '📌' : '✍️'}
+                      <InterfaceText>{isEditing ? '✏️' : isIndividual ? '📌' : '✍️'}</InterfaceText>
                     </span>
                     {isEditing ? (
                       <span className="bg-linear-to-r from-amber-300 via-orange-200 to-white bg-clip-text text-transparent font-bold">
@@ -1071,11 +1070,11 @@ export function ReviewSystem({
                   </h5>
                   {isEditing ? (
                     <span className="inline-flex items-center gap-1 text-[10px] text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full font-mono">
-                      <span>✏️</span> Modo Edición
+                      <span><InterfaceText>{"✏️"}</InterfaceText></span> Modo Edición
                     </span>
                   ) : (
                     <span className="hidden xs:inline-flex items-center gap-1 text-[10px] text-emerald-400/90 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full font-mono">
-                      <span>💾</span> Autoguardado
+                      <span><InterfaceText>{"💾"}</InterfaceText></span> Autoguardado
                     </span>
                   )}
                 </div>
@@ -1107,9 +1106,7 @@ export function ReviewSystem({
 
             {!user ? (
               <div className="py-8 sm:py-10 px-4 text-center space-y-4 sm:space-y-5 relative z-10">
-                <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,87,108,0.25)]">
-                  ⭐
-                </div>
+                <div className="w-16 h-16 mx-auto rounded-3xl bg-linear-to-tr from-[#f5576c]/20 to-[#f093fb]/20 border border-[#f5576c]/30 flex items-center justify-center text-3xl shadow-[0_0_30px_rgba(245,87,108,0.25)]"><InterfaceText>{" ⭐ "}</InterfaceText></div>
                 <div className="space-y-2 max-w-md mx-auto">
                   <h4 className="text-xl sm:text-2xl font-black text-white">
                     Inicia Sesión con Google para Calificar
@@ -1161,7 +1158,7 @@ export function ReviewSystem({
                           className="w-9 h-9 rounded-full object-cover border border-[#f5576c]/40 shrink-0"
                           onError={(e) => {
                             e.target.src =
-                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                              '/musiclub_logo_corchea.png';
                           }}
                         />
                       ) : (
@@ -1203,7 +1200,7 @@ export function ReviewSystem({
                           : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                       }`}
                     >
-                      <span>🎵</span>
+                      <span><InterfaceText>{"🎵"}</InterfaceText></span>
                       <span>
                         1. Canciones ({trackProgress}/{effectiveTracks.length})
                       </span>
@@ -1221,7 +1218,7 @@ export function ReviewSystem({
                         : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                     }`}
                   >
-                    <span>📊</span>
+                    <span><InterfaceText>{"📊"}</InterfaceText></span>
                     <span>
                       {shouldShowTracks && effectiveTracks.length > 0
                         ? '2. Criterios'
@@ -1240,7 +1237,7 @@ export function ReviewSystem({
                         : 'text-white/40 hover:text-white/80 hover:bg-white/5'
                     }`}
                   >
-                    <span>📝</span>
+                    <span><InterfaceText>{"📝"}</InterfaceText></span>
                     <span>
                       {shouldShowTracks && effectiveTracks.length > 0
                         ? '3. Resumen'
@@ -1261,7 +1258,7 @@ export function ReviewSystem({
                       <div>
                         <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1 text-xs text-white/60 mb-2 font-medium">
                           <span className="flex items-center gap-1.5 text-white font-semibold">
-                            <span className="text-[#f5576c]">🎵</span> Canción{' '}
+                            <span className="text-[#f5576c]"><InterfaceText>{"🎵"}</InterfaceText></span> Canción{' '}
                             {currentTrackIndex + 1} de {effectiveTracks.length}
                           </span>
                           <span className="text-[#f093fb] font-mono">
@@ -1309,7 +1306,7 @@ export function ReviewSystem({
                             >
                               <span>#{t.track_number || idx + 1}</span>
                               {isFav ? (
-                                <span className="text-[10px]">⭐</span>
+                                <span className="text-[10px]"><InterfaceText>{"⭐"}</InterfaceText></span>
                               ) : (
                                 isRated && (
                                   <span className="text-[10px]">✓</span>
@@ -1331,8 +1328,7 @@ export function ReviewSystem({
                                   currentTrackIndex + 1}
                               </span>
                               {formatDuration(currentTrack.duration_ms) && (
-                                <span className="text-white/30 text-xs font-mono">
-                                  ⏱️ {formatDuration(currentTrack.duration_ms)}
+                                <span className="text-white/30 text-xs font-mono"><InterfaceText>{" ⏱️ "}</InterfaceText>{formatDuration(currentTrack.duration_ms)}
                                 </span>
                               )}
                             </div>
@@ -1376,7 +1372,7 @@ export function ReviewSystem({
                                       : 'Marcar como tu canción favorita'
                                   }
                                 >
-                                  <span>⭐</span>
+                                  <span><InterfaceText>{"⭐"}</InterfaceText></span>
                                   <span>
                                     {isFav ? 'Canción Favorita' : 'Favorita'}
                                   </span>
@@ -1399,7 +1395,7 @@ export function ReviewSystem({
                                 10
                               )}`}
                             >
-                              <span className="text-xs">★</span>
+                              <span className="text-xs"><InterfaceText>{"★"}</InterfaceText></span>
                               <span className="text-base font-mono">
                                 {getTrackRating(
                                   currentTrack,
@@ -1513,9 +1509,7 @@ export function ReviewSystem({
                               ? 'opacity-30 cursor-not-allowed'
                               : 'hover:bg-white/20 active:scale-95'
                           }`}
-                        >
-                          ⬅️ Anterior
-                        </button>
+                        ><InterfaceText>{" ⬅️ Anterior "}</InterfaceText></button>
 
                         <div className="text-white/40 text-xs font-mono text-center">
                           {currentTrackIndex + 1} de {effectiveTracks.length}
@@ -1540,9 +1534,7 @@ export function ReviewSystem({
                               setCurrentTrackIndex((prev) => prev + 1);
                             }}
                             className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                          >
-                            Siguiente ➡️
-                          </button>
+                          ><InterfaceText>{" Siguiente ➡️ "}</InterfaceText></button>
                         ) : (
                           <button
                             type="button"
@@ -1562,9 +1554,7 @@ export function ReviewSystem({
                               setWizardStep('criteria');
                             }}
                             className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                          >
-                            Ir a Criterios 📊 ➔
-                          </button>
+                          ><InterfaceText>{" Ir a Criterios 📊 ➔ "}</InterfaceText></button>
                         )}
                       </div>
                     </div>
@@ -1579,7 +1569,7 @@ export function ReviewSystem({
                     <div>
                       <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1 text-xs text-white/60 mb-2 font-medium">
                         <span className="flex items-center gap-1.5 text-white font-semibold">
-                          <span className="text-[#f5576c]">📊</span> Criterio{' '}
+                          <span className="text-[#f5576c]"><InterfaceText>{"📊"}</InterfaceText></span> Criterio{' '}
                           {currentCriterionIndex + 1} de {CRITERIOS.length}
                         </span>
                         <span className="text-[#f093fb] font-mono">
@@ -1635,7 +1625,7 @@ export function ReviewSystem({
                             </span>
                           </div>
                           <h4 className="text-white text-base sm:text-xl font-bold tracking-tight mt-1.5">
-                            {currentCriterion.label}
+                            <InterfaceText>{currentCriterion.label}</InterfaceText>
                           </h4>
                           <p className="text-white/60 text-xs sm:text-sm mt-1 leading-relaxed">
                             {currentCriterion.desc}
@@ -1651,7 +1641,7 @@ export function ReviewSystem({
                               currentCriterion.max
                             )}`}
                           >
-                            <span className="text-xs">⭐</span>
+                            <span className="text-xs"><InterfaceText>{"⭐"}</InterfaceText></span>
                             <span className="text-base font-mono">
                               {ratings[currentCriterion.id] ||
                                 (currentCriterion.max === 10 ? 5 : 3)}
@@ -1768,9 +1758,7 @@ export function ReviewSystem({
                             ? 'opacity-30 cursor-not-allowed'
                             : 'hover:bg-white/20 active:scale-95'
                         }`}
-                      >
-                        ⬅️ Anterior
-                      </button>
+                      ><InterfaceText>{" ⬅️ Anterior "}</InterfaceText></button>
 
                       <div className="text-white/40 text-xs font-mono text-center">
                         Criterio {currentCriterionIndex + 1} de{' '}
@@ -1784,17 +1772,13 @@ export function ReviewSystem({
                             setCurrentCriterionIndex((prev) => prev + 1)
                           }
                           className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                        >
-                          Siguiente ➡️
-                        </button>
+                        ><InterfaceText>{" Siguiente ➡️ "}</InterfaceText></button>
                       ) : (
                         <button
                           type="button"
                           onClick={() => setWizardStep('summary')}
                           className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
-                        >
-                          Ver Resumen 📝 ➔
-                        </button>
+                        ><InterfaceText>{" Ver Resumen 📝 ➔ "}</InterfaceText></button>
                       )}
                     </div>
                   </div>
@@ -1808,7 +1792,7 @@ export function ReviewSystem({
                     <div className="bg-white/5 rounded-2xl p-4 sm:p-6 border border-white/10 space-y-4 sm:space-y-5">
                       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/10 pb-4">
                         <h6 className="text-white text-base sm:text-lg font-bold flex items-center gap-2">
-                          <span>📝</span> Resumen de tu Review
+                          <span><InterfaceText>{"📝"}</InterfaceText></span> Resumen de tu Review
                         </h6>
                         {(() => {
                           const currentReviewScore = getWeightedReviewScore({
@@ -1826,8 +1810,7 @@ export function ReviewSystem({
                             currentReviewScore !== undefined &&
                             !isNaN(Number(currentReviewScore));
                           return hasScore ? (
-                            <div className="bg-linear-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold">
-                              ★ Promedio Ponderado Final:{' '}
+                            <div className="bg-linear-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold"><InterfaceText>{" ★ Promedio Ponderado Final:"}</InterfaceText>{' '}
                               {Number(currentReviewScore).toFixed(2)} / 10
                             </div>
                           ) : null;
@@ -1844,7 +1827,7 @@ export function ReviewSystem({
                               className="w-8 h-8 rounded-full object-cover border border-[#f5576c]/30 shrink-0"
                               onError={(e) => {
                                 e.target.src =
-                                  'https://via.placeholder.com/100/1a1a2e/ffffff?text=👤';
+                                  '/musiclub_logo_corchea.png';
                               }}
                             />
                           ) : (
@@ -1870,16 +1853,14 @@ export function ReviewSystem({
                         <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
                           <div className="flex justify-between items-center text-xs">
                             <span className="text-white/70 font-semibold flex items-center gap-1.5">
-                              <span>🎵</span> Calificaciones de Canciones (
+                              <span><InterfaceText>{"🎵"}</InterfaceText></span> Calificaciones de Canciones (
                               {trackProgress}/{effectiveTracks.length})
                             </span>
                             <button
                               type="button"
                               onClick={() => setWizardStep('tracks')}
                               className="text-xs text-[#f093fb] hover:underline font-semibold"
-                            >
-                              ✏️ Editar
-                            </button>
+                            ><InterfaceText>{" ✏️ Editar "}</InterfaceText></button>
                           </div>
 
                           <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto custom-scrollbar pt-1">
@@ -1916,9 +1897,9 @@ export function ReviewSystem({
                                   }`}
                                 >
                                   <span>
-                                    {isFav
+                                    <InterfaceText>{isFav
                                       ? '⭐'
-                                      : `#${t.track_number || idx + 1}`}
+                                      : `#${t.track_number || idx + 1}`}</InterfaceText>
                                   </span>
                                   <span className="truncate max-w-[120px]">
                                     {trackName}
@@ -1942,15 +1923,13 @@ export function ReviewSystem({
                       <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
                         <div className="flex justify-between items-center text-xs">
                           <span className="text-white/70 font-semibold flex items-center gap-1.5">
-                            <span>📊</span> Criterios del Álbum
+                            <span><InterfaceText>{"📊"}</InterfaceText></span> Criterios del Álbum
                           </span>
                           <button
                             type="button"
                             onClick={() => setWizardStep('criteria')}
                             className="text-xs text-[#f093fb] hover:underline font-semibold"
-                          >
-                            ✏️ Editar
-                          </button>
+                          ><InterfaceText>{" ✏️ Editar "}</InterfaceText></button>
                         </div>
 
                         <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5 pt-1">
@@ -1960,7 +1939,7 @@ export function ReviewSystem({
                               className="bg-white/5 p-3 rounded-xl border border-white/5 flex flex-col justify-between gap-1"
                             >
                               <span className="text-white/50 text-xs truncate">
-                                {c.label}
+                                <InterfaceText>{c.label}</InterfaceText>
                               </span>
                               <span className="font-bold text-white text-base font-mono">
                                 {ratings[c.id]} / {c.max}
@@ -1976,7 +1955,7 @@ export function ReviewSystem({
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                             <div>
                               <h6 className="text-amber-300 text-sm sm:text-base font-bold flex items-center gap-2">
-                                <span>⭐</span> ¿Cuál fue tu canción favorita
+                                <span><InterfaceText>{"⭐"}</InterfaceText></span> ¿Cuál fue tu canción favorita
                                 del álbum?
                               </h6>
                               <p className="text-white/60 text-xs mt-0.5">
@@ -2003,7 +1982,7 @@ export function ReviewSystem({
                               );
                               return (
                                 <div className="bg-amber-400/20 text-amber-200 border border-amber-400/40 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm shrink-0">
-                                  <span>⭐ Favorita:</span>
+                                  <span><InterfaceText>{"⭐ Favorita:"}</InterfaceText></span>
                                   <span
                                     translate="no"
                                     className="notranslate track-name truncate max-w-[160px]"
@@ -2072,8 +2051,7 @@ export function ReviewSystem({
 
                                   <div className="flex items-center gap-2 shrink-0">
                                     {score !== undefined && (
-                                      <span className="text-xs font-mono text-white/50 bg-black/40 px-2 py-0.5 rounded border border-white/5">
-                                        ★ {score}
+                                      <span className="text-xs font-mono text-white/50 bg-black/40 px-2 py-0.5 rounded border border-white/5"><InterfaceText>{" ★ "}</InterfaceText>{score}
                                       </span>
                                     )}
                                     <span
@@ -2082,9 +2060,7 @@ export function ReviewSystem({
                                           ? 'text-amber-300 filter drop-shadow'
                                           : 'text-white/20 hover:text-amber-300/80'
                                       }`}
-                                    >
-                                      ⭐
-                                    </span>
+                                    ><InterfaceText>{" ⭐ "}</InterfaceText></span>
                                   </div>
                                 </button>
                               );
@@ -2098,7 +2074,7 @@ export function ReviewSystem({
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div>
                             <h6 className="text-white text-sm sm:text-base font-bold flex items-center gap-2">
-                              <span>🎭</span> ¿Cómo te hizo sentir el álbum?
+                              <span><InterfaceText>{"🎭"}</InterfaceText></span> ¿Cómo te hizo sentir el álbum?
                             </h6>
                             <p className="text-white/40 text-xs mt-0.5">
                               Selecciona el sentimiento o vibra principal que te
@@ -2119,8 +2095,8 @@ export function ReviewSystem({
                             const suggested = getEmotionForScore(currentScore);
                             return (
                               <span className="text-xs text-pink-300/90 bg-pink-500/10 px-3 py-1 rounded-xl border border-pink-500/20 self-start sm:self-auto font-mono flex items-center gap-1.5 shrink-0">
-                                <span>💡 Sugerido:</span> {suggested.emoji}{' '}
-                                {suggested.label}
+                                <span><InterfaceText>{"💡 Sugerido:"}</InterfaceText></span> <InterfaceText>{suggested.emoji}</InterfaceText>{' '}
+                                <InterfaceText>{suggested.label}</InterfaceText>
                               </span>
                             );
                           })()}
@@ -2160,10 +2136,10 @@ export function ReviewSystem({
                                 title={emo.description}
                               >
                                 <span className="text-2xl sm:text-3xl transition-transform group-hover:scale-110">
-                                  {emo.emoji}
+                                  <InterfaceText>{emo.emoji}</InterfaceText>
                                 </span>
                                 <span className="text-xs font-bold mt-2 leading-tight line-clamp-2">
-                                  {emo.label}
+                                  <InterfaceText>{emo.label}</InterfaceText>
                                 </span>
                                 <span className="text-[10px] opacity-60 mt-1 line-clamp-2 hidden sm:block">
                                   {emo.description}
@@ -2193,13 +2169,13 @@ export function ReviewSystem({
                     {/* Advertencias / Errores */}
                     {error && (
                       <div className="text-[#f5576c] text-xs sm:text-sm bg-[#f5576c]/10 p-3.5 rounded-xl border border-[#f5576c]/20 flex items-center gap-2">
-                        <span>⚠️</span> {error}
+                        <span><InterfaceText>{"⚠️"}</InterfaceText></span> {error}
                       </div>
                     )}
                     {success && (
                       <div className="bg-emerald-500/15 p-3.5 rounded-xl border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
                         <div className="flex items-center gap-2 text-emerald-300 text-xs sm:text-sm font-semibold">
-                          <span>✅</span> ¡Review enviada con éxito! Muchas gracias.
+                          <span><InterfaceText>{"✅"}</InterfaceText></span> ¡Review enviada con éxito! Muchas gracias.
                         </div>
                         <button
                           type="button"
@@ -2207,7 +2183,7 @@ export function ReviewSystem({
                           className="px-3.5 py-1.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-600 text-white font-bold text-xs shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer shrink-0"
                           title="Compartir en formato celular / story a redes sociales"
                         >
-                          <span>📱</span> Compartir Story
+                          <span><InterfaceText>{"📱"}</InterfaceText></span> Compartir Story
                         </button>
                       </div>
                     )}
@@ -2238,13 +2214,13 @@ export function ReviewSystem({
                             : 'hover:scale-[1.02] active:scale-95'
                         }`}
                       >
-                        {isSubmitting
+                        <InterfaceText>{isSubmitting
                           ? isEditing
                             ? '🔄 Actualizando Review...'
                             : '🔄 Enviando Review...'
                           : isEditing
                             ? '💾 Guardar Cambios de Review'
-                            : '📤 Enviar Review Definitiva'}
+                            : '📤 Enviar Review Definitiva'}</InterfaceText>
                       </button>
 
                       {isEditing ? (
@@ -2286,7 +2262,7 @@ export function ReviewSystem({
                         }}
                         className="text-xs text-white/30 hover:text-rose-300 hover:underline transition-colors font-medium inline-flex items-center gap-1.5 py-1"
                       >
-                        <span>🗑️</span> Reiniciar todas las respuestas
+                        <span><InterfaceText>{"🗑️"}</InterfaceText></span> Reiniciar todas las respuestas
                       </button>
                     </div>
                   </div>
@@ -2300,9 +2276,7 @@ export function ReviewSystem({
             onClick={() => setShowReviewForm(true)}
             className="w-full py-4 bg-linear-to-r from-[#f5576c]/20 via-[#f093fb]/20 to-[#f5576c]/20 hover:from-[#f5576c]/30 hover:via-[#f093fb]/30 hover:to-[#f5576c]/30 border border-[#f5576c]/40 hover:border-[#f5576c]/70 rounded-2xl text-white hover:shadow-xl hover:shadow-[#f5576c]/15 transition-all text-sm font-bold flex items-center justify-center gap-2.5 group"
           >
-            <span className="text-lg group-hover:scale-125 transition-transform">
-              ✍️
-            </span>
+            <span className="text-lg group-hover:scale-125 transition-transform"><InterfaceText>{" ✍️ "}</InterfaceText></span>
             <span>Dejar tu Review para este Álbum</span>
           </button>
         )}
@@ -2318,19 +2292,19 @@ export function ReviewSystem({
               <h4 className="text-white/90 text-sm font-bold tracking-wider uppercase flex items-center gap-2">
                 {isIndividual ? (
                   <div className="flex items-center gap-2 bg-linear-to-r from-blue-500/20 via-cyan-500/20 to-blue-500/10 px-3 py-1 rounded-full border border-blue-400/30 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-                    <span className="animate-pulse">📌</span>
+                    <span className="animate-pulse"><InterfaceText>{"📌"}</InterfaceText></span>
                     <span className="font-semibold text-xs tracking-wider uppercase">
                       Reviews de Álbum Individual
                     </span>
                   </div>
                 ) : isFromSpotify ? (
                   <>
-                    <span className="text-[#f5576c]">🎵</span>
+                    <span className="text-[#f5576c]"><InterfaceText>{"🎵"}</InterfaceText></span>
                     <span className="text-white/80">Reviews de la Comunidad</span>
                   </>
                 ) : (
                   <>
-                    <span className="text-[#f5576c]">🎧</span>
+                    <span className="text-[#f5576c]"><InterfaceText>{"🎧"}</InterfaceText></span>
                     <span className="text-white/80">Reviews del Club</span>
                   </>
                 )}
@@ -2346,8 +2320,7 @@ export function ReviewSystem({
                     ? 'text-cyan-300 bg-cyan-500/10 border-cyan-400/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
                     : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
                 }`}
-              >
-                ★ {Number(average).toFixed(1)}/10 Promedio General
+              ><InterfaceText>{" ★ "}</InterfaceText>{Number(average).toFixed(1)}/10 Promedio General
               </span>
             )}
           </div>
@@ -2434,9 +2407,9 @@ export function ReviewSystem({
                               className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
                               title={emo.description}
                             >
-                              <span className="text-xl">{emo.emoji}</span>
+                              <span className="text-xl"><InterfaceText>{emo.emoji}</InterfaceText></span>
                               <span className="hidden sm:inline">
-                                {emo.label}
+                                <InterfaceText>{emo.label}</InterfaceText>
                               </span>
                             </span>
                           ) : null;
@@ -2447,8 +2420,7 @@ export function ReviewSystem({
                               ? 'text-cyan-300 bg-cyan-500/15 border-cyan-400/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
                               : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
                           }`}
-                        >
-                          ★ {avg}
+                        ><InterfaceText>{" ★ "}</InterfaceText>{avg}
                         </span>
                       </div>
                     </div>
@@ -2472,7 +2444,7 @@ export function ReviewSystem({
                       return (
                         <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
                           <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-sm">⭐</span>
+                            <span className="text-sm"><InterfaceText>{"⭐"}</InterfaceText></span>
                             <span className="text-amber-400/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
                               Canción Favorita:
                             </span>
@@ -2508,7 +2480,7 @@ export function ReviewSystem({
                                   : 'text-white/30 bg-white/5 border-white/5'
                               }`}
                             >
-                              {label}: {review[key]}
+                              <InterfaceText>{label}</InterfaceText>: {review[key]}
                             </span>
                           )
                       )}
@@ -2517,7 +2489,7 @@ export function ReviewSystem({
                     {Object.keys(trackRatingsData).length > 0 && (
                       <div className="mt-2.5 pt-2 border-t border-white/10">
                         <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <span>🎵</span> Reviews por canción:
+                          <span><InterfaceText>{"🎵"}</InterfaceText></span> Reviews por canción:
                         </p>
                         <div className="flex flex-wrap gap-1">
                           {Object.entries(trackRatingsData).map(
@@ -2545,7 +2517,7 @@ export function ReviewSystem({
                                       : 'bg-black/40 border-white/10 text-white/70'
                                   }`}
                                 >
-                                  <span>{isFav ? '⭐' : '🎵'}</span>
+                                  <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
                                   <span
                                     translate="no"
                                     className="notranslate track-name max-w-[120px] truncate"
@@ -2555,8 +2527,7 @@ export function ReviewSystem({
                                   </span>
                                   <span
                                     className={`font-mono font-bold ${isFav ? 'text-amber-300' : 'text-emerald-300'}`}
-                                  >
-                                    ★ {rating}
+                                  ><InterfaceText>{" ★ "}</InterfaceText>{rating}
                                   </span>
                                 </span>
                               );

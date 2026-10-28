@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 // src/pages/CoverRatingsPage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import {
@@ -653,8 +654,7 @@ export function CoverRatingsPage() {
               </div>
 
               <div className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-                <span className="block text-xl sm:text-2xl font-black text-amber-300">
-                  ⭐ {globalCoverMetrics.avg}
+                <span className="block text-xl sm:text-2xl font-black text-amber-300"><InterfaceText>{" ⭐ "}</InterfaceText>{globalCoverMetrics.avg}
                 </span>
                 <span className="text-[10px] text-white/50 uppercase font-semibold tracking-wider">
                   Promedio Visual
@@ -677,7 +677,7 @@ export function CoverRatingsPage() {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span>🎨</span>
+                <span><InterfaceText>{"🎨"}</InterfaceText></span>
                 <span>Taller de Calificación</span>
               </button>
 
@@ -690,7 +690,7 @@ export function CoverRatingsPage() {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span>🏆</span>
+                <span><InterfaceText>{"🏆"}</InterfaceText></span>
                 <span>Salón de la Fama</span>
                 {hallOfFameList.length > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-black">
@@ -708,7 +708,7 @@ export function CoverRatingsPage() {
                     : 'text-white/60 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <span>👤</span>
+                <span><InterfaceText>{"👤"}</InterfaceText></span>
                 <span>Mis Calificaciones</span>
                 {myRatedCoversList.length > 0 && (
                   <span className="px-1.5 py-0.2 rounded-full bg-white/20 text-[10px] font-black">
@@ -740,7 +740,7 @@ export function CoverRatingsPage() {
                   title="Rebarajar el orden de todas las portadas aleatoriamente"
                   className="px-3.5 py-1.5 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-200 text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
-                  <span>🔀</span>
+                  <span><InterfaceText>{"🔀"}</InterfaceText></span>
                   <span>Rebarajar</span>
                 </button>
 
@@ -749,7 +749,7 @@ export function CoverRatingsPage() {
                   onClick={handleRandomAlbum}
                   className="px-3.5 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-purple-200 text-xs font-bold transition-all hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
                 >
-                  <span>🎲</span>
+                  <span><InterfaceText>{"🎲"}</InterfaceText></span>
                   <span>Portada Aleatoria</span>
                 </button>
 
@@ -761,9 +761,7 @@ export function CoverRatingsPage() {
                     placeholder="Buscar release..."
                     className="w-32 sm:w-40 px-2.5 py-1.5 pl-7 text-xs rounded-xl bg-black/40 border border-white/15 text-white placeholder-white/40 focus:outline-none focus:border-pink-500/50"
                   />
-                  <span className="absolute left-2 top-2 text-white/40 text-xs pointer-events-none">
-                    🔍
-                  </span>
+                  <span className="absolute left-2 top-2 text-white/40 text-xs pointer-events-none"><InterfaceText>{" 🔍 "}</InterfaceText></span>
                   {searchFilter && (
                     <button
                       type="button"
@@ -797,7 +795,7 @@ export function CoverRatingsPage() {
               </div>
             ) : curatorPool.length === 0 ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-4">
-                <span className="text-5xl block">🎉</span>
+                <span className="text-5xl block"><InterfaceText>{"🎉"}</InterfaceText></span>
                 <h3 className="text-xl font-bold text-white">
                   ¡No hay portadas en este filtro!
                 </h3>
@@ -840,12 +838,12 @@ export function CoverRatingsPage() {
                       {/* Badges superiores sobre la portada */}
                       <div className="absolute top-4 left-4 flex items-center gap-2">
                         <span className="px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-[11px] font-black uppercase tracking-wider shadow-lg">
-                          {currentAlbum.release_type === 'EP'
+                          <InterfaceText>{currentAlbum.release_type === 'EP'
                             ? '💽 EP'
                             : currentAlbum.release_type === 'SENCILLO' ||
                                 currentAlbum.release_type === 'SINGLE'
                               ? '🎵 Sencillo'
-                              : '💿 Álbum'}
+                              : '💿 Álbum'}</InterfaceText>
                         </span>
                         {currentAlbum.release_year && (
                           <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white/80 text-[11px] font-semibold">
@@ -861,7 +859,7 @@ export function CoverRatingsPage() {
                         className="absolute bottom-4 right-4 px-3.5 py-2 rounded-xl bg-black/80 hover:bg-black/95 text-white/90 hover:text-white border border-white/20 backdrop-blur-md text-xs font-bold transition-all shadow-xl hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
                         title="Ampliar a pantalla completa sin distracciones"
                       >
-                        <span>🔍</span>
+                        <span><InterfaceText>{"🔍"}</InterfaceText></span>
                         <span>Modo Museo</span>
                       </button>
 
@@ -909,7 +907,7 @@ export function CoverRatingsPage() {
                   {curatorPool.length > 1 && (
                     <div className="w-full max-w-[540px] mt-3 p-2.5 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md">
                       <div className="flex items-center justify-between px-1 pb-1.5 text-[10px] text-white/50 font-bold uppercase tracking-wider">
-                        <span>🎲 Cola Aleatoria</span>
+                        <span><InterfaceText>{"🎲 Cola Aleatoria"}</InterfaceText></span>
                         <span>{curatorPool.length} en rotación</span>
                       </div>
                       <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-0.5 no-scrollbar scroll-smooth">
@@ -987,7 +985,7 @@ export function CoverRatingsPage() {
                     <div className="pt-3 mt-3 border-t border-white/10 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-amber-400/15 border border-amber-400/30 text-amber-300 text-sm font-black shadow-sm">
-                          <span>⭐</span>
+                          <span><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span>
                             {currentAlbumStats?.avgRating
                               ? Number(currentAlbumStats.avgRating).toFixed(1)
@@ -1022,7 +1020,7 @@ export function CoverRatingsPage() {
                   >
                     <div className="flex items-center justify-between">
                       <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                        <span>⭐</span>
+                        <span><InterfaceText>{"⭐"}</InterfaceText></span>
                         <span>
                           {currentUserRating
                             ? 'Tu Calificación de Portada'
@@ -1037,7 +1035,7 @@ export function CoverRatingsPage() {
                           <span
                             className={`text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full border ${badge.color}`}
                           >
-                            {badge.label}
+                            <InterfaceText>{badge.label}</InterfaceText>
                           </span>
                         );
                       })()}
@@ -1100,7 +1098,7 @@ export function CoverRatingsPage() {
                     <div className="space-y-2 pt-2 border-t border-white/10">
                       <div className="flex items-center justify-between">
                         <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
-                          <span>🏷️</span>
+                          <span><InterfaceText>{"🏷️"}</InterfaceText></span>
                           <span>
                             Estilo Visual & Tags (Selecciona hasta 4):
                           </span>
@@ -1125,7 +1123,7 @@ export function CoverRatingsPage() {
                                   : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10'
                               }`}
                             >
-                              <span>{tag.label}</span>
+                              <span><InterfaceText>{tag.label}</InterfaceText></span>
                             </button>
                           );
                         })}
@@ -1135,7 +1133,7 @@ export function CoverRatingsPage() {
                     {/* Comentario / Micro-crítica visual */}
                     <div className="space-y-1.5 pt-2 border-t border-white/10">
                       <label className="text-xs font-semibold text-white/80 flex items-center gap-1.5">
-                        <span>💬</span>
+                        <span><InterfaceText>{"💬"}</InterfaceText></span>
                         <span>Micro-Crítica Visual (Opcional):</span>
                       </label>
                       <textarea
@@ -1157,7 +1155,7 @@ export function CoverRatingsPage() {
                         }`}
                       >
                         <span>
-                          {submitFeedback.type === 'success' ? '✓' : '⚠️'}
+                          <InterfaceText>{submitFeedback.type === 'success' ? '✓' : '⚠️'}</InterfaceText>
                         </span>
                         <span>{submitFeedback.text}</span>
                       </div>
@@ -1170,7 +1168,7 @@ export function CoverRatingsPage() {
                         disabled={isSubmitting}
                         className="w-full sm:flex-1 py-3 px-5 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-black text-xs sm:text-sm shadow-xl shadow-pink-500/25 hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                       >
-                        <span>✨</span>
+                        <span><InterfaceText>{"✨"}</InterfaceText></span>
                         <span>
                           {isSubmitting
                             ? 'Guardando...'
@@ -1207,7 +1205,7 @@ export function CoverRatingsPage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl">
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
-                  <span>🏆</span>
+                  <span><InterfaceText>{"🏆"}</InterfaceText></span>
                   <span>Salón de la Fama de Portadas</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-white/60">
@@ -1223,9 +1221,9 @@ export function CoverRatingsPage() {
                   onChange={(e) => setHallSortBy(e.target.value)}
                   className="px-3 py-1.5 rounded-xl bg-black/50 border border-white/15 text-white text-xs font-semibold focus:outline-none focus:border-pink-500"
                 >
-                  <option value="score">⭐ Mayor Calificación</option>
-                  <option value="votes">🗳️ Más Votadas</option>
-                  <option value="recent">⏱️ Calificadas Recientemente</option>
+                  <option value="score"> Mayor Calificación</option>
+                  <option value="votes"> Más Votadas</option>
+                  <option value="recent"> Calificadas Recientemente</option>
                 </select>
 
                 <select
@@ -1233,7 +1231,7 @@ export function CoverRatingsPage() {
                   onChange={(e) => setHallTagFilter(e.target.value)}
                   className="px-3 py-1.5 rounded-xl bg-black/50 border border-white/15 text-white text-xs font-semibold focus:outline-none focus:border-pink-500"
                 >
-                  <option value="ALL">🏷️ Todos los Estilos</option>
+                  <option value="ALL"> Todos los Estilos</option>
                   {AESTHETIC_TAGS.map((t) => (
                     <option key={t.id} value={t.id}>
                       {t.label}
@@ -1253,7 +1251,7 @@ export function CoverRatingsPage() {
               </div>
             ) : hallOfFameList.length === 0 ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-3">
-                <span className="text-4xl block">🖼️</span>
+                <span className="text-4xl block"><InterfaceText>{"🖼️"}</InterfaceText></span>
                 <h3 className="text-lg font-bold text-white">
                   Aún no hay portadas en este criterio
                 </h3>
@@ -1299,7 +1297,7 @@ export function CoverRatingsPage() {
                         />
                         {/* Score Pill */}
                         <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md border border-amber-400/40 text-[11px] font-black text-amber-300 shadow-md flex items-center gap-1">
-                          <span>⭐</span>
+                          <span><InterfaceText>{"⭐"}</InterfaceText></span>
                           <span>{Number(item.avgRating).toFixed(1)}</span>
                         </div>
                         {/* Rank Badge */}
@@ -1348,7 +1346,7 @@ export function CoverRatingsPage() {
           <section className="my-6 text-left animate-fadeIn space-y-6">
             {!user ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-4">
-                <span className="text-5xl block">👤</span>
+                <span className="text-5xl block"><InterfaceText>{"👤"}</InterfaceText></span>
                 <h3 className="text-xl font-bold text-white">
                   Inicia sesión para ver tu colección
                 </h3>
@@ -1366,7 +1364,7 @@ export function CoverRatingsPage() {
               </div>
             ) : myRatedCoversList.length === 0 ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-3">
-                <span className="text-4xl block">🎨</span>
+                <span className="text-4xl block"><InterfaceText>{"🎨"}</InterfaceText></span>
                 <h3 className="text-lg font-bold text-white">
                   Aún no has calificado ninguna portada
                 </h3>
@@ -1424,8 +1422,7 @@ export function CoverRatingsPage() {
                             {artist}
                           </p>
                           <div className="pt-1 flex items-center gap-1.5">
-                            <span className="px-2 py-0.5 rounded-md bg-pink-500/20 text-pink-300 text-xs font-black border border-pink-500/30">
-                              ⭐ {Number(userRating.rating).toFixed(1)}
+                            <span className="px-2 py-0.5 rounded-md bg-pink-500/20 text-pink-300 text-xs font-black border border-pink-500/30"><InterfaceText>{" ⭐ "}</InterfaceText>{Number(userRating.rating).toFixed(1)}
                             </span>
                           </div>
                         </div>

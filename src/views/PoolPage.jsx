@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
@@ -407,9 +408,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-full shadow-lg border border-white/20">
-                    🏆 EN FOCO SEMANAL
-                  </div>
+                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-full shadow-lg border border-white/20"><InterfaceText>{" 🏆 EN FOCO SEMANAL "}</InterfaceText></div>
                 </div>
 
                 {/* Info & Direct Actions */}
@@ -531,7 +530,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                       )}
                       className="px-3.5 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/30 text-xs font-bold text-pink-300 transition-all flex items-center gap-1.5 hover:scale-105"
                     >
-                      <span>🔍</span>
+                      <span><InterfaceText>{"🔍"}</InterfaceText></span>
                       <span>Ver Release</span>
                     </Link>
                     <ListenLaterButton album={winner} />
@@ -550,7 +549,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                         }}
                         className="px-5 py-2.5 rounded-xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
                       >
-                        <span>⭐</span>
+                        <span><InterfaceText>{"⭐"}</InterfaceText></span>
                         <span>
                           {showWinnerReviewModal
                             ? '✕ Cerrar Panel de Reseña'
@@ -564,16 +563,13 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                         className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 font-bold text-xs sm:text-sm flex items-center gap-2 opacity-60 cursor-not-allowed shadow-none select-none"
                         title="Las calificaciones para este disco no están habilitadas en este momento."
                       >
-                        <span>🔒</span>
+                        <span><InterfaceText>{"🔒"}</InterfaceText></span>
                         <span>Reseñas Pausadas</span>
                       </button>
                     )}
 
                     {!winner.reviews_enabled && (
-                      <span className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
-                        🔒 Las calificaciones para este disco no están
-                        habilitadas por la administración.
-                      </span>
+                      <span className="text-[11px] text-amber-300/90 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl"><InterfaceText>{" 🔒 Las calificaciones para este disco no están habilitadas por la administración. "}</InterfaceText></span>
                     )}
 
                     {isAdmin && (
@@ -584,20 +580,18 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                           disabled={togglingReviews}
                           className="text-xs px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer"
                         >
-                          {togglingReviews
+                          <InterfaceText>{togglingReviews
                             ? '...'
                             : winner.reviews_enabled
                               ? '🔒 Pausar Reviews'
-                              : '✅ Habilitar Reviews'}
+                              : '✅ Habilitar Reviews'}</InterfaceText>
                         </button>
 
                         <button
                           type="button"
                           onClick={handleArchiveWinner}
                           className="text-xs px-3.5 py-2 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 hover:text-white transition-all cursor-pointer"
-                        >
-                          📦 Graduar y Archivar Semana
-                        </button>
+                        ><InterfaceText>{" 📦 Graduar y Archivar Semana "}</InterfaceText></button>
                       </>
                     )}
                   </div>
@@ -626,7 +620,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                 <div className="mt-6 pt-6 border-t border-white/10 animate-fadeIn">
                   <div className="flex items-center justify-between pb-3">
                     <h4 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
-                      <span>⭐</span>
+                      <span><InterfaceText>{"⭐"}</InterfaceText></span>
                       <span>Tu Calificación para el Ganador de la Semana</span>
                     </h4>
                     <button
@@ -654,7 +648,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
           </section>
         ) : (
           <div className="p-8 rounded-3xl bg-white/5 border border-white/10 text-center space-y-4">
-            <span className="text-4xl">🎰</span>
+            <span className="text-4xl"><InterfaceText>{"🎰"}</InterfaceText></span>
             <h3 className="text-xl font-bold text-white">
               No hay un disco ganador seleccionado actualmente
             </h3>
@@ -673,7 +667,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
               to={`/gashapon?pool=${encodeURIComponent(season.id)}`}
               className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-linear-to-r from-pink-500 to-purple-500 text-white font-bold text-sm shadow-lg hover:scale-105 transition-all"
             >
-              <span>🎲</span>
+              <span><InterfaceText>{"🎲"}</InterfaceText></span>
               <span>Explorar releases del Pool en Gashapon</span>
             </Link>}
           </div>
@@ -722,7 +716,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                         : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                     }`}
                   >
-                    <span>{tab.label}</span>
+                    <span><InterfaceText>{tab.label}</InterfaceText></span>
                     <span
                       className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                         isSelected
@@ -741,9 +735,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
           {/* Search & Actions Bar */}
           <div className="flex flex-col sm:flex-row gap-3 items-stretch justify-between">
             <div className="relative flex-1">
-              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm">
-                🔍
-              </span>
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400 text-sm"><InterfaceText>{" 🔍 "}</InterfaceText></span>
               <input
                 type="text"
                 placeholder="Filtrar por disco, artista o quién propuso..."
@@ -759,7 +751,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                 onClick={() => setShowSlotMachine((prev) => !prev)}
                 className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span>🎰</span>
+                <span><InterfaceText>{"🎰"}</InterfaceText></span>
                 <span>
                   {showSlotMachine ? 'Ocultar Ruleta' : 'Ruleta del Pool'}
                 </span>
@@ -772,7 +764,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                   className="px-4 py-2.5 rounded-xl bg-white/[0.04] text-slate-500 border border-white/5 text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-60 select-none shadow-none"
                   title="El Pool se encuentra actualmente cerrado para nuevas propuestas"
                 >
-                  <span className="opacity-70">🔒</span>
+                  <span className="opacity-70"><InterfaceText>{"🔒"}</InterfaceText></span>
                   <span>{myEntry ? "Cápsula registrada" : "Proponer (Cerrado)"}</span>
                 </button>
               ) : (
@@ -781,7 +773,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                   onClick={openNomination}
                   className="px-4 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-600 text-white text-xs font-black transition-all flex items-center gap-1.5 shadow-md hover:scale-105 cursor-pointer"
                 >
-                  <span>➕</span>
+                  <span><InterfaceText>{"➕"}</InterfaceText></span>
                   <span>{myEntry ? "Editar mi cápsula" : "Proponer"}</span>
                 </button>
               )}
@@ -794,7 +786,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
               <div className="flex justify-between items-center">
                 <div className="space-y-0.5">
                   <h3 className="text-base font-black text-white flex items-center gap-2">
-                    <span>🎰</span> Máquina Musical del Pool Activo
+                    <span><InterfaceText>{"🎰"}</InterfaceText></span> Máquina Musical del Pool Activo
                   </h3>
                   <p className="text-xs text-slate-400">
                     Sorteo interactivo con los {slotMachinePool.length} discos
@@ -812,7 +804,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
 
               {slotMachinePool.length === 0 ? (
                 <div className="p-8 text-center bg-black/30 rounded-2xl border border-white/5 space-y-2">
-                  <span className="text-3xl">🎰</span>
+                  <span className="text-3xl"><InterfaceText>{"🎰"}</InterfaceText></span>
                   <p className="text-sm font-bold text-white">
                     No hay candidatos en el Pool para sortear
                   </p>
@@ -846,7 +838,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
           {/* Active Pool Cards Grid */}
           {filteredActivePool.length === 0 ? (
             <div className="p-12 rounded-3xl bg-white/5 border border-white/5 text-center space-y-2">
-              <span className="text-3xl">🔍</span>
+              <span className="text-3xl"><InterfaceText>{"🔍"}</InterfaceText></span>
               <p className="text-white font-bold text-sm">
                 No se encontraron propuestas con ese filtro
               </p>
@@ -892,7 +884,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
 
                   {/* Actions & Platform Badges */}
                   <div className="pt-2 mt-2 border-t border-white/5 flex flex-col gap-1.5">
-                    {alb.nominated_user_id === user?.id && <button type="button" disabled={!canEditMyEntry} onClick={openNomination} className="min-h-10 rounded-lg border border-pink-400/25 bg-pink-500/10 px-2 text-xs font-bold text-pink-200 hover:bg-pink-500/20 disabled:opacity-40" title={canEditMyEntry ? 'Cambiar el release o la nota de tu cápsula' : 'La edición está disponible mientras las propuestas estén abiertas'}>✎ Editar mi cápsula</button>}
+                    {alb.nominated_user_id === user?.id && <button type="button" disabled={!canEditMyEntry} onClick={openNomination} className="min-h-10 rounded-lg border border-pink-400/25 bg-pink-500/10 px-2 text-xs font-bold text-pink-200 hover:bg-pink-500/20 disabled:opacity-40" title={canEditMyEntry ? 'Cambiar el release o la nota de tu cápsula' : 'La edición está disponible mientras las propuestas estén abiertas'}><InterfaceText>{"✎ Editar mi cápsula"}</InterfaceText></button>}
                     {/* Quick Streaming Logos */}
                     <div className="flex items-center gap-1.5">
                       {(alb.spotifyLink || alb.spotify_link) && (
@@ -986,9 +978,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                           onClick={() => runPoolAction(() => selectWinner(alb.id))}
                           className="text-[10px] px-2 py-0.5 rounded bg-pink-500/20 text-pink-300 hover:bg-pink-500 hover:text-white transition-colors font-bold cursor-pointer"
                           title="Seleccionar como ganador semanal"
-                        >
-                          👑 Elegir
-                        </button>
+                        ><InterfaceText>{" 👑 Elegir "}</InterfaceText></button>
                       )}
                     </div>
                   </div>
@@ -1042,7 +1032,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                           className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[11px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
                           title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
                         >
-                          <span className="text-amber-400 text-xs">★</span>
+                          <span className="text-amber-400 text-xs"><InterfaceText>{"★"}</InterfaceText></span>
                           <span
                             translate="no"
                             className="notranslate tracking-tight"
@@ -1113,7 +1103,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                             className="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-lg bg-black/85 backdrop-blur-md text-[14px] font-black text-amber-300 border border-amber-400/35 flex items-center gap-1 shadow-lg shadow-black/50"
                             title={`Calificación promedio del club: ${Number(alb.final_rating || alb.avg_rating).toFixed(1)} / 10`}
                           >
-                            <span className="text-amber-400 text-xs">★</span>
+                            <span className="text-amber-400 text-xs"><InterfaceText>{"★"}</InterfaceText></span>
                             <span
                               translate="no"
                               className="notranslate tracking-tight"
@@ -1157,7 +1147,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
               <div className="flex items-center justify-between border-b border-white/10 pb-4">
                 <div>
                   <h3 id="pool-nomination-title" className="text-lg sm:text-xl font-black text-white flex items-center gap-2">
-                    <span>📥</span> {editingEntry ? "Editar mi cápsula" : "Proponer Lanzamiento al Pool"}
+                    <span><InterfaceText>{"📥"}</InterfaceText></span> {editingEntry ? "Editar mi cápsula" : "Proponer Lanzamiento al Pool"}
                   </h3>
                   <p className="text-xs text-slate-400 mt-0.5">
                     {season.name} &bull; Sorteo Semanal
@@ -1215,13 +1205,13 @@ function PoolRoomView({ room, onBack, onRefreshRooms }) {
                           src={
                             item.imageUrl ||
                             item.imagen ||
-                            'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵'
+                            '/musiclub_logo_corchea.png'
                           }
                           alt={item.albumName || item.album}
                           className="w-12 h-12 rounded-lg object-cover border border-white/10"
                           onError={(e) => {
                             e.target.src =
-                              'https://via.placeholder.com/100/1a1a2e/ffffff?text=🎵';
+                              '/musiclub_logo_corchea.png';
                           }}
                         />
                         <div className="min-w-0 flex-1">

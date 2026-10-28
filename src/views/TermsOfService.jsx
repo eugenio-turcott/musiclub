@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from '../components/UiIcon';
 // src/pages/TermsOfService.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
@@ -41,7 +42,7 @@ export function TermsOfService() {
             <div className="flex flex-col items-start md:items-end gap-3 shrink-0">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="px-3.5 py-2 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-center gap-2 shadow-xl">
-                  <span className="text-xs">🤝</span>
+                  <span className="text-xs"><InterfaceText>{"🤝"}</InterfaceText></span>
                   <div className="text-left">
                     <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
                       Comunidad

@@ -1,3 +1,4 @@
+import { InterfaceText } from '../UiIcon';
 import { GenreLabel } from '../GenreLabel';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -230,7 +231,7 @@ export function CatalogArtistsView({ albums = [] }) {
       <div className="bg-linear-to-r from-cyan-500/15 via-blue-500/10 to-indigo-500/10 border border-cyan-500/20 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-black uppercase tracking-wider">
-            <span>🎤</span>
+            <span><InterfaceText>{"🎤"}</InterfaceText></span>
             <span>Directorio de Artistas</span>
             <span className="text-white/40">•</span>
             <span className="text-cyan-200">
@@ -251,9 +252,7 @@ export function CatalogArtistsView({ albums = [] }) {
       {/* Search & Letter Filter */}
       <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-4 space-y-3 shadow-xl">
         <div className="relative">
-          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-            🔍
-          </span>
+          <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
           <input
             type="text"
             placeholder="Buscar artista por nombre o género..."
@@ -341,7 +340,7 @@ export function CatalogArtistsView({ albums = [] }) {
 
                   {/* Badges */}
                   <div className="mt-1 flex items-center gap-1 text-[11px] text-cyan-400 font-semibold">
-                    <span>💿</span>
+                    <span><InterfaceText>{"💿"}</InterfaceText></span>
                     <span>
                       {releasesCount > 0
                         ? `${releasesCount} en el Club`
@@ -392,8 +391,7 @@ export function CatalogArtistsView({ albums = [] }) {
 
           {visibleCount >= filteredArtists.length && filteredArtists.length > INITIAL_COUNT && (
             <div className="py-6 text-center border-t border-white/5">
-              <span className="text-xs text-slate-500 font-medium">
-                ✨ Has explorado todos los {filteredArtists.length} artistas de esta vista
+              <span className="text-xs text-slate-500 font-medium"><InterfaceText>{" ✨ Has explorado todos los "}</InterfaceText>{filteredArtists.length} artistas de esta vista
               </span>
             </div>
           )}

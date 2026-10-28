@@ -1,4 +1,5 @@
 'use client';
+import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect } from 'react';
@@ -207,9 +208,7 @@ export function UserSettings() {
   if (!user) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl mb-4 shadow-xl">
-          ⚙️
-        </div>
+        <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center text-4xl mb-4 shadow-xl"><InterfaceText>{" ⚙️ "}</InterfaceText></div>
         <h2 className="text-2xl font-bold text-white mb-2">Configuración del Perfil</h2>
         <p className="text-white/50 text-sm max-w-md mb-6">
           Debes iniciar sesión para editar tu perfil y preferencias personales.
@@ -246,7 +245,7 @@ export function UserSettings() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
           <div className="flex items-center gap-4">
             <div className="relative w-12 h-12 rounded-2xl bg-[#0e1022]/95 backdrop-blur-md border border-cyan-500/40 flex items-center justify-center shadow-xl shrink-0">
-              <span className="text-xl">⚙️</span>
+              <span className="text-xl"><InterfaceText>{"⚙️"}</InterfaceText></span>
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
@@ -273,9 +272,7 @@ export function UserSettings() {
             }}
             className="self-start sm:self-auto text-xs text-white/50 hover:text-white bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 transition-all font-medium active:scale-95"
             title="Descartar cambios no guardados y restaurar desde la base de datos"
-          >
-            🔄 Revertir cambios
-          </button>
+          ><InterfaceText>{" 🔄 Revertir cambios "}</InterfaceText></button>
         </div>
       </div>
 
@@ -284,7 +281,7 @@ export function UserSettings() {
         {/* SECCIÓN 1: FOTO DE PERFIL / AVATAR */}
         <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-5">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
-            <span>👤</span> Foto de Perfil / Avatar
+            <span><InterfaceText>{"👤"}</InterfaceText></span> Foto de Perfil / Avatar
           </h2>
 
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
@@ -297,7 +294,7 @@ export function UserSettings() {
                     alt="Preview"
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.target.src = 'https://via.placeholder.com/150/1a1a2e/ffffff?text=👤';
+                      e.target.src = '/musiclub_logo_corchea.png';
                     }}
                   />
                 ) : (
@@ -333,7 +330,7 @@ export function UserSettings() {
         {/* SECCIÓN 2: INFORMACIÓN PERSONAL BÁSICA */}
         <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
-            <span>📝</span> Información Básica
+            <span><InterfaceText>{"📝"}</InterfaceText></span> Información Básica
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -381,7 +378,7 @@ export function UserSettings() {
         {/* SECCIÓN 3: PREFERENCIAS Y GUSTOS MUSICALES */}
         <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
-            <span>🎧</span> Gustos e Identidad Musical
+            <span><InterfaceText>{"🎧"}</InterfaceText></span> Gustos e Identidad Musical
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -460,7 +457,7 @@ export function UserSettings() {
         {/* SECCIÓN 4: ENLACES SOCIALES Y STREAMING */}
         <div className="rounded-3xl p-6 bg-linear-to-br from-[#101322] to-[#080a14] border border-white/10 shadow-xl space-y-4">
           <h2 className="text-white font-bold text-base flex items-center gap-2">
-            <span>🔗</span> Enlaces de Redes y Música
+            <span><InterfaceText>{"🔗"}</InterfaceText></span> Enlaces de Redes y Música
           </h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -497,13 +494,13 @@ export function UserSettings() {
         {/* MENSAJES DE ESTADO */}
         {errorMessage && (
           <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs sm:text-sm flex items-center gap-2">
-            <span>⚠️</span> {errorMessage}
+            <span><InterfaceText>{"⚠️"}</InterfaceText></span> {errorMessage}
           </div>
         )}
 
         {successMessage && (
           <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs sm:text-sm flex items-center gap-2 animate-fadeIn">
-            <span>✅</span> {successMessage}
+            <span><InterfaceText>{"✅"}</InterfaceText></span> {successMessage}
           </div>
         )}
 
@@ -518,7 +515,7 @@ export function UserSettings() {
             }}
             className="w-full sm:w-auto text-xs text-white/40 hover:text-rose-300 transition-colors py-2 px-1 text-center font-medium inline-flex items-center justify-center gap-1"
           >
-            <span>🗑️</span> Descartar borrador
+            <span><InterfaceText>{"🗑️"}</InterfaceText></span> Descartar borrador
           </button>
 
           <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
@@ -543,7 +540,7 @@ export function UserSettings() {
                 </>
               ) : (
                 <>
-                  <span>💾</span> Guardar Configuración
+                  <span><InterfaceText>{"💾"}</InterfaceText></span> Guardar Configuración
                 </>
               )}
             </button>

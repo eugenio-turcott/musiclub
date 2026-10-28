@@ -1,3 +1,4 @@
+import { InterfaceText } from './UiIcon';
 import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
 import { MusiclubVinyl } from './MusiclubVinyl';
@@ -845,7 +846,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
         {/* Notificación discreta de error (solo si ocurre una falla real, sin popups intrusivos) */}
         {proposeError && (
           <div className="fixed bottom-6 right-6 z-50 bg-[#161828]/95 border border-rose-500/40 text-rose-200 text-xs font-medium px-4 py-3 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-2.5">
-            <span className="text-sm">⚠️</span>
+            <span className="text-sm"><InterfaceText>{"⚠️"}</InterfaceText></span>
             <span>{proposeError}</span>
             <button
               type="button"
@@ -899,8 +900,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               </span>
             </div>
             <p className="text-[11px] text-amber-300/80 font-medium mt-1">
-              Promedio: {globalStats.avgClubScore} ⭐ por álbum
-            </p>
+              Promedio: {globalStats.avgClubScore}<InterfaceText>{" ⭐ por álbum "}</InterfaceText></p>
           </div>
 
           <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-yellow-500/40 transition-all shadow-lg">
@@ -915,9 +915,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               </p>
             </div>
             <p className="text-[11px] text-yellow-200/80 font-semibold mt-1">
-              {globalStats.topRatedAlbum
+              <InterfaceText>{globalStats.topRatedAlbum
                 ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}`
-                : 'Sin calificar'}
+                : 'Sin calificar'}</InterfaceText>
             </p>
           </div>
         </div>
@@ -935,7 +935,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
-            <span className="text-base sm:text-lg">💿</span>
+            <span className="text-base sm:text-lg"><InterfaceText>{"💿"}</InterfaceText></span>
             <span>Releases</span>
           </button>
 
@@ -948,7 +948,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
-            <span className="text-base sm:text-lg">🎤</span>
+            <span className="text-base sm:text-lg"><InterfaceText>{"🎤"}</InterfaceText></span>
             <span>Artistas</span>
           </button>
 
@@ -961,7 +961,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 : 'bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white border-white/5'
             }`}
           >
-            <span className="text-base sm:text-lg">🏷️</span>
+            <span className="text-base sm:text-lg"><InterfaceText>{"🏷️"}</InterfaceText></span>
             <span>Géneros</span>
           </button>
         </div>
@@ -1005,7 +1005,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               ref={catalogExplorerRef}
               className="flex items-center gap-3 pt-6 border-t border-white/10 scroll-mt-0"
             >
-              <span className="text-2xl">📚</span>
+              <span className="text-2xl"><InterfaceText>{"📚"}</InterfaceText></span>
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-white">
                   Explorador de Catálogo y Colección
@@ -1023,7 +1023,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             <div className="bg-[#151722]/95 border border-white/10 rounded-2xl p-3.5 sm:p-4 backdrop-blur-md shadow-xl relative space-y-3">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-sm">📅</span>
+                  <span className="text-sm"><InterfaceText>{"📅"}</InterfaceText></span>
                   <span className="text-xs sm:text-sm font-black text-white tracking-wide uppercase">
                     Años y Décadas
                   </span>
@@ -1305,9 +1305,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
             {/* Buscador visible también cuando los filtros móviles están cerrados */}
                 <div className="relative flex-1 w-full min-w-[200px]">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400">
-                    🔍
-                  </span>
+                  <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-slate-400"><InterfaceText>{" 🔍 "}</InterfaceText></span>
                   <input
                     id="buscar-catalogo"
                     aria-label="Buscar álbum, artista o curador en el catálogo"
@@ -1337,7 +1335,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                 className="w-full py-3 px-4 rounded-2xl bg-linear-to-r from-[#17192b] via-[#1b1e33] to-[#17192b] border border-cyan-500/40 text-cyan-200 text-xs font-black flex items-center justify-between shadow-xl active:scale-[0.98] transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-base">🎛️</span>
+                  <span className="text-base"><InterfaceText>{"🎛️"}</InterfaceText></span>
                   <span className="text-white font-black tracking-wide">
                     {mobileFiltersOpen ? 'Ocultar Filtros de Catálogo' : 'Filtros y Formato del Catálogo'}
                   </span>
@@ -1347,9 +1345,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                     </span>
                   )}
                   {browseFilter !== 'ALL' && (
-                    <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-black">
-                      ⭐ Club
-                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-blue-500 text-white text-[10px] font-black"><InterfaceText>{" ⭐ Club "}</InterfaceText></span>
                   )}
                 </div>
                 <span className="text-cyan-400 text-xs font-bold bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-1 rounded-xl">
@@ -1363,13 +1359,13 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               {/* Format / Tipo de Lanzamiento Bar */}
               <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm">💽</span>
+                  <span className="text-sm"><InterfaceText>{"💽"}</InterfaceText></span>
                   <span className="text-xs sm:text-sm font-black text-white uppercase tracking-wider">
                     Formato
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  {[
+                  <InterfaceText>{[
                     {
                       id: 'ALL',
                       label: 'Todos',
@@ -1443,8 +1439,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                         }`}
                       >
-                        <span>{fmt.icon}</span>
-                        <span>{fmt.label}</span>
+                        <span><InterfaceText>{fmt.icon}</InterfaceText></span>
+                        <span><InterfaceText>{fmt.label}</InterfaceText></span>
                         <span
                           className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
                             isSelected
@@ -1456,7 +1452,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                         </span>
                       </button>
                     );
-                  })}
+                  })}</InterfaceText>
                 </div>
               </div>
 
@@ -1464,7 +1460,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               <div className="bg-[#12141F]/90 border border-white/10 rounded-2xl p-3.5 sm:p-5 flex flex-col lg:flex-row gap-3 sm:gap-4 justify-between items-stretch lg:items-center shadow-xl">
                 {/* Musiclub Hybrid Browse Pills */}
                 <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-                  {[
+                  <InterfaceText>{[
                     {
                       id: 'ALL',
                       label: 'Todo el Catálogo',
@@ -1493,8 +1489,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             : 'bg-white/5 hover:bg-white/10 text-slate-300 border-white/5'
                         }`}
                       >
-                        <span>{tab.icon}</span>
-                        <span>{tab.label}</span>
+                        <span><InterfaceText>{tab.icon}</InterfaceText></span>
+                        <span><InterfaceText>{tab.label}</InterfaceText></span>
                         <span
                           className={`text-[10px] px-1.5 py-0.2 rounded-full font-black ${
                             active
@@ -1506,7 +1502,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                         </span>
                       </button>
                     );
-                  })}
+                  })}</InterfaceText>
                 </div>
 
                 {/* Sorting */}
@@ -1519,12 +1515,12 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                     onChange={(e) => setSortBy(e.target.value)}
                     className="w-full sm:w-auto bg-black/60 border border-white/10 rounded-xl text-xs text-white px-3 py-2.5 focus:outline-none focus:border-cyan-400/70 cursor-pointer font-medium"
                   >
-                    <option value="rating_desc">🌟 Mayor Calificación</option>
-                    <option value="rating_asc">📉 Menor Calificación</option>
-                    <option value="reviews_desc">📝 Más Reseñas</option>
-                    <option value="newest">🕒 Más Recientes</option>
-                    <option value="name_asc">🔤 Álbum (A-Z)</option>
-                    <option value="artist_asc">🎤 Artista (A-Z)</option>
+                    <option value="rating_desc"> Mayor Calificación</option>
+                    <option value="rating_asc"> Menor Calificación</option>
+                    <option value="reviews_desc"> Más Reseñas</option>
+                    <option value="newest"> Más Recientes</option>
+                    <option value="name_asc"> Álbum (A-Z)</option>
+                    <option value="artist_asc"> Artista (A-Z)</option>
                   </select>
                 </div>
               </div>
@@ -1638,16 +1634,14 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
                           <div className="absolute top-2 right-2 z-10 flex items-center gap-1">
                             {album.is_trending && score === null && (
-                              <span className="bg-linear-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40">
-                                🔥 Tendencia 2026
-                              </span>
+                              <span className="bg-linear-to-r from-orange-500 to-amber-500 text-black font-black text-[9px] px-2 py-0.5 rounded-full shadow-lg flex items-center gap-1 border border-amber-300/40"><InterfaceText>{" 🔥 Tendencia 2026 "}</InterfaceText></span>
                             )}
                             {score !== null && (
                               <div className="flex items-center gap-1 bg-black/80 backdrop-blur-md border border-amber-500/40 px-2 py-0.5 rounded-lg shadow-sm">
                                 <span className="text-amber-400 text-xs font-black">
                                   {score.toFixed(2)}
                                 </span>
-                                <span className="text-[10px]">⭐</span>
+                                <span className="text-[10px]"><InterfaceText>{"⭐"}</InterfaceText></span>
                               </div>
                             )}
                           </div>
@@ -1668,9 +1662,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                             </div>
 
                             <div className="text-[10px] sm:text-[11px] text-slate-300 bg-black/70 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-lg font-medium">
-                              {isCardInClub
+                              <InterfaceText>{isCardInClub
                                 ? `📝 ${album.review_count || 0}`
-                                : album.is_external_spotify ? <a href={album.spotify_link} target="_blank" rel="noopener noreferrer" onClick={event=>event.stopPropagation()} onKeyDown={event=>event.stopPropagation()} className="inline-flex items-center gap-1 text-emerald-300" aria-label={`Abrir ${album.album_name} en Spotify`}><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.5 17.3a.75.75 0 0 1-1 .3c-2.7-1.6-6.1-2-10.1-1.1a.75.75 0 1 1-.3-1.5c4.4-1 8.2-.6 11.1 1.2.4.2.5.7.3 1.1Zm1.4-3a.94.94 0 0 1-1.3.3C14.5 12.7 10 12.1 6.4 13a.94.94 0 0 1-.4-1.8c4.1-1.1 9.1-.4 12.6 1.8.4.3.6.8.3 1.3Zm.1-3.2C15.3 8.9 9.2 8.7 5.7 9.8a1.13 1.13 0 0 1-.7-2.2c4.1-1.3 10.9-1.1 15.2 1.5a1.13 1.13 0 1 1-1.2 2Z" /></svg>Spotify ↗</a> : '⚡ En vivo'}
+                                : album.is_external_spotify ? <a href={album.spotify_link} target="_blank" rel="noopener noreferrer" onClick={event=>event.stopPropagation()} onKeyDown={event=>event.stopPropagation()} className="inline-flex items-center gap-1 text-emerald-300" aria-label={`Abrir ${album.album_name} en Spotify`}><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24Zm5.5 17.3a.75.75 0 0 1-1 .3c-2.7-1.6-6.1-2-10.1-1.1a.75.75 0 1 1-.3-1.5c4.4-1 8.2-.6 11.1 1.2.4.2.5.7.3 1.1Zm1.4-3a.94.94 0 0 1-1.3.3C14.5 12.7 10 12.1 6.4 13a.94.94 0 0 1-.4-1.8c4.1-1.1 9.1-.4 12.6 1.8.4.3.6.8.3 1.3Zm.1-3.2C15.3 8.9 9.2 8.7 5.7 9.8a1.13 1.13 0 0 1-.7-2.2c4.1-1.3 10.9-1.1 15.2 1.5a1.13 1.13 0 1 1-1.2 2Z" /></svg>Spotify ↗</a> : '⚡ En vivo'}</InterfaceText>
                             </div>
                           </div>
                         </div>
@@ -1698,9 +1692,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                           {album.best_track && (
                             <div className="bg-white/5 border border-white/5 rounded-xl p-2 text-xs flex items-center justify-between mt-auto">
                               <div className="flex items-center gap-1 min-w-0 pr-1">
-                                <span className="text-amber-400 text-[10px]">
-                                  👑
-                                </span>
+                                <span className="text-amber-400 text-[10px]"><InterfaceText>{" 👑 "}</InterfaceText></span>
                                 <span
                                   translate="no"
                                   className="notranslate track-name text-slate-300 truncate text-[10px] sm:text-[11px]"
@@ -1709,18 +1701,17 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                 </span>
                               </div>
                               <span className="text-amber-300 font-bold text-[10px] sm:text-[11px] whitespace-nowrap">
-                                {album.best_track.avg_rating} ⭐
-                              </span>
+                                {album.best_track.avg_rating}<InterfaceText>{" ⭐ "}</InterfaceText></span>
                             </div>
                           )}
 
                           {/* Action Button at bottom of card */}
-                          <div className="pt-2 border-t border-white/5 mt-auto grid grid-cols-2 gap-2 sm:grid-cols-1">
+                          <div className="release-card-actions pt-2 border-t border-white/5 mt-auto grid grid-cols-2 gap-2">
                             {isCardInClub ? (
-                              <div className="min-h-11 w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
-                                <span>🎧</span>
+                              <Link to={clubUrl} onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()} className="release-action-tile min-h-11 w-full py-1.5 px-3 rounded-xl bg-white/5 group-hover:bg-cyan-500/20 text-slate-300 group-hover:text-cyan-300 text-xs font-bold flex items-center justify-center gap-1.5 transition-all border border-transparent group-hover:border-cyan-500/30">
+                                <span><InterfaceText>{"🎧"}</InterfaceText></span>
                                 <span>Ver {getCatalogReleaseLabel(album.release_type || album.releaseType)}</span>
-                              </div>
+                              </Link>
                             ) : (
                               <button
                                 type="button"
@@ -1730,7 +1721,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                   handleQuickPropose(album);
                                 }}
                                 disabled={isProposing}
-                                className={`w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
+                                className={`release-action-tile w-full py-2 px-3 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-60 shadow-sm ${
                                   isProposing
                                     ? 'bg-orange-500/30 text-orange-200 border border-orange-400/50'
                                     : 'bg-linear-to-r from-orange-500/20 to-amber-500/20 hover:from-orange-500 hover:to-amber-500 text-orange-300 hover:text-black border border-orange-500/40 hover:border-amber-400'
@@ -1758,16 +1749,16 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
                                     />
                                   </svg>
                                 ) : (
-                                  <span>✍️</span>
+                                  <span><InterfaceText>{"✍️"}</InterfaceText></span>
                                 )}
                                 <span>
                                   {isProposing
                                     ? 'Abriendo...'
-                                    : album.is_external_spotify ? `Ver ${getCatalogReleaseLabel(album.release_type)} en Musiclub` : 'Reseñar en Club'}
+                                    : album.is_external_spotify ? `Ver ${getCatalogReleaseLabel(album.release_type)} en Musiclub` : 'Reseñar'}
                                 </span>
                               </button>
                             )}
-                            <ListenLaterButton album={album} />
+                            <ListenLaterButton album={album} tile />
                           </div>
                         </div>
                       </div>
