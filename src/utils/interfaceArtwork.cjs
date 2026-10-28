@@ -809,4 +809,8 @@ const ICON_FILLS = {
   "brain": "<path d=\"M12 3C9 0 5 3 6 6 1 6 0 11 4 13 0 18 6 23 9 20c2 3 3 1 3-2V3ZM12 3c3-3 7 0 6 3 5 0 6 5 2 7 4 5-2 10-5 7-2 3-3 1-3-2M6 6v3l3 2M4 13l4 1v3M18 6v3l-3 2M20 13l-4 1v3\"/>",
   "ten": "<path d=\"m2 8 3-3v15M11 5h10v15H11Z\"/>"
 };
+// Three circular arrows for the quick selector; separate from shuffle and repeat.
+ICON_BODIES.cycle = '<path d="M8 3.8A9 9 0 0 1 21 12M20 16a9 9 0 0 1-13 4M4 17a9 9 0 0 1 3-13"/><path d="m18 9 3 3 2-4M10 18l-3 2 0 3M3 5l4-1 1 4"/>';
+ICON_COLORS.cycle = '#f9a8d4';
+ICON_FILLS.cycle = '<path d="m18 9 3 3 2-4M10 18l-3 2 0 3M3 5l4-1 1 4"/>';
 module.exports = { ICON_BODIES, ICON_COLORS, ICON_FILLS };

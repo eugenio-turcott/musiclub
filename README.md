@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 9.40.0 · **Última actualización:** 27 de octubre de 2026.
+**Versión:** 9.41.0 · **Última actualización:** 27 de octubre de 2026.
 
 ## Qué incluye
 
@@ -19,7 +19,7 @@
 
 Musiclub enlaza a plataformas de escucha; no aloja álbumes completos para su descarga. Los metadatos importados no son reseñas de la comunidad.
 
-La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis criterios junto a General y una columna de vinilos para explorar sus géneros. Las tarjetas reparten sus acciones entre Ver release y A la cola. Las listas personales se encuentran junto a Para Ti en el perfil. La interfaz utiliza íconos vectoriales de color y detalles de relleno, con dibujos distintos para cada función y grosor uniforme; los emojis se reservan para las reacciones a reseñas.
+La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis criterios junto a General y una columna de vinilos para explorar sus géneros. Las tarjetas reparten sus acciones entre Ver release y A la cola. Las listas personales se encuentran junto a Para Ti en el perfil. La interfaz utiliza íconos vectoriales con tamaños uniformes por contexto: texto, controles y bloques de funciones. En botones y superficies de color adoptan el tono legible del contexto, con estados de hover y foco; los emojis se reservan para las reacciones a reseñas.
 
 ## Arquitectura actual
 

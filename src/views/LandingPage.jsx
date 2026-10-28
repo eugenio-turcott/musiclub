@@ -1,5 +1,5 @@
 'use client';
-import { InterfaceText } from '../components/UiIcon';
+import { InterfaceText, UiIcon } from '../components/UiIcon';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import reviewChronology from '../utils/reviewChronology.cjs';
 import { GenreIconStrip } from '../components/GenreIconStrip';
@@ -653,7 +653,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   className="w-full sm:w-auto px-5 py-3.5 bg-pink-500/15 hover:bg-pink-500/25 text-pink-300 hover:text-white font-bold text-sm rounded-2xl border border-pink-500/30 hover:border-pink-500/50 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <span><InterfaceText>{"🗳️"}</InterfaceText></span>
-                  <span>Pool Musical (Temporada 1)</span>
+                  <span>Explorar pools</span>
                 </Link>
 
                 <Link
@@ -1271,12 +1271,12 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 <span>Dinámica Comunitaria</span>
               </div>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight">
-                ¿Cómo funciona Musiclub? El Pool y los Álbumes Activos
+                Escucha en comunidad, a tu manera
               </h2>
               <p className="text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
-                Musiclub es un club vivo y dinámico donde los miembros deciden
-                qué escuchar, comparten análisis profundos y construyen la
-                biblioteca comunitaria.
+                Únete a pools públicos para descubrir música con más personas o
+                crea un pool privado para tu grupo. Cada sala tiene sus propuestas
+                y su propio ritmo de escucha.
               </p>
             </div>
 
@@ -1288,13 +1288,11 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   1
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span><InterfaceText>{"📥"}</InterfaceText></span> El Pool Activo
+                  <span className="text-pink-300"><UiIcon name="pool" /></span> Elige tu pool
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Los miembros proponen sus{' '}
-                  <strong>álbumes, EPs o sencillos</strong> favoritos. Los
-                  discos aprobados entran al <strong>Pool Activo</strong> como
-                  candidatos oficiales en espera.
+                  Explora un pool público o accede a uno privado con invitación.
+                  Propón un álbum, EP o sencillo y descubre las propuestas de tu grupo.
                 </p>
               </div>
 
@@ -1304,12 +1302,11 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   2
                 </div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <span><InterfaceText>{"🎰"}</InterfaceText></span> Sorteo en Vivo
+                  <span className="text-purple-300"><UiIcon name="gashapon" /></span> Sorteo del grupo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Mediante la <strong>Máquina Musical</strong>, el admin
-                  designado del pool elige aleatoriamente el próximo lanzamiento
-                  ganador del pool para escuchar en grupo.
+                  La persona que administra cada pool organiza el sorteo para
+                  elegir el próximo lanzamiento que escucharán juntos.
                 </p>
               </div>
 
@@ -1323,7 +1320,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
                   Todos escuchamos el lanzamiento y publicamos nuestra{' '}
-                  <strong>review multi-criterio</strong><InterfaceText>{" (Producción, Composición, Letras, Cohesión, Replay y Canción Favorita 👑). "}</InterfaceText></p>
+                  <strong>review multi-criterio</strong><InterfaceText>{" (Producción, Composición, Letras, Originalidad, Cohesión y Replay), además de la nota general y la canción favorita 👑. "}</InterfaceText></p>
               </div>
 
               {/* Step 4 */}
@@ -1335,30 +1332,22 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   <span><InterfaceText>{"🏆"}</InterfaceText></span> Catálogo & Archivo
                 </h3>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Una vez evaluado, el álbum pasa a graduarse en el{' '}
-                  <strong>Historial del Pool</strong> con su nota ponderada
-                  oficial y nutre el Salón de la Fama y las recomendaciones
-                  'Para Ti'.
+                  Consulta los releases elegidos y las reseñas del grupo.
+                  Tus valoraciones también forman parte del catálogo y de
+                  las recomendaciones de Musiclub.
                 </p>
               </div>
             </div>
 
-            {/* Temporada 1 Callout */}
             <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10">
-              <div className="flex flex-wrap items-center gap-2.5">
-                <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[11px] font-bold"><InterfaceText>{" 🔒 Recepción de Propuestas: Cerrada "}</InterfaceText></span>
-                <p className="text-xs text-slate-300 text-center sm:text-left">
-                  ✦ <strong>Temporada 1 en curso:</strong> Iniciada el 11 de
-                  julio de 2026. Puedes escuchar y valorar cualquier álbum hoy, aunque las propuestas estén cerradas. Consulta el estado actual en el Pool.
-                </p>
+              <div className="space-y-3">
+                <div className="flex flex-wrap justify-center gap-2 sm:justify-start">
+                  <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-200"><UiIcon name="users-group" tone="inherit" />Pools públicos</span>
+                  <span className="inline-flex items-center gap-2 rounded-full border border-purple-400/25 bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-200"><UiIcon name="lock" tone="inherit" />Pools privados por invitación</span>
+                </div>
+                <p className="text-xs text-slate-300 text-center sm:text-left">Elige dónde escuchar. Las propuestas y el disco elegido se gestionan dentro de cada sala.</p>
               </div>
-              <Link
-                to="/pool"
-                className="px-5 py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2 shrink-0 hover:scale-105"
-              >
-                <span><InterfaceText>{"🗳️"}</InterfaceText></span>
-                <span>Entrar al Pool de la Temporada 1 →</span>
-              </Link>
+              <Link to="/pool" className="px-5 py-2.5 rounded-xl bg-linear-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2 shrink-0 hover:scale-105"><UiIcon name="pool" /><span>Explorar pools</span><span aria-hidden="true">→</span></Link>
             </div>
           </div>
         </section>
@@ -1381,17 +1370,16 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {/* Bento Card 1: Pool Musical por Temporadas */}
+            {/* Bento Card 1: Pools públicos y privados */}
             <div className="group relative rounded-3xl bg-linear-to-br from-pink-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🗳️ "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-pink-500/20 border border-pink-500/30 flex items-center justify-center text-pink-300"><InterfaceText>{" 🗳️ "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-pink-300 transition-colors">
-                  Pool Musical por Temporadas
+                  Pools públicos y privados
                 </h3>
                 <p className="text-white/60 text-xs leading-relaxed">
-                  El corazón de escucha colectiva del club. Propón lanzamientos
-                  para la <strong>Temporada 1</strong>, vota y sigue la
-                  graduación de discos semanales.
+                  Únete a un pool público o crea uno privado para tu grupo.
+                  Propongan releases, elijan su próxima escucha y compartan reseñas.
                 </p>
               </div>
               <div className="pt-4 mt-2">
@@ -1399,7 +1387,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                   to="/pool"
                   className="inline-flex items-center gap-1.5 text-xs font-bold text-pink-400 group-hover:text-pink-300 group-hover:translate-x-1 transition-all"
                 >
-                  <span>Entrar al Pool de Temporada</span>
+                  <span>Explorar pools</span>
                   <span>→</span>
                 </Link>
               </div>
@@ -1408,7 +1396,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 2: Reviews Multi-Criterio */}
             <div className="group relative rounded-3xl bg-linear-to-br from-rose-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 📝 "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-rose-300"><InterfaceText>{" 📝 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-rose-300 transition-colors">
                   Reviews Multi-Criterio & Track Favorito
                 </h3>
@@ -1432,7 +1420,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 3: Recomendaciones 'Para Ti' */}
             <div className="group relative rounded-3xl bg-linear-to-br from-indigo-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" ✨ "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300"><InterfaceText>{" ✨ "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-indigo-300 transition-colors">
                   Algoritmo 'Para Ti' & ADN Musical
                 </h3>
@@ -1456,7 +1444,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 4: Leaderboard & Salón de la Fama */}
             <div className="group relative rounded-3xl bg-linear-to-br from-amber-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🏆 "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300"><InterfaceText>{" 🏆 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-amber-300 transition-colors">
                   Leaderboard & Gamificación
                 </h3>
@@ -1480,7 +1468,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 5: Buzón & Playlists */}
             <div className="group relative rounded-3xl bg-linear-to-br from-cyan-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 📬 "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-300"><InterfaceText>{" 📬 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-cyan-300 transition-colors">
                   Buzón Musical & Playlists
                 </h3>
@@ -1504,7 +1492,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             {/* Bento Card 6: Buscador Universal con Spotify */}
             <div className="group relative rounded-3xl bg-linear-to-br from-emerald-950/40 via-[#101222] to-[#0a0a14] border border-white/10 p-6 backdrop-blur-xl hover:border-pink-500/40 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-2xl"><InterfaceText>{" 🔍 "}</InterfaceText></div>
+                <div className="home-feature-icon w-12 h-12 rounded-2xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-300"><InterfaceText>{" 🔍 "}</InterfaceText></div>
                 <h3 className="text-lg font-black text-white group-hover:text-emerald-300 transition-colors">
                   Buscador Directo
                 </h3>
@@ -1565,7 +1553,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                       ? 'bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white shadow-md'
                       : 'text-white/60 hover:text-white hover:bg-white/5'
                   }`}
-                ><InterfaceText>{" 🔥 Pool Activo ("}</InterfaceText>{activePool?.length || 0})
+                ><InterfaceText>{" 🗳️ Propuestas ("}</InterfaceText>{activePool?.length || 0})
                 </button>
                 )}
                 <button
@@ -1682,9 +1670,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
                 </h3>
               </div>
               <p className="text-white/60 text-xs sm:text-sm">
-                Presiona el botón para elegir un lanzamiento al azar de los
-                activos o entra al Gashapon Arcade para sesiones oficiales con
-                cápsulas coleccionables.
+                Elige una sugerencia al azar de los releases disponibles o entra
+                al Gashapon para explorar cápsulas por género.
               </p>
             </div>
 
@@ -1726,14 +1713,14 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             )}
 
             {/* Control Buttons */}
-            <div className="flex flex-wrap items-center justify-center gap-3">
+            <div className="quick-selector-actions flex flex-wrap items-center justify-center gap-3">
               <button
                 type="button"
                 onClick={handleQuickPick}
                 disabled={isQuickPicking || activeAlbums.length === 0}
                 className="px-6 py-3 rounded-2xl bg-linear-to-r from-[#f5576c] to-[#f093fb] hover:from-[#f5576c]/90 hover:to-[#f093fb]/90 text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-pink-500/20 hover:scale-105 active:scale-95 transition-all flex items-center gap-2 cursor-pointer"
               >
-                <span className="text-xl"><InterfaceText>{"🎲"}</InterfaceText></span>
+                <UiIcon name="cycle" className={isQuickPicking ? "motion-safe:animate-spin" : ""} />
                 <span>
                   {isQuickPicking ? 'Eligiendo...' : 'Girar Selector Rápido'}
                 </span>
