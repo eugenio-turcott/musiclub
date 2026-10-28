@@ -421,7 +421,7 @@ export function SlotMachine({
           </div>
 
           <div className="text-center mb-3">
-            <span className="text-xs text-white/40">{message}</span>
+            <span className="text-xs text-white/40"><InterfaceText>{message}</InterfaceText></span>
           </div>
 
           <div className="grid grid-cols-3 gap-2 sm:gap-4">
