@@ -1,5 +1,10 @@
 import {spawn} from 'node:child_process';
 
+// Native Workers Builds must never promote a preview branch to production.
+if(process.env.WORKERS_CI==='1' && process.env.WORKERS_CI_BRANCH!=='master') {
+  throw new Error('Only master can publish the Musiclub production Worker.');
+}
+
 // R2 starts cold and fills on demand. This avoids OpenNext's remote preview
 // tunnel during cache seeding, which can time out on Windows.
 const args=['node_modules/wrangler/bin/wrangler.js','deploy','--config','wrangler.jsonc',
