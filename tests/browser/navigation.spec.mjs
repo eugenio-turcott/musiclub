@@ -124,7 +124,7 @@ test('a member can create a private room and manage its Pool without becoming a 
 
 test('Portadas stays on the selected release through scoring, tags, museum and navigation',async({page})=>{
   await page.goto('/portadas');
-  const title=page.locator('h2');
+  const title=page.getByRole('heading',{level:2});
   await expect(title).toHaveText(/Azul|Rojo|Verde/);
   const original=await title.innerText();
   for(const score of ['7','9','6','8']) {
@@ -148,10 +148,10 @@ test('Portadas stays on the selected release through scoring, tags, museum and n
 
 test('direct release links select the requested cover and search remains stable',async({page})=>{
   await page.goto('/portadas?id=00000000-0000-4000-8000-000000000002');
-  await expect(page.locator('h2')).toHaveText('Rojo');
+  await expect(page.getByRole('heading',{level:2})).toHaveText('Rojo');
   await page.locator('input[type="text"]').fill('Rojo');
   await page.getByRole('button',{name:'9',exact:true}).click();
-  await expect(page.locator('h2')).toHaveText('Rojo');
+  await expect(page.getByRole('heading',{level:2})).toHaveText('Rojo');
   await page.locator('input[type="text"]').fill('no existe');
   await expect(page.getByRole('heading',{name:'¡No hay portadas en este filtro!'})).toBeVisible();
 });
@@ -271,7 +271,7 @@ test('anonymous ratings ask for a session without publishing a community vote',a
   const writes=[];
   page.on('request',request=>{if(request.method()==='POST'&&request.url().includes('/rest/v1/cover_ratings'))writes.push(request.url());});
   await page.goto('/portadas');
-  await expect(page.locator('h2')).toHaveText(/Azul|Rojo|Verde/);
+  await expect(page.getByRole('heading',{level:2})).toHaveText(/Azul|Rojo|Verde/);
   await page.getByRole('button',{name:'Guardar Calificación de Portada'}).click();
   await expect(page.getByRole('button',{name:/Google/})).toBeVisible();
   expect(writes).toHaveLength(0);
