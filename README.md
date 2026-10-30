@@ -32,7 +32,7 @@ La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis
 | Navegación heredada | Adaptador local de React Router sobre Next.js (`src/utils/nextRouterAdapter.jsx`) |
 | Datos y sesión | Supabase PostgreSQL, Auth con Google, RLS y funciones SQL |
 | Integraciones | Spotify, Deezer, Apple Music y MusicBrainz, con funciones distintas según el flujo |
-| Alojamiento preparado | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
+| Alojamiento | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
 | Verificación | Node Test Runner, PostgreSQL de prueba con PGlite y Playwright en CI |
 
 Las páginas públicas principales generan contenido en el servidor. El catálogo usa caché de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
@@ -170,7 +170,7 @@ public/              Recursos estáticos y ads.txt
 
 ## Operación y publicación
 
-Los workflows comprueban las pruebas críticas y la navegación en cambios de `master`. La publicación de versiones usa las notas curadas y las etiquetas del repositorio. La migración a Cloudflare usa `open-next.config.ts` y `wrangler.jsonc`. El cambio del dominio se realiza después de verificar el despliegue; preparar estos archivos no acredita que el dominio ya haya cambiado.
+Los workflows comprueban las pruebas críticas y la navegación en cambios de `master`. La publicación de versiones usa las notas curadas y las etiquetas del repositorio. Cloudflare compila y publica `master` usando `open-next.config.ts` y `wrangler.jsonc`. El 30 de octubre, GoDaddy confirmó los servidores `darwin.ns.cloudflare.com` y `zoe.ns.cloudflare.com`, y Cloudflare confirmó la zona activa. Los dominios raíz y `www` están vinculados al Worker `musiclub`. Los despliegues automáticos de Vercel están desactivados en `vercel.json`; el proyecto anterior se conserva para recuperación manual.
 
 ### Cloudflare Workers
 
@@ -200,7 +200,7 @@ Para ejecutar los recorridos de escritorio y móvil en Workers con datos fictici
 PLAYWRIGHT_CLOUDFLARE=1 npm run test:browser
 ```
 
-La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas y 115 recorridos de navegador (3 omitidos por condiciones de pantalla). Las comprobaciones de credenciales y dominio son adicionales a esas pruebas con fixtures.
+La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas y 115 recorridos de navegador (3 omitidos por condiciones de pantalla). El 30 de octubre se repitieron las 25 comprobaciones públicas en el dominio provisional de Workers y se verificó una publicación automática desde GitHub. Las credenciales de Spotify y Supabase y la negociación SMTP se comprobaron por separado; no se enviaron correos de prueba. El acceso nuevo con Google y la entrega final de correo requieren una comprobación con una cuenta y un destinatario autorizados. El estado de la zona y un despliegue correcto no sustituyen la comprobación HTTPS y de navegación del dominio canónico después de propagarse.
 
 - La actualización de discografías y la sincronización de Record Club tienen workflows diarios. Su ejecución necesita los secretos correspondientes en GitHub.
 - La ingesta masiva de catálogo está disponible de forma manual. Su programación cada 30 minutos está comentada; no está activada por el README.
