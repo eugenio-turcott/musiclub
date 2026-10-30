@@ -1,6 +1,8 @@
 // This harness is used only by CI. It never connects to the Musiclub database.
 import http from 'node:http';
 import { spawn } from 'node:child_process';
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { tables } from './fixtures.mjs';
 
 const dbPort=54329;
@@ -43,16 +45,45 @@ const env={...process.env,
   REACT_APP_SUPABASE_URL:`http://127.0.0.1:${dbPort}`,
   NEXT_PUBLIC_SUPABASE_ANON_KEY:'sb_publishable_browser_tests_only_not_a_real_credential',
   REACT_APP_SUPABASE_ANON_KEY:'sb_publishable_browser_tests_only_not_a_real_credential',
+  SUPABASE_SERVICE_ROLE_KEY:'browser_tests_only_not_a_real_credential',
+  REACT_APP_SUPABASE_SERVICE_KEY:'browser_tests_only_not_a_real_credential',
+  SPOTIFY_CLIENT_ID:'browser-tests',SPOTIFY_CLIENT_SECRET:'browser-tests',
+  REACT_APP_SPOTIFY_CLIENT_ID:'browser-tests',REACT_APP_SPOTIFY_CLIENT_SECRET:'browser-tests',
+  SMTP_HOST:'127.0.0.1',SMTP_PORT:'1025',SMTP_USER:'browser-tests',SMTP_PASS:'browser-tests',
   NEXT_TELEMETRY_DISABLED:'1',
 };
 let child;
-function run(args) {
+function run(args, executable='node_modules/next/dist/bin/next') {
   return new Promise((resolve,reject)=>{
-    child=spawn(process.execPath,['node_modules/next/dist/bin/next',...args],{env,stdio:'inherit'});
+    child=spawn(process.execPath,[executable,...args],{env,stdio:'inherit'});
     child.on('error',reject);
     child.on('exit',code=>code===0?resolve():reject(new Error(`Next exited with ${code}`)));
   });
 }
 for(const signal of ['SIGINT','SIGTERM']) process.on(signal,()=>{child?.kill(signal);server.close();process.exit(0);});
-try { await run(['build',...(process.env.PLAYWRIGHT_WEBPACK==='1'?['--webpack']:[])]); await run(['start','--hostname','127.0.0.1','--port','3101']); }
+try {
+  if(process.env.PLAYWRIGHT_CLOUDFLARE==='1') {
+    await run([], 'scripts/build-cloudflare.mjs');
+    const config=JSON.parse(await fs.readFile('wrangler.jsonc','utf8'));
+    config.main=path.resolve('.open-next/worker.js');
+    config.assets.directory=path.resolve('.open-next/assets');
+    config.vars={CLOUDFLARE_DEPLOYMENT:'1',
+      NEXT_PUBLIC_SUPABASE_URL:env.NEXT_PUBLIC_SUPABASE_URL,
+      REACT_APP_SUPABASE_URL:env.REACT_APP_SUPABASE_URL,
+      NEXT_PUBLIC_SUPABASE_ANON_KEY:env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+      REACT_APP_SUPABASE_ANON_KEY:env.REACT_APP_SUPABASE_ANON_KEY,
+      SUPABASE_SERVICE_ROLE_KEY:'browser_tests_only_not_a_real_credential',
+      SPOTIFY_CLIENT_ID:'browser-tests',SPOTIFY_CLIENT_SECRET:'browser-tests',
+      SMTP_HOST:'127.0.0.1',SMTP_PORT:'1025',SMTP_USER:'browser-tests',SMTP_PASS:'browser-tests',
+    };
+    await fs.mkdir('outputs',{recursive:true});
+    await fs.writeFile('outputs/cloudflare-browser.json',JSON.stringify(config));
+    await fs.writeFile('outputs/cloudflare-browser.env','CLOUDFLARE_DEPLOYMENT=1\n');
+    await run(['populateCache','local','--config','outputs/cloudflare-browser.json'], 'node_modules/@opennextjs/cloudflare/dist/cli/index.js');
+    await run(['dev','--local','--config','outputs/cloudflare-browser.json','--env-file','outputs/cloudflare-browser.env','--ip','127.0.0.1','--port','3101'], 'node_modules/wrangler/bin/wrangler.js');
+  } else {
+    await run(['build',...(process.env.PLAYWRIGHT_WEBPACK==='1'?['--webpack']:[])]);
+    await run(['start','--hostname','127.0.0.1','--port','3101']);
+  }
+}
 catch(error) {console.error(error.message);server.close();process.exitCode=1;}

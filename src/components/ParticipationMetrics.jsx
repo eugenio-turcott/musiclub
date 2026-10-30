@@ -8,7 +8,7 @@ export function ParticipationMetrics({ reviews }) {
       ['Reseñas publicadas', stats.recentReviews], ['Personas que reseñaron', stats.active],
       ['Primeras reseñas', stats.firstTime], ['Personas que volvieron', stats.returned],
     ].map(([label, value]) => <div key={label}><dt className="text-xs text-slate-300">{label}</dt><dd className="text-2xl font-bold">{value}</dd></div>)}</dl>
-    <p className="text-xs text-slate-300">Calculado con las reseñas guardadas. «Volvieron» cuenta a quienes ya habían reseñado antes de estos 30 días y publicaron de nuevo. Borrar reseñas puede cambiar estos totales. No se envían identidades a Vercel.</p>
-    <p className="text-xs text-slate-300 mt-2">Consulta las visitas y el origen del tráfico en Vercel → Analytics. Estas cifras describen participación; no representan una tasa de conversión de visitantes.</p>
+    <p className="text-xs text-slate-300">Calculado con las reseñas guardadas. «Volvieron» cuenta a quienes ya habían reseñado antes de estos 30 días y publicaron de nuevo. Borrar reseñas puede cambiar estos totales.</p>
+    <p className="text-xs text-slate-300 mt-2">Las solicitudes y errores del sitio se consultan en Cloudflare → Workers → Métricas. Estas cifras describen participación; no representan una tasa de conversión de visitantes.</p>
   </section>;
 }

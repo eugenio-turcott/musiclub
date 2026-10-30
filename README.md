@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.1.1 · **Última actualización:** 28 de octubre de 2026.
+**Versión:** 10.2.0 · **Última actualización:** 30 de octubre de 2026.
 
 ## Qué incluye
 
@@ -32,7 +32,7 @@ La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis
 | Navegación heredada | Adaptador local de React Router sobre Next.js (`src/utils/nextRouterAdapter.jsx`) |
 | Datos y sesión | Supabase PostgreSQL, Auth con Google, RLS y funciones SQL |
 | Integraciones | Spotify, Deezer, Apple Music y MusicBrainz, con funciones distintas según el flujo |
-| Alojamiento | Vercel; dominio canónico `https://www.musiclub.org` |
+| Alojamiento preparado | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
 | Verificación | Node Test Runner, PostgreSQL de prueba con PGlite y Playwright en CI |
 
 Las páginas públicas principales generan contenido en el servidor. El catálogo usa caché de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
@@ -106,7 +106,7 @@ npm run build
 npx playwright install --with-deps chromium
 ```
 
-En GitHub Actions se usa el Chrome ya instalado en la imagen Ubuntu 24.04, mediante `PLAYWRIGHT_CHANNEL=chrome`, para evitar reinstalar paquetes del sistema en cada ejecución. Se conservan los recorridos de escritorio y móvil. Referencias: [canales de Playwright](https://playwright.dev/docs/browsers) e [imagen de GitHub](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md).
+En GitHub Actions se usa el Chrome ya instalado en la imagen Ubuntu 24.04, mediante `PLAYWRIGHT_CHANNEL=chrome`, para evitar reinstalar paquetes del sistema en cada ejecución. Los recorridos de escritorio y móvil usan el entorno local de Workers con `PLAYWRIGHT_CLOUDFLARE=1`. Referencias: [canales de Playwright](https://playwright.dev/docs/browsers) e [imagen de GitHub](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2404-Readme.md).
 
 El servidor de pruebas usa los puertos 3101 y 54329. Sus datos y credenciales ficticias no corresponden a producción. Los antiguos archivos de pruebas con sintaxis Jest en `src/utils/` no forman parte de la suite actual; los comandos vigentes están en `package.json`.
 
@@ -170,7 +170,37 @@ public/              Recursos estáticos y ads.txt
 
 ## Operación y publicación
 
-Los workflows comprueban las pruebas críticas y la navegación en cambios de `master`. La publicación de versiones usa las notas curadas y las etiquetas del repositorio. Vercel utiliza `next.config.mjs` y `vercel.json`; tras desplegar, confirma que el despliegue esté listo y que los dominios de producción apunten a él.
+Los workflows comprueban las pruebas críticas y la navegación en cambios de `master`. La publicación de versiones usa las notas curadas y las etiquetas del repositorio. La migración a Cloudflare usa `open-next.config.ts` y `wrangler.jsonc`. El cambio del dominio se realiza después de verificar el despliegue; preparar estos archivos no acredita que el dominio ya haya cambiado.
+
+### Cloudflare Workers
+
+```bash
+npm run cloudflare:build
+npm run cloudflare:preview
+# Con la cuenta y los secretos de Musiclub configurados:
+npm run cloudflare:deploy
+```
+
+- La compilación genera `.open-next/`. La vista previa utiliza Workers local en el puerto 3103, con caché local separada de R2 de producción.
+- `NEXT_INC_CACHE_R2_BUCKET` apunta al contenedor privado `musiclub-next-cache`. Los Durable Objects gestionan revalidación y etiquetas; no contienen las cuentas ni sustituyen Supabase.
+- Configura las variables del servidor como secretos del Worker. El script elimina la copia automática de archivos `.env` que genera OpenNext para que las credenciales no queden incorporadas al paquete.
+- La integración de GitHub publica únicamente `master` en el Worker `musiclub`. Usa `npm run cloudflare:build` y `npm run cloudflare:deploy`, con Node.js 22. Las variables públicas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` deben estar también en el entorno de compilación; las claves privadas permanecen exclusivamente en el Worker. Las compilaciones de otras ramas deben seguir desactivadas.
+- La vista previa local de Workers necesita su configuración de servidor en `.dev.vars` (ignorado por Git). Los secretos remotos no se descargan automáticamente al ejecutar la vista previa.
+- La publicación utiliza Wrangler y comprueba las páginas públicas del despliegue provisional para calentar la caché R2 bajo demanda. No depende del túnel de carga inicial de caché de OpenNext, que puede fallar en Windows.
+- Los 2,220 vinilos PNG se generan durante la compilación y se sirven como archivos estáticos. Los enlaces antiguos de vinilos redirigen al archivo correspondiente. Los correos leen los adjuntos con la vinculación `ASSETS`; Sharp sólo se utiliza al construir.
+- Las carátulas continúan usando sus proveedores de imágenes. No se utiliza la optimización dinámica de imágenes de Next.js.
+- Las métricas operativas se consultan en Cloudflare Workers. No se cargan los scripts de analítica de Vercel ni un nuevo rastreador de navegador.
+- La configuración usa Workers Paid y R2: tienen cuotas y cargos por excedentes. El límite de CPU por solicitud reduce el riesgo de consumo descontrolado, pero no constituye un límite de gasto mensual.
+- Conserva los registros de correo y verificación al trasladar DNS. Mantén `www.musiclub.org` en Supabase Auth, enlaces canónicos, mapas del sitio y plataformas externas. No borres el proyecto anterior antes de validar inicio de sesión, búsquedas, administración y correo en el nuevo despliegue.
+
+Para ejecutar los recorridos de escritorio y móvil en Workers con datos ficticios:
+
+```bash
+# En PowerShell: $env:PLAYWRIGHT_CLOUDFLARE='1'
+PLAYWRIGHT_CLOUDFLARE=1 npm run test:browser
+```
+
+La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas y 115 recorridos de navegador (3 omitidos por condiciones de pantalla). Las comprobaciones de credenciales y dominio son adicionales a esas pruebas con fixtures.
 
 - La actualización de discografías y la sincronización de Record Club tienen workflows diarios. Su ejecución necesita los secretos correspondientes en GitHub.
 - La ingesta masiva de catálogo está disponible de forma manual. Su programación cada 30 minutos está comentada; no está activada por el README.

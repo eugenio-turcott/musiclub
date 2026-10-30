@@ -1,0 +1,21 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "musiclub",
+  "account_id": "d7d91e682ddbaa5437181b939221c87a",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-29",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "preview_urls": false,
+  "assets": {"directory":".open-next/assets", "binding":"ASSETS"},
+  "vars": {"CLOUDFLARE_DEPLOYMENT":"1"},
+  "services": [{"binding":"WORKER_SELF_REFERENCE", "service":"musiclub"}],
+  "r2_buckets": [{"binding":"NEXT_INC_CACHE_R2_BUCKET", "bucket_name":"musiclub-next-cache"}],
+  "durable_objects": {"bindings":[
+    {"name":"NEXT_CACHE_DO_QUEUE", "class_name":"DOQueueHandler"},
+    {"name":"NEXT_TAG_CACHE_DO_SHARDED", "class_name":"DOShardedTagCache"}
+  ]},
+  "migrations": [{"tag":"v1", "new_sqlite_classes":["DOQueueHandler","DOShardedTagCache"]}],
+  "observability": {"enabled":true, "head_sampling_rate":0.1},
+  "limits": {"cpu_ms":1000}
+}

@@ -17,6 +17,10 @@
 # production
 /build
 /.next
+/.open-next/
+/.wrangler/
+/public/genre-vinyl/
+.dev.vars*
 .next
 
 # misc

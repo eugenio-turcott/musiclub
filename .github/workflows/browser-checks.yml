@@ -11,7 +11,7 @@ concurrency:
 jobs:
   navigation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +24,7 @@ jobs:
       - run: npm run test:browser
         env:
           PLAYWRIGHT_CHANNEL: chrome
+          PLAYWRIGHT_CLOUDFLARE: '1'
       - uses: actions/upload-artifact@v4
         if: always()
         with:

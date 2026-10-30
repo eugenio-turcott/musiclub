@@ -8,6 +8,8 @@ const __dirname = path.dirname(__filename);
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // Provider CDN URLs and prebuilt artwork avoid per-visit image CPU charges.
+    unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'i.scdn.co' },
       { protocol: 'https', hostname: 'mosaic.scdn.co' },
@@ -76,6 +78,7 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      { source: '/:path*', has: [{type:'host',value:'musiclub.org'}], destination:'https://www.musiclub.org/:path*', permanent:true },
       // Redirect catalog aliases to canonical /catalogo
       { source: '/catalog', destination: '/catalogo', permanent: true },
       { source: '/albums', destination: '/catalogo', permanent: true },

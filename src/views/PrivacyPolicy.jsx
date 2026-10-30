@@ -61,7 +61,7 @@ export function PrivacyPolicy() {
                       Vigencia
                     </p>
                     <p className="text-white font-black text-base sm:text-lg leading-tight">
-                      21 oct 2026
+                      29 oct 2026
                     </p>
                   </div>
                 </div>
@@ -74,8 +74,8 @@ export function PrivacyPolicy() {
           <div className="space-y-6 text-white/80 text-xs sm:text-sm leading-relaxed">
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/10">
               <h2 className="text-white font-bold text-base mb-2">Medición de uso y rendimiento</h2>
-              <p>Usamos Vercel Web Analytics y Speed Insights, del proveedor que aloja Musiclub, para conocer las páginas visitadas, el origen del tráfico, el tipo de dispositivo y las métricas de carga. La integración no usa cookies de analítica y excluye las páginas privadas y los parámetros de las direcciones. No enviamos eventos personalizados, correos, comentarios, títulos buscados ni contenido de las reseñas.</p>
-              <p>Respetamos la señal Do Not Track del navegador. Puedes desactivar esta medición en este dispositivo sin perder funciones del club. Vercel procesa datos técnicos de las solicitudes conforme a su <a href="https://vercel.com/docs/analytics/privacy-policy" className="underline">información de privacidad</a>.</p>
+              <p>Cloudflare aloja Musiclub y procesa los datos técnicos necesarios para entregar las páginas, proteger el servicio y medir errores, solicitudes y rendimiento. Esto puede incluir direcciones IP, direcciones solicitadas y datos técnicos del navegador. Estas estadísticas operativas no representan un conteo de personas únicas.</p>
+              <p>No cargamos scripts opcionales de analítica en el navegador ni enviamos eventos personalizados con correos, reseñas o búsquedas. Consulta cómo trata los datos el proveedor en su <a href="https://www.cloudflare.com/privacypolicy/" className="underline">política de privacidad</a>.</p>
               <MetricsPreference />
             </section>
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
@@ -245,7 +245,7 @@ export function PrivacyPolicy() {
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
               <h2 className="text-white font-bold text-base mb-2">Publicidad y preferencias</h2>
               <p>La publicidad de Google AdSense se mantiene desactivada mientras preparamos su activación. La etiqueta de verificación del dominio y el archivo ads.txt identifican la cuenta publicitaria; por sí solos no solicitan anuncios ni instalan cookies publicitarias.</p>
-              <p className="mt-3">Cuando se habilite la publicidad, Google y sus proveedores podrán usar cookies e identificadores para publicar y medir anuncios, incluyendo anuncios basados en visitas a este sitio y a otros sitios. Donde corresponda, se solicitarán las preferencias mediante una plataforma de consentimiento certificada antes de activar los tratamientos sujetos a consentimiento. La preferencia de medición de Vercel es independiente de la publicidad.</p>
+              <p className="mt-3">Cuando se habilite la publicidad, Google y sus proveedores podrán usar cookies e identificadores para publicar y medir anuncios, incluyendo anuncios basados en visitas a este sitio y a otros sitios. Donde corresponda, se solicitarán las preferencias mediante una plataforma de consentimiento certificada antes de activar los tratamientos sujetos a consentimiento.</p>
               <p className="mt-3">Puedes gestionar la personalización en <a className="text-pink-300 underline" href="https://myadcenter.google.com/">Mi centro de anuncios de Google</a> y consultar <a className="text-pink-300 underline" href="https://policies.google.com/technologies/partner-sites?hl=es">cómo Google usa la información de sitios asociados</a>. La activación efectiva y sus controles se reflejarán en esta política.</p>
             </section>
 

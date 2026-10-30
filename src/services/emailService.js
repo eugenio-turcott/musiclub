@@ -1,10 +1,8 @@
 import nodemailer from 'nodemailer';
-import fs from 'fs';
-import path from 'path';
-import sharp from 'sharp';
+import { publicAssetBytes } from './publicAssetBytes.js';
+import genreFiles from '../utils/genreAssetFiles.cjs';
 import { createClient } from '@supabase/supabase-js';
 import genreCatalog from '../utils/genreCatalog.cjs';
-import genreArtwork from '../utils/genreEmailArtwork.cjs';
 
 /**
  * MUSICLUB EMAIL SERVICE V.9.2
@@ -365,6 +363,10 @@ export async function getTransporter() {
     };
   }
 
+  if(process.env.CLOUDFLARE_DEPLOYMENT==='1') {
+    throw new Error('SMTP no está configurado en Cloudflare.');
+  }
+
   const gmailUser = process.env.GMAIL_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.GMAIL_PASS;
 
@@ -416,15 +418,11 @@ export async function prepareAttachmentsAndImages({ imageUrl, albumName, artistN
   let coverUrl = imageUrl || null;
 
   try {
-    const localLogoPath = path.resolve(
-      process.cwd(),
-      'public',
-      'musiclub_logo_corchea.png'
-    );
-    if (fs.existsSync(localLogoPath)) {
+    const logo = await publicAssetBytes('/musiclub_logo_corchea.png');
+    if (logo.length) {
       attachments.push({
         filename: 'musiclub_logo_corchea.png',
-        path: localLogoPath,
+        content: logo,
         cid: 'musiclub_logo',
       });
       logoUrl = 'cid:musiclub_logo';
@@ -478,9 +476,9 @@ export async function prepareAttachmentsAndImages({ imageUrl, albumName, artistN
     }
   }
   let vinylUrl = MUSICLUB_ASSETS.logoFull;
-  const svg = names[0] && genreArtwork.genreEmailSvg(names[0]);
-  if (svg) {
-    const content = await sharp(Buffer.from(svg)).resize(560, 560).png().toBuffer();
+  const vinylAsset = names[0] && genreFiles.genreAssetPath(names[0]);
+  if (vinylAsset) {
+    const content = await publicAssetBytes(vinylAsset);
     attachments.push({ filename: 'vinilo-genero.png', content, contentType: 'image/png', cid: 'genre_vinyl' });
     vinylUrl = 'cid:genre_vinyl';
   }
