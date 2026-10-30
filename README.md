@@ -2,14 +2,15 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.3.1 · **Última actualización:** 30 de octubre de 2026.
+**Versión:** 10.3.2 · **Última actualización:** 30 de octubre de 2026.
 
 ## Qué incluye
 
 - Catálogo de álbumes, EPs, sencillos y otros lanzamientos, con búsqueda interna y resultados de Spotify cuando no hay coincidencias en Musiclub.
 - Discografías persistidas en Supabase y contrastadas con Spotify, Deezer y Apple Music según disponibilidad. Se leen desde la BD y se actualizan en segundo plano. Una fuente incompleta o temporalmente caída no equivale a una discografía completa.
 - Agrupación de variantes de una misma obra sin perder sus reseñas. Las ediciones deluxe mantienen identidad propia.
-- Reseñas con canciones, seis criterios, nota general, comentario opcional, canción favorita y emociones. El inicio muestra las reseñas más recientes de hasta tres personas distintas.
+- Insignias compartidas entre la guía, el Leaderboard y los perfiles, con emblemas y tiers visibles. Los géneros favoritos históricos se muestran por separado también en el Perfil.
+- Reseñas con canciones, seis criterios, nota general, comentario opcional, canción favorita y emociones. Las fichas distinguen una valoración sin comentario escrito de una reseña con texto. El inicio muestra las reseñas más recientes de hasta tres personas distintas.
 - Pool por salas públicas y privadas, con temporadas independientes: una cápsula por persona, cupo opcional, edición propia mientras esté en espera y las propuestas estén abiertas, ganador e historial. La edición conserva su lugar; los estados del Pool pertenecen a `pool_entries`, no a `albums`.
 - Gashapon para descubrir releases del catálogo o únicamente los activos y del historial de una temporada: `/gashapon?pool=<id>`.
 - Lista privada «Escuchar más tarde» y descartes persistentes del Gashapon. Las preferencias pertenecen a la cuenta autenticada; variantes de una misma obra comparten estado y deluxe permanece separado. El historial permite reactivar descartes; guardar para después no modifica los sorteos.

@@ -1,3 +1,5 @@
+import { individualFavoriteGenres } from './account/FavoriteGenreSearch';
+import { AchievementBadge } from './AchievementBadge';
 import MoodIcon from './MoodIcon';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { GenreLabel } from './GenreLabel';
@@ -310,13 +312,7 @@ export function MemberProfileModal({
                   </span>
 
                   {memberUser.badges?.slice(0, 3).map((b) => (
-                    <span
-                      key={b.id}
-                      title={b.tooltip || b.desc || b.label}
-                      className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
-                    >
-                      <InterfaceText>{b.label}</InterfaceText>
-                    </span>
+                    <AchievementBadge key={b.id} badge={b} compact/>
                   ))}
                 </div>
 
@@ -349,7 +345,7 @@ export function MemberProfileModal({
                   {memberUser.favorite_genres &&
                     Array.isArray(memberUser.favorite_genres) &&
                     memberUser.favorite_genres.length > 0 &&
-                    memberUser.favorite_genres.map((genre, idx) => (
+                    individualFavoriteGenres(memberUser.favorite_genres).map((genre, idx) => (
                       <span
                         key={idx}
                         className="text-[11px] sm:text-xs bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 px-2.5 py-0.5 rounded-full"
@@ -986,17 +982,13 @@ export function MemberProfileModal({
                         className="bg-black/40 border border-white/5 rounded-2xl p-3.5 space-y-2 hover:border-white/15 transition-all flex flex-col justify-between"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span
-                            className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
-                          >
-                            <InterfaceText>{b.label}</InterfaceText>
-                          </span>
+                          <AchievementBadge key={b.id} badge={b} compact/>
                           <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                             +{b.xp} XP
                           </span>
                         </div>
                         <p className="text-xs text-slate-300 leading-snug">
-                          {b.desc}
+                          <InterfaceText>{b.desc}</InterfaceText>
                         </p>
                       </div>
                     ))}
@@ -1037,11 +1029,9 @@ export function MemberProfileModal({
                                 <span><InterfaceText>{bp.icon}</InterfaceText></span>
                                 <span>{bp.categoryName}</span>
                               </span>
-                              <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
-                                {bp.unlockedTier
-                                  ? bp.unlockedTier.name
-                                  : 'Nivel Inicial'}
-                              </span>
+                              {bp.unlockedTier
+                        ? <AchievementBadge badge={{...bp.unlockedTier, tierNumber:bp.unlockedTier.tier}} compact/>
+                        : <span className="text-xs text-slate-400">Nivel inicial</span>}
                             </div>
 
                             <p className="text-xs text-slate-400 leading-snug">
@@ -1053,9 +1043,7 @@ export function MemberProfileModal({
                                 <div className="flex items-center justify-between text-[11px] text-slate-300">
                                   <span>
                                     Próximo:{' '}
-                                    <strong className="text-amber-300">
-                                      {bp.nextTier.name}
-                                    </strong>{' '}
+                                    <strong className="text-amber-300"><InterfaceText>{bp.nextTier.name}</InterfaceText></strong>{' '}
                                     (+
                                     {bp.nextTier.xp} XP)
                                   </span>

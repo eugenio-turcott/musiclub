@@ -1959,11 +1959,12 @@ export function AlbumDetail({
                     </div>
 
                     {/* Review Comment */}
-                    {rev.comment && (
-                      <p className="text-white/80 text-xs italic bg-black/40 p-3 rounded-xl border border-white/5 leading-relaxed break-words">
-                        "{rev.comment}"
-                      </p>
-                    )}
+                    <p data-review-comment={typeof rev.comment === 'string' && rev.comment.trim() ? 'written' : 'empty'}
+                      className="review-written-comment text-white/80 text-xs italic bg-black/40 p-3 rounded-xl border border-white/5 leading-relaxed break-words">
+                      {typeof rev.comment === 'string' && rev.comment.trim()
+                        ? `“${rev.comment.trim()}”`
+                        : 'Este miembro no añadió un comentario escrito.'}
+                    </p>
 
                     {/* Favorite Track Badge */}
                     {favTrackName && (

@@ -166,6 +166,18 @@ test('expanding track ratings does not stretch or redistribute a neighboring com
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
+test('community reviews preserve written text and explicitly identify ratings without a written comment',async({page},testInfo)=>{
+ await page.goto('/albumes/artista-de-prueba-azul');
+ const cards=page.locator('.community-review-card');
+ await expect(cards).toHaveCount(2);
+ await expect(cards.locator('[data-review-comment="written"]')).toHaveCount(2);
+ await expect(cards).toContainText(['Una reseña de prueba.','Reseña de la variante limpia.']);
+ await page.goto('/albumes/artista-de-prueba-verde');
+ await expect(page.locator('.community-review-card')).toHaveCount(1);
+ await expect(page.locator('[data-review-comment="empty"]')).toHaveText('Este miembro no añadió un comentario escrito.');
+ await expect(page.locator('.community-review-card .review-criteria')).toBeVisible();
+});
+
 test('catalogue Top del Club excludes a single perfect review and home mood badges contain only artwork',async({page})=>{
  await page.goto('/catalogo');
  const top=page.locator('[data-catalog-top]');

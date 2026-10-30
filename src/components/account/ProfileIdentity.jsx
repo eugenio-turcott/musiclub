@@ -1,10 +1,12 @@
 'use client';
+import { AchievementBadge } from '../AchievementBadge';
 import { Link } from 'react-router-dom';
 import { InterfaceText, UiIcon } from '../UiIcon';
 import { GenreLabel } from '../GenreLabel';
 import { MusiclubVinyl } from '../MusiclubVinyl';
 import { SpotifyIcon, InstagramIcon } from '../ShareReviewModal';
 import { getMelomanoLevel, MELOMANO_LEVELS } from '../../utils/badgeSystem';
+import { individualFavoriteGenres } from './FavoriteGenreSearch';
 import { AccountAvatar } from './AccountElements';
 
 export function ProfileIdentity({ user, isAdmin, gamification, stats }) {
@@ -26,7 +28,7 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats }) {
         <span className="profile-member-label"><UiIcon name={isAdmin?'shield':'headphones'} size={16} tone="inherit"/>{isAdmin?'Administrador':'Miembro de Musiclub'}</span>
         <h1 translate="no" className="notranslate username-tag">{user.name || 'Miembro de Musiclub'}</h1>
         <p className={`profile-bio ${user.bio?'':'profile-bio-empty'}`}>{user.bio || 'Este es tu espacio para guardar música, compartir reseñas y encontrar tu siguiente escucha.'}</p>
-        {gamification.badges?.length>0 && <div className="profile-featured-badges" aria-label="Insignias destacadas">{gamification.badges.slice(0,3).map(b=><span key={b.id} title={b.tooltip || b.desc} className={`bg-linear-to-r ${b.color} ${b.borderClass || ''}`}><InterfaceText>{b.label}</InterfaceText></span>)}</div>}
+        {gamification.badges?.length>0 && <div className="profile-featured-badges" aria-label="Insignias destacadas">{gamification.badges.slice(0,3).map(b=><AchievementBadge key={b.id} badge={b} compact/>)}</div>}
       </div>
       <aside className="profile-level-card" aria-label="Tu progreso en Musiclub">
         <div className="profile-level-top"><span className="account-eyebrow">Score XP</span><UiIcon name="sparkles" size={24} tone="inherit"/></div>
@@ -39,7 +41,7 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats }) {
     {(user.favorite_artist || user.favorite_album || user.favorite_genres?.length || user.spotify_url || user.instagram_url) && <div className="profile-musical-identity">
       {user.favorite_artist && <span className="profile-favorite"><UiIcon name="mic" tone="inherit"/><span><small>Artista favorito</small><strong translate="no">{user.favorite_artist}</strong></span></span>}
       {user.favorite_album && <span className="profile-favorite"><UiIcon name="disc" tone="inherit"/><span><small>Álbum favorito</small><strong translate="no">{user.favorite_album}</strong></span></span>}
-      {Array.isArray(user.favorite_genres)&&user.favorite_genres.map(genre=><span key={genre} className="profile-genre"><GenreLabel genre={genre} link size={20}/></span>)}
+      {Array.isArray(user.favorite_genres)&&individualFavoriteGenres(user.favorite_genres).map(genre=><span key={genre} className="profile-genre"><GenreLabel genre={genre} link size={20}/></span>)}
       {user.spotify_url && <a className="profile-social profile-social-spotify" href={user.spotify_url} target="_blank" rel="noopener noreferrer"><SpotifyIcon className="w-4 h-4"/>Spotify</a>}
       {user.instagram_url && <a className="profile-social profile-social-instagram" href={user.instagram_url} target="_blank" rel="noopener noreferrer"><InstagramIcon className="w-4 h-4"/>Instagram</a>}
     </div>}

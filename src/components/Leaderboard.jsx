@@ -1,4 +1,5 @@
 'use client';
+import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -517,13 +518,7 @@ export function Leaderboard({ isPage = false }) {
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[0].badges?.slice(0, 3).map((b) => (
-                      <span
-                        key={b.id}
-                        title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
-                      >
-                        <InterfaceText>{b.label}</InterfaceText>
-                      </span>
+                      <AchievementBadge key={b.id} badge={b} compact/>
                     ))}
                   </div>
                 </div>
@@ -582,13 +577,7 @@ export function Leaderboard({ isPage = false }) {
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[1].badges?.slice(0, 3).map((b) => (
-                      <span
-                        key={b.id}
-                        title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-md cursor-help hover:scale-105 transition-transform`}
-                      >
-                        <InterfaceText>{b.label}</InterfaceText>
-                      </span>
+                      <AchievementBadge key={b.id} badge={b} compact/>
                     ))}
                   </div>
                 </div>
@@ -644,13 +633,7 @@ export function Leaderboard({ isPage = false }) {
                   </div>
                   <div className="flex flex-wrap justify-center gap-1 max-w-full">
                     {podiumUsers[2].badges?.slice(0, 3).map((b) => (
-                      <span
-                        key={b.id}
-                        title={b.tooltip || b.desc || b.label}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm cursor-help hover:scale-105 transition-transform`}
-                      >
-                        <InterfaceText>{b.label}</InterfaceText>
-                      </span>
+                      <AchievementBadge key={b.id} badge={b} compact/>
                     ))}
                   </div>
                 </div>
@@ -814,13 +797,7 @@ export function Leaderboard({ isPage = false }) {
                                 ? itemUser.badges
                                 : itemUser.badges.slice(0, 1)
                               ).map((b) => (
-                                <span
-                                  key={b.id}
-                                  title={b.tooltip || b.desc || b.label}
-                                  className={`text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm inline-flex items-center gap-1 cursor-help hover:scale-105 transition-transform`}
-                                >
-                                  <InterfaceText>{b.label}</InterfaceText>
-                                </span>
+                                <AchievementBadge key={b.id} badge={b} compact/>
                               ))}
 
                               {itemUser.badges.length > 1 && (
@@ -1190,11 +1167,7 @@ export function Leaderboard({ isPage = false }) {
                           className="bg-white/5 border border-white/5 hover:border-white/10 rounded-xl p-3 flex flex-col justify-between gap-2 transition-all"
                         >
                           <div className="flex items-center justify-between gap-2 flex-wrap">
-                            <span
-                              className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.badgeClass} shadow-sm cursor-help hover:scale-105 transition-transform`}
-                            >
-                              <InterfaceText>{b.title}</InterfaceText>
-                            </span>
+                            <AchievementBadge badge={{...b, isRecord:true}}/>
                             <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                               {b.xp}
                             </span>
@@ -1232,11 +1205,7 @@ export function Leaderboard({ isPage = false }) {
                                 className="bg-white/5 border border-white/5 rounded-lg p-2 flex flex-col justify-between gap-1"
                               >
                                 <div className="flex items-center justify-between gap-1">
-                                  <span
-                                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full bg-linear-to-r ${t.color} cursor-help hover:scale-105 transition-transform`}
-                                  >
-                                    <InterfaceText>{t.name}</InterfaceText>
-                                  </span>
+                                  <AchievementBadge badge={t} compact/>
                                   <span className="text-[9px] font-black text-amber-300">
                                     {t.xp}
                                   </span>

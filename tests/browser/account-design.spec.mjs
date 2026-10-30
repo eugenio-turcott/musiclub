@@ -153,6 +153,48 @@ test('favorite genres split old combined choices and search selects only registe
  }
 });
 
+test('profile displays legacy combined genres separately without requiring a settings save',async({page},testInfo)=>{
+ const {profile,writes}=await account(page,{reviewCount:5});
+ profile.favorite_genres=['R&B / Soul','Latino / Trap','R&B'];
+ await page.goto('/profile');
+ const identity=page.getByRole('region',{name:'Tu perfil musical'});
+ for(const name of ['R&B','Soul','Latino','Trap'])await expect(identity.getByRole('link',{name,exact:true})).toHaveCount(1);
+ await expect(identity).not.toContainText('R&B / Soul');
+ await expect(identity.locator('[data-achievement-badge]')).not.toHaveCount(0);
+ await expect(identity.locator('[data-badge-tier]').first()).toBeVisible();
+ expect(writes).toHaveLength(0);
+ const original=page.viewportSize();
+ for(const width of [320,768,1280]){
+   await page.setViewportSize({width,height:800});
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.setViewportSize(original);
+ mkdirSync('outputs/unified-members',{recursive:true});
+ await page.screenshot({path:`outputs/unified-members/profile-${testInfo.project.name}.png`});
+ await page.getByRole('navigation',{name:'Secciones de Mi Perfil'}).getByRole('button',{name:/Insignias & Niveles/}).click();
+ for(const width of [320,768,1280]){
+   await page.setViewportSize({width,height:800});
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+});
+
+test('leaderboard and badge guide expose the same tiered badge artwork',async({page},testInfo)=>{
+ await page.goto('/leaderboard');
+ const member=page.locator('[data-leaderboard-member]').filter({has:page.getByText('Miembro de Prueba',{exact:true})});
+ await member.getByRole('button',{name:/\+.*más/}).click();
+ await expect(member.locator('[data-badge-tier]').first()).toBeVisible();
+ const rankBadge=member.locator('[data-badge-tier]').first();
+ const label=await rankBadge.getAttribute('aria-label');
+ await page.getByRole('button',{name:/Cómo funciona el Score XP/}).click();
+ const guide=page.getByRole('dialog',{name:'Guía Oficial de Insignias y Puntos'});
+ const match=guide.locator('[data-badge-tier]').filter({hasText:await rankBadge.locator('.achievement-badge-copy > span').innerText()});
+ await expect(match).toHaveCount(1);
+ await expect(match).toHaveAttribute('aria-label',label);
+ expect(await guide.innerText()).not.toMatch(/\p{Extended_Pictographic}/u);
+ mkdirSync('outputs/unified-members',{recursive:true});
+ await page.screenshot({path:`outputs/unified-members/guide-${testInfo.project.name}.png`});
+});
+
 test('leaderboard excludes zero-review profiles from cards, podium and totals',async({page})=>{
  await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[{id:'no-review-member',name:'Sin reseñas',bio:'No debe aparecer en el ranking',favorite_artist:'Artista cero'}]}));
  await page.route('**/rest/v1/public_reviews*',route=>route.fulfill({json:reviews}));

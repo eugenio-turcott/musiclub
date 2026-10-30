@@ -1,4 +1,5 @@
 'use client';
+import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { ProfileIdentity } from './account/ProfileIdentity';
 import { AccountPage, ProfileNavigation, PROFILE_SECTIONS } from './account/AccountElements';
@@ -976,17 +977,13 @@ export function UserProfile({ isPage = false }) {
                     className="bg-black/40 border border-white/5 rounded-2xl p-3.5 space-y-2 hover:border-white/15 transition-all flex flex-col justify-between"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <span
-                        className={`text-xs font-black px-2.5 py-1 rounded-full bg-linear-to-r ${b.color} ${b.borderClass || ''} shadow-sm`}
-                      >
-                        <InterfaceText>{b.label}</InterfaceText>
-                      </span>
+                      <AchievementBadge key={b.id} badge={b} compact/>
                       <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
                         +{b.xp} XP
                       </span>
                     </div>
                     <p className="text-xs text-slate-300 leading-snug">
-                      {b.desc}
+                      <InterfaceText>{b.desc}</InterfaceText>
                     </p>
                   </div>
                 ))}
@@ -1024,9 +1021,9 @@ export function UserProfile({ isPage = false }) {
                         <span><InterfaceText>{bp.icon}</InterfaceText></span>
                         <span>{bp.categoryName}</span>
                       </span>
-                      <span className="text-xs text-amber-300 font-bold px-2 py-0.5 rounded-full bg-amber-400/10 border border-amber-400/20">
-                        {bp.unlockedTier ? bp.unlockedTier.name : 'Nivel Inicial'}
-                      </span>
+                      {bp.unlockedTier
+                        ? <AchievementBadge badge={{...bp.unlockedTier, tierNumber:bp.unlockedTier.tier}} compact/>
+                        : <span className="text-xs text-slate-400">Nivel inicial</span>}
                     </div>
 
                     <p className="text-xs text-slate-400 leading-snug">
@@ -1037,7 +1034,7 @@ export function UserProfile({ isPage = false }) {
                       <div className="space-y-1.5 pt-1">
                         <div className="flex items-center justify-between text-[11px] text-slate-300">
                           <span>
-                            Próximo: <strong className="text-amber-300">{bp.nextTier.name}</strong> (+{bp.nextTier.xp} XP)
+                            Próximo: <strong className="text-amber-300"><InterfaceText>{bp.nextTier.name}</InterfaceText></strong> (+{bp.nextTier.xp} XP)
                           </span>
                           <span className="font-semibold text-white">
                             {bp.currentValue} / {bp.nextTier.req} ({bp.progressPercent}%)
