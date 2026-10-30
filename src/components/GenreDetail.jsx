@@ -31,7 +31,7 @@ export function GenreDetail({ genre, albums }) {
       {albums.slice((page-1)*24,page*24).map(album => <GenreReleaseCard key={album.id} album={album} />)}
     </section>}
     {pages > 1 && <nav aria-label="Páginas de lanzamientos" className="flex items-center justify-center gap-4 text-sm"><button disabled={page===1} onClick={()=>setPage(value=>value-1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Anterior</button><span>{page} / {pages}</span><button disabled={page===pages} onClick={()=>setPage(value=>value+1)} className="min-h-11 rounded-xl border border-white/20 px-4 disabled:opacity-40">Siguiente</button></nav>}
-    <Footer />
+    <Footer showAd={albums.length > 0} />
     </div>
   </div>;
 }

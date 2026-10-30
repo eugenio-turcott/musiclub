@@ -7,6 +7,9 @@ import { LanguageSelector } from './LanguageSelector';
 import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from './common/ShareIcons';
 import { YouTubeLogo } from './common/PlatformLogos';
 import { AdvertisingPreferences } from './AdvertisingPreferences';
+import { AdcashBanner } from './AdcashBanner';
+import { usePathname } from 'next/navigation';
+import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 
 const socialLinks = [
   { name: 'Instagram', href: 'https://www.instagram.com/musicluborg/', Icon: InstagramIcon },
@@ -17,10 +20,10 @@ const socialLinks = [
 ];
 
 export function Footer({ showAd = true }) {
+  const pathname = usePathname();
   return (
     <footer className="mt-12 pt-6 border-t border-white/5">
-      {/* Banner de Anuncios Nativos Adsterra (Comentado temporalmente) */}
-      {/* {showAd && <AdsterraNativeBanner />} */}
+      {showAd && pathname !== '/' && advertisingPolicy.publicAdvertisingPath(pathname) && <AdcashBanner key={pathname} />}
 
       {/* Brand Divider with Spinning Musiclub Logo */}
       <div className="flex items-center justify-center gap-3 mb-4 select-none pointer-events-none">

@@ -966,7 +966,7 @@ export function AlbumDetail({
               Cargando detalles del álbum...
             </p>
           </div>
-          <Footer />
+          <Footer showAd={false} />
         </div>
       </div>
     );
@@ -1002,7 +1002,7 @@ export function AlbumDetail({
               </Link>
             </div>
           </div>
-          <Footer />
+          <Footer showAd={false} />
         </div>
       </div>
     );

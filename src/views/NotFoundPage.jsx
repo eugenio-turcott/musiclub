@@ -136,7 +136,7 @@ export function NotFoundPage() {
       </div>
 
       {/* Universal Standard Footer */}
-      <Footer />
+      <Footer showAd={false} />
     </div>
   );
 }

@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.3.0 · **Última actualización:** 30 de octubre de 2026.
+**Versión:** 10.3.1 · **Última actualización:** 30 de octubre de 2026.
 
 ## Qué incluye
 
@@ -18,7 +18,7 @@
 - Leaderboard de personas con al menos una reseña, con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
-- Prueba de un banner Display de Adcash en el inicio, cargado únicamente después del permiso del visitante. Las preferencias de publicidad permiten rechazarlo o retirar ese permiso.
+- Banners Display de Adcash en páginas públicas con contenido: carga automática para México y permiso previo para el resto de ubicaciones. Las preferencias de publicidad permiten desactivarlos; se respetan los rechazos guardados y el control global de privacidad del navegador.
 
 Musiclub enlaza a plataformas de escucha; no aloja álbumes completos para su descarga. Los metadatos importados no son reseñas de la comunidad.
 
@@ -208,15 +208,19 @@ La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas
 - Los respaldos privados y la recuperación tienen herramientas y pruebas propias. Un respaldo de datos no incluye automáticamente archivos binarios de Storage ni toda la configuración del proveedor.
 - La verificación de AdSense incluye metadatos y `ads.txt`; no acredita una aprobación ni activa anuncios o cobros por sí sola.
 
-## Publicidad · 10.3
+## Publicidad · 10.3.1
 
 Se utiliza exclusivamente la zona manual Display `12384990` (300 × 250), mediante la biblioteca oficial y `runBanner` con `renderIn`. El Autotag creado por el alta de Adcash no se instala. No se añaden pop-unders, interstitials, notificaciones push ni refrescos automáticos. AdSense y Adsterra permanecen sin servir anuncios.
 
-`AdcashBanner` aparece una vez en `LandingPage`. Antes de elegir no se solicita la biblioteca publicitaria. Aceptar o rechazar se guarda hasta 180 días en ese navegador; el botón «Preferencias de publicidad» del footer permite cambiarlo. Retirar el permiso recarga la página para detener código de terceros ya cargado. Las cookies que el proveedor haya creado se eliminan desde el navegador. La política de privacidad describe este uso; este selector no se presenta como una CMP certificada.
+`AdcashBanner` aparece una vez por página: dentro de `LandingPage` para el inicio y en el footer para catálogo, releases, artistas, géneros, reseñas, leaderboard, portadas y contenido de ayuda/editorial. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
+
+`/api/advertising/policy` usa exclusivamente `getCloudflareContext().cf.country`: México habilita carga automática con aviso y rechazo disponible; otras ubicaciones o una ubicación desconocida mantienen permiso previo. Esta configuración inicial revisada no pretende afirmar que todos los demás países requieran consentimiento expreso. No se infiere el país del idioma ni se aceptan encabezados o parámetros enviados por el visitante. La respuesta sólo contiene el modo de carga y usa `private, no-store`; no se incorpora al caché compartido del catálogo ni se guarda el país. Véase [contexto de Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/request/).
+
+Aceptar o rechazar se guarda hasta 180 días en ese navegador; no se registra una aceptación ficticia para la carga automática. Un rechazo anterior y `navigator.globalPrivacyControl` prevalecen sobre el modo regional. El botón «Preferencias de publicidad» del footer permite cambiar la elección. Retirarla recarga la página para detener código de terceros ya cargado. Las cookies que el proveedor haya creado se eliminan desde el navegador. La política de privacidad describe este uso; este selector no se presenta como una CMP certificada.
 
 El tamaño del anuncio se conserva: si no caben 300 px, no se solicita; al estrechar una ventana que ya lo mostró, se oculta sin volver a solicitarlo. Los errores de carga no generan reintentos. Las pruebas interceptan la biblioteca y usan un anuncio ficticio: nunca generan impresiones ni clics reales.
 
-Para retirar la prueba del sitio, elimina la instancia de `AdcashBanner` en `src/views/LandingPage.jsx` y vuelve a desplegar. Conserva el control del footer para que las personas puedan retirar su elección anterior. La disponibilidad de anuncios, revisión del sitio, categorías y pagos se administran en Adcash; crear la zona o desplegar el código no equivale a aprobación ni garantiza ingresos.
+Para retirar los banners del sitio, elimina las instancias de `AdcashBanner` en `src/views/LandingPage.jsx` y `src/components/Footer.jsx` y vuelve a desplegar. Conserva el control del footer para que las personas puedan retirar su elección anterior. La disponibilidad de anuncios, revisión del sitio, categorías y pagos se administran en Adcash; crear la zona o desplegar el código no equivale a aprobación ni garantiza ingresos.
 
 ## Contacto
 
