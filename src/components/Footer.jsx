@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { LanguageSelector } from './LanguageSelector';
 import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from './common/ShareIcons';
 import { YouTubeLogo } from './common/PlatformLogos';
+import { AdvertisingPreferences } from './AdvertisingPreferences';
 
 const socialLinks = [
   { name: 'Instagram', href: 'https://www.instagram.com/musicluborg/', Icon: InstagramIcon },
@@ -102,6 +103,8 @@ export function Footer({ showAd = true }) {
         >
           <span><InterfaceText>{"🖼️"}</InterfaceText></span> Calificar Portadas
         </Link>
+        <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
+        <AdvertisingPreferences />
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>
         <LanguageSelector variant="footer" />
         <span className="w-px h-3 bg-white/10 hidden sm:block"></span>

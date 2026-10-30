@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic';
 import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { EditorialSpotlight } from '../components/EditorialSpotlight';
+import { AdcashBanner } from '../components/AdcashBanner';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -1250,6 +1251,8 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             </div>
           </section>
         )}
+
+        <AdcashBanner />
 
         <HourlyRecommendedRelease
           albums={albums}

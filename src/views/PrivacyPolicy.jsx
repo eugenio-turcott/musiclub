@@ -61,7 +61,7 @@ export function PrivacyPolicy() {
                       Vigencia
                     </p>
                     <p className="text-white font-black text-base sm:text-lg leading-tight">
-                      29 oct 2026
+                      30 oct 2026
                     </p>
                   </div>
                 </div>
@@ -145,8 +145,8 @@ export function PrivacyPolicy() {
                 los Datos
               </h2>
               <p className="mb-2">
-                Toda la información recopilada se utiliza exclusivamente para la
-                logística y entretenimiento de la comunidad:
+                Los datos de cuenta y las aportaciones permiten gestionar las
+                funciones de la comunidad:
               </p>
               <ul className="list-disc list-inside space-y-1.5 text-white/70 ml-2">
                 <li>
@@ -189,8 +189,9 @@ export function PrivacyPolicy() {
                 credenciales privadas ni datos bancarios de Spotify.
                 <br />• <strong>Terceros:</strong>{' '}
                 <span className="text-[#f5576c] font-semibold">
-                  Nunca vendemos, alquilamos ni comercializamos tu información
-                  personal con empresas de publicidad de terceros.
+                  No añadimos tu correo, perfil ni reseñas a las solicitudes de
+                  publicidad. El tratamiento del proveedor publicitario se
+                  describe en «Publicidad y preferencias».
                 </span>
               </p>
             </section>
@@ -244,9 +245,9 @@ export function PrivacyPolicy() {
 
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">
               <h2 className="text-white font-bold text-base mb-2">Publicidad y preferencias</h2>
-              <p>La publicidad de Google AdSense se mantiene desactivada mientras preparamos su activación. La etiqueta de verificación del dominio y el archivo ads.txt identifican la cuenta publicitaria; por sí solos no solicitan anuncios ni instalan cookies publicitarias.</p>
-              <p className="mt-3">Cuando se habilite la publicidad, Google y sus proveedores podrán usar cookies e identificadores para publicar y medir anuncios, incluyendo anuncios basados en visitas a este sitio y a otros sitios. Donde corresponda, se solicitarán las preferencias mediante una plataforma de consentimiento certificada antes de activar los tratamientos sujetos a consentimiento.</p>
-              <p className="mt-3">Puedes gestionar la personalización en <a className="text-pink-300 underline" href="https://myadcenter.google.com/">Mi centro de anuncios de Google</a> y consultar <a className="text-pink-300 underline" href="https://policies.google.com/technologies/partner-sites?hl=es">cómo Google usa la información de sitios asociados</a>. La activación efectiva y sus controles se reflejarán en esta política.</p>
+              <p>Musiclub prueba un banner de display de Adcash en la página principal. Su biblioteca publicitaria se carga únicamente después de que permitas los anuncios. Adcash y sus socios pueden tratar tu dirección IP, datos técnicos del navegador, cookies e identificadores para seleccionar y medir publicidad; consulta la <a className="text-pink-300 underline hover:text-pink-100" href="https://adcash.com/legal/">información de privacidad de Adcash</a>. La llamada de integración incluye el identificador público de la zona y su contenedor, sin añadir datos de tu cuenta, reseñas ni búsquedas.</p>
+              <p className="mt-3">Puedes rechazar o retirar tu permiso desde «Preferencias de publicidad» al final de la página y seguir usando Musiclub. Guardamos esta elección en el almacenamiento local de este navegador durante un máximo de seis meses. Al retirar un permiso previamente concedido, la página se recarga para detener los scripts ya cargados. Retirar el permiso no elimina automáticamente cookies que un proveedor hubiera guardado anteriormente; puedes eliminarlas desde la configuración de tu navegador.</p>
+              <p className="mt-3">La integración utiliza únicamente el banner manual: no instalamos el Autotag que combina ventanas emergentes, anuncios de pantalla completa y otros formatos. La publicidad de Google AdSense permanece desactivada. Su etiqueta de verificación y el archivo ads.txt no solicitan anuncios por sí solos.</p>
             </section>
 
             <section className="bg-white/5 p-4 sm:p-5 rounded-2xl border border-white/5">

@@ -1,6 +1,6 @@
 {
   "name": "musiclub",
-  "version": "10.2.0",
+  "version": "10.3.0",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
@@ -40,7 +40,7 @@
     "sync:recordclub:force": "node scripts/dailyRecordClubSync.mjs --force",
     "check:releases": "node scripts/checkUpcomingReleasesCron.mjs",
     "send:patchnotes": "node scripts/sendPatchNotesEmail.mjs",
-    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs tests/cover-ratings.test.mjs tests/musicbrainz-identity.test.mjs tests/private-backup.test.mjs tests/artist-discographies.test.mjs tests/catalog-spotify-search.test.mjs tests/review-chronology.test.mjs tests/pool-nomination-schema.test.mjs tests/pool-release-genres.test.mjs tests/pool-rooms.test.mjs tests/pool-review-schedule.test.mjs tests/catalog-performance.test.mjs tests/cover-image-source.test.mjs tests/release-library.test.mjs tests/visual-interface.test.mjs tests/release-refresh.test.mjs",
+    "test:critical": "node --test tests/critical.test.mjs tests/pool-graduation.test.mjs tests/operations.test.mjs tests/genres.test.mjs tests/genre-recommendations.test.mjs tests/pool-manual.test.mjs tests/pool-capsules.test.mjs tests/cover-ratings.test.mjs tests/musicbrainz-identity.test.mjs tests/private-backup.test.mjs tests/artist-discographies.test.mjs tests/catalog-spotify-search.test.mjs tests/review-chronology.test.mjs tests/pool-nomination-schema.test.mjs tests/pool-release-genres.test.mjs tests/pool-rooms.test.mjs tests/pool-review-schedule.test.mjs tests/catalog-performance.test.mjs tests/cover-image-source.test.mjs tests/release-library.test.mjs tests/visual-interface.test.mjs tests/release-refresh.test.mjs tests/advertising-consent.test.mjs",
     "genres:update": "node scripts/update-genre-registry.mjs",
     "test:browser": "playwright test",
     "tracks:audit": "node scripts/audit-release-tracks.mjs",
