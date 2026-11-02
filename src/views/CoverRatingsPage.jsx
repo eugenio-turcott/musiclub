@@ -8,6 +8,7 @@ import {
   useParams,
 } from 'react-router-dom';
 import { AppHeader } from '../components/AppHeader';
+import {AdsterraAdvertising} from '../components/AdsterraAdvertising';
 import { Footer } from '../components/Footer';
 import { SEO } from '../components/SEO';
 import { LoginModal } from '../components/LoginModal';
@@ -780,6 +781,7 @@ export function CoverRatingsPage() {
         {/* =========================================================================
             2. PESTAÑA A: TALLER DE CALIFICACIÓN (MODO CURADOR DE ARTE)
             ========================================================================= */}
+        <AdsterraAdvertising variant="inline" slot="covers-gallery"/>
         {activeTab === 'curator' && (
           <section className="my-6 text-left animate-fadeIn">
             {isLoading ? (

@@ -12,7 +12,7 @@ import { HeaderAlbumSearch } from './HeaderAlbumSearch';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { LanguageSelector } from './LanguageSelector';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
-import {AdsterraAdvertising} from './AdsterraAdvertising';
+import {AdsterraAdvertising,AdvertisingRails} from './AdsterraAdvertising';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 
 export function AppHeader({
@@ -1035,7 +1035,7 @@ export function AppHeader({
       )}
     </header>
     {showAdvertising && advertisingPolicy.publicAdvertisingPath(location.pathname) &&
-      <AdsterraAdvertising variant="banner" key={`header-ad-${location.pathname}`} />}
+      <><AdsterraAdvertising variant="banner" key={`header-ad-${location.pathname}`} /><AdvertisingRails key={`rails-${location.pathname}`}/></>}
     </>
   );
 }

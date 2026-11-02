@@ -5,6 +5,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../utils/translateCrashGuard';
 import { SiteMetrics } from '../components/SiteMetrics';
 import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
+import {AdvertisingPlacementProvider} from '../components/AdvertisingPlacementProvider';
 import {usePathname} from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 
@@ -50,7 +51,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      <ReleaseLibraryProvider>{children}</ReleaseLibraryProvider>
+      <ReleaseLibraryProvider><AdvertisingPlacementProvider>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider>
       <SiteMetrics />
     </ErrorBoundary>
   );

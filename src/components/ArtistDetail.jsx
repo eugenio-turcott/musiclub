@@ -7,6 +7,7 @@ import { GenreLabel } from './GenreLabel';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
 import { useAuth } from '../hooks/useAuth';
@@ -462,6 +463,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
             </div>
 
             {/* DISCOGRAPHY SECTION (Spotify Tabs: Álbumes, EPs, Sencillos, Compilaciones) */}
+            <AdsterraAdvertising variant="inline" slot="artist-discography" />
             <div className="space-y-5">
               <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
                 <div>

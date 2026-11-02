@@ -8,6 +8,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { supabaseService, supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { slugifyArtist, getReleaseUrl, getCommunityTopAlbum } from '../utils/ratingUtils';
@@ -985,16 +986,19 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             />
 
             {/* 2. SECCIÓN DE RELEASES ANTICIPADOS (No calificables hasta estreno, indexables) */}
+            <AdsterraAdvertising variant="inline" slot="catalog-trending" />
             <AnticipatedSection
               anticipatedReleases={anticipatedReleases}
               loading={loadingAnticipated}
             />
 
             {/* 3. SECCIÓN DE MÁS RECOMENDADOS POR LOS USUARIOS DEL CLUB */}
+            <AdsterraAdvertising variant="native" slot="catalog-upcoming" />
             <RecommendedSection albums={albums} />
             </>}
 
             {/* 4. SECCIÓN DE CATÁLOGO COMPLETO Y EXPLORADOR */}
+            <AdsterraAdvertising variant="rectangle" slot="catalog-explorer" />
             <div
               id="explorador-catalogo"
               ref={catalogExplorerRef}

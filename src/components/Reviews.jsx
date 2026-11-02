@@ -9,6 +9,7 @@ import { MusiclubVinyl } from './MusiclubVinyl';
 import { publicCatalog } from '../services/publicCatalog';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { AppHeader } from './AppHeader';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { Link } from 'react-router-dom';
 import { Footer } from './Footer';
 import { supabase } from '../services/supabaseClient';
@@ -401,6 +402,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
         )}
 
         {/* Reviews Feed */}
+        {isPage&&!loading&&!error&&filteredReviews.length>0&&<AdsterraAdvertising variant="inline" slot="reviews-feed"/>}
         {loading ? (
           <div className="py-20 text-center space-y-4">
             <div className="relative w-12 h-12 sm:w-14 sm:h-14 mx-auto flex items-center justify-center">

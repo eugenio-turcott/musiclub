@@ -91,7 +91,9 @@ test('Adsterra renders after consuming its configuration, uses fitting banners a
   await page.setViewportSize(original);
   await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
   expect(await zones.evaluateAll(items=>items.map(item=>item.dataset.adsterraZone))).toEqual(selected);
-  expect(requests.adsterra.length).toBe(before);
+  // Other lazy slots may enter view on resize; already loaded units never reload.
+  const loaded=requests.adsterra.slice(0,before);
+  for(const url of new Set(loaded)) expect(requests.adsterra.filter(value=>value===url).length).toBe(loaded.filter(value=>value===url).length);
   await ad.screenshot({path:`outputs/adsterra-responsive-${testInfo.project.name}.png`});
   expect(pageErrors.filter(message=>message.includes('atOptions'))).toEqual([]);
   await expect(page.locator('body[data-advertising-escaped]')).toHaveCount(0);
@@ -121,6 +123,48 @@ test('home and catalog show one compact banner in the first screen, outside the 
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
     await page.screenshot({path:`outputs/banner-first-screen-${path==='/'?'home':'catalog'}-${testInfo.project.name}.png`});
   }
+});
+
+test('content ads sit between catalog sections and native ads no longer occupy the footer',async({page},testInfo)=>{
+  await mockAdvertising(page,'automatic');
+  await page.goto('/catalogo');
+  const inline=page.locator('[data-advertising-slot="catalog-trending"]');
+  await inline.scrollIntoViewIfNeeded();
+  await expect(inline.locator('iframe').contentFrame().frameLocator('iframe').getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+  const box=await inline.boundingBox();
+  const trending=await page.getByRole('heading',{name:/Tendencias de/}).boundingBox();
+  const upcoming=await page.getByRole('heading',{name:'Lanzamientos Próximos a Salir',exact:true}).boundingBox();
+  expect(box.y).toBeGreaterThan(trending.y+trending.height);
+  expect(box.y+box.height).toBeLessThan(upcoming.y);
+  const native=page.locator('[data-advertising-slot="catalog-upcoming"]');
+  await native.scrollIntoViewIfNeeded();
+  await expect(native.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
+  await expect(page.getByRole('contentinfo').locator('[data-adsterra-zone]')).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.screenshot({path:`outputs/advertising-in-content-${testInfo.project.name}.png`});
+});
+
+test('wide desktop rails stay outside content and disappear on smaller screens without refreshing',async({page},testInfo)=>{
+  const requests=await mockAdvertising(page,'automatic');
+  await page.setViewportSize({width:1920,height:1080});
+  await page.goto('/catalogo');
+  const left=page.getByRole('complementary',{name:'Publicidad lateral izquierda',exact:true});
+  const right=page.getByRole('complementary',{name:'Publicidad lateral derecha',exact:true});
+  await expect(left).toBeVisible();await expect(right).toBeVisible();
+  const nav=await page.locator('header').first().boundingBox(),a=await left.boundingBox(),b=await right.boundingBox();
+  expect(a.x+a.width).toBeLessThan(nav.x);
+  expect(b.x).toBeGreaterThan(nav.x+nav.width);
+  for(const rail of [left,right]) await expect(rail.locator('iframe').contentFrame().frameLocator('iframe').getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+  const selected=await page.locator('[data-adsterra-zone]').evaluateAll(nodes=>nodes.map(node=>node.dataset.adsterraZone));
+  expect(new Set(selected).size).toBe(selected.length);
+  await page.screenshot({path:`outputs/advertising-rails-${testInfo.project.name}.png`});
+  const before=requests.adsterra.filter(url=>url.includes('33c8156')||url.includes('b92ef931')).length;
+  await page.setViewportSize({width:390,height:844});
+  await expect(left).toBeHidden();await expect(right).toBeHidden();
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.setViewportSize({width:1920,height:1080});
+  await expect(left).toBeVisible();await expect(right).toBeVisible();
+  expect(requests.adsterra.filter(url=>url.includes('33c8156')||url.includes('b92ef931')).length).toBe(before);
 });
 
 test('Adsterra remains off before permission and after rejection',async({page})=>{

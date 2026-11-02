@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { Footer } from './Footer';
 import { GenreVinylViewer } from './GenreVinylViewer';
 import { GenreReleaseCard } from './GenreReleaseCard';
@@ -27,6 +28,7 @@ export function GenreDetail({ genre, albums }) {
         <div className={styles.visual}><GenreVinylViewer genre={genre} className={styles.vinyl} /></div>
       </div>
     </section>
+    {albums.length>0&&<AdsterraAdvertising variant="inline" slot="genre-releases"/>}
     {!albums.length ? <p className="rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-white/60">Este género aún no tiene lanzamientos en el club.</p> : <section aria-label={`Lanzamientos de ${genre.name}`} className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
       {albums.slice((page-1)*24,page*24).map(album => <GenreReleaseCard key={album.id} album={album} />)}
     </section>}

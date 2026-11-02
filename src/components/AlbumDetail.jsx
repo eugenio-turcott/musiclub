@@ -14,6 +14,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
 import { ReviewSystem } from './ReviewSystem';
@@ -1718,6 +1719,7 @@ export function AlbumDetail({
         </div>
 
         {/* TRACKLIST & RATINGS SECTION */}
+        <AdsterraAdvertising variant="inline" slot="release-tracklist" />
         <div className="release-track-genres-grid">
         <section className="min-w-0 space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
@@ -1865,10 +1867,11 @@ export function AlbumDetail({
             })()}
           </div>
         </section>
-        <ReleaseGenresPanel genres={album.genres || []} />
+        <div className="min-w-0"><ReleaseGenresPanel genres={album.genres || []} /><AdsterraAdvertising variant="rectangle" slot="release-genres" /></div>
         </div>
 
         {/* COMMUNITY REVIEWS SECTION */}
+        <AdsterraAdvertising variant="native" slot="release-reviews" />
         <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">

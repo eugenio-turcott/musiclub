@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import styles from './InformationPage.module.css';
 
 export function InformationPage({ title, intro, children }) {
@@ -14,6 +15,7 @@ export function InformationPage({ title, intro, children }) {
       <nav aria-label="Información de Musiclub" className={styles.navigation}>
         <Link href="/sobre-musiclub">Sobre Musiclub</Link><Link href="/contacto">Contacto</Link><Link href="/guias">Guías de escucha</Link><Link href="/faq">Preguntas frecuentes</Link>
       </nav>
+      <AdsterraAdvertising variant="inline" slot="information-article"/>
       <div className={styles.content}>{children}</div>
     </main>
     <Footer />

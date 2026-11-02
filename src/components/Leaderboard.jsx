@@ -4,6 +4,7 @@ import { InterfaceText, UiIcon } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { AppHeader } from './AppHeader';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
 import { Footer } from './Footer';
 import { supabaseService } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
@@ -449,6 +450,7 @@ export function Leaderboard({ isPage = false }) {
         </div>
 
         {/* Podium Top 3 */}
+        {isPage&&!loading&&<AdsterraAdvertising variant="inline" slot="leaderboard-ranking"/>}
         {podiumUsers[1] && (
           <div className="bg-linear-to-b from-[#181a27]/90 to-[#12131e]/90 border border-white/5 rounded-2xl sm:rounded-3xl p-4 sm:p-6 md:p-8 backdrop-blur-md relative overflow-hidden">
             <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">

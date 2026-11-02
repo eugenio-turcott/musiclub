@@ -17,6 +17,7 @@ import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { EditorialSpotlight } from '../components/EditorialSpotlight';
 import { AdvertisingConsentNotice } from '../components/AdvertisingConsentNotice';
+import {AdsterraAdvertising} from '../components/AdsterraAdvertising';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -1068,6 +1069,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
             RELEASE ALEATORIO POR HORA RECOMENDADO PARA CALIFICAR (1 A 3 RESEÑAS)
             ========================================================================= */}
         <EditorialSpotlight />
+        <AdsterraAdvertising variant="inline" slot="home-radar" />
         {communityReviews.length > 0 && (
           <section className="my-12 sm:my-16 text-left">
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
@@ -1250,6 +1252,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         )}
 
         <AdvertisingConsentNotice />
+        <AdsterraAdvertising variant="rectangle" slot="home-community" />
 
         <HourlyRecommendedRelease
           albums={albums}
@@ -1354,6 +1357,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           </div>
         </section>
 
+        <AdsterraAdvertising variant="native" slot="home-features" />
         {/* =========================================================================
             4. BENTO GRID: LAS CARACTERÍSTICAS DE MUSICLUB
             ========================================================================= */}
