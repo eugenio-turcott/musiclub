@@ -7,7 +7,6 @@ import { SiteMetrics } from '../components/SiteMetrics';
 import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
 import {usePathname} from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
-import {AdsterraSocialBar} from '../components/AdsterraAdvertising';
 
 export function ClientProviders({ children }) {
   const pathname = usePathname();
@@ -53,7 +52,6 @@ export function ClientProviders({ children }) {
       />
       <ReleaseLibraryProvider>{children}</ReleaseLibraryProvider>
       <SiteMetrics />
-      <AdsterraSocialBar />
     </ErrorBoundary>
   );
 }

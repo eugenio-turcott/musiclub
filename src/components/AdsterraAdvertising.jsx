@@ -1,9 +1,6 @@
 'use client';
-import Script from 'next/script';
 import {useEffect,useRef,useState} from 'react';
-import {usePathname} from 'next/navigation';
 import {useAdvertisingPermission} from '../services/advertisingConsent';
-import policy from '../utils/advertisingPolicy.cjs';
 import placements from '../utils/adsterraPlacements.cjs';
 
 function markLoaded() { document.documentElement.dataset.musiclubAdvertisingLoaded='true'; }
@@ -79,11 +76,4 @@ export function AdsterraAdvertising({variant='support'}) {
       {sizes.vertical && <div hidden={width<1000}><BannerFrame banner={sizes.vertical} availableWidth={width} /></div>}
     </div>}
   </section>;
-}
-
-export function AdsterraSocialBar() {
-  const pathname=usePathname();
-  const {allowed}=useAdvertisingPermission();
-  if(!allowed || !policy.publicAdvertisingPath(pathname)) return null;
-  return <Script id="musiclub-adsterra-social" src={placements.SOCIAL_BAR.src} strategy="lazyOnload" onReady={markLoaded} />;
 }

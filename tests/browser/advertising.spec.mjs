@@ -6,8 +6,11 @@ async function mockAdvertising(page, mode='consent') {
   requests.adsterra=[];
   // No real third-party advertising is requested or clicked in automated tests.
   await page.route('**/bicea.org/22/*',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`
+    'use strict';
+    const options=window.atOptions;
+    delete window.atOptions;
     const box=document.createElement('div');box.textContent='Banner Adsterra de prueba';
-    box.style.cssText='box-sizing:border-box;width:'+atOptions.width+'px;height:'+atOptions.height+'px;background:#261b38;color:#f9a8d4;display:grid;place-items:center;font:14px sans-serif;border:1px solid #f093fb44';document.body.append(box);`});});
+    box.style.cssText='box-sizing:border-box;width:'+options.width+'px;height:'+options.height+'px;background:#261b38;color:#f9a8d4;display:grid;place-items:center;font:14px sans-serif;border:1px solid #f093fb44';document.body.append(box);`});});
   await page.route('**/pl31167703.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`
     document.getElementById('container-0b1f8e88620f4f682b83e40675c39376').innerHTML='<div style="padding:30px;background:#261b38;color:#f9a8d4;text-align:center">Anuncio nativo de prueba</div>';`});});
   await page.route('**/pl31167705.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`window.__socialBarLoads=(window.__socialBarLoads||0)+1;`});});
@@ -50,10 +53,11 @@ test('advertising never loads before consent or after rejection, and can be enab
   expect(await page.evaluate(()=>window.__bannerCalls)).toEqual([{zoneId:'12384990',renderIn:'#musiclub-display-adcash'}]);
 });
 
-test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar without popunders',async({page,context},testInfo)=>{
+test('Adsterra renders after consuming its configuration, uses fitting banners and excludes floating ads',async({page,context},testInfo)=>{
   const requests=await mockAdvertising(page,'automatic');
+  const pageErrors=[];
+  page.on('pageerror',error=>pageErrors.push(error.message));
   await page.goto('/catalogo');
-  await expect.poll(()=>page.evaluate(()=>window.__socialBarLoads)).toBe(1);
   const topBanner=page.getByRole('region',{name:'Banner de Adsterra',exact:true});
   await expect(topBanner.locator('iframe')).toBeVisible();
   const topBounds=await topBanner.boundingBox();
@@ -82,6 +86,9 @@ test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar 
   expect(await zones.evaluateAll(items=>items.map(item=>item.dataset.adsterraZone))).toEqual(selected);
   expect(requests.adsterra.length).toBe(before);
   await ad.screenshot({path:`outputs/adsterra-responsive-${testInfo.project.name}.png`});
+  expect(pageErrors.filter(message=>message.includes('atOptions'))).toEqual([]);
+  expect(requests.adsterra.some(url=>url.includes('pl31167705'))).toBe(false);
+  await expect(page.locator('#musiclub-adsterra-social')).toHaveCount(0);
   expect(context.pages()).toHaveLength(1);
   expect(selected).not.toContain('31067203');
   expect(selected).not.toContain('31067205');

@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import consent from '../src/utils/advertisingConsent.cjs';
 import policy from '../src/utils/advertisingPolicy.cjs';
 import placements from '../src/utils/adsterraPlacements.cjs';
@@ -48,11 +49,24 @@ test('Adsterra selects only fitting official sizes and keeps vertical ads off sm
   assert.equal(placements.verticalBanner(1000,800).height,300);
   assert.equal(placements.verticalBanner(1200,900).height,600);
   assert.equal(Object.keys(placements.BANNERS).length,6);
-  const ids=Object.values(placements.BANNERS).map(value=>value.id).concat(placements.NATIVE.id,placements.SOCIAL_BAR.id);
-  assert.equal(new Set(ids).size,8);
-  assert.ok(!ids.includes('31067203') && !ids.includes('31067205'));
+  const ids=Object.values(placements.BANNERS).map(value=>value.id).concat(placements.NATIVE.id);
+  assert.equal(new Set(ids).size,7);
+  assert.ok(!ids.includes('31067203') && !ids.includes('31067205') && !ids.includes('31067206'));
   for(const banner of Object.values(placements.BANNERS)) {
     assert.match(placements.bannerDocument(banner),new RegExp(`https://bicea.org/22/${banner.key}`));
   }
   assert.throws(()=>placements.bannerDocument({key:'untrusted'}),/Unknown/);
+});
+
+test('Adsterra can consume and delete its configuration in strict mode',()=>{
+  for(const banner of Object.values(placements.BANNERS)) {
+    const bootstrap=placements.bannerDocument(banner).match(/<script>([\s\S]*?)<\/script>/)[1];
+    const context=vm.createContext({});
+    vm.runInContext('window=globalThis',context);
+    vm.runInContext(bootstrap,context);
+    assert.equal(context.atOptions.key,banner.key);
+    // The real vendor script deletes this property before rendering the ad.
+    assert.equal(vm.runInContext('"use strict"; delete window.atOptions',context),true);
+    assert.equal(context.atOptions,undefined);
+  }
 });

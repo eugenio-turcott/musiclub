@@ -9,7 +9,6 @@ const BANNERS = Object.freeze({
   wide: {id:'32055938',key:'3ecad5bb8fd608f2d32d944a89405f46',width:728,height:90},
 });
 const NATIVE = {id:'31067204',key:'0b1f8e88620f4f682b83e40675c39376',src:'https://pl31167703.profitableratecpmnetwork.com/0b1f8e88620f4f682b83e40675c39376/invoke.js'};
-const SOCIAL_BAR = {id:'31067206',src:'https://pl31167705.profitableratecpmnetwork.com/e2/ce/03/e2ce03984e1cfb78b65074eb82fd1f20.js'};
 
 function horizontalBanner(width) {
   return [BANNERS.wide,BANNERS.medium,BANNERS.mobile,BANNERS.rectangle].find(banner=>width>=banner.width) || null;
@@ -21,6 +20,8 @@ function verticalBanner(width,height) {
 function bannerDocument(banner) {
   if(!Object.values(BANNERS).includes(banner)) throw new Error('Unknown advertising placement');
   const options=JSON.stringify({key:banner.key,format:'iframe',height:banner.height,width:banner.width,params:{}});
-  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>var atOptions=${options};</script><script src="https://bicea.org/22/${banner.key}"></script></body></html>`;
+  // The vendor consumes then deletes window.atOptions in strict mode. A global
+  // `var` makes it non-configurable and stops rendering with a TypeError.
+  return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>window.atOptions=${options};</script><script src="https://bicea.org/22/${banner.key}"></script></body></html>`;
 }
-module.exports={BANNERS,NATIVE,SOCIAL_BAR,horizontalBanner,verticalBanner,bannerDocument};
+module.exports={BANNERS,NATIVE,horizontalBanner,verticalBanner,bannerDocument};
