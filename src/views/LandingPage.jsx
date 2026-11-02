@@ -661,7 +661,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
 
                 <Link
                   to="/gashapon"
-                  className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold text-sm rounded-2xl border border-white/15 hover:border-white/30 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full sm:w-auto px-5 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold text-sm rounded-2xl border border-white/15 hover:text-pink-200 backdrop-blur-md shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
                 >
                   <span><InterfaceText>{"🎰"}</InterfaceText></span>
                   <span>Gashapon Arcade</span>

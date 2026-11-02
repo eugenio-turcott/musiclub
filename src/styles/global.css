@@ -885,6 +885,10 @@
 .ui-icon { display: inline-block; width: var(--ui-icon-size, 16px); height: var(--ui-icon-size, 16px); color: var(--ui-icon-color, var(--ui-icon-accent)); flex-shrink: 0; vertical-align: middle; }
 .interface-label { display: inline-flex; align-items: center; justify-content: inherit; gap: .35em; max-width: 100%; min-width: 0; vertical-align: middle; }
 .interface-label-text { min-width: 0; }
+.genre-label-link { text-decoration: none; transition: color 180ms ease, filter 180ms ease; }
+@media (hover: hover) {
+  .genre-label-link:hover { color: #f9a8d4; }
+}
 :where(button, a[href], summary, [role="tab"]) { --ui-icon-color: currentColor; --ui-icon-size: 20px; }
 .release-card-actions :is(button, a) { --ui-icon-size: 20px; }
 .release-score-grid > .release-meta-stack { grid-column: 1 / -1; }
@@ -899,7 +903,8 @@
 @layer base {
   :where(button, input[type="button"], input[type="submit"], input[type="reset"], a[href], [role="tab"]) { transition-property: filter, box-shadow, background-color, border-color, color; transition-duration: 160ms; transition-timing-function: ease; }
   @media (hover: hover) {
-    :where(button, input[type="button"], input[type="submit"], input[type="reset"], a[href], [role="tab"]):not(:disabled):not([aria-disabled="true"]):hover { filter: brightness(1.14); box-shadow: 0 0 0 1px rgb(255 255 255 / .12), 0 5px 18px rgb(0 0 0 / .12); }
+    :where(button, input[type="button"], input[type="submit"], input[type="reset"], a[href], [role="tab"]):not(:disabled):not([aria-disabled="true"]):hover { filter: brightness(1.12); }
+    :where(a[href]):not([aria-disabled="true"]):hover { color: #f9a8d4; text-decoration-color: currentColor; }
   }
   :where(button, input[type="button"], input[type="submit"], a[href], [role="tab"]):not(:disabled):not([aria-disabled="true"]):active { filter: brightness(.92); }
   :where(button, input[type="button"], input[type="submit"], a[href], [role="tab"]):focus-visible { outline: 2px solid #f9a8d4; outline-offset: 3px; }
@@ -915,7 +920,7 @@
 
 @layer base {
  @media (hover: hover) {
-  :where([role="button"]):not([aria-disabled="true"]):hover { box-shadow: 0 0 0 1px rgb(249 168 212 / .35); }
+  :where([role="button"]):not([aria-disabled="true"]):hover { filter: brightness(1.12); }
  }
  :where([role="button"]):focus-visible { outline: 2px solid #f9a8d4; outline-offset: 3px; }
 }

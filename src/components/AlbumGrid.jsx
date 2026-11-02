@@ -342,7 +342,7 @@ export function AlbumGrid({
                           : 'border-[#f5576c] shadow-[0_0_30px_rgba(245,87,108,0.2)] hover:scale-105'
                         : isUserAlbum(album)
                           ? 'border-yellow-400 ring-2 ring-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,0.35)] hover:scale-105'
-                          : 'border-white/5 hover:border-white/20 hover:scale-105'
+                          : 'border-white/5 hover:scale-105'
                     }`}
                   >
                     <img

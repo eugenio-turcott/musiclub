@@ -137,10 +137,10 @@ html:has(.account-page), body:has(.account-page) { overflow-x: clip; }
 .account-access-state h1 { color: #fff; font-size: 30px; font-weight: 900; }
 .account-access-state p { color: #aaa0b7; max-width: 45ch; font-size: 14px; line-height: 1.7; }
 
-/* Icons inherit the plate or badge's legible foreground, including metallic tiers. */
+/* Badge icons sit directly on the shared gradient, with monochrome contrast. */
 .achievement-badge { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; min-width: 0; padding: 6px 10px 6px 6px; border: 1px solid #ffffff35; border-radius: 14px; box-shadow: inset 0 1px #ffffff30, 0 3px 12px #0003; text-align: left; vertical-align: middle; transition: transform .2s, box-shadow .2s; }
 .achievement-badge:hover { transform: translateY(-1px); box-shadow: inset 0 1px #ffffff40, 0 5px 16px #0004; }
-.achievement-badge-emblem { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 34px; width: 34px; height: 34px; border: 1px solid #ffffff50; border-radius: 11px; box-shadow: inset 0 1px #ffffff50; }
+.achievement-badge-emblem { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 34px; width: 34px; height: 34px; background: transparent; border: 0; box-shadow: none; }
 .achievement-badge .achievement-badge-emblem .ui-icon { width: 22px; height: 22px; color: inherit; --ui-icon-color: currentColor; }
 .achievement-badge-copy { display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 11px; font-weight: 800; line-height: 1.25; overflow-wrap: anywhere; }
 .achievement-badge-copy small { font-size: 9px; font-weight: 700; letter-spacing: .04em; opacity: .85; }

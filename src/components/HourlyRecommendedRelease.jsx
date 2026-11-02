@@ -553,7 +553,7 @@ export function HourlyRecommendedRelease({
 
               <Link
                 to={releaseUrl}
-                className="w-full sm:w-auto px-5 py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm rounded-2xl border border-white/15 hover:border-white/30 transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-5 py-3 bg-white/10 hover:bg-white/15 text-white font-bold text-xs sm:text-sm rounded-2xl border border-white/15 hover:text-pink-200 transition-all flex items-center justify-center gap-2"
               >
                 <span><InterfaceText>{"💿"}</InterfaceText></span>
                 <span>Ver Ficha Completa</span>

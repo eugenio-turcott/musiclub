@@ -11,11 +11,13 @@ export function AchievementBadge({ badge, compact = false }) {
     Object.values(TIER_STYLES).find(style => style.tierRoman === badge.tierRoman);
   const record = badge.isRecord || badge.type === 'record';
   const rank = tier ? `${tier.tierRoman} · ${tier.tierName}` : record ? 'Récord #1' : '';
+  const palette = badge.color || badge.badgeClass || 'from-purple-600 to-indigo-600 text-white';
+  const iconInk = /(?:^|\s)text-(?:black|[a-z]+-9(?:00|50))(?:\s|$)/.test(palette) ? '#000000' : '#ffffff';
   return <span data-achievement-badge={badge.id || label} data-badge-tier={tier?.tierRoman}
     aria-label={`${label}${rank ? ` — ${rank}` : ''}`}
     title={badge.tooltip || badge.desc || `${label}${rank ? ` — ${rank}` : ''}`}
-    className={`achievement-badge ${compact ? 'achievement-badge-compact' : ''} bg-linear-to-r ${badge.color || badge.badgeClass || 'from-purple-600 to-indigo-600 text-white'}`}>
-    <span className={`achievement-badge-emblem bg-linear-to-br ${tier?.badgeClass || 'from-white/20 to-white/5'}`}><UiIcon name={icon} tone="inherit"/></span>
+    className={`achievement-badge ${compact ? 'achievement-badge-compact' : ''} bg-linear-to-r ${palette}`}>
+    <span className="achievement-badge-emblem" style={{color:iconInk}}><UiIcon name={icon} tone="inherit"/></span>
     <span className="achievement-badge-copy"><span>{label}</span>{rank && <small>{rank}</small>}</span>
   </span>;
 }

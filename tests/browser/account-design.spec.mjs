@@ -159,6 +159,15 @@ test('profile displays legacy combined genres separately without requiring a set
  await page.goto('/profile');
  const identity=page.getByRole('region',{name:'Tu perfil musical'});
  for(const name of ['R&B','Soul','Latino','Trap'])await expect(identity.getByRole('link',{name,exact:true})).toHaveCount(1);
+ if(testInfo.project.name==='desktop'){
+   const genre=identity.getByRole('link',{name:'R&B',exact:true});
+   await genre.hover();
+   await expect.poll(()=>genre.evaluate(el=>({color:getComputedStyle(el).color,shadow:getComputedStyle(el).boxShadow}))).toEqual({color:'rgb(249, 168, 212)',shadow:'none'});
+   await page.keyboard.press('Tab');
+   await genre.focus();
+   await expect.poll(()=>genre.evaluate(el=>getComputedStyle(el).outlineWidth)).toBe('2px');
+   await page.mouse.move(0,0);
+ }
  await expect(identity).not.toContainText('R&B / Soul');
  await expect(identity.locator('[data-achievement-badge]')).not.toHaveCount(0);
  await expect(identity.locator('[data-badge-tier]').first()).toBeVisible();
@@ -190,6 +199,14 @@ test('leaderboard and badge guide expose the same tiered badge artwork',async({p
  const match=guide.locator('[data-badge-tier]').filter({hasText:await rankBadge.locator('.achievement-badge-copy > span').innerText()});
  await expect(match).toHaveCount(1);
  await expect(match).toHaveAttribute('aria-label',label);
+ const emblems=await guide.locator('.achievement-badge-emblem').evaluateAll(items=>items.map(el=>{
+   const style=getComputedStyle(el);return {border:style.borderTopWidth,background:style.backgroundImage,fill:style.backgroundColor,shadow:style.boxShadow,ink:getComputedStyle(el.querySelector('svg')).color};
+ }));
+ expect(emblems.length).toBeGreaterThan(20);
+ for(const emblem of emblems){
+   expect(emblem).toMatchObject({border:'0px',background:'none',fill:'rgba(0, 0, 0, 0)',shadow:'none'});
+   expect(['rgb(0, 0, 0)','rgb(255, 255, 255)']).toContain(emblem.ink);
+ }
  expect(await guide.innerText()).not.toMatch(/\p{Extended_Pictographic}/u);
  mkdirSync('outputs/unified-members',{recursive:true});
  await page.screenshot({path:`outputs/unified-members/guide-${testInfo.project.name}.png`});
