@@ -14,7 +14,7 @@ export function GenreDetail({ genre, albums }) {
   const pressing = visuals.genreRevealArtwork(genre.id);
   return <div className="min-h-screen cyber-grid p-3 sm:p-6">
     <div className="mx-auto w-full max-w-7xl space-y-6">
-    <AppHeader showTitle={false} />
+    <AppHeader showTitle={false} showAdvertising={albums.length>0} />
     <section className={styles.hero} style={{'--genre-color':pressing.base, '--genre-accent':pressing.accent, '--genre-light':pressing.highlight}} aria-labelledby="genre-title">
       <Link to="/catalogo?tab=genres" className={styles.back}><span aria-hidden="true">←</span> Explorar géneros</Link>
       <div className={styles.layout}>

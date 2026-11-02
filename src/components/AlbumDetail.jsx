@@ -959,7 +959,7 @@ export function AlbumDetail({
           keywords={pageKeywords}
         />
         <div className="max-w-6xl mx-auto space-y-8">
-          <AppHeader showTitle={false} />
+          <AppHeader showTitle={false} showAdvertising={false} />
           <div className="py-24 text-center space-y-4">
             <div className="inline-block w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
             <p className="text-slate-400 text-sm font-medium">
@@ -982,7 +982,7 @@ export function AlbumDetail({
           keywords="musica, albumes, reviews, calificaciones, musiclub"
         />
         <div className="max-w-6xl mx-auto space-y-8">
-          <AppHeader showTitle={false} />
+          <AppHeader showTitle={false} showAdvertising={false} />
           <div className="p-10 bg-white/5 border border-white/10 rounded-3xl text-center space-y-4 max-w-lg mx-auto mt-12 shadow-2xl">
             <span className="text-5xl"><InterfaceText>{"💿"}</InterfaceText></span>
             <h2 className="text-2xl font-black text-white">

@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.4.0 · **Última actualización:** 2 de noviembre de 2026.
+**Versión:** 10.4.1 · **Última actualización:** 2 de noviembre de 2026.
 
 ## Qué incluye
 
@@ -209,13 +209,13 @@ La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas
 - Los respaldos privados y la recuperación tienen herramientas y pruebas propias. Un respaldo de datos no incluye automáticamente archivos binarios de Storage ni toda la configuración del proveedor.
 - La verificación de AdSense incluye metadatos y `ads.txt`; no acredita una aprobación ni activa anuncios o cobros por sí sola.
 
-## Publicidad · 10.4.0
+## Publicidad · 10.4.1
 
 Adcash conserva la zona manual Display `12384990` (300 × 250), con su biblioteca oficial y `runBanner` con `renderIn`. Adsterra añade banners de 300 × 250, 468 × 60, 160 × 300, 160 × 600, 320 × 50 y 728 × 90, Native Banner y Social Bar dentro de la página. Los identificadores públicos y códigos de estas ocho unidades están en `src/utils/adsterraPlacements.cjs`. No se instalan Popunder/Onclick, Smartlink ni Autotag. AdSense sigue sin servir anuncios.
 
 `AdcashBanner` aparece una vez por página: dentro de `LandingPage` para el inicio y en el footer para catálogo, releases, artistas, géneros, reseñas, leaderboard, portadas y contenido de ayuda/editorial. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
 
-`AdsterraAdvertising` añade al final del contenido público un banner ajustado al ancho, un nativo y, cuando hay espacio de escritorio, un banner vertical. Selecciona el tamaño una sola vez por visita; los seis tamaños son alternativas según pantalla, no seis banners amontonados. Los banners se ejecutan en documentos aislados que sólo admiten nuestros códigos fijos (`/api/advertising/banner/[placement]`); se impide que naveguen la página principal. Native Banner carga al acercarse a su posición. `AdsterraSocialBar` se monta una sola vez desde `ClientProviders` y reutiliza su biblioteca al navegar entre páginas públicas.
+`AppHeader` coloca un banner horizontal centrado debajo de la navegación, fuera del encabezado sticky, para que se vea en la primera pantalla. Las páginas privadas, errores, fichas cargando y géneros vacíos no lo incluyen. `AdsterraAdvertising` mantiene el nativo y, cuando hay espacio de escritorio, un banner vertical al final del contenido; el inicio también incluye estos formatos. Selecciona el tamaño una sola vez por visita; los seis tamaños son alternativas según pantalla, no seis banners amontonados. No se repite la unidad horizontal en el footer. Los banners se ejecutan en documentos aislados que sólo admiten nuestros códigos fijos (`/api/advertising/banner/[placement]`); se impide que naveguen la página principal. Native Banner carga al acercarse a su posición. `AdsterraSocialBar` se monta una sola vez desde `ClientProviders` y reutiliza su biblioteca al navegar entre páginas públicas.
 
 `/api/advertising/policy` usa exclusivamente `getCloudflareContext().cf.country`: México habilita carga automática con aviso y rechazo disponible; otras ubicaciones o una ubicación desconocida mantienen permiso previo. Esta configuración inicial revisada no pretende afirmar que todos los demás países requieran consentimiento expreso. No se infiere el país del idioma ni se aceptan encabezados o parámetros enviados por el visitante. La respuesta sólo contiene el modo de carga y usa `private, no-store`; no se incorpora al caché compartido del catálogo ni se guarda el país. Véase [contexto de Cloudflare](https://developers.cloudflare.com/workers/runtime-apis/request/).
 

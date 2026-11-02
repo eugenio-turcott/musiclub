@@ -12,6 +12,8 @@ import { HeaderAlbumSearch } from './HeaderAlbumSearch';
 import { NotificationsDropdown } from './NotificationsDropdown';
 import { LanguageSelector } from './LanguageSelector';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+import {AdsterraAdvertising} from './AdsterraAdvertising';
+import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 
 export function AppHeader({
   user: propUser,
@@ -20,6 +22,7 @@ export function AppHeader({
   onLogout: propOnLogout,
   loading: propLoading,
   showTitle = false,
+  showAdvertising = true,
   customTitle,
   customSubtitle,
 }) {
@@ -176,6 +179,7 @@ export function AppHeader({
   const isCommunityActive = isPathActive(communityPaths);
 
   return (
+    <>
     <header className="w-full backdrop-blur-xl sticky top-0 z-50">
       <div className="relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
         {/* Lado Izquierdo: Logo */}
@@ -1030,6 +1034,9 @@ export function AppHeader({
         />
       )}
     </header>
+    {showAdvertising && advertisingPolicy.publicAdvertisingPath(location.pathname) &&
+      <AdsterraAdvertising variant="banner" key={`header-ad-${location.pathname}`} />}
+    </>
   );
 }
 

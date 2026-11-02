@@ -48,7 +48,7 @@ function NativeBanner() {
 }
 
 // Each page selects a size once. Resizing never refreshes an existing impression.
-export function AdsterraAdvertising() {
+export function AdsterraAdvertising({variant='support'}) {
   const {allowed}=useAdvertisingPermission();
   const root=useRef(null), selected=useRef(false);
   const [sizes,setSizes]=useState(null),[width,setWidth]=useState(0);
@@ -60,19 +60,21 @@ export function AdsterraAdvertising() {
       setWidth(value);
       if(value<300 || selected.current) return;
       selected.current=true;
-      const vertical=placements.verticalBanner(value,window.innerHeight);
-      setSizes({horizontal:placements.horizontalBanner(value-(vertical?192:0)),vertical});
+      const vertical=variant==='support'?placements.verticalBanner(value,window.innerHeight):null;
+      setSizes({horizontal:variant==='banner'?placements.horizontalBanner(value):null,vertical});
     };
     measure();
     const observer=new ResizeObserver(measure);
     observer.observe(element);
     return ()=>observer.disconnect();
-  },[allowed]);
-  return <section ref={root} aria-label="Publicidad de Adsterra" className={allowed?'my-10 w-full min-w-0':''}>
+  },[allowed,variant]);
+  if(!allowed) return null;
+  return <section ref={root} aria-label={variant==='banner'?'Banner de Adsterra':'Publicidad de Adsterra'}
+    data-advertising-position={variant==='banner'?'header':'footer'} className={`${sizes?(variant==='banner'?'my-4 sm:my-5':'my-10'):''} w-full min-w-0`}>
     {allowed && sizes && <div className="flex min-w-0 flex-wrap items-start justify-center gap-8">
       <div className="flex min-w-0 flex-1 flex-col items-center gap-7">
-        <BannerFrame banner={sizes.horizontal} availableWidth={width-(sizes.vertical&&width>=1000?192:0)} />
-        <div className="w-full min-w-0"><NativeBanner /></div>
+        {variant==='banner' && <BannerFrame banner={sizes.horizontal} availableWidth={width} />}
+        {variant==='support' && <div className="w-full min-w-0"><NativeBanner /></div>}
       </div>
       {sizes.vertical && <div hidden={width<1000}><BannerFrame banner={sizes.vertical} availableWidth={width} /></div>}
     </div>}

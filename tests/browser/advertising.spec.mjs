@@ -54,10 +54,15 @@ test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar 
   const requests=await mockAdvertising(page,'automatic');
   await page.goto('/catalogo');
   await expect.poll(()=>page.evaluate(()=>window.__socialBarLoads)).toBe(1);
+  const topBanner=page.getByRole('region',{name:'Banner de Adsterra',exact:true});
+  await expect(topBanner.locator('iframe')).toBeVisible();
+  const topBounds=await topBanner.boundingBox();
+  expect(topBounds.y).toBeGreaterThan(0);
+  expect(topBounds.y+topBounds.height).toBeLessThan(page.viewportSize().height);
   const ad=page.getByRole('region',{name:'Publicidad de Adsterra',exact:true});
   await ad.scrollIntoViewIfNeeded();
   await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
-  for(const frame of await ad.locator('iframe').all()) {
+  for(const frame of [...await topBanner.locator('iframe').all(),...await ad.locator('iframe').all()]) {
     await frame.scrollIntoViewIfNeeded();
     await expect(frame.contentFrame().getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
     expect(await frame.getAttribute('sandbox')).not.toContain('allow-top-navigation');
@@ -66,13 +71,15 @@ test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar 
     expect(bounds.x+bounds.width).toBeLessThanOrEqual(page.viewportSize().width);
   }
   const original=page.viewportSize();
-  const selected=await ad.locator('[data-adsterra-zone]').evaluateAll(items=>items.map(item=>item.dataset.adsterraZone));
+  const zones=page.locator('[data-adsterra-zone]');
+  const selected=await zones.evaluateAll(items=>items.map(item=>item.dataset.adsterraZone));
+  expect(new Set(selected).size).toBe(selected.length);
   const before=requests.adsterra.length;
   await page.setViewportSize({width:320,height:800});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.setViewportSize(original);
   await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
-  expect(await ad.locator('[data-adsterra-zone]').evaluateAll(items=>items.map(item=>item.dataset.adsterraZone))).toEqual(selected);
+  expect(await zones.evaluateAll(items=>items.map(item=>item.dataset.adsterraZone))).toEqual(selected);
   expect(requests.adsterra.length).toBe(before);
   await ad.screenshot({path:`outputs/adsterra-responsive-${testInfo.project.name}.png`});
   expect(context.pages()).toHaveLength(1);
@@ -82,6 +89,23 @@ test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar 
   await expect(page).toHaveURL(/\/privacy$/);
   await expect(page.locator('#musiclub-adsterra-social, #musiclub-adsterra-native')).toHaveCount(0);
   await expect(page.getByRole('region',{name:'Publicidad de Adsterra',exact:true})).toHaveCount(0);
+});
+
+test('home and catalog show one compact banner in the first screen, outside the sticky navigation',async({page},testInfo)=>{
+  await mockAdvertising(page,'automatic');
+  for(const path of ['/','/catalogo']) {
+    await page.goto(path);
+    const banner=page.getByRole('region',{name:'Banner de Adsterra',exact:true});
+    await expect(banner.locator('iframe')).toBeVisible();
+    await expect(page.getByRole('region',{name:'Publicidad de Adsterra',exact:true})).toHaveCount(1);
+    await expect(banner.locator('iframe').contentFrame().getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+    const adBounds=await banner.boundingBox();
+    const navBounds=await page.locator('header').first().boundingBox();
+    expect(adBounds.y).toBeGreaterThanOrEqual(navBounds.y+navBounds.height);
+    expect(adBounds.y+adBounds.height).toBeLessThan(page.viewportSize().height);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    await page.screenshot({path:`outputs/banner-first-screen-${path==='/'?'home':'catalog'}-${testInfo.project.name}.png`});
+  }
 });
 
 test('Adsterra remains off before permission and after rejection',async({page})=>{

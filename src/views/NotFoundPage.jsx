@@ -25,7 +25,7 @@ export function NotFoundPage() {
 
       <div className="max-w-7xl mx-auto space-y-8 w-full flex-grow flex flex-col">
         {/* Universal Standard App Header */}
-        <AppHeader showTitle={false} />
+        <AppHeader showTitle={false} showAdvertising={false} />
 
         {/* 404 Hero Container */}
         <div className="my-auto py-8 sm:py-16 flex flex-col items-center justify-center text-center px-4">

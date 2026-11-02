@@ -244,6 +244,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
       <div className="max-w-7xl mx-auto w-full space-y-6 sm:space-y-8">
         <AppHeader
+          showAdvertising={!loading && !error}
           user={user}
           isAdmin={isAdmin}
           onLogin={loginWithGoogle}

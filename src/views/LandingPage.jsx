@@ -607,9 +607,6 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           googleLoading={loginLoading}
         />
 
-        {/* Banner de Anuncios Nativos Adsterra (Comentado temporalmente) */}
-        {/* <AdsterraNativeBanner className="mt-4 sm:mt-6 mb-2 sm:mb-4" /> */}
-
         {/* =========================================================================
             1. HERO SECTION (Clean, Striking, Mentioning Musiclub explicitly)
             ========================================================================= */}
@@ -1798,7 +1795,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
       </div>
 
       {/* Footer */}
-      <Footer showAd={false} />
+      <Footer />
     </div>
   );
 }
