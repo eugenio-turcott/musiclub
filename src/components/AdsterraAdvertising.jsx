@@ -11,8 +11,8 @@ function BannerFrame({banner,availableWidth}) {
     <p className="mb-2 text-[10px] font-bold uppercase tracking-[.18em] text-slate-400">Publicidad · Adsterra</p>
     <iframe title={`Publicidad Adsterra ${banner.width} × ${banner.height}`} width={banner.width} height={banner.height}
       className="block border-0" style={{width:banner.width,height:banner.height}} loading="lazy"
-      sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox" referrerPolicy="strict-origin"
-      src={`/api/advertising/banner/${banner.id}`} onLoad={markLoaded} />
+      sandbox="allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox" referrerPolicy="strict-origin"
+      src={placements.bannerSource(window.location.origin,banner.id)} onLoad={markLoaded} />
   </div>;
 }
 

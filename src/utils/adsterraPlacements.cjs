@@ -9,6 +9,28 @@ const BANNERS = Object.freeze({
   wide: {id:'32055938',key:'3ecad5bb8fd608f2d32d944a89405f46',width:728,height:90},
 });
 const NATIVE = {id:'31067204',key:'0b1f8e88620f4f682b83e40675c39376',src:'https://pl31167703.profitableratecpmnetwork.com/0b1f8e88620f4f682b83e40675c39376/invoke.js'};
+const ADVERTISING_HOST='ads.musiclub.org';
+function isAdvertisingHost(host) { return host===ADVERTISING_HOST || host==='ads.localhost'; }
+function bannerSource(pageOrigin,id) {
+  const page=new URL(pageOrigin);
+  const local=['127.0.0.1','localhost'].includes(page.hostname);
+  const origin=local?`${page.protocol}//ads.localhost:${page.port}`:`https://${ADVERTISING_HOST}`;
+  return `${origin}/api/advertising/banner/${id}`;
+}
+function advertisingHostResponse(request) {
+  const url=new URL(request.url);
+  const match=url.pathname.match(/^\/api\/advertising\/banner\/(\d+)$/);
+  const banner=match&&Object.values(BANNERS).find(value=>value.id===match[1]);
+  const headers={'Cache-Control':'private, no-store','X-Robots-Tag':'noindex, nofollow',
+    'Referrer-Policy':'strict-origin','Content-Type':'text/html; charset=utf-8',
+    'Permissions-Policy':'camera=(), microphone=(), geolocation=()',
+    'Content-Security-Policy':url.hostname==='ads.localhost'
+      ? "frame-ancestors http://127.0.0.1:3101 http://localhost:3101"
+      : 'frame-ancestors https://www.musiclub.org'};
+  // This origin never serves the application, authentication, or data APIs.
+  if(!banner || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
+  return new Response(request.method==='HEAD'?null:bannerDocument(banner),{headers});
+}
 
 function horizontalBanner(width) {
   return [BANNERS.wide,BANNERS.medium,BANNERS.mobile,BANNERS.rectangle].find(banner=>width>=banner.width) || null;
@@ -24,4 +46,4 @@ function bannerDocument(banner) {
   // `var` makes it non-configurable and stops rendering with a TypeError.
   return `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><script>window.atOptions=${options};</script><script src="https://bicea.org/22/${banner.key}"></script></body></html>`;
 }
-module.exports={BANNERS,NATIVE,horizontalBanner,verticalBanner,bannerDocument};
+module.exports={BANNERS,NATIVE,ADVERTISING_HOST,isAdvertisingHost,bannerSource,advertisingHostResponse,horizontalBanner,verticalBanner,bannerDocument};

@@ -9,8 +9,11 @@ async function mockAdvertising(page, mode='consent') {
     'use strict';
     const options=window.atOptions;
     delete window.atOptions;
-    const box=document.createElement('div');box.textContent='Banner Adsterra de prueba';
-    box.style.cssText='box-sizing:border-box;width:'+options.width+'px;height:'+options.height+'px;background:#261b38;color:#f9a8d4;display:grid;place-items:center;font:14px sans-serif;border:1px solid #f093fb44';document.body.append(box);`});});
+    // Reproduce the vendor writing into its own about:blank child frame.
+    const child=document.createElement('iframe');child.style.cssText='border:0;width:100%;height:100%';document.body.append(child);
+    const box=child.contentWindow.document.createElement('div');box.textContent='Banner Adsterra de prueba';
+    box.style.cssText='box-sizing:border-box;width:'+options.width+'px;height:'+options.height+'px;background:#261b38;color:#f9a8d4;display:grid;place-items:center;font:14px sans-serif;border:1px solid #f093fb44';child.contentWindow.document.body.style.margin='0';child.contentWindow.document.body.append(box);
+    try{window.parent.document.body.dataset.advertisingEscaped='true';throw new Error('Banner can access Musiclub');}catch(error){if(error.message==='Banner can access Musiclub')throw error;}`});});
   await page.route('**/pl31167703.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`
     document.getElementById('container-0b1f8e88620f4f682b83e40675c39376').innerHTML='<div style="padding:30px;background:#261b38;color:#f9a8d4;text-align:center">Anuncio nativo de prueba</div>';`});});
   await page.route('**/pl31167705.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`window.__socialBarLoads=(window.__socialBarLoads||0)+1;`});});
@@ -68,8 +71,9 @@ test('Adsterra renders after consuming its configuration, uses fitting banners a
   await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
   for(const frame of [...await topBanner.locator('iframe').all(),...await ad.locator('iframe').all()]) {
     await frame.scrollIntoViewIfNeeded();
-    await expect(frame.contentFrame().getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+    await expect(frame.contentFrame().frameLocator('iframe').getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
     expect(await frame.getAttribute('sandbox')).not.toContain('allow-top-navigation');
+    expect(new URL(await frame.getAttribute('src')).origin).not.toBe(new URL(page.url()).origin);
     const bounds=await frame.boundingBox();
     expect(bounds.x).toBeGreaterThanOrEqual(0);
     expect(bounds.x+bounds.width).toBeLessThanOrEqual(page.viewportSize().width);
@@ -87,6 +91,7 @@ test('Adsterra renders after consuming its configuration, uses fitting banners a
   expect(requests.adsterra.length).toBe(before);
   await ad.screenshot({path:`outputs/adsterra-responsive-${testInfo.project.name}.png`});
   expect(pageErrors.filter(message=>message.includes('atOptions'))).toEqual([]);
+  await expect(page.locator('body[data-advertising-escaped]')).toHaveCount(0);
   expect(requests.adsterra.some(url=>url.includes('pl31167705'))).toBe(false);
   await expect(page.locator('#musiclub-adsterra-social')).toHaveCount(0);
   expect(context.pages()).toHaveLength(1);
@@ -105,7 +110,7 @@ test('home and catalog show one compact banner in the first screen, outside the 
     const banner=page.getByRole('region',{name:'Banner de Adsterra',exact:true});
     await expect(banner.locator('iframe')).toBeVisible();
     await expect(page.getByRole('region',{name:'Publicidad de Adsterra',exact:true})).toHaveCount(1);
-    await expect(banner.locator('iframe').contentFrame().getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+    await expect(banner.locator('iframe').contentFrame().frameLocator('iframe').getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
     const adBounds=await banner.boundingBox();
     const navBounds=await page.locator('header').first().boundingBox();
     expect(adBounds.y).toBeGreaterThanOrEqual(navBounds.y+navBounds.height);
@@ -137,6 +142,15 @@ test('banner documents expose only fixed public placements and reject arbitrary 
   expect(await valid.text()).toContain('https://bicea.org/22/6dee051ac3e169e1b746a4c2e8cc927f');
   expect((await request.get('/api/advertising/banner/31067203')).status()).toBe(404);
   expect((await request.get('/api/advertising/banner/arbitrary')).status()).toBe(404);
+  if(process.env.PLAYWRIGHT_CLOUDFLARE==='1') {
+    const headers={host:'ads.localhost:3101'};
+    const isolated=await request.get('/api/advertising/banner/32010329',{headers});
+    expect(isolated.status()).toBe(200);
+    expect(isolated.headers()['content-security-policy']).toContain('http://127.0.0.1:3101');
+    for(const path of ['/','/profile','/api/advertising/policy']) {
+      expect((await request.get(path,{headers})).status()).toBe(404);
+    }
+  }
 });
 
 test('withdrawing advertising consent stops the loaded library after reloading and keeps private pages free of ads', async ({page}) => {

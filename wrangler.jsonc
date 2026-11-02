@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "musiclub",
   "account_id": "d7d91e682ddbaa5437181b939221c87a",
-  "main": ".open-next/worker.js",
+  "main": "src/cloudflare/worker.js",
   "compatibility_date": "2026-10-29",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "workers_dev": true,

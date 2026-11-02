@@ -1,6 +1,8 @@
 import placements from '../../../../../utils/adsterraPlacements.cjs';
 
 export async function GET(_request,{params}) {
+  // Also support the isolated local host when running the Next.js test server.
+  if(placements.isAdvertisingHost(new URL(_request.url).hostname)) return placements.advertisingHostResponse(_request);
   const {placement}=await params;
   const banner=Object.values(placements.BANNERS).find(value=>value.id===placement);
   if(!banner) return new Response('Unknown placement',{status:404});

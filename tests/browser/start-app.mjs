@@ -65,7 +65,7 @@ try {
   if(process.env.PLAYWRIGHT_CLOUDFLARE==='1') {
     await run([], 'scripts/build-cloudflare.mjs');
     const config=JSON.parse(await fs.readFile('wrangler.jsonc','utf8'));
-    config.main=path.resolve('.open-next/worker.js');
+    config.main=path.resolve(config.main);
     config.assets.directory=path.resolve('.open-next/assets');
     config.vars={CLOUDFLARE_DEPLOYMENT:'1',
       NEXT_PUBLIC_SUPABASE_URL:env.NEXT_PUBLIC_SUPABASE_URL,
