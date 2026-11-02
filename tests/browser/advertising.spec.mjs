@@ -1,4 +1,7 @@
 import {test, expect} from '@playwright/test';
+import policy from '../../src/utils/advertisingPolicy.cjs';
+
+test.skip(!policy.ADVERTISING_ENABLED, 'Advertising is paused site-wide; active-format checks resume with reactivation.');
 
 const library = '**/acscdn.com/script/aclib.js';
 async function mockAdvertising(page, mode='consent') {

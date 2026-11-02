@@ -8,7 +8,7 @@ export function GET() {
   try { country = getCloudflareContext().cf?.country; } catch {}
   // Trust only the edge context, never user-supplied headers or URL parameters.
   // The response contains no IP, country, account data or advertising identifiers.
-  return Response.json({mode:policy.advertisingMode(country)}, {
+  return Response.json({mode:policy.ADVERTISING_ENABLED ? policy.advertisingMode(country) : 'disabled'}, {
     headers:{'Cache-Control':'private, no-store, max-age=0', 'CDN-Cache-Control':'no-store'},
   });
 }

@@ -76,10 +76,11 @@ test('banner origin is separate from Musiclub and exposes only fixed public docu
   assert.equal(new URL(src).origin,'https://ads.musiclub.org');
   assert.equal(placements.bannerSource('http://127.0.0.1:3101','32055938'),'http://ads.localhost:3101/api/advertising/banner/32055938');
   const valid=placements.advertisingHostResponse(new Request(src));
-  assert.equal(valid.status,200);
+  assert.equal(valid.status,policy.ADVERTISING_ENABLED ? 200 : 404);
   assert.equal(valid.headers.get('content-security-policy'),'frame-ancestors https://www.musiclub.org');
   assert.equal(valid.headers.get('set-cookie'),null);
-  assert.match(await valid.text(),/window.atOptions=/);
+  if (policy.ADVERTISING_ENABLED) assert.match(await valid.text(),/window.atOptions=/);
+  else assert.doesNotMatch(await valid.text(),/script|iframe|atOptions/i);
   for(const path of ['/','/profile','/api/reviews','/api/advertising/policy','/api/advertising/banner/31067203']) {
     assert.equal(placements.advertisingHostResponse(new Request(`https://ads.musiclub.org${path}`)).status,404);
   }

@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { setAdvertisingChoice, useAdvertisingChoice } from '../services/advertisingConsent';
+import policy from '../utils/advertisingPolicy.cjs';
 
 export function AdvertisingPreferences() {
   const dialog = useRef(null);
@@ -8,6 +9,7 @@ export function AdvertisingPreferences() {
   const [privacySignal, setPrivacySignal] = useState(false);
   useEffect(() => { setPrivacySignal(navigator.globalPrivacyControl === true); }, []);
   const choose = value => { dialog.current?.close(); setAdvertisingChoice(value); };
+  if (!policy.ADVERTISING_ENABLED) return null;
   return <>
     <button type="button" onClick={() => dialog.current?.showModal()} className="underline transition-colors hover:text-pink-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-pink-300">Preferencias de publicidad</button>
     <dialog ref={dialog} aria-labelledby="advertising-preferences-title" className="m-auto w-[calc(100%_-_2rem)] max-w-lg max-h-[calc(100dvh_-_2rem)] overflow-y-auto rounded-3xl border border-white/15 bg-[#111120] p-6 text-left text-sm text-slate-200 shadow-2xl backdrop:bg-black/75">

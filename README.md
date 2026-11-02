@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.5.0 · **Última actualización:** 2 de noviembre de 2026.
+**Versión:** 10.5.1 · **Última actualización:** 2 de noviembre de 2026.
 
 ## Qué incluye
 
@@ -209,11 +209,15 @@ La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas
 - Los respaldos privados y la recuperación tienen herramientas y pruebas propias. Un respaldo de datos no incluye automáticamente archivos binarios de Storage ni toda la configuración del proveedor.
 - La verificación de AdSense incluye metadatos y `ads.txt`; no acredita una aprobación ni activa anuncios o cobros por sí sola.
 
-## Publicidad · 10.5.0
+## Publicidad · 10.5.1
+
+**Toda la publicidad está pausada por petición del propietario.** `ADVERTISING_ENABLED = false` en `src/utils/advertisingPolicy.cjs` impide cargar anuncios aun con permisos anteriores. Se ocultan los avisos, las preferencias de publicidad y todas las posiciones, sin espacios vacíos. Los endpoints de banners responden 404, incluido el host aislado `ads.musiclub.org`, y la política responde `disabled`. No hay reactivación automática por tráfico.
+
+Los siguientes detalles documentan la integración conservada para una reactivación futura. Cambiar el interruptor requiere una nueva autorización del propietario y un despliegue; Adcash necesita además aprobación del proveedor.
 
 Adcash está desactivado: el 2 de noviembre su panel indicó que Musiclub fue rechazado por tráfico insuficiente. Se retiraron su biblioteca, contenedor y espacios vacíos de Inicio y del footer. La zona manual anterior era `12384990` (300 × 250), sitio `1666362`. Su reactivación requiere primero una nueva aprobación del proveedor; no se programa una solicitud automática ni se crea otra cuenta. La integración anterior queda en el historial de Git.
 
-Adsterra mantiene banners de 300 × 250, 468 × 60, 160 × 300, 160 × 600, 320 × 50 y 728 × 90, y Native Banner. Los identificadores públicos y códigos están en `src/utils/adsterraPlacements.cjs`. Social Bar se retiró porque se superponía a la navegación. No se instalan Popunder/Onclick, Smartlink ni Autotag. AdSense sigue sin servir anuncios. `AdvertisingConsentNotice` conserva el aviso y la elección de privacidad de forma independiente de los proveedores; cuando no hace falta pedir permiso, no renderiza espacio alguno. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
+La configuración conservada de Adsterra incluye banners de 300 × 250, 468 × 60, 160 × 300, 160 × 600, 320 × 50 y 728 × 90, y Native Banner. Los identificadores públicos y códigos están en `src/utils/adsterraPlacements.cjs`. Social Bar se retiró porque se superponía a la navegación. No se instalan Popunder/Onclick, Smartlink ni Autotag. AdSense sigue sin servir anuncios. `AdvertisingConsentNotice` conserva el aviso y la elección de privacidad de forma independiente de los proveedores; cuando no hace falta pedir permiso, no renderiza espacio alguno. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
 
 `AppHeader` coloca un banner horizontal centrado debajo de la navegación, fuera del encabezado sticky, para que se vea en la primera pantalla. Las páginas privadas, errores, fichas cargando y géneros vacíos no lo incluyen. `AdsterraAdvertising` distribuye banners compactos, rectangulares y nativos entre secciones de Inicio, Catálogo y releases. Artistas, géneros, reseñas, ranking, portadas y artículos también incorporan posiciones dentro del contenido. El footer sólo conserva el nativo como alternativa cuando no se ha reservado antes. Selecciona el tamaño una sola vez por visita; los seis tamaños son alternativas según pantalla, no seis banners amontonados. AdvertisingPlacementProvider reserva cada unidad una sola vez por ruta, sin duplicar sus códigos entre ubicaciones. AdvertisingRails coloca los formatos de 160 × 600 y 160 × 300 en los márgenes desde 1720 px, únicamente si también caben en altura; al estrechar la ventana se ocultan sin recargarse. Los banners se ejecutan en `ads.musiclub.org/api/advertising/banner/[placement]`, un origen separado que sólo sirve códigos públicos fijos. `src/cloudflare/worker.js` devuelve 404 para cualquier otra ruta de ese host, antes de entrar en Next.js; no ofrece páginas de cuenta ni API de datos. Conservamos el sandbox sin navegación superior; `allow-same-origin` permite al proveedor escribir en sus propios marcos, mientras la separación de origen impide que acceda al documento o al almacenamiento de Musiclub. Native Banner carga al acercarse a su posición. La configuración usa `window.atOptions` para que el proveedor pueda consumirla y borrarla en modo estricto; declararla con `var` detenía los banners reales. Las pruebas reproducen ese borrado y la escritura en un marco hijo, y verifican que el anuncio no pueda acceder a la página principal.
 

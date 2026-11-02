@@ -1,3 +1,6 @@
+// Temporarily paused at the owner's request. Reactivation requires a new deploy.
+const ADVERTISING_ENABLED = false;
+
 // Automatic display is enabled only for the reviewed Mexican configuration.
 // Unknown locations and other markets keep prior permission until reviewed.
 function advertisingMode(country) {
@@ -15,4 +18,4 @@ function publicAdvertisingPath(pathname) {
     /^\/(albumes|albums|eps|ep|sencillos|singles|single|compilaciones|compilations|remixes|remix|release|lanzamiento|artista|artistas|artist|artists|generos|guias)\/[^/]+$/.test(path);
 }
 
-module.exports = {advertisingMode, mayLoadAdvertising, publicAdvertisingPath};
+module.exports = {ADVERTISING_ENABLED, advertisingMode, mayLoadAdvertising, publicAdvertisingPath};

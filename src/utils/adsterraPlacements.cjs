@@ -1,5 +1,6 @@
 // Public placement identifiers obtained from Musiclub's Adsterra dashboard.
 // Popunder/Onclick and Smartlink intentionally have no integration here.
+const policy = require('./advertisingPolicy.cjs');
 const BANNERS = Object.freeze({
   rectangle: {id:'32010329',key:'6dee051ac3e169e1b746a4c2e8cc927f',width:300,height:250},
   medium: {id:'32055934',key:'dbf7f4128e2d6822b335199900a7e4a9',width:468,height:60},
@@ -28,7 +29,7 @@ function advertisingHostResponse(request) {
       ? "frame-ancestors http://127.0.0.1:3101 http://localhost:3101"
       : 'frame-ancestors https://www.musiclub.org'};
   // This origin never serves the application, authentication, or data APIs.
-  if(!banner || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
+  if(!policy.ADVERTISING_ENABLED || !banner || !['GET','HEAD'].includes(request.method)) return new Response('Not found',{status:404,headers});
   return new Response(request.method==='HEAD'?null:bannerDocument(banner),{headers});
 }
 

@@ -59,10 +59,11 @@ export function useAdvertisingPermission() {
   const [mode, setMode] = useState('pending');
   const [privacySignal, setPrivacySignal] = useState(true);
   useEffect(() => {
+    if (!policy.ADVERTISING_ENABLED) { setMode('disabled'); return; }
     let active = true;
     setPrivacySignal(navigator.globalPrivacyControl === true);
     loadPolicy().then(value => { if (active) setMode(value); });
     return () => { active = false; };
   }, []);
-  return {choice, mode, privacySignal, allowed:policy.mayLoadAdvertising(choice,mode,privacySignal)};
+  return {choice, mode, privacySignal, allowed:policy.ADVERTISING_ENABLED && policy.mayLoadAdvertising(choice,mode,privacySignal)};
 }
