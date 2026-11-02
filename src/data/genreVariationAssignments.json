@@ -3070,6 +3070,13 @@
         "bassGuitar"
       ]
     },
+    "cumbia tejana": {
+      "figure": "maracas",
+      "details": [
+        "saxophone",
+        "microphone-2"
+      ]
+    },
     "cumbia turra": {
       "figure": "maracas",
       "details": [
@@ -8164,6 +8171,12 @@
         "acousticGuitar"
       ]
     },
+    "milonga ciudadana": {
+      "figure": "bandoneon",
+      "details": [
+        "choir"
+      ]
+    },
     "min'yō": {
       "figure": "microphone-2",
       "details": [
@@ -11735,6 +11748,12 @@
         "heart"
       ]
     },
+    "siren jam": {
+      "figure": "lyre",
+      "details": [
+        "compass"
+      ]
+    },
     "sissy bounce": {
       "figure": "synthesizer",
       "details": [
@@ -12007,6 +12026,13 @@
       "details": [
         "metronome",
         "lyre"
+      ]
+    },
+    "song of sana’a": {
+      "figure": "lyre",
+      "details": [
+        "message",
+        "microphone-2"
       ]
     },
     "songo": {
