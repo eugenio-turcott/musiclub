@@ -16,7 +16,7 @@ import dynamic from 'next/dynamic';
 import { LoginModal } from '../components/LoginModal';
 import { HourlyRecommendedRelease } from '../components/HourlyRecommendedRelease';
 import { EditorialSpotlight } from '../components/EditorialSpotlight';
-import { AdcashBanner } from '../components/AdcashBanner';
+import { AdvertisingConsentNotice } from '../components/AdvertisingConsentNotice';
 import { SEO } from '../components/SEO';
 import { useAlbums } from '../hooks/useAlbums';
 import { usePool } from '../hooks/usePool';
@@ -1249,7 +1249,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           </section>
         )}
 
-        <AdcashBanner />
+        <AdvertisingConsentNotice />
 
         <HourlyRecommendedRelease
           albums={albums}

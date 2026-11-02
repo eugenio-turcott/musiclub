@@ -7,7 +7,7 @@ import { LanguageSelector } from './LanguageSelector';
 import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from './common/ShareIcons';
 import { YouTubeLogo } from './common/PlatformLogos';
 import { AdvertisingPreferences } from './AdvertisingPreferences';
-import { AdcashBanner } from './AdcashBanner';
+import { AdvertisingConsentNotice } from './AdvertisingConsentNotice';
 import { AdsterraAdvertising } from './AdsterraAdvertising';
 import { usePathname } from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
@@ -24,7 +24,7 @@ export function Footer({ showAd = true }) {
   const pathname = usePathname();
   return (
     <footer className="mt-12 pt-6 border-t border-white/5">
-      {showAd && pathname !== '/' && advertisingPolicy.publicAdvertisingPath(pathname) && <AdcashBanner key={pathname} />}
+      {showAd && pathname !== '/' && advertisingPolicy.publicAdvertisingPath(pathname) && <AdvertisingConsentNotice key={pathname} />}
       {showAd && advertisingPolicy.publicAdvertisingPath(pathname) && <AdsterraAdvertising key={`adsterra-${pathname}`} />}
 
       {/* Brand Divider with Spinning Musiclub Logo */}

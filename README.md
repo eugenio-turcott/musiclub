@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.4.4 · **Última actualización:** 2 de noviembre de 2026.
+**Versión:** 10.4.5 · **Última actualización:** 2 de noviembre de 2026.
 
 ## Qué incluye
 
@@ -19,7 +19,7 @@
 - Leaderboard de personas con al menos una reseña, con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
-- Publicidad de Adcash y Adsterra en páginas públicas con contenido: banners adaptados al espacio disponible y anuncios nativos. Se excluyen Social Bar flotante, Popunder/Onclick, Smartlink y Autotag. La carga es automática para México y requiere permiso previo para el resto de ubicaciones. Se respetan el rechazo guardado y el control global de privacidad; salir a páginas privadas o retirar el permiso detiene los scripts mediante una recarga.
+- Publicidad de Adsterra en páginas públicas con contenido: banners adaptados al espacio disponible y anuncios nativos. Adcash está pausado mientras no tenga aprobación. Se excluyen Social Bar flotante, Popunder/Onclick, Smartlink y Autotag. La carga es automática para México y requiere permiso previo para el resto de ubicaciones. Se respetan el rechazo guardado y el control global de privacidad; salir a páginas privadas o retirar el permiso detiene los scripts mediante una recarga.
 
 Musiclub enlaza a plataformas de escucha; no aloja álbumes completos para su descarga. Los metadatos importados no son reseñas de la comunidad.
 
@@ -209,11 +209,11 @@ La revisión local de migración del 29 de octubre aprobó 136 pruebas críticas
 - Los respaldos privados y la recuperación tienen herramientas y pruebas propias. Un respaldo de datos no incluye automáticamente archivos binarios de Storage ni toda la configuración del proveedor.
 - La verificación de AdSense incluye metadatos y `ads.txt`; no acredita una aprobación ni activa anuncios o cobros por sí sola.
 
-## Publicidad · 10.4.4
+## Publicidad · 10.4.5
 
-Adcash conserva la zona manual Display `12384990` (300 × 250), con su biblioteca oficial y `runBanner` con `renderIn`. Adsterra añade banners de 300 × 250, 468 × 60, 160 × 300, 160 × 600, 320 × 50 y 728 × 90, y Native Banner dentro de la página. Los identificadores públicos y códigos de estas siete unidades están en `src/utils/adsterraPlacements.cjs`. Social Bar se retiró porque se superponía a la navegación. No se instalan Popunder/Onclick, Smartlink ni Autotag. AdSense sigue sin servir anuncios.
+Adcash está desactivado: el 2 de noviembre su panel indicó que Musiclub fue rechazado por tráfico insuficiente. Se retiraron su biblioteca, contenedor y espacios vacíos de Inicio y del footer. La zona manual anterior era `12384990` (300 × 250), sitio `1666362`. Su reactivación requiere primero una nueva aprobación del proveedor; no se programa una solicitud automática ni se crea otra cuenta. La integración anterior queda en el historial de Git.
 
-`AdcashBanner` aparece una vez por página: dentro de `LandingPage` para el inicio y en el footer para catálogo, releases, artistas, géneros, reseñas, leaderboard, portadas y contenido de ayuda/editorial. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
+Adsterra mantiene banners de 300 × 250, 468 × 60, 160 × 300, 160 × 600, 320 × 50 y 728 × 90, y Native Banner. Los identificadores públicos y códigos están en `src/utils/adsterraPlacements.cjs`. Social Bar se retiró porque se superponía a la navegación. No se instalan Popunder/Onclick, Smartlink ni Autotag. AdSense sigue sin servir anuncios. `AdvertisingConsentNotice` conserva el aviso y la elección de privacidad de forma independiente de los proveedores; cuando no hace falta pedir permiso, no renderiza espacio alguno. No se crean posiciones en cuenta, administración, Pool/salas privadas, contacto, políticas ni páginas de error o fichas aún cargando. Al navegar desde una página con publicidad a una ruta excluida se recarga el documento para detener la biblioteca de terceros.
 
 `AppHeader` coloca un banner horizontal centrado debajo de la navegación, fuera del encabezado sticky, para que se vea en la primera pantalla. Las páginas privadas, errores, fichas cargando y géneros vacíos no lo incluyen. `AdsterraAdvertising` mantiene el nativo y, cuando hay espacio de escritorio, un banner vertical al final del contenido; el inicio también incluye estos formatos. Selecciona el tamaño una sola vez por visita; los seis tamaños son alternativas según pantalla, no seis banners amontonados. No se repite la unidad horizontal en el footer. Los banners se ejecutan en `ads.musiclub.org/api/advertising/banner/[placement]`, un origen separado que sólo sirve códigos públicos fijos. `src/cloudflare/worker.js` devuelve 404 para cualquier otra ruta de ese host, antes de entrar en Next.js; no ofrece páginas de cuenta ni API de datos. Conservamos el sandbox sin navegación superior; `allow-same-origin` permite al proveedor escribir en sus propios marcos, mientras la separación de origen impide que acceda al documento o al almacenamiento de Musiclub. Native Banner carga al acercarse a su posición. La configuración usa `window.atOptions` para que el proveedor pueda consumirla y borrarla en modo estricto; declararla con `var` detenía los banners reales. Las pruebas reproducen ese borrado y la escritura en un marco hijo, y verifican que el anuncio no pueda acceder a la página principal.
 
@@ -223,9 +223,9 @@ El host `ads.musiclub.org` debe estar asociado al mismo Worker Musiclub como dom
 
 Aceptar o rechazar se guarda hasta 180 días en ese navegador; no se registra una aceptación ficticia para la carga automática. Un rechazo anterior y `navigator.globalPrivacyControl` prevalecen sobre el modo regional. El botón «Preferencias de publicidad» del footer permite cambiar la elección. Retirarla recarga la página para detener código de terceros ya cargado. Las cookies que el proveedor haya creado se eliminan desde el navegador. La política de privacidad describe este uso; este selector no se presenta como una CMP certificada.
 
-El tamaño del anuncio se conserva: si no caben 300 px, no se solicita un banner; al estrechar una ventana que ya lo mostró, se oculta sin volver a solicitarlo. No hay refrescos automáticos. Las pruebas interceptan los códigos de ambos proveedores y usan anuncios ficticios, sin hacer clic en publicidad.
+El tamaño del anuncio se conserva: si no caben 300 px, no se solicita un banner; al estrechar una ventana que ya lo mostró, se oculta sin volver a solicitarlo. No hay refrescos automáticos. Las pruebas interceptan los códigos de Adsterra y usan anuncios ficticios, sin hacer clic en publicidad. También verifican que no se solicite la biblioteca de Adcash y que no queden contenedores vacíos.
 
-Para retirar los anuncios, elimina las instancias de `AdcashBanner` y `AdsterraAdvertising` y vuelve a desplegar. Conserva el control del footer para retirar elecciones anteriores. Categorías, disponibilidad y pagos se administran en cada proveedor. Adsterra confirmó exclusiones de contenido adulto/sexual, citas, apuestas/casino, falsos avisos y descargas engañosas; el ticket `152036565` pide conservarlas para todas las unidades. Esta configuración no garantiza ingresos ni sustituye la vigilancia de las campañas que sirva el proveedor.
+Para retirar los anuncios activos, elimina las instancias de `AdsterraAdvertising` y vuelve a desplegar. Conserva el control del footer para retirar elecciones anteriores. Categorías, disponibilidad y pagos se administran en cada proveedor. Adsterra confirmó exclusiones de contenido adulto/sexual, citas, apuestas/casino, falsos avisos y descargas engañosas; el ticket `152036565` pide conservarlas para todas las unidades. Esta configuración no garantiza ingresos ni sustituye la vigilancia de las campañas que sirva el proveedor.
 
 ## Contacto
 
