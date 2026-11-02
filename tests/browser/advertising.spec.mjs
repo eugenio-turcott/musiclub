@@ -3,6 +3,14 @@ import {test, expect} from '@playwright/test';
 const library = '**/acscdn.com/script/aclib.js';
 async function mockAdvertising(page, mode='consent') {
   const requests = [];
+  requests.adsterra=[];
+  // No real third-party advertising is requested or clicked in automated tests.
+  await page.route('**/bicea.org/22/*',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`
+    const box=document.createElement('div');box.textContent='Banner Adsterra de prueba';
+    box.style.cssText='box-sizing:border-box;width:'+atOptions.width+'px;height:'+atOptions.height+'px;background:#261b38;color:#f9a8d4;display:grid;place-items:center;font:14px sans-serif;border:1px solid #f093fb44';document.body.append(box);`});});
+  await page.route('**/pl31167703.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`
+    document.getElementById('container-0b1f8e88620f4f682b83e40675c39376').innerHTML='<div style="padding:30px;background:#261b38;color:#f9a8d4;text-align:center">Anuncio nativo de prueba</div>';`});});
+  await page.route('**/pl31167705.profitableratecpmnetwork.com/**',route=>{requests.adsterra.push(route.request().url());return route.fulfill({contentType:'application/javascript',body:`window.__socialBarLoads=(window.__socialBarLoads||0)+1;`});});
   await page.route('**/api/advertising/policy', route=>route.fulfill({json:{mode}}));
   await page.route(library, async route => {
     requests.push(route.request().url());
@@ -40,6 +48,64 @@ test('advertising never loads before consent or after rejection, and can be enab
   await expect(page.getByText('Anuncio de prueba',{exact:true})).toBeVisible();
   expect(requests).toHaveLength(1);
   expect(await page.evaluate(()=>window.__bannerCalls)).toEqual([{zoneId:'12384990',renderIn:'#musiclub-display-adcash'}]);
+});
+
+test('Adsterra uses fitting in-page banners, lazy native ads and one Social Bar without popunders',async({page,context},testInfo)=>{
+  const requests=await mockAdvertising(page,'automatic');
+  await page.goto('/catalogo');
+  await expect.poll(()=>page.evaluate(()=>window.__socialBarLoads)).toBe(1);
+  const ad=page.getByRole('region',{name:'Publicidad de Adsterra',exact:true});
+  await ad.scrollIntoViewIfNeeded();
+  await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
+  for(const frame of await ad.locator('iframe').all()) {
+    await frame.scrollIntoViewIfNeeded();
+    await expect(frame.contentFrame().getByText('Banner Adsterra de prueba',{exact:true})).toBeVisible();
+    expect(await frame.getAttribute('sandbox')).not.toContain('allow-top-navigation');
+    const bounds=await frame.boundingBox();
+    expect(bounds.x).toBeGreaterThanOrEqual(0);
+    expect(bounds.x+bounds.width).toBeLessThanOrEqual(page.viewportSize().width);
+  }
+  const original=page.viewportSize();
+  const selected=await ad.locator('[data-adsterra-zone]').evaluateAll(items=>items.map(item=>item.dataset.adsterraZone));
+  const before=requests.adsterra.length;
+  await page.setViewportSize({width:320,height:800});
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await page.setViewportSize(original);
+  await expect(ad.getByText('Anuncio nativo de prueba',{exact:true})).toBeVisible();
+  expect(await ad.locator('[data-adsterra-zone]').evaluateAll(items=>items.map(item=>item.dataset.adsterraZone))).toEqual(selected);
+  expect(requests.adsterra.length).toBe(before);
+  await ad.screenshot({path:`outputs/adsterra-responsive-${testInfo.project.name}.png`});
+  expect(context.pages()).toHaveLength(1);
+  expect(selected).not.toContain('31067203');
+  expect(selected).not.toContain('31067205');
+  await page.getByRole('contentinfo').getByRole('link',{name:'Privacidad',exact:true}).last().click();
+  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page.locator('#musiclub-adsterra-social, #musiclub-adsterra-native')).toHaveCount(0);
+  await expect(page.getByRole('region',{name:'Publicidad de Adsterra',exact:true})).toHaveCount(0);
+});
+
+test('Adsterra remains off before permission and after rejection',async({page})=>{
+  const requests=await mockAdvertising(page);
+  await page.goto('/');
+  await page.getByRole('region',{name:'Publicidad',exact:true}).scrollIntoViewIfNeeded();
+  await expect(page.getByRole('button',{name:'Ahora no',exact:true})).toBeVisible();
+  expect(requests.adsterra).toHaveLength(0);
+  await page.getByRole('button',{name:'Ahora no',exact:true}).click();
+  await page.reload();
+  await expect(page.getByRole('button',{name:'Preferencias de publicidad',exact:true})).toBeVisible();
+  await expect(page.locator('[data-adsterra-zone],#musiclub-adsterra-social')).toHaveCount(0);
+  expect(requests.adsterra).toHaveLength(0);
+});
+
+test('banner documents expose only fixed public placements and reject arbitrary code',async({request})=>{
+  const valid=await request.get('/api/advertising/banner/32010329');
+  expect(valid.status()).toBe(200);
+  expect(valid.headers()['content-type']).toContain('text/html');
+  expect(valid.headers()['cache-control']).toContain('no-store');
+  expect(valid.headers()['x-robots-tag']).toContain('noindex');
+  expect(await valid.text()).toContain('https://bicea.org/22/6dee051ac3e169e1b746a4c2e8cc927f');
+  expect((await request.get('/api/advertising/banner/31067203')).status()).toBe(404);
+  expect((await request.get('/api/advertising/banner/arbitrary')).status()).toBe(404);
 });
 
 test('withdrawing advertising consent stops the loaded library after reloading and keeps private pages free of ads', async ({page}) => {

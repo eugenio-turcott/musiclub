@@ -27,7 +27,7 @@ function stopLoadedAdvertising(choice) {
   // Reload to stop third-party timers and scripts already loaded with consent.
   const blocked = navigator.globalPrivacyControl === true || choice === 'rejected' ||
     (choice !== 'accepted' && resolvedMode !== 'automatic');
-  if (blocked && !reloading && document.getElementById('musiclub-adcash-library')) {
+  if (blocked && !reloading && (document.documentElement.dataset.musiclubAdvertisingLoaded || document.querySelector('#musiclub-adcash-library, #musiclub-adsterra-social, #musiclub-adsterra-native'))) {
     reloading = true;
     window.location.reload();
   }

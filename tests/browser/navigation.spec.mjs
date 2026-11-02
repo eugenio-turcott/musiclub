@@ -380,7 +380,8 @@ test('historical listening-variant links open one canonical release without losi
  await page.goto('/albumes/artista-de-prueba-azul-clean');
  await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
  await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
- await expect(page.getByText('"Reseña de la variante limpia."',{exact:true})).toBeVisible();
+ // Assert the preserved comment, independent of its typographic quotation marks.
+ await expect(page.locator('[data-review-comment="written"]').filter({hasText:'Reseña de la variante limpia.'})).toBeVisible();
  await page.goto('/artista/artista-de-prueba');
  await expect(page.getByRole('heading',{name:'Azul',exact:true})).toHaveCount(1);
  await expect(page.getByRole('heading',{name:'Azul (Clean)',exact:true})).toHaveCount(0);

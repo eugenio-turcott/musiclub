@@ -7,13 +7,14 @@ import { SiteMetrics } from '../components/SiteMetrics';
 import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
 import {usePathname} from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
+import {AdsterraSocialBar} from '../components/AdsterraAdvertising';
 
 export function ClientProviders({ children }) {
   const pathname = usePathname();
   useEffect(() => {
     // Stop third-party code and its timers when leaving public content.
     // Removing a script tag alone would not stop an already running library.
-    if(pathname && !advertisingPolicy.publicAdvertisingPath(pathname) && document.getElementById('musiclub-adcash-library')) {
+    if(pathname && !advertisingPolicy.publicAdvertisingPath(pathname) && (document.documentElement.dataset.musiclubAdvertisingLoaded || document.querySelector('#musiclub-adcash-library, #musiclub-adsterra-social, #musiclub-adsterra-native'))) {
       window.location.reload();
     }
   }, [pathname]);
@@ -52,6 +53,7 @@ export function ClientProviders({ children }) {
       />
       <ReleaseLibraryProvider>{children}</ReleaseLibraryProvider>
       <SiteMetrics />
+      <AdsterraSocialBar />
     </ErrorBoundary>
   );
 }
