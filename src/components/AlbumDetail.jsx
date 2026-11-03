@@ -70,6 +70,7 @@ const CRITERIA_METRICS = [
     icon: '🎛️',
     max: 5,
     color: 'from-blue-500 to-cyan-400',
+    iconColor: 'var(--color-blue-500)',
     desc: 'Mezcla y diseño de sonido',
   },
   {
@@ -78,6 +79,7 @@ const CRITERIA_METRICS = [
     icon: '🎵',
     max: 5,
     color: 'from-emerald-500 to-teal-400',
+    iconColor: 'var(--color-emerald-500)',
     desc: 'Melodías, arreglos y estructura',
   },
   {
@@ -86,6 +88,7 @@ const CRITERIA_METRICS = [
     icon: '📝',
     max: 5,
     color: 'from-amber-500 to-yellow-400',
+    iconColor: 'var(--color-amber-500)',
     desc: 'Lírica, mensaje y narrativa',
   },
   {
@@ -94,6 +97,7 @@ const CRITERIA_METRICS = [
     icon: '💡',
     max: 5,
     color: 'from-purple-500 to-indigo-400',
+    iconColor: 'var(--color-purple-500)',
     desc: 'Innovación y propuesta',
   },
   {
@@ -102,6 +106,7 @@ const CRITERIA_METRICS = [
     icon: '🔗',
     max: 5,
     color: 'from-rose-500 to-red-400',
+    iconColor: 'var(--color-rose-500)',
     desc: 'Fluidez como obra completa',
   },
   {
@@ -110,6 +115,7 @@ const CRITERIA_METRICS = [
     icon: '🔄',
     max: 5,
     color: 'from-teal-500 to-cyan-400',
+    iconColor: 'var(--color-teal-500)',
     desc: 'Ganas de volver a escucharlo',
   },
   {
@@ -118,6 +124,7 @@ const CRITERIA_METRICS = [
     icon: '⭐',
     max: 10,
     color: 'from-[#f5576c] to-[#f093fb]',
+    iconColor: '#f5576c',
     desc: 'Valoración global e independiente',
   },
 ];
@@ -1691,7 +1698,7 @@ export function AlbumDetail({
                   <div className="flex items-start justify-between">
                     <div>
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
-                        <span><InterfaceText>{crit.icon}</InterfaceText></span>
+                        <span style={{'--ui-icon-color':crit.iconColor}}><InterfaceText>{crit.icon}</InterfaceText></span>
                         <span><InterfaceText>{crit.label}</InterfaceText></span>
                       </div>
                       <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">
