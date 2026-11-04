@@ -1,4 +1,5 @@
 'use client';
+import {useLocation} from 'react-router-dom';
 import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
@@ -75,6 +76,7 @@ const USERS_PER_PAGE = 15;
 
 export function Leaderboard({ isPage = false }) {
   const { user } = useAuth();
+  const location=useLocation(),openedFromLink=useRef(null);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,6 +86,7 @@ export function Leaderboard({ isPage = false }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUserDetail, setSelectedUserDetail] = useState(null);
   const [showBadgesGuide, setShowBadgesGuide] = useState(false);
+  useEffect(()=>{const id=new URLSearchParams(location.search).get('miembro');if(!id||openedFromLink.current===id)return;const member=users.find(item=>String(item.id)===id);if(member){openedFromLink.current=id;setSelectedUserDetail(member);}},[location.search,users]);
   const badgesDialogRef = useRef(null);
   useEffect(() => {
     if (!showBadgesGuide) return;
@@ -118,7 +121,7 @@ export function Leaderboard({ isPage = false }) {
       setError(null);
       try {
         const data = await supabaseService.getDetailedLeaderboard();
-        setUsers((data || []).filter(member => Number(member.review_count) >= 1));
+        setUsers((data || []).filter(member => member.registered!==false));
       } catch (err) {
         console.error('Error fetching leaderboard:', err);
         setError('No se pudo cargar el Leaderboard.');
@@ -662,7 +665,7 @@ export function Leaderboard({ isPage = false }) {
             />
           </div>
 
-          <p className="text-xs text-slate-400 shrink-0">Miembros con reseñas ({users.length})</p>
+          <p className="text-xs text-slate-400 shrink-0">Miembros registrados ({users.length})</p>
 
           {/* Sort Selector */}
           <div className="flex items-center gap-2">
@@ -715,6 +718,8 @@ export function Leaderboard({ isPage = false }) {
                   <div
                     key={itemUser.id || itemUser.email || index}
                     data-leaderboard-member={userKey}
+                    role="button" tabIndex={0} aria-label={`Ver perfil de ${itemUser.name}`}
+                    onKeyDown={e=>{if(e.target===e.currentTarget&&["Enter"," "].includes(e.key)){e.preventDefault();setSelectedUserDetail(itemUser);}}}
                     onClick={() => setSelectedUserDetail(itemUser)}
                     className={`bg-[#141624]/90 border transition-all duration-300 rounded-2xl p-3.5 sm:p-4 md:p-5 hover:bg-[#191c2e] cursor-pointer relative overflow-hidden group shadow-md hover:shadow-xl ${
                       isSelf

@@ -6,7 +6,7 @@ import { TIER_STYLES } from '../utils/badgeSystem';
 export function AchievementBadge({ badge, compact = false }) {
   const parts = icons.iconParts(badge.label || badge.name || badge.title || '') || [];
   const label = parts.filter(part => part.text).map(part => part.text).join('').trim();
-  const icon = parts.find(part => part.icon)?.icon || 'award';
+  const icon = badge.iconName || parts.find(part => part.icon)?.icon || ({7:'map',8:'compass',9:'comet',10:'infinity'}[badge.tierNumber || badge.tier]) || 'award';
   const tier = TIER_STYLES[`tier_${badge.tierNumber || badge.tier}`] ||
     Object.values(TIER_STYLES).find(style => style.tierRoman === badge.tierRoman);
   const record = badge.isRecord || badge.type === 'record';

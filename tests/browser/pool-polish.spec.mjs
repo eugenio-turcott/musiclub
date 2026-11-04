@@ -1,16 +1,17 @@
 import {test,expect} from '@playwright/test';
 import {openFixturePool} from './pool-fixture.mjs';
 
-test('loading shows a large existing vinyl and context text without rendering the page template',async({page},testInfo)=>{
+test('loading keeps navigation visible and confines its vinyl to one content section',async({page},testInfo)=>{
   let release;
   const gate=new Promise(resolve=>{release=resolve;});
   await page.route('**/rest/v1/pool_rooms*',async route=>{await gate;return route.fulfill({json:[]});});
   await page.goto('/pool');
-  const loading=page.locator('[data-vinyl-loading]');
+  const loading=page.getByRole('status').filter({hasText:'Cargando salas'});
   await expect(loading).toContainText('Cargando salas');
   await expect(loading.locator('svg')).toBeVisible();
-  expect((await loading.locator('svg').boundingBox()).width).toBeGreaterThan(200);
-  expect((await loading.boundingBox()).height).toBeGreaterThanOrEqual(page.viewportSize().height);
+  expect((await loading.locator('svg').boundingBox()).width).toBeGreaterThan(100);
+  expect((await loading.boundingBox()).height).toBeLessThan(page.viewportSize().height*.65);
+  await expect(page.getByRole('banner')).toBeVisible();
   await expect(page.getByRole('heading',{name:/Cada sala/})).toHaveCount(0);
   await page.screenshot({path:`outputs/loading-v1070-${testInfo.project.name}.png`});
   release();await expect(page.getByRole('heading',{name:/Cada sala/})).toBeVisible();

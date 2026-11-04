@@ -1,4 +1,5 @@
 'use client';
+import {NavigationLoading} from '../components/NavigationLoading';
 import {authenticatedFetch} from '../services/authenticatedFetch';
 import { InterfaceText, UiIcon } from '../components/UiIcon';
 import dynamic from 'next/dynamic';
@@ -361,7 +362,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPo
     }
   };
 
-  if(poolLoading)return <DetailLoading label='Abriendo el Pool…'/>;
+  if(poolLoading)return <NavigationLoading label='Abriendo el Pool…'/>;
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans flex flex-col justify-between">
       {viewCapsule&&<PoolCapsuleViewer album={viewCapsule} onClose={()=>setViewCapsule(null)}/>}

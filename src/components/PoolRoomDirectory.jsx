@@ -1,4 +1,5 @@
 'use client';
+import {NavigationLoading} from './NavigationLoading';
 import {createPortal} from 'react-dom';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -53,7 +54,7 @@ export function PoolRoomDirectory({ renderRoom, code }) {
   const prepare=(room,season)=>{if(!authLoading)void prefetchPool(identity,room.id,season?.id).catch(()=>{});};
   const ready = !authLoading && !loading && snapshot.userId === identity && (!code || snapshot.code===code);
   if(ready&&selected&&!invite)return renderRoom(selected,{back:()=>{void refresh();navigate('/pool');},refresh,selectedSeason,publicPools});
-  if(!ready)return <DetailLoading label={roomId||code?'Abriendo el Pool…':'Cargando salas…'}/>;
+  if(!ready)return <NavigationLoading label={roomId||code?'Abriendo el Pool…':'Cargando salas…'}/>;
   if(ready&&code&&!selected)return <div className='min-h-screen cyber-grid grid place-content-center gap-5 px-6 text-center text-white'><h1 className='text-2xl font-black'>Este Pool no está disponible</h1><p>Revisa el código o inicia sesión con una cuenta que tenga acceso a la sala.</p><Link to='/pool' className='text-pink-300'>Ver salas</Link></div>;
   const visible = rooms.filter(room => tab === 'mine' ? room.joined : room.visibility === 'public');
   const accept = token => run(async () => {

@@ -1,10 +1,11 @@
 'use client';
+import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { ProfileIdentity } from './account/ProfileIdentity';
 import { AccountPage, ProfileNavigation, PROFILE_SECTIONS } from './account/AccountElements';
-import ReviewCriteria from './ReviewCriteria';
+import ReviewCriteria,{REVIEW_CRITERIA} from './ReviewCriteria';
 import ReviewTrackRatings from './ReviewTrackRatings';
 import MoodIcon from './MoodIcon';
 import React, { useState, useMemo, useEffect } from 'react';
@@ -37,97 +38,29 @@ export const PLACEHOLDER_AVATAR =
 
 export const CRITERIA_METRICS = [
   { key: 'rating_produccion', label: 'Producción', icon: '🎛️', max: 5, color: 'from-blue-500 to-cyan-400' },
-  { key: 'rating_composicion', label: 'Composición', icon: '🎵', max: 5, color: 'from-green-500 to-emerald-400' },
+  { key: 'rating_composicion', label: 'Composición', icon: '🎵', max: 5, color: 'from-emerald-500 to-teal-400' },
   { key: 'rating_letras', label: 'Letras', icon: '📝', max: 5, color: 'from-amber-500 to-yellow-400' },
   { key: 'rating_originalidad', label: 'Originalidad', icon: '💡', max: 5, color: 'from-purple-500 to-indigo-400' },
   { key: 'rating_cohesion', label: 'Cohesión', icon: '🔗', max: 5, color: 'from-rose-500 to-red-400' },
   { key: 'rating_replay', label: 'Replay Value', icon: '🔄', max: 5, color: 'from-teal-500 to-cyan-400' },
   { key: 'rating_general', label: 'General', icon: '⭐', max: 10, color: 'from-[#f5576c] to-[#f093fb]' },
-];
+].map(criterion=>({...criterion,iconName:REVIEW_CRITERIA.find(([key])=>key===criterion.key)?.[2],iconColor:REVIEW_CRITERIA.find(([key])=>key===criterion.key)?.[4]}));
 
-export const MELOMANO_LEVELS = [
-  {
-    level: 1,
-    title: '🎧 Oyente Principiante',
-    minXp: 0,
-    maxXp: 249,
-    icon: '🎧',
-    color: 'from-slate-600 to-slate-800',
-    desc: 'Dando los primeros pasos auditivos en Musiclub.',
-  },
-  {
-    level: 2,
-    title: '🥉 Explorador Musical',
-    minXp: 250,
-    maxXp: 599,
-    icon: '🥉',
-    color: 'from-amber-700 to-amber-950',
-    desc: 'Descubriendo nuevos géneros y expandiendo tu radar musical.',
-  },
-  {
-    level: 3,
-    title: '🥈 Melómano Frecuente',
-    minXp: 600,
-    maxXp: 1199,
-    icon: '🥈',
-    color: 'from-slate-400 to-slate-600',
-    desc: 'Crítico activo con oído curioso y aportes constantes al club.',
-  },
-  {
-    level: 4,
-    title: '🥇 Oído Entrenado',
-    minXp: 1200,
-    maxXp: 2499,
-    icon: '🥇',
-    color: 'from-amber-500 to-yellow-600',
-    desc: 'Evaluador riguroso con criterio analítico y oído afinado.',
-  },
-  {
-    level: 5,
-    title: '💎 Melómano Consagrado',
-    minXp: 2500,
-    maxXp: 4499,
-    icon: '💎',
-    color: 'from-cyan-500 to-blue-600',
-    desc: 'Voz influyente con gran bagaje musical y criterio respetado.',
-  },
-  {
-    level: 6,
-    title: '👑 Maestro del Catálogo',
-    minXp: 4500,
-    maxXp: 7499,
-    icon: '👑',
-    color: 'from-purple-500 to-fuchsia-600',
-    desc: 'Pilar del club con decenas de álbumes y pistas analizadas.',
-  },
-  {
-    level: 7,
-    title: '🪐 Enciclopedia Sonora',
-    minXp: 7500,
-    maxXp: 11999,
-    icon: '🪐',
-    color: 'from-indigo-600 via-purple-600 to-pink-600',
-    desc: 'Erudición auditiva total con dominio de múltiples corrientes.',
-  },
-  {
-    level: 8,
-    title: '🌌 Leyenda Melómana Suprema',
-    minXp: 12000,
-    maxXp: 999999,
-    icon: '🌌',
-    color: 'from-rose-500 via-amber-400 to-yellow-300',
-    desc: 'Máximo nivel de sabiduría musical alcanzado en la historia de Musiclub.',
-  },
-];
+export {MELOMANO_LEVELS} from '../utils/badgeSystem';
+import {MELOMANO_LEVELS} from '../utils/badgeSystem';
 
-export function UserProfile({ isPage = false }) {
-  const { user, isAdmin, loading: authLoading } = useAuth();
-  const { albums } = useAlbums();
-  const { userReviews, loading: reviewsLoading, refetchUserReviews } = useUserReviews(user);
+export function UserProfile({ isPage = false, memberUser = null, memberActions = null }) {
+  const auth=useAuth();
+  const isMember=Boolean(memberUser);
+  const user=memberUser || auth.user, isAdmin=isMember?memberUser.role==='admin':auth.isAdmin, authLoading=isMember?false:auth.loading;
+  const { albums } = useAlbums([], {enabled:!isMember});
+  const ownReviews=useUserReviews(isMember?null:user);
+  const userReviews=isMember?(memberUser.reviews || []):ownReviews.userReviews, reviewsLoading=isMember?false:ownReviews.loading, refetchUserReviews=ownReviews.refetchUserReviews;
   const navigate = useNavigate();
   const location = useLocation();
 
   const [activeTab, setActiveTab] = useState(() => {
+    if(memberUser)return 'reviews';
     try {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
@@ -146,7 +79,7 @@ export function UserProfile({ isPage = false }) {
   const [reviewsPerPage, setReviewsPerPage] = useState(10);
   const [editingReviewItem, setEditingReviewItem] = useState(null);
   const [sharingReviewItem, setSharingReviewItem] = useState(null);
-  const [leaderboardList, setLeaderboardList] = useState([]);
+  const [leaderboardList, setLeaderboardList] = useState(memberUser?[memberUser]:[]);
 
   // Buzón de Canciones
   const [isSendModalOpen, setIsSendModalOpen] = useState(false);
@@ -155,12 +88,13 @@ export function UserProfile({ isPage = false }) {
 
   // Escuchar cambios en query params (?tab=mailbox)
   useEffect(() => {
+    if(isMember)return;
     const params = new URLSearchParams(location.search);
     const tabParam = params.get('tab');
     if (tabParam && ['reviews', 'recommendations', 'badges', 'stats', 'pending', 'mailbox', 'later', 'discarded'].includes(tabParam)) {
       setActiveTab(tabParam);
     }
-  }, [location.search]);
+  }, [location.search,isMember]);
 
   // Fetch detailed community leaderboard to sync global records & max XP
   useEffect(() => {
@@ -175,11 +109,11 @@ export function UserProfile({ isPage = false }) {
         console.error('Error fetching leaderboard in UserProfile:', err);
       }
     }
-    fetchLeaderboardData();
+    if(!isMember)fetchLeaderboardData();
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [isMember]);
 
   // Fetch unread count for mailbox badge
   useEffect(() => {
@@ -196,11 +130,11 @@ export function UserProfile({ isPage = false }) {
         console.warn('Error fetching unread mailbox count:', err);
       }
     }
-    fetchUnreadCount();
+    if(!isMember)fetchUnreadCount();
     return () => {
       isMounted = false;
     };
-  }, [user, isSendModalOpen]);
+  }, [user?.id, user?.email, isSendModalOpen,isMember]);
 
   // Map of album by ID for quick lookup
   const albumMap = useMemo(() => {
@@ -484,7 +418,7 @@ export function UserProfile({ isPage = false }) {
     }
   };
 
-  if (!user && authLoading) return <DetailLoading label="Cargando tu perfil…"/>;
+  if (!user && authLoading) return <NavigationLoading label="Cargando tu perfil…"/>;
 
   if (!user) {
     return (
@@ -507,11 +441,11 @@ export function UserProfile({ isPage = false }) {
   return (
     <AccountPage className="w-full max-w-7xl mx-auto space-y-5 sm:space-y-8 pb-16 animate-fadeIn">
       {/* Universal Standard App Header */}
-      <AppHeader showTitle={false} />
+      {!isMember&&<AppHeader showTitle={false} />}
 
-      <ProfileIdentity user={user} isAdmin={isAdmin} gamification={userGamification} stats={stats}/>
+      <ProfileIdentity user={user} isAdmin={isAdmin} gamification={userGamification} stats={stats} readOnly={isMember} actions={memberActions}/>
       <div className="profile-workspace">
-        <ProfileNavigation activeTab={activeTab} onChange={setActiveTab} reviewCount={stats.totalReviews} badgeCount={userGamification.badges?.length || 0} unreadCount={unreadMailboxCount}/>
+        <ProfileNavigation member={isMember} activeTab={activeTab} onChange={setActiveTab} reviewCount={stats.totalReviews} badgeCount={userGamification.badges?.length || 0} unreadCount={unreadMailboxCount}/>
         <section id="profile-panel" className="profile-panel" aria-label={PROFILE_SECTIONS.find(section=>section.id===activeTab)?.title}>
           <header className="profile-panel-heading"><h2>{PROFILE_SECTIONS.find(section=>section.id===activeTab)?.title}</h2><p>{PROFILE_SECTIONS.find(section=>section.id===activeTab)?.description}</p></header>
 
@@ -678,7 +612,7 @@ export function UserProfile({ isPage = false }) {
                     <ReviewTrackRatings review={item} tracks={item.albums?.tracks || albumMap.get(item.album_id)?.tracks}/>
                     {/* Acciones de la Review: Botón Editar, Compartir Story y Ver Página del Álbum */}
                     <div className="flex items-center justify-between gap-1.5 sm:gap-2 pt-2.5 border-t border-white/10 mt-auto">
-                      <button
+                      {!isMember&&<button
                         type="button"
                         onClick={() => setEditingReviewItem(item)}
                         className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-pink-500/20 to-purple-500/20 hover:from-pink-500/30 hover:to-purple-500/30 text-pink-300 hover:text-white border border-pink-500/30 hover:border-pink-500/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
@@ -686,7 +620,7 @@ export function UserProfile({ isPage = false }) {
                       >
                         <span><InterfaceText>{"✏️"}</InterfaceText></span>
                         <span>Editar</span>
-                      </button>
+                      </button>}
 
                       <button
                         type="button"
@@ -1088,7 +1022,7 @@ export function UserProfile({ isPage = false }) {
                     <div key={crit.key} className="space-y-1">
                       <div className="flex justify-between items-center text-xs">
                         <span className="text-white/70 font-medium flex items-center gap-1 text-[11px] sm:text-xs">
-                          <span><InterfaceText>{crit.icon}</InterfaceText></span> <InterfaceText>{crit.label}</InterfaceText>
+                          <UiIcon name={crit.iconName} tone="inherit" style={{color:crit.iconColor}}/> <InterfaceText>{crit.label}</InterfaceText>
                         </span>
                         <span className="text-white font-bold text-[11px] sm:text-xs">
                           {avg.toFixed(2)} / {crit.max}
@@ -1203,7 +1137,7 @@ export function UserProfile({ isPage = false }) {
                     <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                     >
-                      <InterfaceText>{currentMelomanoLevel.icon}</InterfaceText>
+                      <UiIcon name={currentMelomanoLevel.level>8?currentMelomanoLevel.icon:"headphones"} size={26} tone="inherit"/>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1311,7 +1245,7 @@ export function UserProfile({ isPage = false }) {
       />
 
       {/* Global Footer */}
-      <Footer />
+      {!isMember&&<Footer />}
     </AccountPage>
   );
 }

@@ -1519,6 +1519,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
               </div>
             </div>
           </div>
+          <Link to="/guias" className="home-tour-invitation"><span className="home-tour-glyph"><UiIcon name="sparkles" size={28} tone="inherit"/></span><span><strong>Conoce Musiclub por dentro</strong><small>Una guía visual. Ejemplos que puedes tocar. Todo el club en un solo lugar.</small></span><UiIcon name="arrow" size={26} tone="inherit"/></Link>
         </section>
 
         {/* =========================================================================

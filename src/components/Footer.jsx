@@ -73,7 +73,7 @@ export function Footer({ showAd = true }) {
         <Link to="/sobre-musiclub" className="hover:text-pink-300 underline">Sobre Musiclub</Link>
         <Link to="/contacto" className="hover:text-pink-300 underline">Contacto</Link>
         <Link to="/redes" className="hover:text-pink-300 underline">Todas nuestras redes</Link>
-        <Link to="/guias" className="hover:text-pink-300 underline">Guías de escucha y reseña</Link>
+        <Link to="/guias" className="hover:text-pink-300 underline">Guía de Musiclub</Link>
         <Link
           to="/faq"
           className="hover:text-[#f5576c] transition-colors flex items-center gap-1"

@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
+import {FAQ_TOUR_ANCHORS} from '../data/musiclubTour';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
@@ -18,7 +19,7 @@ const FAQ_CATEGORIES = [
   { id: 'admin', label: 'Moderación & Cuentas', icon: '🔧' },
 ];
 
-const FAQ_DATA = [
+const FAQ_BASE = [
   // 1. Dinámica & Club
   {
     id: 'que-es-musiclub',
@@ -60,7 +61,7 @@ const FAQ_DATA = [
     category: 'ruleta',
     question: '¿Cómo funciona la Máquina Musical (Slot Machine)?',
     answer:
-      'La Máquina Musical cuenta con 3 carretes retro-cyberpunk que giran en secuencia con animaciones y efectos de neón. Al presionar el botón de tirar palanca, los carretes comienzan a girar a alta velocidad y se detienen uno a uno hasta revelar el disco ganador con una lluvia de confetti y un popup fullscreen.',
+      'La Máquina Musical cuenta con 3 carretes retro-cyberpunk que giran en secuencia con animaciones y efectos de neón. Al usar la palanca, los carretes comienzan a girar a alta velocidad y se detienen uno a uno hasta revelar el disco ganador con una lluvia de confetti y la confirmación del resultado.',
   },
   {
     id: 'probabilidades-seleccion',
@@ -194,6 +195,8 @@ const FAQ_DATA = [
     href: '/contacto', linkLabel: 'Contactar con Musiclub',
   },
 ];
+
+const FAQ_DATA=FAQ_BASE.map(item=>({...item,href:item.href==='/sobre-musiclub'?item.href:`/guias#${/gashapon|descart/.test(item.id)?'gashapon':/cancion|track|favorit/.test(item.id)?'canciones':/portada/.test(item.id)?'portadas':FAQ_TOUR_ANCHORS[item.category] || 'ayuda'}`,linkLabel:item.href==='/sobre-musiclub'?item.linkLabel:'Ver el ejemplo en la guía interactiva'}));
 
 export function FAQ({ isPage = false }) {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -350,7 +353,7 @@ export function FAQ({ isPage = false }) {
                 Leaderboard & Badges
               </div>
               <div className="text-white/40 text-[11px]">
-                7 Insignias automáticas
+                Niveles, tiers y récords
               </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
@@ -366,7 +369,7 @@ export function FAQ({ isPage = false }) {
         </div>
 
         <nav aria-label="Recursos de ayuda" className="mb-6 flex flex-wrap gap-3 text-sm font-bold text-pink-200">
-          <Link to="/guias" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Guías de escucha y reseña →</Link>
+          <Link to="/guias" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Guía interactiva de Musiclub →</Link>
           <Link to="/privacy" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Privacidad</Link>
           <Link to="/contacto" className="rounded-xl border border-white/15 p-3 hover:bg-white/5">Contactar con soporte</Link>
         </nav>

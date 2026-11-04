@@ -1,7 +1,8 @@
 'use client';
+import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import MoodIcon from './MoodIcon';
-import ReviewCriteria from './ReviewCriteria';
+import ReviewCriteria,{REVIEW_CRITERIA} from './ReviewCriteria';
 import ReviewTrackRatings from './ReviewTrackRatings';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { usePoolReviewGate } from '../hooks/usePoolReviewGate';
@@ -128,7 +129,7 @@ const CRITERIA_METRICS = [
     iconColor: '#f5576c',
     desc: 'Valoración global e independiente',
   },
-];
+].map(criterion=>({...criterion,iconColor:REVIEW_CRITERIA.find(([key])=>key===criterion.key)?.[4] || criterion.iconColor}));
 
 function formatDuration(ms) {
   if (!ms || isNaN(ms)) return null;
@@ -968,7 +969,7 @@ export function AlbumDetail({
 
   const pageImage = album?.image_url || '/musiclub_logo_corchea.png';
 
-  if(loading)return <DetailLoading label='Abriendo ficha del release…'/>;
+  if(loading)return <NavigationLoading label='Abriendo ficha del release…'/>;
 
   if (error || !album) {
     return (

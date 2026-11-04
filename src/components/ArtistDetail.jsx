@@ -1,4 +1,5 @@
 'use client';
+import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import { InterfaceText } from './UiIcon';
 import { ListenLaterButton } from './ListenLaterButton';
@@ -234,7 +235,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
   const artistKeywords = `${formattedArtistName}, discografia ${formattedArtistName}, albumes ${formattedArtistName}, reviews ${formattedArtistName}, reseñas ${formattedArtistName}, canciones ${formattedArtistName}, musiclub`;
 
-  if(loading)return <DetailLoading label='Abriendo perfil y discografía del artista…'/>;
+  if(loading)return <NavigationLoading label='Abriendo perfil y discografía del artista…'/>;
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO

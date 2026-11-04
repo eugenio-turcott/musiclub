@@ -1,8 +1,22 @@
 # Musiclub
 
+<p align="center"><a href="https://www.musiclub.org"><img src="public/musiclub-overview.svg" alt="Musiclub · Tu música. Tu criterio. Catálogo, reseñas, Pools, Gashapon, perfiles y comunidad." width="100%" /></a></p>
+
+<p align="center"><a href="https://www.musiclub.org/catalogo">Explorar música</a> · <a href="https://www.musiclub.org/guias">Guía interactiva</a> · <a href="https://www.musiclub.org/pool">Encontrar una sala</a> · <a href="https://www.musiclub.org/patch-notes">Novedades</a></p>
+
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.7.0 · **Última actualización:** 4 de noviembre de 2026.
+**Versión:** 10.8.0 · **Última actualización:** 4 de noviembre de 2026.
+
+## La experiencia
+
+| Descubre | Participa | Hazlo tuyo |
+| --- | --- | --- |
+| Releases, artistas y vinilos por género | Reseñas con siete criterios y notas por pista | Perfil musical y estadísticas compartidas |
+| Gashapon y una cola para volver después | Salas públicas y privadas con Máquina Musical | Insignias evolutivas y 16 niveles de actividad |
+| Portadas y tendencias del club | Reacciones y recomendaciones entre miembros | Tarjetas para historias, publicaciones y formatos horizontales |
+
+La [guía interactiva](https://www.musiclub.org/guias) permite probar cada área con demostraciones locales: no publica reseñas, no crea salas y no envía mensajes. El FAQ enlaza a sus capítulos. Las tarjetas para compartir conservan la proporción en cualquier pantalla y excluyen correo, buzón e información privada.
 
 ## Qué incluye
 
@@ -16,7 +30,7 @@
 - Lista privada «Escuchar más tarde» y descartes persistentes del Gashapon. Las preferencias pertenecen a la cuenta autenticada; variantes de una misma obra comparten estado y deluxe permanece separado. El historial permite reactivar descartes; guardar para después no modifica los sorteos.
 - Calificación de portadas, perfiles, recomendaciones, playlists e insignias.
 - Mi Perfil reúne identidad musical, nivel, reseñas y listas privadas, con navegación lateral en escritorio y desplazamiento horizontal en móvil. Los paneles laterales respetan la altura del encabezado y el espacio disponible. Configuración separa identidad, favoritos y enlaces, muestra una vista previa y conserva el borrador en el navegador hasta guardar o revertir los cambios. Sus géneros se eligen individualmente y el buscador consulta el registro compartido de Musiclub.
-- Leaderboard de personas con al menos una reseña, con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
+- Leaderboard de todos los perfiles registrados, incluidos quienes todavía no tienen reseñas, con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
 - Toda la publicidad está temporalmente desactivada. Se conserva su configuración para una futura reactivación solicitada por el propietario; no se cargan bibliotecas, banners ni espacios publicitarios.
@@ -37,7 +51,7 @@ La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis
 | Alojamiento | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
 | Verificación | Node Test Runner, PostgreSQL de prueba con PGlite y Playwright en CI |
 
-Las páginas públicas principales generan contenido en el servidor. El catálogo usa una instantánea compartida de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas resuelven un índice ligero y consultan únicamente los releases y reseñas relacionados, con caché de un minuto e invalidación tras guardar reseñas. La sesión se comparte entre los componentes; las interacciones de reseñas se agrupan y las lecturas recientes del Pool se reutilizan por cuenta, sala y temporada. No hay sondeo periódico del Pool ni de las notificaciones; se actualizan al guardar, al volver a la ventana cuando caduca su copia o mediante el botón de actualizar. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. Los estados de carga muestran un vinilo existente al azar, con texto según la página, sin un esqueleto de la ficha. Cada Pool puede generar desde su configuración un código estable de doce letras mayúsculas y números para `/pool/CODIGO`; los enlaces anteriores siguen funcionando y los códigos no sustituyen los permisos de las salas privadas. La navegación reúne todos los Pools públicos activos y cerrados. Las cápsulas tienen una inspección animada sin lecturas adicionales, con tres segundos abiertas y dos cerradas. La ruleta anima tres carretes y una palanca sin consultas durante el giro, conserva la ponderación moderada por antigüedad y guarda una sola selección. El correo del Pool se espera y se comprueba por separado: un fallo no repite el sorteo. Los avisos fallidos se pueden reenviar explícitamente desde la administración del Pool original, con una nueva reserva atómica y registro del intento anterior; los avisos enviados o en proceso no se repiten, y los administradores pueden comprobar la conexión SMTP sin enviar mensajes. Las imágenes opcionales no bloquean el correo. En Cloudflare el SMTP de Brevo utiliza TLS directo por el nombre del servidor en el puerto 465, con el certificado verificado. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
+Las páginas públicas principales generan contenido en el servidor. El catálogo usa una instantánea compartida de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas resuelven un índice ligero y consultan únicamente los releases y reseñas relacionados, con caché de un minuto e invalidación tras guardar reseñas. La sesión se comparte entre los componentes; las interacciones de reseñas se agrupan y las lecturas recientes del Pool se reutilizan por cuenta, sala y temporada. No hay sondeo periódico del Pool ni de las notificaciones; se actualizan al guardar, al volver a la ventana cuando caduca su copia o mediante el botón de actualizar. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. Las cargas muestran un vinilo existente al azar dentro de un panel acotado, con texto según el destino y navegación visible; no sustituyen toda la pantalla. Cada Pool puede generar desde su configuración un código estable de doce letras mayúsculas y números para `/pool/CODIGO`; los enlaces anteriores siguen funcionando y los códigos no sustituyen los permisos de las salas privadas. La navegación reúne todos los Pools públicos activos y cerrados. Las cápsulas tienen una inspección animada sin lecturas adicionales, con tres segundos abiertas y dos cerradas. La ruleta anima tres carretes y una palanca sin consultas durante el giro, conserva la ponderación moderada por antigüedad y guarda una sola selección. El correo del Pool se espera y se comprueba por separado: un fallo no repite el sorteo. Los avisos fallidos se pueden reenviar explícitamente desde la administración del Pool original, con una nueva reserva atómica y registro del intento anterior; los avisos enviados o en proceso no se repiten, y los administradores pueden comprobar la conexión SMTP sin enviar mensajes. Las imágenes opcionales no bloquean el correo. En Cloudflare el SMTP de Brevo utiliza TLS directo por el nombre del servidor en el puerto 465, con el certificado verificado. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
 
 ## Desarrollo local
 

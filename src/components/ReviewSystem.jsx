@@ -1,8 +1,12 @@
+import {CompactReviewCard} from './CompactReviewCard';
+import ReviewCriteria from './ReviewCriteria';
+import {DetailLoading} from './DetailLoading';
+import {createRequestCache} from '../services/requestCache.mjs';
 import MoodIcon from './MoodIcon';
 import { InterfaceText } from './UiIcon';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useReviewAccess } from '../hooks/useReviewAccess';
-import { supabaseService } from '../services/supabaseClient';
+import { supabaseService,supabase } from '../services/supabaseClient';
 import { useAuth } from '../hooks/useAuth';
 import { authenticatedFetch } from '../services/authenticatedFetch';
 import {
@@ -20,6 +24,8 @@ import { clearPublicCatalog } from '../services/publicCatalog';
 import { reviewAssessment } from '../utils/reviewAssessment';
 import { ShareReviewModal } from './ShareReviewModal';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
+
+const reviewSnapshots=createRequestCache({ttl:300000,maxEntries:24});
 
 const CRITERIOS = [
   {
@@ -117,34 +123,29 @@ export function ReviewSystem({
 
   const shouldShowTracks = isIndividual || showTrackReviews;
 
-  const loadReviews = useCallback(async () => {
-    if (
-      !album ||
-      !album.id ||
-      (typeof album.id === 'string' && album.id.startsWith('spotify_'))
-    ) {
-      setReviews([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const ids=album.edition_member_ids || [album.id];
-      const data=(await Promise.all(ids.map(id=>supabaseService.getReviews(id)))).flat();
-      const own=(await Promise.all(ids.map(id=>supabaseService.getOwnReview(id)))).filter(Boolean).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)))[0];
-      setReviews((data || []).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).map(r => r.id === own?.id ? { ...r, ...own } : r));
-    } catch (error) {
-      console.error('Error loading reviews:', error);
-    }
-    setLoading(false);
-  }, [album]);
-
-  useEffect(() => {
-    if (album && album.id) {
-      loadReviews();
-    }
-  }, [album, loadReviews]);
+  const idsKey=JSON.stringify([...new Set(album?.edition_member_ids || (album?.id?[album.id]:[]))].sort());
+  const reviewKey=JSON.stringify([user?.id || 'guest',idsKey]);
+  const reviewSequence=React.useRef(0);
+  const loadReviews=useCallback(async(force=false)=>{
+    const request=++reviewSequence.current;
+    const ids=JSON.parse(idsKey);
+    if(!ids.length||String(ids[0]).startsWith('spotify_')){setReviews([]);setLoading(false);return;}
+    if(force)reviewSnapshots.invalidate(reviewKey);
+    if(!reviewSnapshots.peek(reviewKey))setLoading(true);
+    try{
+      const data=await reviewSnapshots.read(reviewKey,async()=>{
+        const identity=async()=>((await supabase.auth.getSession()).data.session?.user?.id || null);
+        if(user?.id&&await identity()!==user.id)throw new Error('La sesión cambió');
+        const publicRows=(await Promise.all(ids.map(id=>supabaseService.getReviews(id)))).flat();
+        const own=user?.id?(await Promise.all(ids.map(id=>supabaseService.getOwnReview(id)))).filter(Boolean).sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at)))[0]:null;
+        if(user?.id&&await identity()!==user.id)throw new Error('La sesión cambió');
+        return publicRows.sort((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).map(r=>r.id===own?.id?{...r,...own}:r);
+      });
+      if(request===reviewSequence.current)setReviews(data);
+    }catch(error){if(request===reviewSequence.current)setError('No se pudieron cargar las reseñas. Inténtalo de nuevo.');}
+    finally{if(request===reviewSequence.current)setLoading(false);}
+  },[reviewKey,idsKey,user?.id]);
+  useEffect(()=>{loadReviews();return()=>{reviewSequence.current++;};},[loadReviews]);
 
   // Blindaje universal de álbum, artista, pistas y reviewers contra traducción (V.8.11)
   useEffect(() => {
@@ -681,7 +682,7 @@ export function ReviewSystem({
         }
       }
 
-      await loadReviews();
+      await loadReviews(true);
       if (onReviewSubmitted) onReviewSubmitted();
       setTimeout(() => setSuccess(false), 3500);
     } catch (error) {
@@ -883,51 +884,7 @@ export function ReviewSystem({
                 </div>
               )}
 
-              {/* Desglose de Criterios */}
-              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-2.5">
-                {[
-                  { key: 'rating_produccion', label: '🎛️ Producción', max: 5 },
-                  {
-                    key: 'rating_composicion',
-                    label: '🎵 Composición',
-                    max: 5,
-                  },
-                  { key: 'rating_letras', label: '📝 Letras', max: 5 },
-                  {
-                    key: 'rating_originalidad',
-                    label: '💡 Originalidad',
-                    max: 5,
-                  },
-                  { key: 'rating_cohesion', label: '🔗 Cohesión', max: 5 },
-                  { key: 'rating_replay', label: '🔄 Replay', max: 5 },
-                  {
-                    key: 'rating_general',
-                    label: '⭐ General',
-                    max: 10,
-                    fullWidth: true,
-                  },
-                ].map(({ key, label, max, fullWidth }) => {
-                  const val = existingUserReview[key];
-                  if (val === undefined || val === null) return null;
-                  return (
-                    <div
-                      key={key}
-                      className={`bg-white/5 p-3 rounded-xl border border-white/5 flex items-center justify-between ${
-                        fullWidth
-                          ? 'xs:col-span-2 sm:col-span-3 md:col-span-4 bg-emerald-500/10 border-emerald-500/20'
-                          : ''
-                      }`}
-                    >
-                      <span className="text-xs text-white/70"><InterfaceText>{label}</InterfaceText></span>
-                      <span
-                        className={`font-bold font-mono text-sm px-2 py-0.5 rounded-lg border ${getRatingBadgeColor(val, max)}`}
-                      >
-                        {val}/{max}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+              <ReviewCriteria review={existingUserReview}/>
 
               {/* Canción Favorita */}
               {(() => {
@@ -2328,218 +2285,10 @@ export function ReviewSystem({
 
           {/* Lista de reviews existentes */}
           {loading ? (
-            <div className="text-white/20 text-sm py-6 text-center">
-              <span className="w-2 h-2 bg-[#f5576c] rounded-full animate-pulse inline-block mr-2"></span>
-              Cargando reviews...
-            </div>
+            <DetailLoading fullScreen={false} label="Cargando reviews…"/>
           ) : reviews.length > 0 ? (
-            <div className="space-y-3 max-h-[420px] overflow-y-auto pr-2 custom-scrollbar">
-              {reviews.map((review, idx) => {
-                const weightedScore = getWeightedReviewScore(review);
-                const avg =
-                  weightedScore !== null && !isNaN(weightedScore)
-                    ? Number(weightedScore).toFixed(1)
-                    : review.rating_general !== null &&
-                        review.rating_general !== undefined &&
-                        !isNaN(review.rating_general)
-                      ? Number(review.rating_general).toFixed(1)
-                      : 'N/A';
-                const trackRatingsData = review.track_ratings || {};
-
-                return (
-                  <div
-                    key={idx}
-                    className={`rounded-2xl p-4 border transition-all duration-300 ${
-                      isIndividual
-                        ? 'bg-linear-to-r from-blue-950/30 via-slate-900/40 to-cyan-950/20 border-blue-500/20 hover:border-blue-400/40 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]'
-                        : 'bg-white/5 border-white/5 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5">
-                      <div className="flex items-center gap-2.5 flex-wrap min-w-0">
-                        {review?.reviewer_avatar ? (
-                          <img
-                            src={review.reviewer_avatar}
-                            alt={review.reviewer_name || 'Reviewer'}
-                            className="w-7 h-7 rounded-full object-cover border border-white/20 shadow-sm shrink-0"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              if (e.target.nextSibling)
-                                e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
-                            review?.reviewer_avatar ? 'hidden' : 'flex'
-                          } ${
-                            isIndividual
-                              ? 'bg-linear-to-tr from-blue-600 to-cyan-400 text-white shadow-md'
-                              : 'bg-linear-to-tr from-[#f5576c] to-[#f093fb] text-white'
-                          }`}
-                        >
-                          {(review?.reviewer_name || 'A')[0].toUpperCase()}
-                        </div>
-                        <span
-                          translate="no"
-                          className="notranslate username-tag text-white font-medium text-sm"
-                        >
-                          {review?.reviewer_name || 'Anónimo'}
-                        </span>
-                        <span className="text-white/30 text-xs">
-                          {review.created_at
-                            ? new Date(review.created_at).toLocaleDateString(
-                                'es-ES',
-                                {
-                                  day: 'numeric',
-                                  month: 'short',
-                                  year: 'numeric',
-                                }
-                              )
-                            : ''}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto shrink-0">
-                        {(() => {
-                          const emo = getEmotionFromReview(review);
-                          return emo ? (
-                            <span
-                              className={`text-[10px] sm:text-[11px] px-2 py-0.5 rounded-full border font-bold flex items-center gap-1 shadow-sm ${emo.badgeClass}`}
-                              title={emo.description}
-                            >
-                              <span className="text-xl"><MoodIcon mood={emo.id} size={44}/></span>
-                              <span className="hidden sm:inline">
-                                <InterfaceText>{emo.label}</InterfaceText>
-                              </span>
-                            </span>
-                          ) : null;
-                        })()}
-                        <span
-                          className={`text-sm font-bold px-2.5 py-0.5 rounded-full border ${
-                            isIndividual
-                              ? 'text-cyan-300 bg-cyan-500/15 border-cyan-400/30 shadow-[0_0_10px_rgba(6,182,212,0.15)]'
-                              : 'text-[#f5576c] bg-[#f5576c]/10 border-[#f5576c]/20'
-                          }`}
-                        ><InterfaceText>{" ★ "}</InterfaceText>{avg}
-                        </span>
-                      </div>
-                    </div>
-
-                    {review.comment && (
-                      <p className="text-white/70 text-sm mt-2 italic bg-black/20 p-2.5 rounded-xl border border-white/5 leading-relaxed">
-                        "{review.comment}"
-                      </p>
-                    )}
-
-                    {/* Canción Favorita */}
-                    {(() => {
-                      const favTrack = getReviewFavoriteTrack(review);
-                      if (!favTrack) return null;
-                      const favName = getTrackDisplayName(
-                        favTrack,
-                        effectiveTracks.length > 0
-                          ? effectiveTracks
-                          : album?.tracks
-                      );
-                      return (
-                        <div className="mt-2.5 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs bg-linear-to-r from-amber-500/15 via-yellow-500/10 to-transparent border border-amber-400/30 p-2.5 sm:px-3 sm:py-1.5 rounded-xl text-amber-200 font-medium shadow-sm">
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-sm"><InterfaceText>{"⭐"}</InterfaceText></span>
-                            <span className="text-amber-400/90 font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">
-                              Canción Favorita:
-                            </span>
-                          </div>
-                          <span
-                            translate="no"
-                            className="notranslate track-name font-extrabold text-amber-200 text-xs sm:text-sm pl-5 sm:pl-0 break-words sm:truncate sm:max-w-[280px]"
-                            title={favName}
-                          >
-                            {favName}
-                          </span>
-                        </div>
-                      );
-                    })()}
-
-                    <div className="flex flex-wrap gap-1 mt-2.5">
-                      {[
-                        { key: 'rating_produccion', label: '🎛️ Prod.' },
-                        { key: 'rating_composicion', label: '🎵 Comp.' },
-                        { key: 'rating_letras', label: '📝 Letras' },
-                        { key: 'rating_originalidad', label: '💡 Orig.' },
-                        { key: 'rating_cohesion', label: '🔗 Cohes.' },
-                        { key: 'rating_replay', label: '🔄 Replay' },
-                        { key: 'rating_general', label: '⭐ Gral.' },
-                      ].map(
-                        ({ key, label }) =>
-                          review[key] && (
-                            <span
-                              key={key}
-                              className={`text-[10px] px-2 py-0.5 rounded-full border ${
-                                isIndividual
-                                  ? 'text-blue-200/80 bg-blue-500/10 border-blue-400/20'
-                                  : 'text-white/30 bg-white/5 border-white/5'
-                              }`}
-                            >
-                              <InterfaceText>{label}</InterfaceText>: {review[key]}
-                            </span>
-                          )
-                      )}
-                    </div>
-
-                    {Object.keys(trackRatingsData).length > 0 && (
-                      <div className="mt-2.5 pt-2 border-t border-white/10">
-                        <p className="text-white/30 text-[9px] uppercase tracking-wider mb-1 flex items-center gap-1">
-                          <span><InterfaceText>{"🎵"}</InterfaceText></span> Reviews por canción:
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {Object.entries(trackRatingsData).map(
-                            ([trackId, rating], trIdx) => {
-                              const trackName = getTrackDisplayName(
-                                trackId,
-                                effectiveTracks.length > 0
-                                  ? effectiveTracks
-                                  : album?.tracks
-                              );
-                              const isFav = isFavoriteTrackMatch(
-                                trackId,
-                                getReviewFavoriteTrack(review),
-                                effectiveTracks.length > 0
-                                  ? effectiveTracks
-                                  : album?.tracks,
-                                trIdx
-                              );
-                              return (
-                                <span
-                                  key={trackId}
-                                  className={`text-[9px] px-2 py-0.5 rounded-full flex items-center gap-1 border transition-all ${
-                                    isFav
-                                      ? 'bg-amber-500/20 border-amber-400/40 text-amber-200 font-bold shadow-[0_0_10px_rgba(251,191,36,0.2)]'
-                                      : 'bg-black/40 border-white/10 text-white/70'
-                                  }`}
-                                >
-                                  <span><InterfaceText>{isFav ? '⭐' : '🎵'}</InterfaceText></span>
-                                  <span
-                                    translate="no"
-                                    className="notranslate track-name max-w-[120px] truncate"
-                                    title={trackName}
-                                  >
-                                    {trackName}
-                                  </span>
-                                  <span
-                                    className={`font-mono font-bold ${isFav ? 'text-amber-300' : 'text-emerald-300'}`}
-                                  ><InterfaceText>{" ★ "}</InterfaceText>{rating}
-                                  </span>
-                                </span>
-                              );
-                            }
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+            <div className="compact-review-grid" aria-label="Reseñas individuales del release">
+              {reviews.map(review=><CompactReviewCard key={review.id} review={review} album={album} tracks={effectiveTracks.length?effectiveTracks:album?.tracks || []}/>)}
             </div>
           ) : (
             <div className="text-white/20 text-sm py-6 text-center border border-dashed border-white/5 rounded-xl">

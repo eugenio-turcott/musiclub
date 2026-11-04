@@ -5,7 +5,7 @@ import { supabase } from '../services/supabaseClient';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
 
-export function useAlbums(initialAlbums = []) {
+export function useAlbums(initialAlbums = [], {enabled=true} = {}) {
   const [albums, setAlbums] = useState(()=>editions.groupReleaseEditions(initialAlbums));
   const [winner, setWinner] = useState(() => initialAlbums.find(a => a.status === 'GANADOR') || null);
   const [loading, setLoading] = useState(initialAlbums.length === 0);
@@ -123,8 +123,8 @@ export function useAlbums(initialAlbums = []) {
   }, [fetchAlbums]);
 
   useEffect(() => {
-    if (initialAlbums.length === 0) fetchAlbums();
-  }, [fetchAlbums]);
+    if (enabled && initialAlbums.length === 0) fetchAlbums();
+  }, [fetchAlbums,enabled]);
 
   return {
     albums,

@@ -1,5 +1,5 @@
 'use client';
-import {DetailLoading} from '../DetailLoading';
+import {NavigationLoading} from '../NavigationLoading';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -10,6 +10,7 @@ import { GenreLabel } from '../GenreLabel';
 import { SpotifyIcon, InstagramIcon } from '../ShareReviewModal';
 import { AccountAvatar, AccountPage, AccountSection } from './AccountElements';
 import { FavoriteGenreSearch, individualFavoriteGenres } from './FavoriteGenreSearch';
+import {ShareProfileModal} from '../ShareProfileModal';
 
 const AVAILABLE_GENRES=['Rock','Indie','Hip-Hop','Pop','Electrónica','Synthwave','R&B','Soul','Jazz','Metal','Punk','Folk','Reggae','Ambient','Shoegaze','Clásica','Latino','Trap'];
 const EMPTY={name:'',avatar:'',bio:'',favoriteArtist:'',favoriteAlbum:'',selectedGenres:[],spotifyUrl:'',instagramUrl:''};
@@ -27,6 +28,7 @@ export function AccountSettings() {
   const [draftSaved,setDraftSaved]=useState(false);
   const [success,setSuccess]=useState('');
   const [error,setError]=useState('');
+  const [sharing,setSharing]=useState(false);
   const draftKey=user?.id?`musiclub_settings_draft_${user.id}`:user?.email?`musiclub_settings_draft_${user.email}`:null;
   const hasChanges=signature(form)!==signature(baseline);
 
@@ -80,9 +82,9 @@ export function AccountSettings() {
     finally {setSaving(false);}
   };
 
-  if(!user&&authLoading)return <DetailLoading label="Cargando tu configuración…"/>;
+  if(!user&&authLoading)return <NavigationLoading label="Cargando tu configuración…"/>;
   if(!user) return <div className="account-page w-full max-w-7xl mx-auto space-y-6"><AppHeader showTitle={false}/><section className="account-access-state"><UiIcon name="settings" size={44}/><h1>Configuración de perfil</h1><p>{authLoading?'Cargando tu cuenta…':'Inicia sesión para personalizar tu perfil y tus gustos musicales.'}</p><Link className="account-primary-action" to="/">Ir a Musiclub<UiIcon name="arrow" tone="inherit"/></Link></section><Footer/></div>;
-  if(initializedKey!==draftKey)return <div className="min-h-[70vh] flex items-center justify-center text-slate-300" role="status">Preparando tu perfil…</div>;
+  if(initializedKey!==draftKey)return <NavigationLoading label="Preparando tu perfil…"/>;
   return <AccountPage className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
     <AppHeader showTitle={false}/>
     <header className="account-page-heading"><h1>Configuración de perfil</h1><Link to="/profile" className="account-secondary-action"><UiIcon name="user" tone="inherit"/>Ver mi perfil</Link></header>
@@ -106,8 +108,10 @@ export function AccountSettings() {
           </AccountSection>
         </fieldset>
         <aside className="settings-preview" aria-label="Vista previa de tu perfil">
+          <ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{id:user.id,name:form.name,avatar_url:form.avatar,bio:form.bio,favorite_artist:form.favoriteArtist,favorite_album:form.favoriteAlbum,favorite_genres:form.selectedGenres}}/>
           <div className="settings-preview-label"><UiIcon name="eye" tone="inherit"/>Vista previa</div>
           <div className="settings-preview-card"><AccountAvatar src={form.avatar} name={form.name}/><span className="profile-member-label">Miembro de Musiclub</span><h2 translate="no">{form.name.trim() || 'Tu nombre'}</h2><p className="settings-preview-bio">{form.bio.trim() || 'Tu historia musical empieza por aquí.'}</p><div className="settings-preview-favorites">{form.favoriteArtist&&<span><UiIcon name="mic" tone="inherit"/>{form.favoriteArtist}</span>}{form.favoriteAlbum&&<span><UiIcon name="disc" tone="inherit"/>{form.favoriteAlbum}</span>}</div><div className="settings-preview-genres">{form.selectedGenres.slice(0,5).map(genre=><GenreLabel key={genre} genre={genre} size={18}/>)}{form.selectedGenres.length>5&&<span>+{form.selectedGenres.length-5}</span>}</div></div>
+          <button type="button" className="account-primary-action settings-share-preview" onClick={()=>setSharing(true)}><UiIcon name="share" tone="inherit"/>Compartir vista previa</button>
           <p className="settings-preview-note">{draftSaved?<><UiIcon name="check" tone="inherit"/>Borrador guardado en este navegador.</>:<><UiIcon name="info" tone="inherit"/>Guarda los cambios para actualizar tu perfil.</>}</p>
         </aside>
       </div>

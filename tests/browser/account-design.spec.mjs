@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
-import { albums, reviews } from './fixtures.mjs';
+import { albums, reviews,tables } from './fixtures.mjs';
 
 const memberId='00000000-0000-4000-8000-000000000081';
 async function account(page,{failSave=false,reviewCount=2}={}) {
@@ -212,13 +212,13 @@ test('leaderboard and badge guide expose the same tiered badge artwork',async({p
  await page.screenshot({path:`outputs/unified-members/guide-${testInfo.project.name}.png`});
 });
 
-test('leaderboard excludes zero-review profiles from cards, podium and totals',async({page})=>{
- await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[{id:'no-review-member',name:'Sin reseñas',bio:'No debe aparecer en el ranking',favorite_artist:'Artista cero'}]}));
+test('leaderboard includes registered zero-review profiles without assigning a severe label',async({page})=>{
+ await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[...tables.public_profiles,{id:'no-review-member',name:'Sin reseñas',bio:'Perfil registrado sin reseñas',favorite_artist:'Artista cero'}]}));
  await page.route('**/rest/v1/public_reviews*',route=>route.fulfill({json:reviews}));
  await page.goto('/leaderboard');
- await expect(page.locator('[data-leaderboard-member]')).toHaveCount(3);
- await expect(page.getByText('Sin reseñas',{exact:true})).toHaveCount(0);
- await expect(page.getByText('Miembros con reseñas (3)',{exact:true})).toBeVisible();
+ await expect(page.locator('[data-leaderboard-member]')).toHaveCount(4);
+ await expect(page.getByText('Sin reseñas',{exact:true}).first()).toBeVisible();
+ await expect(page.getByText('Miembros registrados (4)',{exact:true})).toBeVisible();
  await page.getByPlaceholder('Buscar por nombre, artista favorito, género...').fill('Sin reseñas');
- await expect(page.locator('[data-leaderboard-member]')).toHaveCount(0);
+ await expect(page.locator('[data-leaderboard-member]')).toHaveCount(1);
 });

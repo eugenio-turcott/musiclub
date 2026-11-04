@@ -1,6 +1,7 @@
 import '../styles/global.css';
 import '../index.css';
 import '../styles/account.css';
+import '../styles/experience.css';
 import localFont from 'next/font/local';
 import { ClientProviders } from './ClientProviders';
 

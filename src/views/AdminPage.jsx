@@ -1,5 +1,5 @@
 'use client';
-import {DetailLoading} from '../components/DetailLoading';
+import {NavigationLoading} from '../components/NavigationLoading';
 import { InterfaceText } from '../components/UiIcon';
 // src/pages/AdminPage.jsx
 import React from 'react';
@@ -12,7 +12,7 @@ export function AdminPage() {
 
   if (loading) {
     return (
-      <DetailLoading label="Verificando acceso a administración…"/>
+      <NavigationLoading label="Verificando acceso a administración…"/>
     );
   }
 

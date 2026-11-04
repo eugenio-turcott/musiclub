@@ -35,3 +35,6 @@ albums[0].total_tracks=3;
 Object.assign(reviews[0],{rating_produccion:5,rating_composicion:4,rating_letras:3,rating_originalidad:4,rating_cohesion:5,rating_replay:4,track_ratings:{'qa-third':9,'track-0':9,'qa-second':10},favorite_track:'qa-second'});
 // A lone perfect score must never displace an album with two community reviews.
 reviews[2].rating_general=10;
+
+// Rankings use registered public profiles, including people with no reviews.
+for(const [index,name] of [...new Set(tables.public_reviews.map(r=>r.reviewer_name).filter(Boolean))].entries()) tables.public_profiles.push({id:`registered-fixture-${index}`,name,avatar_url:null,role:"user"});

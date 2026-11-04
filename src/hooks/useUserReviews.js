@@ -33,7 +33,7 @@ export function useUserReviews(user) {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user?.id,user?.email,user?.name]);
 
   useEffect(() => {
     fetchUserReviews();

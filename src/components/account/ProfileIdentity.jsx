@@ -8,8 +8,11 @@ import { SpotifyIcon, InstagramIcon } from '../ShareReviewModal';
 import { getMelomanoLevel, MELOMANO_LEVELS } from '../../utils/badgeSystem';
 import { individualFavoriteGenres } from './FavoriteGenreSearch';
 import { AccountAvatar } from './AccountElements';
+import {useState} from 'react';
+import {ShareProfileModal} from '../ShareProfileModal';
 
-export function ProfileIdentity({ user, isAdmin, gamification, stats }) {
+export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=false, actions=null }) {
+  const [sharing,setSharing]=useState(false);
   const xp=Number(gamification.totalXp) || 0;
   const level=getMelomanoLevel(xp);
   const next=MELOMANO_LEVELS.find(item=>item.minXp>xp);
@@ -20,8 +23,9 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats }) {
     ['notes','Pistas calificadas',stats.totalTracksRated,'cyan'],
     ['award','Insignias',gamification.badges?.length || 0,'purple'],
   ];
-  return <section className="profile-identity" aria-label="Tu perfil musical">
-    <div className="profile-identity-top"><span className="account-eyebrow">Mi Perfil</span><Link to="/settings" className="account-secondary-action"><UiIcon name="edit" tone="inherit"/>Editar perfil</Link></div>
+  return <section className="profile-identity" aria-label={readOnly?'Perfil musical del miembro':'Tu perfil musical'}>
+    <ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{...user,total_xp:xp}}/>
+    <div className="profile-identity-top"><span className="account-eyebrow">{readOnly?"Perfil de miembro":"Mi Perfil"}</span><div className="profile-identity-actions">{actions}<button type="button" onClick={()=>setSharing(true)} className="account-secondary-action"><UiIcon name="share" tone="inherit"/>Compartir perfil</button>{!readOnly&&<Link to="/settings" className="account-secondary-action"><UiIcon name="edit" tone="inherit"/>Editar perfil</Link>}</div></div>
     <div className="profile-identity-layout">
       <div className="profile-portrait"><div className="profile-portrait-disc" aria-hidden="true"><MusiclubVinyl src="/musiclub_logo.png" alt="" className="w-full h-full"/></div><AccountAvatar src={user.avatar_url || user.avatar} name={user.name}/></div>
       <div className="profile-introduction">

@@ -1588,6 +1588,7 @@ export const supabaseService = {
       profiles.forEach((p) => {
         userMap.set(p.id, {
           id: p.id,
+          registered:true,
           name: p.name || p.email?.split('@')[0] || 'Usuario',
           email: p.email || '',
           avatar_url: p.avatar_url || null,
@@ -1620,30 +1621,7 @@ export const supabaseService = {
           );
         }
 
-        if (matchedUser) {
-          matchedUser.reviews.push(rev);
-        } else if (rev.reviewer_name || rev.reviewer_email) {
-          // Si es una review previa sin perfil creado aún
-          const key = (rev.reviewer_email || rev.reviewer_name).toLowerCase().trim();
-          if (!userMap.has(key)) {
-            userMap.set(key, {
-              id: rev.user_id || `reviewer_${key}`,
-              name: rev.reviewer_name || rev.reviewer_email?.split('@')[0] || 'Miembro',
-              email: rev.reviewer_email || '',
-              avatar_url: rev.reviewer_avatar || null,
-              bio: null,
-              role: 'user',
-              favorite_artist: null,
-              favorite_album: null,
-              favorite_genres: [],
-              spotify_url: null,
-              instagram_url: null,
-              created_at: rev.created_at,
-              reviews: [],
-            });
-          }
-          userMap.get(key).reviews.push(rev);
-        }
+        if (matchedUser) matchedUser.reviews.push(rev);
       });
 
       // 4. Computar métricas por usuario

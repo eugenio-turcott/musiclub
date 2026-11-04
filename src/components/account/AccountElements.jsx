@@ -47,14 +47,14 @@ export const PROFILE_SECTIONS = [
   {id:'stats',label:'Estadísticas Detalladas',title:'Tu forma de escuchar',icon:'chart',description:'Tus notas, criterios y actividad en perspectiva.'},
 ];
 
-export function ProfileNavigation({ activeTab, onChange, reviewCount, badgeCount, unreadCount }) {
-  return <nav className="profile-navigation" aria-label="Secciones de Mi Perfil">
-    <p className="account-eyebrow">Mi espacio</p>
+export function ProfileNavigation({ activeTab, onChange, reviewCount, badgeCount, unreadCount, member=false }) {
+  return <nav className="profile-navigation" aria-label={member?"Secciones del miembro":"Secciones de Mi Perfil"}>
+    <p className="account-eyebrow">{member?"Su espacio":"Mi espacio"}</p>
     <div className="profile-navigation-items">
-      {PROFILE_SECTIONS.map(section => {
+      {PROFILE_SECTIONS.filter(section=>!member||['reviews','badges','stats'].includes(section.id)).map(section => {
         const count=section.id==='reviews'?reviewCount:section.id==='badges'?badgeCount:section.id==='mailbox'&&unreadCount?unreadCount:null;
         return <button type="button" key={section.id} aria-current={activeTab===section.id?'page':undefined} aria-controls="profile-panel" onClick={()=>onChange(section.id)}>
-          <UiIcon name={section.icon} size={21} tone="inherit"/><span>{section.label}</span>{count!=null && <small>{count}</small>}
+          <UiIcon name={section.icon} size={21} tone="inherit"/><span>{member&&section.id==='reviews'?'Reviews':section.label}</span>{count!=null && <small>{count}</small>}
         </button>;
       })}
     </div>

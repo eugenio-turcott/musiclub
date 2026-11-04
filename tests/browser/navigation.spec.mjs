@@ -555,18 +555,20 @@ test('a cached admin profile cannot keep an expired or missing session signed in
 });
 
 
-test('help pages separate practical questions from listening guides and preserve footer navigation',async({page})=>{
+test('FAQ answers link to the interactive tour and old listening articles stay available',async({page})=>{
  await page.goto('/faq');
  const question=page.getByRole('button',{name:/¿Dónde puedo consultar la fórmula de las notas/});
  await question.click();
  await expect(question).toHaveAttribute('aria-expanded','true');
- await page.getByRole('link',{name:'Consultar la metodología de calificación →',exact:true}).click();
- await expect(page).toHaveURL(/\/guias\/como-calificamos$/);
+ await page.getByRole('link',{name:'Ver el ejemplo en la guía interactiva →',exact:true}).click();
+ await expect(page).toHaveURL(/\/guias#resenas$/);
+ await expect(page.getByRole('heading',{name:'Tu opinión tiene matices.',exact:true})).toBeVisible();
+ await page.goto('/guias/como-calificamos');
  await expect(page.getByRole('heading',{name:'Cómo se calcula una calificación en Musiclub',exact:true})).toBeVisible();
  await expect(page.locator('footer').getByRole('link',{name:'Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');
- await expect(page.locator('footer').getByRole('link',{name:'Guías de escucha y reseña',exact:true})).toHaveAttribute('href','/guias');
+ await expect(page.locator('footer').getByRole('link',{name:'Guía de Musiclub',exact:true})).toHaveAttribute('href','/guias');
  await page.goto('/guias');
- await expect(page.getByRole('link',{name:'Ayuda para usar Musiclub →',exact:true})).toHaveAttribute('href','/faq');
+ await expect(page.getByRole('link',{name:'Tengo una duda',exact:true})).toHaveAttribute('href','/faq');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 

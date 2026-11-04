@@ -5,7 +5,11 @@ const drawings = new Map();
 function drawing(name) {
   if (drawings.has(name)) return drawings.get(name);
   const document = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg">${artwork.ICON_BODIES[name] || artwork.ICON_BODIES.music}</svg>`, 'image/svg+xml');
-  const parts = [...document.documentElement.children].map(element => {
+  const parts=[];
+  function walk(element,inherited=[]){
+    const transforms=[...inherited,...(element.getAttribute('transform')?[element.getAttribute('transform')]:[])];
+    if(element.tagName==='g'){for(const child of element.children)walk(child,transforms);return;}
+
     const path = new Path2D();
     const n = (key, fallback = 0) => Number(element.getAttribute(key) || fallback);
     if (element.tagName === 'path') path.addPath(new Path2D(element.getAttribute('d')));
@@ -18,8 +22,9 @@ function drawing(name) {
       path.moveTo(points[0],points[1]); for(let i=2;i<points.length;i+=2) path.lineTo(points[i],points[i+1]);
       if(element.tagName==='polygon') path.closePath();
     }
-    return {path, transform:element.getAttribute('transform')};
-  });
+    parts.push({path,transforms});
+  }
+  for(const element of document.documentElement.children)walk(element);
   drawings.set(name,parts); return parts;
 }
 export function drawInterfaceText(ctx, text, x, y) {
@@ -36,12 +41,33 @@ export function drawInterfaceText(ctx, text, x, y) {
       ctx.strokeStyle=artwork.ICON_COLORS[part.icon] || '#f472b6'; ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
       for(const element of drawing(part.icon)) {
         ctx.save();
-        const rotation=element.transform?.match(/rotate\(([-\d.]+)(?:[ ,]+([-\d.]+)[ ,]+([-\d.]+))?\)/);
-        if(rotation){const cx=Number(rotation[2]||0),cy=Number(rotation[3]||0);ctx.translate(cx,cy);ctx.rotate(Number(rotation[1])*Math.PI/180);ctx.translate(-cx,-cy);}
+        applyTransforms(ctx,element.transforms);
         ctx.stroke(element.path); ctx.restore();
       }
       ctx.restore(); left += size;
     }
   }
   ctx.restore();
+}
+
+export function drawUiIcon(ctx,name,x,y,size,color='#fff') {
+  ctx.save();ctx.translate(x,y);ctx.scale(size/24,size/24);
+  ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
+  for(const element of drawing(name)){
+    ctx.save();applyTransforms(ctx,element.transforms);
+    ctx.stroke(element.path);ctx.restore();
+  }
+  ctx.restore();
+}
+
+function applyTransforms(ctx,transforms=[]){
+ for(const transform of transforms)for(const [,name,values] of transform.matchAll(/([a-zA-Z]+)\(([^)]+)\)/g)){
+  const n=values.trim().split(/[ ,]+/).map(Number);
+  if(name==='rotate'){const [angle,x=0,y=0]=n;ctx.translate(x,y);ctx.rotate(angle*Math.PI/180);ctx.translate(-x,-y);}
+  else if(name==='translate')ctx.translate(n[0],n[1]||0);
+  else if(name==='scale')ctx.scale(n[0],n[1]??n[0]);
+  else if(name==='matrix')ctx.transform(...n);
+  else if(name==='skewX')ctx.transform(1,0,Math.tan(n[0]*Math.PI/180),1,0,0);
+  else if(name==='skewY')ctx.transform(1,Math.tan(n[0]*Math.PI/180),0,1,0,0);
+ }
 }

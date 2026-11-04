@@ -299,6 +299,22 @@ export const PROGRESSION_BADGES = {
   },
 };
 
+// Further goals retain every previously earned threshold and its XP.
+Object.assign(TIER_STYLES, {
+  tier_8:{badgeClass:'from-sky-400 via-indigo-400 to-violet-500 text-white',borderClass:'border-sky-300/40',glowClass:'shadow-sky-400/40',tierRoman:'VIII',tierName:'Astral'},
+  tier_9:{badgeClass:'from-pink-400 via-rose-400 to-orange-300 text-slate-950',borderClass:'border-pink-300/40',glowClass:'shadow-pink-400/40',tierRoman:'IX',tierName:'Aurora'},
+  tier_10:{badgeClass:'from-cyan-200 via-purple-200 to-pink-200 text-slate-950',borderClass:'border-cyan-200/50',glowClass:'shadow-purple-300/40',tierRoman:'X',tierName:'Eterno'},
+});
+const extendedTiers={
+ tracks:[[7,2000,1300,'Atlas de Pistas'],[8,4000,1900,'Cartógrafo Sonoro'],[9,7500,2700,'Universo al Detalle'],[10,12000,3800,'Memoria de Cada Nota']],
+ reviews:[[8,1000,1900,'Biblioteca Viviente'],[9,2000,2700,'Horizonte Discográfico'],[10,4000,3800,'Archivo Eterno']],
+ comments:[[7,500,1300,'Voz de Referencia'],[8,1000,1900,'Cronista Universal'],[9,2000,2700,'Biblioteca Crítica'],[10,4000,3800,'Memoria del Club']],
+ tens:[[7,500,1300,'Coleccionista de Instantes'],[8,1000,1900,'Curador de Joyas'],[9,2000,2700,'Constelación del Diez'],[10,4000,3800,'Archivo de Favoritos']],
+};
+for(const [key,tiers] of Object.entries(extendedTiers))for(const [tier,req,xp,name] of tiers){
+ if(PROGRESSION_BADGES[key]&&!PROGRESSION_BADGES[key].tiers.some(item=>item.tier===tier))PROGRESSION_BADGES[key].tiers.push({tier,req,xp,name,color:TIER_STYLES[`tier_${tier}`].badgeClass});
+}
+
 /**
  * INSIGNIAS DE PERSONALIDAD / ESTILO CRÍTICO (Requieren mín. 5 reseñas)
  * Cada nivel cuenta con un emoji exclusivo sin repetir.
@@ -819,11 +835,20 @@ export const MELOMANO_LEVELS = [
     level: 8,
     title: '🌌 Leyenda Melómana Suprema',
     minXp: 12000,
-    maxXp: 999999,
+    maxXp: 17999,
     icon: '🌌',
     color: 'from-rose-500 via-amber-400 to-yellow-300',
-    desc: 'Máximo nivel de sabiduría musical alcanzado en la historia de Musiclub.',
+    desc: 'Una trayectoria que sigue creciendo con cada escucha.',
   },
+
+  {level:9,title:'Arquitecto de Sonidos',minXp:18000,maxXp:26999,icon:'layers',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:10,title:'Curador de Constelaciones',minXp:27000,maxXp:39999,icon:'sparkles',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:11,title:'Cronista del Universo',minXp:40000,maxXp:59999,icon:'review',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:12,title:'Faro de la Comunidad',minXp:60000,maxXp:89999,icon:'bulb',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:13,title:'Maestro del Multiverso',minXp:90000,maxXp:134999,icon:'crown',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:14,title:'Patrimonio Sonoro',minXp:135000,maxXp:199999,icon:'award',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:15,title:'Horizonte Infinito',minXp:200000,maxXp:299999,icon:'disc',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
+  {level:16,title:'Archivo Eterno',minXp:300000,maxXp:Infinity,icon:'headphones',color:'from-cyan-400 via-purple-500 to-pink-400',desc:'Sigue descubriendo, compartiendo y construyendo la memoria musical del club.'},
 ];
 
 export function getMelomanoLevel(xp) {
