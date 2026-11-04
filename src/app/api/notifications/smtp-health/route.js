@@ -18,7 +18,9 @@ export async function POST(request) {
     return NextResponse.json({success:true,message:'La conexión de correo está lista. No se envió ningún mensaje.'});
   } catch(error) {
     const code=error.code || 'SMTP_UNAVAILABLE';
-    console.error('Pool SMTP health failed:',code);
+    let detail=String(error.message || error.name || '');
+    for(const value of [process.env.SMTP_PASS,process.env.SMTP_USER].filter(Boolean))detail=detail.replaceAll(value,'[redacted]');
+    console.error('Pool SMTP health failed:',code,detail);
     return NextResponse.json({success:false,code,message:code==='EAUTH'?'El proveedor rechazó la credencial de correo. Revisa la configuración SMTP.':'No se pudo establecer la conexión de correo. Revisa la configuración SMTP.'},{status:503});
   } finally {transport?.close();}
 }
