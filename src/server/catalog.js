@@ -13,6 +13,7 @@ import releaseLookup from '../utils/publicReleaseLookup.cjs';
 import { getStoredArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
 import tracklists from '../utils/releaseTracks.cjs';
+import {readRelatedRows} from './readRelatedRows.mjs';
 
 const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
@@ -23,22 +24,23 @@ function client() {
 }
 async function allRows(db, table, fields, cached = true) {
   const rows = [];
-  for (let from = 0; ; from += 100) {
+  for (let from = 0; ; from += 1000) {
     const read = async () => {
-      const result = await db.from(table).select(fields).order('id').range(from, from + 99);
+      const result = await db.from(table).select(fields).order('id').range(from, from + 999);
       if (result.error) throw new Error(`No se pudo leer el catálogo público (${table})`);
       return result.data;
     };
     const data = cached ? await unstable_cache(read, ['public-catalog-rows-v937', publicDatabaseURL, table, fields, String(from)], { revalidate: 300, tags: ['catalog'] })() : await read();
     rows.push(...data);
-    if (data.length < 100) return rows;
+    if (data.length < 1000) return rows;
   }
 }
-export const getPublicCatalog = cache(async () => {
+// Cache the assembled snapshot, rather than reading many R2 pages on every route.
+export const getPublicCatalog = cache(unstable_cache(async () => {
   const db = client();
   const [albums, reviews, profiles] = await Promise.all([
-    allRows(db, 'albums', ALBUM_FIELDS), allRows(db, 'public_reviews', PUBLIC_REVIEW_FIELDS),
-    allRows(db, 'public_profiles', 'id,name,avatar_url'),
+    allRows(db, 'albums', ALBUM_FIELDS, false), allRows(db, 'public_reviews', PUBLIC_REVIEW_FIELDS, false),
+    allRows(db, 'public_profiles', 'id,name,avatar_url', false),
   ]);
   const byAlbum = new Map();
   for (const review of reviews) {
@@ -53,7 +55,7 @@ export const getPublicCatalog = cache(async () => {
     reviews: [], track_stats: [],
   }));
   const byId = new Map(detailed.flatMap(a => (a.edition_member_ids || [a.id]).map(id=>[id,a])));
-  return { albums: detailed, rawAlbums: publicData(albums), reviews: publicData(reviewChronology.sortReviewsNewestFirst(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
+  return { albums: detailed,  reviews: publicData(reviewChronology.sortReviewsNewestFirst(reviews.map(r => ({ ...r, albums: byId.get(r.album_id) ? {
     id: r.album_id, album_name: byId.get(r.album_id).album_name, artist_name: byId.get(r.album_id).artist_name,
     image_url: byId.get(r.album_id).image_url, release_type: byId.get(r.album_id).release_type,
     release_year: byId.get(r.album_id).release_year, tracks: byId.get(r.album_id).tracks,
@@ -61,23 +63,35 @@ export const getPublicCatalog = cache(async () => {
     stats: { total_reviews: reviews.length, total_albums: detailed.length,
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
       total_users: profiles.length, top_score: getCommunityTopAlbum(detailed)?.final_rating ?? null } };
-});
+}, ['public-catalog-snapshot-v1060',publicDatabaseURL], {revalidate:300,tags:['catalog']}));
+
+const INDEX_FIELDS='id,album_name,artist_name,release_type,total_tracks';
+const getReleaseIndex=unstable_cache(()=>allRows(client(),'albums',INDEX_FIELDS,false),['release-index-v1060',publicDatabaseURL],{revalidate:300,tags:['catalog']});
+const getPublicProfiles=unstable_cache(()=>allRows(client(),'public_profiles','id,name,avatar_url',false),['public-profiles-v1060',publicDatabaseURL],{revalidate:300,tags:['catalog']});
+const getReleaseDetails=unstable_cache(async ids=>{
+  const db=client();
+  const [albums,reviews,profiles]=await Promise.all([
+    readRelatedRows(db,'albums',ALBUM_FIELDS,'id',ids),
+    readRelatedRows(db,'public_reviews',PUBLIC_REVIEW_FIELDS,'album_id',ids),
+    getPublicProfiles(),
+  ]);
+  return editions.groupReleaseEditions(albums).map(album=>publicData({
+    ...buildAlbumWithFullStats(album,reviews.filter(r=>(album.edition_member_ids || [album.id]).includes(r.album_id)),profiles),
+    reviews_enabled:album.reviews_enabled,album:album.album_name,artista:album.artist_name,imagen:album.image_url,
+  }));
+},['release-details-v1060',publicDatabaseURL],{revalidate:60,tags:['catalog']});
 
 export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v938', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
 
 export const getPublicAlbum = cache(async slug => {
-  const { albums, rawAlbums, reviews } = await getPublicCatalog();
-  const detail = album => publicData({ ...album, ...buildAlbumWithFullStats(album,
-    reviews.filter(r => (album.edition_member_ids || [album.id]).includes(r.album_id)).map(({ albums: relation, ...review }) => review)) });
-  // A newly inserted release can be absent from the five-minute collection cache.
-  // Check public rows directly on a miss before returning a real 404.
-  const found = await releaseLookup.resolvePublicRelease(slug, [...albums,...rawAlbums],
-    () => allRows(client(), 'albums', ALBUM_FIELDS, false));
-  if (found?.album) {
-    if (!found.fresh) return detail(albums.find(album=>(album.edition_member_ids || [album.id]).includes(found.album.id)) || found.album);
-    const result = await client().from('public_reviews').select(PUBLIC_REVIEW_FIELDS).eq('album_id', found.album.id);
-    if (result.error) throw new Error('No se pudieron leer las reseñas públicas');
-    return publicData(buildAlbumWithFullStats(found.album, result.data || []));
+  let index=await getReleaseIndex();
+  const found=await releaseLookup.resolvePublicRelease(slug,[...editions.groupReleaseEditions(index),...index],async()=>{
+    index=await allRows(client(),'albums',INDEX_FIELDS,false);
+    return [...editions.groupReleaseEditions(index),...index];
+  });
+  if(found?.album) {
+    const ids=editions.groupReleaseEditions(index).find(a=>(a.edition_member_ids || [a.id]).includes(found.album.id))?.edition_member_ids || [found.album.id];
+    return (await getReleaseDetails(ids.sort()))[0] || null;
   }
   // Existing anticipated releases remain readable without creating database records.
   const { data, error } = await client().from('record_club_upcoming').select('*').eq('slug', slug).maybeSingle();
@@ -96,10 +110,10 @@ export const getPublicAlbum = cache(async slug => {
 });
 
 export const getPublicArtist = cache(async slug => {
-  const { albums } = await getPublicCatalog();
+  const index=await getReleaseIndex();
   const canonicalSlug = releaseIdentity.decodeRouteSlug(slug).toLowerCase();
-  const clubAlbums = albums.filter(a => slugifyArtist(a.artist_name) === canonicalSlug ||
-    splitArtists(a.artist_name).some(artist => artist.slug === canonicalSlug));
+  const ids=index.filter(a=>slugifyArtist(a.artist_name)===canonicalSlug || splitArtists(a.artist_name).some(artist=>artist.slug===canonicalSlug)).map(a=>a.id).sort();
+  const clubAlbums=ids.length?await getReleaseDetails(ids):[];
   const sample = clubAlbums[0];
   const { data: upcoming } = await client().from('record_club_upcoming').select('*').eq('artist_slug', canonicalSlug);
   const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : upcoming?.[0]?.artist_name || canonicalSlug.replace(/-/g, ' ');

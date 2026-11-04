@@ -109,6 +109,8 @@ export async function POST(request) {
       poolUrl: `https://www.musiclub.org${getReleaseUrl(album)}`,
     }));
 
+    if (result?.skipped) return NextResponse.json({ success: false, error: 'Este aviso ya fue reservado. Revisa su estado antes de reenviarlo para evitar duplicados.' }, { status: 409 });
+
     return NextResponse.json({
       success: true,
       message: 'Correo de graduación de álbum del Pool enviado con éxito',

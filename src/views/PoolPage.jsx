@@ -1,4 +1,5 @@
 'use client';
+import {authenticatedFetch} from '../services/authenticatedFetch';
 import { InterfaceText, UiIcon } from '../components/UiIcon';
 import dynamic from 'next/dynamic';
 import presentation from '../utils/poolPresentation.cjs';
@@ -97,9 +98,17 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
   // Local UI States
   const [poolActionError, setPoolActionError] = useState('');
   const [poolActionBusy, setPoolActionBusy] = useState(false);
+  const [mailHealth,setMailHealth]=useState('');
+  const [checkingMail,setCheckingMail]=useState(false);
+  const checkMail=async()=>{
+    setCheckingMail(true);setMailHealth('');
+    try{const response=await authenticatedFetch('/api/notifications/smtp-health',{method:'POST'});const result=await response.json();setMailHealth(result.message || result.error || 'No se pudo comprobar el correo.');}
+    catch{setMailHealth('No se pudo comprobar el correo. Inténtalo de nuevo.');}
+    finally{setCheckingMail(false);}
+  };
   const runPoolAction = async action => {
     setPoolActionError(''); setPoolActionBusy(true);
-    try { await action(); } catch (error) { setPoolActionError(error.message); } finally { setPoolActionBusy(false); }
+    try { const result=await action(); if(result?.notification?.success===false)setPoolActionError(`El cambio se guardó. Correo pendiente: ${result.notification.error}`); } catch (error) { setPoolActionError(error.message); } finally { setPoolActionBusy(false); }
   };
 
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -338,7 +347,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
       )
     ) {
       try {
-        await archiveCurrentWinner(winner.id);
+        await runPoolAction(()=>archiveCurrentWinner(winner.id));
       } catch (err) {
         alert(`Error al archivar: ${err.message}`);
       }
@@ -399,6 +408,8 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
           isOpen={isPoolOpen} isAdmin={isAdmin} busy={!canParticipate || poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
           onDeposit={openNomination}
           onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
+        <button type="button" disabled={poolActionBusy || poolLoading} onClick={()=>refetch()} className="inline-flex items-center gap-2 text-xs font-bold text-cyan-300 hover:text-pink-300 disabled:opacity-50"><UiIcon name="refresh"/>Actualizar Pool</button>
+        {globalIsAdmin && <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300"><button type="button" onClick={checkMail} disabled={checkingMail} className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-3 py-2 font-bold text-cyan-300 hover:bg-cyan-400/10">{checkingMail?'Comprobando correo…':'Comprobar conexión de correo'}</button>{mailHealth&&<span role="status">{mailHealth}</span>}</div>}
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
         {isAdmin && !poolLoading && !poolError && season.id && <PoolManualControls canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={winner || activePool[0] || poolHistory[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
 
@@ -759,6 +770,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
             {!archived && <div className="flex items-center gap-2">
               <button
                 type="button"
+                disabled={poolActionBusy}
                 onClick={() => setShowSlotMachine((prev) => !prev)}
                 className="px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
               >
@@ -801,11 +813,12 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                   </h3>
                   <p className="text-xs text-slate-400">
                     Sorteo interactivo con los {slotMachinePool.length} discos
-                    actualmente en la tabla de pool entries.
+                    propuestos para compartir una nueva escucha.
                   </p>
                 </div>
                 <button
                   type="button"
+                  disabled={poolActionBusy}
                   onClick={() => setShowSlotMachine(false)}
                   className="text-xs text-slate-400 hover:text-white px-2.5 py-1 rounded-lg bg-white/5"
                 >
@@ -813,7 +826,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                 </button>
               </div>
 
-              {slotMachinePool.length === 0 ? (
+              {slotMachinePool.length === 0 && !winner && !poolActionBusy ? (
                 <div className="p-8 text-center bg-black/30 rounded-2xl border border-white/5 space-y-2">
                   <span className="text-3xl"><InterfaceText>{"🎰"}</InterfaceText></span>
                   <p className="text-sm font-bold text-white">
@@ -827,18 +840,19 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
               ) : (
                 <SlotMachine
                   albums={slotMachinePool}
-                  onSpinComplete={async (winningCandidate) => {
-                    if (winningCandidate && winningCandidate.id && isAdmin) {
-                      try {
-                        await selectWinner(winningCandidate.id);
-                        refetch();
-                      } catch (err) {
-                        setPoolActionError(err.message || 'No se pudo elegir el ganador.');
-                      }
+                  disabled={Boolean(winner) || archived}
+                  onBusyChange={setPoolActionBusy}
+                  onSpinComplete={async winningCandidate => {
+                    if(!winningCandidate?.id || !isAdmin)throw new Error('No se pudo comprobar el ganador.');
+                    try {
+                      const result=await selectWinner(winningCandidate.id);
+                      if(result?.notification?.success===false)setPoolActionError(`Ganador guardado. Correo pendiente: ${result.notification.error}`);
+                      return result;
+                    } catch(err) {
+                      setPoolActionError(err.message || 'No se pudo elegir el ganador.');
+                      throw err;
                     }
                   }}
-                  isSpinning={false}
-                  onSpinStart={() => {}}
                   isAdmin={isAdmin}
                   user={user}
                 />

@@ -1,9 +1,27 @@
+import {invalidatePoolRooms} from './poolRoomService';
 // src/services/poolService.js
 import { supabase, buildAlbumWithFullStats } from './supabaseClient.js';
 import { loadPoolData } from './poolData.mjs';
 import { authenticatedFetch } from './authenticatedFetch.js';
 
 export const DEFAULT_POOL_ROOM_ID = '00000000-0000-4000-8000-000000000000';
+
+async function notifyPoolEvent(event, albumId, seasonId, roomId) {
+  if (roomId !== DEFAULT_POOL_ROOM_ID || typeof window === 'undefined') return null;
+  try {
+    const response = await authenticatedFetch(`/api/notifications/${event}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ albumId, seasonId }), keepalive: true,
+    });
+    const result = await response.json();
+    if (!response.ok || result.success !== true || result.result?.skipped) {
+      return { success: false, error: result.error || 'El aviso ya fue procesado o requiere revisión; no se reenviará automáticamente.' };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: 'No se pudo confirmar el envío del correo. Revisa el registro antes de reenviarlo.' };
+  }
+}
 
 /**
  * Metadata de las Temporadas de Musiclub
@@ -223,19 +241,10 @@ export const poolService = {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'winner', p_album_id: albumId });
     if (error) throw new Error(error.message);
+    invalidatePoolRooms();
 
-    // 4. Disparar notificación por correo a todos los miembros sobre el nuevo ganador
-    if (roomId === DEFAULT_POOL_ROOM_ID && typeof window !== 'undefined') {
-      try {
-        authenticatedFetch('/api/notifications/pool-winner', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ albumId, seasonId }),
-        }).catch((e) => console.warn('Aviso notificando ganador:', e));
-      } catch (e) {}
-    }
-
-    return true;
+    // The winner is already committed. Mail failures must not trigger a second draw.
+    return { saved: true, notification: await notifyPoolEvent('pool-winner', albumId, seasonId, roomId) };
   },
 
   /**
@@ -245,19 +254,9 @@ export const poolService = {
     seasonId ||= (await poolService.getSeasons()).find(item => item.is_active)?.id;
     const { error } = await supabase.rpc('musiclub_pool_action', { p_season_id: seasonId, p_action: 'graduate', p_album_id: albumId });
     if (error) throw new Error(error.message);
+    invalidatePoolRooms();
 
-    // 3. Disparar notificación por correo a todos los miembros sobre la graduación y resultados
-    if (roomId === DEFAULT_POOL_ROOM_ID && typeof window !== 'undefined') {
-      try {
-        authenticatedFetch('/api/notifications/pool-graduated', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ albumId, seasonId }),
-        }).catch((e) => console.warn('Aviso notificando graduación:', e));
-      } catch (e) {}
-    }
-
-    return true;
+    return { saved: true, notification: await notifyPoolEvent('pool-graduated', albumId, seasonId, roomId) };
   },
 
   /**

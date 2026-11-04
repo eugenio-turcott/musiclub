@@ -2,7 +2,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.5.2 · **Última actualización:** 3 de noviembre de 2026.
+**Versión:** 10.6.0 · **Última actualización:** 4 de noviembre de 2026.
 
 ## Qué incluye
 
@@ -19,7 +19,7 @@
 - Leaderboard de personas con al menos una reseña, con guía de insignias vectoriales y XP en amarillo. El destacado «Más severo» requiere al menos dos reseñas calificadas del miembro.
 - Géneros con identidad visual y visor interactivo de vinilos.
 - Carrusel editorial «En el radar». Los cobros por promociones están desactivados.
-- Publicidad de Adsterra en páginas públicas con contenido: banners adaptados al espacio disponible y anuncios nativos. Adcash está pausado mientras no tenga aprobación. Se excluyen Social Bar flotante, Popunder/Onclick, Smartlink y Autotag. La carga es automática para México y requiere permiso previo para el resto de ubicaciones. Se respetan el rechazo guardado y el control global de privacidad; salir a páginas privadas o retirar el permiso detiene los scripts mediante una recarga.
+- Toda la publicidad está temporalmente desactivada. Se conserva su configuración para una futura reactivación solicitada por el propietario; no se cargan bibliotecas, banners ni espacios publicitarios.
 
 Musiclub enlaza a plataformas de escucha; no aloja álbumes completos para su descarga. Los metadatos importados no son reseñas de la comunidad.
 
@@ -37,7 +37,7 @@ La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis
 | Alojamiento | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
 | Verificación | Node Test Runner, PostgreSQL de prueba con PGlite y Playwright en CI |
 
-Las páginas públicas principales generan contenido en el servidor. El catálogo usa caché de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
+Las páginas públicas principales generan contenido en el servidor. El catálogo usa una instantánea compartida de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas resuelven un índice ligero y consultan únicamente los releases y reseñas relacionados, con caché de un minuto e invalidación tras guardar reseñas. La sesión se comparte entre los componentes; las interacciones de reseñas se agrupan y las lecturas recientes del Pool se reutilizan por cuenta, sala y temporada. No hay sondeo periódico del Pool ni de las notificaciones; se actualizan al guardar, al volver a la ventana cuando caduca su copia o mediante el botón de actualizar. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. La ruleta anima tres carretes y una palanca sin consultas durante el giro, conserva la ponderación moderada por antigüedad y guarda una sola selección. El correo del Pool se espera y se comprueba por separado: un fallo no repite el sorteo. Los avisos ya reservados requieren revisión antes de reenviar, y los administradores pueden comprobar la conexión SMTP sin enviar mensajes. Las imágenes opcionales no bloquean el correo. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
 
 ## Desarrollo local
 

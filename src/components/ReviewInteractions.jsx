@@ -1,3 +1,4 @@
+import {createInteractionLoader} from '../services/batchedReviewInteractions.mjs';
 import { InterfaceText } from './UiIcon';
 // src/components/ReviewInteractions.jsx
 import React, {
@@ -43,6 +44,8 @@ function formatTimeAgo(dateStr) {
   }
 }
 
+const readInteractions=createInteractionLoader(reviewIds=>supabaseService.getReviewInteractions({reviewIds}));
+
 export function ReviewInteractions({
   reviewId,
   albumId = null,
@@ -83,13 +86,10 @@ export function ReviewInteractions({
   }, [isQuickDockOpen]);
 
   // Cargar interacciones si no se proveyeron inicialmente
-  const loadInteractions = useCallback(async () => {
+  const loadInteractions = useCallback(async (force=false) => {
     if (!reviewId) return;
     try {
-      const data = await supabaseService.getReviewInteractions({
-        reviewIds: [reviewId],
-        albumId,
-      });
+      const data = await readInteractions(reviewId,force);
       if (data) {
         const revReactions = (data.reactions || []).filter(
           (r) => String(r.review_id) === String(reviewId)
@@ -222,7 +222,7 @@ export function ReviewInteractions({
     } catch (err) {
       console.error('Error al guardar reacción:', err);
       // Revertir en caso de fallo
-      loadInteractions();
+      loadInteractions(true);
     }
   };
 
@@ -298,7 +298,7 @@ export function ReviewInteractions({
       await supabaseService.deleteReviewComment(commentId, currentEmail);
     } catch (err) {
       console.error('Error al eliminar comentario:', err);
-      loadInteractions();
+      loadInteractions(true);
     }
   };
 

@@ -1,8 +1,22 @@
+import {createRequestCache} from '../services/requestCache.mjs';
 // src/hooks/useAuth.js
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef, createContext, useContext, createElement } from 'react';
 import { supabase } from '../services/supabaseClient';
 
+const AuthContext = createContext(null);
+
+export function AuthProvider({children}) {
+  const auth = useAuthState();
+  return createElement(AuthContext.Provider,{value:auth},children);
+}
+
 export function useAuth() {
+  const auth = useContext(AuthContext);
+  if (!auth) throw new Error('AuthProvider is required');
+  return auth;
+}
+
+function useAuthState() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -11,6 +25,8 @@ export function useAuth() {
 
   // 👈 REF para evitar dependencia en useEffect
   const handleUserSessionRef = useRef(null);
+  const authAccount=useRef(null);
+  const [profileReads]=useState(()=>createRequestCache({ttl:60000,maxEntries:2}));
 
   // ADMIN_EMAILS - usa useMemo para estabilidad
   const ADMIN_EMAILS = useMemo(
@@ -64,7 +80,7 @@ export function useAuth() {
   }, []);
 
   // Función para manejar la sesión del usuario
-  const handleUserSession = useCallback(
+  const loadUserProfile = useCallback(
     async (session) => {
       try {
         let { data: profile, error: profileError } = await supabase
@@ -73,6 +89,7 @@ export function useAuth() {
           .eq('email', session.user.email)
           .maybeSingle();
 
+        if(authAccount.current!==session.user.id)return {success:false};
         let userData;
 
         if (profileError || !profile) {
@@ -146,6 +163,7 @@ export function useAuth() {
           };
         }
 
+        if(authAccount.current!==session.user.id)return {success:false};
         const isAdminUser = checkIsAdmin(userData.email);
         userData.role = isAdminUser ? 'admin' : 'user';
 
@@ -180,6 +198,12 @@ export function useAuth() {
     [upsertProfile, checkIsAdmin]
   );
 
+  const handleUserSession=useCallback((nextSession,force=false)=>{
+    const id=nextSession.user.id;
+    if(force)profileReads.invalidate(id);
+    return profileReads.read(id,()=>loadUserProfile(nextSession));
+  },[loadUserProfile,profileReads]);
+
   // 👈 GUARDAR handleUserSession en el ref
   handleUserSessionRef.current = handleUserSession;
 
@@ -207,6 +231,7 @@ export function useAuth() {
         if (error) throw error;
 
         if (session?.user && isMounted) {
+          authAccount.current=session.user.id;
           setSession(session);
           await handleUserSessionRef.current(session);
           const poolReturn = sessionStorage.getItem('musiclub_pool_return');
@@ -237,11 +262,13 @@ export function useAuth() {
       if (!isMounted) return;
       if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
         setIsRedirecting(false);
+        authAccount.current=session.user.id;
         setSession(session);
         // Supabase holds its auth lock during this callback. Profile queries
         // must start after it returns so other mounted views can read the session.
-        queueMicrotask(() => { if (isMounted) handleUserSessionRef.current(session); });
+        queueMicrotask(() => { if (isMounted) handleUserSessionRef.current(session,event==='USER_UPDATED'); });
       } else if (event === 'SIGNED_OUT') {
+        authAccount.current=null;profileReads.clear();
         setSession(null);
         setUser(null);
         setIsAdmin(false);

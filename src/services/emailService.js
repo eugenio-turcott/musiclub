@@ -351,6 +351,7 @@ export async function getTransporter() {
         requireTLS: !smtpSecure,
         connectionTimeout: 15000,
         greetingTimeout: 15000,
+        socketTimeout: 30000,
         auth: {
           user: smtpUser,
           pass: smtpPass,
@@ -478,9 +479,15 @@ export async function prepareAttachmentsAndImages({ imageUrl, albumName, artistN
   let vinylUrl = MUSICLUB_ASSETS.logoFull;
   const vinylAsset = names[0] && genreFiles.genreAssetPath(names[0]);
   if (vinylAsset) {
-    const content = await publicAssetBytes(vinylAsset);
-    attachments.push({ filename: 'vinilo-genero.png', content, contentType: 'image/png', cid: 'genre_vinyl' });
-    vinylUrl = 'cid:genre_vinyl';
+    // Artwork is optional: a missing asset must never prevent a club notification.
+    vinylUrl = `https://www.musiclub.org${vinylAsset}`;
+    try {
+      const content = await publicAssetBytes(vinylAsset);
+      attachments.push({ filename: 'vinilo-genero.png', content, contentType: 'image/png', cid: 'genre_vinyl' });
+      vinylUrl = 'cid:genre_vinyl';
+    } catch {
+      console.warn('Correo: vinilo no disponible; se usará su URL pública.');
+    }
   }
   return { attachments, logoUrl, coverUrl, vinylUrl };
 }
@@ -1518,6 +1525,10 @@ export async function sendPoolWinnerEmail({
     attachments: attachments.length > 0 ? attachments : undefined,
   });
 
+  if (!info.accepted?.length || info.rejected?.length) {
+    throw new Error('El proveedor no aceptó todos los destinatarios. Revisa el registro antes de reenviar el aviso.');
+  }
+
   return {
     success: true,
     messageId: info.messageId,
@@ -1586,6 +1597,10 @@ export async function sendPoolGraduatedEmail({
     html,
     attachments: attachments.length > 0 ? attachments : undefined,
   });
+
+  if (!info.accepted?.length || info.rejected?.length) {
+    throw new Error('El proveedor no aceptó todos los destinatarios. Revisa el registro antes de reenviar el aviso.');
+  }
 
   return {
     success: true,

@@ -23,8 +23,7 @@ export function usePoolReviewGate(albumId, userId) {
     refresh();
     window.addEventListener('focus', refresh);
     window.addEventListener('musiclub:review-access-change', refresh);
-    const timer = window.setInterval(refresh, 30000);
-    return () => { ++sequence.current; window.removeEventListener('focus', refresh); window.removeEventListener('musiclub:review-access-change', refresh); window.clearInterval(timer); };
+    return () => { ++sequence.current; window.removeEventListener('focus', refresh); window.removeEventListener('musiclub:review-access-change', refresh); };
   }, [refresh]);
   const data = !stored ? { allowed: true, catalog_allowed: true, requires_confirmation: false, pools: [] } : state.key === key ? state.data : null;
   const confirm = async () => {

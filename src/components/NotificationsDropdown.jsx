@@ -1,6 +1,6 @@
 import { InterfaceText } from './UiIcon';
 // src/components/NotificationsDropdown.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // Helper de formato de tiempo relativo
@@ -45,6 +45,7 @@ export function NotificationsDropdown({
   onClose = () => {},
 }) {
   const navigate = useNavigate();
+  useEffect(()=>{refreshNotifications();},[refreshNotifications]);
   const [deletingId, setDeletingId] = useState(null);
 
   // Manejar clic en una notificación
@@ -263,7 +264,7 @@ export function NotificationsDropdown({
         <span>Se actualiza automáticamente</span>
         <button
           type="button"
-          onClick={() => refreshNotifications()}
+          onClick={() => refreshNotifications(true)}
           className="text-pink-300 hover:text-white transition-colors flex items-center gap-1 font-semibold cursor-pointer"
         >
           <span><InterfaceText>{"🔄"}</InterfaceText></span>

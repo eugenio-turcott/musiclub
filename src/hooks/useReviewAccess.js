@@ -19,8 +19,7 @@ export function useReviewAccess(albumId, userId) {
     refresh();
     window.addEventListener('focus', refresh);
     window.addEventListener('musiclub:review-access-change', refresh);
-    const timer = window.setInterval(refresh, 30000);
-    return () => { alive = false; window.removeEventListener('focus', refresh); window.removeEventListener('musiclub:review-access-change', refresh); window.clearInterval(timer); };
+    return () => { alive = false; window.removeEventListener('focus', refresh); window.removeEventListener('musiclub:review-access-change', refresh); };
   }, [albumId, stored, key]);
   return !stored ? true : access.id === key ? access.allowed : null;
 }

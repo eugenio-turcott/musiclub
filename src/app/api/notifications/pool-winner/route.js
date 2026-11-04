@@ -128,6 +128,8 @@ export async function POST(request) {
       lang,
     }));
 
+    if (result?.skipped) return NextResponse.json({ success: false, error: 'Este aviso ya fue reservado. Revisa su estado antes de reenviarlo para evitar duplicados.' }, { status: 409 });
+
     return NextResponse.json({
       success: true,
       message: 'Correo de nuevo ganador del Pool enviado a los miembros',

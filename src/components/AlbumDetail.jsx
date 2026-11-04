@@ -616,9 +616,21 @@ export function AlbumDetail({
   );
 
   useEffect(() => {
-    // Si tenemos preloadedAlbum, sincronizamos en background sin pantalla de carga bloqueante
-    loadData(Boolean(preloadedAlbum));
+    // The server snapshot is already complete; reread only after an explicit change.
+    if (preloadedAlbum) { setAlbum(normalizeAlbumData(preloadedAlbum)); setLoading(false); }
+    else loadData();
   }, [loadData, preloadedAlbum]);
+
+  useEffect(()=>{
+    if(!preloadedAlbum || !/^[a-f0-9]{8}-[a-f0-9-]{27}$/i.test(preloadedAlbum.id || ''))return;
+    let active=true;
+    // Only the signed-in member's editable review needs a private read.
+    if(user?.id)Promise.all((preloadedAlbum.edition_member_ids || [preloadedAlbum.id]).map(id=>supabaseService.getOwnReview(id)))
+      .then(rows=>{if(active)setAlbum(current=>current?.id===preloadedAlbum.id?{...current,reviews:[...(current.reviews || []).filter(r=>!rows.some(own=>own?.id===r.id)),...rows.filter(Boolean)]}:current);})
+      .catch(()=>{});
+    else setAlbum(current=>current?.id===preloadedAlbum.id?normalizeAlbumData(preloadedAlbum):current);
+    return()=>{active=false;};
+  },[preloadedAlbum,user?.id]);
 
   // Blindaje universal de álbum, artista, pistas y reviewers contra traducción (V.8.11)
   useEffect(() => {

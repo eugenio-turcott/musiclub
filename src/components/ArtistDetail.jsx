@@ -65,6 +65,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
     if (profileData?.source === 'OFFICIAL') return;
     let cancelled=false, timer, attempts=0;
     const poll=async()=>{
+      if (document.visibilityState !== 'visible') return;
       try {
         const response=await fetch(`/api/artists/${encodeURIComponent(slug)}`,{cache:'no-store'});
         if(response.ok) {
@@ -72,9 +73,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
           if(!cancelled && data.profile?.source==='OFFICIAL') {setProfileData(data.profile);setClubAlbums(data.albums||[]);return;}
         }
       } catch { /* Keep the local releases visible. */ }
-      if(!cancelled && ++attempts<10) timer=setTimeout(poll,5000);
+      if(!cancelled && ++attempts<3) timer=setTimeout(poll,10000 * 2**attempts);
     };
-    timer=setTimeout(poll,5000);
+    timer=setTimeout(poll,10000);
     return()=>{cancelled=true;clearTimeout(timer);};
   },[slug,profileData?.source]);
 

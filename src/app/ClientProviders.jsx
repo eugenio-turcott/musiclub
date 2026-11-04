@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import '../utils/translateCrashGuard';
 import { SiteMetrics } from '../components/SiteMetrics';
+import { AuthProvider } from '../hooks/useAuth';
 import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
 import {AdvertisingPlacementProvider} from '../components/AdvertisingPlacementProvider';
 import {usePathname} from 'next/navigation';
@@ -51,7 +52,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      <ReleaseLibraryProvider><AdvertisingPlacementProvider>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider>
+      <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
       <SiteMetrics />
     </ErrorBoundary>
   );

@@ -31,10 +31,10 @@ export function PoolRoomDirectory({ renderRoom }) {
   const identity = user?.id || null;
   const loadSequence = useRef(0);
   const rooms = snapshot.userId === identity ? snapshot.rooms : [];
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (force=false) => {
     const request = ++loadSequence.current;
     setLoading(true); setError('');
-    try { const next = await poolRoomService.list(identity); if (request === loadSequence.current) setSnapshot({ userId: identity, rooms: next }); }
+    try { const next = await poolRoomService.list(identity,{force:force===true}); if (request === loadSequence.current) setSnapshot({ userId: identity, rooms: next }); }
     catch (err) { if (request === loadSequence.current) { setSnapshot({ userId: identity, rooms: [] }); setError(err.message); } }
     finally { if (request === loadSequence.current) setLoading(false); }
   }, [identity]);
@@ -43,7 +43,7 @@ export function PoolRoomDirectory({ renderRoom }) {
   const open = id => navigate(`/pool?sala=${encodeURIComponent(id)}`);
   const selected = rooms.find(room => room.id === roomId);
   const ready = !authLoading && !loading && snapshot.userId === identity;
-  if (ready && selected && !invite) return renderRoom(selected, { back: () => navigate('/pool'), refresh });
+  if (ready && selected && !invite) return renderRoom(selected, { back: () => {void refresh();navigate('/pool');}, refresh });
   const visible = rooms.filter(room => tab === 'mine' ? room.joined : room.visibility === 'public');
   const accept = token => run(async () => {
     if (!user) { await loginWithGoogle(); return; }
@@ -70,7 +70,8 @@ export function PoolRoomDirectory({ renderRoom }) {
         <p className="mt-2 text-sm text-slate-300">Acepta la invitación para entrar. Si venció o fue revocada, pide una nueva a quien administra la sala.</p>
         <button className={`${button} mt-4`} disabled={busy || authLoading} onClick={() => accept(invite || invitation)}>{user ? 'Aceptar invitación' : 'Iniciar sesión para aceptar'}</button>
       </section>}
-      {error && <div role="alert" className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-4 text-sm text-rose-200">{error}<button className="ml-4 underline" onClick={refresh} disabled={busy || loading}>Volver a cargar</button></div>}
+      <button type="button" className="inline-flex items-center gap-2 text-xs font-bold text-cyan-300 hover:text-pink-300 disabled:opacity-50" disabled={loading || busy} onClick={()=>refresh(true)}><UiIcon name="refresh"/>Actualizar salas</button>
+      {error && <div role="alert" className="rounded-xl border border-rose-300/30 bg-rose-500/10 p-4 text-sm text-rose-200">{error}<button className="ml-4 underline" onClick={()=>refresh(true)} disabled={busy || loading}>Volver a cargar</button></div>}
       {ready && roomId && !selected && !invite && <p role="alert" className="rounded-xl border border-amber-300/20 p-4 text-sm text-amber-200">La sala no está disponible para tu cuenta. Para entrar a una sala privada necesitas aceptar su invitación.</p>}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div role="tablist" aria-label="Directorio de salas" className="flex gap-2">{[['public','Salas públicas'],['mine','Mis salas']].map(([value,label]) => <button key={value} role="tab" aria-selected={tab===value} className={`min-h-12 rounded-xl px-5 text-sm font-bold ${tab===value?'bg-purple-500/25 text-pink-200':'bg-white/5 text-slate-300'}`} onClick={() => setTab(value)}><InterfaceText>{label}</InterfaceText></button>)}</div>

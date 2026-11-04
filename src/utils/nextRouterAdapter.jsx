@@ -14,7 +14,7 @@ const preparedRoutes = new Map();
  * and Next.js ('href' prop).
  */
 export const Link = forwardRef(function Link(
-  { to, href, replace, children, onClick, state, onMouseEnter, onFocus, intentPrefetch = true, ...props },
+  { to, href, replace, children, onClick, state, onMouseEnter, onFocus, onTouchStart, intentPrefetch = true, ...props },
   ref
 ) {
   const target = href || to || '#';
@@ -31,7 +31,7 @@ export const Link = forwardRef(function Link(
     router.prefetch(path);
   };
   return (
-    <NextLink ref={ref} href={target} replace={replace} prefetch={false} {...props} onMouseEnter={event=>{onMouseEnter?.(event);if(!event.defaultPrevented)prepare();}} onFocus={event=>{onFocus?.(event);if(!event.defaultPrevented)prepare();}} onClick={event => {
+    <NextLink ref={ref} href={target} replace={replace} prefetch={false} {...props} onTouchStart={event=>{onTouchStart?.(event);if(!event.defaultPrevented)prepare();}} onMouseEnter={event=>{onMouseEnter?.(event);if(!event.defaultPrevented)prepare();}} onFocus={event=>{onFocus?.(event);if(!event.defaultPrevented)prepare();}} onClick={event => {
       onClick?.(event);
       if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && typeof target === 'string') {
         window.dispatchEvent(new CustomEvent('musiclub:navigate', { detail: target }));

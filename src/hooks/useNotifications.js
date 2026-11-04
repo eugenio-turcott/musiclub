@@ -1,6 +1,8 @@
 // src/hooks/useNotifications.js
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase, supabaseService } from '../services/supabaseClient';
+import {createRequestCache} from '../services/requestCache.mjs';
+const snapshots=createRequestCache({ttl:120000,maxEntries:8});
 
 export function useNotifications(user) {
   const [rawNotifications, setRawNotifications] = useState([]);
@@ -12,6 +14,9 @@ export function useNotifications(user) {
     return (user.email || user.id || user.name || 'guest').toLowerCase().trim();
   }, [user]);
 
+  const [notificationOwner,setNotificationOwner]=useState(userKey);
+  const account=useRef(userKey);
+  account.current=userKey;
   const readStorageKey = `musiclub_notifs_read_${userKey}`;
   const deletedStorageKey = `musiclub_notifs_deleted_${userKey}`;
 
@@ -64,10 +69,11 @@ export function useNotifications(user) {
   );
 
   // Función principal para cargar y unificar todas las notificaciones
-  const fetchNotifications = useCallback(async () => {
-    let notifs = [];
-
+  const fetchNotifications = useCallback(async (force=false) => {
+    if(force===true)snapshots.invalidate(userKey);
     try {
+      const notifs=await snapshots.read(userKey,async()=>{
+        let notifs=[];
       // 1. ÁLBUM GANADOR DEL CLUB (Notificación Global / para todos)
       try {
         const winner = await supabaseService.getCurrentWinner();
@@ -295,38 +301,32 @@ export function useNotifications(user) {
 
       // Ordenar cronológicamente descendente (más recientes primero)
       notifs.sort((a, b) => b.timestamp - a.timestamp);
-      setRawNotifications(notifs);
+      return notifs;
+      });
+      if(account.current===userKey){setNotificationOwner(userKey);setRawNotifications(notifs);}
     } catch (err) {
       console.warn('Error fetching notifications:', err);
     } finally {
-      setLoading(false);
+      if(account.current===userKey)setLoading(false);
     }
-  }, [user]);
+  }, [user?.id,user?.email,user?.name,userKey]);
 
   // Carga inicial y recarga al cambiar usuario
   useEffect(() => {
     fetchNotifications();
 
-    // Actualización periódica discreta (cada 45 segundos)
-    const interval = setInterval(() => {
-      fetchNotifications();
-    }, 45000);
-
-    // Actualizar cuando la ventana vuelve a primer plano
-    const handleFocus = () => fetchNotifications();
-    window.addEventListener('focus', handleFocus);
-
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener('focus', handleFocus);
-    };
+    const refresh=()=>{if(document.visibilityState==='visible')fetchNotifications();};
+    window.addEventListener('focus',refresh);
+    document.addEventListener('visibilitychange',refresh);
+    return()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
   }, [fetchNotifications]);
 
   // Filtrar notificaciones eliminadas
   const notifications = useMemo(() => {
     const deletedSet = new Set(deletedIds);
+    if(notificationOwner!==userKey)return [];
     return rawNotifications.filter((n) => !deletedSet.has(n.id));
-  }, [rawNotifications, deletedIds]);
+  }, [rawNotifications, deletedIds,notificationOwner,userKey]);
 
   // Notificaciones no leídas
   const unreadCount = useMemo(() => {

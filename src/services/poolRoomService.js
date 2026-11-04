@@ -1,14 +1,23 @@
 import { supabase } from './supabaseClient.js';
 import presentation from '../utils/poolPresentation.cjs';
+import {createRequestCache} from './requestCache.mjs';
+const directoryCache=createRequestCache({ttl:60000,maxEntries:8});
+export function invalidatePoolRooms(){directoryCache.clear();}
 
 async function call(name, args) {
   const { data, error } = await supabase.rpc(name, args);
   if (error) throw new Error(error.message);
+  invalidatePoolRooms();
   return data;
 }
 
 export const poolRoomService = {
-  async list(userId) {
+  list(userId,{force=false}={}) {
+    const key=userId||'guest';
+    if(force)directoryCache.invalidate(key);
+    return directoryCache.read(key,()=>poolRoomService.load(userId));
+  },
+  async load(userId) {
     const [{ data: rooms, error }, membershipResult] = await Promise.all([
       supabase.from('pool_rooms').select('id,name,description,visibility,owner_id,created_at').order('created_at'),
       userId ? supabase.from('pool_room_members').select('room_id').eq('user_id', userId) : {data:[]},

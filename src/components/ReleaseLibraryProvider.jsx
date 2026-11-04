@@ -29,11 +29,15 @@ export function ReleaseLibraryProvider({ children }) {
     supabase.auth.getSession().then(({ data, error }) => {
       if (!receivedAuth && active) sync(error ? null : data.session);
     }).catch(() => { if (!receivedAuth && active) sync(null); });
-    const refresh = () => { if (store.getSnapshot().account && !store.getSnapshot().pending.length) void store.refresh().catch(() => {}); };
+    let refreshedAt=Date.now();
+    const refresh = (force=false) => {
+      if(document.visibilityState!=='visible'||(force!==true&&Date.now()-refreshedAt<60000))return;
+      if(store.getSnapshot().account&&!store.getSnapshot().pending.length){refreshedAt=Date.now();void store.refresh().catch(()=>{});}
+    };
     window.addEventListener('focus', refresh);
     if ('BroadcastChannel' in window) {
       channel.current = new BroadcastChannel('musiclub-release-library');
-      channel.current.onmessage = event => { if (event.data?.account === store.getSnapshot().account) refresh(); };
+      channel.current.onmessage = event => { if (event.data?.account === store.getSnapshot().account) refresh(true); };
     }
     return () => { active = false; subscription.unsubscribe(); window.removeEventListener('focus', refresh); channel.current?.close(); channel.current = null; };
   }, [store]);
