@@ -88,13 +88,13 @@ test('previous Pools are closed archives and opening a room never downloads the 
   await expect(archive.getByRole('heading',{name:'El origen del club',exact:true})).toBeVisible();
   await expect(archive).toContainText('Este Pool ya terminó.');
   await expect(page.getByRole('heading',{name:/Historial de Ganadores/})).toBeVisible();
-  await expect(page.getByRole('button',{name:/Depositar cápsula|Editar mi cápsula|Abrir propuestas|Ruleta del Pool/})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:/Depositar cápsula|Editar mi cápsula|Abrir propuestas|Máquina Musical del Pool/})).toHaveCount(0);
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
   expect(requests.some(url=>url.pathname==='/api/catalog')).toBe(false);
   for(const url of requests.filter(url=>url.pathname==='/rest/v1/albums')) expect(url.searchParams.get('id')).toMatch(/^in\.\(/);
   const selectedSeasonReads=requests.filter(url=>url.pathname==='/rest/v1/seasons' && url.searchParams.get('select')==='*');
   expect(selectedSeasonReads).toHaveLength(1);
-  await page.getByRole('link',{name:'Pool actual',exact:true}).click();
+  await page.getByRole('link',{name:'Primera escucha',exact:true}).click();
   await expect(page.getByRole('region',{name:'Pool activo',exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

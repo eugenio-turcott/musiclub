@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from '../components/DetailLoading';
 import { InterfaceText } from '../components/UiIcon';
 // src/pages/CoverRatingsPage.jsx
 import React, { useState, useEffect, useMemo } from 'react';
@@ -785,16 +786,7 @@ export function CoverRatingsPage() {
         {activeTab === 'curator' && (
           <section className="my-6 text-left animate-fadeIn">
             {isLoading ? (
-              <div className="p-16 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-4">
-                <div className="w-12 h-12 border-4 border-pink-500/20 border-t-pink-500 rounded-full animate-spin mx-auto"></div>
-                <h3 className="text-lg font-bold text-white">
-                  Cargando portadas aleatorias...
-                </h3>
-                <p className="text-white/50 text-xs max-w-sm mx-auto">
-                  Seleccionando todos los releases con reseñas de la comunidad
-                  para calificar su arte visual.
-                </p>
-              </div>
+              <DetailLoading fullScreen={false} label="Cargando portadas aleatorias…"/>
             ) : curatorPool.length === 0 ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-4">
                 <span className="text-5xl block"><InterfaceText>{"🎉"}</InterfaceText></span>
@@ -1245,12 +1237,7 @@ export function CoverRatingsPage() {
 
             {/* Grid del Museo */}
             {isLoading ? (
-              <div className="p-16 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-4">
-                <div className="w-12 h-12 border-4 border-pink-500/20 border-t-pink-500 rounded-full animate-spin mx-auto"></div>
-                <h3 className="text-lg font-bold text-white">
-                  Cargando Salón de la Fama...
-                </h3>
-              </div>
+              <DetailLoading fullScreen={false} label="Cargando Salón de la Fama…"/>
             ) : hallOfFameList.length === 0 ? (
               <div className="p-12 text-center rounded-3xl bg-white/5 border border-white/10 backdrop-blur-xl space-y-3">
                 <span className="text-4xl block"><InterfaceText>{"🖼️"}</InterfaceText></span>

@@ -15,7 +15,13 @@ export const poolRoomService = {
   list(userId,{force=false}={}) {
     const key=userId||'guest';
     if(force)directoryCache.invalidate(key);
-    return directoryCache.read(key,()=>poolRoomService.load(userId));
+    return directoryCache.read(key,async()=>{
+      const identity=async()=>((await supabase.auth.getSession()).data.session?.user?.id || null);
+      if(await identity()!==(userId||null))throw new Error('La sesión cambió');
+      const rooms=await poolRoomService.load(userId);
+      if(await identity()!==(userId||null))throw new Error('La sesión cambió');
+      return rooms;
+    });
   },
   async load(userId) {
     const [{ data: rooms, error }, membershipResult] = await Promise.all([
@@ -27,7 +33,7 @@ export const poolRoomService = {
     const memberships = new Set((membershipResult.data || []).map(item => item.room_id));
     if (!rooms?.length) return [];
     const { data: seasons, error: seasonsError } = await supabase.from('seasons')
-      .select('id,room_id,name,description,appearance,is_active,is_open,season_number,start_date,end_date').in('room_id', rooms.map(room => room.id));
+      .select('id,public_code,room_id,name,description,appearance,is_active,is_open,season_number,start_date,end_date').in('room_id', rooms.map(room => room.id));
     if (seasonsError) throw new Error('No se pudieron cargar los Pools de las salas');
     const ownerIds = [...new Set(rooms.map(room => room.owner_id).filter(Boolean))];
     const [entriesResult, ownersResult] = await Promise.all([
@@ -46,10 +52,11 @@ export const poolRoomService = {
       const owner = (ownersResult.data || []).find(item=>item.id===room.owner_id);
       return { ...room, owner_name: owner?.name?.trim() || (room.owner_id ? 'Miembro de Musiclub' : 'Administración de Musiclub'),
         active_pool: season ? {...season,title:season.appearance?.heading?.trim() || season.name,winner:winner || null} : null,
-        past_pools: presentation.pastPools(roomSeasons),
+        pools:roomSeasons,past_pools:roomSeasons.filter(item=>!item.is_active).sort((a,b)=>Number(b.season_number)-Number(a.season_number)),
         joined: memberships.has(room.id) || Boolean(userId && room.owner_id === userId) };
     });
   },
+  generateCode:seasonId=>call('musiclub_generate_pool_code',{p_season_id:seasonId}),
   create: ({ name, description, visibility }) => call('musiclub_create_pool_room', { p_name: name.trim(), p_description: description.trim(), p_visibility: visibility }),
   join: roomId => call('musiclub_join_pool_room', { p_room: roomId }),
   invite: (roomId, revoke = false) => call('musiclub_invite_pool_room', { p_room: roomId, p_revoke: revoke }),

@@ -98,6 +98,8 @@ export function useLocation() {
   useEffect(() => {
     const update = event => {
       const url = new URL(typeof event?.detail === 'string' ? event.detail : window.location.href, window.location.origin);
+      // A cross-page intent must not erase the current Pool query before Next unmounts it.
+      if(url.pathname!==pathname)return;
       setLocation({ search: url.search, hash: url.hash });
     };
     update();

@@ -5,7 +5,7 @@ import { PoolCapsulePreview } from './PoolCapsuleDeposit';
 import presentation from '../utils/poolPresentation.cjs';
 import { POOL_THEMES } from '../data/poolThemes';
 
-export function PoolManualControls({ season, seasons, user, sampleRelease, isPoolOpen, createSeason, updateSeason, setActiveSeason, setPoolOpenStatus, onError, canUpload = true }) {
+export function PoolManualControls({ season, seasons, user, sampleRelease, isPoolOpen, createSeason, updateSeason, setActiveSeason, setPoolOpenStatus, onError, generateCode,mailTools, canUpload = true }) {
   const [uploading, setUploading] = useState(false);
   const [maxReleases, setMaxReleases] = useState('');
   const [appearance, setAppearance] = useState(presentation.DEFAULT_APPEARANCE);
@@ -27,6 +27,8 @@ export function PoolManualControls({ season, seasons, user, sampleRelease, isPoo
     <summary className="font-bold text-pink-200">Administrar Pool · control manual</summary>
     <div className="mt-4 space-y-5">
       <p className="text-xs text-slate-400">Abrir o cerrar propuestas no cambia las reseñas. Las reseñas se habilitan, pausan o cierran desde el disco ganador.</p>
+      {generateCode&&<section aria-label="Código del Pool" className="rounded-xl border border-cyan-300/20 bg-cyan-300/5 p-4"><h3 className="font-bold text-cyan-200">Enlace propio del Pool</h3><p className="mt-2 text-xs text-slate-300">Genera un código aleatorio de 12 letras y números en mayúsculas. El enlace conserva los permisos de la sala.</p>{season.public_code?<div className="mt-3 flex flex-wrap items-center gap-3"><code className="text-lg tracking-[.2em] text-white">{season.public_code}</code><button type="button" className="min-h-11 rounded-xl bg-cyan-400/15 px-3 text-xs font-bold text-cyan-200" onClick={()=>run(async()=>{await navigator.clipboard.writeText(`${window.location.origin}/pool/${season.public_code}`);setNotice('Enlace copiado.');})}>Copiar enlace</button></div>:<button type="button" disabled={busy} className="mt-3 min-h-11 rounded-xl bg-cyan-400/15 px-4 font-bold text-cyan-200" onClick={()=>run(()=>generateCode())}>Generar código del Pool</button>}</section>}
+      {mailTools}
       <PoolCapsulePreview release={sampleRelease} user={user}/>
       <button disabled={busy || uploading} onClick={() => run(() => setPoolOpenStatus(season.is_open !== true))} className="min-h-11 rounded-xl border border-pink-300/30 bg-pink-500/15 px-4 font-bold text-pink-200">{season.is_open === true ? 'Cerrar propuestas para todos' : 'Abrir propuestas para todos'}</button>
       <div className="flex flex-wrap items-end gap-3 border-t border-white/10 pt-4">

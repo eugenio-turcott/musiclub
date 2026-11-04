@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
+import {createPortal} from 'react-dom';
+import {UiIcon} from './UiIcon';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './PoolCapsuleDeposit.module.css';
 
@@ -38,4 +40,17 @@ export function PoolCapsuleDeposit({ album, user, phase = 'ready' }) {
     <div className={styles.slot} aria-hidden="true"><span /></div>
     <p role="status" className={styles.caption}>{phase === 'saved' ? '¡Tu cápsula ya está en el Pool!' : phase === 'saving' ? 'Guardando y sellando tu cápsula…' : `Tu release, tu firma y el vinilo de ${art.name}`}</p>
   </div>;
+}
+
+export function PoolCapsuleViewer({album,onClose}) {
+  const close=useRef(null);
+  useEffect(()=>{
+    const focused=document.activeElement,overflow=document.body.style.overflow;
+    document.body.style.overflow='hidden';close.current?.focus();
+    const key=event=>{if(event.key==='Escape'){event.preventDefault();onClose();}if(event.key==='Tab'){event.preventDefault();close.current?.focus();}};
+    document.addEventListener('keydown',key);
+    return()=>{document.body.style.overflow=overflow;document.removeEventListener('keydown',key);focused?.focus?.();};
+  },[onClose]);
+  const art=visuals.genreRevealArtwork(album.genres?.[0]);
+  return createPortal(<div className="fixed inset-0 z-[10000020] grid place-items-center overflow-y-auto bg-[#060710]/90 p-4 backdrop-blur-md" onClick={event=>{if(event.target===event.currentTarget)onClose();}}><section role="dialog" aria-modal="true" aria-label={`Cápsula de ${album.album}`} className="relative my-4 w-full max-w-xl rounded-3xl border border-pink-300/20 bg-[#141328] p-6 text-center text-white shadow-2xl"><button ref={close} type="button" aria-label="Cerrar cápsula" onClick={onClose} className="absolute right-4 top-4 grid h-11 w-11 place-items-center rounded-xl bg-white/5 text-pink-200 hover:bg-pink-400/15"><UiIcon name="close" size={22}/></button><p className="pt-4 text-[10px] font-black uppercase tracking-[.3em] text-pink-300">Dentro de la cápsula</p><h2 className="mt-3 break-words px-8 text-2xl font-black">{album.album}</h2><p className="mt-2 text-sm text-slate-300">{album.artista}</p><div className={`${styles.scene} ${styles.inspectionScene}`} data-capsule-loop="" style={{'--capsule-accent':art.accent}}><div className={styles.halo}/><div className={styles.capsule}><img className={styles.disc} src={art.disc} alt=""/><div className={styles.contents}><img className={styles.cover} src={album.imagen || '/musiclub_logo_corchea.png'} alt={album.album}/><span className={styles.avatar}><span>{Array.from(album.added_by || 'M')[0]}</span>{album.nominated_avatar&&<img src={album.nominated_avatar} alt={album.added_by}/>}</span></div><img className={styles.lid} src={art.center} alt={art.name}/></div></div><p className="text-sm font-bold text-pink-200">Propuesta por {album.added_by || 'un miembro'}</p><p className="mt-2 text-xs text-slate-400">{art.name} · Una portada, una firma y una próxima escucha.</p></section></div>,document.body);
 }

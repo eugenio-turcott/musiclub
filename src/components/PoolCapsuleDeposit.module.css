@@ -30,3 +30,10 @@
 @keyframes deposit { 0% { transform:translateY(0) scale(1); opacity:1; } 55% { transform:translateY(-12px) rotate(-12deg) scale(.84); opacity:1; } 100% { transform:translateY(125px) rotate(-160deg) scale(.1); opacity:0; } }
 @keyframes accepted { 30% { box-shadow:0 0 40px var(--capsule-accent,#ec4899); } 100% { box-shadow:0 0 16px var(--capsule-accent,#ec4899); } }
 @media (prefers-reduced-motion:reduce) { .scene * { animation:none!important; transition:none!important; } .scene[data-phase='saving'] .lid { transform:none; opacity:1; } .scene[data-phase='saving'] .contents { opacity:0; } .scene[data-phase='saved'] .capsule { transform:scale(.7); } }
+
+.inspectionScene{height:360px;overflow:visible;margin-top:22px}.inspectionScene .capsule{width:260px;height:260px;margin:0}.inspectionScene .lid{animation:inspectLid 7s ease-in-out infinite;opacity:1}.inspectionScene .contents{animation:inspectContents 7s ease-in-out infinite}.inspectionScene .disc{animation:inspectDisc 7s ease-in-out infinite}
+@keyframes inspectLid{0%,28.571%,100%{transform:translate(0,0) rotate(0) scale(1)}42.857%,85.714%{transform:translate(-105px,-75px) rotate(-30deg) scale(.65)}}
+@keyframes inspectContents{0%,28.571%,100%{transform:scale(.25);opacity:0}42.857%,85.714%{transform:scale(1.12) rotate(5deg);opacity:1}}
+@keyframes inspectDisc{0%,28.571%,100%{transform:rotate(0)}42.857%,85.714%{transform:rotate(35deg)}}
+@media(max-width:420px){.inspectionScene{height:290px}.inspectionScene .capsule{width:210px;height:210px}}
+@media(prefers-reduced-motion:reduce){.inspectionScene .lid{transform:translate(-105px,-75px) rotate(-30deg) scale(.65)}.inspectionScene .contents{transform:none;opacity:1}}

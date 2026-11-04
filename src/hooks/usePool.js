@@ -1,14 +1,26 @@
 import {useState,useEffect,useCallback,useRef} from 'react';
 import presentation from '../utils/poolPresentation.cjs';
+import {poolRoomService} from '../services/poolRoomService';
 import {poolService,DEFAULT_POOL_ROOM_ID} from '../services/poolService';
 import {notifyContentLoaded} from '../utils/translateCrashGuard';
 import {createRequestCache} from '../services/requestCache.mjs';
 import {useAuth} from './useAuth';
+import {supabase} from '../services/supabaseClient';
 
 const snapshots=createRequestCache({ttl:60000,maxEntries:24});
+const poolKey=(account,room,season)=>JSON.stringify([account||'guest',room,season||'active']);
+export function prefetchPool(account,roomId=DEFAULT_POOL_ROOM_ID,seasonId) {
+  return snapshots.read(poolKey(account,roomId,seasonId),async()=>{
+    const identity=async()=>((await supabase.auth.getSession()).data.session?.user?.id || null);
+    if(await identity()!==(account||null))throw new Error('La sesión cambió');
+    const data=await poolService.getPoolData(seasonId,roomId);
+    if(await identity()!==(account||null))throw new Error('La sesión cambió');
+    return data;
+  });
+}
 export function usePool(seasonId,roomId=DEFAULT_POOL_ROOM_ID,initialSeason) {
   const {user}=useAuth();
-  const key=JSON.stringify([user?.id||'guest',roomId,seasonId||'active']);
+  const key=poolKey(user?.id,roomId,seasonId);
   const cached=snapshots.peek(key);
   const [season,setSeason]=useState(cached?.season||initialSeason||{});
   const [seasons,setSeasons]=useState(cached?.seasons||[]);
@@ -25,7 +37,7 @@ export function usePool(seasonId,roomId=DEFAULT_POOL_ROOM_ID,initialSeason) {
     if(!background&&!snapshots.peek(key))setLoading(true);
     setError(null);
     try {
-      const data=await snapshots.read(key,()=>poolService.getPoolData(seasonId,roomId));
+      const data=await prefetchPool(user?.id,roomId,seasonId);
       if(request!==sequence.current)return;
       lastRead.current=Date.now();
       setSeasons(data.seasons||[]);setSeason(data.season||{});
@@ -73,10 +85,11 @@ export function usePool(seasonId,roomId=DEFAULT_POOL_ROOM_ID,initialSeason) {
   const updateSeason=useCallback((id,data)=>run(()=>poolService.updateSeason(id,data,roomId)),[run,roomId]);
   const deleteSeason=useCallback(id=>run(()=>poolService.deleteSeason(id,roomId)),[run,roomId]);
   const setActiveSeason=useCallback(id=>run(()=>poolService.setActiveSeason(id,roomId)),[run,roomId]);
+  const generateCode=useCallback(()=>run(()=>poolRoomService.generateCode(season.id)),[run,season.id]);
   const refetch=useCallback(()=>fetchPoolData(true,true),[fetchPoolData]);
   return {season,seasons,activePool,winner,poolHistory,totalActive:activePool.length,totalHistory:poolHistory.length,isPoolOpen,loading,error,
     nominateAlbum,editNomination,selectWinner,archiveCurrentWinner,toggleWinnerReviews,scheduleWinnerReviews,setPoolOpenStatus,
     openPool:()=>setPoolOpenStatus(true),closePool:()=>setPoolOpenStatus(false),createSeason,updateSeason,deleteSeason,setActiveSeason,
-    refetch,reloadSeasons:refetch};
+    generateCode,refetch,reloadSeasons:refetch};
 }
 export default usePool;

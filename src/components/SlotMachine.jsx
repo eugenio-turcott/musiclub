@@ -6,7 +6,7 @@ import styles from './SlotMachine.module.css';
 
 const cover=album=>album?.imagen || album?.image_url || '/musiclub_logo_corchea.png';
 const title=album=>album?.album || album?.album_name || 'Musiclub';
-export function SlotMachine({albums=[],onSpinComplete,onSpinStart,onBusyChange,isSpinning=false,isAdmin=false,disabled=false}) {
+export function SlotMachine({poolName="Pool Musical",albums=[],onSpinComplete,onSpinStart,onBusyChange,isSpinning=false,isAdmin=false,disabled=false}) {
   const candidates=useMemo(()=>{
     const active=albums.filter(a=>a.status==='ACTIVO');
     return active.length?active:albums;
@@ -41,12 +41,11 @@ export function SlotMachine({albums=[],onSpinComplete,onSpinStart,onBusyChange,i
   };
   const ready=!disabled&&!isSpinning&&isAdmin&&candidates.length>0&&!busy&&phase==='idle';
   const message=phase==='won'?'El próximo disco ya tiene nombre':phase==='saving'?'Guardando el ganador y comprobando el aviso…':phase==='spinning'?'Que la música decida…':disabled?'Ya hay un disco elegido en esta sala':isAdmin?'Tira de la palanca. Descubre la próxima escucha.':'El administrador pondrá la música en movimiento.';
-  return <section className={`${styles.machine} ${busy?styles.active:''} ${phase==='won'?styles.won:''}`} aria-label="Ruleta musical del Pool" aria-busy={busy}>
-    <div className={styles.topline}><span><i/> MUSICLUB · POOL</span><span>{String(candidates.length).padStart(2,'0')} DISCOS EN JUEGO</span></div>
-    <header className={styles.header}><div><p>LA PRÓXIMA ESCUCHA</p><h3>Deja que suene<span> el destino.</span></h3></div><UiIcon name="music" size={48} tone="inherit"/></header>
+  return <section className={`${styles.machine} ${busy?styles.active:''} ${phase==='won'?styles.won:''}`} aria-label="Máquina Musical del Pool" aria-busy={busy}>
+    <div className={styles.topline}><span><i/> {poolName}</span><span>{String(candidates.length).padStart(2,'0')} DISCOS EN JUEGO</span></div>
     <div className={styles.console}>
       <div className={styles.cabinet}>
-        <div className={styles.marquee}><span/><b>THE MUSIC MACHINE</b><span/></div>
+        <div className={styles.marquee}><span/><b>MÁQUINA MUSICAL</b><span/></div>
         <div className={styles.window}>
           {[0,1,2].map(index=>{
             const strip=draw?.reels[index] || [candidates[index%candidates.length]];
@@ -63,9 +62,7 @@ export function SlotMachine({albums=[],onSpinComplete,onSpinStart,onBusyChange,i
       <button type="button" className={styles.lever} disabled={!ready} onClick={spin} aria-label="Tirar palanca" title={ready?'Tirar palanca':'Ruleta no disponible'}><span className={styles.leverBase}/><span className={styles.arm}><span className={styles.knob}/></span><span className={styles.pull}>TIRAR<span>↓</span></span></button>
     </div>
     <div className={styles.status} role="status" aria-live="polite"><span className={styles.statusLight}/>{message}</div>
-    {phase==='won'&&draw&&<div className={styles.result}><div className={styles.confetti} aria-hidden="true">{Array.from({length:16},(_,i)=><i key={i} style={{'--n':i}}/>)}</div><UiIcon name="crown" size={32} tone="inherit"/><div><p>DISCO ELEGIDO</p><h4>{title(draw.winner)}</h4><span>{draw.winner.artista || draw.winner.artist_name}</span></div></div>}
+    {phase==='won'&&draw&&<div data-draw-confirmed="true" className={styles.result}><div className={styles.confetti} aria-hidden="true">{Array.from({length:16},(_,i)=><i key={i} style={{'--n':i}}/>)}</div><UiIcon name="crown" size={32} tone="inherit"/><div><p>DISCO ELEGIDO</p><h4>{title(draw.winner)}</h4><span>{draw.winner.artista || draw.winner.artist_name}</span></div></div>}
     {error&&<p className={styles.error} role="alert">{error}</p>}
-    <button type="button" className={styles.spinButton} onClick={spin} disabled={!ready}><UiIcon name="music" size={20} tone="inherit"/>{busy?'Eligiendo la próxima escucha…':phase==='won'?'Ganador confirmado':phase==='error'?'Revisa la sala antes de continuar':'Tirar palanca'}</button>
-    <p className={styles.caption}>Cada propuesta cuenta. Un solo sorteo, una nueva escucha compartida.</p>
   </section>;
 }

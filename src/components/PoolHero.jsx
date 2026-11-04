@@ -1,11 +1,11 @@
 'use client';
 import { InterfaceText } from './UiIcon';
 import { Link } from 'react-router-dom';
-import { GenreArtwork } from './GenreArtwork';
-import { MusiclubVinyl } from './MusiclubVinyl';
+import {PoolVinyl} from './PoolVinyl';
+import {UiIcon} from './UiIcon';
 import presentation from '../utils/poolPresentation.cjs';
 
-export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isAdmin = false, busy = false, onDeposit, onOpen, hasEntry = false, canEdit = false, preview = false, ownerName, archived = false }) {
+export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isAdmin = false, busy = false, onDeposit, onOpen, hasEntry = false, canEdit = false, preview = false, ownerName, ownerActions, roomVisibility, archived = false }) {
   const a = presentation.poolAppearance(season.appearance);
   const capacity = presentation.poolCapacity(season, season.entry_count || 0);
   const title = a.heading || season.name || 'Pool Musical Comunitario';
@@ -13,10 +13,11 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
   const date = season.start_date && new Date(`${season.start_date}T00:00:00`).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric' });
   return <section aria-label={preview ? 'Vista previa de la cabecera' : archived ? 'Pool cerrado' : 'Pool activo'} style={{ background: presentation.poolBackground(a), '--pool-media-size': `${a.mediaSize}px` }} className="relative isolate overflow-hidden rounded-3xl border border-white/10 p-5 text-left shadow-xl sm:p-8">
     <div className="pointer-events-none absolute inset-0 -z-10 bg-linear-to-r from-[#070812]/70 to-[#070812]/30" />
-    {a.vinyl !== 'none' && <div aria-hidden="true" className="pointer-events-none absolute right-5 top-5 -z-10 h-40 w-40 select-none opacity-40 sm:right-8 sm:top-8 sm:h-64 sm:w-64 lg:h-72 lg:w-72">
-      {a.vinyl === 'genre' ? <GenreArtwork genre={a.genre} size={320} animated className="h-full w-full" /> : <MusiclubVinyl src={a.logo} alt="" className="h-full w-full animate-spin-slow" />}
+    {a.vinyl !== 'none' && <div aria-hidden="true" className="pointer-events-none absolute right-5 top-5 -z-10 h-40 w-40 select-none opacity-100 sm:right-8 sm:top-8 sm:h-64 sm:w-64 lg:h-72 lg:w-72">
+      <PoolVinyl appearance={a} className="h-full w-full"/>
     </div>}
     <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold">
+      {roomVisibility&&<span className="inline-flex items-center gap-1.5 rounded-full border border-cyan-300/20 bg-cyan-400/10 px-3 py-1.5 text-cyan-200"><UiIcon name={roomVisibility==='private'?'lock':'globe'}/>{roomVisibility==='private'?'Sala privada':'Sala pública'}</span>}
       <span className="rounded-full border border-purple-300/20 bg-purple-500/15 px-3 py-1.5 text-purple-200"><InterfaceText>{"♫ Temporada "}</InterfaceText>{season.season_number || 1}</span>
       <span className={`rounded-full border px-3 py-1.5 ${isOpen ? 'border-emerald-400/25 bg-emerald-500/10 text-emerald-200' : 'border-amber-400/25 bg-amber-500/10 text-amber-200'}`}>{archived ? <InterfaceText>{'🔒 Pool cerrado'}</InterfaceText> : capacity.full ? 'Cupo completo' : isOpen ? 'Propuestas abiertas' : 'Propuestas cerradas'}</span>
       {date && <span className="text-slate-400">Desde {date}</span>}
@@ -46,7 +47,7 @@ export function PoolHero({ season, waiting = 0, winners = 0, isOpen = false, isA
         {capacity.limit && <div><dt className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Cápsulas / cupo</dt><dd className="mt-1 text-xl font-black text-purple-200">{capacity.used} <span className="text-sm text-slate-400">/ {capacity.limit}</span></dd></div>}
       </dl>}
       {a.mediaUrl && <img src={a.mediaUrl} alt="" style={{ '--pool-media-size': `${a.mediaSize}px` }} className="aspect-square w-20 shrink-0 rounded-2xl border border-white/10 bg-black/15 object-contain p-1 sm:w-[var(--pool-media-size)] sm:max-w-[24%]" onError={event => { event.currentTarget.hidden = true; }} />}
-      {!preview && ownerName && <p className="ml-auto max-w-60 self-end break-words text-right text-xs leading-relaxed text-slate-400">Dueño del Pool<br/><strong className="font-bold text-pink-200">{ownerName}</strong></p>}
+      {!preview && ownerName && <div className="ml-auto max-w-60 self-end text-right">{ownerActions}<p className="mt-2 break-words text-xs leading-relaxed text-slate-400">Dueño del Pool<br/><strong className="font-bold text-pink-200">{ownerName}</strong></p></div>}
     </div>}
   </section>;
 }

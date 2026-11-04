@@ -17,7 +17,7 @@ test('the global pause overrides saved acceptance and regional defaults without 
     await expect(page.getByRole('button',{name:'Preferencias de publicidad',exact:true})).toHaveCount(0);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   }
-  await expect(page.getByText('La publicidad está temporalmente desactivada en todo Musiclub.',{exact:false})).toBeVisible();
+  await expect(page.getByText('La publicidad está temporalmente desactivada en todo Musiclub.',{exact:false}).first()).toBeVisible();
   await page.goto('/catalogo');
   await page.reload();
   await expect(page.getByRole('heading',{name:'Catálogo Musical',exact:true})).toBeVisible();

@@ -107,7 +107,7 @@ export async function POST(request) {
       highlightQuotes,
       lang,
       poolUrl: `https://www.musiclub.org${getReleaseUrl(album)}`,
-    }));
+    }), {retryFailed:body.retryFailed===true});
 
     if (result?.skipped) return NextResponse.json({ success: false, error: 'Este aviso ya fue reservado. Revisa su estado antes de reenviarlo para evitar duplicados.' }, { status: 409 });
 

@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from './DetailLoading';
 import MoodIcon from './MoodIcon';
 import ReviewCriteria from './ReviewCriteria';
 import ReviewTrackRatings from './ReviewTrackRatings';
@@ -967,30 +968,7 @@ export function AlbumDetail({
 
   const pageImage = album?.image_url || '/musiclub_logo_corchea.png';
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0a0b12] text-white py-8 px-4 sm:px-6 lg:px-8">
-        <SEO
-          title={pageTitle}
-          description={metaDescription}
-          image={pageImage}
-          url={canonicalUrl}
-          type="music.album"
-          keywords={pageKeywords}
-        />
-        <div className="max-w-6xl mx-auto space-y-8">
-          <AppHeader showTitle={false} showAdvertising={false} />
-          <div className="py-24 text-center space-y-4">
-            <div className="inline-block w-12 h-12 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm font-medium">
-              Cargando detalles del álbum...
-            </p>
-          </div>
-          <Footer showAd={false} />
-        </div>
-      </div>
-    );
-  }
+  if(loading)return <DetailLoading label='Abriendo ficha del release…'/>;
 
   if (error || !album) {
     return (

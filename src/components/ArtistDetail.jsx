@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from './DetailLoading';
 import { InterfaceText } from './UiIcon';
 import { ListenLaterButton } from './ListenLaterButton';
 import { MusiclubVinyl } from './MusiclubVinyl';
@@ -233,6 +234,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
   const artistKeywords = `${formattedArtistName}, discografia ${formattedArtistName}, albumes ${formattedArtistName}, reviews ${formattedArtistName}, reseñas ${formattedArtistName}, canciones ${formattedArtistName}, musiclub`;
 
+  if(loading)return <DetailLoading label='Abriendo perfil y discografía del artista…'/>;
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
@@ -268,16 +270,6 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
             {artist?.name || decodeURIComponent(slug || '').replace(/-/g, ' ')}
           </span>
         </div>
-
-        {/* Loading State */}
-        {loading && (
-          <div className="min-h-[400px] flex flex-col items-center justify-center space-y-4">
-            <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-slate-400 font-bold tracking-wide animate-pulse">
-              Cargando perfil y discografía de Spotify...
-            </p>
-          </div>
-        )}
 
         {/* Error State */}
         {!loading && error && (

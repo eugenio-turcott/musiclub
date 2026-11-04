@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from '../components/DetailLoading';
 import { InterfaceText } from '../components/UiIcon';
 // src/pages/AdminPage.jsx
 import React from 'react';
@@ -11,9 +12,7 @@ export function AdminPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen cyber-grid flex items-center justify-center">
-        <div className="text-white">Cargando...</div>
-      </div>
+      <DetailLoading label="Verificando acceso a administración…"/>
     );
   }
 

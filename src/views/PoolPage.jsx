@@ -4,14 +4,18 @@ import { InterfaceText, UiIcon } from '../components/UiIcon';
 import dynamic from 'next/dynamic';
 import presentation from '../utils/poolPresentation.cjs';
 import { publicCatalog } from '../services/publicCatalog';
+import {PoolVinyl} from '../components/PoolVinyl';
+import {DetailLoading} from '../components/DetailLoading';
+import {poolUrl} from '../utils/poolRoutes.mjs';
+import {useRouter} from 'next/navigation';
 import { ListenLaterButton } from '../components/ListenLaterButton';
 import { enrichPoolReleaseGenres } from '../services/poolReleaseGenres.mjs';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
-import { PoolCapsuleDeposit, PoolCapsuleToken } from '../components/PoolCapsuleDeposit';
+import { PoolCapsuleDeposit, PoolCapsuleToken, PoolCapsuleViewer } from '../components/PoolCapsuleDeposit';
 import { WinnerReviewSchedule } from '../components/PoolReviewSchedule';
 import { PoolHero } from '../components/PoolHero';
 import { PoolManualControls } from '../components/PoolManualControls';
-import { PoolRoomDirectory, PoolRoomAccess } from '../components/PoolRoomDirectory';
+import { PoolRoomDirectory, PoolRoomAccess, PoolRoomInvitations } from '../components/PoolRoomDirectory';
 import { GenreLabel } from '../components/GenreLabel';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import { searchMusicBrainzReleases, getMusicBrainzReleaseGroupDetails } from '../services/musicBrainzService';
@@ -37,13 +41,13 @@ import {
 const ReviewSystem = dynamic(() => import('../components/ReviewSystem').then(module => module.ReviewSystem));
 const SlotMachine = dynamic(() => import('../components/SlotMachine').then(module => module.SlotMachine));
 
-export function PoolPage() {
+export function PoolPage({code}) {
   const {search} = useLocation();
   const requestedSeasonId = new URLSearchParams(search).get('temporada') || undefined;
-  return <PoolRoomDirectory renderRoom={(room, actions) => <PoolRoomView key={`${room.id}:${requestedSeasonId || 'active'}`} requestedSeasonId={requestedSeasonId} room={room} onBack={actions.back} onRefreshRooms={actions.refresh}/>}/>;
+  return <PoolRoomDirectory code={code} renderRoom={(room, actions) => <PoolRoomView key={`${room.id}:${actions.selectedSeason?.id || requestedSeasonId || 'active'}`} requestedSeasonId={actions.selectedSeason?.id || requestedSeasonId} publicPools={actions.publicPools} room={room} onBack={actions.back} onRefreshRooms={actions.refresh}/>}/>;
 }
 
-function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
+function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPools=[] }) {
   const {
     user,
     isAdmin: globalIsAdmin,
@@ -55,6 +59,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
     season,
     seasons,
     createSeason,
+    generateCode,
     updateSeason,
     setActiveSeason,
     error: poolError,
@@ -77,7 +82,8 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
   const isAdmin = isRoomAdmin && season.is_active === true;
   const canParticipate = room.joined || isRoomAdmin;
   const archived = Boolean(season.id && !season.is_active);
-  const previousPools = presentation.pastPools(seasons);
+  const router=useRouter();
+  React.useEffect(()=>{if(season.public_code){const target=poolUrl(room.id,season);if(window.location.pathname+window.location.search!==target)router.replace(target,{scroll:false});}},[season.public_code,room.id,season.id,router]);
 
 
 
@@ -115,6 +121,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
   const [loginLoading, setLoginLoading] = useState(false);
   const [showNominateModal, setShowNominateModal] = useState(false);
   const [showSlotMachine, setShowSlotMachine] = useState(false);
+  const [viewCapsule,setViewCapsule]=useState(null);
   const [showWinnerReviewModal, setShowWinnerReviewModal] = useState(false);
   const [selectedFormatFilter, setSelectedFormatFilter] = useState('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -354,8 +361,10 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
     }
   };
 
+  if(poolLoading)return <DetailLoading label='Abriendo el Pool…'/>;
   return (
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans flex flex-col justify-between">
+      {viewCapsule&&<PoolCapsuleViewer album={viewCapsule} onClose={()=>setViewCapsule(null)}/>}
       <SEO
         title="Salas de escucha y Pool Musical | Musiclub"
         description="Cada sala tiene su propio Pool: propuestas, temporadas, disco elegido e historial. Descubre salas públicas o comparte una privada con tu grupo."
@@ -398,76 +407,37 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
             1. POOL HERO HEADER & SEASON SELECTOR
             ========================================================================= */}
         <PoolRoomAccess room={room} user={user} canManage={isRoomAdmin} onBack={onBack} onRefresh={onRefreshRooms}/>
-        {previousPools.length > 0 && <nav aria-label="Pools de esta sala" className="flex flex-wrap gap-2">
-          <Link to={`/pool?sala=${encodeURIComponent(room.id)}`} aria-current={!requestedSeasonId ? 'page' : undefined} className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold ${!archived ? 'border-pink-300/40 bg-pink-500/15 text-pink-200' : 'border-white/10 text-slate-300 hover:bg-white/5'}`}><UiIcon name="pool"/>Pool actual</Link>
-          {previousPools.map(pool=><Link key={pool.id} to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} aria-current={season.id === pool.id ? 'page' : undefined} className={`inline-flex min-h-11 max-w-full items-center gap-2 rounded-xl border px-4 py-2 text-sm ${season.id === pool.id ? 'border-purple-300/40 bg-purple-500/15 text-purple-100' : 'border-white/10 text-slate-300 hover:bg-white/5'}`}><UiIcon name="lock"/><span className="min-w-0 break-words">{pool.appearance?.heading?.trim() || pool.name} <span className="text-xs text-slate-400">· Cerrado</span></span></Link>)}
-        </nav>}
         {!archived && !canParticipate && <p className="rounded-xl border border-pink-300/20 bg-pink-300/5 p-4 text-sm text-pink-200">{user ? 'Únete a esta sala para depositar tu cápsula cuando se abran las propuestas.' : 'Inicia sesión y únete a esta sala para participar.'}</p>}
-        <PoolHero season={season} archived={archived} ownerName={room.owner_name} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
+        <PoolHero season={season} roomVisibility={room.visibility} ownerActions={isRoomAdmin?<PoolRoomInvitations roomId={room.id}/>:null} archived={archived} ownerName={room.owner_name} waiting={poolLoading && !activePool.length ? '…' : activePool.length}
           winners={poolLoading && !poolHistory.length && !winner ? '…' : poolHistory.length + (winner ? 1 : 0)}
           isOpen={isPoolOpen} isAdmin={isAdmin} busy={!canParticipate || poolActionBusy || poolLoading || Boolean(poolError)} hasEntry={Boolean(myEntry)} canEdit={canEditMyEntry}
           onDeposit={openNomination}
           onOpen={() => runPoolAction(() => setPoolOpenStatus(true))} />
+        {publicPools.length>0&&<nav aria-label="Pools públicos" className="flex flex-wrap gap-2">{publicPools.map(pool=><Link key={`${pool.room_id}:${pool.id}`} to={poolUrl(pool.room_id,pool)} aria-current={pool.id===season.id?'page':undefined} className={`inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm ${pool.id===season.id?'border-pink-300/40 bg-pink-400/20 text-pink-100':'border-white/15 text-slate-300 hover:text-cyan-200'}`}><UiIcon name={pool.is_active?'music':'lock'}/>{pool.appearance?.heading?.trim() || pool.name}{!pool.is_active&&<span className="text-xs text-slate-400">· Cerrado</span>}</Link>)}</nav>}
         <button type="button" disabled={poolActionBusy || poolLoading} onClick={()=>refetch()} className="inline-flex items-center gap-2 text-xs font-bold text-cyan-300 hover:text-pink-300 disabled:opacity-50"><UiIcon name="refresh"/>Actualizar Pool</button>
-        {globalIsAdmin && <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300"><button type="button" onClick={checkMail} disabled={checkingMail} className="rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-3 py-2 font-bold text-cyan-300 hover:bg-cyan-400/10">{checkingMail?'Comprobando correo…':'Comprobar conexión de correo'}</button>{mailHealth&&<span role="status">{mailHealth}</span>}</div>}
+
         {(poolActionError || poolError) && <p role="alert" className="rounded-xl border border-rose-400/30 bg-rose-500/10 p-3 text-sm text-rose-200">{poolActionError || poolError}</p>}
-        {isAdmin && !poolLoading && !poolError && season.id && <PoolManualControls canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={winner || activePool[0] || poolHistory[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
+        {isRoomAdmin && !poolLoading && !poolError && season.id && <PoolManualControls generateCode={generateCode} mailTools={globalIsAdmin && room.id==='00000000-0000-4000-8000-000000000000'?<PoolMailTools season={season} winner={winner} history={poolHistory} checkMail={checkMail} checkingMail={checkingMail} mailHealth={mailHealth}/>:null} canUpload={globalIsAdmin && room.visibility === 'public'} user={user} sampleRelease={winner || activePool[0] || poolHistory[0]} season={season} seasons={seasons} isPoolOpen={isPoolOpen} createSeason={createSeason} updateSeason={updateSeason} setActiveSeason={setActiveSeason} setPoolOpenStatus={setPoolOpenStatus} onError={setPoolActionError} />}
 
         {/* =========================================================================
             2. WINNER SPOTLIGHT: ÁLBUM EN FOCO DE LA SEMANA
             ========================================================================= */}
-        {poolLoading && !winner ? <div role="status" className="animate-pulse rounded-3xl border border-white/10 bg-white/5 p-8 text-sm text-slate-300">Cargando los releases de este Pool…</div> : winner ? (
+        {winner ? (
           <section className="relative text-left">
             <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-[#1b1e3d] via-[#101226] to-[#0a0a14] border-2 border-pink-500/40 p-6 sm:p-8 md:p-10 shadow-2xl">
               <div className="absolute top-0 right-0 w-80 h-80 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-              <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 relative z-10">
+              <div className="flex flex-col lg:flex-row items-center gap-6 sm:gap-8 relative z-10">
                 {/* Artwork */}
-                <div className="relative shrink-0 group">
-                  <div className="w-40 h-40 sm:w-48 sm:h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-2xl shadow-pink-500/30">
+                <div className="w-56 sm:w-64 md:w-72 max-w-full shrink-0 group">
+                  <div className="aspect-square w-full rounded-2xl overflow-hidden border-2 border-pink-500/50 shadow-2xl shadow-pink-500/30">
                     <img
                       src={winner.imagen}
                       alt={winner.album}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   </div>
-                  <div className="absolute -top-3 -right-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white text-[10px] sm:text-xs font-black px-3.5 py-1 rounded-full shadow-lg border border-white/20"><InterfaceText>{" 🏆 EN FOCO SEMANAL "}</InterfaceText></div>
-                </div>
-
-                {/* Info & Direct Actions */}
-                <div className="flex-1 text-center md:text-left space-y-3">
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
-                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-pink-300 bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500/30">
-                      GANADOR DE LA SEMANA DEL POOL
-                    </span>
-                    {winner.added_by && (
-                      <span className="text-xs text-white/60 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
-                        Propuesto por{' '}
-                        <strong
-                          translate="no"
-                          className="notranslate username-tag text-white"
-                        >
-                          {winner.added_by}
-                        </strong>
-                      </span>
-                    )}
-                  </div>
-
-                  <h2
-                    translate="no"
-                    className="notranslate music-title text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight"
-                  >
-                    {winner.album}
-                  </h2>
-                  <p
-                    translate="no"
-                    className="notranslate artist-name text-lg sm:text-xl text-slate-300 font-light"
-                  >
-                    {winner.artista}
-                  </p>
-
-                  {/* Enlaces Oficiales de Streaming con Logos */}
-                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
+                  <div data-winner-streaming="" className="mt-4 grid grid-cols-2 gap-2 text-left">
                     {(winner.spotifyLink || winner.spotify_link) && (
                       <a
                         href={winner.spotifyLink || winner.spotify_link}
@@ -546,6 +516,43 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                       </a>
                     )}
 
+                  </div>
+                </div>
+
+                {/* Info & Direct Actions */}
+                <div className="min-w-0 flex-1 text-center lg:text-left space-y-3">
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                    <span className="text-[10px] font-extrabold uppercase tracking-widest text-pink-300 bg-pink-500/20 px-3 py-1 rounded-full border border-pink-500/30">
+                      GANADOR DE LA SEMANA DEL POOL
+                    </span>
+                    {winner.added_by && (
+                      <span className="text-xs text-white/60 bg-white/5 px-2.5 py-1 rounded-full border border-white/5">
+                        Propuesto por{' '}
+                        <strong
+                          translate="no"
+                          className="notranslate username-tag text-white"
+                        >
+                          {winner.added_by}
+                        </strong>
+                      </span>
+                    )}
+                  </div>
+
+                  <h2
+                    translate="no"
+                    className="notranslate music-title text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight"
+                  >
+                    {winner.album}
+                  </h2>
+                  <p
+                    translate="no"
+                    className="notranslate artist-name text-lg sm:text-xl text-slate-300 font-light"
+                  >
+                    {winner.artista}
+                  </p>
+
+                  {/* Enlaces Oficiales de Streaming con Logos */}
+                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-2.5 pt-2">
                     <Link
                       to={getReleaseUrl(
                         winner.album,
@@ -621,15 +628,15 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                 </div>
 
                 {/* Spinning Vinyl Disc on the Right */}
-                <div className="hidden md:flex shrink-0 items-center justify-center relative p-2 self-center">
+                <div className="hidden xl:flex shrink-0 items-center justify-center relative p-2 self-center">
                   <div className="relative w-32 h-32 lg:w-44 lg:h-44 xl:w-52 xl:h-52 group">
                     {/* Ambient Glow behind disc */}
                     <div className="absolute -inset-3 bg-linear-to-tr from-[#f5576c]/25 via-[#a855f7]/25 to-transparent rounded-full blur-2xl pointer-events-none animate-pulse"></div>
 
                     {/* Disc Frame & Shadow */}
                     <div className="relative w-full h-full rounded-full border-2 border-white/20 shadow-2xl p-1 bg-[#0b0c16]/60 backdrop-blur-sm">
-                      <MusiclubVinyl
-                        src="/musiclub_logo_3.png"
+                      <PoolVinyl
+                        appearance={season.appearance}
                         alt="Disco de la semana"
                         className="w-full h-full rounded-full object-cover animate-disc-spin pointer-events-none select-none drop-shadow-[0_10px_20px_rgba(245,87,108,0.25)]"
                       />
@@ -699,6 +706,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
         {/* =========================================================================
             3. ACTIVE POOL NOMINATIONS (CANDIDATOS EN ESPERA EN LA TEMPORADA)
             ========================================================================= */}
+        {(!archived || activePool.length>0)&&<>
         <section className="space-y-6 text-left">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-1">
@@ -776,7 +784,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
               >
                 <span><InterfaceText>{"🎰"}</InterfaceText></span>
                 <span>
-                  {showSlotMachine ? 'Ocultar Ruleta' : 'Ruleta del Pool'}
+                  {showSlotMachine ? 'Ocultar Ruleta' : 'Máquina Musical del Pool'}
                 </span>
               </button>
 
@@ -839,6 +847,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                 </div>
               ) : (
                 <SlotMachine
+                  poolName={season.appearance?.heading?.trim() || season.name}
                   albums={slotMachinePool}
                   disabled={Boolean(winner) || archived}
                   onBusyChange={setPoolActionBusy}
@@ -878,7 +887,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
                   key={alb.id}
                   className="group relative rounded-2xl bg-[#111322]/90 border border-white/10 hover:border-pink-500/40 p-3 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col justify-between"
                 >
-                  <PoolCapsuleToken album={alb} />
+                  <button type="button" className="block w-full rounded-2xl text-left focus-visible:outline-2 focus-visible:outline-pink-300" aria-label={`Ver cápsula de ${alb.album}`} onClick={()=>setViewCapsule(alb)}><PoolCapsuleToken album={alb}/></button>
 
                   {/* Metadata */}
                   <div className="space-y-0.5 min-w-0">
@@ -1011,6 +1020,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
             </div>
           )}
         </section>
+        </>}
 
         {/* =========================================================================
             4. POOL GRADUATION HISTORY (HISTORIAL DE LA TEMPORADA)
@@ -1347,3 +1357,13 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId }) {
 }
 
 export default PoolPage;
+
+function PoolMailTools({season,winner,history,checkMail,checkingMail,mailHealth}) {
+  const options=[...(winner?[{id:winner.id,event:'pool-winner',name:`Ganador · ${winner.album}`}]:[]),...history.map(album=>({id:album.id,event:'pool-graduated',name:`Graduación · ${album.album}`}))];
+  const [selected,setSelected]=useState(''),[busy,setBusy]=useState(false),[notice,setNotice]=useState('');
+  const send=async()=>{
+    const item=options.find(row=>`${row.event}:${row.id}`===selected);if(!item)return;
+    setBusy(true);setNotice('');try{const response=await authenticatedFetch(`/api/notifications/${item.event}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({albumId:item.id,seasonId:season.id,retryFailed:true})});const result=await response.json();setNotice(response.ok&&result.success?`Aviso enviado: ${item.name}.`:result.error || 'No se pudo confirmar el envío.');}catch{setNotice('No se pudo confirmar el envío. Revisa el registro antes de reintentarlo.');}finally{setBusy(false);}
+  };
+  return <details className="rounded-xl border border-white/10 p-4"><summary className="font-bold text-cyan-200">Correo del Pool · administración</summary><p className="mt-3 text-xs text-slate-300">Comprueba la conexión sin enviar mensajes. El reenvío sólo procesa avisos registrados como fallidos; nunca repite un aviso enviado.</p><button type="button" onClick={checkMail} disabled={checkingMail} className="mt-3 min-h-11 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-3 py-2 text-xs font-bold text-cyan-300">{checkingMail?'Comprobando correo…':'Comprobar conexión de correo'}</button>{mailHealth&&<p role="status" className="mt-2 text-xs text-slate-300">{mailHealth}</p>}<label className="mt-4 block text-xs text-slate-300">Aviso pendiente<select aria-label="Aviso pendiente" value={selected} onChange={e=>setSelected(e.target.value)} className="mt-2 min-h-11 w-full rounded-xl border border-white/15 bg-[#111424] p-2 text-white"><option value="">Selecciona un aviso fallido</option>{options.map(item=><option key={`${item.event}:${item.id}`} value={`${item.event}:${item.id}`}>{item.name}</option>)}</select></label><button type="button" disabled={!selected||busy} onClick={send} className="mt-3 min-h-11 rounded-xl bg-pink-400/20 px-4 text-xs font-bold text-pink-200 disabled:opacity-40">{busy?'Enviando aviso…':'Enviar aviso pendiente'}</button>{notice&&<p role="status" className="mt-3 text-xs text-cyan-200">{notice}</p>}</details>;
+}

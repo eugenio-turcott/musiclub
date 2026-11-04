@@ -1,3 +1,4 @@
+import {DetailLoading} from './DetailLoading';
 import { InterfaceText } from './UiIcon';
 import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
@@ -24,8 +25,8 @@ import { ArtistLinks } from './common/ArtistLinks';
 import { TrendingMonthlySection } from './catalog/TrendingMonthlySection';
 import { AnticipatedSection } from './catalog/AnticipatedSection';
 import { RecommendedSection } from './catalog/RecommendedSection';
-const CatalogArtistsView = dynamic(()=>import('./catalog/CatalogArtistsView').then(module=>module.CatalogArtistsView), {loading:()=> <p role="status" className="p-6 text-slate-400">Cargando artistas…</p>});
-const CatalogGenresView = dynamic(()=>import('./catalog/CatalogGenresView').then(module=>module.CatalogGenresView), {loading:()=> <p role="status" className="p-6 text-slate-400">Cargando géneros…</p>});
+const CatalogArtistsView = dynamic(()=>import('./catalog/CatalogArtistsView').then(module=>module.CatalogArtistsView), {loading:()=> <DetailLoading fullScreen={false} label="Cargando artistas…"/>});
+const CatalogGenresView = dynamic(()=>import('./catalog/CatalogGenresView').then(module=>module.CatalogGenresView), {loading:()=> <DetailLoading fullScreen={false} label="Cargando géneros…"/>});
 import { LoginModal } from './LoginModal';
 import { matchesCatalogQuery, searchSpotifyCatalog } from '../services/catalogSpotifySearch.mjs';
 import editions from '../utils/releaseEditions.cjs';
@@ -1529,12 +1530,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
             {showingSpotify && <div className="rounded-2xl border border-emerald-400/20 bg-emerald-500/5 p-4 text-sm text-slate-300" role="status"><strong className="block text-emerald-300">Resultados de Spotify</strong><p className="mt-1 text-xs">No encontramos «{spotifySearch.query}» en Musiclub. Estos releases vienen de Spotify y aún no tienen reseñas del club.</p></div>}
             {showingSpotify && spotifySearch.status==='loading' ? <p role="status" className="py-12 text-center text-sm text-slate-300">Buscando releases en Spotify…</p> : showingSpotify && spotifySearch.status==='error' ? <div role="alert" className="rounded-2xl border border-amber-400/20 p-6 text-center text-sm text-slate-300"><p>{spotifySearch.error}</p><button type="button" className="mt-3 cursor-pointer rounded-xl border border-white/20 px-4 py-2" onClick={()=>setSpotifyRetry(value=>value+1)}>Reintentar búsqueda</button></div> :
             loading ? (
-              <div className="py-20 text-center space-y-4">
-                <div className="inline-block w-10 h-10 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin" />
-                <p className="text-slate-400 text-sm">
-                  Cargando catálogo de álbumes y estadísticas...
-                </p>
-              </div>
+              <DetailLoading fullScreen={false} label="Cargando catálogo de álbumes y estadísticas…"/>
             ) : error ? (
               <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400">
                 {error}

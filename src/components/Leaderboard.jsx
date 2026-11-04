@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
@@ -685,12 +686,7 @@ export function Leaderboard({ isPage = false }) {
 
         {/* User Ranking Table / Cards */}
         {loading ? (
-          <div className="py-20 text-center space-y-4">
-            <div className="inline-block w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-slate-400 text-sm">
-              Cargando clasificación de usuarios y puntuación XP...
-            </p>
-          </div>
+          <DetailLoading fullScreen={false} label="Cargando clasificación de miembros…"/>
         ) : error ? (
           <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-red-400 text-sm">
             {error}

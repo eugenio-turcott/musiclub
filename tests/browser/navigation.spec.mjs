@@ -85,7 +85,7 @@ test('Pool directory distinguishes public rooms, private invitations and an inde
   await expect(page.getByText('Inicia sesión y únete a esta sala para participar.')).toBeVisible();
   await expect(page.getByRole('button',{name:'Crear invitación',exact:true})).toHaveCount(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.getByRole('button',{name:'← Todas las salas',exact:true}).click();
+  await page.getByRole('button',{name:'Todas las salas',exact:true}).click();
   await page.goto('/pool?invitacion=00000000-0000-4000-8000-000000000099');
   await expect(page.getByRole('button',{name:'Iniciar sesión para aceptar',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Primera escucha',exact:true,level:1})).toHaveCount(0);
@@ -114,11 +114,11 @@ test('a member can create a private room and manage its Pool without becoming a 
   await dialog.getByRole('button',{name:'Crear sala',exact:true}).click();
   await expect(page).toHaveURL(new RegExp(`sala=${roomId}`));
   expect(created).toEqual({p_name:'Domingos de escucha',p_description:'Un disco entre amistades',p_visibility:'private'});
-  await expect(page.getByRole('heading',{name:'Domingos de escucha',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Pool activo',exact:true})).toContainText('Primera escucha');
   await expect(page.getByRole('button',{name:'Crear invitación',exact:true})).toBeVisible();
   await page.getByText('Administrar Pool · control manual',{exact:true}).click();
   await expect(page.getByRole('button',{name:'Abrir propuestas para todos',exact:true})).toBeVisible();
-  await expect(page.getByText('Solo los integrantes pueden ver el Pool de esta sala. Las reseñas en las fichas del catálogo son públicas.',{exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Pool activo',exact:true})).toContainText('Sala privada');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 

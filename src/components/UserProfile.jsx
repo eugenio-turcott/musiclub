@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { ProfileIdentity } from './account/ProfileIdentity';
@@ -483,7 +484,7 @@ export function UserProfile({ isPage = false }) {
     }
   };
 
-  if (!user && authLoading) return <div className="flex min-h-[70vh] items-center justify-center text-sm text-slate-300" role="status">Cargando tu perfil…</div>;
+  if (!user && authLoading) return <DetailLoading label="Cargando tu perfil…"/>;
 
   if (!user) {
     return (
@@ -571,10 +572,7 @@ export function UserProfile({ isPage = false }) {
 
           {/* Listado de Reviews */}
           {reviewsLoading ? (
-            <div className="py-16 text-center text-white/40 text-xs sm:text-sm">
-              <span className="w-2.5 h-2.5 bg-[#f5576c] rounded-full animate-ping inline-block mr-2"></span>
-              Cargando tus reviews...
-            </div>
+            <DetailLoading fullScreen={false} label="Cargando tus reviews…"/>
           ) : filteredReviews.length > 0 ? (
             <>
               <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-3 sm:gap-4">

@@ -126,7 +126,7 @@ export async function POST(request) {
       appleMusicLink: albumData.apple_music_link || albumData.appleMusicLink,
       deezerLink: albumData.other_link || albumData.deezer_link || albumData.deezerLink,
       lang,
-    }));
+    }), {retryFailed:body.retryFailed===true});
 
     if (result?.skipped) return NextResponse.json({ success: false, error: 'Este aviso ya fue reservado. Revisa su estado antes de reenviarlo para evitar duplicados.' }, { status: 409 });
 

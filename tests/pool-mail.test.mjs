@@ -47,3 +47,10 @@ test('Workers SMTP refuses an unverified certificate and reports a connection er
  const error=await new Promise(resolve=>secureSmtpSocket({host:'smtp.example.test',port:465},resolve,()=>{queueMicrotask(()=>socket.emit('secureConnect'));return socket;}));
  assert.equal(error.code,'ETLS');assert.equal(destroyed,1);
 });
+import {deliverNotificationOnce} from '../src/services/notificationDelivery.js';
+test('SMTP acceptance cannot become retryable when the delivery ledger is unavailable',async()=>{
+ const calls=[];let sends=0;
+ const db={rpc:async(name,args)=>{calls.push({name,args});return name==='musiclub_claim_notification_retry'?{data:true}:{error:{message:'offline'}};}};
+ await assert.rejects(deliverNotificationOnce(db,'pool-winner:fixture',async()=>{sends++;return {success:true};},{retryFailed:true}),/No lo reenvíes/);
+ assert.equal(sends,1);assert.equal(calls.length,2);assert.equal(calls[1].args.p_sent,true);
+});

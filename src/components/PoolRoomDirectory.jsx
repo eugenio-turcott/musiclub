@@ -1,4 +1,5 @@
 'use client';
+import {createPortal} from 'react-dom';
 import { InterfaceText, UiIcon } from './UiIcon';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -6,12 +7,16 @@ import { useAuth } from '../hooks/useAuth';
 import { poolRoomService, poolInviteToken } from '../services/poolRoomService';
 import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
-import { MusiclubVinyl } from './MusiclubVinyl';
+import {MusiclubVinyl} from './MusiclubVinyl';
+import {PoolVinyl} from './PoolVinyl';
+import {DetailLoading} from './DetailLoading';
+import {poolUrl,validPoolCode} from '../utils/poolRoutes.mjs';
+import {prefetchPool} from '../hooks/usePool';
 
 const field = 'mt-2 min-h-12 w-full rounded-xl border border-white/15 bg-[#15132d] p-3 text-white';
 const button = 'min-h-12 rounded-xl bg-pink-400 px-5 py-3 text-sm font-black text-[#171433] disabled:opacity-50';
 
-export function PoolRoomDirectory({ renderRoom }) {
+export function PoolRoomDirectory({ renderRoom, code }) {
   const { user, isAdmin, loading: authLoading, loginWithGoogle, logout } = useAuth();
   const { search } = useLocation();
   const navigate = useNavigate();
@@ -34,16 +39,22 @@ export function PoolRoomDirectory({ renderRoom }) {
   const refresh = useCallback(async (force=false) => {
     const request = ++loadSequence.current;
     setLoading(true); setError('');
-    try { const next = await poolRoomService.list(identity,{force:force===true}); if (request === loadSequence.current) setSnapshot({ userId: identity, rooms: next }); }
-    catch (err) { if (request === loadSequence.current) { setSnapshot({ userId: identity, rooms: [] }); setError(err.message); } }
+    try { const next = await poolRoomService.list(identity,{force:force===true}); if (request === loadSequence.current) setSnapshot({ userId: identity, rooms: next, code }); }
+    catch (err) { if (request === loadSequence.current) { setSnapshot({ userId: identity, rooms: [], code }); setError(err.message); } }
     finally { if (request === loadSequence.current) setLoading(false); }
-  }, [identity]);
+  }, [identity,code]);
   useEffect(() => { if (!authLoading) refresh(); }, [authLoading, refresh]);
   const run = async action => { setBusy(true); setError(''); try { await action(); } catch (err) { setError(err.message); } finally { setBusy(false); } };
-  const open = id => navigate(`/pool?sala=${encodeURIComponent(id)}`);
-  const selected = rooms.find(room => room.id === roomId);
-  const ready = !authLoading && !loading && snapshot.userId === identity;
-  if (ready && selected && !invite) return renderRoom(selected, { back: () => {void refresh();navigate('/pool');}, refresh });
+  const open = id => {const room=rooms.find(item=>item.id===id);prepare(room || {id},room?.active_pool);navigate(poolUrl(id,room?.active_pool));};
+  const coded=validPoolCode(code)?rooms.flatMap(room=>(room.pools || [room.active_pool,...(room.past_pools||[])]).filter(Boolean).map(season=>({room,season}))).find(item=>item.season.public_code===code):null;
+  const selected = coded?.room || rooms.find(room => room.id === roomId);
+  const selectedSeason = coded?.season || selected?.pools?.find(season=>season.id===params.get('temporada'));
+  const publicPools=rooms.filter(room=>room.visibility==='public' || room.id===selected?.id).flatMap(room=>(room.pools || [room.active_pool,...(room.past_pools||[])]).filter(Boolean).map(season=>({...season,room_id:room.id})));
+  const prepare=(room,season)=>{if(!authLoading)void prefetchPool(identity,room.id,season?.id).catch(()=>{});};
+  const ready = !authLoading && !loading && snapshot.userId === identity && (!code || snapshot.code===code);
+  if(ready&&selected&&!invite)return renderRoom(selected,{back:()=>{void refresh();navigate('/pool');},refresh,selectedSeason,publicPools});
+  if(!ready)return <DetailLoading label={roomId||code?'Abriendo el Pool…':'Cargando salas…'}/>;
+  if(ready&&code&&!selected)return <div className='min-h-screen cyber-grid grid place-content-center gap-5 px-6 text-center text-white'><h1 className='text-2xl font-black'>Este Pool no está disponible</h1><p>Revisa el código o inicia sesión con una cuenta que tenga acceso a la sala.</p><Link to='/pool' className='text-pink-300'>Ver salas</Link></div>;
   const visible = rooms.filter(room => tab === 'mine' ? room.joined : room.visibility === 'public');
   const accept = token => run(async () => {
     if (!user) { await loginWithGoogle(); return; }
@@ -57,7 +68,7 @@ export function PoolRoomDirectory({ renderRoom }) {
     <div className="mx-auto max-w-6xl space-y-8">
       <AppHeader user={user} isAdmin={isAdmin} onLogin={loginWithGoogle} onLogout={logout} loading={authLoading} showTitle={false}/>
       <section className="relative isolate overflow-hidden rounded-3xl border border-white/10 bg-[#171433] p-6 sm:p-10">
-        <MusiclubVinyl src="/musiclub_logo_3.png" alt="" className="pointer-events-none absolute -right-10 top-10 -z-10 h-64 w-64 opacity-20 sm:right-6 sm:h-80 sm:w-80"/>
+        <MusiclubVinyl src="/musiclub_logo_3.png" alt="" className="pointer-events-none absolute -right-10 top-10 -z-10 h-64 w-64 opacity-100 sm:right-6 sm:h-80 sm:w-80"/>
         <h1 className="mt-4 max-w-xl text-4xl font-black leading-tight sm:text-6xl">Cada sala.<br/>Su propio Pool.</h1>
         <p className="mt-5 max-w-xl text-sm leading-relaxed text-slate-300 sm:text-base">Descubre música con nuevas personas en una sala pública o comparte una sala privada con tu grupo. Cada sala tiene sus propias propuestas, temporadas, disco elegido e historial.</p>
         <div className="mt-6 flex flex-wrap gap-3">
@@ -77,21 +88,21 @@ export function PoolRoomDirectory({ renderRoom }) {
         <div role="tablist" aria-label="Directorio de salas" className="flex gap-2">{[['public','Salas públicas'],['mine','Mis salas']].map(([value,label]) => <button key={value} role="tab" aria-selected={tab===value} className={`min-h-12 rounded-xl px-5 text-sm font-bold ${tab===value?'bg-purple-500/25 text-pink-200':'bg-white/5 text-slate-300'}`} onClick={() => setTab(value)}><InterfaceText>{label}</InterfaceText></button>)}</div>
         <form className="flex w-full gap-2 sm:w-auto" onSubmit={event => { event.preventDefault(); accept(invitation); }}><label className="min-w-0 flex-1"><span className="sr-only">Enlace o código de invitación</span><input className="min-h-12 w-full rounded-xl border border-white/15 bg-[#15132d] px-3 text-sm sm:w-64" placeholder="Enlace o código de invitación" value={invitation} onChange={e => setInvitation(e.target.value)}/></label><button className="min-h-12 rounded-xl border border-pink-300/30 px-4 text-sm font-bold text-pink-200" disabled={busy || !invitation.trim()}>Entrar</button></form>
       </div>
-      {!ready ? <p role="status" className="py-12 text-center text-purple-200">Cargando salas…</p> : <div role="tabpanel" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {!ready ? <DetailLoading label="Cargando salas…" fullScreen={false}/> : <div role="tabpanel" className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {visible.flatMap((room, index) => [
           <article key={room.id} data-pool-card="current" className="relative flex flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#171433] p-5">
-            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200"><UiIcon name={room.visibility==='private'?'lock':'globe'}/>{room.visibility==='private'?'Privada':'Pública'}</span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <MusiclubVinyl src={`/musiclub_logo${index%2?'_2':'_3'}.png`} alt="" className="h-20 w-20 shrink-0"/>}</div>
+            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/20 px-3 py-2 text-xs font-bold text-pink-200"><UiIcon name={room.visibility==='private'?'lock':'globe'}/>{room.visibility==='private'?'Privada':'Pública'}</span>{room.active_pool?.winner?.image_url ? <img src={room.active_pool.winner.image_url} alt={room.active_pool.winner.album_name} className="h-20 w-20 shrink-0 rounded-xl object-cover"/> : <PoolVinyl appearance={room.active_pool?.appearance} className="h-20 w-20 shrink-0"/>}</div>
             <h2 className="mt-4 break-words text-xl font-black">{room.active_pool?.title || 'Sin Pool activo'}</h2>
             <p className="mt-2 break-words text-sm text-slate-300">{room.active_pool?.winner?.album_name || 'Sin disco elegido todavía'}</p>
             <p className="mt-4 mb-6 text-xs text-purple-200">{identity && room.owner_id===identity?'Administras esta sala':room.joined?'Ya eres parte de esta sala':'Descubre su próxima escucha'}</p>
-            <button className={`${button} mt-auto w-full`} onClick={() => open(room.id)}>Ver sala</button>
+            <button className={`${button} mt-auto w-full`} onMouseEnter={()=>prepare(room,room.active_pool)} onFocus={()=>prepare(room,room.active_pool)} onTouchStart={()=>prepare(room,room.active_pool)} onClick={() => open(room.id)}>Ver sala</button>
           </article>,
           ...(room.past_pools || []).map(pool => <article key={`${room.id}:${pool.id}`} data-pool-card="closed" className="relative flex flex-col overflow-hidden rounded-2xl border border-amber-300/15 bg-linear-to-br from-[#1c1830] to-[#111221] p-5">
-            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-200"><UiIcon name="lock"/>Cerrado</span><MusiclubVinyl src={pool.appearance?.logo || '/musiclub_logo_3.png'} alt="" className="h-20 w-20 shrink-0 opacity-80"/></div>
+            <div className="flex items-start justify-between gap-4"><span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/20 bg-amber-500/10 px-3 py-2 text-xs font-bold text-amber-200"><UiIcon name="lock"/>Cerrado</span><PoolVinyl appearance={pool.appearance} className="h-20 w-20 shrink-0"/></div>
             <h2 className="mt-4 break-words text-xl font-black">{pool.appearance?.heading?.trim() || pool.name}</h2>
             <p className="mt-2 text-sm leading-relaxed text-slate-300">Las escuchas que compartimos siguen aquí. Explora sus propuestas y discos elegidos.</p>
             <p className="mt-4 mb-6 text-xs text-amber-200/70">Pool anterior · No recibe propuestas</p>
-            <Link to={`/pool?sala=${encodeURIComponent(room.id)}&temporada=${encodeURIComponent(pool.id)}`} className="mt-auto inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-purple-300/25 bg-purple-500/15 px-5 py-3 text-sm font-black text-purple-100 hover:bg-purple-500/25"><UiIcon name="archive"/>Ver historial</Link>
+            <Link to={poolUrl(room.id,pool)} onMouseEnter={()=>prepare(room,pool)} onFocus={()=>prepare(room,pool)} onTouchStart={()=>prepare(room,pool)} className="mt-auto inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-purple-300/25 bg-purple-500/15 px-5 py-3 text-sm font-black text-purple-100 hover:bg-purple-500/25"><UiIcon name="archive"/>Ver historial</Link>
           </article>)
         ])}
         {!visible.length && !error && <p className="rounded-2xl border border-white/10 p-6 text-sm text-slate-300 md:col-span-2">{tab==='mine'?'Aquí aparecerán las salas que crees o a las que te unas.':'Todavía no hay salas públicas disponibles.'}</p>}
@@ -113,16 +124,17 @@ export function PoolRoomDirectory({ renderRoom }) {
 export function PoolRoomAccess({ room, user, canManage, onBack, onRefresh }) {
   const [busy,setBusy]=useState(false),[error,setError]=useState(''),[invite,setInvite]=useState('');
   const run=async action=>{setBusy(true);setError('');try{await action();}catch(err){setError(err.message);}finally{setBusy(false);}};
-  return <section className="rounded-2xl border border-white/10 bg-[#171433] p-5">
-    <button onClick={onBack} className="min-h-11 text-sm font-bold text-pink-200">← Todas las salas</button>
-    <div className="mt-2 flex flex-wrap items-center justify-between gap-4"><div><p className="text-xs font-bold text-purple-200"><InterfaceText>{room.visibility==='private'?'🔒 Sala privada':'◎ Sala pública'}</InterfaceText></p><h2 className="mt-1 break-words text-2xl font-black">{room.name}</h2><p className="mt-2 whitespace-pre-line break-words text-sm text-slate-300">{room.description}</p></div>
-      <div className="flex flex-wrap gap-2">{!room.joined && user && <button className={button} disabled={busy} onClick={()=>run(async()=>{await poolRoomService.join(room.id);await onRefresh();})}>Unirme a la sala</button>}
-      {room.joined && !canManage && <button className="min-h-11 rounded-xl border border-white/20 px-4 text-sm" disabled={busy} onClick={()=>run(async()=>{await poolRoomService.leave(room.id);await onRefresh();onBack();})}>Salir de la sala</button>}
-      {canManage && <><button className={button} disabled={busy} onClick={()=>run(async()=>{const token=await poolRoomService.invite(room.id);setInvite(`${window.location.origin}/pool?invitacion=${token}`);})}>Crear invitación</button><button className="min-h-11 rounded-xl border border-white/20 px-4 text-sm" disabled={busy} onClick={()=>run(async()=>{await poolRoomService.invite(room.id,true);setInvite('');})}>Revocar invitaciones</button></>}
-      </div>
-    </div>
+  return <div className="flex flex-wrap items-center justify-between gap-3">
+    <button onClick={onBack} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-pink-200 hover:text-cyan-200"><span aria-hidden="true">←</span>Todas las salas</button>
+    <div className="flex gap-2">{!room.joined&&user&&<button className={button} disabled={busy} onClick={()=>run(async()=>{await poolRoomService.join(room.id);await onRefresh();})}>Unirme a la sala</button>}
+    {room.joined&&!canManage&&<button className="min-h-11 rounded-xl border border-white/20 px-4 text-sm" disabled={busy} onClick={()=>run(async()=>{await poolRoomService.leave(room.id);await onRefresh();onBack();})}>Salir de la sala</button>}</div>
     {invite && <label className="mt-4 block text-xs text-purple-200">Invitación · válida por 7 días; crear otra invalida la anterior<input readOnly value={invite} onFocus={e=>e.target.select()} className={field}/><button className="mt-2 min-h-11 rounded-xl border border-pink-300/30 px-4 font-bold" onClick={()=>run(()=>navigator.clipboard.writeText(invite))}>Copiar enlace</button></label>}
-    {room.visibility==='private' && <p className="mt-4 text-xs leading-relaxed text-slate-400">Solo los integrantes pueden ver el Pool de esta sala. Las reseñas en las fichas del catálogo son públicas.</p>}
     {error && <p role="alert" className="mt-4 text-sm text-rose-200">{error}</p>}
-  </section>;
+  </div>;
+}
+
+export function PoolRoomInvitations({roomId}) {
+  const [busy,setBusy]=useState(false),[link,setLink]=useState(''),[error,setError]=useState('');
+  const run=async revoke=>{setBusy(true);setError('');try{const token=await poolRoomService.invite(roomId,revoke);setLink(revoke?'':`${window.location.origin}/pool?invitacion=${token}`);}catch(err){setError(err.message);}finally{setBusy(false);}};
+  return <><div className="flex justify-end gap-2"><button type="button" aria-label="Crear invitación" title="Crear invitación" disabled={busy} onClick={()=>run(false)} className="grid h-10 w-10 place-items-center rounded-xl bg-pink-400 text-[#171433] hover:bg-pink-300"><UiIcon name="link" size={20} tone="inherit"/></button><button type="button" aria-label="Revocar invitaciones" title="Revocar invitaciones" disabled={busy} onClick={()=>run(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-pink-300/30 text-pink-200 hover:bg-pink-400/10"><UiIcon name="lock" size={20} tone="inherit"/></button></div>{error&&<p role="alert" className="mt-2 text-xs text-rose-200">{error}</p>}{link&&createPortal(<div className="fixed inset-0 z-[100000] grid place-items-center bg-black/80 p-4 text-left"><section role="dialog" aria-modal="true" aria-label="Invitación de la sala" className="w-full max-w-lg rounded-2xl border border-white/15 bg-[#171433] p-6"><h2 className="text-xl font-black text-white">Invitación de la sala</h2><p className="mt-3 text-sm text-slate-300">Válida por 7 días. Crear otra invalida la anterior.</p><input aria-label="Enlace de invitación" value={link} readOnly onFocus={e=>e.target.select()} className={field}/><div className="mt-4 flex gap-3"><button type="button" className={button} onClick={()=>navigator.clipboard.writeText(link)}>Copiar enlace</button><button type="button" className="px-4 text-white" onClick={()=>setLink('')}>Cerrar</button></div></section></div>,document.body)}</>;
 }

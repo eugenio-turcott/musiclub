@@ -1,4 +1,5 @@
 'use client';
+import {DetailLoading} from '../DetailLoading';
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -79,6 +80,7 @@ export function AccountSettings() {
     finally {setSaving(false);}
   };
 
+  if(!user&&authLoading)return <DetailLoading label="Cargando tu configuración…"/>;
   if(!user) return <div className="account-page w-full max-w-7xl mx-auto space-y-6"><AppHeader showTitle={false}/><section className="account-access-state"><UiIcon name="settings" size={44}/><h1>Configuración de perfil</h1><p>{authLoading?'Cargando tu cuenta…':'Inicia sesión para personalizar tu perfil y tus gustos musicales.'}</p><Link className="account-primary-action" to="/">Ir a Musiclub<UiIcon name="arrow" tone="inherit"/></Link></section><Footer/></div>;
   if(initializedKey!==draftKey)return <div className="min-h-[70vh] flex items-center justify-center text-slate-300" role="status">Preparando tu perfil…</div>;
   return <AccountPage className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
