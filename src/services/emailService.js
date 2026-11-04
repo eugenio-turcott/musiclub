@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import {secureSmtpSocket} from './smtpSocket.mjs';
 import { publicAssetBytes } from './publicAssetBytes.js';
 import genreFiles from '../utils/genreAssetFiles.cjs';
 import { createClient } from '@supabase/supabase-js';
@@ -352,6 +353,7 @@ export async function getTransporter() {
         connectionTimeout: 15000,
         greetingTimeout: 15000,
         socketTimeout: 30000,
+        ...(process.env.CLOUDFLARE_DEPLOYMENT==='1' && smtpSecure ? {getSocket:secureSmtpSocket}:{}),
         auth: {
           user: smtpUser,
           pass: smtpPass,

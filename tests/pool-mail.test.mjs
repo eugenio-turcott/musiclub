@@ -30,3 +30,20 @@ test('Pool notices require SMTP acceptance, keep members in BCC, and never use a
     for(const [key,value] of Object.entries(env))if(value===undefined)delete process.env[key];else process.env[key]=value;
   }
 });
+import {EventEmitter} from 'node:events';
+import {secureSmtpSocket} from '../src/services/smtpSocket.mjs';
+test('Workers SMTP establishes verified TLS by hostname and completes the callback once',async()=>{
+ const socket=new EventEmitter();socket.authorized=true;socket.destroy=()=>{};
+ let calls=0;
+ await new Promise((resolve,reject)=>{
+  secureSmtpSocket({host:'smtp.example.test',port:465},(error,result)=>{
+   calls++;if(error)return reject(error);assert.equal(result.connection,socket);assert.equal(result.secured,true);resolve();
+  },options=>{assert.deepEqual(options,{host:'smtp.example.test',port:465,servername:'smtp.example.test',rejectUnauthorized:true,minVersion:'TLSv1.2'});queueMicrotask(()=>socket.emit('secureConnect'));return socket;});
+ });
+ socket.emit('error',new Error('late close'));assert.equal(calls,1);
+});
+test('Workers SMTP refuses an unverified certificate and reports a connection error once',async()=>{
+ const socket=new EventEmitter();socket.authorized=false;let destroyed=0;socket.destroy=()=>{destroyed++;};
+ const error=await new Promise(resolve=>secureSmtpSocket({host:'smtp.example.test',port:465},resolve,()=>{queueMicrotask(()=>socket.emit('secureConnect'));return socket;}));
+ assert.equal(error.code,'ETLS');assert.equal(destroyed,1);
+});
