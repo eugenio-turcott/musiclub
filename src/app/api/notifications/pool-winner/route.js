@@ -1,5 +1,4 @@
 import { legacyPoolNotificationScope } from '../../../../server/poolNotificationScope';
-import { createHash } from 'node:crypto';
 import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
@@ -112,7 +111,7 @@ export async function POST(request) {
     }
 
     // 4. Despachar correo de ganador
-    const deliveryKey = 'pool-winner:' + createHash('sha256').update(JSON.stringify([body.seasonId, albumData.id || albumData.album_name, [...recipients].sort(), lang])).digest('hex');
+    const deliveryKey = `pool-winner:entry:${scope.entry.id}`;
     const result = await deliverNotificationOnce(supabase, deliveryKey, () => sendPoolWinnerEmail({
       recipients,
       albumName: albumData.album_name || albumData.album,

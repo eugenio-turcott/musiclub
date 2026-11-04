@@ -1,5 +1,4 @@
 import { legacyPoolNotificationScope } from '../../../../server/poolNotificationScope';
-import { createHash } from 'node:crypto';
 import { deliverNotificationOnce } from '../../../../services/notificationDelivery';
 import { authorize } from '../../../../server/authorize';
 import { NextResponse } from 'next/server';
@@ -92,7 +91,7 @@ export async function POST(request) {
     }
 
     // 4. Despachar correo de graduación
-    const deliveryKey = 'pool-graduated:' + createHash('sha256').update(JSON.stringify([body.seasonId, album.id, reviewList.map(r => [r.id, r.rating_general, r.track_ratings, r.comment]), [...recipients].sort(), lang])).digest('hex');
+    const deliveryKey = `pool-graduated:entry:${scope.entry.id}`;
     const result = await deliverNotificationOnce(supabase, deliveryKey, () => sendPoolGraduatedEmail({
       recipients,
       albumName: album.album_name,
