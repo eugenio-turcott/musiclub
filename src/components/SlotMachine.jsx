@@ -59,7 +59,7 @@ export function SlotMachine({poolName="Pool Musical",albums=[],onSpinComplete,on
         </div>
         <div className={styles.machineFoot}><span>UNA NUEVA HISTORIA EN CADA DISCO</span><UiIcon name="headphones" size={20} tone="inherit"/></div>
       </div>
-      <button type="button" className={styles.lever} disabled={!ready} onClick={spin} aria-label="Tirar palanca" title={ready?'Tirar palanca':'Ruleta no disponible'}><span className={styles.leverBase}/><span className={styles.arm}><span className={styles.knob}/></span><span className={styles.pull}>TIRAR<span>↓</span></span></button>
+      <button type="button" className={styles.lever} disabled={!ready} onClick={spin} aria-label="Tirar palanca" title={ready?'Tirar palanca':'Máquina Musical no disponible'}><span className={styles.leverBase}/><span className={styles.arm}><span className={styles.knob}/></span><span className={styles.pull}>TIRAR<span>↓</span></span></button>
     </div>
     <div className={styles.status} role="status" aria-live="polite"><span className={styles.statusLight}/>{message}</div>
     {phase==='won'&&draw&&<div data-draw-confirmed="true" className={styles.result}><div className={styles.confetti} aria-hidden="true">{Array.from({length:16},(_,i)=><i key={i} style={{'--n':i}}/>)}</div><UiIcon name="crown" size={32} tone="inherit"/><div><p>DISCO ELEGIDO</p><h4>{title(draw.winner)}</h4><span>{draw.winner.artista || draw.winner.artist_name}</span></div></div>}

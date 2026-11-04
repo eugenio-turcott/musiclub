@@ -50,8 +50,8 @@ export function TermsOfService({ onClose }) {
                 <span className="text-[#f5576c]">2.</span> Funcionalidades de la Plataforma
               </h2>
               <ul className="list-disc list-inside space-y-1.5 text-white/70 ml-2">
-                <li><strong className="text-white">Ruleta Cyberpunk (Slot Machine):</strong> Mecanismo aleatorio con probabilidad ponderada por antigüedad para elegir el álbum semanal del club.</li>
-                <li><strong className="text-white">Catálogo y Escuchas Individuales:</strong> Exploración y propuesta de álbumes desde Spotify, tanto para la ruleta comunitaria como para escuchas libres.</li>
+                <li><strong className="text-white">Máquina Musical Cyberpunk (Slot Machine):</strong> Mecanismo aleatorio con probabilidad ponderada por antigüedad para elegir el álbum semanal del club.</li>
+                <li><strong className="text-white">Catálogo y Escuchas Individuales:</strong> Exploración y propuesta de álbumes desde Spotify, tanto para la Máquina Musical comunitaria como para escuchas libres.</li>
                 <li><strong className="text-white">Sistema de Reseñas:</strong> Calificación analítica en 6 criterios técnicos, evaluación canción por canción (tracklist) y publicación de opiniones.</li>
                 <li><strong className="text-white">Leaderboard e Insignias:</strong> Reconocimiento a los críticos más constantes y activos de la comunidad.</li>
                 <li><strong className="text-white">Perfiles de Usuario:</strong> Panel de personalización y estadísticas críticas individuales.</li>

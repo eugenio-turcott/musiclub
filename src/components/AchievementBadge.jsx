@@ -1,12 +1,13 @@
 import { UiIcon } from './UiIcon';
 import icons from '../utils/interfaceIcons.cjs';
 import { TIER_STYLES } from '../utils/badgeSystem';
+import {badgeIcon,badgeText} from '../utils/badgeIcons.mjs';
 
 // One badge presentation for the guide, ranking and both profile views.
 export function AchievementBadge({ badge, compact = false }) {
   const parts = icons.iconParts(badge.label || badge.name || badge.title || '') || [];
   const label = parts.filter(part => part.text).map(part => part.text).join('').trim();
-  const icon = badge.iconName || parts.find(part => part.icon)?.icon || ({7:'map',8:'compass',9:'comet',10:'infinity'}[badge.tierNumber || badge.tier]) || 'award';
+  const icon = badgeIcon(badge);
   const tier = TIER_STYLES[`tier_${badge.tierNumber || badge.tier}`] ||
     Object.values(TIER_STYLES).find(style => style.tierRoman === badge.tierRoman);
   const record = badge.isRecord || badge.type === 'record';
@@ -15,9 +16,9 @@ export function AchievementBadge({ badge, compact = false }) {
   const iconInk = /(?:^|\s)text-(?:black|[a-z]+-9(?:00|50))(?:\s|$)/.test(palette) ? '#000000' : '#ffffff';
   return <span data-achievement-badge={badge.id || label} data-badge-tier={tier?.tierRoman}
     aria-label={`${label}${rank ? ` — ${rank}` : ''}`}
-    title={badge.tooltip || badge.desc || `${label}${rank ? ` — ${rank}` : ''}`}
+    title={badgeText(badge.tooltip || badge.desc || `${label}${rank ? ` — ${rank}` : ''}`)}
     className={`achievement-badge ${compact ? 'achievement-badge-compact' : ''} bg-linear-to-r ${palette}`}>
-    <span className="achievement-badge-emblem" style={{color:iconInk}}><UiIcon name={icon} tone="inherit"/></span>
+    <span className="achievement-badge-emblem" data-badge-icon={icon} style={{color:iconInk}}><UiIcon name={icon} tone="inherit"/></span>
     <span className="achievement-badge-copy"><span>{label}</span>{rank && <small>{rank}</small>}</span>
   </span>;
 }

@@ -1,4 +1,6 @@
 'use client';
+import {ProfileAchievements} from './ProfileAchievements';
+import {LEVEL_ICONS,badgeText} from '../utils/badgeIcons.mjs';
 import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
@@ -52,6 +54,7 @@ import {MELOMANO_LEVELS} from '../utils/badgeSystem';
 export function UserProfile({ isPage = false, memberUser = null, memberActions = null }) {
   const auth=useAuth();
   const isMember=Boolean(memberUser);
+  const canShare=!isMember || Boolean(memberUser.id&&memberUser.id===auth.user?.id);
   const user=memberUser || auth.user, isAdmin=isMember?memberUser.role==='admin':auth.isAdmin, authLoading=isMember?false:auth.loading;
   const { albums } = useAlbums([], {enabled:!isMember});
   const ownReviews=useUserReviews(isMember?null:user);
@@ -443,7 +446,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
       {/* Universal Standard App Header */}
       {!isMember&&<AppHeader showTitle={false} />}
 
-      <ProfileIdentity user={user} isAdmin={isAdmin} gamification={userGamification} stats={stats} readOnly={isMember} actions={memberActions}/>
+      <ProfileIdentity user={user} isAdmin={isAdmin} gamification={userGamification} stats={stats} readOnly={isMember} allowSharing={canShare} actions={memberActions}/>
       <div className="profile-workspace">
         <ProfileNavigation member={isMember} activeTab={activeTab} onChange={setActiveTab} reviewCount={stats.totalReviews} badgeCount={userGamification.badges?.length || 0} unreadCount={unreadMailboxCount}/>
         <section id="profile-panel" className="profile-panel" aria-label={PROFILE_SECTIONS.find(section=>section.id===activeTab)?.title}>
@@ -622,7 +625,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
                         <span>Editar</span>
                       </button>}
 
-                      <button
+                      {canShare&&<button
                         type="button"
                         onClick={() => setSharingReviewItem({ review: item, album: item.album })}
                         className="flex-1 inline-flex items-center justify-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-2 rounded-xl bg-linear-to-r from-cyan-500/20 via-blue-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-300 hover:text-white border border-cyan-400/30 hover:border-cyan-400/50 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
@@ -630,7 +633,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
                       >
                         <span><InterfaceText>{"📱"}</InterfaceText></span>
                         <span>Compartir</span>
-                      </button>
+                      </button>}
 
                       <Link
                         to={getReleaseUrl(
@@ -818,7 +821,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
           )}
 
           {/* Modal para Compartir Review en Redes Sociales (Formato Celular / Stories) */}
-          {sharingReviewItem && (
+          {canShare && sharingReviewItem && (
             <ShareReviewModal
               isOpen={!!sharingReviewItem}
               onClose={() => setSharingReviewItem(null)}
@@ -831,166 +834,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
       )}
 
       {/* CONTENIDO DE PESTAÑA: INSIGNIAS Y NIVELES */}
-      {activeTab === 'badges' && (
-        <div className="space-y-6">
-          {/* Tarjeta de Resumen XP */}
-          <div className="bg-linear-to-br from-[#1b1928] via-[#141525] to-[#0d0e1a] rounded-2xl sm:rounded-3xl p-5 sm:p-7 border border-amber-400/30 shadow-2xl space-y-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div>
-                <span className="text-amber-300 text-xs font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <span><InterfaceText>{"🏆"}</InterfaceText></span> Progreso en el Leaderboard
-                </span>
-                <h3 className="text-xl sm:text-2xl font-black text-white mt-0.5">
-                  Puntuación de Club (Score XP)
-                </h3>
-              </div>
-              <div className="text-center sm:text-right px-4 py-2 bg-amber-400/10 border border-amber-400/40 rounded-2xl">
-                <p className="text-[10px] text-amber-200/80 font-bold uppercase tracking-wider">Total Acumulado</p>
-                <p className="text-2xl sm:text-3xl font-black text-amber-300"><UiIcon name="sparkles" size={22} tone="inherit"/>{(userGamification.totalXp || 0).toLocaleString()} XP
-                </p>
-              </div>
-            </div>
-
-            {/* Desglose de Fuentes de XP */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base"><InterfaceText>{"🎧"}</InterfaceText></span>
-                <p className="text-xs text-slate-400 mt-1 font-medium">Actividad Base</p>
-                <p className="text-lg font-black text-white mt-0.5">
-                  +{userGamification.activityXp || 0} XP
-                </p>
-                <p className="text-[10px] text-slate-500 mt-1">Reviews, comentarios, tracks y álbumes</p>
-              </div>
-
-              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base"><InterfaceText>{"⚡"}</InterfaceText></span>
-                <p className="text-xs text-slate-400 mt-1 font-medium">Insignias y Tiers</p>
-                <p className="text-lg font-black text-amber-300 mt-0.5">
-                  +{userGamification.badgesXp || 0} XP
-                </p>
-                <p className="text-[10px] text-slate-500 mt-1">Tiers desbloqueados alcanzados</p>
-              </div>
-
-              <div className="bg-black/40 border border-white/5 rounded-2xl p-3.5 text-center">
-                <span className="text-base"><InterfaceText>{"👑"}</InterfaceText></span>
-                <p className="text-xs text-slate-400 mt-1 font-medium">Récords #1</p>
-                <p className="text-lg font-black text-cyan-300 mt-0.5">
-                  +{userGamification.recordXp || 0} XP
-                </p>
-                <p className="text-[10px] text-slate-500 mt-1">Coronas dinámicas de liderazgo</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Insignias Desbloqueadas Actualmente */}
-          <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-white/5">
-              <div>
-                <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                  <span><InterfaceText>{"🎖️"}</InterfaceText></span> Tus Insignias Activas ({userGamification.badges?.length || 0})
-                </h3>
-                <p className="text-white/40 text-xs mt-0.5">
-                  Las insignias multinivel evolucionan visualmente al nivel más alto que hayas desbloqueado.
-                </p>
-              </div>
-              <Link
-                to="/leaderboard"
-                className="text-xs font-bold text-amber-300 hover:text-white bg-amber-400/10 hover:bg-amber-400/20 px-3 py-1.5 rounded-xl border border-amber-400/30 transition-all"
-              >
-                Ver Leaderboard ➜
-              </Link>
-            </div>
-
-            {userGamification.badges && userGamification.badges.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {userGamification.badges.map((b) => (
-                  <div
-                    key={b.id}
-                    className="bg-black/40 border border-white/5 rounded-2xl p-3.5 space-y-2 hover:border-white/15 transition-all flex flex-col justify-between"
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <AchievementBadge key={b.id} badge={b} compact/>
-                      <span className="text-[10px] font-black text-amber-300 bg-amber-400/10 border border-amber-400/20 px-2 py-0.5 rounded-md">
-                        +{b.xp} XP
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-300 leading-snug">
-                      <InterfaceText>{b.desc}</InterfaceText>
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 bg-black/20 rounded-2xl border border-dashed border-white/10 p-4">
-                <p className="text-xs text-slate-400">
-                  Aún no tienes insignias desbloqueadas. ¡Comienza a calificar álbumes y tracks para subir de nivel!
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Barras de Progreso hacia los Siguientes Tiers */}
-          <div className="bg-linear-to-br from-[#131428] to-[#0a0d18] rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-white/10 shadow-2xl space-y-4">
-            <div>
-              <h3 className="text-white font-bold text-base sm:text-lg flex items-center gap-2">
-                <span><InterfaceText>{"📈"}</InterfaceText></span> Progreso y Próximos Desbloqueos
-              </h3>
-              <p className="text-white/40 text-xs mt-0.5">
-                Sigue tu avance para desbloquear el siguiente rango y sumar más puntos XP a tu perfil.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {userGamification.allBadgesProgress?.map((bp) => {
-                const hasNext = Boolean(bp.nextTier);
-                return (
-                  <div
-                    key={bp.badgeId}
-                    className="bg-black/40 border border-white/5 rounded-2xl p-4 space-y-2.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-bold text-white flex items-center gap-1.5">
-                        <span><InterfaceText>{bp.icon}</InterfaceText></span>
-                        <span>{bp.categoryName}</span>
-                      </span>
-                      {bp.unlockedTier
-                        ? <AchievementBadge badge={{...bp.unlockedTier, tierNumber:bp.unlockedTier.tier}} compact/>
-                        : <span className="text-xs text-slate-400">Nivel inicial</span>}
-                    </div>
-
-                    <p className="text-xs text-slate-400 leading-snug">
-                      {bp.description}
-                    </p>
-
-                    {hasNext ? (
-                      <div className="space-y-1.5 pt-1">
-                        <div className="flex items-center justify-between text-[11px] text-slate-300">
-                          <span>
-                            Próximo: <strong className="text-amber-300"><InterfaceText>{bp.nextTier.name}</InterfaceText></strong> (+{bp.nextTier.xp} XP)
-                          </span>
-                          <span className="font-semibold text-white">
-                            {bp.currentValue} / {bp.nextTier.req} ({bp.progressPercent}%)
-                          </span>
-                        </div>
-                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden border border-white/5">
-                          <div
-                            className="h-full bg-linear-to-r from-amber-400 to-yellow-400 rounded-full transition-all duration-700"
-                            style={{ width: `${bp.progressPercent}%` }}
-                          />
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="pt-1 flex items-center gap-1.5 text-xs text-emerald-400 font-black">
-                        <span><InterfaceText>{"👑"}</InterfaceText></span> ¡Has alcanzado el Tier Máximo en esta categoría!
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {activeTab === 'badges' && <ProfileAchievements gamification={userGamification} reviews={userReviews}/>}
 
       {/* CONTENIDO DE PESTAÑA: ESTADÍSTICAS DETALLADAS */}
       {activeTab === 'stats' && (
@@ -1001,6 +845,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
             albums={albums}
             albumMap={albumMap}
             user={user}
+            readOnly={!canShare}
           />
 
           {/* 2. ESTADÍSTICAS, CRITERIOS Y NIVEL */}
@@ -1137,7 +982,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
                     <div
                       className={`w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-linear-to-tr ${currentMelomanoLevel.color} text-white flex items-center justify-center text-xl sm:text-2xl shrink-0 shadow-lg`}
                     >
-                      <UiIcon name={currentMelomanoLevel.level>8?currentMelomanoLevel.icon:"headphones"} size={26} tone="inherit"/>
+                      <UiIcon name={LEVEL_ICONS[currentMelomanoLevel.level]} size={26} tone="inherit"/>
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -1145,7 +990,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
                           Nivel {currentMelomanoLevel.level}
                         </span>
                         <h4 className="text-white font-black text-xs sm:text-sm truncate">
-                          <InterfaceText>{currentMelomanoLevel.title}</InterfaceText>
+                          {badgeText(currentMelomanoLevel.title)}
                         </h4>
                       </div>
                       <p className="text-white/50 text-[11px] sm:text-xs truncate mt-0.5">

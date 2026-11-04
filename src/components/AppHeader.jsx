@@ -768,7 +768,7 @@ export function AppHeader({
                   Pool Musical
                 </span>
                 <span className="text-[10px] text-pink-200/60 leading-tight mt-0.5">
-                  Votación & Ruleta
+                  Votación & Máquina Musical
                 </span>
               </Link>
 

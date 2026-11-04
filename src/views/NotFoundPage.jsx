@@ -114,10 +114,10 @@ export function NotFoundPage() {
               <div>
                 <span className="text-2xl mb-2 block group-hover:scale-110 transition-transform"><InterfaceText>{"🎲"}</InterfaceText></span>
                 <p className="font-bold text-white text-sm">Gashapon</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Ruleta y descubrimientos</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">Máquina Musical y descubrimientos</p>
               </div>
               <span className="text-[10px] text-rose-400 font-bold mt-3 block group-hover:translate-x-1 transition-transform">
-                Tirar ruleta →
+                Tirar Máquina Musical →
               </span>
             </Link>
           </div>

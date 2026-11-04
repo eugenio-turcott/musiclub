@@ -10,8 +10,9 @@ import { individualFavoriteGenres } from './FavoriteGenreSearch';
 import { AccountAvatar } from './AccountElements';
 import {useState} from 'react';
 import {ShareProfileModal} from '../ShareProfileModal';
+import {LEVEL_ICONS,badgeText} from '../../utils/badgeIcons.mjs';
 
-export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=false, actions=null }) {
+export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=false, allowSharing=!readOnly, actions=null }) {
   const [sharing,setSharing]=useState(false);
   const xp=Number(gamification.totalXp) || 0;
   const level=getMelomanoLevel(xp);
@@ -24,8 +25,8 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=f
     ['award','Insignias',gamification.badges?.length || 0,'purple'],
   ];
   return <section className="profile-identity" aria-label={readOnly?'Perfil musical del miembro':'Tu perfil musical'}>
-    <ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{...user,total_xp:xp}}/>
-    <div className="profile-identity-top"><span className="account-eyebrow">{readOnly?"Perfil de miembro":"Mi Perfil"}</span><div className="profile-identity-actions">{actions}<button type="button" onClick={()=>setSharing(true)} className="account-secondary-action"><UiIcon name="share" tone="inherit"/>Compartir perfil</button>{!readOnly&&<Link to="/settings" className="account-secondary-action"><UiIcon name="edit" tone="inherit"/>Editar perfil</Link>}</div></div>
+    {allowSharing&&<ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{...user,total_xp:xp}}/>}
+    <div className="profile-identity-top"><span className="account-eyebrow">{readOnly?"Perfil de miembro":"Mi Perfil"}</span><div className="profile-identity-actions">{actions}{allowSharing&&<button type="button" onClick={()=>setSharing(true)} className="account-secondary-action"><UiIcon name="share" tone="inherit"/>Compartir perfil</button>}{!readOnly&&<Link to="/settings" className="account-secondary-action"><UiIcon name="edit" tone="inherit"/>Editar perfil</Link>}</div></div>
     <div className="profile-identity-layout">
       <div className="profile-portrait"><div className="profile-portrait-disc" aria-hidden="true"><MusiclubVinyl src="/musiclub_logo.png" alt="" className="w-full h-full"/></div><AccountAvatar src={user.avatar_url || user.avatar} name={user.name}/></div>
       <div className="profile-introduction">
@@ -37,7 +38,7 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=f
       <aside className="profile-level-card" aria-label="Tu progreso en Musiclub">
         <div className="profile-level-top"><span className="account-eyebrow">Score XP</span><UiIcon name="sparkles" size={24} tone="inherit"/></div>
         <strong className="profile-xp-value">{xp.toLocaleString('es-MX')}<span> XP</span></strong>
-        <p className="profile-level-name"><InterfaceText>{level.title}</InterfaceText></p>
+        <p className="profile-level-name"><UiIcon name={LEVEL_ICONS[level.level]} size={18} tone="inherit"/>{badgeText(level.title)}</p>
         <div className="profile-level-progress" role="progressbar" aria-label="Progreso al siguiente nivel" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><span style={{width:`${progress}%`}}/></div>
         <p className="profile-level-caption">{next?`${(next.minXp-xp).toLocaleString('es-MX')} XP para el siguiente nivel`:'Alcanzaste el nivel más alto del club'}</p>
       </aside>

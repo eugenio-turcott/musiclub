@@ -562,7 +562,7 @@ test('FAQ answers link to the interactive tour and old listening articles stay a
  await expect(question).toHaveAttribute('aria-expanded','true');
  await page.getByRole('link',{name:'Ver el ejemplo en la guía interactiva →',exact:true}).click();
  await expect(page).toHaveURL(/\/guias#resenas$/);
- await expect(page.getByRole('heading',{name:'Tu opinión tiene matices.',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Calificar y publicar una reseña',exact:true})).toBeVisible();
  await page.goto('/guias/como-calificamos');
  await expect(page.getByRole('heading',{name:'Cómo se calcula una calificación en Musiclub',exact:true})).toBeVisible();
  await expect(page.locator('footer').getByRole('link',{name:'Preguntas frecuentes',exact:true})).toHaveAttribute('href','/faq');

@@ -59,7 +59,7 @@ const I18N = {
       badge: '🏆 NUEVO GANADOR DEL POOL DE LA SEMANA',
       title: '¡El Club tiene un nuevo disco oficial para escuchar!',
       subtitle:
-        'La ruleta de la comunidad ha decidido el álbum estelar de esta semana:',
+        'La Máquina Musical de la comunidad ha decidido el álbum estelar de esta semana:',
       nominatedBy: 'Nominado por',
       description:
         'Durante esta semana, todos los miembros del club escucharemos este álbum, comentaremos sus mejores canciones y dejaremos nuestra reseña con las 6 notas maestras de producción.',

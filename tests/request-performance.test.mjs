@@ -42,7 +42,9 @@ test('a forced interaction refresh cannot strand an older pending caller',async(
 test('one Pool draw uses one random sample, preserves modest age weighting and handles one candidate',()=>{
   const old={id:'old',created_at:'2026-01-01'},recent={id:'new',created_at:'2026-02-01'};
   let samples=0;
-  assert.equal(choosePoolWinner([old,recent],()=>{samples++;return .55;}),old);
+  assert.equal(choosePoolWinner([old,recent],()=>{samples++;return .55;}),recent);
+  assert.equal(choosePoolWinner([old,recent],()=>.512),old);
+  assert.equal(choosePoolWinner([old,recent],()=>.513),recent);
   assert.equal(samples,1);assert.equal(choosePoolWinner([old,recent],()=>.99),recent);
   assert.equal(choosePoolWinner([recent],()=>.5),recent);assert.equal(choosePoolWinner([]),null);
 });

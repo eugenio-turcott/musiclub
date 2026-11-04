@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 10.8.0 · **Última actualización:** 4 de noviembre de 2026.
+**Versión:** 10.9.0 · **Última actualización:** 4 de noviembre de 2026.
 
 ## La experiencia
 
@@ -15,6 +15,8 @@
 | Releases, artistas y vinilos por género | Reseñas con siete criterios y notas por pista | Perfil musical y estadísticas compartidas |
 | Gashapon y una cola para volver después | Salas públicas y privadas con Máquina Musical | Insignias evolutivas y 16 niveles de actividad |
 | Portadas y tendencias del club | Reacciones y recomendaciones entre miembros | Tarjetas para historias, publicaciones y formatos horizontales |
+
+Las tier lists permiten seleccionar hasta diez releases por rango y exportarlos en tarjetas paginadas legibles. Compartir reseñas, perfiles y tier lists se limita al contenido de la cuenta propia.
 
 La [guía interactiva](https://www.musiclub.org/guias) permite probar cada área con demostraciones locales: no publica reseñas, no crea salas y no envía mensajes. El FAQ enlaza a sus capítulos. Las tarjetas para compartir conservan la proporción en cualquier pantalla y excluyen correo, buzón e información privada.
 
@@ -51,7 +53,7 @@ La ficha de cada release incluye un medidor de puntuación de rojo a verde, seis
 | Alojamiento | Cloudflare Workers mediante OpenNext, caché R2 y Durable Objects; dominio canónico `https://www.musiclub.org` |
 | Verificación | Node Test Runner, PostgreSQL de prueba con PGlite y Playwright en CI |
 
-Las páginas públicas principales generan contenido en el servidor. El catálogo usa una instantánea compartida de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas resuelven un índice ligero y consultan únicamente los releases y reseñas relacionados, con caché de un minuto e invalidación tras guardar reseñas. La sesión se comparte entre los componentes; las interacciones de reseñas se agrupan y las lecturas recientes del Pool se reutilizan por cuenta, sala y temporada. No hay sondeo periódico del Pool ni de las notificaciones; se actualizan al guardar, al volver a la ventana cuando caduca su copia o mediante el botón de actualizar. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. Las cargas muestran un vinilo existente al azar dentro de un panel acotado, con texto según el destino y navegación visible; no sustituyen toda la pantalla. Cada Pool puede generar desde su configuración un código estable de doce letras mayúsculas y números para `/pool/CODIGO`; los enlaces anteriores siguen funcionando y los códigos no sustituyen los permisos de las salas privadas. La navegación reúne todos los Pools públicos activos y cerrados. Las cápsulas tienen una inspección animada sin lecturas adicionales, con tres segundos abiertas y dos cerradas. La ruleta anima tres carretes y una palanca sin consultas durante el giro, conserva la ponderación moderada por antigüedad y guarda una sola selección. El correo del Pool se espera y se comprueba por separado: un fallo no repite el sorteo. Los avisos fallidos se pueden reenviar explícitamente desde la administración del Pool original, con una nueva reserva atómica y registro del intento anterior; los avisos enviados o en proceso no se repiten, y los administradores pueden comprobar la conexión SMTP sin enviar mensajes. Las imágenes opcionales no bloquean el correo. En Cloudflare el SMTP de Brevo utiliza TLS directo por el nombre del servidor en el puerto 465, con el certificado verificado. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
+Las páginas públicas principales generan contenido en el servidor. El catálogo usa una instantánea compartida de servidor de hasta cinco minutos y una copia breve en el cliente. Las fichas resuelven un índice ligero y consultan únicamente los releases y reseñas relacionados, con caché de un minuto e invalidación tras guardar reseñas. La sesión se comparte entre los componentes; las interacciones de reseñas se agrupan y las lecturas recientes del Pool se reutilizan por cuenta, sala y temporada. No hay sondeo periódico del Pool ni de las notificaciones; se actualizan al guardar, al volver a la ventana cuando caduca su copia o mediante el botón de actualizar. Las fichas y el Pool consultan los datos recién guardados cuando todavía no aparecen en la copia del catálogo. Las cargas muestran un vinilo existente al azar dentro de un panel acotado, con texto según el destino y navegación visible; no sustituyen toda la pantalla. Cada Pool puede generar desde su configuración un código estable de doce letras mayúsculas y números para `/pool/CODIGO`; los enlaces anteriores siguen funcionando y los códigos no sustituyen los permisos de las salas privadas. La navegación reúne todos los Pools públicos activos y cerrados. Las cápsulas tienen una inspección animada sin lecturas adicionales, con tres segundos abiertas y dos cerradas. La Máquina Musical anima tres carretes y una palanca sin consultas durante el giro, aplica hasta un 5 % de peso adicional por antigüedad y guarda una sola selección. El correo del Pool se espera y se comprueba por separado: un fallo no repite el sorteo. Los avisos fallidos se pueden reenviar explícitamente desde la administración del Pool original, con una nueva reserva atómica y registro del intento anterior; los avisos enviados o en proceso no se repiten, y los administradores pueden comprobar la conexión SMTP sin enviar mensajes. Las imágenes opcionales no bloquean el correo. En Cloudflare el SMTP de Brevo utiliza TLS directo por el nombre del servidor en el puerto 465, con el certificado verificado. La disponibilidad de las integraciones depende de las credenciales y de sus proveedores.
 
 ## Desarrollo local
 
@@ -261,7 +263,7 @@ Las pruebas de `tests/pool-rooms.test.mjs` ejecutan las políticas y funciones s
 
 El directorio y cada sala enlazan los pools anteriores con estado **Cerrado**. La vista histórica conserva propuestas y ganadores; no ofrece acciones de depósito, edición o sorteo. Los pools futuros todavía sin activar no se presentan como historial.
 
-La carga de una sala consulta únicamente sus propuestas, releases y reseñas, sin descargar el catálogo completo ni repetir la consulta inicial de temporadas. El buscador carga el catálogo al usarlo; el formulario de reseña y la ruleta se descargan al abrirlos. Las etiquetas compartidas alinean íconos y texto por el centro.
+La carga de una sala consulta únicamente sus propuestas, releases y reseñas, sin descargar el catálogo completo ni repetir la consulta inicial de temporadas. El buscador carga el catálogo al usarlo; el formulario de reseña y la Máquina Musical se descargan al abrirlos. Las etiquetas compartidas alinean íconos y texto por el centro.
 
 ### Navegación y lectura visual
 

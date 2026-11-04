@@ -90,7 +90,7 @@ export function PrivacyPolicy() {
                 confianza de nuestra comunidad de escucha musical. Esta Política
                 de Privacidad describe de manera transparente qué datos
                 recopilamos, cómo los utilizamos dentro de las funciones de la
-                aplicación (como el sistema de reseñas, la ruleta y el
+                aplicación (como el sistema de reseñas, la Máquina Musical y el
                 leaderboard) y cómo protegemos tu información personal.
               </p>
             </section>
@@ -134,7 +134,7 @@ export function PrivacyPolicy() {
                 </li>
                 <li>
                   <strong className="text-white">Datos de Interacción:</strong>{' '}
-                  Registro de participación en la ruleta, desbloqueo automático
+                  Registro de participación en la Máquina Musical, desbloqueo automático
                   de insignias y estadísticas de actividad en el Leaderboard.
                 </li>
               </ul>
@@ -166,7 +166,7 @@ export function PrivacyPolicy() {
                   Personalizar tu panel de estadísticas críticas en "Mi Perfil".
                 </li>
                 <li>
-                  Asegurar el correcto funcionamiento técnico de la Ruleta y del
+                  Asegurar el correcto funcionamiento técnico de la Máquina Musical y del
                   catálogo.
                 </li>
               </ul>

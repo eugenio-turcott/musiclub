@@ -88,7 +88,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPo
 
 
 
-  // Candidatos de pool_entries para la Ruleta / Máquina Musical
+  // Candidatos de pool_entries para la Máquina Musical / Máquina Musical
   const slotMachinePool = useMemo(() => {
     return activePool.map((alb) => ({
       id: alb.id,
@@ -684,7 +684,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPo
               {archived ? 'Este Pool forma parte de nuestra historia' : 'No hay un disco ganador seleccionado actualmente'}
             </h3>
             <p className="text-slate-400 text-xs sm:text-sm max-w-md mx-auto">
-              {archived ? 'Explora sus propuestas y los releases que se escucharon en comunidad.' : activePool.length ? <>Usa la Ruleta o el Gashapon Arcade para sortear el próximo release de los{' '}
+              {archived ? 'Explora sus propuestas y los releases que se escucharon en comunidad.' : activePool.length ? <>Usa la Máquina Musical o el Gashapon Arcade para sortear el próximo release de los{' '}
               <span
                 translate="no"
                 className="notranslate font-bold text-pink-400"
@@ -785,7 +785,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPo
               >
                 <span><InterfaceText>{"🎰"}</InterfaceText></span>
                 <span>
-                  {showSlotMachine ? 'Ocultar Ruleta' : 'Máquina Musical del Pool'}
+                  {showSlotMachine ? 'Ocultar Máquina Musical' : 'Máquina Musical del Pool'}
                 </span>
               </button>
 
@@ -842,7 +842,7 @@ function PoolRoomView({ room, onBack, onRefreshRooms, requestedSeasonId,publicPo
                     No hay candidatos en el Pool para sortear
                   </p>
                   <p className="text-xs text-slate-400">
-                    Propón o añade nuevos discos al Pool para activar la ruleta
+                    Propón o añade nuevos discos al Pool para activar la Máquina Musical
                     musical.
                   </p>
                 </div>

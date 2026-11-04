@@ -1156,7 +1156,7 @@ export function AdminPanel({ onClose, isPage = true }) {
                   </p>
                   <p className="text-[11px] text-slate-500">
                     Puedes elegir un ganador desde la lista de candidatos abajo
-                    o usar la ruleta en la página del Pool.
+                    o usar la Máquina Musical en la página del Pool.
                   </p>
                 </div>
               )}

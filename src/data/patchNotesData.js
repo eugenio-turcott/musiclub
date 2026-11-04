@@ -10,9 +10,10 @@ export const GITHUB_REPO_NAME = 'musiclub';
 export const GITHUB_COMMITS_API = `https://api.github.com/repos/${GITHUB_REPO_OWNER}/${GITHUB_REPO_NAME}/commits?per_page=100`;
 
 export const CURATED_PATCH_NOTES = [
+  {"version":"V.10.9.0","title":"Guía con datos reales y perfiles más claros","date":"2026-11-04","sha":"","associatedShas":[],"tag":"Comunidad","tagColor":"from-purple-400 to-pink-500","authorName":"Eugenio Turcott","summary":"Actualizamos la Máquina Musical, las demostraciones, las insignias y las herramientas para compartir tu música.","changes":[{"type":"improvement","title":"Máquina Musical con un máximo de 5 % por antigüedad","description":"Unificamos el nombre en la interfaz y explicamos los pesos de selección en el FAQ con negritas y ejemplos gráficos."},{"type":"improvement","title":"Guía con información del club","description":"Portadas, pistas, reseñas y perfiles públicos reales, con controles que sólo modifican su copia de demostración. Navegación lateral fija y títulos directos."},{"type":"fix","title":"Tier lists con los datos correctos","description":"Recuperamos nombres y portadas de las reseñas de los miembros, permitimos elegir hasta diez releases por tier y compartimos selecciones propias en tarjetas paginadas legibles."},{"type":"improvement","title":"Insignias y XP detallados","description":"Cada insignia tiene una figura distinta. El perfil desglosa actividad, tiers y récords, muestra los dieciséis niveles y ordena las metas sin saturación de texto."},{"type":"improvement","title":"Buzón y perfiles","description":"Rediseñamos la recomendación de canciones con selección accesible de destinatario y logos de streaming. Ampliamos el avatar y limitamos compartir al contenido propio."},{"type":"improvement","title":"Tarjetas con mejor jerarquía","description":"Acercamos el artista al título y colocamos la canción favorita debajo, conservando formatos y estilos."}]},
   {version:'V.10.8.0',title:'Tu música, en todas partes',date:'2026-11-04',sha:'',associatedShas:[],tag:'Comunidad y diseño',tagColor:'from-cyan-400 to-pink-500',authorName:'Eugenio Turcott',summary:'Una guía viva del club, perfiles unificados y nuevas piezas para compartir tu música.',changes:[{type:'improvement',title:'Un estudio para compartir',description:'Reseñas y perfiles se exportan como historia, publicación vertical, cuadrada, horizontal o compacta. Nuevas composiciones, menos texto y una identidad visual de Musiclub.'},{type:'improvement',title:'El mismo perfil para toda la comunidad',description:'Los perfiles del Leaderboard comparten el diseño de Mi Perfil y muestran reseñas, insignias y estadísticas. Recomendar Canción permanece disponible.'},{type:'improvement',title:'Más recorrido por delante',description:'Dieciséis niveles y nuevas metas de insignias amplían la progresión sin borrar los logros existentes. El Leaderboard incluye todos los perfiles registrados.'},{type:'improvement',title:'Musiclub por dentro',description:'La nueva guía reúne todos los rincones del club con controles, animaciones y ejemplos simulados que no publican datos. El inicio y el FAQ conectan directamente con sus capítulos.'},{type:'fix',title:'Reseñas compactas y colores consistentes',description:'Los criterios comparten sus colores entre fichas, reseñas, perfiles y exportaciones. El panel de valoración usa tarjetas compactas y evita volver a consultar las reviews al cambiar de pestaña.'},{type:'fix',title:'Cargas por sección',description:'Los vinilos acompañan paneles de carga acotados, con navegación visible mientras se abre el contenido.'}]},
   {version:'V.10.7.0',title:'Pools con identidad propia',date:'2026-11-04',sha:'',associatedShas:[],tag:'Diseño y Pool',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Cargas con vinilos, enlaces propios para cada Pool y una experiencia musical más limpia.',changes:[{type:'improvement',title:'Un vinilo mientras llega la música',description:'Las cargas muestran un vinilo de nuestra colección al azar y un mensaje según el destino, sin adelantar una plantilla vacía.'},{type:'improvement',title:'El Pool ocupa el primer lugar',description:'Simplificamos la cabecera, coordinamos sus vinilos y colocamos las plataformas bajo la portada del ganador. Todos los Pools públicos aparecen en la navegación, incluidos los cerrados.'},{type:'improvement',title:'Máquina Musical y cápsulas',description:'La palanca es el único control del sorteo. Cada propuesta abre una vista animada de su cápsula con pausas al abrir y cerrar.'},{type:'improvement',title:'Códigos propios',description:'Quien administra cada Pool puede generar un código estable de doce letras y números en mayúsculas. Los enlaces antiguos siguen funcionando y las salas privadas conservan sus permisos.'},{type:'fix',title:'Navegación y recuperación de correos',description:'Evitamos el salto al directorio al salir de una sala. Los avisos fallidos pueden reenviarse de forma explícita sin repetir los ya enviados.'}]},
-  {version:'V.10.6.0',title:'Una nueva ruleta y menos esperas',date:'2026-11-04',sha:'',associatedShas:[],tag:'Mejoras',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Renovamos la ruleta del Pool y reducimos las consultas repetidas al navegar.',changes:[{type:'improvement',title:'Tira de la palanca',description:'Tres carretes, una palanca y nuevas animaciones adaptadas al móvil y al movimiento reducido. Cada giro realiza una sola selección y guarda un único ganador.'},{type:'fix',title:'Avisos del Pool con confirmación',description:'La elección y la graduación comprueban el resultado del correo. Un fallo se muestra al administrador y no repite la acción. Las imágenes opcionales dejan de bloquear el envío.'},{type:'improvement',title:'Lecturas compartidas y fichas más ligeras',description:'Compartimos la sesión, agrupamos las interacciones de reseñas y reutilizamos los datos recientes de cada sala. Las fichas consultan sólo sus releases y reseñas; eliminamos las recargas periódicas del Pool y las notificaciones.'}]},
+  {version:'V.10.6.0',title:'Una nueva Máquina Musical y menos esperas',date:'2026-11-04',sha:'',associatedShas:[],tag:'Mejoras',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Renovamos la Máquina Musical del Pool y reducimos las consultas repetidas al navegar.',changes:[{type:'improvement',title:'Tira de la palanca',description:'Tres carretes, una palanca y nuevas animaciones adaptadas al móvil y al movimiento reducido. Cada giro realiza una sola selección y guarda un único ganador.'},{type:'fix',title:'Avisos del Pool con confirmación',description:'La elección y la graduación comprueban el resultado del correo. Un fallo se muestra al administrador y no repite la acción. Las imágenes opcionales dejan de bloquear el envío.'},{type:'improvement',title:'Lecturas compartidas y fichas más ligeras',description:'Compartimos la sesión, agrupamos las interacciones de reseñas y reutilizamos los datos recientes de cada sala. Las fichas consultan sólo sus releases y reseñas; eliminamos las recargas periódicas del Pool y las notificaciones.'}]},
   {version:'V.10.5.2',title:'Criterios con colores consistentes',date:'2026-11-03',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Los íconos del desglose de criterios usan el mismo color inicial que sus barras.',changes:[{type:'fix',title:'Íconos y barras coordinados',description:'Corregimos los siete íconos del desglose de criterios en las fichas de releases para que coincidan con el color de sus respectivas barras, incluida la calificación general.'}]},
   {version:'V.10.5.1',title:'Publicidad temporalmente en pausa',date:'2026-11-02',sha:'',associatedShas:[],tag:'Musiclub',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Desactivamos todos los anuncios del sitio hasta una futura reactivación.',changes:[{type:'improvement',title:'Navegación sin anuncios',description:'Se retiran banners, laterales y anuncios nativos de todas las páginas, sin dejar espacios vacíos. Los permisos guardados no activan publicidad durante la pausa. Conservamos la configuración para reactivarla cuando el propietario lo solicite.'}]},
   {version:'V.10.5.0',title:'Publicidad entre secciones y a los lados',date:'2026-11-02',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-400 to-purple-500',authorName:'Eugenio Turcott',summary:'Distribuimos más formatos de Adsterra dentro del contenido y añadimos laterales para escritorio amplio.',changes:[{type:'improvement',title:'Más puntos visibles durante la navegación',description:'Inicio, Catálogo y fichas de releases incorporan banners compactos, rectangulares y anuncios nativos entre sus bloques. Las demás páginas públicas añaden posiciones dentro del contenido.'},{type:'improvement',title:'Laterales sin tapar el sitio',description:'En pantallas desde 1720 px, los banners verticales ocupan los márgenes exteriores. Se ocultan al reducir la pantalla y nunca se colocan sobre el menú ni las tarjetas.'},{type:'improvement',title:'Variedad de formatos sin repetir unidades',description:'Cada página reserva una sola instancia de cada unidad publicitaria y elige tamaños que quepan completos. Se conservan la carga diferida, las preferencias de privacidad y la ausencia de refrescos automáticos. Adcash sigue desactivado.'}]},
@@ -32,7 +33,7 @@ export const CURATED_PATCH_NOTES = [
   {version:'V.10.0.0',title:'Una nueva forma de leer tus reseñas',date:'2026-10-28',sha:'',associatedShas:[],tag:'Musiclub',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'Más presencia para los criterios y emociones, canciones mejor ordenadas y un catálogo revisado.',changes:[{type:'improvement',title:'Los siete criterios, de un vistazo',description:'Las reseñas muestran los seis pilares y General con íconos más grandes. Las portadas ganan espacio y las canciones evaluadas quedan ocultas hasta desplegarlas: primero las notas más altas y, en empates, el orden del tracklist.'},{type:'improvement',title:'Cada emoción tiene su cara',description:'Renovamos las siete expresiones del ánimo en reseñas, formularios y fichas. Un círculo con interrogación identifica los releases aún sin opiniones. General alinea su encabezado a la izquierda y conserva la nota destacada.'},{type:'fix',title:'Pistas y artistas bien identificados',description:'Contrastamos los tracklists publicados y corregimos nombres provisionales y conteos. La actualización conserva los IDs vinculados a las calificaciones y evita mezclar Deluxe con la edición estándar. Los créditos de colaboraciones se separan por comas sin dividir nombres de grupos conocidos.'},{type:'improvement',title:'Un repositorio con el nombre del club',description:'El repositorio oficial pasa a llamarse eugenio-turcott/musiclub. Las tarjetas de propuestas del Pool retiran A la cola, que permanece disponible en el resto del catálogo.'}]},
   {version:'V.9.43.1',title:'Una emoción más visible',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-purple-500 to-pink-500',authorName:'Eugenio Turcott',summary:'El ánimo comunitario gana presencia junto a la calificación.',changes:[{type:'improvement',title:'Caritas y texto más grandes',description:'La carita del ánimo crece hasta 104 px en escritorio y mantiene al menos 76 px en móvil. El nombre de la emoción también aumenta de tamaño; los ánimos mixtos conservan una distribución adaptable.'}]},
   {version:'V.9.43.0',title:'Más claro, más del club',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'Pools pasados con tarjeta propia, un radar automático y el ánimo del release junto a su nota.',changes:[{type:'improvement',title:'Explorar de un vistazo',description:'Los pools cerrados se muestran como tarjetas independientes. El radar avanza con barras de tiempo, sin flechas ni botón de pausa, y los íconos de las acciones del catálogo son más compactos.'},{type:'feature',title:'La emoción de una escucha',description:'La ficha muestra el ánimo más compartido por las reseñas y reconoce los empates como ánimo mixto. Intrigado / Reflexivo tiene una carita propia. El Top Score Comunitario exige un álbum y al menos dos reseñas.'},{type:'improvement',title:'Una navegación compartida',description:'Los géneros colocan su vinilo a la izquierda y comparten el encabezado con Sobre Musiclub, Contacto y Guías, que renuevan su presentación. Redes simplifica su portada, amplía el logo e incluye el repositorio público y ambos enlaces legales. El selector de idiomas del footer conserva un solo globo.'}]},
-  {version:'V.9.42.0',title:'El Pool también tiene memoria',date:'2026-10-28',sha:'',associatedShas:[],tag:'Pool',tagColor:'from-purple-500 to-pink-500',authorName:'Eugenio Turcott',summary:'Explora los Pools anteriores, abre tu sala con menos descargas y encuentra etiquetas mejor alineadas.',changes:[{type:'feature',title:'Pools anteriores',description:'Las salas muestran los Pools pasados como cerrados, con sus propuestas y discos elegidos disponibles para explorar. Los borradores futuros quedan fuera del historial.'},{type:'improvement',title:'Menos espera al entrar',description:'Cada Pool carga solo sus releases y reseñas. Se elimina la descarga inicial del catálogo completo y la consulta duplicada de temporadas; la ruleta y el formulario de reseña se descargan al abrirlos.'},{type:'fix',title:'Íconos y texto centrados',description:'Las etiquetas compartidas centran verticalmente el texto con sus íconos, incluidos los estilos visuales de las portadas.'}]},
+  {version:'V.9.42.0',title:'El Pool también tiene memoria',date:'2026-10-28',sha:'',associatedShas:[],tag:'Pool',tagColor:'from-purple-500 to-pink-500',authorName:'Eugenio Turcott',summary:'Explora los Pools anteriores, abre tu sala con menos descargas y encuentra etiquetas mejor alineadas.',changes:[{type:'feature',title:'Pools anteriores',description:'Las salas muestran los Pools pasados como cerrados, con sus propuestas y discos elegidos disponibles para explorar. Los borradores futuros quedan fuera del historial.'},{type:'improvement',title:'Menos espera al entrar',description:'Cada Pool carga solo sus releases y reseñas. Se elimina la descarga inicial del catálogo completo y la consulta duplicada de temporadas; la Máquina Musical y el formulario de reseña se descargan al abrirlos.'},{type:'fix',title:'Íconos y texto centrados',description:'Las etiquetas compartidas centran verticalmente el texto con sus íconos, incluidos los estilos visuales de las portadas.'}]},
   {version:'V.9.41.0',title:'Cada ícono en su lugar',date:'2026-10-28',sha:'',associatedShas:[],tag:'Interfaz',tagColor:'from-pink-500 to-cyan-400',authorName:'Eugenio Turcott',summary:'Tamaños consistentes, colores que acompañan a cada superficie y una portada que presenta las salas públicas y privadas.',changes:[{type:'fix',title:'Íconos del mismo tamaño',description:'Ver release y A la cola usan la misma medida. Los bloques de funciones comparten tamaño y toman el acento de su propio fondo.'},{type:'improvement',title:'Contraste y respuesta',description:'Los íconos de los botones acompañan el color legible del texto. Todos los controles cuentan con respuesta al pasar el cursor y al enfocarlos con el teclado.'},{type:'improvement',title:'Descubrir y escuchar juntos',description:'El selector rápido utiliza tres flechas circulares. La portada presenta pools públicos y privados, sin fijar una temporada ni mostrar un estado de propuestas desactualizado.'}]},
   {version:'V.9.40.0',title:'Musiclub recupera el color',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-500 to-cyan-400',authorName:'Eugenio Turcott',summary:'Íconos con color, dibujos distintos para cada función y una cabecera de release más compacta.',changes:[{type:'improvement',title:'Cada función, su identidad',description:'Pool, Gashapon, configuración y administración ya tienen dibujos diferentes. Los íconos usan colores vivos, rellenos y un grosor coherente.'},{type:'improvement',title:'Tu siguiente reseña, más cerca',description:'Canción Top y Pistas comparten una columna en dos filas. A la cola está junto a Reseñar, con el mismo tamaño de letra.'},{type:'fix',title:'Verificaciones del catálogo',description:'Las pruebas de las acciones de las tarjetas buscan ahora en la tarjeta correspondiente, conservando la comprobación del guardado y de su distribución responsiva.'}]},
   {version:'V.9.39.0',title:'Más espacio para cada escucha',date:'2026-10-28',sha:'',associatedShas:[],tag:'Diseño',tagColor:'from-pink-500 to-purple-500',authorName:'Eugenio Turcott',summary:'Las fichas y tarjetas se reorganizan para explorar, reseñar y guardar releases con más claridad.',changes:[{type:'improvement',title:'Calificaciones de un vistazo',description:'Un medidor circular pasa de rojo a verde según la nota. General ocupa una columna propia junto a los seis criterios.'},{type:'feature',title:'Los sonidos del release',description:'Explora los vinilos de sus géneros junto al tracklist, con desplazamiento interno cuando hay varios.'},{type:'improvement',title:'Tarjetas y perfil más claros',description:'Ver release y A la cola comparten espacio. Tus listas están junto a Para Ti en el perfil y salen del menú de usuario.'},{type:'improvement',title:'Una interfaz con íconos',description:'Íconos vectoriales de grosor uniforme sustituyen los emojis de navegación, formularios y controles. Las reacciones a reseñas conservan sus emojis.'}]},
@@ -624,7 +625,7 @@ export const CURATED_PATCH_NOTES = [
       {
         "type": "feature",
         "title": "Anuncio del Ganador Semanal del Pool para Toda la Comunidad",
-        "description": "Cada vez que la ruleta o la comunidad elige un nuevo disco ganador de la semana en el Pool, todos los miembros reciben una notificación con la portada, el usuario que lo nominó y enlaces a Spotify, Apple Music, YouTube Music y Deezer para comenzar la semana oficial de escucha."
+        "description": "Cada vez que la Máquina Musical o la comunidad elige un nuevo disco ganador de la semana en el Pool, todos los miembros reciben una notificación con la portada, el usuario que lo nominó y enlaces a Spotify, Apple Music, YouTube Music y Deezer para comenzar la semana oficial de escucha."
       },
       {
         "type": "feature",
@@ -794,7 +795,7 @@ export const CURATED_PATCH_NOTES = [
       {
         "type": "feature",
         "title": "Elementos Gráficos de Marca y Vinilos Giratorios Continuos",
-        "description": "Se desplegaron los isotipos oficiales musiclub_logo, musiclub_logo_2, musiclub_logo_3, musiclub_logo_4 y musiclub_logo_corchea en AppHeader, Footer, Catálogo Musical, Leaderboard, Pool Comunitario, Patch Notes, FAQ, Playlists, Reseñas, Configuración de Perfil, Ficha de Artista, Ficha de Álbum, Ruleta Gaversiónpon y Release de la Hora. Todos los vinilos cuentan con rotación perpetua suave (animate-spin-slow), aura ambiental luminosa y escala responsiva acorde a cada vista."
+        "description": "Se desplegaron los isotipos oficiales musiclub_logo, musiclub_logo_2, musiclub_logo_3, musiclub_logo_4 y musiclub_logo_corchea en AppHeader, Footer, Catálogo Musical, Leaderboard, Pool Comunitario, Patch Notes, FAQ, Playlists, Reseñas, Configuración de Perfil, Ficha de Artista, Ficha de Álbum, Máquina Musical Gaversiónpon y Release de la Hora. Todos los vinilos cuentan con rotación perpetua suave (animate-spin-slow), aura ambiental luminosa y escala responsiva acorde a cada vista."
       },
       {
         "type": "feature",
@@ -858,8 +859,8 @@ export const CURATED_PATCH_NOTES = [
       },
       {
         "type": "improvement",
-        "title": "Blindaje en Tier List, Ruleta Gaversiónpon y Buzón Musical",
-        "description": "En el creador de Tier Lists se aseguraron las tarjetas de álbumes y el autor. En la ruleta Gaversiónpon se protegió la cápsula revelada, el historial y el modal cinematográfico. En SongMailbox y SendSongRecommendationModal se blindaron remitentes, destinatarios, nombres de canciones, artistas y resultados de búsqueda de Spotify."
+        "title": "Blindaje en Tier List, Máquina Musical Gaversiónpon y Buzón Musical",
+        "description": "En el creador de Tier Lists se aseguraron las tarjetas de álbumes y el autor. En la Máquina Musical Gaversiónpon se protegió la cápsula revelada, el historial y el modal cinematográfico. En SongMailbox y SendSongRecommendationModal se blindaron remitentes, destinatarios, nombres de canciones, artistas y resultados de búsqueda de Spotify."
       },
       {
         "type": "improvement",
@@ -1435,7 +1436,7 @@ export const CURATED_PATCH_NOTES = [
       {
         "type": "improvement",
         "title": "Universalización del Gaversiónpon a Todo el Catálogo",
-        "description": "Eliminación de la terminología de Ex-Pool y status individual en el Gaversiónpon: adaptación completa a la arquitectura de release_type (álbumes, singles y EPs), permitiendo que cualquier lanzamiento de la base de datos pueda ser obtenido en la ruleta."
+        "description": "Eliminación de la terminología de Ex-Pool y status individual en el Gaversiónpon: adaptación completa a la arquitectura de release_type (álbumes, singles y EPs), permitiendo que cualquier lanzamiento de la base de datos pueda ser obtenido en la Máquina Musical."
       },
       {
         "type": "feature",
@@ -2364,7 +2365,7 @@ export const CURATED_PATCH_NOTES = [
       {
         "type": "feature",
         "title": "Página de Preguntas Frecuentes (FAQ) con Buscador",
-        "description": "Guía completa con 8 categorías sobre dinámica del club, ruleta, puntuación técnica, insignias y catálogo de Spotify."
+        "description": "Guía completa con 8 categorías sobre dinámica del club, Máquina Musical, puntuación técnica, insignias y catálogo de Spotify."
       },
       {
         "type": "feature",
@@ -2380,7 +2381,7 @@ export const CURATED_PATCH_NOTES = [
   },
   {
     "version": "V.4.2",
-    "title": "Animaciones Más Suaves y Efectos Especiales en la Ruleta Musical",
+    "title": "Animaciones Más Suaves y Efectos Especiales en la Máquina Musical Musical",
     "date": "2026-08-17",
     "sha": "057a3e5",
     "tag": "Animaciones Arcade",
@@ -2566,10 +2567,10 @@ export const CURATED_PATCH_NOTES = [
   },
   {
     "version": "V.3.0",
-    "title": "La Gran Ruleta Tragamonedas Musical con 3 Carretes Estilo Arcade",
+    "title": "La Gran Máquina Musical Tragamonedas Musical con 3 Carretes Estilo Arcade",
     "date": "2026-08-04",
     "sha": "aeed2a0",
-    "tag": "Ruleta Arcade 3D",
+    "tag": "Máquina Musical Arcade 3D",
     "tagColor": "from-yellow-500 to-amber-600",
     "authorName": "Eugenio Turcott",
     "summary": "¡Una forma divertida de elegir qué escuchar! Estrenamos la icónica máquina tragamonedas de 3 carretes con animaciones mecánicas y sonido para descubrir discos al azar.",
@@ -2857,7 +2858,7 @@ export const CURATED_PATCH_NOTES = [
     "tag": "Lanzamiento Oficial",
     "tagColor": "from-emerald-500 to-green-600",
     "authorName": "eugenio-turcott",
-    "summary": "El comienzo de una gran aventura: Musiclub da el salto de una hoja de cálculo a una plataforma web completa con catálogo de Spotify, reseñas de la comunidad y ruleta musical.",
+    "summary": "El comienzo de una gran aventura: Musiclub da el salto de una hoja de cálculo a una plataforma web completa con catálogo de Spotify, reseñas de la comunidad y Máquina Musical.",
     "changes": [
       {
         "type": "feature",
@@ -2878,17 +2879,17 @@ export const CURATED_PATCH_NOTES = [
   },
   {
     "version": "V.0.2",
-    "title": "La Primera Ruleta Musical y Galería Experimental de Álbumes",
+    "title": "La Primera Máquina Musical Musical y Galería Experimental de Álbumes",
     "date": "2026-07-15",
     "sha": "1e9261b",
     "tag": "Primeros Pasos",
     "tagColor": "from-amber-600 to-orange-600",
     "authorName": "Eugenio Turcott",
-    "summary": "Los primeros experimentos del club: una ruleta circular giratoria para sortear discos y una galería sencilla para ver las carátulas de la música.",
+    "summary": "Los primeros experimentos del club: una Máquina Musical circular giratoria para sortear discos y una galería sencilla para ver las carátulas de la música.",
     "changes": [
       {
         "type": "feature",
-        "title": "Prototipo de Ruleta Circular SVG (Wheel.jsx)",
+        "title": "Prototipo de Máquina Musical Circular SVG (Wheel.jsx)",
         "description": "Rueda gráfica con segmentos divididos por álbum y animación de rotación."
       },
       {
@@ -2915,8 +2916,8 @@ export const CURATED_PATCH_NOTES = [
       },
       {
         "type": "feature",
-        "title": "Primer Boceto de la Ruleta Musical",
-        "description": "Maquetación de la ruleta de discos para las reuniones del club."
+        "title": "Primer Boceto de la Máquina Musical Musical",
+        "description": "Maquetación de la Máquina Musical de discos para las reuniones del club."
       }
     ]
   },

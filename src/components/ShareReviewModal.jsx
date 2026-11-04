@@ -1,5 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
+import {useAuth} from '../hooks/useAuth';
+import {ownsReview} from '../utils/shareOwnership.mjs';
 
 const ShareReviewDialog = dynamic(() => import('./ShareReviewDialog').then(module => module.ShareReviewModal), {
   ssr: false,
@@ -7,7 +9,8 @@ const ShareReviewDialog = dynamic(() => import('./ShareReviewDialog').then(modul
 });
 
 export function ShareReviewModal(props) {
-  return props.isOpen ? <ShareReviewDialog {...props} /> : null;
+  const {user}=useAuth();
+  return props.isOpen&&ownsReview(props.review,user) ? <ShareReviewDialog {...props} /> : null;
 }
 
 export default ShareReviewModal;

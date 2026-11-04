@@ -43,7 +43,9 @@ test('listen later saves from a card without navigating, survives reload and can
 
 test('Gashapon shows four platforms, permanently excludes a discard, and restores it only from history', async ({ page }) => {
   await libraryAccount(page);
-  await page.goto('/gashapon?genero=pop');
+  // Another navigation test adds a Pop release. Use the single Jazz fixture so
+  // expiry of the shared catalogue snapshot cannot change this test's pool.
+  await page.goto('/gashapon?genero=jazz');
   await page.getByRole('button', { name: 'Giro rápido', exact: true }).click();
   await page.getByRole('button', { name: '¡GIRAR GASHAPON!', exact: true }).click();
   const dialog = page.getByRole('dialog');

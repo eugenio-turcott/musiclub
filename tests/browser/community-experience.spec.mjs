@@ -20,6 +20,8 @@ test('criterion colors remain the same in community reviews and the shared membe
  await expect(dialog.getByRole('navigation',{name:'Secciones del miembro'}).getByRole('button')).toHaveCount(3);
  await expect(dialog.getByRole('button',{name:'Recomendar Canción',exact:true})).toBeVisible();
  await expect(dialog.getByRole('button',{name:'Editar',exact:true})).toHaveCount(0);
+ await expect(dialog.getByRole('button',{name:'Compartir',exact:true})).toHaveCount(0);
+ await expect(dialog.getByRole('button',{name:'Compartir perfil',exact:true})).toHaveCount(0);
  await expect(dialog.getByRole('link',{name:'Editar perfil',exact:true})).toHaveCount(0);
  await expect(dialog.getByText('private-member@example.test',{exact:true})).toHaveCount(0);
  expect(await dialog.locator('.review-criteria').first().locator('svg').evaluateAll(nodes=>nodes.map(el=>getComputedStyle(el).color))).toEqual(expected.map(rgb));
@@ -95,7 +97,7 @@ test('the complete guide offers local simulations, chapters, reduced-motion supp
  test.setTimeout(90000);const writes=[];
  await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
  page.on('request',request=>{if(request.method()==='POST'&&(/\/rest\/v1\/|\/api\/notifications/.test(request.url())))writes.push(request.url());});
- await page.goto('/guias');await expect(page.getByRole('heading',{level:1})).toContainText('El club,');
+ await page.goto('/guias');await expect(page.getByRole('heading',{level:1})).toContainText('Guía de');
  await expect(page.locator('[data-tour-chapter]')).toHaveCount(20);
  await expect(page.locator('[data-tour-demo]')).toHaveCount(20);
  await expect(page.getByRole('banner')).toHaveCount(1);
@@ -106,7 +108,7 @@ test('the complete guide offers local simulations, chapters, reduced-motion supp
  await page.locator('#niveles').getByRole('slider').press('End');await expect(page.locator('#niveles')).toContainText('320,000');
  await page.locator('#tierlists').getByRole('slider').press('End');await expect(page.locator('#tierlists [class*="tierDisc"]')).toContainText('10.0');
  await page.locator('#estrenos').getByRole('button',{name:'Simular Avisarme',exact:true}).click();await expect(page.locator('#estrenos')).toContainText('No se enviará ningún mensaje');
- await page.locator('#playlists').getByRole('button',{name:'Con amigos',exact:true}).click();await expect(page.locator('#playlists')).toContainText('Para escuchar juntos.');
+ await expect(page.locator('#playlists')).toContainText('playlists');
  await page.locator('#maquina').getByRole('button',{name:'Tirar palanca',exact:true}).click();await expect(page.locator('#maquina [data-draw-confirmed]')).toBeVisible();
  await page.getByRole('textbox',{name:'Buscar en la guía',exact:true}).fill('palanca');expect(await page.locator('[data-tour-chapter]').count()).toBeLessThan(20);
  await page.getByRole('textbox',{name:'Buscar en la guía',exact:true}).fill('');

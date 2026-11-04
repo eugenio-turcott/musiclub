@@ -7,11 +7,12 @@ import { AppHeader } from './AppHeader';
 import { Footer } from './Footer';
 import { SEO } from './SEO';
 import {FAQ_TOUR_ANCHORS} from '../data/musiclubTour';
+import {FAQExplanation} from './FAQExplanation';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
   { id: 'general', label: 'Dinámica & Club', icon: '🎧' },
-  { id: 'ruleta', label: 'Ruleta & Sorteos', icon: '🎰' },
+  { id: 'ruleta', label: 'Máquina Musical & Sorteos', icon: '🎰' },
   { id: 'reviews', label: 'Reseñas & Puntuación', icon: '📝' },
   { id: 'leaderboard', label: 'Leaderboard & Insignias', icon: '🏆' },
   { id: 'catalogo', label: 'Catálogo & Pool', icon: '💿' },
@@ -55,7 +56,7 @@ const FAQ_BASE = [
     href: '/pool', linkLabel: 'Explorar las salas de escucha',
   },
 
-  // 2. Ruleta & Sorteos
+  // 2. Máquina Musical & Sorteos
   {
     id: 'como-funciona-ruleta',
     category: 'ruleta',
@@ -67,14 +68,13 @@ const FAQ_BASE = [
     id: 'probabilidades-seleccion',
     category: 'ruleta',
     question: '¿Cómo funcionan las probabilidades y la selección de álbumes?',
-    answer:
-      'Todos los álbumes que se encuentren en estado **ACTIVO** participan en el sorteo. Para evitar que las propuestas que llevan mucho tiempo esperando queden olvidadas en el fondo de la lista, la ruleta utiliza un **algoritmo de probabilidad ponderada por antigüedad**:\n\n• Los discos más antiguos en espera reciben hasta un **+40% de peso en el sorteo** sobre los discos recién añadidos.\n• Esto favorece a las propuestas con más espera, sin garantizar qué disco ganará.',
+    answer: 'Participan las **propuestas en espera** del Pool seleccionado. La Máquina Musical utiliza una **probabilidad ponderada por antigüedad**.\n\n• La propuesta más antigua recibe hasta un **+5% de peso en el sorteo** respecto a la más reciente.\n• Ese peso no garantiza el ganador ni añade cinco puntos porcentuales a su probabilidad.',
   },
   {
     id: 'quien-tira-palanca',
     category: 'ruleta',
     question: '¿Quién elige el disco oficial del Pool?',
-    answer: 'Quien administra cada sala puede usar la ruleta o elegir un candidato en espera de su propio Pool. Explorar releases del Pool en Gashapon es una experiencia de descubrimiento: no sustituye ni cambia el ganador oficial.',
+    answer: 'Quien administra cada sala puede usar la Máquina Musical o elegir un candidato en espera de su propio Pool. Explorar releases del Pool en Gashapon es una experiencia de descubrimiento: no sustituye ni cambia el ganador oficial.',
   },
   {
     id: 'que-pasa-al-ganar',
@@ -240,7 +240,7 @@ export function FAQ({ isPage = false }) {
     <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       <SEO
         title="Preguntas frecuentes y ayuda del sitio | Musiclub"
-        description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Ruleta, el sistema de calificaciones, el Leaderboard y la dinámica del club."
+        description="Resuelve todas tus dudas sobre Musiclub: cómo funciona la Máquina Musical, el sistema de calificaciones, el Leaderboard y la dinámica del club."
         url="https://www.musiclub.org/faq"
         keywords="faq musiclub, preguntas frecuentes, como funciona musiclub, reglas del club de musica"
       />
@@ -274,7 +274,7 @@ export function FAQ({ isPage = false }) {
                 Preguntas Frecuentes
               </h1>
               <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
-                Respuestas rápidas para usar tu cuenta, publicar reseñas y participar en el Pool. Para aprender a escuchar y escribir sobre un disco, consulta las guías de escucha.
+                Respuestas rápidas para usar tu cuenta, publicar reseñas y participar en el Pool. La Guía de Musiclub reúne ejemplos interactivos con información real del club.
               </p>
             </div>
 
@@ -332,10 +332,10 @@ export function FAQ({ isPage = false }) {
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
               <div className="text-2xl mb-1"><InterfaceText>{"🎰"}</InterfaceText></div>
               <div className="text-white font-bold text-xs sm:text-sm">
-                Ruleta Ponderada
+                Máquina Musical Ponderada
               </div>
               <div className="text-white/40 text-[11px]">
-                +40% peso por antigüedad
+                +5% peso por antigüedad
               </div>
             </div>
             <div className="bg-white/5 p-3 rounded-2xl border border-white/5 text-center">
@@ -483,7 +483,7 @@ export function FAQ({ isPage = false }) {
 
                   {isOpen && (
                     <div id={`faq-answer-${item.id}`} className="px-4 sm:px-6 pb-5 pt-1 text-white/75 text-xs sm:text-sm leading-relaxed border-t border-white/5 whitespace-pre-line">
-                      {item.answer}
+                      <FAQExplanation text={item.answer} probability={item.id==='probabilidades-seleccion'}/>
                       {item.href && <Link to={item.href} className="mt-3 block font-bold text-pink-300 underline">{item.linkLabel} →</Link>}
                     </div>
                   )}

@@ -3,6 +3,7 @@ import {REVIEW_CRITERIA} from './reviewCriteria.mjs';
 import {getWeightedReviewScore,getReviewFavoriteTrack,getTrackDisplayName} from './ratingUtils.js';
 import {getMelomanoLevel} from './badgeSystem.js';
 import genreArt from './genreArtworkSources.cjs';
+import {DEFAULT_TIERS,tierPageSize} from './tierList.mjs';
 
 export const SHARE_FORMATS=[
   {id:'story',label:'Historia',detail:'9:16',width:1080,height:1920,icon:'phone'},
@@ -71,11 +72,11 @@ function criteria(ctx,review,x,y,width,t){
 function footer(ctx,W,H,t,avatar,name,label,baseline=.91){
   const p=W*.065,y=H*baseline,size=Math.min(W*.046,58);
   photo(ctx,avatar,p,y-size*.75,size,size/2);
-  line(ctx,name||'Un miembro del club',p+size*1.3,y,W*.49,W*.023,t.ink,800);
+  line(ctx,name||'Un miembro del club',p+size*1.3,y,W*.55,W*.027,t.ink,800);
   line(ctx,label||'Escuchado y compartido en comunidad',p+size*1.3,y+W*.025,W*.5,W*.014,t.muted,500);
   type(ctx,'musiclub.org',W-p,y+W*.01,W*.022,t.accent,900,'right');
 }
-export async function renderSocialCard({kind='review',review={},album={},profile={},format='story',theme='neon',includeQuote=false}){
+export async function renderSocialCard({kind='review',review={},album={},profile={},format='story',theme='neon',includeQuote=false,tierGroups={},tier='S',page=0}){
   await Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,2500))]);
   const f=SHARE_FORMATS.find(item=>item.id===format)||SHARE_FORMATS[0],t=SHARE_THEMES.find(item=>item.id===theme)||SHARE_THEMES[0];
   const W=f.width,H=f.height,landscape=W/H>1.2,square=W===H;
@@ -84,6 +85,17 @@ export async function renderSocialCard({kind='review',review={},album={},profile
   const art=genreArt.genreArtworkSources((kind==='profile'?profile.favorite_genres:album.genres)?.[0] || 'Pop');
   const [cover,avatar,logo,disc]=await Promise.all([loadCardImage(album.image_url||album.imagen),loadCardImage(profile.avatar_url||profile.avatar||review.reviewer_avatar),loadCardImage('/musiclub_logo_corchea.png'),loadCardImage(art.disc)]);
   const p=background(ctx,W,H,t,logo,format==='story'),available=W-p*2;
+  if(kind==='tierlist'){
+    const config=DEFAULT_TIERS.find(item=>item.id===tier)||DEFAULT_TIERS[0],perPage=tierPageSize(format);
+    const all=(tierGroups[tier]||[]).slice(0,10),pages=Math.max(1,Math.ceil(all.length/perPage)),current=Math.min(Math.max(0,page),pages-1),items=all.slice(current*perPage,(current+1)*perPage);
+    const photos=await Promise.all(items.map(item=>loadCardImage(item.imagen)));
+    const head=H*(format==='story'?.17:.16);
+    box(ctx,p,head-W*.055,W*.092,W*.092,W*.02,config.hexColor);type(ctx,tier,p+W*.046,head+W*.012,W*.058,'#171323',900,'center');
+    type(ctx,config.name,p+W*.12,head,W*.043,t.ink,900);line(ctx,profile.name||'Mi tier list',p+W*.12,head+W*.04,available-W*.13,W*.027,t.muted);
+    const cols=landscape?5:2,rows=Math.max(1,Math.ceil(items.length/cols)),start=H*(landscape?.29:square?.29:.26),end=H*.87,gap=W*.022,cw=(available-gap*(cols-1))/cols,rh=(end-start-gap*(rows-1))/rows;
+    items.forEach((item,i)=>{const x=p+(i%cols)*(cw+gap),y=start+Math.floor(i/cols)*(rh+gap),side=Math.min(cw,rh*.68);box(ctx,x,y,cw,rh,W*.018,t.surface,t.muted+'22');photo(ctx,photos[i],x+(cw-side)/2,y+W*.009,side,side*.07);const baseline=y+side+W*.037;line(ctx,item.album,x+W*.016,baseline,cw-W*.032,W*(landscape?.019:.026),t.ink,900);line(ctx,item.artista,x+W*.016,baseline+W*.029,cw-W*.032,W*(landscape?.015:.021),t.muted,600);const score=Number(item.score).toFixed(1);box(ctx,x+cw-W*.10,y+W*.014,W*.084,W*.044,W*.012,config.hexColor);type(ctx,score,x+cw-W*.058,y+W*.046,W*.026,'#171323',900,'center');});
+    footer(ctx,W,H,t,avatar,profile.name||'Mi selección musical',`Tier ${tier} · ${current+1}/${pages} · musiclub.org`,format==='story'?.94:.95);return canvas;
+  }
   if(kind==='profile'){
     const columns=landscape||square;
     const cx=columns?W*.27:W*.5,cy=landscape?H*.43:square?H*.39:H*(format==='story'?.29:.27),size=landscape?H*.30:W*(format==='story'?.29:.26);
@@ -108,8 +120,12 @@ export async function renderSocialCard({kind='review',review={},album={},profile
     if(disc)ctx.drawImage(disc,x+size*.30,y-size*.015,size*1.04,size*1.04);
     ctx.save();ctx.shadowColor='#0006';ctx.shadowBlur=40;photo(ctx,cover,x,y,size,size*.055);ctx.restore();
     const tx=columns?W*.57:p,ty=H*(landscape?.245:square?.25:format==='story'?.63:format==='portrait'?.565:.62),tw=columns?W*.365:available;
-    const textBottom=title(ctx,aName,tx,ty,tw,W*(landscape?.038:square?.043:format==='story'?.062:format==='portrait'?.056:.058),t.ink,columns?3:2);
-    line(ctx,artist,tx,textBottom+W*.019,tw,W*(columns?.024:.029),t.muted,600);
+    const titleSize=W*(landscape?.038:square?.043:format==='story'?.062:format==='portrait'?.056:.058);
+    const textBottom=title(ctx,aName,tx,ty,tw,titleSize,t.ink,columns?3:2);
+    const artistY=textBottom-titleSize*.60+W*.008;
+    line(ctx,artist,tx,artistY,tw,W*(columns?.026:.032),t.muted,600);
+    const fav=getReviewFavoriteTrack(review),favorite=fav?getTrackDisplayName(fav,album.tracks||[]):null;
+    if(favorite){const fy=artistY+W*.055;drawUiIcon(ctx,'crown',tx,fy-W*.025,W*.030,t.accent);line(ctx,favorite,tx+W*.044,fy,tw-W*.046,W*.026,t.ink,700);}
     const score=getWeightedReviewScore(review)??review.rating_general;
     const sx=columns?tx:x+size*.70,sy=columns?H*(landscape?.565:.48):y+size*.72,sw=W*(columns?.24:.245),sh=landscape?H*.16:W*.145;
     box(ctx,sx,sy,sw,sh,sh*.26,t.accent);
@@ -118,8 +134,6 @@ export async function renderSocialCard({kind='review',review={},album={},profile
     const criteriaW=landscape?W*.40:available;
     if(includeQuote&&review.comment)title(ctx,'“'+String(review.comment).slice(0,140)+'”',landscape?W*.53:p,criteriaY+W*.032,criteriaW,W*.026,t.ink,2);
     else criteria(ctx,review,landscape?W*.53:p,criteriaY,criteriaW,t);
-    const fav=getReviewFavoriteTrack(review),favorite=fav?getTrackDisplayName(fav,album.tracks||[]):null;
-    if(favorite){const fy=H*(landscape?.84:square?.895:format==='story'?.875:format==='portrait'?.885:.91),fx=landscape?p:p;drawUiIcon(ctx,'crown',fx,fy-W*.023,W*.026,t.accent);line(ctx,favorite,fx+W*.042,fy,landscape?W*.36:available-W*.045,W*.021,t.ink,700);}
     footer(ctx,W,H,t,avatar,review.reviewer_name||profile.name,'Una reseña. Un nuevo descubrimiento.',format==='story'||landscape?.91:.95);
   }
 

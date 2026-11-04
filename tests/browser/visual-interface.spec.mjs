@@ -194,7 +194,7 @@ test('catalogue Top del Club excludes a single perfect review and home mood badg
 });
 
 test('genre and information pages share the application navigation and adapt their layout',async({page})=>{
- for(const [path,title] of [['/generos/pop','Pop'],['/sobre-musiclub','Un club para escuchar y compartir'],['/contacto','Hablemos de Musiclub'],['/guias',/El club,/] ]){
+ for(const [path,title] of [['/generos/pop','Pop'],['/sobre-musiclub','Un club para escuchar y compartir'],['/contacto','Hablemos de Musiclub'],['/guias',/Guía de/] ]){
   await page.goto(path);await expect(page.getByRole('heading',{level:1,name:title,exact:true})).toBeVisible();
   await expect(page.getByRole('link',{name:'Pool Musical',exact:true}).filter({visible:true})).toHaveCount(page.viewportSize().width>=1280?1:0);
   const language=page.locator('footer').getByRole('button',{name:'Cambiar idioma: Español',exact:true});

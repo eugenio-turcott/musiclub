@@ -1,10 +1,12 @@
 'use client';
 import {useEffect,useRef} from 'react';
+const scrollLocks=new Set();let originalOverflow='';
 export function useDialogFocus(open,onClose) {
   const ref=useRef(null),close=useRef(onClose);close.current=onClose;
   useEffect(()=>{
     if(!open)return;
-    const previous=document.activeElement,overflow=document.body.style.overflow;
+    const previous=document.activeElement;
+    const lock={};if(!scrollLocks.size)originalOverflow=document.body.style.overflow;scrollLocks.add(lock);
     document.body.style.overflow='hidden';
     const dialog=ref.current;
     dialog?.querySelector('button')?.focus();
@@ -20,7 +22,7 @@ export function useDialogFocus(open,onClose) {
       }
     };
     document.addEventListener('keydown',key);
-    return()=>{document.body.style.overflow=overflow;document.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
+    return()=>{scrollLocks.delete(lock);if(!scrollLocks.size)document.body.style.overflow=originalOverflow;document.removeEventListener('keydown',key);if(previous?.isConnected)previous.focus();};
   },[open]);
   return ref;
 }

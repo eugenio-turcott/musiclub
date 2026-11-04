@@ -101,7 +101,7 @@ function AppContent() {
         <Route path="/artist/:slug" element={<ArtistDetailPage />} />
         <Route path="/artists/:slug" element={<ArtistDetailPage />} />
 
-        {/* Gashapon & Ruleta Arcade */}
+        {/* Gashapon & Máquina Musical Arcade */}
         <Route path="/gashapon" element={<GashaponPage />} />
         <Route path="/gacha" element={<GashaponPage />} />
 

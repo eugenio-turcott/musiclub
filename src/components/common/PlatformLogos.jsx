@@ -1,5 +1,9 @@
 import React from 'react';
 
+export function YouTubeMusicLogo({className='w-4 h-4',...props}){
+  return <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}><circle cx="12" cy="12" r="12" fill="currentColor"/><circle cx="12" cy="12" r="8.3" stroke="#ffffff" strokeWidth="1.25"/><path d="m9.6 7.8 7.1 4.2-7.1 4.2z" fill="#ffffff"/></svg>;
+}
+
 /**
  * Logos vectoriales SVG oficiales para plataformas de streaming musical
  * Utilizados globalmente en Musiclub (Release detail, Playlists, Buzón, Admin, etc.)

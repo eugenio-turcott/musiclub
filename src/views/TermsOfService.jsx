@@ -95,7 +95,7 @@ export function TermsOfService() {
               <ul className="list-disc list-inside space-y-1.5 text-white/70 ml-2">
                 <li>
                   <strong className="text-white">
-                    Ruleta Cyberpunk (Slot Machine):
+                    Máquina Musical Cyberpunk (Slot Machine):
                   </strong>{' '}
                   Mecanismo aleatorio con probabilidad ponderada por antigüedad
                   para elegir el álbum semanal del club.
@@ -105,7 +105,7 @@ export function TermsOfService() {
                     Catálogo y Escuchas Individuales:
                   </strong>{' '}
                   Exploración y propuesta de álbumes desde Spotify, tanto para
-                  la ruleta comunitaria como para escuchas libres.
+                  la Máquina Musical comunitaria como para escuchas libres.
                 </li>
                 <li>
                   <strong className="text-white">Sistema de Reseñas:</strong>{' '}

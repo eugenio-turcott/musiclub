@@ -1,4 +1,5 @@
 const ICON_BODIES = {
+  "send": "<path d=\"m21 3-6.5 18-4-7.5L3 9.5 21 3Zm-10.5 10.5L21 3\"/>",
   "share": "<circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"m8.6 10.5 6.8-4M8.6 13.5l6.8 4\"/>",
   "copy": "<rect x=\"8\" y=\"8\" width=\"13\" height=\"13\" rx=\"3\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/>",
   "grid": "<rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"2\"/>",
