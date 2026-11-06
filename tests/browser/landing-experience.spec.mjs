@@ -29,7 +29,7 @@ test('landing presents real releases, native genre vinyls and working catalogue 
  await expect(page.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
  await page.getByRole('button',{name:'Pausar animaciones',exact:true}).click();
  await expect(page.locator('[data-landing-experience]')).toHaveAttribute('data-motion-paused','true');
- expect(await page.locator('[aria-label="Tornamesa interactiva de Musiclub"] [class*="pressing"]').evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('paused');
+ expect(await page.locator('[aria-label="Tornamesa interactiva de Musiclub"] [class*="pressing"]').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
  expect(queries).toHaveLength(0);
  expect(hydrationErrors).toHaveLength(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
@@ -41,12 +41,14 @@ test('landing presents real releases, native genre vinyls and working catalogue 
 test('landing simulations are local, use all seven criteria and retain a sticky chapter navigator',async({page},info)=>{
  await openLanding(page);await expect(page.locator('[data-review-demo]')).toBeAttached();
  const writes=[],reads=[];page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog|\/api\/notifications/.test(r.url())){if(r.method()==='GET')reads.push(r.url());else writes.push(r.url());}});
+ await page.getByRole('button',{name:'Pausar animaciones',exact:true}).click();
  const demo=page.locator('[data-review-demo]');await demo.getByRole('button',{name:'Ajustar General',exact:true}).click();
  const slider=demo.getByRole('slider',{name:'General de la demostración',exact:true});await slider.press('Home');await expect(slider).toHaveValue('1');
  await expect(demo.getByRole('button',{name:/^Ajustar/})).toHaveCount(7);
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
  await page.getByRole('button',{name:'Probar palanca de demostración',exact:true}).click();
  await expect(page.locator('[data-capsule-demo]')).toContainText('no cambia ningún Pool');
+ expect(await page.locator('[data-capsule-demo] [aria-live="polite"]').evaluate(el=>getComputedStyle(el).opacity)).toBe('1');
  const nav=page.getByRole('navigation',{name:'Demostraciones de Musiclub'});
  expect(await nav.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
  const bounds=await nav.boundingBox();expect(bounds.y).toBeGreaterThanOrEqual(0);expect(bounds.y).toBeLessThan(220);
@@ -54,6 +56,7 @@ test('landing simulations are local, use all seven criteria and retain a sticky 
  await nav.getByRole('link',{name:/Compartir/}).click();await page.getByRole('button',{name:'Horizontal',exact:true}).click();
  await expect(page.locator('[data-share-preview]')).toContainText('Artista de Prueba');
  await expect(page.locator('[data-share-preview]')).toContainText('Segunda canción');
+ expect(await page.locator('#demo-compartir').evaluate(el=>getComputedStyle(el).opacity)).toBe('1');
  await expect(page.getByRole('link',{name:/Conoce Musiclub por dentro/})).toHaveAttribute('href','/guias');
  expect(writes).toHaveLength(0);expect(reads).toHaveLength(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
