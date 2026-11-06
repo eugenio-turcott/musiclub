@@ -7,9 +7,10 @@ import {MusiclubVinyl} from './MusiclubVinyl';
 import MoodIcon from './MoodIcon';
 import {AchievementBadge} from './AchievementBadge';
 import {LandingTurntable} from './LandingTurntable';
+import {GashaponReveal} from './GashaponReveal';
 import {SpotifyLogo, AppleMusicLogo, YouTubeMusicLogo, DeezerLogo} from './common/PlatformLogos';
 import {getReleaseUrl, getWeightedReviewScore, getEmotionFromReview, getTrackDisplayName, EMOTIONS} from '../utils/ratingUtils';
-import {PROGRESSION_BADGES, PERSONALITY_BADGES, RECORD_BADGES_CONFIG} from '../utils/badgeSystem';
+import {PROGRESSION_BADGES, PERSONALITY_BADGES, RECORD_BADGES_CONFIG, XP_CONFIG, MELOMANO_LEVELS} from '../utils/badgeSystem';
 import {REVIEW_CRITERIA} from '../utils/reviewCriteria.mjs';
 import {landingSelection, displayRelease, seededRandom} from '../utils/landingExperience.mjs';
 import genreRoutes from '../utils/genreRoutes.cjs';
@@ -85,9 +86,8 @@ export function LandingHero({albums,reviews,stats,user,onLogin}){
  return <>
  <section className={styles.hero} data-landing-scene="" aria-labelledby="landing-title">
    <div className={styles.heroCopy}>
-     <p className={styles.eyebrow}>{icon('headphones',19)} ÁLBUMES, EPS Y CANCIONES. EN COMUNIDAD.</p>
-     <h1 id="landing-title">Descubre música.<br/>Compártela en <span>Musiclub.</span></h1>
-     <p className={styles.heroText}>Encuentra tu próximo disco, deja tu reseña y descubre qué escucha el club.</p>
+     <h1 id="landing-title">En <span>MUSICLUB</span>, descubre, califica y debate cada release.</h1>
+     <p className={styles.heroText}>El club social donde cada lanzamiento cuenta: <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.</p>
      <form action="/catalogo#explorador-catalogo" className={styles.search} role="search"><label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>{icon('search')}<input id="home-search" name="q" required placeholder="Busca un álbum o artista"/><button type="submit">Buscar {icon('arrow',18)}</button></form>
      <div className={styles.actions}><Link to="/catalogo" className={styles.primary}>Explorar Catálogo {icon('arrow')}</Link>{!user?<button type="button" onClick={onLogin} className={styles.secondary}>Únete al Club {icon('users')}</button>:<Link to="/profile" className={styles.secondary}>Mi Perfil {icon('user')}</Link>}</div>
      <div className={styles.heroLinks}><Link to="/pool">{icon('pool',17)}Explorar pools</Link><Link to="/gashapon">{icon('gashapon',17)}Gashapon Arcade</Link><a href="#musiclub-en-accion">Ver cómo funciona {icon('arrowDown',17)}</a></div>
@@ -106,18 +106,25 @@ function ReviewDemo({album,review}){
  return <div className={styles.reviewDemo} data-review-demo=""><div className={styles.demoTop}><span>{icon('review',18)} PRUEBA UNA RESEÑA</span><small>Sólo cambia esta vista previa</small></div><div className={styles.demoRelease}><CoverImage src={release.image} alt={release.title}/><div><h3>{release.title}</h3><p>{release.artist}</p><span>{icon('star',18)}{draft.rating_general??'—'}<small>/10 General</small></span></div></div><div className={styles.criteriaTabs} aria-label="Criterios de demostración">{REVIEW_CRITERIA.map(([field,name,glyph,limit,color],i)=><button type="button" key={field} style={{'--criterion':color}} aria-label={`Ajustar ${name}`} aria-pressed={i===criterion} onClick={()=>setCriterion(i)}>{icon(glyph,25)}<span>{draft[field]??'—'}</span></button>)}</div><label className={styles.demoSlider}>{label}<strong>{draft[key]??'—'} / {max}</strong><input aria-label={`${label} de la demostración`} type="range" min="1" max={max} value={draft[key]||1} style={{accentColor:REVIEW_CRITERIA[criterion][4]}} onChange={e=>setDraft(d=>({...d,[key]:Number(e.target.value)}))}/></label><div className={styles.moodPicker} aria-label="Estado de ánimo de demostración">{EMOTIONS.map(e=><button type="button" aria-label={e.label||e.text} key={e.id} aria-pressed={mood===e.id} onClick={()=>setMood(e.id)}><MoodIcon mood={e.id} size={38}/></button>)}</div><p className={styles.demoCaption}>Tu nota. Tus criterios. Tu forma de sentirlo.</p></div>;
 }
 
-function CapsuleDemo({selection}) {
- const [selected,setSelected]=useState(0), [round,setRound]=useState(0);
- const current=selected%selection.length, start=Math.floor(current/3)*3;
- return <div className={styles.capsuleDemo} data-capsule-demo="">
-   <div className={styles.demoTop}><span>{icon('gashapon',22)} MÁQUINA MUSICAL</span><small>Demostración · no cambia ningún Pool</small></div>
-   <div className={styles.capsuleStage}>{selection.slice(start,start+3).map(({album},i)=>{
-     const release=displayRelease(album), art=visuals.genreRevealArtwork(release.genres[0]||'Pop');
-     return <button type="button" className={styles.capsule} key={album.id} style={{'--capsule-color':art.accent,'--i':i}} aria-label={'Inspeccionar cápsula de '+release.title} aria-pressed={current===start+i} onClick={()=>setSelected(start+i)}><span className={styles.capsuleBack}><img src={art.disc} alt="" loading="lazy"/><CoverImage src={release.image} alt={release.title}/></span><img className={styles.capsuleLid} src={art.center} alt="" loading="lazy"/><span className={styles.capsuleName}>{release.title}</span></button>;
-   })}</div>
-   <div className={styles.machinePanel}><div key={round} className={styles.machineSelection} aria-live="polite"><span className={styles.eyebrow}>EN LA MÁQUINA</span><strong>{titleOf(selection[current]?.album)}</strong><small>{displayRelease(selection[current]?.album).artist}</small></div><button type="button" className={styles.lever} aria-label="Probar palanca de demostración" onClick={()=>{setSelected(i=>(i+1)%selection.length);setRound(r=>r+1);}}><span><i/></span><b>TIRA {icon('arrowDown',20)}</b></button></div>
-   <ExamplePicker selection={selection} index={current} onChange={setSelected} label="Ejemplo para descubrir"/>
-   <div className={styles.poolSteps}><span>{icon('pool',25)}Entra a una sala</span>{icon('arrow',18)}<span>{icon('disc',25)}Propón un release</span>{icon('arrow',18)}<span>{icon('headphones',25)}Escuchen juntos</span></div>
+function GashaponDemo({selection}) {
+ const [selected,setSelected]=useState(0), [stage,setStage]=useState('READY'), [genre,setGenre]=useState(null), motion=useContext(Motion);
+ const current=selected%selection.length, album=selection[current]?.album, release=displayRelease(album);
+ const genres=[...new Set(selection.flatMap(entry=>displayRelease(entry.album).genres))].slice(0,6);
+ const activeGenre=genre||release.genres[0]||'Pop';
+ const choose=(index,nextGenre=null)=>{setSelected(index);setGenre(nextGenre);setStage('READY');};
+ useEffect(()=>{
+   if(stage!=='OPENING')return;
+   if(motion.inactive){setStage('REVEALED');return;}
+   const timer=setTimeout(()=>setStage('REVEALED'),1200);
+   return()=>clearTimeout(timer);
+ },[stage,motion.inactive]);
+ return <div className={styles.capsuleDemo} data-gashapon-demo="">
+   <div className={styles.demoTop}><span>{icon('gashapon',22)} GASHAPON ARCADE</span><small>Demostración · no guarda cambios</small></div>
+   <div className={styles.gashaponGenres} aria-label="Géneros del Gashapon de demostración">{genres.map(genre=><button type="button" key={genre} aria-pressed={activeGenre===genre} onClick={()=>choose(selection.findIndex(entry=>displayRelease(entry.album).genres.includes(genre)),genre)}>{genre}</button>)}</div>
+   <div className={styles.gashaponReveal}><GashaponReveal key={album.id+'-'+activeGenre} genre={activeGenre} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/></div>
+   <div className={styles.gashaponResult} aria-live="polite">{stage==='REVEALED'?<><span className={styles.eyebrow}>{icon('sparkles',17)} RELEASE DESCUBIERTO</span><strong>{release.title}</strong><small>{release.artist}</small><button type="button" className={styles.secondary} onClick={()=>choose((current+1)%selection.length)}>{icon('shuffle',18)}Probar otra cápsula</button></>:<p>{stage==='OPENING'?'Abriendo tu cápsula…':'Elige un género y toca el vinilo.'}</p>}</div>
+   <ExamplePicker selection={selection} index={current} onChange={choose} label="Ejemplo para descubrir"/>
+   <div className={styles.poolSteps}><span>{icon('tag',25)}Elige un género</span>{icon('arrow',18)}<span>{icon('gashapon',25)}Abre una cápsula</span>{icon('arrow',18)}<span>{icon('headphones',25)}Descubre un release</span></div>
  </div>;
 }
 
@@ -126,7 +133,7 @@ function ShareDemo({album,review}){
  return <div className={styles.shareDemo}><div className={styles.shareFormats}><button type="button" aria-pressed={!horizontal} onClick={()=>setHorizontal(false)}>{icon('phone',18)}Story</button><button type="button" aria-pressed={horizontal} onClick={()=>setHorizontal(true)}>{icon('image',18)}Horizontal</button></div><div className={`${styles.shareCanvas} ${horizontal?styles.horizontal:''}`} data-share-preview=""><div className={styles.shareBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub"/><strong>MUSICLUB</strong></div><div className={styles.shareArtwork}><Vinyl genre={release.genres[0]||'Pop'}/><CoverImage src={release.image} alt={release.title}/><strong>{review?Number(getWeightedReviewScore(review)).toFixed(1):Number(album.final_rating||0).toFixed(1)}<small>/10</small></strong></div><div className={styles.shareInfo}><h3>{release.title}</h3><p>{release.artist}</p>{favorite&&<span>{icon('crown',17)}{favorite}</span>}<div className={styles.miniCriteria}>{REVIEW_CRITERIA.map(([key,label,glyph,max,color])=><span key={key} title={label} style={{color}}>{icon(glyph,19)}<b>{review?.[key]??'—'}</b></span>)}</div><footer><span>{review?.reviewer_name||'La comunidad'}</span><b>musiclub.org</b></footer></div></div><p className={styles.demoCaption}>Reseña real del club · Vista previa del diseño</p></div>;
 }
 
-const CHAPTERS=[{id:'resenar',num:'01',icon:'sliders',title:'Califica lo que escuchas.',text:'Seis criterios, una nota general y tu canción favorita. Una reseña que cuenta más que un número.',link:'/reviews',action:'Leer reseñas del club',chips:['7 criterios','Canción favorita','Estado de ánimo']},{id:'descubrir',num:'02',icon:'gashapon',title:'Descubre música con el club.',text:'Entra a pools públicos o crea una sala privada. También puedes explorar cápsulas por género en Gashapon.',link:'/pool',action:'Explorar pools',chips:['Pools públicos y privados','Máquina Musical','Gashapon']},{id:'compartir',num:'03',icon:'share',title:'Comparte tu música, a tu estilo.',text:'Convierte tus propias reseñas, tu perfil y tus tier lists en imágenes listas para tus redes.',link:'/profile',action:'Preparar mi tarjeta',chips:['Stories','Horizontal','Tier lists']}];
+const CHAPTERS=[{id:'resenar',num:'01',icon:'sliders',title:'Califica lo que escuchas.',text:'Seis criterios, una nota general y tu canción favorita. Una reseña que cuenta más que un número.',link:'/reviews',action:'Leer reseñas del club',chips:['7 criterios','Canción favorita','Estado de ánimo']},{id:'descubrir',num:'02',icon:'gashapon',title:'Descubre releases en Gashapon.',text:'Elige un género, abre una cápsula y encuentra un release del catálogo. Prueba aquí con discos reales del club.',link:'/gashapon',action:'Entrar al Gashapon',chips:['Cápsulas por género','Releases del club','Nuevos descubrimientos']},{id:'compartir',num:'03',icon:'share',title:'Comparte tu música, a tu estilo.',text:'Convierte tus propias reseñas, tu perfil y tus tier lists en imágenes listas para tus redes.',link:'/profile',action:'Preparar mi tarjeta',chips:['Stories','Horizontal','Tier lists']}];
 
 function ReviewExamples({selection}) {
  const [index,setIndex]=useState(0), current=index%selection.length, entry=selection[current];
@@ -146,7 +153,10 @@ const LANDING_BADGES=[
 
 function BadgeShowcase() {
  return <section className={styles.badgeStage} data-landing-scene="" aria-labelledby="landing-badges-title">
-   <div className={styles.badgeIntro}><p className={styles.eyebrow}>{icon('award',24)} INSIGNIAS Y NIVELES</p><h3 id="landing-badges-title">Cada escucha suma.</h3><p>De tu primera reseña a una corona del club. Descubre las insignias que puedes conseguir.</p><Link to="/leaderboard" className={styles.textLink}>Ver insignias y niveles {icon('arrow')}</Link></div>
+   <div className={styles.badgeIntro}><p className={styles.eyebrow}>{icon('award',24)} INSIGNIAS Y NIVELES</p><h3 id="landing-badges-title">Tu actividad se convierte en XP.</h3><p>Reseña, comenta y califica canciones. Tu Score XP reúne la actividad, los tiers que desbloqueas y las coronas que conservas.</p><Link to="/leaderboard" className={styles.textLink}>Ver mi progreso y el leaderboard {icon('arrow')}</Link></div>
+   <div className={styles.xpRules} aria-label="Cómo ganar XP en Musiclub">{[['review','Publica una reseña',XP_CONFIG.REVIEW_BASE,'Por cada release que calificas.'],['message','Añade tu comentario',XP_CONFIG.REVIEW_COMMENT_BONUS,'Extra cuando tu reseña incluye texto.'],['music','Califica una canción',XP_CONFIG.TRACK_RATED,'Por cada track evaluado.'],['crown','Conserva un récord #1',XP_CONFIG.RECORD_CROWN_BONUS,'Bono activo mientras lideras esa categoría.']].map(([figure,title,xp,detail])=><div key={figure}>{icon(figure,29)}<strong>+{xp}<small> XP</small></strong><b>{title}</b><span>{detail}</span></div>)}</div>
+   <div className={styles.xpPath}><div>{icon('sliders',25)}<span><b>Actividad</b>Tu participación suma puntos.</span></div>{icon('arrow',20)}<div>{icon('award',25)}<span><b>Insignias y tiers</b>Supera metas y gana XP adicional.</span></div>{icon('arrow',20)}<div>{icon('chart',25)}<span><b>{MELOMANO_LEVELS.length} niveles</b>Tu XP total determina tu nivel.</span></div></div>
+   <p className={styles.xpExample}>{icon('bulb',22)}<span>Una reseña con comentario y 5 canciones calificadas suma <strong>{XP_CONFIG.REVIEW_BASE+XP_CONFIG.REVIEW_COMMENT_BONUS+5*XP_CONFIG.TRACK_RATED} XP de actividad</strong>. Las insignias añaden sus propias recompensas; cada nuevo tier acumula su bono.</span></p>
    <div className={styles.badgeRails} aria-label="Insignias disponibles en Musiclub">{[0,1,2].map(row=>{
      const badges=LANDING_BADGES.filter((_,i)=>i%3===row);
      return <div className={styles.badgeRail} key={row} style={{'--direction':row===1?'normal':'reverse','--duration':(badges.length*5)+'s'}}><div className={styles.badgeTrack}>{[0,1].map(copy=><div className={styles.badgeGroup} key={copy} aria-hidden={copy===1?'true':undefined}>{badges.map(badge=><div className={styles.movingBadge} key={badge.id}><AchievementBadge badge={badge}/><span>{badge.detail}</span><small>+{badge.xp} XP</small></div>)}</div>)}</div></div>;
@@ -159,7 +169,7 @@ export function LandingJourney({albums,reviews}) {
  return <section className={styles.journey} id="musiclub-en-accion" aria-labelledby="journey-title">
    <header className={styles.sectionHeading} data-reveal=""><p className={styles.eyebrow}>{icon('sparkles',23)} MUSICLUB EN ACCIÓN</p><h2 id="journey-title">Todo lo que puedes hacer<br/><span>en Musiclub.</span></h2><p>Diez ejemplos reales en cada demostración. Una selección nueva cada vez que nos visitas.</p></header>
    <div className={styles.journeyLayout}><nav className={styles.chapterNav} aria-label="Demostraciones de Musiclub">{CHAPTERS.map(c=><a key={c.id} href={'#demo-'+c.id}><span>{c.num}</span>{icon(c.icon,26)}<strong>{c.id==='resenar'?'Reseñar':c.id==='descubrir'?'Descubrir':'Compartir'}</strong>{icon('arrow',20)}</a>)}<span className={styles.chapterVinyl}><MusiclubVinyl src="/musiclub_logo_4.png" alt=""/></span></nav>
-   <div className={styles.chapters}>{CHAPTERS.map((chapter,i)=><article className={styles.chapter} id={'demo-'+chapter.id} key={chapter.id} data-landing-scene="" data-reveal=""><div className={styles.chapterCopy}><span className={styles.chapterNumber}>{chapter.num} / 03</span><h3>{chapter.title}</h3><p>{chapter.text}</p><div className={styles.chips}>{chapter.chips.map((text,j)=><span key={text}>{icon([chapter.icon,'check','music'][j],19)}{text}</span>)}</div><Link className={styles.textLink} to={chapter.link}>{chapter.action}{icon('arrow',23)}</Link></div>{forReview.length?(i===0?<ReviewExamples selection={forReview}/>:i===1?<CapsuleDemo selection={forDiscovery}/>:<ShareExamples selection={forSharing}/>):<div className={styles.emptyDemo}><MusiclubVinyl alt=""/><p>Explora el catálogo para conocer los releases del club.</p></div>}</article>)}</div></div>
+   <div className={styles.chapters}>{CHAPTERS.map((chapter,i)=><article className={styles.chapter} id={'demo-'+chapter.id} key={chapter.id} data-landing-scene="" data-reveal=""><div className={styles.chapterCopy}><span className={styles.chapterNumber}>{chapter.num} / 03</span><h3>{chapter.title}</h3><p>{chapter.text}</p><div className={styles.chips}>{chapter.chips.map((text,j)=><span key={text}>{icon([chapter.icon,'check','music'][j],19)}{text}</span>)}</div><Link className={styles.textLink} to={chapter.link}>{chapter.action}{icon('arrow',23)}</Link></div>{forReview.length?(i===0?<ReviewExamples selection={forReview}/>:i===1?<GashaponDemo selection={forDiscovery}/>:<ShareExamples selection={forSharing}/>):<div className={styles.emptyDemo}><MusiclubVinyl alt=""/><p>Explora el catálogo para conocer los releases del club.</p></div>}</article>)}</div></div>
    <Link to="/guias" className={styles.guideLink}><span>{icon('book',34)}</span><div><strong>Conoce Musiclub por dentro</strong><p>La guía completa: ejemplos reales, controles que puedes probar y todos los detalles.</p></div>{icon('arrow',30)}</Link>
    <BadgeShowcase/>
  </section>;

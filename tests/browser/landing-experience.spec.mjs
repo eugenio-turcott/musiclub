@@ -18,8 +18,7 @@ async function openLanding(page){
 test('landing presents real releases, native genre vinyls and working catalogue search without navigation refreshes',async({page},info)=>{
  const hydrationErrors=[];page.on('console',message=>{if(message.type()==='error'&&/hydrated|hydration mismatch/i.test(message.text()))hydrationErrors.push(message.text());});
  await openLanding(page);
- await expect(page.getByRole('heading',{level:1})).toHaveText('Descubre música.Compártela en Musiclub.');
- const hero=page.getByRole('region',{name:'Descubre música.Compártela en Musiclub.'});
+ await expect(page.getByRole('heading',{level:1})).toHaveText('En MUSICLUB, descubre, califica y debate cada release.');
  const queries=[];page.on('request',r=>{if(/\/api\/catalog|\/rest\/v1\//.test(r.url()))queries.push(r.url());});
  await expect(page.getByRole('link',{name:'Explorar Jazz',exact:true})).toHaveAttribute('href','/generos/jazz');
  await expect(page.locator('[aria-label="Tornamesa interactiva de Musiclub"] img[src*="/genres/colors/"]')).toHaveCount(1);
@@ -46,9 +45,16 @@ test('landing simulations are local, use all seven criteria and retain a sticky 
  const slider=demo.getByRole('slider',{name:'General de la demostración',exact:true});await slider.press('Home');await expect(slider).toHaveValue('1');
  await expect(demo.getByRole('button',{name:/^Ajustar/})).toHaveCount(7);
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
- await page.getByRole('button',{name:'Probar palanca de demostración',exact:true}).click();
- await expect(page.locator('[data-capsule-demo]')).toContainText('no cambia ningún Pool');
- expect(await page.locator('[data-capsule-demo] [aria-live="polite"]').evaluate(el=>getComputedStyle(el).opacity)).toBe('1');
+ const gashapon=page.locator('[data-gashapon-demo]');
+ await gashapon.getByRole('button',{name:/^Abrir cápsula de /}).click();
+ await expect(gashapon).toContainText('no guarda cambios');
+ await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveAttribute('data-stage','revealed');
+ await gashapon.getByRole('button',{name:'Probar otra cápsula',exact:true}).click();
+ await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveAttribute('data-stage','ready');
+ await gashapon.getByRole('button',{name:'Ejemplo para descubrir: Azul',exact:true}).click();
+ await gashapon.getByRole('button',{name:/^Abrir cápsula de /}).click();
+ await expect(gashapon.locator('[aria-live="polite"]')).toContainText('Azul');
+ await expect(page.locator('#demo-descubrir').getByRole('link',{name:'Entrar al Gashapon',exact:true})).toHaveAttribute('href','/gashapon');
  const nav=page.getByRole('navigation',{name:'Demostraciones de Musiclub'});
  expect(await nav.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
  const bounds=await nav.boundingBox();expect(bounds.y).toBeGreaterThanOrEqual(0);expect(bounds.y).toBeLessThan(220);
@@ -90,23 +96,42 @@ test('the integrated turntable has local needle controls, real metadata and opti
  await expect(deck.locator('[data-turntable-display]')).toHaveCount(1);
  await expect(deck.locator('[data-turntable-console] [aria-label^="Calificación del club"]')).toHaveCount(1);
  await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(1);
- await expect(deck.getByRole('button',{name:/^Mostrar /})).toHaveCount(3);
+ await expect(player.getByRole('button',{name:/^Mostrar /})).toHaveCount(3);
+ await expect(deck.getByRole('button',{name:/^Mostrar /})).toHaveCount(0);
+ await expect(player).toHaveAttribute('data-needle-down','true');
+ const record=deck.locator('[data-turntable-record]');await expect(record.locator('img')).toHaveCount(2);
+ expect(await record.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('running');
+ expect(await deck.locator('[data-turntable-display] strong').evaluate(el=>getComputedStyle(el).fontFamily)).toMatch(/Gabarito|gabarito/);
+ const dimensions=await deck.boundingBox();expect(dimensions.width).toBeGreaterThan(dimensions.height);
  await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
  await expect(deck.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
- await page.getByRole('button',{name:'Bajar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','true');
+ await page.getByRole('button',{name:'Levantar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
+ await page.getByRole('button',{name:'Bajar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','true');
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','false');
  const needle=page.getByRole('button',{name:'Bajar aguja',exact:true});await needle.scrollIntoViewIfNeeded();const bounds=await needle.boundingBox();
  const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-22,y+28);await page.mouse.up();
  await expect(player).toHaveAttribute('data-needle-down','true');
- await page.getByRole('button',{name:'Disco siguiente',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
+ await page.getByRole('button',{name:'Disco siguiente',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','true');
  expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(0);
  await page.getByRole('button',{name:'Activar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','true');
  expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(1);
  await page.getByRole('button',{name:'Silenciar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','false');
  await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('closed');
  expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.screenshot({path:'outputs/v11-1-1-turntable-'+info.project.name+'.png',animations:'disabled'});
+ await page.screenshot({path:'outputs/v11-1-2-turntable-'+info.project.name+'.png',animations:'disabled'});
+});
+
+test('Gashapon opens real release examples locally and cancels an old reveal when another capsule is selected',async({page})=>{
+ await openLanding(page);
+ const demo=page.locator('[data-gashapon-demo]'),reveal=demo.locator('[data-vinyl-reveal]');
+ await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
+ await demo.getByRole('button',{name:/^Abrir cápsula de /}).press('Enter');await expect(reveal).toHaveAttribute('data-stage','opening');
+ await demo.getByRole('button',{name:'Ejemplo para descubrir: Azul',exact:true}).click();
+ await expect(reveal).toHaveAttribute('data-stage','ready');
+ await demo.getByRole('button',{name:/^Abrir cápsula de /}).press('Enter');await expect(reveal).toHaveAttribute('data-stage','revealed');
+ await expect(demo.locator('[data-vinyl-cover] img')).toHaveAttribute('alt','Azul');
+ await expect(demo.locator('[aria-live="polite"]')).toContainText('Artista de Prueba');
 });
 
 test('genre links open the animated genre explorer and filters remain local',async({page})=>{

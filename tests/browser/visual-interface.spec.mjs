@@ -47,10 +47,10 @@ test('the release hero stacks top song and tracks, and places the queue directly
 });
 
 
-test('home describes public and private pools, uses consistent contextual icons and a circular quick selector', async ({page}) => {
+test('home explains Gashapon discovery, uses consistent contextual icons and a circular quick selector', async ({page}) => {
   await page.goto('/');
-  await expect(page.getByRole('heading',{name:'Descubre música con el club.',exact:true})).toBeVisible();
-  await expect(page.getByText('Pools públicos y privados',{exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Descubre releases en Gashapon.',exact:true})).toBeVisible();
+  await expect(page.getByText('Cápsulas por género',{exact:true})).toBeVisible();
   await expect(page.locator('body')).not.toContainText('Temporada 1');
   await expect(page.locator('body')).not.toContainText('Recepción de Propuestas: Cerrada');
   const plates=page.locator('[data-review-demo] [aria-label="Criterios de demostración"] button');

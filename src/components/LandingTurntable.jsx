@@ -10,7 +10,7 @@ import visuals from '../utils/genreVisuals.cjs';
 import styles from './LandingTurntable.module.css';
 
 export function LandingTurntable({selection}) {
-  const [index,setIndex]=useState(0), [down,setDown]=useState(false), [effects,setEffects]=useState(false), [gesture,setGesture]=useState(0);
+  const [index,setIndex]=useState(0), [down,setDown]=useState(true), [effects,setEffects]=useState(false), [gesture,setGesture]=useState(0);
   const scene=useRef(null), sound=useRef(null), drag=useRef(null), ignoreClick=useRef(false), recordButtons=useRef([]), rail=useRef(null);
   const selected=selection[index%Math.max(1,selection.length)], album=selected?.album, release=displayRelease(album);
   const mood=getEmotionFromReview(selected?.review), art=visuals.genreRevealArtwork(release.genres[0]||'Pop');
@@ -40,18 +40,16 @@ export function LandingTurntable({selection}) {
   };
 
   useEffect(()=>{
-    const visibility=()=>{if(document.hidden){setDown(false);sound.current?.close().catch(()=>{});sound.current=null;}};
+    const visibility=()=>{if(document.hidden){sound.current?.close().catch(()=>{});sound.current=null;}};
     document.addEventListener('visibilitychange',visibility);
-    const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(([entry])=>{if(!entry.isIntersecting)setDown(false);}):null;
-    if(scene.current)observer?.observe(scene.current);
-    return()=>{observer?.disconnect();document.removeEventListener('visibilitychange',visibility);sound.current?.close().catch(()=>{});sound.current=null;};
+    return()=>{document.removeEventListener('visibilitychange',visibility);sound.current?.close().catch(()=>{});sound.current=null;};
   },[]);
 
   const needle=value=>{setDown(value);setGesture(n=>n+1);chime(value?'lower':'lift');};
   const choose=i=>{
     if(!selection.length)return;
     const next=(i+selection.length)%selection.length;
-    setIndex(next);setDown(false);setGesture(n=>n+1);chime('change');
+    setIndex(next);setDown(true);setGesture(n=>n+1);chime('change');
     const button=recordButtons.current[next], list=rail.current;
     if(button&&list)list.scrollTo({left:Math.max(0,button.offsetLeft-list.offsetLeft-list.clientWidth/2+button.clientWidth/2),behavior:'auto'});
   };
@@ -74,7 +72,7 @@ export function LandingTurntable({selection}) {
       </Link>:<div className={styles.display}><p>Los releases con reseñas aparecerán aquí.</p></div>}
 
       <div className={styles.mechanism}>
-        <div className={styles.platter} aria-hidden="true"><div className={styles.record} data-turntable-record=""><img src={art.disc} alt=""/></div><img className={styles.motif} src={art.center} alt=""/><i className={styles.spindle}/>
+        <div className={styles.platter} aria-hidden="true"><div className={styles.record} data-turntable-record=""><img src={art.disc} alt=""/><img className={styles.motif} src={art.center} alt=""/></div><i className={styles.spindle}/>
           {gesture>0&&<span className={styles.magic} key={gesture}>{[0,1,2,3,4,5].map(i=><span key={i} style={{'--i':i}}><UiIcon name="sparkles" size={15} tone="inherit"/></span>)}</span>}
         </div>
         <button type="button" className={styles.needle} aria-label={down?'Levantar aguja':'Bajar aguja'} aria-pressed={down} title="Pulsa o arrastra la aguja" disabled={!album}
@@ -91,13 +89,13 @@ export function LandingTurntable({selection}) {
         <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" size={22} tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
         <span className={styles.mood} role="img" aria-label={`Estado de ánimo: ${mood.label}`} title={mood.label}><MoodIcon mood={mood.id} size={42}/></span>
       </div>
-
+      <span className={styles.status} role="status">{down?'Vinilo girando · Aguja sobre el disco':'Pulsa o arrastra la aguja para girar el vinilo'}</span>
+      <i className={`${styles.screw} ${styles.screwLeft}`} aria-hidden="true"/><i className={`${styles.screw} ${styles.screwRight}`} aria-hidden="true"/>
+      <i className={`${styles.foot} ${styles.footLeft}`} aria-hidden="true"/><i className={`${styles.foot} ${styles.footRight}`} aria-hidden="true"/>
+    </div>
       <div className={styles.library}>
         <div className={styles.libraryLabel}><span><UiIcon name="shuffle" size={16} tone="inherit"/>DISCOS DEL CLUB</span><div><button type="button" aria-label="Disco anterior" disabled={selection.length<2} onClick={()=>choose(index-1)}><UiIcon name="arrowLeft" size={18} tone="inherit"/></button><button type="button" aria-label="Disco siguiente" disabled={selection.length<2} onClick={()=>choose(index+1)}><UiIcon name="arrow" size={18} tone="inherit"/></button></div></div>
         <div ref={rail} className={styles.picker} aria-label="Releases de la tornamesa">{selection.map(({album:a},i)=><button ref={element=>{recordButtons.current[i]=element;}} type="button" key={a.id} aria-label={`Mostrar ${displayRelease(a).title} en la tornamesa`} aria-pressed={index%selection.length===i} onClick={()=>choose(i)}><CoverImage src={displayRelease(a).image} alt="" sizes="50px"/><span>{i+1}</span></button>)}</div>
       </div>
-      <span className={styles.status} role="status">{down?'Vinilo girando · Aguja sobre el disco':'Pulsa o arrastra la aguja para girar el vinilo'}</span>
-      <i className={`${styles.screw} ${styles.screwLeft}`} aria-hidden="true"/><i className={`${styles.screw} ${styles.screwRight}`} aria-hidden="true"/>
-    </div>
   </div>;
 }
