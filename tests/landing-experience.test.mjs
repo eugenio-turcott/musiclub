@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {landingSelection,displayRelease,seededRandom} from '../src/utils/landingExperience.mjs';
 import {listeningTrack,matchListeningPreview} from '../src/utils/listeningPreview.mjs';
+import {lookupListeningPreview} from '../src/server/listeningPreview.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from '../src/server/catalogSnapshot.mjs';
 
 test('large public catalogues fit the data cache without losing tracks, Unicode or scores',()=>{
@@ -56,4 +57,18 @@ test('audio lookup only accepts the exact track, artist and release, plus truste
  const row={kind:'song',artistName:'Artista',trackName:'Favorita',collectionName:'Album real',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/mx/album/real/123?i=456'};
  assert.equal(matchListeningPreview([row],album,track).url,row.previewUrl);
  for(const wrong of [{artistName:'Otro artista'},{collectionName:'Grandes éxitos'},{trackName:'Favorita (Live)'},{previewUrl:'https://example.com/sample.mp3'},{previewUrl:'http://audio-ssl.itunes.apple.com/sample.m4a'},{trackViewUrl:'https://music.apple.com.example.com/track'}])assert.equal(matchListeningPreview([{...row,...wrong}],album,track),null);
+});
+
+test('a transient preview failure tries the alternate storefront without caching provider errors as missing music',async()=>{
+ const album={album_name:'Release',artist_name:'Artista'},track={name:'Canción'};
+ const row={kind:'song',artistName:'Artista',trackName:'Canción',collectionName:'Release',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/us/album/123?i=456'};
+ const countries=[];
+ const result=await lookupListeningPreview(album,track,{fetcher:async url=>{
+   countries.push(url.searchParams.get('country'));
+   if(countries.length===1)throw new DOMException('Timed out','TimeoutError');
+   return {ok:true,json:async()=>({results:[row]})};
+ }});
+ assert.deepEqual(countries,['MX','US']);assert.equal(result.preview.url,row.previewUrl);
+ assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:false,status:429})}),{preview:null,retry:true});
+ assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:true,json:async()=>({results:[]})})}),{preview:null});
 });
