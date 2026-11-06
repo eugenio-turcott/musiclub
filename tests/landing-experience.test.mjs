@@ -1,9 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {landingSelection,displayRelease,seededRandom} from '../src/utils/landingExperience.mjs';
-import {listeningTrack,matchListeningPreview} from '../src/utils/listeningPreview.mjs';
-import {lookupListeningPreview} from '../src/server/listeningPreview.mjs';
-import {browserListeningPreview} from '../src/services/listeningPreview.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from '../src/server/catalogSnapshot.mjs';
 
 test('large public catalogues fit the data cache without losing tracks, Unicode or scores',()=>{
@@ -38,49 +35,4 @@ test('each visit samples ten distinct reviewed releases, including older records
  assert.ok(first.every(e=>e.review&&e.reviews.length>0));assert.ok(first.some(e=>Number(e.album.id)>15));
  assert.deepEqual(first,same);assert.notDeepEqual(first.map(e=>e.album.id),next.map(e=>e.album.id));
  assert.ok(!first.some(e=>Number(e.album.id)>=30));
-});
-
-test('listening follows the actual top track and handles sparse reviews and legacy track keys',()=>{
- const album={id:'a',edition_member_ids:['a','edition'],tracks:[{id:'one',name:'Primera'},{id:'two',name:'Favorita'},{id:'three',name:'Track 3'}]};
- const one={album_id:'edition',favorite_track:'two',track_ratings:{one:10,two:8}};
- assert.equal(listeningTrack(album,[one]).name,'Favorita');
- const second={album_id:'a',track_ratings:{'Primera':10,'2':7,'three':10}};
- assert.equal(listeningTrack(album,[one,second]).name,'Primera');
- assert.equal(listeningTrack(album,[one,{...second,favorite_track:'2'}]).name,'Favorita');
- assert.equal(listeningTrack({...album,best_track:{id:'two',name:'Favorita',is_favorite_consensus:true}},[one,second]).name,'Favorita');
- assert.equal(listeningTrack(album,[{album_id:'other',favorite_track:'one'}]),null);
- assert.equal(listeningTrack(album,[]),null);
- assert.equal(listeningTrack({id:'legacy',tracks:['Canción antigua'],best_track:{name:'Canción antigua'}},[]).name,'Canción antigua');
-});
-
-test('audio lookup only accepts the exact track, artist and release, plus trusted streaming URLs',()=>{
- const album={album_name:'Álbum real',artist_name:'Artista'},track={name:'Favorita',reason:'Mejor calificada'};
- const row={kind:'song',artistName:'Artista',trackName:'Favorita',collectionName:'Album real',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/mx/album/real/123?i=456'};
- assert.equal(matchListeningPreview([row],album,track).url,row.previewUrl);
- for(const wrong of [{artistName:'Otro artista'},{collectionName:'Grandes éxitos'},{trackName:'Favorita (Live)'},{previewUrl:'https://example.com/sample.mp3'},{previewUrl:'http://audio-ssl.itunes.apple.com/sample.m4a'},{trackViewUrl:'https://music.apple.com.example.com/track'}])assert.equal(matchListeningPreview([{...row,...wrong}],album,track),null);
-});
-
-test('a transient preview failure tries the alternate storefront without caching provider errors as missing music',async()=>{
- const album={album_name:'Release',artist_name:'Artista'},track={name:'Canción'};
- const row={kind:'song',artistName:'Artista',trackName:'Canción',collectionName:'Release',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/us/album/123?i=456'};
- const countries=[];
- const result=await lookupListeningPreview(album,track,{fetcher:async url=>{
-   countries.push(url.searchParams.get('country'));
-   if(countries.length===1)throw new DOMException('Timed out','TimeoutError');
-   return {ok:true,json:async()=>({results:[row]})};
- }});
- assert.deepEqual(countries,['MX','US']);assert.equal(result.preview.url,row.previewUrl);
- assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:false,status:429})}),{preview:null,retry:true});
- assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:true,json:async()=>({results:[]})})}),{preview:null});
-});
-
-test('the browser fallback sends only public music metadata and respects provider rate limits',async()=>{
- const album={id:'a',album_name:'Release',artist_name:'Artista',tracks:[{id:'t',name:'Canción'}],best_track:{id:'t',name:'Canción'}};
- let calls=0;
- const result=await browserListeningPreview({album,reviews:[]},{fetcher:async(url,options)=>{
-   calls++;assert.equal(url.hostname,'itunes.apple.com');assert.equal(options.credentials,'omit');assert.equal(options.referrerPolicy,'no-referrer');
-   return {ok:true,json:async()=>({results:[{kind:'song',artistName:'Artista',trackName:'Canción',collectionName:'Release',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/mx/album/123?i=456'}]})};
- }});
- assert.equal(result.name,'Canción');assert.equal(calls,1);
- calls=0;await assert.rejects(browserListeningPreview({album,reviews:[]},{fetcher:async()=>{calls++;return {ok:false,status:429};}}));assert.equal(calls,1);
 });

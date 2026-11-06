@@ -35,8 +35,7 @@ export default async function HomePage() {
   const demoAlbums=data.albums.filter(a=>a.review_count>0).map(a=>({
     id:a.id,edition_member_ids:a.edition_member_ids,album_name:a.album_name,artist_name:a.artist_name,
     image_url:a.image_url,genres:a.genres,release_type:a.release_type,final_rating:a.final_rating,
-    review_count:a.review_count,spotify_link:a.spotify_link,best_track:a.best_track,
-    tracks:a.best_track?[(a.tracks||[]).map((t,i)=>typeof t==='string'?{name:t,track_number:i+1}:t).find(t=>(t.id&&t.id===a.best_track.id)||t.name===a.best_track.name)].filter(Boolean):[],
+    review_count:a.review_count,
   }));
   const albumById=new Map(data.albums.flatMap(a=>(a.edition_member_ids||[a.id]).map(id=>[id,a])));
   const demoReviews=data.reviews.map(({albums,comment,reviewer_avatar,created_at,...review})=>({...review,

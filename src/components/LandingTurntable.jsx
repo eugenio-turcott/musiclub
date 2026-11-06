@@ -6,90 +6,98 @@ import {UiIcon} from './UiIcon';
 import MoodIcon from './MoodIcon';
 import {getEmotionFromReview, getReleaseUrl} from '../utils/ratingUtils';
 import {displayRelease} from '../utils/landingExperience.mjs';
-import {listeningTrack} from '../utils/listeningPreview.mjs';
-import {browserListeningPreview} from '../services/listeningPreview.mjs';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './LandingTurntable.module.css';
 
-const previews = new Map();
-async function previewFor(entry) {
-  const id=entry.album.id;
-  if (!previews.has(id)) {
-    if (previews.size > 30) previews.delete(previews.keys().next().value);
-    const request = fetch(`/api/listening-preview?album=${encodeURIComponent(id)}`).then(async response => {
-      if(response.status===503)return browserListeningPreview(entry);
-      if (!response.ok) throw new Error('preview unavailable');
-      return (await response.json()).preview;
-    }).catch(error => {previews.delete(id);throw error;});
-    previews.set(id, request);
-  }
-  return previews.get(id);
-}
-
-function Player({entry}) {
-  const {album, review, reviews} = entry, release = displayRelease(album);
-  const track = listeningTrack(album, reviews), art = visuals.genreRevealArtwork(release.genres[0] || 'Pop');
-  const audio = useRef(null), scene = useRef(null), wanted = useRef(false), mounted = useRef(true), drag = useRef(null), ignoreClick = useRef(false);
-  const [down,setDown] = useState(false), [playing,setPlaying] = useState(false), [status,setStatus] = useState('idle'), [preview,setPreview] = useState(null), [progress,setProgress] = useState(0);
-  const lift = () => {wanted.current=false;setDown(false);audio.current?.pause();};
-  useEffect(() => {
-    mounted.current=true;
-    const element=audio.current, visibility=()=>{if(document.hidden)lift();};
-    document.addEventListener('visibilitychange',visibility);
-    const observer = new IntersectionObserver(([entry])=>{if(!entry.isIntersecting)lift();},{threshold:0});
-    observer.observe(scene.current);
-    return()=>{mounted.current=false;wanted.current=false;element?.pause();observer.disconnect();document.removeEventListener('visibilitychange',visibility);};
-  },[]);
-  const lower = async () => {
-    if (!track) return;
-    wanted.current=true;setDown(true);
-    try {
-      let result=preview;
-      if (!result) {setStatus('loading');result=await previewFor(entry);}
-      if (!mounted.current) return;
-      if (!result) {setStatus('unavailable');lift();return;}
-      setPreview(result);setStatus('ready');
-      if (!wanted.current) return;
-      const element=audio.current;
-      if(element.src!==result.url)element.src=result.url;
-      try {await element.play();}
-      catch(error) {if(mounted.current){lift();setStatus(error.name==='NotAllowedError'?'gesture':'error');}}
-    } catch {if(mounted.current){setStatus('error');lift();}}
-  };
-  const toggle = () => down ? lift() : lower();
-  const statusText = status==='loading'?'Buscando la muestra…':status==='unavailable'?'Esta canción no tiene muestra disponible.':status==='error'?'No se pudo reproducir. Puedes volver a intentarlo.':status==='gesture'?'Pulsa reproducir para escuchar la muestra.':playing?'Escuchando una muestra del release':track?'Baja la aguja para escuchar una muestra':'Este release aún no tiene una canción top.';
-  return <div ref={scene} className={styles.player} data-playing={playing} data-needle-down={down}>
-    <div className={styles.deckArea}>
-      <div className={styles.halo} aria-hidden="true"/>
-      <div className={styles.deck}>
-        <div className={styles.brand}><span><img src="/musiclub_logo_corchea.png" alt="" width="24" height="24"/>MUSICLUB</span><small>ESTÉREO · 33⅓</small></div>
-        <div className={styles.platter} aria-hidden="true"><img data-turntable-record="" className={styles.record} src={art.disc} alt=""/><img className={styles.motif} src={art.center} alt=""/><i className={styles.spindle}/></div>
-        <button type="button" className={styles.needle} aria-label={down?'Levantar aguja y pausar':'Bajar aguja y escuchar muestra'} aria-pressed={down} disabled={!track} title="Pulsa o arrastra la aguja"
-          onClick={()=>{if(ignoreClick.current){ignoreClick.current=false;return;}toggle();}}
-          onPointerDown={event=>{drag.current={x:event.clientX,y:event.clientY};event.currentTarget.setPointerCapture(event.pointerId);}}
-          onPointerUp={event=>{const from=drag.current;drag.current=null;if(from&&Math.hypot(event.clientX-from.x,event.clientY-from.y)>12){ignoreClick.current=true;toggle();}}}
-          onPointerCancel={()=>{drag.current=null;}}><span className={styles.needleAssembly}><span className={styles.pivot}/><span className={styles.arm}/><span className={styles.cartridge}/></span></button>
-        <div className={styles.deckFoot}><span className={styles.power}/><div className={styles.equalizer} aria-hidden="true">{Array.from({length:15},(_,i)=><i key={i} style={{'--i':i}}/>)}</div><span>33 <i/>45</span></div>
-      </div>
-      <span className={styles.needleHint}><UiIcon name="arrow" size={17} tone="inherit"/>Pulsa o arrastra la aguja</span>
-    </div>
-    <div className={styles.releasePanel}>
-      <Link to={getReleaseUrl(album)} className={styles.release} aria-label={`Ver release: ${release.title}`}><CoverImage src={release.image} alt={release.title} sizes="76px" loading="eager"/><span><strong>{release.title}</strong><small>{release.artist}</small></span><UiIcon name="arrow" size={20} tone="inherit"/></Link>
-      <div className={styles.facts}><span><UiIcon name="star" size={21} tone="inherit"/><b>{Number(album.final_rating || 0).toFixed(1)}<small>/10</small></b><small>{album.review_count} {album.review_count===1?'reseña':'reseñas'}</small></span><span><MoodIcon mood={getEmotionFromReview(review).id} size={31}/><small>{getEmotionFromReview(review).label || 'Ánimo del club'}</small></span></div>
-      <div className={styles.listen}><button type="button" onClick={toggle} disabled={!track} aria-label={down?'Pausar muestra':'Reproducir muestra'} aria-pressed={playing}><UiIcon name={down?'pause':'play'} size={25} tone="inherit"/></button><div><span>{track?.reason || 'Canción top del club'}</span><strong>{track?.name || 'Aún sin canciones calificadas'}</strong><p role="status">{statusText}</p></div></div>
-      <div className={styles.progress} role="progressbar" aria-label="Progreso de la muestra" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress)}><i style={{transform:`scaleX(${progress/100})`}}/></div>
-      {preview&&<div className={styles.provider}><a href={preview.storeUrl} target="_blank" rel="noopener noreferrer"><img src="/itunes-store-badge-es.svg" width="110" height="40" alt="Consíguelo en iTunes Store"/></a><small>Muestra cortesía de iTunes<br/>provided courtesy of iTunes</small></div>}
-      {(status==='unavailable'||status==='error')&&album.spotify_link&&<a className={styles.fallback} href={album.spotify_link} target="_blank" rel="noopener noreferrer">Escuchar el release en Spotify <UiIcon name="arrow" size={17} tone="inherit"/></a>}
-    </div>
-    <audio ref={audio} preload="none" onPlay={()=>setPlaying(true)} onPause={()=>setPlaying(false)} onEnded={()=>{lift();setProgress(0);}} onTimeUpdate={event=>{const a=event.currentTarget;setProgress(a.duration?Math.min(100,a.currentTime/a.duration*100):0);}} onError={()=>{setStatus('error');lift();}}/>
-  </div>;
-}
-
 export function LandingTurntable({selection}) {
-  const [index,setIndex]=useState(0);
-  const selected=selection[index%Math.max(1,selection.length)];
-  return <div className={styles.studio} aria-label="Tornamesa interactiva de Musiclub">
-    {selected?<Player key={selected.album.id} entry={selected}/>:<p>Los releases con reseñas aparecerán aquí.</p>}
-    <div className={styles.library}><header><span><UiIcon name="shuffle" size={17} tone="inherit"/>Selección aleatoria del club</span><span>{selected?index%selection.length+1:0} / {selection.length}</span></header><div className={styles.picker} aria-label="Releases de la tornamesa">{selection.map(({album},i)=><button type="button" key={album.id} aria-label={`Mostrar ${displayRelease(album).title} en la tornamesa`} aria-pressed={index%selection.length===i} onClick={()=>setIndex(i)}><CoverImage src={displayRelease(album).image} alt="" sizes="58px"/><span>{i+1}</span></button>)}</div></div>
+  const [index,setIndex]=useState(0), [down,setDown]=useState(false), [effects,setEffects]=useState(false), [gesture,setGesture]=useState(0);
+  const scene=useRef(null), sound=useRef(null), drag=useRef(null), ignoreClick=useRef(false), recordButtons=useRef([]), rail=useRef(null);
+  const selected=selection[index%Math.max(1,selection.length)], album=selected?.album, release=displayRelease(album);
+  const mood=getEmotionFromReview(selected?.review), art=visuals.genreRevealArtwork(release.genres[0]||'Pop');
+  const score=album?.final_rating==null?'—':Number(album.final_rating).toFixed(1);
+
+  // Locally synthesized effects: no download or initialization until FX is
+  // explicitly enabled. Every tone ends in less than half a second.
+  const chime=(kind,force=false)=>{
+    if(!effects&&!force)return;
+    try {
+      const Context=window.AudioContext||window.webkitAudioContext;
+      if(!Context)return;
+      const context=sound.current||(sound.current=new Context());
+      const play=()=>{
+        if(context.state!=='running'||document.hidden)return;
+        const notes=kind==='lift'?[880,659]:kind==='change'?[659,880,1318]:[523,784,1046];
+        notes.forEach((frequency,i)=>{
+          const oscillator=context.createOscillator(), gain=context.createGain(), start=context.currentTime+i*.055;
+          oscillator.type='sine';oscillator.frequency.setValueAtTime(frequency,start);
+          gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.018,start+.012);gain.gain.exponentialRampToValueAtTime(.0001,start+.22);
+          oscillator.connect(gain);gain.connect(context.destination);oscillator.start(start);oscillator.stop(start+.24);
+          oscillator.onended=()=>{oscillator.disconnect();gain.disconnect();};
+        });
+      };
+      if(context.state==='suspended')context.resume().then(play).catch(()=>{});else play();
+    } catch { /* Optional effects never prevent the visual interaction. */ }
+  };
+
+  useEffect(()=>{
+    const visibility=()=>{if(document.hidden){setDown(false);sound.current?.close().catch(()=>{});sound.current=null;}};
+    document.addEventListener('visibilitychange',visibility);
+    const observer=typeof IntersectionObserver==='function'?new IntersectionObserver(([entry])=>{if(!entry.isIntersecting)setDown(false);}):null;
+    if(scene.current)observer?.observe(scene.current);
+    return()=>{observer?.disconnect();document.removeEventListener('visibilitychange',visibility);sound.current?.close().catch(()=>{});sound.current=null;};
+  },[]);
+
+  const needle=value=>{setDown(value);setGesture(n=>n+1);chime(value?'lower':'lift');};
+  const choose=i=>{
+    if(!selection.length)return;
+    const next=(i+selection.length)%selection.length;
+    setIndex(next);setDown(false);setGesture(n=>n+1);chime('change');
+    const button=recordButtons.current[next], list=rail.current;
+    if(button&&list)list.scrollTo({left:Math.max(0,button.offsetLeft-list.offsetLeft-list.clientWidth/2+button.clientWidth/2),behavior:'auto'});
+  };
+
+  return <div ref={scene} className={styles.studio} aria-label="Tornamesa interactiva de Musiclub" data-needle-down={down} data-effects-enabled={effects}>
+    <div className={styles.halo} aria-hidden="true"/>
+    <div className={styles.deck} data-turntable-deck="">
+      <header className={styles.brand}>
+        <span><img src="/musiclub_logo_corchea.png" alt="" width="25" height="25"/><b>MUSICLUB</b><small>33⅓ · ESTÉREO</small></span>
+        <button type="button" className={styles.effects} aria-label={effects?'Silenciar efectos de sonido':'Activar efectos de sonido'} aria-pressed={effects} onClick={()=>{
+          if(effects){setEffects(false);sound.current?.close().catch(()=>{});sound.current=null;}
+          else{setEffects(true);chime('change',true);}
+        }}><UiIcon name="sparkles" size={19} tone="inherit"/><span>FX</span><i/></button>
+      </header>
+
+      {album?<Link to={getReleaseUrl(album)} className={styles.display} aria-label={`Ver release: ${release.title}`} data-turntable-display="">
+        <CoverImage src={release.image} alt={release.title} sizes="64px" loading="eager"/>
+        <span className={styles.displayText} key={album.id}><span className={styles.displayLabel}><i/>{down?'EN GIRO':'ELIGE TU PRÓXIMO DISCO'}</span><strong>{release.title}</strong><small>{release.artist}</small></span>
+        <span className={styles.displayIndex}><b>{String(index%selection.length+1).padStart(2,'0')}<small>/{selection.length}</small></b><UiIcon name="arrow" size={19} tone="inherit"/></span>
+      </Link>:<div className={styles.display}><p>Los releases con reseñas aparecerán aquí.</p></div>}
+
+      <div className={styles.mechanism}>
+        <div className={styles.platter} aria-hidden="true"><div className={styles.record} data-turntable-record=""><img src={art.disc} alt=""/></div><img className={styles.motif} src={art.center} alt=""/><i className={styles.spindle}/>
+          {gesture>0&&<span className={styles.magic} key={gesture}>{[0,1,2,3,4,5].map(i=><span key={i} style={{'--i':i}}><UiIcon name="sparkles" size={15} tone="inherit"/></span>)}</span>}
+        </div>
+        <button type="button" className={styles.needle} aria-label={down?'Levantar aguja':'Bajar aguja'} aria-pressed={down} title="Pulsa o arrastra la aguja" disabled={!album}
+          onClick={()=>{if(ignoreClick.current){ignoreClick.current=false;return;}needle(!down);}}
+          onPointerDown={event=>{if(event.button!==0)return;drag.current={x:event.clientX,y:event.clientY};event.currentTarget.setPointerCapture(event.pointerId);}}
+          onPointerUp={event=>{const from=drag.current;drag.current=null;if(!from)return;const dx=event.clientX-from.x,dy=event.clientY-from.y;if(Math.hypot(dx,dy)>12){ignoreClick.current=true;needle(Math.abs(dx)>Math.abs(dy)?dx<0:dy>0);}}}
+          onPointerCancel={()=>{drag.current=null;}}><span className={styles.needleAssembly}><span className={styles.pivot}/><span className={styles.arm}/><span className={styles.cartridge}/></span></button>
+        <span className={styles.needleGuide} aria-hidden="true"><UiIcon name="arrowLeft" size={17} tone="inherit"/>MUEVE<br/>LA AGUJA</span>
+      </div>
+
+      <div className={styles.console} data-turntable-console="">
+        <button type="button" className={styles.motor} aria-label={down?'Detener vinilo':'Girar vinilo'} aria-pressed={down} disabled={!album} onClick={()=>needle(!down)}><UiIcon name={down?'pause':'play'} size={23} tone="inherit"/><i/></button>
+        <div className={styles.visualizer} aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--i':i}}/>)}</div>
+        <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" size={22} tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
+        <span className={styles.mood} role="img" aria-label={`Estado de ánimo: ${mood.label}`} title={mood.label}><MoodIcon mood={mood.id} size={42}/></span>
+      </div>
+
+      <div className={styles.library}>
+        <div className={styles.libraryLabel}><span><UiIcon name="shuffle" size={16} tone="inherit"/>DISCOS DEL CLUB</span><div><button type="button" aria-label="Disco anterior" disabled={selection.length<2} onClick={()=>choose(index-1)}><UiIcon name="arrowLeft" size={18} tone="inherit"/></button><button type="button" aria-label="Disco siguiente" disabled={selection.length<2} onClick={()=>choose(index+1)}><UiIcon name="arrow" size={18} tone="inherit"/></button></div></div>
+        <div ref={rail} className={styles.picker} aria-label="Releases de la tornamesa">{selection.map(({album:a},i)=><button ref={element=>{recordButtons.current[i]=element;}} type="button" key={a.id} aria-label={`Mostrar ${displayRelease(a).title} en la tornamesa`} aria-pressed={index%selection.length===i} onClick={()=>choose(i)}><CoverImage src={displayRelease(a).image} alt="" sizes="50px"/><span>{i+1}</span></button>)}</div>
+      </div>
+      <span className={styles.status} role="status">{down?'Vinilo girando · Aguja sobre el disco':'Pulsa o arrastra la aguja para girar el vinilo'}</span>
+      <i className={`${styles.screw} ${styles.screwLeft}`} aria-hidden="true"/><i className={`${styles.screw} ${styles.screwRight}`} aria-hidden="true"/>
+    </div>
   </div>;
 }

@@ -4,10 +4,6 @@ test.beforeEach(async({page})=>{
  await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
 });
 
-function silentPreview(){
- const wav=Buffer.alloc(44+8000*30*2);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);return wav;
-}
-
 async function openLanding(page){
  // Hydration starts these two original reads after the document's load event.
  // Wait for their complete responses, rather than treating networkidle as
@@ -82,28 +78,35 @@ test('reduced motion keeps the complete landing readable and makes decorative sc
  expect(await page.locator('[data-share-preview]').evaluate(el=>getComputedStyle(el.closest('article')).opacity)).toBe('1');
 });
 
-test('the needle controls one lazy audio preview, pauses on release changes and leaves the complete deck unobstructed',async({page})=>{
- const samples=[];
- const wav=silentPreview();
- await page.route('**/sample.wav',route=>route.fulfill({contentType:'audio/wav',body:wav}));
- await page.route('**/api/listening-preview?*',route=>{samples.push(route.request().url());return route.fulfill({json:{preview:{url:'http://127.0.0.1:3101/sample.wav',storeUrl:'https://music.apple.com/mx/album/fixture/123?i=456',name:'Segunda canción',reason:'Favorita del club'}}});});
- await openLanding(page);expect(samples).toHaveLength(0);
+test('the integrated turntable has local needle controls, real metadata and optional effects without music requests',async({page},info)=>{
+ await page.addInitScript(()=>{
+   const Native=window.AudioContext||window.webkitAudioContext;window.__deckContexts=[];
+   if(Native)window.AudioContext=class extends Native{constructor(...args){super(...args);window.__deckContexts.push(this);}};
+ });
+ await openLanding(page);
+ const requests=[];page.on('request',request=>{if(/\/api\/|\/rest\/v1\/|itunes\.apple|api\.spotify|AudioPreview|\.mp3|\.m4a/.test(request.url()))requests.push(request.url());});
+ const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"]'),deck=player.locator('[data-turntable-deck]');
+ await expect(player.locator('audio,iframe')).toHaveCount(0);
+ await expect(deck.locator('[data-turntable-display]')).toHaveCount(1);
+ await expect(deck.locator('[data-turntable-console] [aria-label^="Calificación del club"]')).toHaveCount(1);
+ await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(1);
+ await expect(deck.getByRole('button',{name:/^Mostrar /})).toHaveCount(3);
  await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
- const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"] [data-playing]');
- const deck=await player.locator('[class*="deckArea"]').boundingBox(),panel=await player.locator('[class*="releasePanel"]').boundingBox();
- expect(deck.y+deck.height).toBeLessThanOrEqual(panel.y+1);
- await page.getByRole('button',{name:'Bajar aguja y escuchar muestra',exact:true}).click();
- await expect(player).toHaveAttribute('data-playing','true');
+ await expect(deck.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
+ await page.getByRole('button',{name:'Bajar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','true');
+ await page.getByRole('button',{name:'Levantar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','false');
+ const needle=page.getByRole('button',{name:'Bajar aguja',exact:true});await needle.scrollIntoViewIfNeeded();const bounds=await needle.boundingBox();
+ const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
+ await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-22,y+28);await page.mouse.up();
  await expect(player).toHaveAttribute('data-needle-down','true');
- await expect(player).toContainText('Segunda canción');expect(samples).toHaveLength(1);
- await page.getByRole('button',{name:'Levantar aguja y pausar',exact:true}).click();
- await expect(player).toHaveAttribute('data-playing','false');
- expect(await player.locator('audio').evaluate(audio=>audio.paused)).toBe(true);
- await page.getByRole('button',{name:'Bajar aguja y escuchar muestra',exact:true}).press('Enter');
- await expect(player).toHaveAttribute('data-playing','true');expect(samples).toHaveLength(1);
- await page.getByRole('button',{name:'Mostrar Rojo en la tornamesa',exact:true}).click();
- await expect(player).toHaveAttribute('data-playing','false');await expect(player).toHaveAttribute('data-needle-down','false');
- expect(await player.locator('audio').evaluate(audio=>audio.paused)).toBe(true);expect(samples).toHaveLength(1);
+ await page.getByRole('button',{name:'Disco siguiente',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
+ expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(0);
+ await page.getByRole('button',{name:'Activar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','true');
+ expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(1);
+ await page.getByRole('button',{name:'Silenciar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','false');
+ await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('closed');
+ expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:'outputs/v11-1-1-turntable-'+info.project.name+'.png',animations:'disabled'});
 });
 
 test('genre links open the animated genre explorer and filters remain local',async({page})=>{
@@ -116,23 +119,4 @@ test('genre links open the animated genre explorer and filters remain local',asy
  await page.getByRole('button',{name:'Con reseñas',exact:true}).click();
  await expect(page.getByRole('region',{name:'Lanzamientos de Pop',exact:true})).toContainText('Azul');
  expect(queries).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-});
-
-test('shared-server rate limits fall back to official browser search and reuse the result for playback',async({page})=>{
- const lookups=[];
- await page.route('**/api/listening-preview?*',route=>route.fulfill({status:503,json:{preview:null,retry:true}}));
- await page.route('https://itunes.apple.com/search?*',route=>{
-   lookups.push(route.request().url());
-   return route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{results:[{kind:'song',artistName:'Artista de Prueba',trackName:'Segunda canción',collectionName:'Azul',previewUrl:'https://audio-ssl.itunes.apple.com/preview-test.wav',trackViewUrl:'https://music.apple.com/mx/album/123?i=456'}]}});
- });
- await page.route('https://audio-ssl.itunes.apple.com/preview-test.wav',route=>route.fulfill({contentType:'audio/wav',body:silentPreview()}));
- await openLanding(page);expect(lookups).toHaveLength(0);
- await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
- await page.getByRole('button',{name:'Bajar aguja y escuchar muestra',exact:true}).click();
- const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"] [data-playing]');
- await expect(player).toHaveAttribute('data-playing','true');expect(lookups).toHaveLength(1);
- expect(new URL(lookups[0]).searchParams.get('term')).toBe('Artista de Prueba Segunda canción Azul');
- await page.getByRole('button',{name:'Levantar aguja y pausar',exact:true}).click();
- await page.getByRole('button',{name:'Reproducir muestra',exact:true}).click();
- await expect(player).toHaveAttribute('data-playing','true');expect(lookups).toHaveLength(1);
 });
