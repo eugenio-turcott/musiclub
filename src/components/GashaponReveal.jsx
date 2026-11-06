@@ -3,11 +3,11 @@ import React, { useMemo } from 'react';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './GashaponReveal.module.css';
 
-export function GashaponReveal({ genre, edition, stage, duration = 2400, startedAt = 0, album, onOpen }) {
+export function GashaponReveal({ genre, edition, stage, duration = 2400, startedAt = 0, album, onOpen, compact = false }) {
   const art = visuals.genreRevealArtwork(genre, edition);
   const elapsed = useMemo(() => startedAt ? Math.min(Date.now() - startedAt, duration) : 0, [startedAt, duration]);
   const interactive = stage === 'READY';
-  return <div className={styles.scene} data-stage={stage.toLowerCase()} data-vinyl-reveal data-vinyl-edition={art.id} style={{'--opening-duration':`${duration}ms`, '--opening-delay':`${-elapsed}ms`, '--vinyl-base':art.base, '--vinyl-accent':art.accent, '--vinyl-highlight':art.highlight}}>
+  return <div className={styles.scene} data-stage={stage.toLowerCase()} data-vinyl-reveal data-vinyl-edition={art.id} data-compact={compact||undefined} style={{'--opening-duration':`${duration}ms`, '--opening-delay':`${-elapsed}ms`, '--vinyl-base':art.base, '--vinyl-accent':art.accent, '--vinyl-highlight':art.highlight}}>
     <div className={styles.stage}>
     <div className={styles.aura} aria-hidden="true" />
     <div className={styles.orbit} aria-hidden="true" />
@@ -21,6 +21,6 @@ export function GashaponReveal({ genre, edition, stage, duration = 2400, started
       <img onError={event => { if (!event.currentTarget.src.endsWith('/musiclub_logo_corchea.png')) event.currentTarget.src = '/musiclub_logo_corchea.png'; }} src={album?.imagen || album?.image_url || '/musiclub_logo_corchea.png'} alt={stage === 'REVEALED' ? album?.album || album?.album_name || '' : ''} width="240" height="240" decoding="async" loading="eager" draggable="false" />
     </div>
     </div>
-    <span className={styles.readyHint} aria-hidden="true">TOCA EL VINILO</span>
+    {!compact&&<span className={styles.readyHint} aria-hidden="true">TOCA EL VINILO</span>}
   </div>;
 }

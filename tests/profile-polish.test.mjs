@@ -29,3 +29,14 @@ test('guide examples copy real public records and exclude private data',()=>{
  const review={id:'r',album_id:'a',reviewer_name:'Miembro existente',reviewer_email:'private@example.test',rating_general:8,track_ratings:{t:9},comment:'Texto real'};
  const example=buildTourExamples({albums:[album],reviews:[review]});assert.equal(example.records[0].album,album.album_name);assert.equal(example.review.comment,review.comment);assert.equal(example.trackRows[0].name,'Canción existente');assert.equal(JSON.stringify(example).includes('private@example.test'),false);assert.equal(buildTourExamples({albums:[],reviews:[]}).records.length,0);
 });
+
+test('the guide retains every real track in tracklist order, preserves legacy keys and leaves unrated tracks empty',()=>{
+ const tracks=Array.from({length:6},(_,i)=>({id:'id-'+i,id_aliases:['old-'+i],name:'Canción '+(i+1)}));
+ const album={id:'a',album_name:'Release real',artist_name:'Artista',image_url:'/real.png',tracks};
+ const review={album_id:'a',track_ratings:{'old-0':7,'Canción 3':10},favorite_track:'Canción 3'};
+ const {trackRows}=buildTourExamples({albums:[album],reviews:[review]});
+ assert.equal(trackRows.length,6);assert.deepEqual(trackRows.map(t=>t.index),[0,1,2,3,4,5]);
+ assert.equal(trackRows[0].key,'old-0');assert.equal(trackRows[0].score,7);
+ assert.equal(trackRows[2].score,10);assert.equal(trackRows[2].isFavorite,true);
+ assert.equal(trackRows[5].score,null);assert.equal(trackRows[5].name,'Canción 6');
+});

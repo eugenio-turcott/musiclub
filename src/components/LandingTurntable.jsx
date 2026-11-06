@@ -80,7 +80,6 @@ export function LandingTurntable({selection}) {
           onPointerDown={event=>{if(event.button!==0)return;drag.current={x:event.clientX,y:event.clientY};event.currentTarget.setPointerCapture(event.pointerId);}}
           onPointerUp={event=>{const from=drag.current;drag.current=null;if(!from)return;const dx=event.clientX-from.x,dy=event.clientY-from.y;if(Math.hypot(dx,dy)>12){ignoreClick.current=true;needle(Math.abs(dx)>Math.abs(dy)?dx<0:dy>0);}}}
           onPointerCancel={()=>{drag.current=null;}}><span className={styles.needleAssembly}><span className={styles.pivot}/><span className={styles.arm}/><span className={styles.cartridge}/></span></button>
-        <span className={styles.needleGuide} aria-hidden="true"><UiIcon name="arrowLeft" size={17} tone="inherit"/>MUEVE<br/>LA AGUJA</span>
       </div>
 
       <div className={styles.console} data-turntable-console="">

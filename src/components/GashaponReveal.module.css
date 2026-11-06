@@ -43,6 +43,7 @@
 .scene[data-stage='revealed'] .poster { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); }
 .scene[data-stage='revealed'] .aura { opacity: .5; }
 .scene[data-stage='revealed'] .orbit { opacity: .3; }
+.scene[data-compact]{width:clamp(170px,32vw,250px);padding-bottom:0}
 @keyframes vinylFloat { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(3deg); } }
 @keyframes orbit { to { transform: rotate(360deg); } }
 @keyframes vinylCharge { 0% { transform: rotate(-12deg) scale(1); } 12% { transform: rotate(-38deg) scale(.93); } 53% { transform: rotate(730deg) scale(1.045); } 80%,100% { transform: rotate(1080deg) scale(1); } }

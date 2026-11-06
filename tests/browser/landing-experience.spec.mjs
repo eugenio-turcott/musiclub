@@ -46,14 +46,10 @@ test('landing simulations are local, use all seven criteria and retain a sticky 
  await expect(demo.getByRole('button',{name:/^Ajustar/})).toHaveCount(7);
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
  const gashapon=page.locator('[data-gashapon-demo]');
- await gashapon.getByRole('button',{name:/^Abrir cápsula de /}).click();
- await expect(gashapon).toContainText('no guarda cambios');
  await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveAttribute('data-stage','revealed');
- await gashapon.getByRole('button',{name:'Probar otra cápsula',exact:true}).click();
- await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveAttribute('data-stage','ready');
- await gashapon.getByRole('button',{name:'Ejemplo para descubrir: Azul',exact:true}).click();
- await gashapon.getByRole('button',{name:/^Abrir cápsula de /}).click();
- await expect(gashapon.locator('[aria-live="polite"]')).toContainText('Azul');
+ expect((await gashapon.boundingBox()).height).toBeLessThanOrEqual(300);
+ await expect(gashapon.getByText('Demostración · no guarda cambios',{exact:true})).toHaveCount(0);
+ await expect(gashapon.getByRole('button',{name:/Ejemplo para descubrir|Probar otra|Género/})).toHaveCount(0);
  await expect(page.locator('#demo-descubrir').getByRole('link',{name:'Entrar al Gashapon',exact:true})).toHaveAttribute('href','/gashapon');
  const nav=page.getByRole('navigation',{name:'Demostraciones de Musiclub'});
  expect(await nav.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
@@ -103,6 +99,8 @@ test('the integrated turntable has local needle controls, real metadata and opti
  expect(await record.evaluate(el=>getComputedStyle(el).animationPlayState)).toBe('running');
  expect(await deck.locator('[data-turntable-display] strong').evaluate(el=>getComputedStyle(el).fontFamily)).toMatch(/Gabarito|gabarito/);
  const dimensions=await deck.boundingBox();expect(dimensions.width).toBeGreaterThan(dimensions.height);
+ expect(await deck.evaluate(el=>getComputedStyle(el).transform)).toBe('none');
+ await expect(player.getByText(/MUEVE.*LA AGUJA/)).toHaveCount(0);
  await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
  await expect(deck.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
@@ -122,18 +120,22 @@ test('the integrated turntable has local needle controls, real metadata and opti
  await page.screenshot({path:'outputs/v11-1-2-turntable-'+info.project.name+'.png',animations:'disabled'});
 });
 
-test('Gashapon opens real release examples locally and cancels an old reveal when another capsule is selected',async({page})=>{
+test('the compact Gashapon cycles real releases only while visible without new data requests',async({page})=>{
  await openLanding(page);
- const demo=page.locator('[data-gashapon-demo]'),reveal=demo.locator('[data-vinyl-reveal]');
+ const demo=page.locator('[data-gashapon-demo]'),reveal=demo.locator('[data-vinyl-reveal]'),requests=[];
+ page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog/.test(r.url()))requests.push(r.url());});
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
- await demo.getByRole('button',{name:/^Abrir cápsula de /}).press('Enter');await expect(reveal).toHaveAttribute('data-stage','opening');
- await demo.getByRole('button',{name:'Ejemplo para descubrir: Azul',exact:true}).click();
- await expect(reveal).toHaveAttribute('data-stage','ready');
- await demo.getByRole('button',{name:/^Abrir cápsula de /}).press('Enter');await expect(reveal).toHaveAttribute('data-stage','revealed');
- await expect(demo.locator('[data-vinyl-cover] img')).toHaveAttribute('alt','Azul');
- await expect(demo.locator('[aria-live="polite"]')).toContainText('Artista de Prueba');
+ await expect(reveal).toHaveAttribute('data-compact','true');
+ await expect.poll(()=>reveal.getAttribute('data-stage')).toBe('revealed');
+ const cover=demo.locator('[data-vinyl-cover] img'),first=await cover.getAttribute('alt');
+ await expect.poll(async()=>{const title=await cover.getAttribute('alt');return Boolean(title&&title!==first);},{timeout:8000}).toBe(true);
+ await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Compartir/}).click();
+ await expect(page.locator('#demo-compartir')).toBeInViewport();
+ await page.locator('[data-share-preview]').scrollIntoViewIfNeeded();
+ await expect(demo).not.toBeInViewport();await expect(demo).toHaveAttribute('data-gashapon-active','false');
+ const stopped=await cover.getAttribute('alt');await page.waitForTimeout(3500);expect(await cover.getAttribute('alt')).toBe(stopped);
+ expect(requests).toHaveLength(0);
 });
-
 test('genre links open the animated genre explorer and filters remain local',async({page})=>{
  await openLanding(page);await page.getByRole('link',{name:'Explorar Pop',exact:true}).click();
  await expect(page).toHaveURL(/\/generos\/pop$/);await expect(page.getByRole('heading',{name:'Releases de Pop',exact:true})).toBeVisible();

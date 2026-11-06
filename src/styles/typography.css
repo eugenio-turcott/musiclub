@@ -1,0 +1,10 @@
+/* Gabarito's bold ink can extend beyond its advance width, especially with
+   tight tracking. Reserve paint space without disabling deliberate ellipses. */
+:where(h1,h2,h3,h4,h5,h6){padding-inline-end:.1em}
+:where(h1,h2,h3,h4,h5,h6):not([class*="line-clamp"]):not(.truncate){padding-block:.06em}
+.bg-clip-text,[data-gradient-text]{
+  padding:.1em .18em;
+  -webkit-box-decoration-break:clone;
+  box-decoration-break:clone;
+}
+[data-gradient-text]{margin-inline-start:-.18em;margin-inline-end:-.12em}

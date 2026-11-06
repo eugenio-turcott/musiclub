@@ -34,3 +34,6 @@
 @media(max-width:800px){.hero{grid-template-columns:1fr;gap:0;min-height:0}.hero h1{font-size:clamp(39px,7vw,60px)}.heroText{margin-inline:auto}.xpPath{flex-direction:column;align-items:stretch}.xpPath>svg{align-self:center;transform:rotate(90deg)}.xpPath>div{gap:16px}.xpPath span{font-size:14px}.xpPath b{font-size:17px}}
 @media(max-width:450px){.hero h1{font-size:40px;letter-spacing:-1.3px}.heroText{font-size:14px;line-height:1.7}.gashaponReveal{min-height:310px;padding-top:18px}.gashaponResult>strong{font-size:22px}.gashaponGenres button{font-size:11px;padding:7px 10px}.xpRules{gap:10px}.xpRules>div{padding:17px 13px;grid-template-columns:25px 1fr;gap:12px 8px;border-radius:16px}.xpRules svg{width:25px;height:25px}.xpRules strong{font-size:28px}.xpRules b{font-size:14px}.xpRules span{font-size:12px}.badgeStage .xpExample{font-size:13px!important}.badgeStage h3{font-size:34px}}
 @media(prefers-reduced-motion:reduce){.root[data-motion-ready] [data-reveal]{opacity:1!important;transform:none!important}}
+.miniGashapon{display:grid;place-items:center;width:100%;max-width:330px;min-height:280px;padding:15px;margin:auto}
+.chapter:has(.miniGashapon){min-height:360px}
+.hero h1,.genreRibbon h2,.sectionHeading h2,.chapterCopy h3,.badgeStage h3,.finale h2{line-height:1.15}

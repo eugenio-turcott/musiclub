@@ -86,7 +86,7 @@ export function LandingHero({albums,reviews,stats,user,onLogin}){
  return <>
  <section className={styles.hero} data-landing-scene="" aria-labelledby="landing-title">
    <div className={styles.heroCopy}>
-     <h1 id="landing-title">En <span>MUSICLUB</span>, descubre, califica y debate cada release.</h1>
+     <h1 id="landing-title">En <span data-gradient-text="">MUSICLUB</span>, descubre, califica y debate cada release.</h1>
      <p className={styles.heroText}>El club social donde cada lanzamiento cuenta: <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.</p>
      <form action="/catalogo#explorador-catalogo" className={styles.search} role="search"><label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>{icon('search')}<input id="home-search" name="q" required placeholder="Busca un álbum o artista"/><button type="submit">Buscar {icon('arrow',18)}</button></form>
      <div className={styles.actions}><Link to="/catalogo" className={styles.primary}>Explorar Catálogo {icon('arrow')}</Link>{!user?<button type="button" onClick={onLogin} className={styles.secondary}>Únete al Club {icon('users')}</button>:<Link to="/profile" className={styles.secondary}>Mi Perfil {icon('user')}</Link>}</div>
@@ -107,24 +107,22 @@ function ReviewDemo({album,review}){
 }
 
 function GashaponDemo({selection}) {
- const [selected,setSelected]=useState(0), [stage,setStage]=useState('READY'), [genre,setGenre]=useState(null), motion=useContext(Motion);
+ const [selected,setSelected]=useState(0), [stage,setStage]=useState('READY'), [inView,setInView]=useState(false), motion=useContext(Motion), scene=useRef(null);
  const current=selected%selection.length, album=selection[current]?.album, release=displayRelease(album);
- const genres=[...new Set(selection.flatMap(entry=>displayRelease(entry.album).genres))].slice(0,6);
- const activeGenre=genre||release.genres[0]||'Pop';
- const choose=(index,nextGenre=null)=>{setSelected(index);setGenre(nextGenre);setStage('READY');};
+ useEffect(()=>{const observer=new IntersectionObserver(([entry])=>setInView(entry.isIntersecting));if(scene.current)observer.observe(scene.current);return()=>observer.disconnect();},[]);
  useEffect(()=>{
-   if(stage!=='OPENING')return;
+   if(!inView)return;
    if(motion.inactive){setStage('REVEALED');return;}
-   const timer=setTimeout(()=>setStage('REVEALED'),1200);
+   const timer=setTimeout(()=>{
+     if(stage==='READY')setStage('OPENING');
+     else if(stage==='OPENING')setStage('REVEALED');
+     else{setSelected(index=>(index+1)%selection.length);setStage('READY');}
+   },stage==='READY'?2000:stage==='OPENING'?1200:3000);
    return()=>clearTimeout(timer);
- },[stage,motion.inactive]);
- return <div className={styles.capsuleDemo} data-gashapon-demo="">
-   <div className={styles.demoTop}><span>{icon('gashapon',22)} GASHAPON ARCADE</span><small>Demostración · no guarda cambios</small></div>
-   <div className={styles.gashaponGenres} aria-label="Géneros del Gashapon de demostración">{genres.map(genre=><button type="button" key={genre} aria-pressed={activeGenre===genre} onClick={()=>choose(selection.findIndex(entry=>displayRelease(entry.album).genres.includes(genre)),genre)}>{genre}</button>)}</div>
-   <div className={styles.gashaponReveal}><GashaponReveal key={album.id+'-'+activeGenre} genre={activeGenre} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/></div>
-   <div className={styles.gashaponResult} aria-live="polite">{stage==='REVEALED'?<><span className={styles.eyebrow}>{icon('sparkles',17)} RELEASE DESCUBIERTO</span><strong>{release.title}</strong><small>{release.artist}</small><button type="button" className={styles.secondary} onClick={()=>choose((current+1)%selection.length)}>{icon('shuffle',18)}Probar otra cápsula</button></>:<p>{stage==='OPENING'?'Abriendo tu cápsula…':'Elige un género y toca el vinilo.'}</p>}</div>
-   <ExamplePicker selection={selection} index={current} onChange={choose} label="Ejemplo para descubrir"/>
-   <div className={styles.poolSteps}><span>{icon('tag',25)}Elige un género</span>{icon('arrow',18)}<span>{icon('gashapon',25)}Abre una cápsula</span>{icon('arrow',18)}<span>{icon('headphones',25)}Descubre un release</span></div>
+ },[stage,motion.inactive,inView,selection.length]);
+ return <div ref={scene} className={styles.miniGashapon} data-gashapon-demo="" data-gashapon-active={inView&&!motion.inactive} aria-label="Animación de Gashapon">
+   <GashaponReveal key={album.id} compact genre={release.genres[0]||'Pop'} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/>
+   <span className="sr-only">{stage==='REVEALED'?`${release.title}, de ${release.artist}`:'Cápsula de un release del club'}</span>
  </div>;
 }
 
