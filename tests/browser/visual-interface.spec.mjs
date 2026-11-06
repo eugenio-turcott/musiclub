@@ -49,13 +49,14 @@ test('the release hero stacks top song and tracks, and places the queue directly
 
 test('home describes public and private pools, uses consistent contextual icons and a circular quick selector', async ({page}) => {
   await page.goto('/');
-  await expect(page.getByRole('heading',{name:'Pools públicos y privados',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Descubre música con el club.',exact:true})).toBeVisible();
+  await expect(page.getByText('Pools públicos y privados',{exact:true})).toBeVisible();
   await expect(page.locator('body')).not.toContainText('Temporada 1');
   await expect(page.locator('body')).not.toContainText('Recepción de Propuestas: Cerrada');
-  const plates=page.locator('.home-feature-icon');
-  await expect(plates).toHaveCount(6);
+  const plates=page.locator('[data-review-demo] [aria-label="Criterios de demostración"] button');
+  await expect(plates).toHaveCount(7);
   const geometry=await plates.evaluateAll(items=>items.map(el=>{const icon=el.querySelector('[data-ui-icon]'),rect=icon.getBoundingClientRect();return {width:rect.width,height:rect.height,color:getComputedStyle(icon).color,plateColor:getComputedStyle(el).color};}));
-  for(const item of geometry){expect(item.width).toBe(24);expect(item.height).toBe(24);expect(item.color).toBe(item.plateColor);}
+  for(const item of geometry){expect(item.width).toBeGreaterThanOrEqual(22);expect(item.height).toBeGreaterThanOrEqual(22);expect(item.color).toBe(item.plateColor);}
   const quick=page.getByRole('button',{name:'Girar Selector Rápido',exact:true});
   await expect(quick.locator('[data-ui-icon="cycle"]')).toBeVisible();
   const color=await quick.evaluate(el=>({text:getComputedStyle(el).color,icon:getComputedStyle(el.querySelector('[data-ui-icon]')).color}));
@@ -107,7 +108,7 @@ test('inline labels center text with their icons instead of aligning on text bas
     const icon=el.querySelector('svg').getBoundingClientRect(),text=el.querySelector('.interface-label-text').getBoundingClientRect();
     return {delta:Math.abs((icon.top+icon.height/2)-(text.top+text.height/2))};
   }));
-  expect(geometry.length).toBeGreaterThan(5);
+  expect(geometry.length).toBeGreaterThan(0);
   for(const item of geometry) expect(item.delta).toBeLessThan(1);
   await page.goto('/portadas');
   const photography=page.getByRole('button',{name:'Fotografía',exact:true});

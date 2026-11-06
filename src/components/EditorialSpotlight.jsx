@@ -5,10 +5,12 @@ import picks from '../data/editorialSpotlights.json';
 import editorial from '../utils/editorialSpotlights.cjs';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import styles from './EditorialSpotlight.module.css';
+import {useLandingMotion} from './LandingExperience';
 
 const entries = editorial.activeSpotlights(picks);
 const SLIDE_DURATION = 7000;
 export function EditorialSpotlight() {
+  const motion=useLandingMotion();
   const id = useId();
   const section = useRef(null);
   const touch = useRef(null);
@@ -26,7 +28,7 @@ export function EditorialSpotlight() {
   }, []);
   useEffect(() => {
     setProgress(0);
-    if (!visible || entries.length < 2) return;
+    if (!visible || motion.inactive || entries.length < 2) return;
     let started = performance.now();
     const timer = window.setInterval(() => {
       // Do not consume a slide's time while its browser tab is hidden.
@@ -36,7 +38,7 @@ export function EditorialSpotlight() {
       else setProgress(elapsed / SLIDE_DURATION * 100);
     }, 100);
     return () => window.clearInterval(timer);
-  }, [visible, selected, cycle]);
+  }, [visible, selected, cycle, motion.inactive]);
   if (!entries.length) return null;
   const current = entries[selected];
   const choose = index => {

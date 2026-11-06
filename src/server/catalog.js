@@ -14,6 +14,7 @@ import { getStoredArtistProfile } from './artistProfile';
 import { fetchRecordClubTracks } from '../services/albumEnrichmentService';
 import tracklists from '../utils/releaseTracks.cjs';
 import {readRelatedRows} from './readRelatedRows.mjs';
+import {packCatalogSnapshot,unpackCatalogSnapshot} from './catalogSnapshot.mjs';
 
 const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
 const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid';
@@ -35,8 +36,8 @@ async function allRows(db, table, fields, cached = true) {
     if (data.length < 1000) return rows;
   }
 }
-// Cache the assembled snapshot, rather than reading many R2 pages on every route.
-export const getPublicCatalog = cache(unstable_cache(async () => {
+// Cache one compact assembled snapshot instead of re-reading the DB per route.
+async function buildPublicCatalog() {
   const db = client();
   const [albums, reviews, profiles] = await Promise.all([
     allRows(db, 'albums', ALBUM_FIELDS, false), allRows(db, 'public_reviews', PUBLIC_REVIEW_FIELDS, false),
@@ -63,7 +64,9 @@ export const getPublicCatalog = cache(unstable_cache(async () => {
     stats: { total_reviews: reviews.length, total_albums: detailed.length,
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
       total_users: profiles.length, top_score: getCommunityTopAlbum(detailed)?.final_rating ?? null } };
-}, ['public-catalog-snapshot-v1060',publicDatabaseURL], {revalidate:300,tags:['catalog']}));
+}
+const getPackedCatalog=unstable_cache(async()=>packCatalogSnapshot(await buildPublicCatalog()),['public-catalog-snapshot-v1100',publicDatabaseURL],{revalidate:300,tags:['catalog']});
+export const getPublicCatalog=cache(async()=>unpackCatalogSnapshot(await getPackedCatalog()));
 
 const INDEX_FIELDS='id,album_name,artist_name,release_type,total_tracks';
 const getReleaseIndex=unstable_cache(()=>allRows(client(),'albums',INDEX_FIELDS,false),['release-index-v1060',publicDatabaseURL],{revalidate:300,tags:['catalog']});
