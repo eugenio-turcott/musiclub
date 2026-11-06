@@ -7,14 +7,17 @@ import MoodIcon from './MoodIcon';
 import {getEmotionFromReview, getReleaseUrl} from '../utils/ratingUtils';
 import {displayRelease} from '../utils/landingExperience.mjs';
 import {listeningTrack} from '../utils/listeningPreview.mjs';
+import {browserListeningPreview} from '../services/listeningPreview.mjs';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './LandingTurntable.module.css';
 
 const previews = new Map();
-async function previewFor(id) {
+async function previewFor(entry) {
+  const id=entry.album.id;
   if (!previews.has(id)) {
     if (previews.size > 30) previews.delete(previews.keys().next().value);
     const request = fetch(`/api/listening-preview?album=${encodeURIComponent(id)}`).then(async response => {
+      if(response.status===503)return browserListeningPreview(entry);
       if (!response.ok) throw new Error('preview unavailable');
       return (await response.json()).preview;
     }).catch(error => {previews.delete(id);throw error;});
@@ -42,7 +45,7 @@ function Player({entry}) {
     wanted.current=true;setDown(true);
     try {
       let result=preview;
-      if (!result) {setStatus('loading');result=await previewFor(album.id);}
+      if (!result) {setStatus('loading');result=await previewFor(entry);}
       if (!mounted.current) return;
       if (!result) {setStatus('unavailable');lift();return;}
       setPreview(result);setStatus('ready');

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {landingSelection,displayRelease,seededRandom} from '../src/utils/landingExperience.mjs';
 import {listeningTrack,matchListeningPreview} from '../src/utils/listeningPreview.mjs';
 import {lookupListeningPreview} from '../src/server/listeningPreview.mjs';
+import {browserListeningPreview} from '../src/services/listeningPreview.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from '../src/server/catalogSnapshot.mjs';
 
 test('large public catalogues fit the data cache without losing tracks, Unicode or scores',()=>{
@@ -71,4 +72,15 @@ test('a transient preview failure tries the alternate storefront without caching
  assert.deepEqual(countries,['MX','US']);assert.equal(result.preview.url,row.previewUrl);
  assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:false,status:429})}),{preview:null,retry:true});
  assert.deepEqual(await lookupListeningPreview(album,track,{fetcher:async()=>({ok:true,json:async()=>({results:[]})})}),{preview:null});
+});
+
+test('the browser fallback sends only public music metadata and respects provider rate limits',async()=>{
+ const album={id:'a',album_name:'Release',artist_name:'Artista',tracks:[{id:'t',name:'Canción'}],best_track:{id:'t',name:'Canción'}};
+ let calls=0;
+ const result=await browserListeningPreview({album,reviews:[]},{fetcher:async(url,options)=>{
+   calls++;assert.equal(url.hostname,'itunes.apple.com');assert.equal(options.credentials,'omit');assert.equal(options.referrerPolicy,'no-referrer');
+   return {ok:true,json:async()=>({results:[{kind:'song',artistName:'Artista',trackName:'Canción',collectionName:'Release',previewUrl:'https://audio-ssl.itunes.apple.com/sample.m4a',trackViewUrl:'https://music.apple.com/mx/album/123?i=456'}]})};
+ }});
+ assert.equal(result.name,'Canción');assert.equal(calls,1);
+ calls=0;await assert.rejects(browserListeningPreview({album,reviews:[]},{fetcher:async()=>{calls++;return {ok:false,status:429};}}));assert.equal(calls,1);
 });

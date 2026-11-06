@@ -4,6 +4,10 @@ test.beforeEach(async({page})=>{
  await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
 });
 
+function silentPreview(){
+ const wav=Buffer.alloc(44+8000*30*2);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);return wav;
+}
+
 async function openLanding(page){
  // Hydration starts these two original reads after the document's load event.
  // Wait for their complete responses, rather than treating networkidle as
@@ -80,7 +84,7 @@ test('reduced motion keeps the complete landing readable and makes decorative sc
 
 test('the needle controls one lazy audio preview, pauses on release changes and leaves the complete deck unobstructed',async({page})=>{
  const samples=[];
- const wav=Buffer.alloc(44+8000*30*2);wav.write('RIFF',0);wav.writeUInt32LE(wav.length-8,4);wav.write('WAVEfmt ',8);wav.writeUInt32LE(16,16);wav.writeUInt16LE(1,20);wav.writeUInt16LE(1,22);wav.writeUInt32LE(8000,24);wav.writeUInt32LE(16000,28);wav.writeUInt16LE(2,32);wav.writeUInt16LE(16,34);wav.write('data',36);wav.writeUInt32LE(wav.length-44,40);
+ const wav=silentPreview();
  await page.route('**/sample.wav',route=>route.fulfill({contentType:'audio/wav',body:wav}));
  await page.route('**/api/listening-preview?*',route=>{samples.push(route.request().url());return route.fulfill({json:{preview:{url:'http://127.0.0.1:3101/sample.wav',storeUrl:'https://music.apple.com/mx/album/fixture/123?i=456',name:'Segunda canción',reason:'Favorita del club'}}});});
  await openLanding(page);expect(samples).toHaveLength(0);
@@ -112,4 +116,23 @@ test('genre links open the animated genre explorer and filters remain local',asy
  await page.getByRole('button',{name:'Con reseñas',exact:true}).click();
  await expect(page.getByRole('region',{name:'Lanzamientos de Pop',exact:true})).toContainText('Azul');
  expect(queries).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('shared-server rate limits fall back to official browser search and reuse the result for playback',async({page})=>{
+ const lookups=[];
+ await page.route('**/api/listening-preview?*',route=>route.fulfill({status:503,json:{preview:null,retry:true}}));
+ await page.route('https://itunes.apple.com/search?*',route=>{
+   lookups.push(route.request().url());
+   return route.fulfill({headers:{'Access-Control-Allow-Origin':'*'},json:{results:[{kind:'song',artistName:'Artista de Prueba',trackName:'Segunda canción',collectionName:'Azul',previewUrl:'https://audio-ssl.itunes.apple.com/preview-test.wav',trackViewUrl:'https://music.apple.com/mx/album/123?i=456'}]}});
+ });
+ await page.route('https://audio-ssl.itunes.apple.com/preview-test.wav',route=>route.fulfill({contentType:'audio/wav',body:silentPreview()}));
+ await openLanding(page);expect(lookups).toHaveLength(0);
+ await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
+ await page.getByRole('button',{name:'Bajar aguja y escuchar muestra',exact:true}).click();
+ const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"] [data-playing]');
+ await expect(player).toHaveAttribute('data-playing','true');expect(lookups).toHaveLength(1);
+ expect(new URL(lookups[0]).searchParams.get('term')).toBe('Artista de Prueba Segunda canción Azul');
+ await page.getByRole('button',{name:'Levantar aguja y pausar',exact:true}).click();
+ await page.getByRole('button',{name:'Reproducir muestra',exact:true}).click();
+ await expect(player).toHaveAttribute('data-playing','true');expect(lookups).toHaveLength(1);
 });
