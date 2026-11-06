@@ -1,0 +1,22 @@
+/* A route-scoped palette. Explicit criterion ink and badge contrast stay intact;
+   platform logos and native vinyl artwork keep their own brand colors. */
+[data-icon-palette="varied"] .ui-icon:not([data-icon-ink]):not(:where([data-achievement-badge] .ui-icon)){
+  color:var(--content-icon-ink,var(--content-icon-accent,var(--ui-icon-accent)))!important;
+}
+[data-icon-palette="varied"] [data-ui-icon="disc"]{--content-icon-accent:#c4b5fd}
+[data-icon-palette="varied"] [data-ui-icon="review"]{--content-icon-accent:#22d3ee}
+[data-icon-palette="varied"] [data-ui-icon="users"]{--content-icon-accent:#f472b6}
+[data-icon-palette="varied"] [data-ui-icon="star"]{--content-icon-accent:#facc15}
+[data-icon-palette="varied"] [data-ui-icon="sliders"]{--content-icon-accent:#60a5fa}
+[data-icon-palette="varied"] [data-ui-icon="music"]{--content-icon-accent:#34d399}
+[data-icon-palette="varied"] [data-ui-icon="notes"]{--content-icon-accent:#f9a8d4}
+[data-icon-palette="varied"] [data-ui-icon="check"]{--content-icon-accent:#fbbf24}
+[data-icon-palette="varied"] [data-ui-icon="share"]{--content-icon-accent:#fb923c}
+[data-icon-palette="varied"] [data-ui-icon="search"]{--content-icon-accent:#38bdf8}
+[data-icon-palette="varied"] [data-ui-icon="layers"]{--content-icon-accent:#a78bfa}
+[data-icon-palette="varied"] [data-ui-icon="play"]{--content-icon-accent:#4ade80}
+[data-icon-palette="varied"] [data-ui-icon="headphones"]{--content-icon-accent:#2dd4bf}
+[data-icon-palette="varied"] [data-ui-icon="gashapon"]{--content-icon-accent:#fbbf24}
+[data-icon-palette="varied"] [data-ui-icon="award"]{--content-icon-accent:#a3e635}
+[data-icon-palette="varied"] [data-ui-icon="chart"]{--content-icon-accent:#818cf8}
+[data-icon-palette="varied"] [data-ui-icon="arrow"]{--content-icon-accent:#fda4af}

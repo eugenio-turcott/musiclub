@@ -529,7 +529,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           googleLoading={loginLoading}
         />
 
-        <main className="landing-live">
+        <main className="landing-live" data-icon-palette="varied">
         <LandingHero albums={initialDemoAlbums.length?initialDemoAlbums:albums} reviews={initialDemoReviews.length?initialDemoReviews:allReviews} stats={globalStats} user={user} onLogin={handleLogin}/>
 
         {/* =========================================================================

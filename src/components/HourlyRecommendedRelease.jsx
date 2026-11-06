@@ -348,7 +348,7 @@ export function HourlyRecommendedRelease({
               <div className="absolute -inset-2 bg-linear-to-r from-amber-500/25 via-pink-500/25 to-purple-500/25 rounded-3xl blur-xl opacity-70 group-hover:opacity-100 transition-opacity"></div>
 
               {/* Cover Container */}
-              <div className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-[#111322]">
+              <div data-hourly-cover="" className="relative w-full h-full rounded-2xl overflow-hidden border-2 border-white/20 shadow-2xl bg-[#111322]">
                 {coverUrl ? (
                   <CoverImage
                     src={coverUrl}
@@ -363,9 +363,9 @@ export function HourlyRecommendedRelease({
                 )}
                 <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
 
-                <GenreIconStrip genres={album.genres} className="absolute left-3 top-12 z-10" size={26} />
+                <GenreIconStrip genres={album.genres} className="absolute right-3 top-3 z-10" size={26} />
                 {/* Badge Release Type */}
-                <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-white">
+                <div data-hourly-release-type="" className="absolute top-3 left-3 px-2.5 py-1 rounded-lg bg-black/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-white">
                   <InterfaceText>{releaseType === 'EP'
                     ? '💽 EP'
                     : releaseType === 'SENCILLO' || releaseType === 'SINGLE'

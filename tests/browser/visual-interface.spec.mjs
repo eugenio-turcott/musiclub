@@ -60,7 +60,7 @@ test('home explains Gashapon discovery, uses consistent contextual icons and a c
   const quick=page.getByRole('button',{name:'Girar Selector Rápido',exact:true});
   await expect(quick.locator('[data-ui-icon="cycle"]')).toBeVisible();
   const color=await quick.evaluate(el=>({text:getComputedStyle(el).color,icon:getComputedStyle(el.querySelector('[data-ui-icon]')).color}));
-  expect(color.icon).toBe(color.text);
+  expect(color.icon).not.toBe(color.text);
   await quick.click();
   await expect(page.getByText('Sugerencia Aleatoria',{exact:true})).toBeVisible();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);

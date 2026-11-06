@@ -37,3 +37,4 @@
 .miniGashapon{display:grid;place-items:center;width:100%;max-width:330px;min-height:280px;padding:15px;margin:auto}
 .chapter:has(.miniGashapon){min-height:360px}
 .hero h1,.genreRibbon h2,.sectionHeading h2,.chapterCopy h3,.badgeStage h3,.finale h2{line-height:1.15}
+.primary,.search button{--content-icon-ink:#261224}
