@@ -2,6 +2,7 @@ import React from 'react';
 import reviewChronology from '../utils/reviewChronology.cjs';
 import { LandingPage } from '../views/LandingPage';
 import { getPublicCatalog } from '../server/catalog';
+import {getTrackDisplayName} from '../utils/ratingUtils';
 
 export const revalidate = 300;
 
@@ -28,5 +29,18 @@ export default async function HomePage() {
   const albums = [...selected.values()];
   const memberIds = new Set(albums.flatMap(album => [album.id, ...(album.edition_member_ids || [])]));
   const reviews = data.reviews.filter(review => memberIds.has(review.album_id));
-  return <LandingPage initialAlbums={albums} initialReviews={reviews} initialStats={data.stats} />;
+  // Every reviewed release is eligible, without shipping every full tracklist.
+  // These compact records reuse the same cached snapshot; sampling happens once
+  // in the browser and interactions never re-read the catalogue.
+  const demoAlbums=data.albums.filter(a=>a.review_count>0).map(a=>({
+    id:a.id,edition_member_ids:a.edition_member_ids,album_name:a.album_name,artist_name:a.artist_name,
+    image_url:a.image_url,genres:a.genres,release_type:a.release_type,final_rating:a.final_rating,
+    review_count:a.review_count,spotify_link:a.spotify_link,best_track:a.best_track,
+    tracks:a.best_track?[(a.tracks||[]).map((t,i)=>typeof t==='string'?{name:t,track_number:i+1}:t).find(t=>(t.id&&t.id===a.best_track.id)||t.name===a.best_track.name)].filter(Boolean):[],
+  }));
+  const albumById=new Map(data.albums.flatMap(a=>(a.edition_member_ids||[a.id]).map(id=>[id,a])));
+  const demoReviews=data.reviews.map(({albums,comment,reviewer_avatar,created_at,...review})=>({...review,
+    favTrackTitle:review.favorite_track?getTrackDisplayName(review.favorite_track,albumById.get(review.album_id)?.tracks||[]):null,
+  }));
+  return <LandingPage initialAlbums={albums} initialReviews={reviews} initialStats={data.stats} initialDemoAlbums={demoAlbums} initialDemoReviews={demoReviews}/>;
 }

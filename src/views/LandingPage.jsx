@@ -38,7 +38,7 @@ const ReviewSystem = dynamic(() => import('../components/ReviewSystem').then(mod
   loading: () => <p role="status" className="p-4 text-slate-300">Preparando tu valoración…</p>,
 });
 
-export function LandingPage({ initialAlbums = [], initialReviews = [], initialStats } = {}) {
+export function LandingPage({ initialAlbums = [], initialReviews = [], initialStats, initialDemoAlbums = [], initialDemoReviews = [] } = {}) {
   const { albums, winner, refetch, markAlbumAsInactive } = useAlbums(initialAlbums);
   const { activePool } = usePool();
   const {
@@ -530,7 +530,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         />
 
         <main className="landing-live">
-        <LandingHero albums={albums} reviews={communityReviews} stats={globalStats} user={user} onLogin={handleLogin}/>
+        <LandingHero albums={initialDemoAlbums.length?initialDemoAlbums:albums} reviews={initialDemoReviews.length?initialDemoReviews:allReviews} stats={globalStats} user={user} onLogin={handleLogin}/>
 
         {/* =========================================================================
             2. SPOTLIGHT WINNER SECTION (Featured Album with Direct Action)
@@ -913,7 +913,7 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
           onAlbumUpdated={handleAlbumUpdated}
         />
 
-        <LandingJourney albums={albums} reviews={allReviews}/>
+        <LandingJourney albums={initialDemoAlbums.length?initialDemoAlbums:albums} reviews={initialDemoReviews.length?initialDemoReviews:allReviews}/>
         <AdsterraAdvertising variant="native" slot="home-features" />
 
         {/* =========================================================================

@@ -222,7 +222,7 @@ test('editorial selections change banners and retain real release links without 
   await section.getByRole('button',{name:'Mostrar Release Underground'}).click();
   await expect(section.getByRole('link',{name:'Descubrir House of LION BABE de LION BABE'})).toHaveAttribute('href','/albumes/lion-babe-house-of-lion-babe');
   await expect(section.locator('img')).toHaveJSProperty('naturalWidth',1600);
-  await expect(section.locator('img')).toHaveAttribute('src',/lion-babe-house-canva-v2/);
+  await expect(section.locator('img')).toHaveAttribute('src',/lion-babe-house-canva-v3/);
   await expect(section.getByRole('tab')).toHaveCount(0);
   await expect(section).not.toContainText('SELECCIÓN DE LOS ADMINS');
   await expect(section).not.toContainText('Tres miradas');
