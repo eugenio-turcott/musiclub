@@ -38,3 +38,15 @@
 .chapter:has(.miniGashapon){min-height:360px}
 .hero h1,.genreRibbon h2,.sectionHeading h2,.chapterCopy h3,.badgeStage h3,.finale h2{line-height:1.15}
 .primary,.search button{--content-icon-ink:#261224}
+.root :global(main.landing-live){--ui-icon-size:22px}
+.root :global(main.landing-live) :where(h2,h3) :global(.ui-icon){--ui-icon-size:30px}
+.stat{grid-template-columns:40px minmax(0,1fr)}
+.chapterNav>a{gap:9px;padding-inline:10px}
+.chapterNav>a>svg:last-child{width:22px;height:22px}
+.chips>span{min-height:38px;gap:7px}
+.criteriaTabs button{min-height:78px}
+.platforms svg{width:24px;height:24px}
+.xpRules>div{grid-template-columns:40px minmax(0,1fr)}
+.movingBadge :global(.achievement-badge-emblem){flex-basis:36px;width:36px;height:36px}
+.movingBadge :global(.achievement-badge-emblem .ui-icon){width:30px;height:30px}
+@media(max-width:450px){.chapterNav>a>svg:not(:last-child){width:30px;height:30px}.criteriaTabs button svg{width:30px;height:30px}.criteriaTabs button{min-height:72px}.xpRules>div{grid-template-columns:34px minmax(0,1fr)}.xpRules svg{width:34px;height:34px}.horizontal .miniCriteria svg{width:24px;height:24px}}

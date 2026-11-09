@@ -15,6 +15,7 @@ import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
 import remoteGenres from '../utils/remoteReleaseGenres.cjs';
+import { SearchSelectionNotice } from './SearchSelectionNotice';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
@@ -31,23 +32,39 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
   const [loadingRemote, setLoadingRemote] = useState(false);
   const [selectingAlbumId, setSelectingAlbumId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
+  const [pendingRelease, setPendingRelease] = useState(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const containerRef = useRef(null);
   const inputRef = useRef(null);
   const debounceTimerRef = useRef(null);
+  const clubLoadStarted = useRef(false);
+  const selectionVersion = useRef(0);
+
+  const resetSelection = () => {
+    selectionVersion.current++;
+    setSelectingAlbumId(null);
+    setStatusMessage(null);
+    setPendingRelease(null);
+  };
+
+  useEffect(() => () => { selectionVersion.current++; }, []);
 
   // Cerrar buscador al navegar entre rutas
   useEffect(() => {
     setIsOpen(false);
     setQuery('');
+    setSelectingAlbumId(null);
     setHighlightedIndex(-1);
     setStatusMessage(null);
+    setPendingRelease(null);
+    selectionVersion.current++;
   }, [location.pathname]);
 
   // Cargar álbumes del club de Supabase en memoria
   const loadClubAlbums = useCallback(async () => {
-    if (clubAlbums.length > 0) return;
+    if (clubAlbums.length > 0 || clubLoadStarted.current) return;
+    clubLoadStarted.current = true;
     setLoadingClub(true);
     try {
       const response = await fetch('/api/catalog?view=collection');
@@ -55,6 +72,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       const { albums: data } = await response.json();
       setClubAlbums(data || []);
     } catch (err) {
+      clubLoadStarted.current = false;
       console.error('Error cargando catálogo para buscador global:', err);
     } finally {
       setLoadingClub(false);
@@ -75,6 +93,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
 
   // Búsqueda en vivo con Debounce (catálogo general)
   useEffect(() => {
+    let current = true;
     const cleanQ = query.trim();
     if (!cleanQ || cleanQ.length < 2) {
       setRemoteResults([]);
@@ -90,6 +109,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     debounceTimerRef.current = setTimeout(async () => {
       try {
         const res = await searchAlbum(cleanQ, { provider: searchProvider });
+        if (!current) return;
         if (res?.success && Array.isArray(res.albums)) {
           setRemoteResults(res.albums);
         } else {
@@ -97,13 +117,14 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         }
       } catch (err) {
         console.warn('Error en búsqueda remota:', err);
-        setRemoteResults([]);
+        if (current) setRemoteResults([]);
       } finally {
-        setLoadingRemote(false);
+        if (current) setLoadingRemote(false);
       }
     }, 280);
 
     return () => {
+      current = false;
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
@@ -119,6 +140,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         return;
       }
       setIsOpen(false);
+      resetSelection();
     };
 
     const timer = setTimeout(() => {
@@ -249,6 +271,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       e.stopPropagation();
     }
     setIsOpen(false);
+    resetSelection();
     setQuery('');
     setHighlightedIndex(-1);
     setStatusMessage(null);
@@ -265,11 +288,14 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
   const handleInputChange = (e) => {
     const val = e.target.value;
     setQuery(val);
+    setRemoteResults([]);
+    resetSelection();
     setHighlightedIndex(-1);
     loadClubAlbums();
   };
 
   const handleClear = () => {
+    resetSelection();
     setQuery('');
     setHighlightedIndex(-1);
     setStatusMessage(null);
@@ -280,6 +306,8 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
   const handleSelectAlbum = async (item) => {
     if (selectingAlbumId) return;
 
+    const version = ++selectionVersion.current;
+    setPendingRelease(null);
     setSelectingAlbumId(item.id);
     setStatusMessage('Cargando álbum...');
 
@@ -341,6 +369,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         }
       }
 
+      if (version !== selectionVersion.current) return;
       const rawRemote = remoteGenres.sameRelease(searchArtist, searchTitle, remoteDetails)
         ? remoteDetails : (item.rawRemoteAlbum || item);
 
@@ -351,6 +380,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         cdnCover,
         rawRemote
       );
+      if (version !== selectionVersion.current) return;
 
       const canonicalTitle = mbData?.album_name || searchTitle;
       const canonicalArtist = mbData?.artist_name || searchArtist;
@@ -364,6 +394,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         canonicalArtist,
         mbid
       );
+      if (version !== selectionVersion.current) return;
       let finalAlbum = existing;
 
       if (!finalAlbum) {
@@ -384,6 +415,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           searchArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
           { search: searchDeezerAlbums, details: getDeezerAlbumDetails }
         );
+        if (version !== selectionVersion.current) return;
         const albumPayload = {
           albumName: canonicalTitle,
           artistName: canonicalArtist,
@@ -419,9 +451,29 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           skipMusicBrainzEnrichment: true, // Ya enriquecido de forma optimizada
         };
 
+        if (!genres.length) {
+          setStatusMessage(null);
+          setPendingRelease({ payload: albumPayload, item, mbData });
+          return;
+        }
         finalAlbum = await supabaseService.createAlbum(albumPayload);
       }
 
+      if (version !== selectionVersion.current) return;
+      openRegisteredAlbum(finalAlbum, item, mbData);
+      return;
+    } catch (err) {
+      if (version !== selectionVersion.current) return;
+      console.error('Error al seleccionar y abrir álbum:', err);
+      setStatusMessage('No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
+    } finally {
+      if (version === selectionVersion.current) setSelectingAlbumId(null);
+    }
+  };
+
+  const openRegisteredAlbum = (finalAlbum, item, mbData) => {
+      const canonicalTitle = mbData?.album_name || item.name;
+      const canonicalArtist = mbData?.artist_name || item.artist;
       const relType =
         finalAlbum?.release_type ||
         finalAlbum?.releaseType ||
@@ -464,21 +516,31 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       };
 
       navigate(targetUrl, { state: { preloadedAlbum: albumToPass } });
-      return;
+  };
+
+  const confirmReleaseGenre = async genre => {
+    if (!pendingRelease || selectingAlbumId) return;
+    const version = ++selectionVersion.current;
+    setSelectingAlbumId(pendingRelease.item.id);
+    setStatusMessage(null);
+    try {
+      const album = await supabaseService.createAlbum({ ...pendingRelease.payload, genres: [genre] });
+      if (version !== selectionVersion.current) return;
+      openRegisteredAlbum(album, pendingRelease.item, pendingRelease.mbData);
+      setPendingRelease(null);
     } catch (err) {
-      console.error('Error al seleccionar y abrir álbum:', err);
-      setStatusMessage(err.message?.includes('género musical reconocido')
-        ? 'No encontramos un género verificado para esta edición. Intenta más tarde o agrégala desde el catálogo con su género.'
-        : 'No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
+      if (version === selectionVersion.current) setStatusMessage('No pudimos guardar el release. Puedes volver a intentarlo.');
     } finally {
-      setSelectingAlbumId(null);
+      if (version === selectionVersion.current) setSelectingAlbumId(null);
     }
   };
+
+  const selectionNotice = <SearchSelectionNotice key={pendingRelease?.item.id || 'status'} message={statusMessage} busy={Boolean(selectingAlbumId)} pending={pendingRelease} onConfirm={confirmReleaseGenre} onCancel={resetSelection}/>;
 
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') {
       if (query.trim()) {
-        setQuery('');
+        handleClear();
       } else {
         handleCloseSearch();
       }
@@ -512,7 +574,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
   // =========================================================================
   if (isMobileMode) {
     return (
-      <div className="w-full space-y-2">
+      <div ref={containerRef} className="w-full space-y-2">
         <button
           type="button"
           onClick={handleToggleSearch}
@@ -564,16 +626,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
               )}
             </div>
 
-            {statusMessage && (
-              <div className="bg-linear-to-r from-pink-600/90 to-purple-600/90 text-white text-[11px] font-bold py-1.5 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                <MusiclubVinyl
-                  src="/musiclub_logo_2.png"
-                  alt=""
-                  className="w-3.5 h-3.5 object-contain animate-spin-slow"
-                />
-                <span>{statusMessage}</span>
-              </div>
-            )}
+            {selectionNotice}
 
             {query.trim() && (
               <div className="max-h-[300px] overflow-y-auto space-y-1 custom-scrollbar pt-1">
@@ -750,12 +803,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           </div>
 
           {/* Notificación de acción / proceso */}
-          {statusMessage && (
-            <div className="mx-3 mt-2.5 bg-linear-to-r from-pink-600/95 to-purple-600/95 text-white text-[11px] font-bold py-2 px-3 rounded-xl shadow-lg flex items-center justify-center gap-2 animate-fadeIn border border-white/20">
-              <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-              <span>{statusMessage}</span>
-            </div>
-          )}
+          {selectionNotice}
 
           {/* Resultados de búsqueda */}
           <div className="flex-1 overflow-y-auto custom-scrollbar p-2 space-y-1 max-h-[360px]">

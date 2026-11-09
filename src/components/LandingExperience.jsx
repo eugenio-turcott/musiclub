@@ -20,7 +20,7 @@ import styles from './LandingExperience.module.css';
 const Motion = createContext({paused:false, toggle:()=>{}});
 export const useLandingMotion=()=>useContext(Motion);
 const GENRES = ['Pop','Rock','Hip-Hop','Electrónica','Jazz','Indie'];
-const icon = (name, size=22) => <UiIcon name={name} size={size} tone="inherit"/>;
+const icon = (name, size=22) => <UiIcon name={name} size={Math.round(size * 1.25)} tone="inherit"/>;
 const titleOf = album => displayRelease(album).title;
 
 function useRandomSelection(albums, reviews) {

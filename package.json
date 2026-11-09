@@ -1,6 +1,6 @@
 {
   "name": "musiclub",
-  "version": "11.1.4",
+  "version": "11.1.5",
   "private": true,
   "dependencies": {
     "@supabase/supabase-js": "^2.111.0",
