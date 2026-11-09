@@ -372,7 +372,6 @@ export function TrendingMonthlySection({
                       <div className="mt-1">
                         <ArtistLinks
                           artistName={item.artist_name}
-                          separator=" & "
                           className="text-xs text-slate-300 line-clamp-1"
                           linkClassName="hover:text-cyan-300 transition-colors"
                         />

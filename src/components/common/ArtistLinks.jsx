@@ -18,11 +18,11 @@ export default function ArtistLinks({
   artistName,
   className = '',
   linkClassName = 'hover:text-purple-400 hover:underline transition-colors',
-  separator = ', ',
   stopPropagation = true,
   onClick,
 }) {
   const artists = useMemo(()=>artistName ? splitArtists(artistName) : [],[artistName]);
+  const separator = artists.length === 2 ? '\u00a0&\u00a0' : ',\u00a0';
 
   useEffect(() => {
     if (artistName) {
@@ -55,7 +55,8 @@ export default function ArtistLinks({
   return (
     <span
       translate="no"
-      className={`notranslate artist-name inline-flex flex-wrap items-center ${className}`}
+      data-artist-credits=""
+      className={`notranslate artist-name inline ${className}`}
     >
       {artists.map((art, index) => {
         const isLast = index === artists.length - 1;
@@ -76,7 +77,7 @@ export default function ArtistLinks({
               {art.name}
             </Link>
             {!isLast && (
-              <span className="text-zinc-500 mr-1 select-none">
+              <span data-artist-separator="" className="whitespace-pre text-inherit">
                 {separator}
               </span>
             )}
