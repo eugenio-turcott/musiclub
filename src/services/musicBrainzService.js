@@ -129,9 +129,7 @@ export async function searchMusicBrainzReleases(query, limit = 15) {
     const formatted = releaseGroups.map((rg) => {
       const mbid = rg.id;
       const title = rg.title || 'Álbum Desconocido';
-      const artistCredit = (rg['artist-credit'] || [])
-        .map((ac) => (typeof ac === 'string' ? ac : ac.name || ac.artist?.name || ''))
-        .join('')
+      const artistCredit = mbIdentity.formatArtistCredits(rg['artist-credit'])
         .trim() || 'Artista Desconocido';
 
       const releaseDate = rg['first-release-date'] || null;
@@ -322,9 +320,7 @@ export async function getMusicBrainzReleaseGroupDetails(mbid) {
       }
     }
 
-    const artistName = (data['artist-credit'] || [])
-      .map((ac) => (typeof ac === 'string' ? ac : ac.name || ac.artist?.name || ''))
-      .join('')
+    const artistName = mbIdentity.formatArtistCredits(data['artist-credit'])
       .trim() || 'Artista';
 
     const albumTitle = data.title || 'Lanzamiento';
@@ -568,9 +564,7 @@ export async function searchBestReleaseGroup(artistName, albumName) {
   const scored = rgs.filter(rg => mbIdentity.releaseGroupMatches(artistName, albumName, rg)).map((rg) => {
     let score = rg.score || 50;
     const title = (rg.title || '').toLowerCase().trim();
-    const rgArt = (rg['artist-credit'] || [])
-      .map((a) => (typeof a === 'string' ? a : a.name || a.artist?.name || ''))
-      .join('')
+    const rgArt = mbIdentity.formatArtistCredits(rg['artist-credit'])
       .toLowerCase()
       .trim();
 

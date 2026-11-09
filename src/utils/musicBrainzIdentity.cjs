@@ -7,11 +7,15 @@ function titleKey(title) {
     .replace(/\s*[-–—]\s*(?:\d{4}\s+)?remaster(?:ed)?(?:\s+\d{4})?\s*$/gi, ''), true);
 }
 
+function formatArtistCredits(credits = []) {
+  return credits.map(credit => typeof credit === 'string' ? (/^(?:\s*[,;&]+\s*|\s*and\s*)$/i.test(credit) ? '' : credit.trim()) : credit.name || credit.artist?.name || '').filter(Boolean).join(', ');
+}
+
 function releaseGroupMatches(artist, title, group) {
   if (!artist || !title || !group?.title || titleKey(title) !== titleKey(group.title)) return false;
   const credits = group['artist-credit'] || [];
-  const credited = credits.map(credit => typeof credit === 'string' ? credit : (credit.name || credit.artist?.name || '') + (credit.joinphrase || '')).join('');
+  const credited = formatArtistCredits(credits);
   return Boolean(credited && artistCreditKey(artist) === artistCreditKey(credited));
 }
 
-module.exports = { titleKey, releaseGroupMatches };
+module.exports = { titleKey, releaseGroupMatches, formatArtistCredits };

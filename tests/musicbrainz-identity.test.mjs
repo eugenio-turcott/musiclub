@@ -2,6 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import identity from '../src/utils/musicBrainzIdentity.cjs';
 const group=(title,artist)=>({title,'artist-credit':[{name:artist}]});
+test('MusicBrainz main credits keep separators even when joinphrase is omitted',()=>{
+ const credits=[{name:'Erykah Badu',artist:{name:'Erykah Badu'}},{name:'The Alchemist',artist:{name:'The Alchemist'}}];
+ assert.equal(identity.formatArtistCredits(credits),'Erykah Badu, The Alchemist');
+ assert.equal(identity.releaseGroupMatches('Erykah Badu & The Alchemist','Before the World Blows',{title:'Before the World Blows','artist-credit':credits}),true);
+ assert.equal(identity.formatArtistCredits([{name:'Anderson .Paak',joinphrase:' & '},{name:'Cordae'}]),'Anderson .Paak, Cordae');
+});
 
 test('a high-scoring compilation or partial title cannot replace the requested release',()=>{
   assert.equal(identity.releaseGroupMatches('Led Zeppelin','Led Zeppelin',group('Led Zeppelin x Led Zeppelin','Led Zeppelin')),false);
