@@ -4,7 +4,7 @@ import { MusiclubVinyl } from './MusiclubVinyl';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { LanguageSelector } from './LanguageSelector';
-import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from './common/ShareIcons';
+import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon, XTwitterIcon } from './common/ShareIcons';
 import { YouTubeLogo } from './common/PlatformLogos';
 import { AdvertisingPreferences } from './AdvertisingPreferences';
 import { AdvertisingConsentNotice } from './AdvertisingConsentNotice';
@@ -18,6 +18,7 @@ const socialLinks = [
   { name: 'TikTok', href: 'https://www.tiktok.com/@musicluborg', Icon: TikTokIcon },
   { name: 'YouTube', href: 'https://www.youtube.com/@musicluboficial', Icon: YouTubeLogo },
   { name: 'Reddit', href: 'https://www.reddit.com/user/musicluborg/', Icon: RedditIcon },
+  { name: 'X (Twitter)', href: 'https://x.com/musicluborg', Icon: XTwitterIcon },
 ];
 
 export function Footer({ showAd = true }) {

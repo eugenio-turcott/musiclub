@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon } from '../../components/common/ShareIcons';
+import { FacebookIcon, InstagramIcon, RedditIcon, TikTokIcon, XTwitterIcon } from '../../components/common/ShareIcons';
 import { YouTubeLogo } from '../../components/common/PlatformLogos';
 import styles from './redes.module.css';
 
 const title = 'Redes Sociales de Musiclub';
-const description = 'Encuentra las cuentas oficiales de Musiclub: Instagram, Facebook, TikTok, Reddit y YouTube. Descubre también el proyecto personal de Eugenio en LinkedIn.';
+const description = 'Encuentra las cuentas oficiales de Musiclub: Instagram, Facebook, TikTok, Reddit, YouTube y X (Twitter). Descubre también el proyecto personal de Eugenio en LinkedIn.';
 
 export const metadata = {
   title,
@@ -22,6 +22,7 @@ const networks = [
   { name: 'YouTube', handle: '@musicluboficial', href: 'https://www.youtube.com/@musicluboficial', Icon: YouTubeLogo, color: '#ff8989', detail: 'Mira y descubre Musiclub' },
   { name: 'Facebook', handle: '@musicluborg', href: 'https://www.facebook.com/musicluborg/', Icon: FacebookIcon, color: '#94b9ff', detail: 'Comparte la conversación' },
   { name: 'Reddit', handle: 'u/musicluborg', href: 'https://www.reddit.com/user/musicluborg/', Icon: RedditIcon, color: '#ffae7f', detail: 'Recomendaciones y conversaciones con calma' },
+  { name: 'X (Twitter)', handle: '@musicluborg', href: 'https://x.com/musicluborg', Icon: XTwitterIcon, color: '#e4dcff', detail: 'Nuevos discos y conversación musical' },
 ];
 
 function Arrow() {
