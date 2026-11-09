@@ -211,6 +211,7 @@ export async function getDeezerAlbumDetails(deezerId) {
         spotify: `https://open.spotify.com/search/${encodeURIComponent(artistName + ' ' + data.title)}`,
       },
       rawDeezerAlbum: data,
+      contributors: (data.contributors || []).filter(artist => !artist.role || artist.role === 'Main').map(artist => ({name:artist.name,role:artist.role})),
     };
   } catch (err) {
     console.warn(`Error obteniendo detalles del álbum Deezer ${cleanId}:`, err.message);

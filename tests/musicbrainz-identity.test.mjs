@@ -23,6 +23,25 @@ test('the full credited collaboration must match, not just one contributor',()=>
 
 
 const { resolveGenres, sameRelease } = (await import('../src/utils/remoteReleaseGenres.cjs')).default;
+test('Before The World Blows uses full Deezer main credits after a primary-artist-only summary',async()=>{
+ const requested=[];
+ const genres=await resolveGenres('Erykah Badu, The Alchemist','Before The World Blows',[],{
+  search:async()=>({albums:[{id:'1047626112',name:'Before The World Blows',artist:'Erykah Badu'}]}),
+  details:async id=>{requested.push(id);return {name:'Before The World Blows',artist:'Erykah Badu',contributors:[{name:'Erykah Badu',role:'Main'},{name:'The Alchemist',role:'Main'},{name:'Guest',role:'Featured'}],genres:['R&B']};}
+ });
+ assert.deepEqual(genres,['R&B']);assert.deepEqual(requested,['1047626112']);
+ assert.equal(sameRelease('Erykah Badu, The Alchemist','Before The World Blows',{name:'Before The World Blows',artist:'Erykah Badu & The Alchemist'}),true);
+ assert.equal(sameRelease('Erykah Badu, The Alchemist','Before The World Blows',{name:'Before The World Blows',artist:'Erykah Badu'}),false);
+ assert.equal(identity.releaseGroupMatches('Erykah Badu, The Alchemist','Before The World Blows',group('Before The World Blows','Erykah Badu & The Alchemist')),true);
+});
+test('the same title with different complete credits or a Deluxe edition cannot supply genres',async()=>{
+ const requests=[];
+ assert.deepEqual(await resolveGenres('A, B','Blue',[],{
+  search:async()=>({albums:[{id:'deluxe',name:'Blue (Deluxe)',artist:'A, B'},{id:'wrong',name:'Blue',artist:'A'},{id:'valid',name:'Blue',artist:'A'}]}),
+  details:async id=>{requests.push(id);return {name:'Blue',contributors:[{name:'A',role:'Main'},{name:id==='valid'?'B':'C',role:'Main'}],genres:[id==='valid'?'Jazz':'Rock']};}
+ }),['Jazz']);
+ assert.deepEqual(requests,['wrong','valid']);
+});
 test('Deluxe without embed genres gets canonical genres from the exact Deezer edition',async()=>{
   const selected={name:'House of LION BABE (Deluxe)',artist:'LION BABE',tracks:[{name:'Bonus track'}]};
   const before=JSON.stringify(selected), requested=[];

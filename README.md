@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 11.1.5 · **Última actualización:** 9 de noviembre de 2026.
+**Versión:** 11.1.6 · **Última actualización:** 9 de noviembre de 2026.
 
 La portada presenta Musiclub con una tornamesa horizontal sin inclinación con la tipografía oficial, información del release, calificación y estado de ánimo en el equipo; los discos se eligen justo debajo. El vinilo completo gira desde el inicio, la aguja controla el giro y el botón FX activa destellos sonoros locales y opcionales, sin canciones ni consultas a proveedores musicales. Diez releases con reseñas se eligen al azar por visita, también en las demostraciones de reseñas, Gashapon y tarjetas para compartir. Los géneros abren sus propios exploradores animados y las insignias recorren tres carruseles continuos. Usa información real del club y recursos gráficos propios. Las demostraciones no publican cambios; el movimiento se pausa fuera de pantalla, admite pausa manual y respeta la preferencia de reducir animaciones.
 

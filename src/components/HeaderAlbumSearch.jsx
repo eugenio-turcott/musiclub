@@ -32,7 +32,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
   const [loadingRemote, setLoadingRemote] = useState(false);
   const [selectingAlbumId, setSelectingAlbumId] = useState(null);
   const [statusMessage, setStatusMessage] = useState(null);
-  const [pendingRelease, setPendingRelease] = useState(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
 
   const containerRef = useRef(null);
@@ -45,7 +44,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     selectionVersion.current++;
     setSelectingAlbumId(null);
     setStatusMessage(null);
-    setPendingRelease(null);
   };
 
   useEffect(() => () => { selectionVersion.current++; }, []);
@@ -57,7 +55,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     setSelectingAlbumId(null);
     setHighlightedIndex(-1);
     setStatusMessage(null);
-    setPendingRelease(null);
     selectionVersion.current++;
   }, [location.pathname]);
 
@@ -307,7 +304,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     if (selectingAlbumId) return;
 
     const version = ++selectionVersion.current;
-    setPendingRelease(null);
     setSelectingAlbumId(item.id);
     setStatusMessage('Cargando álbum...');
 
@@ -370,20 +366,23 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       }
 
       if (version !== selectionVersion.current) return;
-      const rawRemote = remoteGenres.sameRelease(searchArtist, searchTitle, remoteDetails)
+      const selectedDeezerEdition = item.type === 'DEEZER' && remoteDetails?.id === item.id && remoteGenres.sameTitle(searchTitle, remoteDetails.name);
+      const rawRemote = (selectedDeezerEdition || remoteGenres.sameRelease(searchArtist, searchTitle, remoteDetails))
         ? remoteDetails : (item.rawRemoteAlbum || item);
+
+      const creditedArtist = remoteGenres.mainArtists(rawRemote).join(', ') || searchArtist;
 
       // Obtener datos canónicos de MusicBrainz con timeout estricto de 2.5s y fallback rápido
       const mbData = await getFullMusicBrainzAlbumData(
-        searchArtist,
+        creditedArtist,
         searchTitle,
         cdnCover,
-        rawRemote
+        {...rawRemote, artist:creditedArtist}
       );
       if (version !== selectionVersion.current) return;
 
       const canonicalTitle = mbData?.album_name || searchTitle;
-      const canonicalArtist = mbData?.artist_name || searchArtist;
+      const canonicalArtist = mbData?.artist_name || creditedArtist;
       const mbid = mbData?.mbid || null;
 
       setStatusMessage('Verificando catálogo...');
@@ -412,7 +411,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           : (rawRemote?.totalTracks || mbData?.total_tracks || tracksToSave.length || null);
 
         const genres = await remoteGenres.resolveGenres(
-          searchArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
+          creditedArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
           { search: searchDeezerAlbums, details: getDeezerAlbumDetails }
         );
         if (version !== selectionVersion.current) return;
@@ -452,9 +451,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         };
 
         if (!genres.length) {
-          setStatusMessage(null);
-          setPendingRelease({ payload: albumPayload, item, mbData });
-          return;
+          throw new Error('GENRES_UNAVAILABLE');
         }
         finalAlbum = await supabaseService.createAlbum(albumPayload);
       }
@@ -465,7 +462,9 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     } catch (err) {
       if (version !== selectionVersion.current) return;
       console.error('Error al seleccionar y abrir álbum:', err);
-      setStatusMessage('No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
+      setStatusMessage(err.message === 'GENRES_UNAVAILABLE'
+        ? 'No pudimos recuperar la información completa de esta edición. Vuelve a intentarlo en unos momentos.'
+        : 'No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
     } finally {
       if (version === selectionVersion.current) setSelectingAlbumId(null);
     }
@@ -518,24 +517,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
       navigate(targetUrl, { state: { preloadedAlbum: albumToPass } });
   };
 
-  const confirmReleaseGenre = async genre => {
-    if (!pendingRelease || selectingAlbumId) return;
-    const version = ++selectionVersion.current;
-    setSelectingAlbumId(pendingRelease.item.id);
-    setStatusMessage(null);
-    try {
-      const album = await supabaseService.createAlbum({ ...pendingRelease.payload, genres: [genre] });
-      if (version !== selectionVersion.current) return;
-      openRegisteredAlbum(album, pendingRelease.item, pendingRelease.mbData);
-      setPendingRelease(null);
-    } catch (err) {
-      if (version === selectionVersion.current) setStatusMessage('No pudimos guardar el release. Puedes volver a intentarlo.');
-    } finally {
-      if (version === selectionVersion.current) setSelectingAlbumId(null);
-    }
-  };
-
-  const selectionNotice = <SearchSelectionNotice key={pendingRelease?.item.id || 'status'} message={statusMessage} busy={Boolean(selectingAlbumId)} pending={pendingRelease} onConfirm={confirmReleaseGenre} onCancel={resetSelection}/>;
+  const selectionNotice = <SearchSelectionNotice message={statusMessage} busy={Boolean(selectingAlbumId)}/>;
 
   const handleKeyDown = (e) => {
     if (e.key === 'Escape') {

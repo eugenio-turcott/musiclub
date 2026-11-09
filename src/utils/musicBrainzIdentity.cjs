@@ -1,4 +1,4 @@
-const { slugify } = require('./releaseIdentity.cjs');
+const { slugify, artistCreditKey } = require('./releaseIdentity.cjs');
 
 // Release groups may omit mastering annotations, but deluxe/live/plus are distinct.
 function titleKey(title) {
@@ -11,7 +11,7 @@ function releaseGroupMatches(artist, title, group) {
   if (!artist || !title || !group?.title || titleKey(title) !== titleKey(group.title)) return false;
   const credits = group['artist-credit'] || [];
   const credited = credits.map(credit => typeof credit === 'string' ? credit : (credit.name || credit.artist?.name || '') + (credit.joinphrase || '')).join('');
-  return Boolean(credited && slugify(artist) === slugify(credited));
+  return Boolean(credited && artistCreditKey(artist) === artistCreditKey(credited));
 }
 
 module.exports = { titleKey, releaseGroupMatches };

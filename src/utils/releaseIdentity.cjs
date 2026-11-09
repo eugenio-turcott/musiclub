@@ -5,6 +5,9 @@ function slugify(value, release = false) {
     .replace(/['’]/g, '').replace(/&/g, 'and')
     .replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').toLowerCase();
 }
+function artistCreditKey(value) {
+  return slugify(String(value || '').replace(/\s*[,;&]\s*|\s+and\s+/gi, ' '));
+}
 function getReleaseTypePrefix(value) {
   const type = String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().trim();
   if (['EP','SINGLE_EP','EPS'].includes(type)) return 'eps';
@@ -23,4 +26,4 @@ function decodeRouteSlug(value) {
   const slug = String(value || '');
   try { return decodeURIComponent(slug); } catch { return slug; }
 }
-module.exports = { slugify, getReleaseTypePrefix, releasePath, decodeRouteSlug };
+module.exports = { slugify, artistCreditKey, getReleaseTypePrefix, releasePath, decodeRouteSlug };
