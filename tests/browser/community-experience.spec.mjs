@@ -81,13 +81,14 @@ test('the settings preview exports a public musical card and member share links 
  let progressReads=0;page.on('request',request=>{if(request.url().includes('/rest/v1/public_reviews?'))progressReads++;});
  await page.addInitScript(()=>{
    window.profileCardText=[];window.profileCardImages=[];
-   const clips=new WeakMap(),stacks=new WeakMap(),prototype=CanvasRenderingContext2D.prototype;
+   const clips=new WeakMap(),stacks=new WeakMap(),ids=new WeakMap(),prototype=CanvasRenderingContext2D.prototype;let sequence=0;
+   const canvasId=ctx=>{if(!ids.has(ctx.canvas))ids.set(ctx.canvas,++sequence);return ids.get(ctx.canvas);};
    const save=prototype.save,restore=prototype.restore,clip=prototype.clip,draw=prototype.drawImage,fill=prototype.fillText;
    prototype.save=function(...args){const stack=stacks.get(this)||[];stack.push(clips.get(this)||0);stacks.set(this,stack);return save.apply(this,args);};
    prototype.restore=function(...args){clips.set(this,(stacks.get(this)||[]).pop()||0);return restore.apply(this,args);};
    prototype.clip=function(...args){clips.set(this,(clips.get(this)||0)+1);return clip.apply(this,args);};
    prototype.drawImage=function(image,...args){window.profileCardImages.push({source:image.currentSrc||image.src||'',clipped:clips.get(this)||0,width:this.canvas.width,height:this.canvas.height});return draw.call(this,image,...args);};
-   prototype.fillText=function(text,x,y,...args){const w=this.measureText(String(text)).width,left=this.textAlign==='center'?x-w/2:this.textAlign==='right'?x-w:x;window.profileCardText.push({text:String(text),left,right:left+w,y,width:this.canvas.width,height:this.canvas.height});return fill.call(this,text,x,y,...args);};
+   prototype.fillText=function(text,x,y,...args){const m=this.measureText(String(text)),w=m.width,left=this.textAlign==='center'?x-w/2:this.textAlign==='right'?x-w:x;window.profileCardText.push({canvasId:canvasId(this),text:String(text),left,right:left+w,top:y-m.actualBoundingBoxAscent,bottom:y+m.actualBoundingBoxDescent,y,color:this.fillStyle,width:this.canvas.width,height:this.canvas.height});return fill.call(this,text,x,y,...args);};
  });
  await page.goto('/settings');await page.getByLabel('Acerca de ti',{exact:true}).fill('La música también es una forma de encontrarnos.');
  await page.getByRole('button',{name:'Compartir vista previa',exact:true}).click();
@@ -100,11 +101,13 @@ test('the settings preview exports a public musical card and member share links 
  for(const [name,width,height,id] of [['Historia',1080,1920,'story'],['Publicación',1080,1350,'portrait'],['Cuadrada',1080,1080,'square'],['Horizontal',1600,900,'landscape'],['Compacta',720,960,'compact']]){
   await dialog.getByRole('button',{name:new RegExp(`^${name}`)}).click();await expect(dialog.getByRole('button',{name:'Descargar PNG',exact:true})).toBeEnabled();
   await expect.poll(()=>image.evaluate(el=>[el.naturalWidth,el.naturalHeight])).toEqual([width,height]);
-  const data=await image.getAttribute('src');await writeFile(`outputs/v11-1-14-profile-${id}-${themeId}-${info.project.name}.png`,Buffer.from(data.split(',')[1],'base64'));
-  const text=await page.evaluate(([width,height])=>window.profileCardText.filter(row=>row.width===width&&row.height===height),[width,height]);
+  const data=await image.getAttribute('src');await writeFile(`outputs/v11-1-15-profile-${id}-${themeId}-${info.project.name}.png`,Buffer.from(data.split(',')[1],'base64'));
+  const text=await page.evaluate(([width,height])=>{const rows=window.profileCardText.filter(row=>row.width===width&&row.height===height);const last=rows.at(-1).canvasId;return rows.filter(row=>row.canvasId===last);},[width,height]);
   for(const label of ['SCORE XP','INSIGNIAS','R&B','Soul','Latino','Trap'])expect(text.some(row=>row.text===label)).toBe(true);
   expect(text.some(row=>row.text.includes('private-account@example.test'))).toBe(false);
   expect(text.every(row=>row.left>=-1&&row.right<=width+1&&row.y>=0&&row.y<=height)).toBe(true);
+  expect(text.find(row=>row.text==='XP').color).toBe(themeId==='paper'?'#bc275e':'#facc15');
+  const overlaps=[];for(let i=0;i<text.length;i++)for(let j=i+1;j<text.length;j++){const a=text[i],b=text[j];if(a.text.trim()&&b.text.trim()&&Math.min(a.right,b.right)-Math.max(a.left,b.left)>1&&Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top)>1)overlaps.push([a.text,b.text]);}expect(overlaps,`${id}/${themeId} text overlaps`).toEqual([]);
   const drawings=await page.evaluate(([width,height])=>window.profileCardImages.filter(row=>row.width===width&&row.height===height),[width,height]);
   expect(drawings.filter(row=>row.source.includes('/genre-vinyl/v6/')).length).toBeGreaterThanOrEqual(4);
   const logos=drawings.filter(row=>row.source.endsWith('/musiclub_logo_corchea.png'));

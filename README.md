@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 11.1.11 · **Última actualización:** 11 de noviembre de 2026.
+**Versión:** 11.1.15 · **Última actualización:** 11 de noviembre de 2026.
 
 La portada presenta Musiclub con una tornamesa horizontal sin inclinación con la tipografía oficial. La calificación y el ánimo comparten la consola, con una barra animada más larga debajo; la indicación de estéreo ocupa la esquina superior derecha. La portada ocupa todo el recuadro, muestra el género principal por debajo y revela título y artista al pasar el cursor o enfocar el enlace; en pantallas táctiles la información permanece visible. En la tornamesa, diez releases con reseñas se eligen al azar por visita y se suceden con un fundido cada 6,5 segundos, sin contador, flechas ni consultas adicionales. La selección se pausa para leer la portada, usar el teclado, levantar la aguja, salir de pantalla o detener las animaciones. El vinilo completo gira desde el inicio y la aguja controla el giro; al interactuar se escuchan efectos locales breves, sin canciones ni consultas a proveedores musicales. Los accesos a Pools, Gashapon y las demostraciones aparecen bajo el equipo. Las demostraciones de reseñas y tarjetas utilizan diez ejemplos aleatorios del club: Gashapon selecciona de todo el catálogo, con o sin reseñas, y abre tres releases distintos con tres diseños de vinilo únicos; prioriza géneros diferentes y las tarjetas alternan Story y Horizontal con un fundido y ajuste gradual de altura, conservando cada composición sin estirar su texto. Los géneros abren sus propios exploradores animados y las insignias recorren tres carruseles continuos. Usa información real del club y recursos gráficos propios. Las demostraciones no publican cambios; el movimiento admite pausa manual y respeta la preferencia de reducir animaciones.
 
@@ -18,7 +18,7 @@ La portada presenta Musiclub con una tornamesa horizontal sin inclinación con l
 | Gashapon y una cola para volver después | Salas públicas y privadas con Máquina Musical | Insignias evolutivas y 16 niveles de actividad |
 | Portadas y tendencias del club | Reacciones y recomendaciones entre miembros | Tarjetas para historias, publicaciones y formatos horizontales |
 
-Las tier lists permiten seleccionar hasta diez releases por rango y exportarlos en tarjetas paginadas legibles. Compartir reseñas, perfiles y tier lists se limita al contenido de la cuenta propia.
+Las tier lists permiten seleccionar hasta diez releases por rango y compartir los seis tiers juntos en una sola imagen, usando sólo las portadas. Cada uno de los cinco formatos organiza la lámina según su proporción. Las tarjetas de perfil separan identidad, favoritos, XP, insignias y vinilos de géneros para evitar superposiciones; la XP es amarilla en los temas oscuros y rosa oscuro en Edición en papel. Compartir reseñas, perfiles y tier lists se limita al contenido de la cuenta propia.
 
 La [guía interactiva](https://www.musiclub.org/guias) permite probar cada área con demostraciones locales: no publica reseñas, no crea salas y no envía mensajes. El FAQ enlaza a sus capítulos. Las tarjetas para compartir conservan la proporción en cualquier pantalla y excluyen correo, buzón e información privada.
 

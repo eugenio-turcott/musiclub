@@ -5,7 +5,8 @@ import {drawProfileCard} from './drawProfileCard.js';
 import genreCatalog from './genreCatalog.cjs';
 import genreFiles from './genreAssetFiles.cjs';
 import genreArt from './genreArtworkSources.cjs';
-import {DEFAULT_TIERS,tierPageSize} from './tierList.mjs';
+import {drawTierCard,tierCardItems} from './drawTierCard.js';
+import covers from './coverImageSource.cjs';
 
 export const SHARE_FORMATS=[
   {id:'story',label:'Historia',detail:'9:16',width:1080,height:1920,icon:'phone'},
@@ -23,7 +24,7 @@ const images=new Map();
 export function loadCardImage(source){
   if(!source)return Promise.resolve(null);
   if(images.has(source))return images.get(source);
-  if(images.size>=32)images.delete(images.keys().next().value);
+  if(images.size>=96)images.delete(images.keys().next().value);
   const promise=new Promise(resolve=>{
     const image=new Image();let timer,finished=false;
     const finish=value=>{if(finished)return;finished=true;clearTimeout(timer);resolve(value);};
@@ -88,15 +89,9 @@ export async function renderSocialCard({kind='review',review={},album={},profile
   const [cover,avatar,logo,disc]=await Promise.all([loadCardImage(album.image_url||album.imagen),loadCardImage(profile.avatar_url||profile.avatar||review.reviewer_avatar),loadCardImage('/musiclub_logo_corchea.png'),loadCardImage(art.disc)]);
   const p=background(ctx,W,H,t,logo,format==='story'),available=W-p*2;
   if(kind==='tierlist'){
-    const config=DEFAULT_TIERS.find(item=>item.id===tier)||DEFAULT_TIERS[0],perPage=tierPageSize(format);
-    const all=(tierGroups[tier]||[]).slice(0,10),pages=Math.max(1,Math.ceil(all.length/perPage)),current=Math.min(Math.max(0,page),pages-1),items=all.slice(current*perPage,(current+1)*perPage);
-    const photos=await Promise.all(items.map(item=>loadCardImage(item.imagen)));
-    const head=H*(format==='story'?.17:.16);
-    box(ctx,p,head-W*.055,W*.092,W*.092,W*.02,config.hexColor);type(ctx,tier,p+W*.046,head+W*.012,W*.058,'#171323',900,'center');
-    type(ctx,config.name,p+W*.12,head,W*.043,t.ink,900);line(ctx,profile.name||'Mi tier list',p+W*.12,head+W*.04,available-W*.13,W*.027,t.muted);
-    const cols=landscape?5:2,rows=Math.max(1,Math.ceil(items.length/cols)),start=H*(landscape?.29:square?.29:.26),end=H*.87,gap=W*.022,cw=(available-gap*(cols-1))/cols,rh=(end-start-gap*(rows-1))/rows;
-    items.forEach((item,i)=>{const x=p+(i%cols)*(cw+gap),y=start+Math.floor(i/cols)*(rh+gap),side=Math.min(cw,rh*.68);box(ctx,x,y,cw,rh,W*.018,t.surface,t.muted+'22');photo(ctx,photos[i],x+(cw-side)/2,y+W*.009,side,side*.07);const baseline=y+side+W*.037;line(ctx,item.album,x+W*.016,baseline,cw-W*.032,W*(landscape?.019:.026),t.ink,900);line(ctx,item.artista,x+W*.016,baseline+W*.029,cw-W*.032,W*(landscape?.015:.021),t.muted,600);const score=Number(item.score).toFixed(1);box(ctx,x+cw-W*.10,y+W*.014,W*.084,W*.044,W*.012,config.hexColor);type(ctx,score,x+cw-W*.058,y+W*.046,W*.026,'#171323',900,'center');});
-    footer(ctx,W,H,t,avatar,profile.name||'Mi selección musical',`Tier ${tier} · ${current+1}/${pages} · musiclub.org`,format==='story'?.94:.95);return canvas;
+    const photos=await Promise.all(tierCardItems(tierGroups).map(item=>loadCardImage(covers.coverImageSource(item.imagen).src)));
+    drawTierCard({ctx,W,H,t,profile,tierGroups,photos,helpers:{box,type,line,photo}});
+    return canvas;
   }
   if(kind==='profile'){
     const genres=genreCatalog.normalizeGenres(profile.favorite_genres||[],6);

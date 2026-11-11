@@ -3,6 +3,29 @@ import assert from 'node:assert/strict';
 import {MELOMANO_LEVELS,getMelomanoLevel,PROGRESSION_BADGES,TIER_STYLES,calculateUserGamification} from '../src/utils/badgeSystem.js';
 import {SHARE_FORMATS,clippedText} from '../src/utils/socialCards.js';
 import {TOUR_SECTIONS,FAQ_TOUR_ANCHORS} from '../src/data/musiclubTour.js';
+import {profileCardLayout,tierBoardLayout} from '../src/utils/shareCardLayout.mjs';
+import {DEFAULT_TIERS} from '../src/utils/tierList.mjs';
+
+const intersects=(a,b)=>Math.min(a.x+a.w,b.x+b.w)>Math.max(a.x,b.x)+.01&&Math.min(a.y+a.h,b.y+b.h)>Math.max(a.y,b.y)+.01;
+test('profile sections have independent space in every export format',()=>{
+ for(const {width:W,height:H} of SHARE_FORMATS){
+  const layout=profileCardLayout(W,H),boxes=['identity','favorites','xp','badges','genres'].map(key=>layout[key]);
+  for(const b of boxes){assert.ok(b.x>=0&&b.y>=0&&b.x+b.w<=W+.01&&b.y+b.h<H*.92);assert.ok(b.w>0&&b.h>0);}
+  for(let i=0;i<boxes.length;i++)for(let j=i+1;j<boxes.length;j++)assert.ok(!intersects(boxes[i],boxes[j]));
+ }
+});
+test('a complete tier sheet preserves six tiers and up to sixty distinct covers without overlap',()=>{
+ for(const {width:W,height:H} of SHARE_FORMATS)for(const counts of [[10,10,10,10,10,10],[10,2,0,7,1,0],[0,0,0,0,0,0]]){
+  const groups=Object.fromEntries(DEFAULT_TIERS.map((t,i)=>[t.id,Array.from({length:counts[i]},()=>({}))]));
+  const result=tierBoardLayout(W,H,groups);assert.deepEqual(result.tiers.map(t=>t.id),DEFAULT_TIERS.map(t=>t.id));
+  const covers=[];
+  result.tiers.forEach((tier,index)=>{
+   assert.equal(tier.covers.length,counts[index]);assert.ok(tier.y>=result.top-.01&&tier.y+tier.h<=result.bottom+.01);
+   for(const cover of tier.covers){assert.ok(cover.size>=20);assert.ok(cover.x>=tier.x+tier.label&&cover.y>=tier.y-.01&&cover.x+cover.size<=tier.x+tier.w+.01&&cover.y+cover.size<=tier.y+tier.h+.01);covers.push({x:cover.x,y:cover.y,w:cover.size,h:cover.size});}
+  });
+  for(let i=0;i<covers.length;i++)for(let j=i+1;j<covers.length;j++)assert.ok(!intersects(covers[i],covers[j]));
+ }
+});
 
 test('progression has continuous boundaries, preserves existing starting levels and gives a next goal above 12,829 XP',()=>{
  assert.ok(MELOMANO_LEVELS.length>=16);
