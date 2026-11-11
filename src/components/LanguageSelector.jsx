@@ -413,7 +413,7 @@ export function LanguageSelector({ variant = 'header' }) {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth="2.5"
+            strokeWidth="2.2"
             d="M19 9l-7 7-7-7"
           />
         </svg>

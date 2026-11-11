@@ -119,7 +119,7 @@ test('every genre reveal has a separate center without an embedded outer record'
     const art = visuals.genreRevealArtwork(genre.id);
     assert.match(art.disc, /^\/genres\/colors\/v1\/[^/]+\.svg$/);
     assert.equal(art.center, visuals.genreRevealArtwork(genre.id, 'sandia').center);
-    assert.match(art.center, /^\/genres\/symbols\/v4\/[^/]+\.svg$/);
+    assert.match(art.center, /^\/genres\/symbols\/v5\/[^/]+\.svg$/);
     const svg = symbols.genreSymbol(genre.id).svg;
     assert.match(svg,/viewBox="0 0 100 100"/);
     assert.ok(!svg.includes('clipPath'),genre.id);

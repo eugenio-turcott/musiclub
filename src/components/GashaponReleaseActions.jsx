@@ -20,7 +20,7 @@ export function GashaponReleaseActions({ album, onDiscard }) {
         try { if (await library.setPreference(album, 'gashapon_dismissed', true)) onDiscard?.(); }
         catch (failure) { setError(failure.message); }
       }} className="flex min-h-11 items-center justify-center gap-2 rounded-xl border border-rose-300/25 bg-rose-400/10 px-3 py-2 text-xs font-bold text-rose-200 hover:bg-rose-400/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-rose-200 disabled:opacity-50">
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m6 6 12 12" /></svg>{library.pending.includes(key) ? 'Guardando…' : 'Descartar del Gashapon'}
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m6 6 12 12" /></svg>{library.pending.includes(key) ? 'Guardando…' : 'Descartar del Gashapon'}
       </button>
     </div>
     <p className="text-center text-[11px] text-slate-400">Descartar lo excluye de tus sorteos hasta que lo reactives en el <Link to="/profile?tab=discarded" className="text-purple-200 underline underline-offset-2">historial de descartes</Link>.</p>

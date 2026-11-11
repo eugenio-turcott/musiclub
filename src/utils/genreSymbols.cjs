@@ -4,7 +4,7 @@ const library = require('../data/musicIconLibrary.json');
 function glyph(icon,x,y,scale,color='#f57fa2') {
   const drawing=library.icons[icon];
   if(!drawing) throw new Error(`Missing music icon: ${icon}`);
-  return `<g transform="translate(${x} ${y}) scale(${scale})" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${drawing.body}</g>`;
+  return `<g transform="translate(${x} ${y}) scale(${scale})" fill="none" stroke="${color}" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${drawing.body}</g>`;
 }
 function composition(identity,monochrome=false) {
   const {details}=identity,ink=monochrome?'#000000':'#f57fa2';

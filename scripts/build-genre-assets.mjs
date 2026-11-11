@@ -22,7 +22,7 @@ for (const source of [...sources].sort()) {
   hash.update(await fs.readFile(source));
 }
 const fingerprint = hash.digest('hex');
-const directory = path.resolve('public/genre-vinyl/v5');
+const directory = path.resolve('public/genre-vinyl/v6');
 await fs.mkdir(directory, {recursive:true});
 let current;
 try {current = JSON.parse(await fs.readFile(path.join(directory,'manifest.json'),'utf8'));} catch {}

@@ -86,7 +86,7 @@ export function ShareIcon({ className = 'w-4 h-4' }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.3"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -106,7 +106,7 @@ export function DownloadIcon({ className = 'w-4 h-4' }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.3"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -124,7 +124,7 @@ export function CopyImageIcon({ className = 'w-4 h-4' }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.3"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -141,7 +141,7 @@ export function LinkIcon({ className = 'w-4 h-4' }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="2.3"
+      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
     >

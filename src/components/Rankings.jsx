@@ -1332,7 +1332,7 @@ export function Rankings({ albums, isAdmin = false }) {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
+                              strokeWidth="1.7"
                               d="M15 19l-7-7 7-7"
                             />
                           </svg>
@@ -1351,7 +1351,7 @@ export function Rankings({ albums, isAdmin = false }) {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
+                              strokeWidth="1.7"
                               d="M9 5l7 7-7 7"
                             />
                           </svg>
@@ -1696,7 +1696,7 @@ export function Rankings({ albums, isAdmin = false }) {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
+                              strokeWidth="1.7"
                               d="M15 19l-7-7 7-7"
                             />
                           </svg>
@@ -1715,7 +1715,7 @@ export function Rankings({ albums, isAdmin = false }) {
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
-                              strokeWidth="2"
+                              strokeWidth="1.7"
                               d="M9 5l7 7-7 7"
                             />
                           </svg>

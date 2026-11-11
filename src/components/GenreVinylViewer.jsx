@@ -154,7 +154,7 @@ export function GenreVinylViewer({ genre, className = '' }) {
   return <>
     <button type="button" className={styles.trigger} aria-label={`Ampliar vinilo de ${genre.name}`} aria-haspopup="dialog" aria-expanded={open} onClick={() => setOpen(true)}>
       <GenreArtwork genre={genre.id} size={370} animated className={className} />
-      <span className={styles.triggerHint} aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" /></svg></span>
+      <span className={styles.triggerHint} aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7" /></svg></span>
     </button>
     {open && <VinylDialog genre={genre} onClose={() => setOpen(false)} />}
   </>;

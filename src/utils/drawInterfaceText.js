@@ -38,7 +38,7 @@ export function drawInterfaceText(ctx, text, x, y) {
     if (part.text !== undefined) { ctx.fillText(part.text, left, y); left += ctx.measureText(part.text).width; }
     else {
       ctx.save(); ctx.translate(left,top); ctx.scale(size/24,size/24);
-      ctx.strokeStyle=artwork.ICON_COLORS[part.icon] || '#f472b6'; ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.strokeStyle=artwork.ICON_COLORS[part.icon] || '#f472b6'; ctx.lineWidth=artwork.ICON_STROKE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';
       for(const element of drawing(part.icon)) {
         ctx.save();
         applyTransforms(ctx,element.transforms);
@@ -52,7 +52,7 @@ export function drawInterfaceText(ctx, text, x, y) {
 
 export function drawUiIcon(ctx,name,x,y,size,color='#fff') {
   ctx.save();ctx.translate(x,y);ctx.scale(size/24,size/24);
-  ctx.strokeStyle=color;ctx.lineWidth=1.8;ctx.lineCap='round';ctx.lineJoin='round';
+  ctx.strokeStyle=color;ctx.lineWidth=artwork.ICON_STROKE_WIDTH;ctx.lineCap='round';ctx.lineJoin='round';
   for(const element of drawing(name)){
     ctx.save();applyTransforms(ctx,element.transforms);
     ctx.stroke(element.path);ctx.restore();

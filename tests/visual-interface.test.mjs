@@ -26,7 +26,7 @@ test('the score gauge distinguishes missing scores from zero and bounds imported
 });
 test('interface labels render vector icons while keeping their descriptive text and ordinary symbols', () => {
   const html = renderToStaticMarkup(React.createElement(Label,null,'🎧 Ver álbum · © Musiclub'));
-  assert.match(html,/<svg/);assert.match(html,/stroke-width="1\.8"/);
+  assert.match(html,/<svg/);assert.match(html,/stroke-width="1\.6"/);
   assert.match(html,/Ver álbum · © Musiclub/);assert.doesNotMatch(html,/🎧/);
   const boundary = renderToStaticMarkup(React.createElement('span',null,React.createElement(Label,null,'♫ Temporada '),'1'));
   assert.match(boundary,/<\/span> 1<\/span>/);

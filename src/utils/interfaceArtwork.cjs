@@ -821,4 +821,5 @@ ICON_FILLS.cycle = '<path d="m18 9 3 3 2-4M10 18l-3 2 0 3M3 5l4-1 1 4"/>';
 ICON_BODIES.thoughtful = '<circle cx="12" cy="11" r="8.5"/><path d="m7 8 3-1M14 7l3 1M8 10h.01M16 10h.01M10 14c1.5-1 3-1 4 0M12 21v-3l2-2c1-1 2 0 1.5 1l-.5 1h3c2 0 2 4 0 4h-3Z"/>';
 ICON_COLORS.thoughtful = '#d8b4fe';
 ICON_FILLS.thoughtful = '<circle cx="12" cy="11" r="8.5"/>';
-module.exports = { ICON_BODIES, ICON_COLORS, ICON_FILLS };
+const ICON_STROKE_WIDTH = 1.6;
+module.exports = { ICON_BODIES, ICON_COLORS, ICON_FILLS, ICON_STROKE_WIDTH };

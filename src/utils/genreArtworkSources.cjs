@@ -6,6 +6,6 @@ const pressings = require('./vinylPressings.cjs');
 function genreArtworkSources(raw, edition) {
  const key = genres.genreKey(raw);
  const pressing = edition == null && key ? {id:`genre:${key}`,disc:'/genres/colors/v1/'+encodeURIComponent(key)+'.svg'} : pressings.vinylEdition(edition ?? 0);
- return { id:pressing.id,disc:pressing.disc,center:key ? '/genres/symbols/v4/'+encodeURIComponent(key)+'.svg' : '/musiclub_logo_corchea.png' };
+ return { id:pressing.id,disc:pressing.disc,center:key ? '/genres/symbols/v5/'+encodeURIComponent(key)+'.svg' : '/musiclub_logo_corchea.png' };
 }
 module.exports = { genreArtworkSources };
