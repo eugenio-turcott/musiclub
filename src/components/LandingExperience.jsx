@@ -1,5 +1,5 @@
 'use client';
-import {createContext, useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {UiIcon} from './UiIcon';
 import {CoverImage} from './CoverImage';
@@ -90,9 +90,8 @@ export function LandingHero({albums,reviews,stats,user,onLogin}){
      <p className={styles.heroText}>El club social donde cada lanzamiento cuenta: <strong>álbumes, EPs, sencillos y canciones</strong>. Encuentra un disco que conozcas, deja tu valoración y descubre qué escucha la comunidad.</p>
      <form action="/catalogo#explorador-catalogo" className={styles.search} role="search"><label htmlFor="home-search" className="sr-only">Buscar álbum o artista</label>{icon('search')}<input id="home-search" name="q" required placeholder="Busca un álbum o artista"/><button type="submit">Buscar {icon('arrow',18)}</button></form>
      <div className={styles.actions}><Link to="/catalogo" className={styles.primary}>Explorar Catálogo {icon('arrow')}</Link>{!user?<button type="button" onClick={onLogin} className={styles.secondary}>Únete al Club {icon('users')}</button>:<Link to="/profile" className={styles.secondary}>Mi Perfil {icon('user')}</Link>}</div>
-     <div className={styles.heroLinks}><Link to="/pool">{icon('pool',17)}Explorar pools</Link><Link to="/gashapon">{icon('gashapon',17)}Gashapon Arcade</Link><a href="#musiclub-en-accion">Ver cómo funciona {icon('arrowDown',17)}</a></div>
    </div>
-   <LandingTurntable selection={selection} paused={motion.inactive}/>
+   <LandingTurntable selection={selection} paused={motion.inactive}><nav className={styles.heroLinks} aria-label="Explorar Musiclub"><Link to="/pool">{icon('pool',20)}Explorar Pools</Link><Link to="/gashapon">{icon('gashapon',20)}Gashapon Arcade</Link><a href="#musiclub-en-accion">{icon('arrowDown',20)}Ver cómo funciona</a></nav></LandingTurntable>
    <div className={styles.motionControl}><span>{icon('disc',16)} Hecho para quienes escuchan más allá del sencillo.</span><button type="button" aria-pressed={motion.paused} onClick={motion.toggle}>{icon(motion.paused?'play':'pause',16)}{motion.paused?'Activar animaciones':'Pausar animaciones'}</button></div>
  </section>
  <section className={styles.stats} aria-label="Musiclub en cifras" data-reveal=""><Stat value={stats.total_reviewed_albums} label="Lanzamientos con Reviews" figure="disc"/><Stat value={stats.total_reviews} label="Reseñas publicadas" figure="review"/><Stat value={stats.total_users} label="Críticos & Miembros" figure="users"/><Stat value={stats.top_score} label="Top Score Comunitario" figure="star" decimal/></section>
@@ -108,7 +107,6 @@ function ReviewDemo({album,review}){
 
 function GashaponDemo({selection}) {
  const [selected,setSelected]=useState(0), [stage,setStage]=useState('READY'), [inView,setInView]=useState(false), motion=useContext(Motion), scene=useRef(null);
- const current=selected%selection.length, album=selection[current]?.album, release=displayRelease(album);
  useEffect(()=>{const observer=new IntersectionObserver(([entry])=>setInView(entry.isIntersecting));if(scene.current)observer.observe(scene.current);return()=>observer.disconnect();},[]);
  useEffect(()=>{
    if(!inView)return;
@@ -121,14 +119,29 @@ function GashaponDemo({selection}) {
    return()=>clearTimeout(timer);
  },[stage,motion.inactive,inView,selection.length]);
  return <div ref={scene} className={styles.miniGashapon} data-gashapon-demo="" data-gashapon-active={inView&&!motion.inactive} aria-label="Animación de Gashapon">
-   <GashaponReveal key={album.id} compact genre={release.genres[0]||'Pop'} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/>
-   <span className="sr-only">{stage==='REVEALED'?`${release.title}, de ${release.artist}`:'Cápsula de un release del club'}</span>
+   {selection.slice(0,3).map((_,offset)=>{
+     const album=selection[(selected+offset)%selection.length].album,release=displayRelease(album);
+     return <div className={styles.gashaponExample} key={offset}><GashaponReveal key={album.id} compact genre={release.genres[0]||'Pop'} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/><span className="sr-only">{stage==='REVEALED'?`${release.title}, de ${release.artist}`:'Cápsula de un release del club'}</span></div>;
+   })}
  </div>;
 }
 
 function ShareDemo({album,review}){
  const [horizontal,setHorizontal]=useState(false), release=displayRelease(album), favorite=review?.favTrackTitle || (review?.favorite_track?getTrackDisplayName(review.favorite_track,album.tracks||[]):null);
- return <div className={styles.shareDemo}><div className={styles.shareFormats}><button type="button" aria-pressed={!horizontal} onClick={()=>setHorizontal(false)}>{icon('phone',18)}Story</button><button type="button" aria-pressed={horizontal} onClick={()=>setHorizontal(true)}>{icon('image',18)}Horizontal</button></div><div className={`${styles.shareCanvas} ${horizontal?styles.horizontal:''}`} data-share-preview=""><div className={styles.shareBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub"/><strong>MUSICLUB</strong></div><div className={styles.shareArtwork}><Vinyl genre={release.genres[0]||'Pop'}/><CoverImage src={release.image} alt={release.title}/><strong>{review?Number(getWeightedReviewScore(review)).toFixed(1):Number(album.final_rating||0).toFixed(1)}<small>/10</small></strong></div><div className={styles.shareInfo}><h3>{release.title}</h3><p>{release.artist}</p>{favorite&&<span>{icon('crown',17)}{favorite}</span>}<div className={styles.miniCriteria}>{REVIEW_CRITERIA.map(([key,label,glyph,max,color])=><span key={key} title={label} style={{color,'--content-icon-ink':color}}>{icon(glyph,19)}<b>{review?.[key]??'—'}</b></span>)}</div><footer><span>{review?.reviewer_name||'La comunidad'}</span><b>musiclub.org</b></footer></div></div><p className={styles.demoCaption}>Reseña real del club · Vista previa del diseño</p></div>;
+ const canvases=useRef([]),[height,setHeight]=useState(null);
+ useLayoutEffect(()=>{
+   // Measure the two stable layouts, rather than stretching text or switching
+   // the same card from block to grid halfway through its size transition.
+   const measure=()=>{const canvas=canvases.current[Number(horizontal)];if(canvas)setHeight(canvas.offsetHeight+40);};
+   measure();const observer=new ResizeObserver(measure);canvases.current.forEach(canvas=>canvas&&observer.observe(canvas));
+   return()=>observer.disconnect();
+ },[horizontal,album.id]);
+ return <div className={styles.shareDemo}><div className={styles.shareFormats}><button type="button" aria-pressed={!horizontal} onClick={()=>setHorizontal(false)}>{icon('phone',18)}Story</button><button type="button" aria-pressed={horizontal} onClick={()=>setHorizontal(true)}>{icon('image',18)}Horizontal</button></div>
+   <div className={styles.shareStage} data-share-stage="" style={height?{height}:undefined}>
+     {[false,true].map((landscape,i)=><div className={styles.shareLayer} key={String(landscape)} data-active={landscape===horizontal} aria-hidden={landscape!==horizontal} inert={landscape!==horizontal}>
+       <div ref={node=>{canvases.current[i]=node;}} className={`${styles.shareCanvas} ${landscape?styles.horizontal:''}`} data-share-preview={landscape===horizontal?'':undefined}><div className={styles.shareBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub"/><strong>MUSICLUB</strong></div><div className={styles.shareArtwork}><Vinyl genre={release.genres[0]||'Pop'}/><CoverImage src={release.image} alt={release.title}/><strong>{review?Number(getWeightedReviewScore(review)).toFixed(1):Number(album.final_rating||0).toFixed(1)}<small>/10</small></strong></div><div className={styles.shareInfo}><h3>{release.title}</h3><p>{release.artist}</p>{favorite&&<span>{icon('crown',17)}{favorite}</span>}<div className={styles.miniCriteria}>{REVIEW_CRITERIA.map(([key,label,glyph,max,color])=><span key={key} title={label} style={{color,'--content-icon-ink':color}}>{icon(glyph,19)}<b>{review?.[key]??'—'}</b></span>)}</div><footer><span>{review?.reviewer_name||'La comunidad'}</span><b>musiclub.org</b></footer></div></div>
+     </div>)}
+   </div><p className={styles.demoCaption}>Reseña real del club · Vista previa del diseño</p></div>;
 }
 
 const CHAPTERS=[{id:'resenar',num:'01',icon:'sliders',title:'Califica lo que escuchas.',text:'Seis criterios, una nota general y tu canción favorita. Una reseña que cuenta más que un número.',link:'/reviews',action:'Leer reseñas del club',chips:['7 criterios','Canción favorita','Estado de ánimo']},{id:'descubrir',num:'02',icon:'gashapon',title:'Descubre releases en Gashapon.',text:'Elige un género, abre una cápsula y encuentra un release del catálogo. Prueba aquí con discos reales del club.',link:'/gashapon',action:'Entrar al Gashapon',chips:['Cápsulas por género','Releases del club','Nuevos descubrimientos']},{id:'compartir',num:'03',icon:'share',title:'Comparte tu música, a tu estilo.',text:'Convierte tus propias reseñas, tu perfil y tus tier lists en imágenes listas para tus redes.',link:'/profile',action:'Preparar mi tarjeta',chips:['Stories','Horizontal','Tier lists']}];

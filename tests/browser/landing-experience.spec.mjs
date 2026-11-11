@@ -22,8 +22,7 @@ test('landing presents real releases, native genre vinyls and working catalogue 
  const queries=[];page.on('request',r=>{if(/\/api\/catalog|\/rest\/v1\//.test(r.url()))queries.push(r.url());});
  await expect(page.getByRole('link',{name:'Explorar Jazz',exact:true})).toHaveAttribute('href','/generos/jazz');
  await expect(page.locator('[aria-label="Tornamesa interactiva de Musiclub"] img[src*="/genres/colors/"]')).toHaveCount(1);
- await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
- await expect(page.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
+ await expect(page.locator('[data-turntable-display]')).toHaveAttribute('href',/\/albumes\/artista-de-prueba-/);
  await page.getByRole('button',{name:'Pausar animaciones',exact:true}).click();
  await expect(page.locator('[data-landing-experience]')).toHaveAttribute('data-motion-paused','true');
  expect(await page.locator('[data-turntable-record]').evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
@@ -46,7 +45,8 @@ test('landing simulations are local, use all seven criteria and retain a sticky 
  await expect(demo.getByRole('button',{name:/^Ajustar/})).toHaveCount(7);
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
  const gashapon=page.locator('[data-gashapon-demo]');
- await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveAttribute('data-stage','revealed');
+ await expect(gashapon.locator('[data-vinyl-reveal]')).toHaveCount(3);
+ for(const vinyl of await gashapon.locator('[data-vinyl-reveal]').all())await expect(vinyl).toHaveAttribute('data-stage','revealed');
  expect((await gashapon.boundingBox()).height).toBeLessThanOrEqual(300);
  await expect(gashapon.getByText('Demostración · no guarda cambios',{exact:true})).toHaveCount(0);
  await expect(gashapon.getByRole('button',{name:/Ejemplo para descubrir|Probar otra|Género/})).toHaveCount(0);
@@ -92,12 +92,19 @@ test('the integrated turntable has local needle controls, full artwork and natur
  await expect(player.locator('audio,iframe')).toHaveCount(0);
  await expect(deck.locator('[data-turntable-display]')).toHaveCount(1);
  await expect(deck.locator('[data-turntable-console] [aria-label^="Calificación del club"]')).toHaveCount(1);
- await expect(deck.locator('header [role="img"]')).toHaveCount(1);
- await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(0);
+ await expect(deck.locator('header [role="img"]')).toHaveCount(0);
+ await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(1);
  await expect(player.getByRole('button',{name:/efectos de sonido|Disco anterior|Disco siguiente/})).toHaveCount(0);
  await expect(player.getByText('Vinilo girando · Aguja sobre el disco',{exact:true})).toHaveCount(0);
  expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(0);
- await expect(player.getByRole('button',{name:/^Mostrar /})).toHaveCount(3);
+ await expect(player.getByRole('button',{name:/^Mostrar /})).toHaveCount(0);
+ await expect(player.getByText('DISCOS DEL CLUB',{exact:true})).toHaveCount(0);
+ await expect(deck.locator('header')).toContainText('33⅓ · ESTÉREO');
+ const shortcuts=player.getByRole('navigation',{name:'Explorar Musiclub'});
+ await expect(shortcuts.getByRole('link',{name:'Explorar Pools',exact:true})).toHaveAttribute('href','/pool');
+ await expect(shortcuts.getByRole('link',{name:'Gashapon Arcade',exact:true})).toHaveAttribute('href','/gashapon');
+ await expect(shortcuts.getByRole('link',{name:'Ver cómo funciona',exact:true})).toHaveAttribute('href','#musiclub-en-accion');
+ expect((await shortcuts.boundingBox()).y).toBeGreaterThan((await deck.boundingBox()).y+(await deck.boundingBox()).height);
  await expect(deck.getByRole('button',{name:/^Mostrar /})).toHaveCount(0);
  await expect(player).toHaveAttribute('data-needle-down','true');
  const record=deck.locator('[data-turntable-record]');await expect(record.locator('img')).toHaveCount(2);
@@ -106,8 +113,7 @@ test('the integrated turntable has local needle controls, full artwork and natur
  const dimensions=await deck.boundingBox();expect(dimensions.width).toBeGreaterThan(dimensions.height);
  expect(await deck.evaluate(el=>getComputedStyle(el).transform)).toBe('none');
  await expect(player.getByText(/MUEVE.*LA AGUJA/)).toHaveCount(0);
- await page.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
- await expect(deck.getByRole('link',{name:'Ver release: Azul',exact:true})).toHaveAttribute('href','/albumes/artista-de-prueba-azul');
+ await expect(deck.locator('[data-turntable-display]')).toHaveAttribute('href',/\/albumes\/artista-de-prueba-/);
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
  await page.getByRole('button',{name:'Bajar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','true');
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','false');
@@ -115,11 +121,19 @@ test('the integrated turntable has local needle controls, full artwork and natur
  const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-22,y+28);await page.mouse.up();
  await expect(player).toHaveAttribute('data-needle-down','true');
- await player.getByRole('button',{name:/^Mostrar /}).nth(1).click();await expect(player).toHaveAttribute('data-needle-down','true');
+ await expect(player).toHaveAttribute('data-needle-down','true');
  expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(1);
  await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('running');
  expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.screenshot({path:'outputs/v11-1-9-turntable-'+info.project.name+'.png',animations:'disabled'});
+ const score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox(),genre=await deck.locator('[class*="genre"]').boundingBox(),cover=await deck.locator('[data-turntable-display]').boundingBox();
+ expect(wave.y).toBeGreaterThanOrEqual(score.y+score.height);expect(wave.width).toBeGreaterThan(score.width);expect(mood.x).toBeGreaterThanOrEqual(score.x+score.width-1);expect(genre.y).toBeGreaterThan(cover.y+cover.height);expect(genre.y+genre.height).toBeLessThanOrEqual(score.y);
+ await page.screenshot({path:'outputs/v11-1-10-turntable-'+info.project.name+'.png',animations:'disabled'});
+ if(info.project.name==='mobile'){
+  await page.setViewportSize({width:320,height:740});
+  const s=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),m=await deck.locator('[role="img"]').boundingBox(),g=await deck.locator('[class*="genre"]').boundingBox();
+  expect(s.x+s.width).toBeLessThanOrEqual(m.x);expect(g.y+g.height).toBeLessThanOrEqual(s.y);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
 });
 
 test('turntable crossfades all sampled covers locally, reveals metadata and respects motion pause',async({page},info)=>{
@@ -136,15 +150,15 @@ test('turntable crossfades all sampled covers locally, reveals metadata and resp
  await page.clock.install();const first=await display.getAttribute('href'),seen=new Set([first]);
  for(let i=0;i<3;i++){await page.clock.fastForward(6500);await expect(display).not.toHaveAttribute('href',[...seen].at(-1));seen.add(await display.getAttribute('href'));}
  expect(seen.size).toBe(3);await expect(display).toHaveAttribute('href',first);
- await player.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
- await expect(display).toContainText('Pop');
+ const title=await active.locator('img').getAttribute('alt');
+ await expect(display).toContainText(/Pop|Rock|Jazz/);
  const metadata=display.locator('[class*="displayText"]');
  if(info.project.name==='desktop'){
   expect(await metadata.evaluate(el=>getComputedStyle(el).opacity)).toBe('0');
   await display.hover();await expect(player).toHaveAttribute('data-turntable-cycling','false');
   await page.clock.fastForward(400);await expect(metadata).toHaveCSS('opacity','1');
  }else await expect(metadata).toHaveCSS('opacity','1');
- await expect(metadata).toContainText('Azul');await expect(metadata).toContainText('Artista de Prueba');
+ await expect(metadata).toContainText(title);await expect(metadata).toContainText('Artista de Prueba');
  await page.getByRole('button',{name:'Pausar animaciones',exact:true}).click();
  await expect(player).toHaveAttribute('data-turntable-cycling','false');const stopped=await display.getAttribute('href');
  await page.clock.fastForward(14000);await expect(display).toHaveAttribute('href',stopped);
@@ -158,12 +172,15 @@ test('turntable crossfades all sampled covers locally, reveals metadata and resp
 
 test('the compact Gashapon cycles real releases only while visible without new data requests',async({page})=>{
  await openLanding(page);
- const demo=page.locator('[data-gashapon-demo]'),reveal=demo.locator('[data-vinyl-reveal]'),requests=[];
+ const demo=page.locator('[data-gashapon-demo]'),reveal=demo.locator('[data-vinyl-reveal]').first(),requests=[];
  page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog/.test(r.url()))requests.push(r.url());});
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Descubrir/}).click();
  await expect(reveal).toHaveAttribute('data-compact','true');
  await expect.poll(()=>reveal.getAttribute('data-stage')).toBe('revealed');
- const cover=demo.locator('[data-vinyl-cover] img'),first=await cover.getAttribute('alt');
+ await expect(demo.locator('[data-vinyl-reveal]')).toHaveCount(3);
+ const covers=demo.locator('[data-vinyl-cover] img');
+ const cover=covers.first(),first=await cover.getAttribute('alt');
+ expect(new Set(await covers.evaluateAll(items=>items.map(el=>el.alt))).size).toBe(3);
  await expect.poll(async()=>{const title=await cover.getAttribute('alt');return Boolean(title&&title!==first);},{timeout:8000}).toBe(true);
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Compartir/}).click();
  await expect(page.locator('#demo-compartir')).toBeInViewport();
@@ -182,4 +199,30 @@ test('genre links open the animated genre explorer and filters remain local',asy
  await page.getByRole('button',{name:'Con reseñas',exact:true}).click();
  await expect(page.getByRole('region',{name:'Lanzamientos de Pop',exact:true})).toContainText('Azul');
  expect(queries).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('sharing formats crossfade stable layouts and smoothly reverse without stretching or extra reads',async({page},info)=>{
+ await openLanding(page);
+ await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Compartir/}).click();
+ const stage=page.locator('[data-share-stage]');await stage.scrollIntoViewIfNeeded();
+ const story=stage.locator('[class*="shareCanvas"]').first(),landscape=stage.locator('[class*="shareCanvas"]').nth(1);
+ const storySize=await story.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}));
+ const landscapeSize=await landscape.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}));
+ const initial=await stage.evaluate(el=>el.getBoundingClientRect().height),requests=[];
+ page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog/.test(r.url()))requests.push(r.url());});
+ await page.getByRole('button',{name:'Horizontal',exact:true}).click();
+ await page.waitForTimeout(150);
+ const intermediate=await stage.evaluate(el=>el.getBoundingClientRect().height);
+ expect(intermediate).toBeLessThan(initial-1);expect(intermediate).toBeGreaterThan(landscapeSize.height+40+1);
+ expect(await story.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}))).toEqual(storySize);
+ expect(await landscape.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}))).toEqual(landscapeSize);
+ await expect.poll(()=>stage.evaluate(el=>Math.abs(el.getBoundingClientRect().height-(el.querySelector('[data-share-preview]').offsetHeight+40)))).toBeLessThan(1);
+ await page.getByRole('button',{name:'Story',exact:true}).click();await page.waitForTimeout(120);
+ await page.getByRole('button',{name:'Horizontal',exact:true}).click();await page.waitForTimeout(120);
+ await page.getByRole('button',{name:'Story',exact:true}).click();
+ await expect.poll(()=>stage.evaluate(el=>Math.abs(el.getBoundingClientRect().height-(el.querySelector('[data-share-preview]').offsetHeight+40)))).toBeLessThan(1);
+ await expect(stage.locator('[data-share-preview]')).toHaveCount(1);
+ await expect(stage.locator('[data-share-preview]')).toContainText('Artista de Prueba');
+ expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await stage.screenshot({path:`outputs/v11-1-10-share-${info.project.name}.png`,animations:'disabled'});
 });

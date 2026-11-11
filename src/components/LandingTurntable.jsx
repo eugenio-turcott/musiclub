@@ -9,10 +9,10 @@ import {displayRelease} from '../utils/landingExperience.mjs';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './LandingTurntable.module.css';
 
-export function LandingTurntable({selection,paused=false}) {
+export function LandingTurntable({selection,paused=false,children}) {
   const [index,setIndex]=useState(0), [down,setDown]=useState(true), [gesture,setGesture]=useState(0);
   const [inView,setInView]=useState(false), [hovering,setHovering]=useState(false), [focused,setFocused]=useState(false), [dragging,setDragging]=useState(false);
-  const scene=useRef(null), sound=useRef(null), drag=useRef(null), ignoreClick=useRef(false), recordButtons=useRef([]), rail=useRef(null);
+  const scene=useRef(null), sound=useRef(null), drag=useRef(null), ignoreClick=useRef(false);
   const selected=selection[index%Math.max(1,selection.length)], album=selected?.album, release=displayRelease(album);
   const mood=getEmotionFromReview(selected?.review), art=visuals.genreRevealArtwork(release.genres[0]||'Pop');
   const score=album?.final_rating==null?'—':Number(album.final_rating).toFixed(1);
@@ -56,25 +56,15 @@ export function LandingTurntable({selection,paused=false}) {
     const timer=setInterval(()=>setIndex(i=>(i+1)%selection.length),6500);
     return()=>clearInterval(timer);
   },[cycling,selection.length,gesture]);
-  useEffect(()=>{
-    const button=recordButtons.current[index%Math.max(1,selection.length)],list=rail.current;
-    if(button&&list)list.scrollTo({left:Math.max(0,button.offsetLeft-list.offsetLeft-list.clientWidth/2+button.clientWidth/2),behavior:'auto'});
-  },[index,selection.length]);
-
   const needle=value=>{setDown(value);setGesture(n=>n+1);chime(value?'lower':'lift');};
-  const choose=i=>{
-    if(!selection.length)return;
-    const next=(i+selection.length)%selection.length;
-    setIndex(next);setDown(true);setGesture(n=>n+1);chime('change');
-  };
 
   return <div ref={scene} className={styles.studio} aria-label="Tornamesa interactiva de Musiclub" data-needle-down={down} data-turntable-cycling={cycling}
     onFocusCapture={event=>setFocused(event.target.matches(':focus-visible'))} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget))setFocused(false);}}>
     <div className={styles.halo} aria-hidden="true"/>
     <div className={styles.deck} data-turntable-deck="">
       <header className={styles.brand}>
-        <span><img src="/musiclub_logo_corchea.png" alt="" width="25" height="25"/><b>MUSICLUB</b><small>33⅓ · ESTÉREO</small></span>
-        <span className={styles.mood} role="img" aria-label={`Estado de ánimo: ${mood.label}`} title={mood.label}><MoodIcon mood={mood.id} size={42}/></span>
+        <span><img src="/musiclub_logo_corchea.png" alt="" width="25" height="25"/><b>MUSICLUB</b></span>
+        <small>33⅓ · ESTÉREO</small>
       </header>
 
       {album?<Link to={getReleaseUrl(album)} className={styles.display} aria-label={`Ver release: ${release.title}`} data-turntable-display=""
@@ -82,7 +72,6 @@ export function LandingTurntable({selection,paused=false}) {
         {selection.map(({album:a},i)=><span key={a.id} className={styles.cover} data-active={i===index%selection.length} aria-hidden={i!==index%selection.length}><CoverImage src={displayRelease(a).image} alt={displayRelease(a).title} sizes="180px" loading="eager"/></span>)}
         <span className={styles.displayText} key={album.id}><strong>{release.title}</strong><small>{release.artist}</small></span>
         {release.genres[0]&&<span className={styles.genre}><UiIcon name="tag" size={13} tone="inherit"/>{release.genres[0]}</span>}
-        <span className={styles.displayIndex}><b>{String(index%selection.length+1).padStart(2,'0')}<small>/{selection.length}</small></b></span>
       </Link>:<div className={styles.display}><p>Los releases con reseñas aparecerán aquí.</p></div>}
 
       <div className={styles.mechanism}>
@@ -98,15 +87,15 @@ export function LandingTurntable({selection,paused=false}) {
 
       <div className={styles.console} data-turntable-console="">
         <button type="button" className={styles.motor} aria-label={down?'Detener vinilo':'Girar vinilo'} aria-pressed={down} disabled={!album} onClick={()=>needle(!down)}><UiIcon name={down?'pause':'play'} size={23} tone="inherit"/><i/></button>
-        <div className={styles.visualizer} aria-hidden="true">{Array.from({length:12},(_,i)=><i key={i} style={{'--i':i}}/>)}</div>
-        <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" size={22} tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
+        <div className={styles.readout}>
+          <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" size={22} tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
+          <span className={styles.mood} role="img" aria-label={`Estado de ánimo: ${mood.label}`} title={mood.label}><MoodIcon mood={mood.id} size={42}/></span>
+          <div className={styles.visualizer} data-turntable-waveform="" aria-hidden="true">{Array.from({length:32},(_,i)=><i key={i} style={{'--i':i,height:`${7+Math.round((Math.sin(i*.7)+1)*5)}px`}}/>)}</div>
+        </div>
       </div>
       <i className={`${styles.screw} ${styles.screwLeft}`} aria-hidden="true"/><i className={`${styles.screw} ${styles.screwRight}`} aria-hidden="true"/>
       <i className={`${styles.foot} ${styles.footLeft}`} aria-hidden="true"/><i className={`${styles.foot} ${styles.footRight}`} aria-hidden="true"/>
     </div>
-      <div className={styles.library}>
-        <div className={styles.libraryLabel}><span><UiIcon name="shuffle" size={16} tone="inherit"/>DISCOS DEL CLUB</span></div>
-        <div ref={rail} className={styles.picker} aria-label="Releases de la tornamesa">{selection.map(({album:a},i)=><button ref={element=>{recordButtons.current[i]=element;}} type="button" key={a.id} aria-label={`Mostrar ${displayRelease(a).title} en la tornamesa`} aria-pressed={index%selection.length===i} onClick={()=>choose(i)}><CoverImage src={displayRelease(a).image} alt="" sizes="50px"/><span>{i+1}</span></button>)}</div>
-      </div>
+    <div className={styles.shortcuts}>{children}</div>
   </div>;
 }
