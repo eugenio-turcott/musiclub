@@ -78,7 +78,7 @@ export function drawProfileCard({ctx,W,H,t,profile,avatar,logo,disc,genres,genre
       const iconSize=Math.min(bh*.34,bw*.13),left=bx+bw*.05,copyX=left+iconSize+bw*.045,copyWidth=bx+bw-copyX-bw*.05;
       drawUiIcon(ctx,badgeIcon(badge),left,by+(bh-iconSize)/2,iconSize,palette.ink);
       title(ctx,badgeText(badge.label||badge.name||badge.title),copyX,by+bh*.34,copyWidth,Math.min(W*.026,bh*.19),palette.text,2,800);
-      const tier=TIER_STYLES[`tier_${badge.tierNumber||badge.tier}`],rank=tier?`${tier.tierRoman} · ${tier.tierName}`:badge.isRecord||badge.type==='record'?'Récord #1':'Musiclub';
+      const tier=TIER_STYLES[`tier_${badge.tierNumber||badge.tier}`],rank=badge.type==='event'?'Grammy 2027 · Oro':tier?`${tier.tierRoman} · ${tier.tierName}`:badge.isRecord||badge.type==='record'?'Récord #1':'Musiclub';
       line(ctx,rank,copyX,by+bh*.82,copyWidth,Math.min(W*.020,bh*.15),palette.text,600);
     });
   }

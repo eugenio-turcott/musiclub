@@ -1146,11 +1146,11 @@ export function Leaderboard({ isPage = false }) {
               {BADGES_GUIDE_DATA.map((cat, idx) => (
                 <div
                   key={idx}
-                  style={{'--badge-accent': ['#fcd34d','#67e8f9','#d8b4fe'][idx]}}
+                  style={{'--badge-accent': cat.iconName?'#f6cd75':['#fcd34d','#67e8f9','#d8b4fe'][idx-1]}}
                   className="badges-guide-category border rounded-2xl p-3.5 sm:p-5 space-y-3.5 sm:space-y-4"
                 >
                   <div className="flex items-center gap-2.5 pb-2 border-b border-white/5">
-                    <span className="badges-category-icon"><InterfaceText>{cat.icon}</InterfaceText></span>
+                    <span className="badges-category-icon"><>{cat.iconName?<UiIcon name={cat.iconName} tone="inherit"/>:<InterfaceText>{cat.icon}</InterfaceText>}</></span>
                     <div>
                       <h3 className="text-sm sm:text-base font-bold text-white">
                         {cat.category}

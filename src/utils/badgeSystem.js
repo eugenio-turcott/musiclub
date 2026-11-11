@@ -1,4 +1,5 @@
 // src/utils/badgeSystem.js
+import {GRAMMY_BADGES,grammyGamification} from './grammyRewards.mjs';
 
 /**
  * CONFIGURACIÓN DE PUNTOS BASE POR ACTIVIDAD (XP)
@@ -680,13 +681,17 @@ export function calculateUserGamification(u, communityMaxes = {}) {
     }
   });
 
-  const totalXp = activityXp + badgesXp + recordXp;
+  const grammy=grammyGamification(u.grammy_progress);
+  activeBadges.unshift(...grammy.badges);
+  const totalXp = activityXp + badgesXp + recordXp + grammy.xp;
 
   return {
     totalXp,
     activityXp,
     badgesXp,
     recordXp,
+    grammyXp:grammy.xp,
+    grammyProgress:grammy.summary,
     badges: activeBadges,
     allBadgesProgress,
   };
@@ -696,6 +701,7 @@ export function calculateUserGamification(u, communityMaxes = {}) {
  * DATOS ESTRUCTURADOS PARA RENDERIZAR LA GUÍA COMPLETA DE INSIGNIAS Y PUNTOS
  */
 export const BADGES_GUIDE_DATA = [
+  {category:'Grammy 2027 · Edición dorada',icon:'🏆',iconName:'gramophone',description:'Cada acierto confirmado suma 100 XP; las categorías nuevas, 200 XP; Campo General, 500 XP. Las insignias doradas no añaden XP adicional.',items:GRAMMY_BADGES.map(b=>({...b,title:b.name,badgeClass:b.color,req:b.requirement,xp:'Edición dorada',desc:b.requirement}))},
   {
     category: 'Récords #1 Dinámicos (Coronas)',
     icon: '👑',
