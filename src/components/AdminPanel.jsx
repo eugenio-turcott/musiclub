@@ -1,5 +1,6 @@
 'use client';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
+import dynamic from 'next/dynamic';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { AppHeader } from './AppHeader';
@@ -15,6 +16,8 @@ import {
   YouTubeLogo,
   DeezerLogo,
 } from './common/PlatformLogos';
+
+const AdminVinylCatalog = dynamic(() => import('./AdminVinylCatalog'), {loading:()=><p className="text-slate-400 py-8" role="status">Abriendo catálogo de vinilos…</p>});
 
 function AdminPagination({
   currentPage,
@@ -121,9 +124,11 @@ function AdminPagination({
   );
 }
 
-export function AdminPanel({ onClose, isPage = true }) {
+export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
   // Navigation Tabs
-  const [activeTab, setActiveTab] = useState('pool'); // 'pool' | 'seasons' | 'catalog' | 'reviews' | 'users'
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [systemRequested, setSystemRequested] = useState(initialTab !== 'vinyls');
+  const selectTab = tab => {setActiveTab(tab);if(tab !== 'vinyls')setSystemRequested(true);};
 
   // Global Loading & Error
   const [loading, setLoading] = useState(true);
@@ -289,8 +294,8 @@ export function AdminPanel({ onClose, isPage = true }) {
   }, [selectedSeasonId]);
 
   useEffect(() => {
-    loadAllData();
-  }, [loadAllData]);
+    if(systemRequested) loadAllData();
+  }, [loadAllData, systemRequested]);
 
   // =========================================================================
   // SEASONS ACTIONS
@@ -805,7 +810,7 @@ export function AdminPanel({ onClose, isPage = true }) {
       <div className="max-w-7xl mx-auto space-y-6 w-full">
         {/* Navigation Header */}
         {isPage && <AppHeader showTitle={false} />}
-        {!loading && !error && <ParticipationMetrics reviews={reviews} />}
+        {activeTab !== 'vinyls' && !loading && !error && <ParticipationMetrics reviews={reviews} />}
 
         {/* Toast Feedback */}
         {actionSuccess && (
@@ -816,7 +821,7 @@ export function AdminPanel({ onClose, isPage = true }) {
         )}
 
         {/* Master Control Header */}
-        <div className="relative rounded-3xl bg-linear-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
+        {activeTab !== 'vinyls' && <div className="relative rounded-3xl bg-linear-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
@@ -918,13 +923,13 @@ export function AdminPanel({ onClose, isPage = true }) {
               </p>
             </div>
           </div>
-        </div>
+        </div>}
 
         {/* Tab Navigation */}
         <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3">
           <button
             type="button"
-            onClick={() => setActiveTab('pool')}
+            onClick={() => selectTab('pool')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'pool'
                 ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
@@ -940,7 +945,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
           <button
             type="button"
-            onClick={() => setActiveTab('seasons')}
+            onClick={() => selectTab('seasons')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'seasons'
                 ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
@@ -956,7 +961,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
           <button
             type="button"
-            onClick={() => setActiveTab('catalog')}
+            onClick={() => selectTab('catalog')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'catalog'
                 ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
@@ -972,7 +977,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
           <button
             type="button"
-            onClick={() => setActiveTab('reviews')}
+            onClick={() => selectTab('reviews')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'reviews'
                 ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
@@ -988,7 +993,7 @@ export function AdminPanel({ onClose, isPage = true }) {
 
           <button
             type="button"
-            onClick={() => setActiveTab('users')}
+            onClick={() => selectTab('users')}
             className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${
               activeTab === 'users'
                 ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25'
@@ -1001,7 +1006,12 @@ export function AdminPanel({ onClose, isPage = true }) {
               {profiles.length}
             </span>
           </button>
+          <button type="button" onClick={() => selectTab('vinyls')} aria-pressed={activeTab === 'vinyls'} className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${activeTab === 'vinyls' ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25' : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'}`}>
+            <UiIcon name="disc" size={21} tone={activeTab === 'vinyls' ? 'white' : 'accent'}/>Vinilos de géneros
+          </button>
         </div>
+
+        {activeTab === 'vinyls' && <AdminVinylCatalog/>}
 
         {/* TAB 1: POOL SEMANAL */}
         {activeTab === 'pool' && (

@@ -6,7 +6,7 @@ import React from 'react';
 import { AdminPanel } from '../components/AdminPanel';
 import { useAuth } from '../hooks/useAuth';
 
-export function AdminPage() {
+export function AdminPage({initialTab = 'pool'}) {
   const { isAdmin, loading } = useAuth();
 
 
@@ -34,6 +34,6 @@ export function AdminPage() {
   }
 
   return (
-    <AdminPanel onClose={() => (window.location.href = '/')} isPage={true} />
+    <AdminPanel onClose={() => (window.location.href = '/')} isPage={true} initialTab={initialTab} />
   );
 }

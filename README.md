@@ -161,6 +161,7 @@ Esta revisión verifica los recorridos y controles indicados; no equivale a una 
 | `/recomendaciones`, `/leaderboard`, `/playlists` | Afinidades y actividad comunitaria |
 | `/profile`, `/settings` | Perfil y ajustes de la cuenta |
 | `/admin` | Administración; requiere permisos reales |
+| `/admin/vinilos` | Galería de los 2.224 vinilos de géneros, con buscador, ampliación y descarga PNG/SVG; requiere administración |
 | `/sobre-musiclub` | Identidad, origen, fuentes y criterio editorial del proyecto |
 | `/contacto` | Soporte, correcciones y canal de solicitudes |
 | `/guias` | Artículos sobre escucha, escritura y metodología de puntuación |
@@ -207,7 +208,7 @@ npm run cloudflare:deploy
 - La integración de GitHub publica únicamente `master` en el Worker `musiclub`. Usa `npm run cloudflare:build` y `npm run cloudflare:deploy`, con Node.js 22. Las variables públicas `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` deben estar también en el entorno de compilación; las claves privadas permanecen exclusivamente en el Worker. Las compilaciones de otras ramas deben seguir desactivadas y el script rechaza la publicación de una rama de vista previa desde Workers Builds.
 - La vista previa local de Workers necesita su configuración de servidor en `.dev.vars` (ignorado por Git). Los secretos remotos no se descargan automáticamente al ejecutar la vista previa.
 - La publicación utiliza Wrangler y comprueba las páginas públicas del despliegue provisional para calentar la caché R2 bajo demanda. No depende del túnel de carga inicial de caché de OpenNext, que puede fallar en Windows.
-- Los 2,220 vinilos PNG se generan durante la compilación y se sirven como archivos estáticos. Los enlaces antiguos de vinilos redirigen al archivo correspondiente. Los correos leen los adjuntos con la vinculación `ASSETS`; Sharp sólo se utiliza al construir.
+- Los 2.224 vinilos PNG y SVG editables se generan durante la compilación y se sirven como archivos estáticos. Los enlaces antiguos de vinilos redirigen al archivo correspondiente. Los correos leen los adjuntos con la vinculación `ASSETS`; Sharp sólo se utiliza al construir. La administración puede consultar, ampliar y descargar cada diseño desde `/admin/vinilos`, con búsqueda local y páginas de 48 imágenes.
 - Las carátulas continúan usando sus proveedores de imágenes. No se utiliza la optimización dinámica de imágenes de Next.js.
 - Las métricas operativas se consultan en Cloudflare Workers. No se cargan los scripts de analítica de Vercel ni un nuevo rastreador de navegador.
 - La configuración usa Workers Paid y R2: tienen cuotas y cargos por excedentes. El límite de CPU por solicitud reduce el riesgo de consumo descontrolado, pero no constituye un límite de gasto mensual.

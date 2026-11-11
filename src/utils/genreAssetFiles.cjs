@@ -3,6 +3,10 @@ const catalog = require('./genreCatalog.cjs');
 // A deterministic, filesystem-safe name for every genre, including punctuation.
 function genreAssetPath(value) {
   const key = catalog.genreKey(value);
-  return key ? `/genre-vinyl/v5/${Buffer.from(key).toString('base64url')}.png` : null;
+  const encoded = key && btoa(String.fromCharCode(...new TextEncoder().encode(key))).replaceAll('+','-').replaceAll('/','_').replace(/=+$/, '');
+  return key ? `/genre-vinyl/v5/${encoded}.png` : null;
 }
-module.exports = { genreAssetPath };
+function genreSvgAssetPath(value) {
+  return genreAssetPath(value)?.replace(/\.png$/, '.svg') || null;
+}
+module.exports = { genreAssetPath, genreSvgAssetPath };

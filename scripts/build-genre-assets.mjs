@@ -27,7 +27,7 @@ await fs.mkdir(directory, {recursive:true});
 let current;
 try {current = JSON.parse(await fs.readFile(path.join(directory,'manifest.json'),'utf8'));} catch {}
 const existing=new Set(await fs.readdir(directory));
-const complete=catalog.GENRES.every(genre=>existing.has(path.basename(files.genreAssetPath(genre.id))));
+const complete=catalog.GENRES.every(genre=>existing.has(path.basename(files.genreAssetPath(genre.id))) && existing.has(path.basename(files.genreSvgAssetPath(genre.id))));
 if (complete && current?.fingerprint===fingerprint && current.count===catalog.GENRES.length) {
   console.log(`Genre PNGs ready (${current.count}).`);
 } else {
@@ -42,6 +42,7 @@ if (complete && current?.fingerprint===fingerprint && current.count===catalog.GE
       const temporary=`${filename}.${process.pid}.tmp`;
       await fs.writeFile(temporary,output);
       await fs.rename(temporary,filename);
+      await fs.writeFile(path.resolve('public',`.${files.genreSvgAssetPath(genre.id)}`), svg);
     }
   }));
   await fs.writeFile(path.join(directory,'manifest.json'),JSON.stringify({fingerprint,count:catalog.GENRES.length}));
