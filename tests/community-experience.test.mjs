@@ -22,6 +22,7 @@ test('a complete tier sheet preserves six tiers and up to sixty distinct covers 
   result.tiers.forEach((tier,index)=>{
    assert.equal(tier.covers.length,counts[index]);assert.ok(tier.y>=result.top-.01&&tier.y+tier.h<=result.bottom+.01);
    for(const cover of tier.covers){assert.ok(cover.size>=20);assert.ok(cover.x>=tier.x+tier.label&&cover.y>=tier.y-.01&&cover.x+cover.size<=tier.x+tier.w+.01&&cover.y+cover.size<=tier.y+tier.h+.01);covers.push({x:cover.x,y:cover.y,w:cover.size,h:cover.size});}
+   for(const y of new Set(tier.covers.map(c=>c.y)))assert.ok(Math.abs(Math.min(...tier.covers.filter(c=>c.y===y).map(c=>c.x))-(tier.x+tier.label+W*.024))<.01,'Every cover row starts at the left inset, including sparse and incomplete rows');
   });
   for(let i=0;i<covers.length;i++)for(let j=i+1;j<covers.length;j++)assert.ok(!intersects(covers[i],covers[j]));
  }

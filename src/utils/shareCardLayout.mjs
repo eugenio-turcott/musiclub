@@ -42,9 +42,8 @@ export function tierBoardLayout(W,H,groups={}){
         const x=p+column*(columnWidth+gap),h=item.h+extra,tier=DEFAULT_TIERS[item.index];
         const covers=[];
         for(let i=0;i<item.count;i++){
-          const row=Math.floor(i/item.cols),col=i%item.cols,count=Math.min(item.cols,item.count-row*item.cols);
-          const rowWidth=count*side+(count-1)*pad;
-          covers.push({x:x+label+pad*2+(coverWidth-rowWidth)/2+col*(side+pad),y:y+(h-item.lines*side-(item.lines-1)*pad)/2+row*(side+pad),size:side,index:i});
+          const row=Math.floor(i/item.cols),col=i%item.cols;
+          covers.push({x:x+label+pad*2+col*(side+pad),y:y+(h-item.lines*side-(item.lines-1)*pad)/2+row*(side+pad),size:side,index:i});
         }
         result.push({id:tier.id,color:tier.hexColor,x,y,w:columnWidth,h,label,covers});y+=h+gap;
       });
