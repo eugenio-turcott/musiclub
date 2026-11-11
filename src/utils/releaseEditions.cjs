@@ -2,11 +2,12 @@ const {slugify}=require('./releaseIdentity.cjs');
 function editionTitle(value) {
  let title=String(value || '').trim().replace(/ - (Single|EP)$/i,'');
  const deluxe=/\bdeluxe\b/i.test(title);
+ const distinctEdition=/\b(remaster(?:ed)?|remasterizad[oa]|anniversary|aniversario|bonus tracks?|expanded)\b/i;
  title=title.replace(/\s*[([]([^()[\]]*)[)\]]/g,(whole,inside)=>
-  /\b(deluxe|edition|edici[oó]n|version|versi[oó]n|explicit|clean|remaster(?:ed)?|remasterizad[oa]|anniversary|aniversario|bonus tracks?|expanded)\b/i.test(inside) ? '' : whole);
- title=title.replace(/\s*[-–:]\s*(?:(?:\d+(?:st|nd|rd|th)?\s+)?anniversary.*|(?:\d{4}\s+)?remaster(?:ed)?.*|(?:clean|explicit|deluxe)(?: edition| version)?)$/i,'');
- title=title.replace(/\s+deluxe(?: edition| version)?$/i,'').replace(/\s*\+$/,'').trim();
- return {name:title+(deluxe?' (Deluxe)':''),deluxe};
+  !distinctEdition.test(inside) && /\b(deluxe|edition|edici[oó]n|version|versi[oó]n|explicit|clean)\b/i.test(inside) ? '' : whole);
+ title=title.replace(/\s*[-–:]\s*(?:clean|explicit|deluxe)(?: edition| version)?$/i,'');
+ title=title.replace(/\s+deluxe(?: edition| version)?$/i,'').replace(/\s*\+$/,' +').trim();
+ return {name:title+(deluxe&&!/\bdeluxe\b/i.test(title)?' (Deluxe)':''),deluxe};
 }
 function editionKey(release,artist='') {
  const title=editionTitle(release.album_name || release.album || release.name);

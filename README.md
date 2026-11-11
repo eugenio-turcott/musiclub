@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 11.1.7 · **Última actualización:** 9 de noviembre de 2026.
+**Versión:** 11.1.8 · **Última actualización:** 11 de noviembre de 2026.
 
 La portada presenta Musiclub con una tornamesa horizontal sin inclinación con la tipografía oficial, información del release, calificación y estado de ánimo en el equipo; los discos se eligen justo debajo. El vinilo completo gira desde el inicio, la aguja controla el giro y el botón FX activa destellos sonoros locales y opcionales, sin canciones ni consultas a proveedores musicales. Diez releases con reseñas se eligen al azar por visita, también en las demostraciones de reseñas, Gashapon y tarjetas para compartir. Los géneros abren sus propios exploradores animados y las insignias recorren tres carruseles continuos. Usa información real del club y recursos gráficos propios. Las demostraciones no publican cambios; el movimiento se pausa fuera de pantalla, admite pausa manual y respeta la preferencia de reducir animaciones.
 
@@ -26,7 +26,7 @@ La [guía interactiva](https://www.musiclub.org/guias) permite probar cada área
 
 - Catálogo de álbumes, EPs, sencillos y otros lanzamientos, con búsqueda interna y resultados de Spotify cuando no hay coincidencias en Musiclub.
 - Discografías persistidas en Supabase y contrastadas con Spotify, Deezer y Apple Music según disponibilidad. Se leen desde la BD y se actualizan en segundo plano. Una fuente incompleta o temporalmente caída no equivale a una discografía completa.
-- Agrupación de variantes de una misma obra sin perder sus reseñas. Las ediciones deluxe mantienen identidad propia.
+- Agrupación de variantes de una misma obra sin perder sus reseñas. Las ediciones plus, deluxe, remasterizadas, de aniversario y ampliadas mantienen identidad propia y sus reseñas utilizan su tracklist correspondiente.
 - Insignias compartidas entre la guía, el Leaderboard y los perfiles, con emblemas y tiers visibles. Los géneros favoritos históricos se muestran por separado también en el Perfil.
 - Reseñas con canciones, seis criterios, nota general, comentario opcional, canción favorita y emociones. Las fichas distinguen una valoración sin comentario escrito de una reseña con texto. El inicio muestra las reseñas más recientes de hasta tres personas distintas.
 - Pool por salas públicas y privadas, con temporadas independientes: una cápsula por persona, cupo opcional, edición propia mientras esté en espera y las propuestas estén abiertas, ganador e historial. La edición conserva su lugar; los estados del Pool pertenecen a `pool_entries`, no a `albums`.
@@ -278,5 +278,7 @@ La ficha presenta el ánimo más compartido junto a la calificación; los empate
 Las reseñas del feed y de cada release muestran los seis criterios y General con íconos y nombres accesibles. Las canciones evaluadas se despliegan bajo demanda, ordenadas por nota descendente y, en empates, por su posición en el tracklist. Los estados de ánimo usan caras vectoriales propias; la ausencia de reseñas se indica con una interrogación.
 
 `npm run tracks:audit` revisa los releases publicados del catálogo y los próximos estrenos que ya alcanzaron su fecha: detecta listas vacías, nombres provisionales y conteos incompletos. Es de sólo lectura y guarda el informe en `outputs/v10-track-audit/`. Los estrenos futuros conservan sus pistas anunciadas. La sincronización compara la calidad de los títulos, conserva los identificadores usados por las reseñas y evita que una respuesta parcial borre canciones conocidas. Las búsquedas de enriquecimiento contrastan el título y la edición solicitada, manteniendo Deluxe separado.
+
+`npm run reviews:audit-tracks` comprueba que cada canción evaluada y favorita pueda resolverse contra la edición que muestra la interfaz. Lee únicamente los metadatos necesarios de `albums` y `public_reviews`, sin modificar datos. Guarda un informe y una instantánea mínima en `outputs/review-track-audit-AAAA-MM-DD/`; `TRACK_AUDIT_DIR` permite cambiar el destino y `TRACK_AUDIT_INPUT` permite repetir la comprobación sobre una instantánea sin consultar la base.
 
 El repositorio oficial es [eugenio-turcott/musiclub](https://github.com/eugenio-turcott/musiclub). El nombre anterior redirige al actual.

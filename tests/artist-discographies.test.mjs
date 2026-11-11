@@ -7,10 +7,11 @@ import { PGlite } from '@electric-sql/pglite';
 import { mergeOfficialReleases, collectOfficialArtist, selectOfficialArtist, repairOfficialMetadata } from '../src/services/officialArtistCatalog.mjs';
 import { refreshStoredArtist, readStoredArtist, loadStoredArtist } from '../src/services/artistDiscographyStore.mjs';
 const release=(name,provider='DEEZER',id=name,extra={})=>({name,release_type:'ALBUM',totalTracks:10,releaseYear:2025,sources:[{provider,id,url:'https://example.test/album/'+id}],...extra});
-test('official union keeps deluxe and distinct live works while grouping listening variants and provider links',()=>{
+test('official union keeps plus, deluxe and distinct live works while grouping listening variants and provider links',()=>{
  const rows=mergeOfficialReleases([release('Blue')],[release('Blue','SPOTIFY','2'),release('Blue (Deluxe)'),release('Blue +'),release('Blue Live'),release('Blue','APPLE','3',{explicit:true}),release('Blue','APPLE','4',{explicit:false})]);
- assert.equal(rows.length,3);assert.equal(rows[0].sources.length,5);
+ assert.equal(rows.length,4);assert.equal(rows[0].sources.length,4);
  assert.equal(rows.filter(r=>r.name==='Blue').length,1);
+ assert.equal(rows.filter(r=>r.name==='Blue +').length,1);
 });
 test('official lookup follows provider pagination and rejects ambiguous artist identities',async()=>{
  const seen=[];
