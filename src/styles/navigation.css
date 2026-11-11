@@ -1,0 +1,8 @@
+/* One viewport-wide navigation, independent of each route's content container. */
+.musiclub-site-header{width:100%;isolation:isolate;background:linear-gradient(180deg,#0c0c18ed,#0c0c18d9)}
+.musiclub-navbar-frame{position:relative;box-sizing:border-box;width:100%;max-width:1280px;min-height:88px;margin-inline:auto;padding:12px 24px;display:grid;grid-template-columns:64px minmax(0,1fr) 360px;align-items:center;column-gap:16px}
+.musiclub-navbar-center{grid-column:2}.musiclub-primary-nav{box-sizing:border-box;width:100%;max-width:640px;justify-content:space-between;flex-shrink:0}.musiclub-navbar-actions{grid-column:3;justify-content:flex-end;width:100%}
+.musiclub-navbar-actions>div{min-width:0}.musiclub-navbar-actions .username-tag{max-width:98px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:1279px){.musiclub-navbar-frame{grid-template-columns:64px minmax(0,1fr)}.musiclub-navbar-actions{grid-column:2}}
+@media(max-width:639px){.musiclub-navbar-frame{padding:10px 12px;min-height:64px;grid-template-columns:44px minmax(0,1fr);column-gap:8px}.musiclub-navbar-actions .username-tag{max-width:72px}}
+@media(max-width:359px){.musiclub-navbar-actions{gap:6px}.musiclub-navbar-actions .username-tag{max-width:54px}}

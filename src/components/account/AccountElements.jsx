@@ -6,7 +6,7 @@ export function AccountPage({ children, className = '' }) {
   const pageRef = useRef(null);
   useEffect(() => {
     const page = pageRef.current;
-    const header = page.querySelector(':scope > header');
+    const header = document.querySelector('[data-site-navigation]');
     const saveBar = page.querySelector('.settings-save-bar');
     const measure = () => {
       // Layout height is stable even while an ancestor's entrance animation scales it.

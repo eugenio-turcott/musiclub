@@ -1,7 +1,9 @@
 import {drawUiIcon} from './drawInterfaceText.js';
 import {REVIEW_CRITERIA} from './reviewCriteria.mjs';
 import {getWeightedReviewScore,getReviewFavoriteTrack,getTrackDisplayName} from './ratingUtils.js';
-import {getMelomanoLevel} from './badgeSystem.js';
+import {drawProfileCard} from './drawProfileCard.js';
+import genreCatalog from './genreCatalog.cjs';
+import genreFiles from './genreAssetFiles.cjs';
 import genreArt from './genreArtworkSources.cjs';
 import {DEFAULT_TIERS,tierPageSize} from './tierList.mjs';
 
@@ -38,11 +40,11 @@ function box(ctx,x,y,w,h,r,fill,stroke){ctx.beginPath();ctx.roundRect(x,y,w,h,r)
 function type(ctx,text,x,y,size,color,weight=700,align='left'){ctx.font=`${weight} ${size}px ${ctx.musiclubFont || "sans-serif"}`;ctx.fillStyle=color;ctx.textAlign=align;ctx.textBaseline='alphabetic';ctx.fillText(String(text),x,y);}
 export function clippedText(ctx,text,maxWidth){const value=String(text||'').replace(/\s+/g,' ').trim();if(ctx.measureText(value).width<=maxWidth)return value;let result=value;while(result.length&&ctx.measureText(result+'…').width>maxWidth)result=result.slice(0,-1);return result.trimEnd()+'…';}
 function line(ctx,text,x,y,maxWidth,size,color,weight=700,align='left'){ctx.font=`${weight} ${size}px ${ctx.musiclubFont || "sans-serif"}`;type(ctx,clippedText(ctx,text,maxWidth),x,y,size,color,weight,align);}
-function title(ctx,text,x,y,width,size,color,maxLines=2){
-  const words=String(text||'').split(/\s+/);const lines=[];let current='';ctx.font=`900 ${size}px ${ctx.musiclubFont || "sans-serif"}`;
+function title(ctx,text,x,y,width,size,color,maxLines=2,weight=900){
+  const words=String(text||'').split(/\s+/);const lines=[];let current='';ctx.font=`${weight} ${size}px ${ctx.musiclubFont || "sans-serif"}`;
   for(const word of words){const candidate=current?current+' '+word:word;if(current&&ctx.measureText(candidate).width>width){lines.push(current);current=word;}else current=candidate;}
   if(current)lines.push(current);
-  for(let i=0;i<Math.min(maxLines,lines.length);i++)line(ctx,i===maxLines-1?lines.slice(i).join(' '):lines[i],x,y+i*size*1.12,width,size,color,900);
+  for(let i=0;i<Math.min(maxLines,lines.length);i++)line(ctx,i===maxLines-1?lines.slice(i).join(' '):lines[i],x,y+i*size*1.12,width,size,color,weight);
   return y+Math.min(maxLines,lines.length)*size*1.12;
 }
 function photo(ctx,img,x,y,size,r=24){
@@ -97,21 +99,9 @@ export async function renderSocialCard({kind='review',review={},album={},profile
     footer(ctx,W,H,t,avatar,profile.name||'Mi selección musical',`Tier ${tier} · ${current+1}/${pages} · musiclub.org`,format==='story'?.94:.95);return canvas;
   }
   if(kind==='profile'){
-    const columns=landscape||square;
-    const cx=columns?W*.27:W*.5,cy=landscape?H*.43:square?H*.39:H*(format==='story'?.29:.27),size=landscape?H*.30:W*(format==='story'?.29:.26);
-    if(disc){ctx.save();ctx.globalAlpha=.85;ctx.drawImage(disc,cx-size*.95,cy-size*.95,size*1.9,size*1.9);ctx.restore();}
-    ctx.save();ctx.shadowColor=t.accent+'55';ctx.shadowBlur=35;photo(ctx,avatar,cx-size/2,cy-size/2,size,size/2);ctx.restore();
-    const x=columns?W*.56:p,y=columns?H*.30:H*(format==='story'?.53:format==='portrait'?.57:.56),tw=columns?W*.375:available;
-    let bottom=title(ctx,profile.name||'Mi perfil musical',x,y,tw,W*(landscape?.045:square?.055:.065),t.ink,2);
-    if(profile.bio){line(ctx,profile.bio,x,bottom+W*.018,tw,W*.025,t.muted,500);bottom+=W*.065;}
-    const favorites=[['mic',profile.favorite_artist],['disc',profile.favorite_album]].filter(([,value])=>value);
-    favorites.slice(0,2).forEach(([icon,value],i)=>{const yy=bottom+W*.035+i*W*.052;drawUiIcon(ctx,icon,x,yy-W*.023,W*.027,t.accent);line(ctx,value,x+W*.043,yy,tw-W*.05,W*.027,t.ink,700);});
-    const genres=[...new Set((profile.favorite_genres||[]).flatMap(g=>String(g).split(/\s*\/\s*/)))].slice(0,4);
-    const gy=H*(landscape?.82:square?.80:format==='story'?.80:.86);
-    line(ctx,genres.join('  ·  '),landscape?x:p,gy,landscape?tw:available,W*.024,t.other,800);
-    const xp=Number(profile.total_xp)||0;
-    const label=xp?getMelomanoLevel(xp).title.replace(/^[^\p{L}]+/u,''):'Descubre · Reseña · Comparte';
-    footer(ctx,W,H,t,logo,'Tu próxima escucha empieza aquí.',label,format==='story'||landscape?.91:.95);
+    const genres=genreCatalog.normalizeGenres(profile.favorite_genres||[],6);
+    const genreImages=await Promise.all(genres.map(genre=>loadCardImage(genreFiles.genreAssetPath(genre))));
+    drawProfileCard({ctx,W,H,t,profile,avatar,logo,disc,genres,genreImages,p,helpers:{box,type,line,title,photo}});
   }else{
     const aName=album.album_name||album.album||'Tu próxima escucha',artist=album.artist_name||album.artista||'Musiclub';
     const columns=landscape||square;

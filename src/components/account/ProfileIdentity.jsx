@@ -25,7 +25,7 @@ export function ProfileIdentity({ user, isAdmin, gamification, stats, readOnly=f
     ['award','Insignias',gamification.badges?.length || 0,'purple'],
   ];
   return <section className="profile-identity" aria-label={readOnly?'Perfil musical del miembro':'Tu perfil musical'}>
-    {allowSharing&&<ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{...user,total_xp:xp}}/>}
+    {allowSharing&&<ShareProfileModal isOpen={sharing} onClose={()=>setSharing(false)} profile={{...user,total_xp:xp,badges:gamification.badges||[],review_count:stats.totalReviews,total_tracks_rated:stats.totalTracksRated}}/>}
     <div className="profile-identity-top"><span className="account-eyebrow">{readOnly?"Perfil de miembro":"Mi Perfil"}</span><div className="profile-identity-actions">{actions}{allowSharing&&<button type="button" onClick={()=>setSharing(true)} className="account-secondary-action"><UiIcon name="share" tone="inherit"/>Compartir perfil</button>}{!readOnly&&<Link to="/settings" className="account-secondary-action"><UiIcon name="edit" tone="inherit"/>Editar perfil</Link>}</div></div>
     <div className="profile-identity-layout">
       <div className="profile-portrait"><div className="profile-portrait-disc" aria-hidden="true"><MusiclubVinyl src="/musiclub_logo.png" alt="" className="w-full h-full"/></div><AccountAvatar src={user.avatar_url || user.avatar} name={user.name}/></div>

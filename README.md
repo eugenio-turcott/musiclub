@@ -169,6 +169,8 @@ Esta revisión verifica los recorridos y controles indicados; no equivale a una 
 | `/privacy`, `/terms` | Uso de datos y condiciones de participación |
 | `/patch-notes` | Historial de cambios |
 
+La navegación se monta una sola vez en el diseño global, con un marco máximo de 1.280 px y ajustes para celular. Las tarjetas de perfil compartidas distribuyen identidad, XP real, nivel, insignias y vinilos de géneros de forma específica para Historia, Publicación, Cuadrada, Horizontal y Compacta. La vista previa consulta el progreso al abrirse y reutiliza esa lectura al cambiar de tamaño o tema.
+
 La FAQ no sustituye la política de privacidad ni los términos. Contacto indica cómo presentar una solicitud, sin duplicar esas políticas. Las guías desarrollan los temas de escucha y reseña; «Sobre Musiclub» explica el proyecto sin repetir la fórmula completa de puntuación.
 
 ## Estructura del repositorio

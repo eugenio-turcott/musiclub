@@ -1579,6 +1579,8 @@ export const supabaseService = {
           .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year, tracks)'),
       ]);
 
+      if(profilesRes.error||reviewsRes.error)throw profilesRes.error||reviewsRes.error;
+
       const profiles = profilesRes.data || [];
       const reviews = reviewsRes.data || [];
 

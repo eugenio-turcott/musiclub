@@ -5,6 +5,7 @@ import '../styles/experience.css';
 import '../styles/community.css';
 import '../styles/typography.css';
 import '../styles/content-icons.css';
+import '../styles/navigation.css';
 import localFont from 'next/font/local';
 import { ClientProviders } from './ClientProviders';
 

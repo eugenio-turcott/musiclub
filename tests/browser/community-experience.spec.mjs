@@ -76,21 +76,60 @@ test('review sharing exports five aspect ratios, bounds long titles and never dr
 });
 
 test('the settings preview exports a public musical card and member share links open the correct profile',async({page},info)=>{
+ test.setTimeout(120000);
  const {profile}=await communityAccount(page);
+ let progressReads=0;page.on('request',request=>{if(request.url().includes('/rest/v1/public_reviews?'))progressReads++;});
+ await page.addInitScript(()=>{
+   window.profileCardText=[];window.profileCardImages=[];
+   const clips=new WeakMap(),stacks=new WeakMap(),prototype=CanvasRenderingContext2D.prototype;
+   const save=prototype.save,restore=prototype.restore,clip=prototype.clip,draw=prototype.drawImage,fill=prototype.fillText;
+   prototype.save=function(...args){const stack=stacks.get(this)||[];stack.push(clips.get(this)||0);stacks.set(this,stack);return save.apply(this,args);};
+   prototype.restore=function(...args){clips.set(this,(stacks.get(this)||[]).pop()||0);return restore.apply(this,args);};
+   prototype.clip=function(...args){clips.set(this,(clips.get(this)||0)+1);return clip.apply(this,args);};
+   prototype.drawImage=function(image,...args){window.profileCardImages.push({source:image.currentSrc||image.src||'',clipped:clips.get(this)||0,width:this.canvas.width,height:this.canvas.height});return draw.call(this,image,...args);};
+   prototype.fillText=function(text,x,y,...args){const w=this.measureText(String(text)).width,left=this.textAlign==='center'?x-w/2:this.textAlign==='right'?x-w:x;window.profileCardText.push({text:String(text),left,right:left+w,y,width:this.canvas.width,height:this.canvas.height});return fill.call(this,text,x,y,...args);};
+ });
  await page.goto('/settings');await page.getByLabel('Acerca de ti',{exact:true}).fill('La música también es una forma de encontrarnos.');
  await page.getByRole('button',{name:'Compartir vista previa',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Compartir mi perfil musical',exact:true});
  await expect(dialog.getByRole('button',{name:'Descargar PNG',exact:true})).toBeEnabled();
+ const initialReads=progressReads;expect(initialReads).toBeGreaterThan(0);
  const image=dialog.getByRole('img',{name:'Tarjeta de tu identidad musical',exact:true});
+ for(const [theme,themeId] of [['Noche del club','neon'],['Edición en papel','paper'],['Hora azul','blue']]){
+ await dialog.getByRole('button',{name:theme,exact:true}).click();
  for(const [name,width,height,id] of [['Historia',1080,1920,'story'],['Publicación',1080,1350,'portrait'],['Cuadrada',1080,1080,'square'],['Horizontal',1600,900,'landscape'],['Compacta',720,960,'compact']]){
   await dialog.getByRole('button',{name:new RegExp(`^${name}`)}).click();await expect(dialog.getByRole('button',{name:'Descargar PNG',exact:true})).toBeEnabled();
   await expect.poll(()=>image.evaluate(el=>[el.naturalWidth,el.naturalHeight])).toEqual([width,height]);
-  const data=await image.getAttribute('src');await writeFile(`outputs/v108-profile-${id}-${info.project.name}.png`,Buffer.from(data.split(',')[1],'base64'));
+  const data=await image.getAttribute('src');await writeFile(`outputs/v11-1-14-profile-${id}-${themeId}-${info.project.name}.png`,Buffer.from(data.split(',')[1],'base64'));
+  const text=await page.evaluate(([width,height])=>window.profileCardText.filter(row=>row.width===width&&row.height===height),[width,height]);
+  for(const label of ['SCORE XP','INSIGNIAS','R&B','Soul','Latino','Trap'])expect(text.some(row=>row.text===label)).toBe(true);
+  expect(text.some(row=>row.text.includes('private-account@example.test'))).toBe(false);
+  expect(text.every(row=>row.left>=-1&&row.right<=width+1&&row.y>=0&&row.y<=height)).toBe(true);
+  const drawings=await page.evaluate(([width,height])=>window.profileCardImages.filter(row=>row.width===width&&row.height===height),[width,height]);
+  expect(drawings.filter(row=>row.source.includes('/genre-vinyl/v6/')).length).toBeGreaterThanOrEqual(4);
+  const logos=drawings.filter(row=>row.source.endsWith('/musiclub_logo_corchea.png'));
+  expect(logos.length).toBeGreaterThanOrEqual(2);expect(logos.every(row=>!row.clipped)).toBe(true);
  }
+ }
+ expect(progressReads).toBe(initialReads);
 
  await dialog.getByRole('button',{name:'Cerrar compartir',exact:true}).click();
  await page.goto(`/leaderboard?miembro=${profile.id}`);
  await expect(page.getByRole('dialog',{name:'Perfil de Camila de Prueba',exact:true})).toBeVisible();
+});
+
+test('profile sharing retries a failed progress read instead of exporting a false zero XP',async({page})=>{
+ const {reviews}=await communityAccount(page);
+ await page.route('**/rest/v1/public_reviews*',route=>route.fulfill({status:503,json:{message:'Fixture progress read failed'}}));
+ await page.goto('/settings');
+ await page.getByRole('button',{name:'Compartir vista previa',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Compartir mi perfil musical',exact:true});
+ await expect(dialog.getByRole('alert')).toContainText('No pudimos consultar tu XP');
+ await expect(dialog.getByRole('button',{name:'Descargar PNG',exact:true})).toBeDisabled();
+ await expect(dialog.getByRole('img',{name:'Tarjeta de tu identidad musical',exact:true})).toHaveCount(0);
+ await page.route('**/rest/v1/public_reviews*',route=>route.fulfill({json:reviews}));
+ await dialog.getByRole('button',{name:'Reintentar',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Descargar PNG',exact:true})).toBeEnabled();
 });
 
 test('the complete guide offers local simulations, chapters, reduced-motion support and direct FAQ references',async({page},info)=>{

@@ -1,6 +1,5 @@
 'use client';
 import { InterfaceText, UiIcon } from './UiIcon';
-import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/AppHeader.jsx
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -15,7 +14,7 @@ import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 import {AdsterraAdvertising,AdvertisingRails} from './AdsterraAdvertising';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 
-export function AppHeader({
+export function SiteNavigation({
   user: propUser,
   isAdmin: propIsAdmin,
   onLogin: propOnLogin,
@@ -46,7 +45,6 @@ export function AppHeader({
   const userMenuRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const notificationsRef = useRef(null);
-  const heroContainerRef = useRef(null);
   const communityDropdownRef = useRef(null);
 
   // Fallbacks using useAuth hook if props are not explicitly provided
@@ -180,18 +178,12 @@ export function AppHeader({
 
   return (
     <>
-    <header className="w-full backdrop-blur-xl sticky top-0 z-50">
-      <div className="relative max-w-7xl mx-auto px-2 sm:px-4 md:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4">
+    <header data-site-navigation className="musiclub-site-header backdrop-blur-xl sticky top-0 z-50">
+      <div className="musiclub-navbar-frame">
         {/* Lado Izquierdo: Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link to="/" className="flex items-center gap-2 group">
             <div className="relative w-11 h-11 sm:w-16 sm:h-16 flex items-center justify-center">
-              {/* Spinning Musiclub Logo Disc Base */}
-              <MusiclubVinyl showCenter={false}
-                src="/musiclub_logo_4.png"
-                alt="Musiclub Vinyl"
-                className="absolute inset-0 w-full h-full object-contain animate-spin-slow opacity-50 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none select-none"
-              />
               <img
                 src="/musiclub_logo_corchea.png"
                 alt="Musiclub Logo"
@@ -202,8 +194,8 @@ export function AppHeader({
         </div>
 
         {/* Centro: Menú de Navegación Principal - Destacando lo más relevante (md/lg/xl) */}
-        <div className="hidden xl:flex items-center justify-center flex-1 min-w-0 px-1 lg:px-2">
-          <nav className="flex items-center gap-1 lg:gap-1.5 bg-[#0c0e1b]/80 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-xl shadow-inner shadow-black/40">
+        <div className="musiclub-navbar-center hidden xl:flex items-center justify-center min-w-0">
+          <nav data-primary-navigation className="musiclub-primary-nav flex items-center gap-1 lg:gap-1.5 bg-[#0c0e1b]/80 border border-white/10 px-1.5 py-1 rounded-full backdrop-blur-xl shadow-inner shadow-black/40">
             {/* 1. Catálogo Directo */}
             <Link
               to="/catalogo"
@@ -390,7 +382,7 @@ export function AppHeader({
         </div>
 
         {/* Lado Derecho: Buscador Global Directo, Selector de Idiomas, Centro de Notificaciones, User Profile Dropdown & Mobile Hamburger */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0 ml-auto">
+        <div className="musiclub-navbar-actions flex items-center gap-2 sm:gap-3 min-w-0">
           {/* Selector de Idiomas Global (Oculto en celular, visible en sm y superior) */}
           <div className="hidden sm:inline-block">
             <LanguageSelector variant="header" />
@@ -940,6 +932,28 @@ export function AppHeader({
         </div>
       )}
 
+      {/* Fallback Login Modal */}
+      {!propOnLogin && (
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={() => setShowLoginModal(false)}
+          onLogin={handleGoogleLogin}
+          onGoogleLogin={handleGoogleLogin}
+          loading={loginLoading}
+          googleLoading={loginLoading}
+        />
+      )}
+    </header>
+
+    </>
+  );
+}
+
+// Page introductions stay with their content; navigation lives once in the root layout.
+export function AppHeader({showTitle=false,showAdvertising=true,customTitle,customSubtitle}) {
+  const heroContainerRef=useRef(null);
+  const location=useLocation();
+  return <>
       {/* Título opcional centrado debajo con Fondo Animado e Interactivo */}
       {showTitle && (
         <div
@@ -1022,22 +1036,10 @@ export function AppHeader({
         </div>
       )}
 
-      {/* Fallback Login Modal */}
-      {!propOnLogin && (
-        <LoginModal
-          isOpen={showLoginModal}
-          onClose={() => setShowLoginModal(false)}
-          onLogin={handleGoogleLogin}
-          onGoogleLogin={handleGoogleLogin}
-          loading={loginLoading}
-          googleLoading={loginLoading}
-        />
-      )}
-    </header>
+
     {showAdvertising && advertisingPolicy.publicAdvertisingPath(location.pathname) &&
       <><AdsterraAdvertising variant="banner" key={`header-ad-${location.pathname}`} /><AdvertisingRails key={`rails-${location.pathname}`}/></>}
-    </>
-  );
+  </>;
 }
 
 export default AppHeader;
