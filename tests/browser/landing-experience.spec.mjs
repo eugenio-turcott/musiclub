@@ -75,12 +75,13 @@ test('reduced motion keeps the complete landing readable and makes decorative sc
  await expect(page.getByRole('heading',{level:1})).toBeVisible();
  const art=page.locator('[data-turntable-record]');
  expect(await art.evaluate(el=>getComputedStyle(el).animationName)).toBe('none');
+ await expect(page.locator('[aria-label="Tornamesa interactiva de Musiclub"]')).toHaveAttribute('data-turntable-cycling','false');
  await page.getByRole('navigation',{name:'Demostraciones de Musiclub'}).getByRole('link',{name:/Compartir/}).click();
  await expect(page.locator('[data-share-preview]')).toBeVisible();
  expect(await page.locator('[data-share-preview]').evaluate(el=>getComputedStyle(el.closest('article')).opacity)).toBe('1');
 });
 
-test('the integrated turntable has local needle controls, real metadata and optional effects without music requests',async({page},info)=>{
+test('the integrated turntable has local needle controls, full artwork and natural gesture sounds without music requests',async({page},info)=>{
  await page.addInitScript(()=>{
    const Native=window.AudioContext||window.webkitAudioContext;window.__deckContexts=[];
    if(Native)window.AudioContext=class extends Native{constructor(...args){super(...args);window.__deckContexts.push(this);}};
@@ -91,7 +92,11 @@ test('the integrated turntable has local needle controls, real metadata and opti
  await expect(player.locator('audio,iframe')).toHaveCount(0);
  await expect(deck.locator('[data-turntable-display]')).toHaveCount(1);
  await expect(deck.locator('[data-turntable-console] [aria-label^="Calificación del club"]')).toHaveCount(1);
- await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(1);
+ await expect(deck.locator('header [role="img"]')).toHaveCount(1);
+ await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(0);
+ await expect(player.getByRole('button',{name:/efectos de sonido|Disco anterior|Disco siguiente/})).toHaveCount(0);
+ await expect(player.getByText('Vinilo girando · Aguja sobre el disco',{exact:true})).toHaveCount(0);
+ expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(0);
  await expect(player.getByRole('button',{name:/^Mostrar /})).toHaveCount(3);
  await expect(deck.getByRole('button',{name:/^Mostrar /})).toHaveCount(0);
  await expect(player).toHaveAttribute('data-needle-down','true');
@@ -110,14 +115,45 @@ test('the integrated turntable has local needle controls, real metadata and opti
  const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-22,y+28);await page.mouse.up();
  await expect(player).toHaveAttribute('data-needle-down','true');
- await page.getByRole('button',{name:'Disco siguiente',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','true');
- expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(0);
- await page.getByRole('button',{name:'Activar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','true');
+ await player.getByRole('button',{name:/^Mostrar /}).nth(1).click();await expect(player).toHaveAttribute('data-needle-down','true');
  expect(await page.evaluate(()=>window.__deckContexts.length)).toBe(1);
- await page.getByRole('button',{name:'Silenciar efectos de sonido',exact:true}).click();await expect(player).toHaveAttribute('data-effects-enabled','false');
- await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('closed');
+ await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('running');
  expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
- await page.screenshot({path:'outputs/v11-1-2-turntable-'+info.project.name+'.png',animations:'disabled'});
+ await page.screenshot({path:'outputs/v11-1-9-turntable-'+info.project.name+'.png',animations:'disabled'});
+});
+
+test('turntable crossfades all sampled covers locally, reveals metadata and respects motion pause',async({page},info)=>{
+ await openLanding(page);
+ const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"]'),display=player.locator('[data-turntable-display]');
+ await display.scrollIntoViewIfNeeded();await page.mouse.move(0,0);
+ await expect(player).toHaveAttribute('data-turntable-cycling','true');
+ const requests=[];page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog/.test(r.url()))requests.push(r.url());});
+ const active=display.locator('[data-active="true"]');
+ const image=await active.locator('img').boundingBox(),tile=await display.boundingBox();
+ expect(Math.abs(image.width-(tile.width-2))).toBeLessThan(2);expect(Math.abs(image.height-(tile.height-2))).toBeLessThan(2);
+ expect(await active.evaluate(el=>getComputedStyle(el).transitionProperty)).toBe('opacity');
+ expect(parseFloat(await active.evaluate(el=>getComputedStyle(el).transitionDuration))).toBeGreaterThan(.5);
+ await page.clock.install();const first=await display.getAttribute('href'),seen=new Set([first]);
+ for(let i=0;i<3;i++){await page.clock.fastForward(6500);await expect(display).not.toHaveAttribute('href',[...seen].at(-1));seen.add(await display.getAttribute('href'));}
+ expect(seen.size).toBe(3);await expect(display).toHaveAttribute('href',first);
+ await player.getByRole('button',{name:'Mostrar Azul en la tornamesa',exact:true}).click();
+ await expect(display).toContainText('Pop');
+ const metadata=display.locator('[class*="displayText"]');
+ if(info.project.name==='desktop'){
+  expect(await metadata.evaluate(el=>getComputedStyle(el).opacity)).toBe('0');
+  await display.hover();await expect(player).toHaveAttribute('data-turntable-cycling','false');
+  await page.clock.fastForward(400);await expect(metadata).toHaveCSS('opacity','1');
+ }else await expect(metadata).toHaveCSS('opacity','1');
+ await expect(metadata).toContainText('Azul');await expect(metadata).toContainText('Artista de Prueba');
+ await page.getByRole('button',{name:'Pausar animaciones',exact:true}).click();
+ await expect(player).toHaveAttribute('data-turntable-cycling','false');const stopped=await display.getAttribute('href');
+ await page.clock.fastForward(14000);await expect(display).toHaveAttribute('href',stopped);
+ await page.getByRole('button',{name:'Activar animaciones',exact:true}).click();
+ await page.locator('#demo-compartir').scrollIntoViewIfNeeded();
+ await expect(player).toHaveAttribute('data-turntable-cycling','false');
+ await page.clock.fastForward(14000);await expect(display).toHaveAttribute('href',stopped);
+ expect(requests).toHaveLength(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
 test('the compact Gashapon cycles real releases only while visible without new data requests',async({page})=>{

@@ -92,7 +92,7 @@ export function LandingHero({albums,reviews,stats,user,onLogin}){
      <div className={styles.actions}><Link to="/catalogo" className={styles.primary}>Explorar Catálogo {icon('arrow')}</Link>{!user?<button type="button" onClick={onLogin} className={styles.secondary}>Únete al Club {icon('users')}</button>:<Link to="/profile" className={styles.secondary}>Mi Perfil {icon('user')}</Link>}</div>
      <div className={styles.heroLinks}><Link to="/pool">{icon('pool',17)}Explorar pools</Link><Link to="/gashapon">{icon('gashapon',17)}Gashapon Arcade</Link><a href="#musiclub-en-accion">Ver cómo funciona {icon('arrowDown',17)}</a></div>
    </div>
-   <LandingTurntable selection={selection}/>
+   <LandingTurntable selection={selection} paused={motion.inactive}/>
    <div className={styles.motionControl}><span>{icon('disc',16)} Hecho para quienes escuchan más allá del sencillo.</span><button type="button" aria-pressed={motion.paused} onClick={motion.toggle}>{icon(motion.paused?'play':'pause',16)}{motion.paused?'Activar animaciones':'Pausar animaciones'}</button></div>
  </section>
  <section className={styles.stats} aria-label="Musiclub en cifras" data-reveal=""><Stat value={stats.total_reviewed_albums} label="Lanzamientos con Reviews" figure="disc"/><Stat value={stats.total_reviews} label="Reseñas publicadas" figure="review"/><Stat value={stats.total_users} label="Críticos & Miembros" figure="users"/><Stat value={stats.top_score} label="Top Score Comunitario" figure="star" decimal/></section>
