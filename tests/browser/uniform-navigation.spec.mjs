@@ -14,6 +14,9 @@ test('navigation keeps one frame across routes, independent of their content con
     await expect(header).toBeVisible();
     const geometry=await header.locator('.musiclub-navbar-frame').evaluate(el=>{const b=el.getBoundingClientRect();return{x:b.x,width:b.width,height:b.height};});
     if(reference)expect(geometry).toEqual(reference);else reference=geometry;
+    await page.evaluate(()=>window.scrollTo(0,250));
+    await expect.poll(()=>header.evaluate(el=>el.getBoundingClientRect().top)).toBe(0);
+    await page.evaluate(()=>window.scrollTo(0,0));
     await expect(header.locator('[data-musiclub-vinyl]')).toHaveCount(0);
     if(!mobile)expect(await header.locator('[data-primary-navigation]').evaluate(el=>el.getBoundingClientRect().width)).toBe(640);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
