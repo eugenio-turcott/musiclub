@@ -19,6 +19,11 @@ export async function POST(request){
    const nominees=await db.from('grammy_nominees').select('category_id').eq('event_id',GRAMMY_EVENT.id);
    if(nominees.error||readyGrammyCategories(nominees.data||[])!==100)throw new Error('Completa y revisa las 100 categorías antes de abrir');
    const saved=await db.from('grammy_events').update({status:'open',published_at:new Date().toISOString(),source_url:source.href}).eq('id',GRAMMY_EVENT.id);if(saved.error)throw new Error('No se pudo abrir la actividad');
+  }else if(body.action==='results'){
+   if(!Array.isArray(body.winners)||!body.winners.length||body.winners.length>100)throw new Error('Revisa la lista de ganadores oficiales');
+   const source=new URL(body.source||'');if(source.protocol!=='https:'||!['www.grammy.com','grammy.com'].includes(source.hostname))throw new Error('Indica la fuente oficial en Grammy.com');
+   const settled=await db.rpc('musiclub_settle_grammy_results',{p_winners:body.winners,p_source:source.href});
+   if(settled.error)throw new Error(settled.error.message||'No se pudieron acreditar los aciertos');
   }else throw new Error('Acción no válida');
   revalidateTag('grammys-2027',{expire:0});return NextResponse.json({success:true});
  }catch(error){return NextResponse.json({error:error.message||'No se pudo guardar'},{status:400});}

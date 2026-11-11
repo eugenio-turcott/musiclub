@@ -832,4 +832,10 @@ Object.assign(ICON_BODIES,{
  'grammy-writer':'<path d="M14 4H4v17h13v-9M8 8h3M8 12h2M8 16h6m2-14 5 5-8 8-4 1 1-4Z"/>'
 });
 Object.assign(ICON_COLORS,{gramophone:'#facc15','grammy-record':'#f7cf75','grammy-album':'#ff89bc','grammy-song':'#72e1d5','grammy-artist':'#c3a0ff','grammy-producer':'#8dc2ff','grammy-writer':'#ffb574'});
+Object.assign(ICON_BODIES,{
+ 'gramophone-star':ICON_BODIES.gramophone+'<path d="m3 2 .6 1.3 1.4.2-1 1 .2 1.5L3 5.3l-1.2.7.2-1.5-1-1 1.4-.2Z"/>',
+ 'gramophone-spark':ICON_BODIES.gramophone+'<path d="M3 1v5M.5 3.5h5M21 16v5m-2.5-2.5h5"/>',
+ 'gramophone-crown':ICON_BODIES.gramophone+'<path d="m2 1 2 2 2-2 2 2 2-2-.7 4H2.7Z"/>'
+});
+Object.assign(ICON_COLORS,{'gramophone-star':'#facc15','gramophone-spark':'#ffd88b','gramophone-crown':'#e9b959'});
 module.exports = { ICON_BODIES, ICON_COLORS, ICON_FILLS, ICON_STROKE_WIDTH };

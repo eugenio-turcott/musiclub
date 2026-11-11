@@ -4,9 +4,9 @@ import {GRAMMY_EVENT,GRAMMY_CATEGORIES} from '../../../../data/grammys2027.mjs';
 export const dynamic='force-dynamic';
 export async function GET(request){
  const auth=await authorize(request);if(auth.error)return auth.error;
- const [subscription,predictions]=await Promise.all([auth.db.from('grammy_subscriptions').select('enabled').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id).maybeSingle(),auth.db.from('grammy_predictions').select('category_id,nominee_id').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id)]);
- if(subscription.error||predictions.error)return NextResponse.json({error:'No pudimos cargar tus predicciones. Reintenta.'},{status:503});
- return NextResponse.json({subscribed:Boolean(subscription.data?.enabled),predictions:predictions.data||[]},{headers:{'Cache-Control':'private, no-store'}});
+ const [subscription,predictions,awards]=await Promise.all([auth.db.from('grammy_subscriptions').select('enabled').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id).maybeSingle(),auth.db.from('grammy_predictions').select('category_id,nominee_id').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id),auth.db.from('grammy_awards').select('category_id,xp').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id)]);
+ if(subscription.error||predictions.error||awards.error)return NextResponse.json({error:'No pudimos cargar tus predicciones. Reintenta.'},{status:503});
+ return NextResponse.json({subscribed:Boolean(subscription.data?.enabled),predictions:predictions.data||[],awards:awards.data||[]},{headers:{'Cache-Control':'private, no-store'}});
 }
 export async function POST(request){
  const auth=await authorize(request);if(auth.error)return auth.error;

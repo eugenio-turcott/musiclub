@@ -1572,14 +1572,16 @@ export const supabaseService = {
 
   getDetailedLeaderboard: async () => {
     try {
-      const [profilesRes, reviewsRes] = await Promise.all([
+      const [profilesRes, reviewsRes,grammyRes] = await Promise.all([
         supabase.from('public_profiles').select('*'),
         supabase
           .from('public_reviews')
           .select('*, albums(id, album_name, artist_name, image_url, release_type, release_year, tracks)'),
+        supabase.from('public_grammy_progress').select('*'),
       ]);
 
-      if(profilesRes.error||reviewsRes.error)throw profilesRes.error||reviewsRes.error;
+      if(profilesRes.error||reviewsRes.error||grammyRes.error)throw profilesRes.error||reviewsRes.error||grammyRes.error;
+      const grammyByUser=new Map((grammyRes.data||[]).map(row=>[row.user_id,row]));
 
       const profiles = profilesRes.data || [];
       const reviews = reviewsRes.data || [];
@@ -1591,6 +1593,7 @@ export const supabaseService = {
         userMap.set(p.id, {
           id: p.id,
           registered:true,
+          grammy_progress:grammyByUser.get(p.id)||{},
           name: p.name || p.email?.split('@')[0] || 'Usuario',
           email: p.email || '',
           avatar_url: p.avatar_url || null,
@@ -1771,6 +1774,7 @@ export const supabaseService = {
         u.activity_xp = gamification.activityXp;
         u.badges_xp = gamification.badgesXp;
         u.record_xp = gamification.recordXp;
+        u.grammy_xp=gamification.grammyXp;
         u.badges = gamification.badges;
         u.badges_progress = gamification.allBadgesProgress;
       });

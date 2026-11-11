@@ -268,6 +268,7 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
       const matched = leaderboardList.find((lb) => {
         const lbEmail = (lb.email || '').toLowerCase().trim();
         const lbName = (lb.name || '').toLowerCase().trim();
+        if(user.id&&lb.id)return String(user.id)===String(lb.id);
         return (
           (uEmail && lbEmail === uEmail) ||
           (uName && lbName === uName) ||
@@ -281,6 +282,8 @@ export function UserProfile({ isPage = false, memberUser = null, memberActions =
           activityXp: matched.activity_xp || 0,
           badgesXp: matched.badges_xp || 0,
           recordXp: matched.record_xp || 0,
+          grammyXp:matched.grammy_xp||0,
+          grammyProgress:matched.grammy_progress||{},
           badges: matched.badges || [],
           allBadgesProgress: matched.badges_progress || [],
         };

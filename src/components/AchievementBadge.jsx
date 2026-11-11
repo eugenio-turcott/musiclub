@@ -11,10 +11,10 @@ export function AchievementBadge({ badge, compact = false }) {
   const tier = TIER_STYLES[`tier_${badge.tierNumber || badge.tier}`] ||
     Object.values(TIER_STYLES).find(style => style.tierRoman === badge.tierRoman);
   const record = badge.isRecord || badge.type === 'record';
-  const rank = tier ? `${tier.tierRoman} · ${tier.tierName}` : record ? 'Récord #1' : '';
+  const rank = badge.type==='event'?'Grammy 2027 · Oro':tier ? `${tier.tierRoman} · ${tier.tierName}` : record ? 'Récord #1' : '';
   const palette = badge.color || badge.badgeClass || 'from-purple-600 to-indigo-600 text-white';
   const iconInk = /(?:^|\s)text-(?:black|[a-z]+-9(?:00|50))(?:\s|$)/.test(palette) ? '#000000' : '#ffffff';
-  return <span data-achievement-badge={badge.id || label} data-badge-tier={tier?.tierRoman}
+  return <span data-achievement-badge={badge.id || label} data-badge-tier={tier?.tierRoman} data-event-edition={badge.type==='event'?'gold':undefined}
     aria-label={`${label}${rank ? ` — ${rank}` : ''}`}
     title={badgeText(badge.tooltip || badge.desc || `${label}${rank ? ` — ${rank}` : ''}`)}
     className={`achievement-badge ${compact ? 'achievement-badge-compact' : ''} bg-linear-to-r ${palette}`}>

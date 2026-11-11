@@ -6,9 +6,13 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.0.0 · **Última actualización:** 11 de noviembre de 2026.
+**Versión:** 12.0.1 · **Última actualización:** 11 de noviembre de 2026.
 
 ### Grammy 2027 en Musiclub
+
+La edición dorada integra todos los símbolos de categoría en vinilos. Los aciertos oficiales suman **100 XP** en categorías normales, **200 XP** en las cinco nuevas y **500 XP** en las seis de Campo General. Cuatro insignias exclusivas usan variaciones del gramófono dorado, sin bonificaciones adicionales. La XP y los logros se comparten entre Leaderboard, perfiles y tarjetas.
+
+La migración `20261111_v1201_grammy_rewards.sql` registra ganadores verificados y acredita cada acierto una sola vez después de la ceremonia y el cierre. El proceso es exclusivo de administración, exige una fuente de Grammy.com y no permite sustituir ganadores ya verificados. El agregado público muestra sólo logros y XP; las predicciones y el detalle individual conservan sus permisos privados.
 
 La [actividad Grammy](https://www.musiclub.org/grammys) prepara las 100 categorías y los 12 campos de la 69.ª edición. Campo General y las cinco categorías nuevas aparecen primero; las restantes se abren por campo y se pueden buscar. Incluye vinilos nativos, seis emblemas propios, animaciones con pausa y movimiento reducido. El anuncio aparece sobre la navbar, conservando su ancho y su comportamiento al desplazarse.
 
