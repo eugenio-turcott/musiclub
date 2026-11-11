@@ -8,6 +8,10 @@ function coverImageSource(src, attempt = 0) {
   let optimized = original.startsWith('/') && !original.startsWith('//');
   try {
     const image = new URL(original);
+    if(image.hostname==='i.scdn.co'&&/^\/image\/ab67616d0000(?:b273|1e02|4851)[a-f0-9]+$/i.test(image.pathname)){
+      const sized=prefix=>original.replace(/ab67616d0000(?:b273|1e02|4851)/i,`ab67616d0000${prefix}`);
+      return {src:sized('1e02'),srcSet:`${sized('4851')} 64w, ${sized('1e02')} 300w, ${sized('b273')} 640w`,optimized:false};
+    }
     if (image.hostname === 'cdn.rcrd.club') {
       const resized = width => {
         const url = new URL(image);

@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import {openFixturePool} from './pool-fixture.mjs';
 
-test('loading keeps navigation visible and confines its vinyl to one content section',async({page},testInfo)=>{
+test('a client-only Pool read keeps navigation visible with a compact loading row',async({page},testInfo)=>{
   let release;
   const gate=new Promise(resolve=>{release=resolve;});
   await page.route('**/rest/v1/pool_rooms*',async route=>{await gate;return route.fulfill({json:[]});});
@@ -9,7 +9,8 @@ test('loading keeps navigation visible and confines its vinyl to one content sec
   const loading=page.getByRole('status').filter({hasText:'Cargando salas'});
   await expect(loading).toContainText('Cargando salas');
   await expect(loading.locator('svg')).toBeVisible();
-  expect((await loading.locator('svg').boundingBox()).width).toBeGreaterThan(100);
+  expect((await loading.locator('svg').boundingBox()).width).toBeLessThanOrEqual(60);
+  expect((await loading.boundingBox()).height).toBeLessThan(150);
   expect((await loading.boundingBox()).height).toBeLessThan(page.viewportSize().height*.65);
   await expect(page.getByRole('banner')).toBeVisible();
   await expect(page.getByRole('heading',{name:/Cada sala/})).toHaveCount(0);

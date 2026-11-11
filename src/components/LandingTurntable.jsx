@@ -69,7 +69,10 @@ export function LandingTurntable({selection,paused=false,children}) {
 
       {album?<Link to={getReleaseUrl(album)} className={styles.display} aria-label={`Ver release: ${release.title}`} data-turntable-display=""
         onPointerEnter={()=>setHovering(true)} onPointerLeave={()=>setHovering(false)}>
-        {selection.map(({album:a},i)=><span key={a.id} className={styles.cover} data-active={i===index%selection.length} aria-hidden={i!==index%selection.length}><CoverImage src={displayRelease(a).image} alt={displayRelease(a).title} sizes="180px" loading="eager"/></span>)}
+        {selection.map(({album:a},i)=>{
+          const active=index%selection.length,near=i===active||i===(active+1)%selection.length||i===(active+selection.length-1)%selection.length;
+          return <span key={a.id} className={styles.cover} data-active={i===active} aria-hidden={i!==active}>{near&&<CoverImage src={displayRelease(a).image} alt={displayRelease(a).title} sizes="180px" loading="eager"/>}</span>;
+        })}
         <span className={styles.displayText} key={album.id}><strong>{release.title}</strong><small>{release.artist}</small></span>
         {release.genres[0]&&<span className={styles.genre}><UiIcon name="tag" size={13} tone="inherit"/>{release.genres[0]}</span>}
       </Link>:<div className={styles.display}><p>Los releases con reseñas aparecerán aquí.</p></div>}

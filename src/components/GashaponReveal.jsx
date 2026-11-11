@@ -18,7 +18,7 @@ export function GashaponReveal({ genre, edition, stage, duration = 2400, started
     </button>
     <div className={styles.flash} data-vinyl-flash aria-hidden="true" />
     <div className={styles.poster} aria-hidden={stage !== 'REVEALED'} data-vinyl-cover>
-      <img onError={event => { if (!event.currentTarget.src.endsWith('/musiclub_logo_corchea.png')) event.currentTarget.src = '/musiclub_logo_corchea.png'; }} src={album?.imagen || album?.image_url || '/musiclub_logo_corchea.png'} alt={stage === 'REVEALED' ? album?.album || album?.album_name || '' : ''} width="240" height="240" decoding="async" loading="eager" draggable="false" />
+      <img onError={event => { if (!event.currentTarget.src.endsWith('/musiclub_logo_corchea.png')) event.currentTarget.src = '/musiclub_logo_corchea.png'; }} src={album?.imagen || album?.image_url || '/musiclub_logo_corchea.png'} alt={stage === 'REVEALED' ? album?.album || album?.album_name || '' : ''} width="240" height="240" decoding="async" loading={compact?'lazy':'eager'} draggable="false" />
     </div>
     </div>
     {!compact&&<span className={styles.readyHint} aria-hidden="true">TOCA EL VINILO</span>}

@@ -28,3 +28,11 @@ test('missing artwork uses a fallback immediately; a new source starts with its 
   assert.match(sources.coverImageSource('https://cdn.rcrd.club/releases/new.webp').src, /new\.webp/);
   assert.equal(sources.coverImageSource('https://other.example/cover.jpg').optimized, false);
 });
+
+test('Spotify covers use existing responsive CDN sizes while failures retain the exact original URL',()=>{
+ const original='https://i.scdn.co/image/ab67616d0000b2731234567890abcdef';
+ const image=sources.coverImageSource(original);
+ assert.match(image.src,/ab67616d00001e02/);assert.match(image.srcSet,/64w, .*300w, .*640w/);assert.equal(image.optimized,false);
+ assert.deepEqual(sources.coverImageSource(original,1),{src:original,optimized:false});
+ assert.equal(sources.coverImageSource('https://i.scdn.co/image/artist-photo').srcSet,undefined);
+});

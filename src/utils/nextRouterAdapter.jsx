@@ -18,20 +18,20 @@ export const Link = forwardRef(function Link(
   ref
 ) {
   const target = href || to || '#';
-  const router = useRouter();
+  const [prepared,setPrepared]=useState(null);
   const prepare = () => {
     if (!intentPrefetch || typeof target !== 'string' || !target.startsWith('/') || target.startsWith('//')) return;
     if (navigator.connection?.saveData || /(^|-)2g$/.test(navigator.connection?.effectiveType || '')) return;
     const path = target.split('#')[0];
     if (!path || path === window.location.pathname + window.location.search) return;
     const now = Date.now();
-    if (now - (preparedRoutes.get(path) || 0) < 30000) return;
+    if (now - (preparedRoutes.get(path) || 0) < 30000) {setPrepared(path);return;}
     if (preparedRoutes.size >= 24) preparedRoutes.delete(preparedRoutes.keys().next().value);
     preparedRoutes.set(path, now);
-    router.prefetch(path);
+    setPrepared(path);
   };
   return (
-    <NextLink ref={ref} href={target} replace={replace} prefetch={false} {...props} onTouchStart={event=>{onTouchStart?.(event);if(!event.defaultPrevented)prepare();}} onMouseEnter={event=>{onMouseEnter?.(event);if(!event.defaultPrevented)prepare();}} onFocus={event=>{onFocus?.(event);if(!event.defaultPrevented)prepare();}} onClick={event => {
+    <NextLink ref={ref} href={target} replace={replace} {...props} prefetch={prepared===String(target).split('#')[0]} onTouchStart={event=>{onTouchStart?.(event);if(!event.defaultPrevented)prepare();}} onMouseEnter={event=>{onMouseEnter?.(event);if(!event.defaultPrevented)prepare();}} onFocus={event=>{onFocus?.(event);if(!event.defaultPrevented)prepare();}} onClick={event => {
       onClick?.(event);
       if (!event.defaultPrevented && !event.metaKey && !event.ctrlKey && typeof target === 'string') {
         window.dispatchEvent(new CustomEvent('musiclub:navigate', { detail: target }));

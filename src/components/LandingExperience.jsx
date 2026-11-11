@@ -12,7 +12,7 @@ import {SpotifyLogo, AppleMusicLogo, YouTubeMusicLogo, DeezerLogo} from './commo
 import {getReleaseUrl, getWeightedReviewScore, getEmotionFromReview, getTrackDisplayName, EMOTIONS} from '../utils/ratingUtils';
 import {PROGRESSION_BADGES, PERSONALITY_BADGES, RECORD_BADGES_CONFIG, XP_CONFIG, MELOMANO_LEVELS} from '../utils/badgeSystem';
 import {REVIEW_CRITERIA} from '../utils/reviewCriteria.mjs';
-import {landingSelection, displayRelease, seededRandom} from '../utils/landingExperience.mjs';
+import {landingSelection, discoverySelection, discoveryBatch, displayRelease, seededRandom} from '../utils/landingExperience.mjs';
 import genreRoutes from '../utils/genreRoutes.cjs';
 import visuals from '../utils/genreVisuals.cjs';
 import styles from './LandingExperience.module.css';
@@ -107,6 +107,7 @@ function ReviewDemo({album,review}){
 
 function GashaponDemo({selection}) {
  const [selected,setSelected]=useState(0), [stage,setStage]=useState('READY'), [inView,setInView]=useState(false), motion=useContext(Motion), scene=useRef(null);
+ const batch=useMemo(()=>discoveryBatch(selection,selected),[selection,selected]);
  useEffect(()=>{const observer=new IntersectionObserver(([entry])=>setInView(entry.isIntersecting));if(scene.current)observer.observe(scene.current);return()=>observer.disconnect();},[]);
  useEffect(()=>{
    if(!inView)return;
@@ -119,9 +120,9 @@ function GashaponDemo({selection}) {
    return()=>clearTimeout(timer);
  },[stage,motion.inactive,inView,selection.length]);
  return <div ref={scene} className={styles.miniGashapon} data-gashapon-demo="" data-gashapon-active={inView&&!motion.inactive} aria-label="Animación de Gashapon">
-   {selection.slice(0,3).map((_,offset)=>{
-     const album=selection[(selected+offset)%selection.length].album,release=displayRelease(album);
-     return <div className={styles.gashaponExample} key={offset}><GashaponReveal key={album.id} compact genre={release.genres[0]||'Pop'} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/><span className="sr-only">{stage==='REVEALED'?`${release.title}, de ${release.artist}`:'Cápsula de un release del club'}</span></div>;
+   {batch.map(({album,edition},offset)=>{
+     const release=displayRelease(album);
+     return <div className={styles.gashaponExample} key={offset} data-discovery-release={album.id}><GashaponReveal key={album.id} compact edition={edition} genre={release.genres[0]||'Pop'} album={album} stage={stage} duration={1200} onOpen={()=>setStage(motion.inactive?'REVEALED':'OPENING')}/><span className="sr-only">{stage==='REVEALED'?`${release.title}, de ${release.artist}`:'Cápsula de un release del club'}</span></div>;
    })}
  </div>;
 }
@@ -139,7 +140,7 @@ function ShareDemo({album,review}){
  return <div className={styles.shareDemo}><div className={styles.shareFormats}><button type="button" aria-pressed={!horizontal} onClick={()=>setHorizontal(false)}>{icon('phone',18)}Story</button><button type="button" aria-pressed={horizontal} onClick={()=>setHorizontal(true)}>{icon('image',18)}Horizontal</button></div>
    <div className={styles.shareStage} data-share-stage="" style={height?{height}:undefined}>
      {[false,true].map((landscape,i)=><div className={styles.shareLayer} key={String(landscape)} data-active={landscape===horizontal} aria-hidden={landscape!==horizontal} inert={landscape!==horizontal}>
-       <div ref={node=>{canvases.current[i]=node;}} className={`${styles.shareCanvas} ${landscape?styles.horizontal:''}`} data-share-preview={landscape===horizontal?'':undefined}><div className={styles.shareBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub"/><strong>MUSICLUB</strong></div><div className={styles.shareArtwork}><Vinyl genre={release.genres[0]||'Pop'}/><CoverImage src={release.image} alt={release.title}/><strong>{review?Number(getWeightedReviewScore(review)).toFixed(1):Number(album.final_rating||0).toFixed(1)}<small>/10</small></strong></div><div className={styles.shareInfo}><h3>{release.title}</h3><p>{release.artist}</p>{favorite&&<span>{icon('crown',17)}{favorite}</span>}<div className={styles.miniCriteria}>{REVIEW_CRITERIA.map(([key,label,glyph,max,color])=><span key={key} title={label} style={{color,'--content-icon-ink':color}}>{icon(glyph,19)}<b>{review?.[key]??'—'}</b></span>)}</div><footer><span>{review?.reviewer_name||'La comunidad'}</span><b>musiclub.org</b></footer></div></div>
+      <div ref={node=>{canvases.current[i]=node;}} className={`${styles.shareCanvas} ${landscape?styles.horizontal:''}`} data-share-preview={landscape===horizontal?'':undefined}><div className={styles.shareBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub"/><strong>MUSICLUB</strong></div><div className={styles.shareArtwork}><Vinyl genre={release.genres[0]||'Pop'}/><CoverImage src={release.image} alt={release.title}/><strong>{review?Number(review.demo_score??getWeightedReviewScore(review)).toFixed(1):Number(album.final_rating||0).toFixed(1)}<small>/10</small></strong></div><div className={styles.shareInfo}><h3>{release.title}</h3><p>{release.artist}</p>{favorite&&<span>{icon('crown',17)}{favorite}</span>}<div className={styles.miniCriteria}>{REVIEW_CRITERIA.map(([key,label,glyph,max,color])=><span key={key} title={label} style={{color,'--content-icon-ink':color}}>{icon(glyph,19)}<b>{review?.[key]??'—'}</b></span>)}</div><footer><span>{review?.reviewer_name||'La comunidad'}</span><b>musiclub.org</b></footer></div></div>
      </div>)}
    </div><p className={styles.demoCaption}>Reseña real del club · Vista previa del diseño</p></div>;
 }
@@ -163,24 +164,32 @@ const LANDING_BADGES=[
 ];
 
 function BadgeShowcase() {
+ const rails=useRef(null),[ready,setReady]=useState(false);
+ useEffect(()=>{
+   const observer=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){setReady(true);observer.disconnect();}},{rootMargin:'450px'});
+   observer.observe(rails.current);return()=>observer.disconnect();
+ },[]);
  return <section className={styles.badgeStage} data-landing-scene="" aria-labelledby="landing-badges-title">
    <div className={styles.badgeIntro}><p className={styles.eyebrow}>{icon('award',24)} INSIGNIAS Y NIVELES</p><h3 id="landing-badges-title">Tu actividad se convierte en XP.</h3><p>Reseña, comenta y califica canciones. Tu Score XP reúne la actividad, los tiers que desbloqueas y las coronas que conservas.</p><Link to="/leaderboard" className={styles.textLink}>Ver mi progreso y el leaderboard {icon('arrow')}</Link></div>
    <div className={styles.xpRules} aria-label="Cómo ganar XP en Musiclub">{[['review','Publica una reseña',XP_CONFIG.REVIEW_BASE,'Por cada release que calificas.'],['message','Añade tu comentario',XP_CONFIG.REVIEW_COMMENT_BONUS,'Extra cuando tu reseña incluye texto.'],['music','Califica una canción',XP_CONFIG.TRACK_RATED,'Por cada track evaluado.'],['crown','Conserva un récord #1',XP_CONFIG.RECORD_CROWN_BONUS,'Bono activo mientras lideras esa categoría.']].map(([figure,title,xp,detail])=><div key={figure}>{icon(figure,29)}<strong>+{xp}<small> XP</small></strong><b>{title}</b><span>{detail}</span></div>)}</div>
    <div className={styles.xpPath}><div>{icon('sliders',25)}<span><b>Actividad</b>Tu participación suma puntos.</span></div>{icon('arrow',20)}<div>{icon('award',25)}<span><b>Insignias y tiers</b>Supera metas y gana XP adicional.</span></div>{icon('arrow',20)}<div>{icon('chart',25)}<span><b>{MELOMANO_LEVELS.length} niveles</b>Tu XP total determina tu nivel.</span></div></div>
    <p className={styles.xpExample}>{icon('bulb',22)}<span>Una reseña con comentario y 5 canciones calificadas suma <strong>{XP_CONFIG.REVIEW_BASE+XP_CONFIG.REVIEW_COMMENT_BONUS+5*XP_CONFIG.TRACK_RATED} XP de actividad</strong>. Las insignias añaden sus propias recompensas; cada nuevo tier acumula su bono.</span></p>
-   <div className={styles.badgeRails} aria-label="Insignias disponibles en Musiclub">{[0,1,2].map(row=>{
+   <div ref={rails} className={styles.badgeRails} data-badge-ready={ready} aria-label="Insignias disponibles en Musiclub">{[0,1,2].map(row=>{
      const badges=LANDING_BADGES.filter((_,i)=>i%3===row);
-     return <div className={styles.badgeRail} key={row} style={{'--direction':row===1?'normal':'reverse','--duration':(badges.length*5)+'s'}}><div className={styles.badgeTrack}>{[0,1].map(copy=><div className={styles.badgeGroup} key={copy} aria-hidden={copy===1?'true':undefined}>{badges.map(badge=><div className={styles.movingBadge} key={badge.id}><AchievementBadge badge={badge}/><span>{badge.detail}</span><small>+{badge.xp} XP</small></div>)}</div>)}</div></div>;
+     return <div className={styles.badgeRail} key={row} style={{'--direction':row===1?'normal':'reverse','--duration':(badges.length*5)+'s'}}><div className={styles.badgeTrack}>{(ready?[0,1]:[0]).map(copy=><div className={styles.badgeGroup} key={copy} aria-hidden={copy===1?'true':undefined}>{(ready?badges:badges.slice(0,3)).map(badge=><div className={styles.movingBadge} key={badge.id}><AchievementBadge badge={badge}/><span>{badge.detail}</span><small>+{badge.xp} XP</small></div>)}</div>)}</div></div>;
    })}</div>
  </section>;
 }
 
 export function LandingJourney({albums,reviews}) {
- const forReview=useRandomSelection(albums,reviews), forDiscovery=useRandomSelection(albums,reviews), forSharing=useRandomSelection(albums,reviews);
+ const forReview=useRandomSelection(albums,reviews), forSharing=useRandomSelection(albums,reviews);
+ const [discoverySeed,setDiscoverySeed]=useState(null);
+ useEffect(()=>setDiscoverySeed(Math.floor(Math.random()*4294967296)),[]);
+ const forDiscovery=useMemo(()=>discoverySelection(albums,{random:discoverySeed===null?undefined:seededRandom(discoverySeed)}),[albums,discoverySeed]);
  return <section className={styles.journey} id="musiclub-en-accion" aria-labelledby="journey-title">
-   <header className={styles.sectionHeading} data-reveal=""><p className={styles.eyebrow}>{icon('sparkles',23)} MUSICLUB EN ACCIÓN</p><h2 id="journey-title">Todo lo que puedes hacer<br/><span>en Musiclub.</span></h2><p>Diez ejemplos reales en cada demostración. Una selección nueva cada vez que nos visitas.</p></header>
+   <header className={styles.sectionHeading} data-reveal=""><p className={styles.eyebrow}>{icon('sparkles',23)} MUSICLUB EN ACCIÓN</p><h2 id="journey-title">Todo lo que puedes hacer<br/><span>en Musiclub.</span></h2><p>Ejemplos reales de todo el club. Una selección nueva cada vez que nos visitas.</p></header>
    <div className={styles.journeyLayout}><nav className={styles.chapterNav} aria-label="Demostraciones de Musiclub">{CHAPTERS.map(c=><a key={c.id} href={'#demo-'+c.id}><span>{c.num}</span>{icon(c.icon,26)}<strong>{c.id==='resenar'?'Reseñar':c.id==='descubrir'?'Descubrir':'Compartir'}</strong>{icon('arrow',20)}</a>)}<span className={styles.chapterVinyl}><MusiclubVinyl src="/musiclub_logo_4.png" alt=""/></span></nav>
-   <div className={styles.chapters}>{CHAPTERS.map((chapter,i)=><article className={styles.chapter} id={'demo-'+chapter.id} key={chapter.id} data-landing-scene="" data-reveal=""><div className={styles.chapterCopy}><span className={styles.chapterNumber}>{chapter.num} / 03</span><h3>{chapter.title}</h3><p>{chapter.text}</p><div className={styles.chips}>{chapter.chips.map((text,j)=><span key={text}>{icon([chapter.icon,'check','music'][j],19)}{text}</span>)}</div><Link className={styles.textLink} to={chapter.link}>{chapter.action}{icon('arrow',23)}</Link></div>{forReview.length?(i===0?<ReviewExamples selection={forReview}/>:i===1?<GashaponDemo selection={forDiscovery}/>:<ShareExamples selection={forSharing}/>):<div className={styles.emptyDemo}><MusiclubVinyl alt=""/><p>Explora el catálogo para conocer los releases del club.</p></div>}</article>)}</div></div>
+   <div className={styles.chapters}>{CHAPTERS.map((chapter,i)=><article className={styles.chapter} id={'demo-'+chapter.id} key={chapter.id} data-landing-scene="" data-reveal=""><div className={styles.chapterCopy}><span className={styles.chapterNumber}>{chapter.num} / 03</span><h3>{chapter.title}</h3><p>{chapter.text}</p><div className={styles.chips}>{chapter.chips.map((text,j)=><span key={text}>{icon([chapter.icon,'check','music'][j],19)}{text}</span>)}</div><Link className={styles.textLink} to={chapter.link}>{chapter.action}{icon('arrow',23)}</Link></div>{(i===1?forDiscovery.length:i===2?forSharing.length:forReview.length)?(i===0?<ReviewExamples selection={forReview}/>:i===1?<GashaponDemo selection={forDiscovery}/>:<ShareExamples selection={forSharing}/>):<div className={styles.emptyDemo}><MusiclubVinyl alt=""/><p>Explora el catálogo para conocer los releases del club.</p></div>}</article>)}</div></div>
    <Link to="/guias" className={styles.guideLink}><span>{icon('book',34)}</span><div><strong>Conoce Musiclub por dentro</strong><p>La guía completa: ejemplos reales, controles que puedes probar y todos los detalles.</p></div>{icon('arrow',30)}</Link>
    <BadgeShowcase/>
  </section>;

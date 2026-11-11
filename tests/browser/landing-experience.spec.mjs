@@ -91,6 +91,7 @@ test('the integrated turntable has local needle controls, full artwork and natur
  const player=page.locator('[aria-label="Tornamesa interactiva de Musiclub"]'),deck=player.locator('[data-turntable-deck]');
  await expect(player.locator('audio,iframe')).toHaveCount(0);
  await expect(deck.locator('[data-turntable-display]')).toHaveCount(1);
+ expect(await deck.locator('[data-turntable-display] img').count()).toBeLessThanOrEqual(3);
  await expect(deck.locator('[data-turntable-console] [aria-label^="Calificación del club"]')).toHaveCount(1);
  await expect(deck.locator('header [role="img"]')).toHaveCount(0);
  await expect(deck.locator('[data-turntable-console] [role="img"]')).toHaveCount(1);
@@ -178,6 +179,8 @@ test('the compact Gashapon cycles real releases only while visible without new d
  await expect(reveal).toHaveAttribute('data-compact','true');
  await expect.poll(()=>reveal.getAttribute('data-stage')).toBe('revealed');
  await expect(demo.locator('[data-vinyl-reveal]')).toHaveCount(3);
+ const identities=await demo.locator('[data-vinyl-reveal]').evaluateAll(items=>items.map(el=>el.getAttribute('data-vinyl-edition')));
+ expect(new Set(identities).size).toBe(3);
  const covers=demo.locator('[data-vinyl-cover] img');
  const cover=covers.first(),first=await cover.getAttribute('alt');
  expect(new Set(await covers.evaluateAll(items=>items.map(el=>el.alt))).size).toBe(3);
@@ -199,6 +202,16 @@ test('genre links open the animated genre explorer and filters remain local',asy
  await page.getByRole('button',{name:'Con reseñas',exact:true}).click();
  await expect(page.getByRole('region',{name:'Lanzamientos de Pop',exact:true})).toContainText('Azul');
  expect(queries).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+test('the offscreen badge carousels defer their duplicated artwork until the section approaches',async({page})=>{
+ await openLanding(page);
+ const rails=page.locator('[data-badge-ready]');
+ await expect(rails).toHaveAttribute('data-badge-ready','false');
+ await expect(rails.locator('.achievement-badge')).toHaveCount(9);
+ const reads=[];page.on('request',r=>{if(/\/rest\/v1\/|\/api\/catalog/.test(r.url()))reads.push(r.url());});
+ await rails.scrollIntoViewIfNeeded();await expect(rails).toHaveAttribute('data-badge-ready','true');
+ expect(await rails.locator('.achievement-badge').count()).toBeGreaterThan(9);expect(reads).toHaveLength(0);
 });
 
 test('sharing formats crossfade stable layouts and smoothly reverse without stretching or extra reads',async({page},info)=>{

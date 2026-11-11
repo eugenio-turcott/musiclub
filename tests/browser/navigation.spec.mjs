@@ -211,6 +211,21 @@ test('focusing a release prepares its route without loading every catalogue link
  await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
 });
 
+test('slow release navigation retains the catalogue and header instead of replacing them with a loading screen',async({page})=>{
+ await page.goto('/catalogo?q=Azul');
+ await expect(page.getByRole('heading',{name:'Catálogo Musical',exact:true})).toBeVisible();
+ let release;const gate=new Promise(resolve=>{release=resolve;});
+ await page.route('**/albumes/artista-de-prueba-azul*',async route=>{await gate;await route.continue();});
+ await page.getByRole('link',{name:'Azul',exact:true}).first().click();
+ await expect(page.locator('[data-navigation-progress]')).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Catálogo Musical',exact:true})).toBeVisible();
+ await expect(page.getByRole('banner')).toBeVisible();
+ await expect(page.getByRole('region',{name:'Contenido en preparación',exact:true})).toHaveCount(0);
+ await page.screenshot({path:'outputs/v11-1-11-navigation-'+test.info().project.name+'.png'});
+ release();await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
+ await expect(page.locator('[data-navigation-progress]')).toHaveCount(0);
+});
+
 test('editorial selections change banners and retain real release links without overflowing',async({page})=>{
   await page.clock.install();
   await page.goto('/');

@@ -9,6 +9,7 @@ import { ReleaseLibraryProvider } from '../components/ReleaseLibraryProvider';
 import {AdvertisingPlacementProvider} from '../components/AdvertisingPlacementProvider';
 import {usePathname} from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
+import {NavigationProgress} from '../components/NavigationProgress';
 
 export function ClientProviders({ children }) {
   const pathname = usePathname();
@@ -53,6 +54,7 @@ export function ClientProviders({ children }) {
         }}
       />
       <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
+      <NavigationProgress/>
       <SiteMetrics />
     </ErrorBoundary>
   );

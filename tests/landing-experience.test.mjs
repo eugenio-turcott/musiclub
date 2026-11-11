@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {landingSelection,displayRelease,seededRandom} from '../src/utils/landingExperience.mjs';
+import {landingSelection,discoverySelection,discoveryBatch,displayRelease,seededRandom} from '../src/utils/landingExperience.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from '../src/server/catalogSnapshot.mjs';
 
 test('large public catalogues fit the data cache without losing tracks, Unicode or scores',()=>{
@@ -9,6 +9,25 @@ test('large public catalogues fit the data cache without losing tracks, Unicode 
  assert.ok(Buffer.byteLength(JSON.stringify(data))>2*1024*1024);
  const packed=packCatalogSnapshot(data);assert.ok(Buffer.byteLength(JSON.stringify(packed))<2*1024*1024);
  assert.deepEqual(unpackCatalogSnapshot(packed),data);
+});
+
+test('discovery includes unreviewed catalogue releases and every batch has different records, genres and pressings',()=>{
+ const albums=Array.from({length:60},(_,i)=>({id:String(i),album_name:`Release ${i}`,image_url:'/cover.webp',genres:[['Pop','Pop','Jazz','Rock'][i%4]],review_count:i<10?1:0}));
+ const selection=discoverySelection(albums,{random:seededRandom(847)});
+ assert.equal(selection.length,60);assert.equal(new Set(selection.map(entry=>entry.album.id)).size,60);
+ assert.ok(selection.some(entry=>entry.album.review_count===0));
+ const visited=new Set();
+ for(let i=0;i<selection.length;i++){
+  const batch=discoveryBatch(selection,i);batch.forEach(entry=>visited.add(entry.album.id));
+  assert.equal(new Set(batch.map(entry=>entry.album.id)).size,3);
+  assert.equal(new Set(batch.map(entry=>entry.album.genres[0])).size,3);
+  assert.equal(new Set(batch.map(entry=>entry.edition)).size,3);
+ }
+ assert.equal(visited.size,60);
+ assert.notDeepEqual(selection,discoverySelection(albums,{random:seededRandom(848)}));
+ const sparse=discoveryBatch(discoverySelection(albums.slice(0,2).map(a=>({...a,genres:['Pop']}))));
+ assert.equal(sparse.length,2);assert.equal(new Set(sparse.map(entry=>entry.edition)).size,2);
+ assert.deepEqual(discoveryBatch([]),[]);
 });
 
 test('landing demonstrations prefer actual review relations, preserve release identity and deduplicate editions',()=>{

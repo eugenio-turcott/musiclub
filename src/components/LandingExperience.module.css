@@ -57,3 +57,4 @@
 .shareLayer[data-active=true]{opacity:1;visibility:visible;pointer-events:auto;transform:translateY(0);transition-delay:0s}
 @media(max-width:800px){.miniGashapon{max-width:560px;min-height:220px;gap:12px}}
 @media(max-width:450px){.miniGashapon{min-height:180px;gap:10px}}
+.badgeRails[data-badge-ready=false] .badgeTrack{animation:none}

@@ -2,6 +2,7 @@ import { getPublicCatalog, getPublicAlbum, getPublicCollection } from '../../../
 import { NextResponse } from 'next/server';
 import { revalidateTag } from 'next/cache';
 import { authorize } from '../../../server/authorize';
+import {compactCatalogTransport} from '../../../utils/publicCatalogTransport.mjs';
 
 export async function GET(request) {
   try {
@@ -11,7 +12,7 @@ export async function GET(request) {
     const data = slug ? await getPublicAlbum(slug) : await getPublicCatalog();
     if (!data) return NextResponse.json({ error: 'Lanzamiento no encontrado' }, { status: 404 });
     const {rawAlbums,...response}=data;
-    return NextResponse.json(slug ? data : response);
+    return NextResponse.json(!slug&&params.get('view')==='compact'?compactCatalogTransport(response):slug?data:response);
   } catch { return NextResponse.json({ error: 'Catálogo temporalmente no disponible' }, { status: 503 }); }
 }
 export async function POST(request) {

@@ -248,9 +248,9 @@ export function LandingPage({ initialAlbums = [], initialReviews = [], initialSt
         );
 
       // Resolver nombre legible de la canción favorita
-      let favTrackTitle = null;
+      let favTrackTitle = rev.favTrackTitle || null;
       const rawFav = rev.favorite_track || rev.favoriteTrack;
-      if (rawFav) {
+      if (rawFav&&!favTrackTitle) {
         const resolvedName = getTrackDisplayName(
           rawFav,
           matchedAlbum?.tracks || []
