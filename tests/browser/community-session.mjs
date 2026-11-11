@@ -1,5 +1,5 @@
 import {albums} from './fixtures.mjs';
-export async function communityAccount(page){
+export async function communityAccount(page,{expiresAt}={}){
   const id='00000000-0000-4000-8000-000000000081';
   const profile={id,email:'private-account@example.test',name:'Camila de Prueba',avatar_url:'/musiclub_logo_3.png',bio:'Mi siguiente disco todavía no tiene nombre.',favorite_artist:'Radiohead',favorite_album:'In Rainbows',favorite_genres:['R&B / Soul','Latino / Trap'],role:'user'};
   const member={...profile,id:'00000000-0000-4000-8000-000000000082',name:'Mateo del Club',email:'private-member@example.test',favorite_genres:['Indie','Pop']};
@@ -9,7 +9,7 @@ export async function communityAccount(page){
   const foreign={...own[0],id:'foreign',user_id:member.id,reviewer_name:member.name,reviewer_email:member.email};
   const reviews=[...own,foreign];
   await page.route('**/*',route=>['127.0.0.1','localhost'].includes(new URL(route.request().url()).hostname)?route.continue():route.abort());
-  await page.addInitScript(user=>{const payload=btoa(JSON.stringify({sub:user.id,exp:Math.floor(Date.now()/1000)+3600}));localStorage.setItem('sb-127-auth-token',JSON.stringify({access_token:`eyJhbGciOiJIUzI1NiJ9.${payload}.fixture-only`,refresh_token:'fixture-only',expires_at:Math.floor(Date.now()/1000)+3600,expires_in:3600,token_type:'bearer',user}));},user);
+  await page.addInitScript(({user,expiresAt})=>{const expiry=expiresAt||Math.floor(Date.now()/1000)+3600,payload=btoa(JSON.stringify({sub:user.id,exp:expiry}));localStorage.setItem('sb-127-auth-token',JSON.stringify({access_token:`eyJhbGciOiJIUzI1NiJ9.${payload}.fixture-only`,refresh_token:'fixture-only',expires_at:expiry,expires_in:3600,token_type:'bearer',user}));},{user,expiresAt});
   await page.route('**/auth/v1/user',route=>route.fulfill({json:user}));
   await page.route('**/rest/v1/profiles*',route=>route.fulfill({json:profile}));
   await page.route('**/rest/v1/public_profiles*',route=>route.fulfill({json:[profile,member,{id:'registered-zero',name:'Nueva escucha',role:'user'}]}));

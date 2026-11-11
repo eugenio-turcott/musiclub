@@ -11,6 +11,7 @@ import {usePathname} from 'next/navigation';
 import advertisingPolicy from '../utils/advertisingPolicy.cjs';
 import {NavigationProgress} from '../components/NavigationProgress';
 import {SiteNavigation} from '../components/AppHeader';
+import {GrammyAnnouncement} from '../components/GrammyAnnouncement';
 
 export function ClientProviders({ children }) {
   const pathname = usePathname();
@@ -54,7 +55,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider><SiteNavigation/>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
+      <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider><GrammyAnnouncement/><SiteNavigation/>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
       <NavigationProgress/>
       <SiteMetrics />
     </ErrorBoundary>

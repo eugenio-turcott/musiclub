@@ -7,6 +7,7 @@
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "workers_dev": true,
   "preview_urls": false,
+  "triggers": {"crons":["*/15 * * * *"]},
   "assets": {"directory":".open-next/assets", "binding":"ASSETS"},
   "vars": {"CLOUDFLARE_DEPLOYMENT":"1"},
   "services": [{"binding":"WORKER_SELF_REFERENCE", "service":"musiclub"}],

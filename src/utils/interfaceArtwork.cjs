@@ -822,4 +822,14 @@ ICON_BODIES.thoughtful = '<circle cx="12" cy="11" r="8.5"/><path d="m7 8 3-1M14 
 ICON_COLORS.thoughtful = '#d8b4fe';
 ICON_FILLS.thoughtful = '<circle cx="12" cy="11" r="8.5"/>';
 const ICON_STROKE_WIDTH = 1.6;
+Object.assign(ICON_BODIES,{
+ gramophone:'<path d="M4 21h16v-4H4ZM8 17v-4h6l2 4M10 13V9m0 0L6 5l12-3v11L10 9Z"/><ellipse cx="18" cy="7.5" rx="2" ry="5.5"/>',
+ 'grammy-record':'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/><path d="M5.5 10A7 7 0 0 1 10 5.5M14 18.5a7 7 0 0 0 4.5-4.5M12 2v2"/>',
+ 'grammy-album':'<rect x="3" y="3" width="15" height="18" rx="2"/><path d="M7 3v18M18 6h3v15H8"/><circle cx="12.5" cy="11" r="3"/><path d="M10 17h5"/>',
+ 'grammy-song':'<path d="M14 18V4l7-2v14M14 8l7-2M2 5h7M2 9h6M2 13h5"/><ellipse cx="11" cy="18" rx="3" ry="2.5"/><ellipse cx="18" cy="16" rx="3" ry="2.5"/>',
+ 'grammy-artist':'<circle cx="10" cy="7" r="3"/><path d="M3 21v-3a7 7 0 0 1 12-5M16 8l1.5 3 3.5.5-2.5 2.5.5 3.5-3-1.5-3 1.5.5-3.5L11 12l3.5-.5Z"/>',
+ 'grammy-producer':'<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M7 7v10M12 7v10M17 7v10M5 10h4M10 14h4M15 9h4"/>',
+ 'grammy-writer':'<path d="M14 4H4v17h13v-9M8 8h3M8 12h2M8 16h6m2-14 5 5-8 8-4 1 1-4Z"/>'
+});
+Object.assign(ICON_COLORS,{gramophone:'#facc15','grammy-record':'#f7cf75','grammy-album':'#ff89bc','grammy-song':'#72e1d5','grammy-artist':'#c3a0ff','grammy-producer':'#8dc2ff','grammy-writer':'#ffb574'});
 module.exports = { ICON_BODIES, ICON_COLORS, ICON_FILLS, ICON_STROKE_WIDTH };

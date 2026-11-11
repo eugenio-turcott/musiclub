@@ -37,4 +37,6 @@ Object.assign(reviews[0],{rating_produccion:5,rating_composicion:4,rating_letras
 reviews[2].rating_general=10;
 
 // Rankings use registered public profiles, including people with no reviews.
+tables.grammy_events=[{id:'grammys-2027',status:'open',published_at:'2026-11-17T00:00:00Z',source_url:'https://www.grammy.com/'}];
+tables.grammy_nominees=[0,1].map(i=>({id:`20000000-0000-4000-8000-00000000000${i+1}`,event_id:'grammys-2027',category_id:'album-of-the-year',title:albums[i].album_name,artist:albums[i].artist_name,image_url:albums[i].image_url,albums:albums[i],spotify_url:'https://open.spotify.com/album/fixture',apple_music_url:'https://music.apple.com/album/fixture',youtube_url:'https://music.youtube.com/watch?v=fixture',deezer_url:'https://www.deezer.com/album/fixture'}));
 for(const [index,name] of [...new Set(tables.public_reviews.map(r=>r.reviewer_name).filter(Boolean))].entries()) tables.public_profiles.push({id:`registered-fixture-${index}`,name,avatar_url:null,role:"user"});
