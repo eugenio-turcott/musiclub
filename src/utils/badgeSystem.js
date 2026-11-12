@@ -7,7 +7,7 @@ import {GRAMMY_BADGES,grammyGamification} from './grammyRewards.mjs';
 export const XP_CONFIG = {
   REVIEW_BASE: 50, // XP por cada álbum reseñado
   REVIEW_COMMENT_BONUS: 25, // XP adicional si la reseña incluye comentario en texto
-  TRACK_RATED: 2, // XP por cada canción/track calificado individualmente
+  TRACK_RATED: 5, // XP por cada canción/track calificado individualmente, incluido el historial
   RECORD_CROWN_BONUS: 300, // XP bono activo por ostentar un récord #1
 };
 

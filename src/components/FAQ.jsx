@@ -8,6 +8,7 @@ import { Footer } from './Footer';
 import { SEO } from './SEO';
 import {FAQ_TOUR_ANCHORS} from '../data/musiclubTour';
 import {FAQExplanation} from './FAQExplanation';
+import {XP_CONFIG} from '../utils/badgeSystem';
 
 const FAQ_CATEGORIES = [
   { id: 'all', label: '🌟 Todas las Preguntas', icon: '✨' },
@@ -124,7 +125,7 @@ const FAQ_BASE = [
     category: 'leaderboard',
     question: '¿Cómo funciona el Leaderboard y el Sistema de Puntuación XP?',
     answer:
-      'El Leaderboard clasifica a los miembros por su **Score XP de Club**, un puntaje integral que premia la constancia y los logros históricos:\n\n• **Puntos por Actividad**:\n  - 🎧 **+50 XP** por cada álbum reseñado.\n  - ✍️ **+25 XP extra** por reseñas con comentarios detallados.\n  - ⚡ **+2 XP** por cada pista individual calificada.\n\n• **Puntos por Insignias & Tiers**:\n  - Cada nivel desbloqueado otorga entre **+50 XP (Tier I)** hasta **+1,300 XP (Tier VII)**.\n  - Las Coronas de Récords #1 otorgan un bonus permanente de **+300 XP** mientras se conserve el récord.\n\nEn la parte superior se exhibe el **Podio de Honor** con medallas de Oro 🥇, Plata 🥈 y Bronce 🥉 para los 3 líderes de puntuación.',
+      `El Leaderboard clasifica a los miembros por su **Score XP de Club**, un puntaje integral que premia la constancia y los logros históricos:\n\n• **Puntos por Actividad**:\n  - 🎧 **+50 XP** por cada álbum reseñado.\n  - ✍️ **+25 XP extra** por reseñas con comentarios detallados.\n  - ⚡ **+${XP_CONFIG.TRACK_RATED} XP** por cada pista individual calificada.\n\n• **Puntos por Insignias & Tiers**:\n  - Cada nivel desbloqueado otorga entre **+50 XP (Tier I)** hasta **+1,300 XP (Tier VII)**.\n  - Las Coronas de Récords #1 otorgan un bonus permanente de **+300 XP** mientras se conserve el récord.\n\nEn la parte superior se exhibe el **Podio de Honor** con medallas de Oro 🥇, Plata 🥈 y Bronce 🥉 para los 3 líderes de puntuación.`,
   },
   {
     id: 'que-insignias-existen',
