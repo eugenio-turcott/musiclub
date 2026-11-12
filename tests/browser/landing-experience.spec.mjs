@@ -127,7 +127,12 @@ test('the integrated turntable has local needle controls, full artwork and natur
  await expect.poll(()=>page.evaluate(()=>window.__deckContexts[0].state)).toBe('running');
  expect(requests).toHaveLength(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  const score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox(),genre=await deck.locator('[class*="genre"]').boundingBox(),cover=await deck.locator('[data-turntable-display]').boundingBox();
- expect(wave.y).toBeGreaterThanOrEqual(score.y+score.height);expect(wave.width).toBeGreaterThan(score.width);expect(mood.x).toBeGreaterThanOrEqual(score.x+score.width-1);expect(genre.y).toBeGreaterThan(cover.y+cover.height);expect(genre.y+genre.height).toBeLessThanOrEqual(score.y);
+ expect(wave.y).toBeGreaterThanOrEqual(score.y+score.height);expect(wave.width).toBeGreaterThan(score.width);expect(mood.x).toBeGreaterThanOrEqual(score.x+score.width-1);expect(genre.y+genre.height).toBeLessThan(cover.y);expect(Math.abs(genre.x+genre.width-cover.x-cover.width)).toBeLessThan(2);
+ for(const width of [320,393,768,1280,1920]){
+  await page.setViewportSize({width,height:1000});const cover=await deck.locator('[data-turntable-display]').boundingBox(),score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),genre=await deck.locator('[class*="genre"]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox();
+  expect(Math.abs(score.x-cover.x)).toBeLessThan(2);expect(Math.abs(wave.x-cover.x)).toBeLessThan(2);expect(Math.abs(wave.x+wave.width-cover.x-cover.width)).toBeLessThan(2);expect(genre.y+genre.height).toBeLessThan(cover.y);expect(score.x+score.width).toBeLessThanOrEqual(mood.x+1);expect(mood.x+mood.width).toBeLessThanOrEqual(cover.x+cover.width+1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.setViewportSize(info.project.name==='mobile'?{width:393,height:851}:{width:1440,height:1000});
  await page.screenshot({path:'outputs/v11-1-10-turntable-'+info.project.name+'.png',animations:'disabled'});
  if(info.project.name==='mobile'){
   await page.setViewportSize({width:320,height:740});

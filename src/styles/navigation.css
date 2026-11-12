@@ -8,3 +8,8 @@ html,body{overflow-x:clip}
 @media(max-width:1279px){.musiclub-navbar-frame{grid-template-columns:64px minmax(0,1fr)}.musiclub-navbar-actions{grid-column:2}}
 @media(max-width:639px){.musiclub-navbar-frame{padding:10px 12px;min-height:64px;grid-template-columns:44px minmax(0,1fr);column-gap:8px}.musiclub-navbar-actions .username-tag{max-width:72px}}
 @media(max-width:359px){.musiclub-navbar-actions{gap:6px}.musiclub-navbar-actions .username-tag{max-width:54px}}
+
+.grammy-announcement{background:linear-gradient(110deg,#35240f 0%,#67471d 22%,#3b2a35 45%,#725021 65%,#38263b 85%,#35240f 100%);background-size:300% 100%;animation:grammyBannerGold 14s ease-in-out infinite alternate}
+@keyframes grammyBannerGold{from{background-position:0% 50%}to{background-position:100% 50%}}
+body:has([data-paused=true]) .grammy-announcement,body:has([data-motion-paused=true]) .grammy-announcement{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.grammy-announcement{animation:none}}

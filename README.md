@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.0.1 · **Última actualización:** 11 de noviembre de 2026.
+**Versión:** 12.0.2 · **Última actualización:** 12 de noviembre de 2026.
 
 ### Grammy 2027 en Musiclub
 
