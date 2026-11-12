@@ -21,3 +21,8 @@ test('publication dashboard verifies and retries only on deliberate actions, sta
 test('a member cannot view or query the private publication ledger',async({page})=>{
  await account(page,false);let reads=0;await page.route('**/api/search-discovery',route=>{reads++;return route.fulfill({status:403,json:{error:'Forbidden'}});});await page.goto('/admin/publicacion');await expect(page.getByRole('heading',{name:'Acceso de administración',exact:true})).toBeVisible();expect(reads).toBe(0);
 });
+
+
+test('release metadata exposes the latest real content date to the publication verifier',async({page})=>{
+ const response=await page.goto('/albumes/artista-de-prueba-azul');expect(response.status()).toBe(200);const html=await response.text();expect(html).toMatch(/<meta name="musiclub:content-updated-at" content="2026-11-12T18:00:00Z"/);
+});

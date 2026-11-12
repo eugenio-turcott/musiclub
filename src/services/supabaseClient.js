@@ -315,6 +315,7 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
     other_link: alb.other_link,
     tracks: alb.tracks || [],
     created_at: alb.created_at,
+    public_content_updated_at: alb.public_content_updated_at || null,
     release_date: alb.release_date,
     release_year: alb.release_year,
     review_count: reviewCount,

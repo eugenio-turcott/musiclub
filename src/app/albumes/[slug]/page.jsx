@@ -59,6 +59,7 @@ export async function generateMetadata({ params }) {
       index: album.review_count > 0,
       follow: true,
     },
+    other: album.public_content_updated_at ? { 'musiclub:content-updated-at': album.public_content_updated_at } : {},
     openGraph: {
       title,
       description,
