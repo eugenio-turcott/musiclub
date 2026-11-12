@@ -1,10 +1,19 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {MELOMANO_LEVELS,getMelomanoLevel,PROGRESSION_BADGES,TIER_STYLES,calculateUserGamification} from '../src/utils/badgeSystem.js';
+import {MELOMANO_LEVELS,getMelomanoLevel,PROGRESSION_BADGES,TIER_STYLES,calculateUserGamification,XP_CONFIG} from '../src/utils/badgeSystem.js';
 import {SHARE_FORMATS,clippedText} from '../src/utils/socialCards.js';
 import {TOUR_SECTIONS,FAQ_TOUR_ANCHORS} from '../src/data/musiclubTour.js';
 import {profileCardLayout,tierBoardLayout} from '../src/utils/shareCardLayout.mjs';
 import {DEFAULT_TIERS} from '../src/utils/tierList.mjs';
+
+test('rated tracks award five XP across the existing history without changing review, comment or badge rewards',()=>{
+ assert.equal(XP_CONFIG.TRACK_RATED,5);
+ const history={review_count:1,total_tracks_rated:8,avg_score:9.03,reviews:[{created_at:'2025-01-01',comment:'Una reseña anterior',rating_general:10,track_ratings:Object.fromEntries(Array.from({length:8},(_,i)=>['track-'+i,9]))}]};
+ const result=calculateUserGamification(history);
+ assert.equal(result.activityXp,115); // 50 por reseña + 25 comentario + 8 × 5.
+ assert.equal(result.totalXp,result.activityXp+result.badgesXp+result.recordXp+result.grammyXp);
+ assert.equal(calculateUserGamification({...history,total_tracks_rated:0}).activityXp,75);
+});
 
 const intersects=(a,b)=>Math.min(a.x+a.w,b.x+b.w)>Math.max(a.x,b.x)+.01&&Math.min(a.y+a.h,b.y+b.h)>Math.max(a.y,b.y)+.01;
 test('profile sections have independent space in every export format',()=>{

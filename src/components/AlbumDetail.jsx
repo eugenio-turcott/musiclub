@@ -37,6 +37,7 @@ import {
   getCommunityMood,
   getReviewFavoriteTrack,
   calculateAlbumTopTrack,
+  getWeightedReviewScore,
 } from '../utils/ratingUtils';
 import {
   fetchAlbumSpotifyMetadata,
@@ -1883,6 +1884,7 @@ export function AlbumDetail({
           {album.reviews && album.reviews.length > 0 ? (
             <div className="community-review-grid grid grid-cols-1 items-start md:grid-cols-2 gap-4">
               {album.reviews.map((rev, revIdx) => {
+                const reviewScore = getWeightedReviewScore(rev);
                 const emotion = getEmotionFromReview(rev);
                 const favTrack = getReviewFavoriteTrack(rev);
                 const favTrackName = favTrack
@@ -1954,7 +1956,7 @@ export function AlbumDetail({
                             </span>
                           </span>
                         )}
-                        <span className="text-emerald-400 font-black text-xs sm:text-sm px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30"><InterfaceText>{" ★ "}</InterfaceText>{rev.weighted_score ?? rev.rating_general ?? '—'}
+                        <span aria-label="Promedio ponderado de la reseña" className="text-emerald-400 font-black text-xs sm:text-sm px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30"><InterfaceText>{" ★ "}</InterfaceText>{reviewScore == null ? '—' : Number(reviewScore.toFixed(2))}
                         </span>
                       </div>
                     </div>

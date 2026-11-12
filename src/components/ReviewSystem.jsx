@@ -865,7 +865,7 @@ export function ReviewSystem({
                       </span>
                     ) : null;
                   })()}
-                  <div className="text-2xl sm:text-3xl font-black text-emerald-300 flex items-center gap-1.5"><InterfaceText>{" ★"}</InterfaceText>{' '}
+                  <div aria-label="Promedio ponderado de tu reseña" className="text-2xl sm:text-3xl font-black text-emerald-300 flex items-center gap-1.5"><InterfaceText>{" ★"}</InterfaceText>{' '}
                     {getWeightedReviewScore(existingUserReview)?.toFixed(2) ??
                       existingUserReview.rating_general ??
                       '10'}
