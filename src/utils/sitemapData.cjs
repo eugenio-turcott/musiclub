@@ -8,7 +8,7 @@ function buildSitemapGroups(albums, reviews = []) {
   for (const album of albums) {
     const pathname = releasePath(album);
     if (!pathname) continue;
-    const dates = [album.created_at, ...reviews.filter(r => r.album_id === album.id).map(r => r.created_at)].filter(d => d && !Number.isNaN(Date.parse(d)));
+    const dates = [album.public_content_updated_at, album.created_at, ...reviews.filter(r => r.album_id === album.id).map(r => r.created_at)].filter(d => d && !Number.isNaN(Date.parse(d)));
     const lastmod = dates.length ? new Date(Math.max(...dates.map(Date.parse))).toISOString() : undefined;
     const entry = { loc: BASE + pathname, lastmod };
     if (album.review_count > 0) { reviewed.set(pathname, entry); catalog.delete(pathname); }

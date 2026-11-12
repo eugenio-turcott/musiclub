@@ -7,7 +7,7 @@ export async function sitemapResponse(section) {
     const xml = section === 'index' ? sitemapData.indexXml() :
       sitemapData.sitemapXml(sitemapData.buildSitemapGroups(data.albums, data.reviews)[section]);
     return new Response(xml, { headers: { 'Content-Type': 'application/xml; charset=utf-8',
-      'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } });
+      'Cache-Control': 'public, max-age=0, must-revalidate', 'CDN-Cache-Control':'no-store', 'Cloudflare-CDN-Cache-Control':'no-store' } });
   } catch {
     return new Response('Sitemap temporalmente no disponible', { status: 503, headers: { 'Retry-After': '300' } });
   }

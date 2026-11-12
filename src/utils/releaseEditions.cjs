@@ -34,6 +34,7 @@ function groupReleaseEditions(releases=[],artist='') {
   const representative=[...rows].sort((a,b)=>preference(b)-preference(a))[0];
   const name=editionTitle(representative.album_name || representative.album || representative.name).name;
   const result={...representative,
+   public_content_updated_at:rows.map(row=>row.public_content_updated_at).filter(Boolean).sort((a,b)=>Date.parse(b)-Date.parse(a))[0] || null,
    edition_member_ids:[...new Set(rows.flatMap(row=>row.edition_member_ids || [row.id]).filter(Boolean))],
    edition_names:[...new Set(rows.flatMap(row=>row.edition_names || [row.album_name || row.album || row.name]).filter(Boolean))],
    genres:[...new Set(rows.flatMap(row=>row.genres || []))],

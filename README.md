@@ -6,7 +6,15 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.0.4 · **Última actualización:** 12 de noviembre de 2026.
+**Versión:** 12.0.5 · **Última actualización:** 12 de noviembre de 2026.
+
+### Publicación automática y sitemaps
+
+Cada alta, edición o eliminación de reseña registra, dentro de su propia transacción, un trabajo privado de comprobación por release. No depende de un aviso del navegador. También registra cambios relevantes del catálogo. La migración `20261112_v1205_search_discovery.sql` conserva revisiones, reservas con vencimiento y reintentos con espera creciente; después de ocho intentos requiere revisión. Agrupa múltiples cambios y no da por verificada una revisión si llegó otra durante la comprobación.
+
+Cloudflare consulta la cola cada cinco minutos. Si está vacía, no reconstruye el catálogo ni solicita fichas. Cada lote comparte una actualización del catálogo y tres sitemaps; comprueba fechas reales, presencia o exclusión, respuesta de la ficha, permisos de indexación y URL canónica. Usa la conexión interna del Worker para evitar redirecciones a destinos externos. El XML no conserva copias desactualizadas en la caché del CDN; sus datos mantienen la caché compartida del catálogo. El programador de correos Grammy conserva su revisión cada quince minutos y funciona de forma independiente.
+
+El [registro de publicación](https://www.musiclub.org/admin/publicacion) está disponible sólo para administración: muestra pendientes, verificaciones y fallos; permite comprobar lotes y reintentar. No expone reseñadores ni correos. **Verificado no significa indexado en Google**: confirma que la ficha pública y los sitemaps registrados en GSC coinciden. Google controla el rastreo y la indexación. La instalación prepara cinco releases recientes existentes para comprobar el flujo sin crear reseñas de prueba.
 
 ### Grammy 2027 en Musiclub
 
