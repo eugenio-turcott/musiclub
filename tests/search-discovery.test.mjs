@@ -6,6 +6,10 @@ import {processSearchDiscovery,verifyDiscoveryPage,parseDiscoverySitemap} from '
 import sitemap from '../src/utils/sitemapData.cjs';
 import editions from '../src/utils/releaseEditions.cjs';
 import {scheduledPaths} from '../src/cloudflare/scheduledPaths.mjs';
+import {packCatalogSnapshot,unpackCatalogSnapshot} from '../src/server/catalogSnapshot.mjs';
+process.env.NEXT_PUBLIC_SUPABASE_URL ||= 'https://test.supabase.co';
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||= 'test-only-public-key';
+const {buildAlbumWithFullStats}=await import('../src/services/supabaseClient.js');
 const a='00000000-0000-4000-8000-000000000001',b='00000000-0000-4000-8000-000000000002';
 
 test('review transactions enqueue publication without any browser call; private queue coalesces changes and survives races, failures and crashed workers',async()=>{
@@ -40,7 +44,7 @@ function batchFixture(){
  const jobs=albums.map(album=>({album_id:album.id,revision:1,lease_token:'lease',changed_at:date})),completions=[],reads=[];let refreshes=0;
  const groups=sitemap.buildSitemapGroups(albums,[]);
  const db={rpc:async(name,args)=>{if(name==='musiclub_claim_search_discovery')return {data:jobs};completions.push(args);return {data:true};}};
- const options={refresh:async()=>{refreshes++;return {albums,reviews:[]};},readPublic:async path=>{reads.push(path);if(path.startsWith('/sitemap-')){const section=path.match(/sitemap-(\w+)\.xml/)[1];return {status:200,html:sitemap.sitemapXml(groups[section])};}return {status:200,html:`<meta name="robots" content="index, follow"><link href="https://www.musiclub.org${path}" rel="canonical">`};}};
+ const options={refresh:async()=>{refreshes++;return {albums,reviews:[]};},readPublic:async path=>{reads.push(path);if(path.startsWith('/sitemap-')){const section=path.match(/sitemap-(\w+)\.xml/)[1];return {status:200,html:sitemap.sitemapXml(groups[section])};}return {status:200,html:`<meta name="robots" content="index, follow"><meta name="musiclub:content-updated-at" content="${date}"><link href="https://www.musiclub.org${path}" rel="canonical">`};}};
  return {db,options,completions,reads,refreshes:()=>refreshes,jobs,albums};
 }
 test('one catalogue refresh and shared sitemaps verify canonical public pages, not Google indexing',async()=>{
@@ -59,7 +63,11 @@ test('missing/stale sitemaps, noindex, canonical mismatches, interrupted reads a
 });
 test('edits to a secondary edition advance the canonical sitemap date without creating duplicate pages',()=>{
  const rows=editions.groupReleaseEditions([{id:a,album_name:'Record',artist_name:'Artist',review_count:1,public_content_updated_at:'2026-11-01'},{id:b,album_name:'Record (Clean)',artist_name:'Artist',public_content_updated_at:'2026-11-12T18:00:00Z'}]);
- assert.equal(rows.length,1);assert.equal(rows[0].public_content_updated_at,'2026-11-12T18:00:00Z');assert.equal(sitemap.buildSitemapGroups(rows).reviews[0].lastmod,'2026-11-12T18:00:00.000Z');
+ assert.equal(rows.length,1);assert.equal(rows[0].public_content_updated_at,'2026-11-12T18:00:00Z');
+ const calculated=buildAlbumWithFullStats(rows[0],[{album_id:b,rating_general:9,created_at:'2026-11-01'}]);
+ const restored=unpackCatalogSnapshot(packCatalogSnapshot({albums:[calculated],reviews:[]}));
+ assert.equal(restored.albums[0].public_content_updated_at,'2026-11-12T18:00:00Z');assert.equal(sitemap.buildSitemapGroups(restored.albums).reviews[0].lastmod,'2026-11-12T18:00:00.000Z');
+ assert.throws(()=>verifyDiscoveryPage({status:200,html:'<meta name="robots" content="index"><link rel="canonical" href="https://www.musiclub.org/albumes/artist-record">'},'https://www.musiclub.org/albumes/artist-record',true,'2026-11-12T18:00:00Z'),/page_content_stale/);
 });
 
 

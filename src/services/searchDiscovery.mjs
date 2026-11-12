@@ -16,13 +16,14 @@ export function parseDiscoverySitemap(xml){
   return [normalized(decode(loc)),match[1].match(/<lastmod>(.*?)<\/lastmod>/s)?.[1]||null];
  }));
 }
-export function verifyDiscoveryPage({status,html,robotsHeader},url,indexable){
+export function verifyDiscoveryPage({status,html,robotsHeader},url,indexable,changedAt){
  if(status!==200)fail('page_unavailable');
  const tags=[...html.matchAll(/<meta\b[^>]*>/gi)].map(m=>attributes(m[0]));
  const noindex=[robotsHeader||'',...tags.filter(t=>/^(robots|googlebot)$/i.test(t.name||'')).map(t=>t.content||'')].some(value=>/\b(noindex|none)\b/i.test(value));
  if(indexable===noindex)fail(indexable?'page_not_indexable':'page_should_be_excluded');
  const canonical=[...html.matchAll(/<link\b[^>]*>/gi)].map(m=>attributes(m[0])).find(t=>(t.rel||'').toLowerCase()==='canonical')?.href;
  if(!canonical||normalized(canonical)!==normalized(url))fail('canonical_mismatch');
+ if(changedAt&&!(Date.parse(tags.find(t=>t.name==='musiclub:content-updated-at')?.content)>=Date.parse(changedAt)))fail('page_content_stale');
 }
 export async function readDiscoveryPublic(path,fetcher=fetch){
  const url=new URL(path,ORIGIN);if(url.origin!==ORIGIN)fail('unsafe_destination');
@@ -57,7 +58,7 @@ export async function processSearchDiscovery(db,{refresh,invalidate=()=>{},readP
     for(const genre of album.genres||[]){const path=genreRoutes.genrePath(genre);if(path&&groups.catalog.some(row=>row.loc===ORIGIN+path)&&!sitemaps.catalog.has(normalized(path)))fail('genre_missing_from_sitemap');}
    }
    if(!pageReads.has(path))pageReads.set(path,readPublic(path));
-   verifyDiscoveryPage(await pageReads.get(path),url,indexable);
+   verifyDiscoveryPage(await pageReads.get(path),url,indexable,job.changed_at);
   }catch(cause){error=cause.code||'verification_failed';}
   const completed=await db.rpc('musiclub_complete_search_discovery',{p_album:job.album_id,p_revision:job.revision,p_lease:job.lease_token,p_ok:!error,p_url:url,p_kind:kind,p_error:error||null});
   if(completed.error)throw new Error('discovery_completion_failed');
