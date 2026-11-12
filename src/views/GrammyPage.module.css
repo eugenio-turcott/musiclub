@@ -21,3 +21,5 @@
 @keyframes gramophoneGlow{from{filter:drop-shadow(0 2px 1px #fff3b9) drop-shadow(0 0 2px #ffe5a330)}to{filter:drop-shadow(0 2px 1px #fff3b9) drop-shadow(0 0 9px #ffe5a37a)}}
 .page[data-paused=true] *:before,.page[data-paused=true] *:after{animation-play-state:paused!important}
 @media(prefers-reduced-motion:reduce){.hero h1 .eventTitle,.trophy:after,.trophy>svg{animation:none!important}.primary,.primary:after{transition:none!important}}
+
+.admin :global(.grammy-mail-admin){margin:22px 0;padding:18px;border:1px solid #b6a05d45;border-radius:16px;background:#d8af4910}.admin :global(.grammy-mail-admin)>p{font-size:12px;line-height:1.7;margin:15px 0;color:#d1c8b8}.admin :global(.grammy-mail-admin)>button{padding:11px 14px;margin:5px 9px 0 0;border:1px solid #dfc47655;border-radius:10px;background:#eac46e15;color:#f4d898;font-size:12px;font-weight:750}

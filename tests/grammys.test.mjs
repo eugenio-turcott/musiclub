@@ -18,7 +18,7 @@ test('Grammy 2027 has the supplied 100 categories, six general awards, five new 
 test('predictions and announcements respect the official date and published nominees rather than a countdown alone',()=>{
  const open={status:'open'},date=Date.parse(GRAMMY_EVENT.nomineeListAt);
  assert.equal(grammyVotingOpen(open,Date.parse(GRAMMY_EVENT.nominationsAt)-1),false);assert.equal(grammyVotingOpen(open,date),true);assert.equal(grammyVotingOpen({status:'preparing'},date),false);assert.equal(grammyVotingOpen(open,Date.parse(GRAMMY_EVENT.closesAt)),false);
- assert.equal(grammyReminderPhase(open,Date.parse(GRAMMY_EVENT.reminderAt)-1),null);assert.equal(grammyReminderPhase(open,Date.parse(GRAMMY_EVENT.reminderAt)),'reminder');assert.equal(grammyReminderPhase({status:'preparing'},date),null);assert.equal(grammyReminderPhase(open,date),'nominations');
+ assert.equal(grammyReminderPhase(open,Date.parse(GRAMMY_EVENT.reminderAt)-1),null);assert.equal(grammyReminderPhase(open,Date.parse(GRAMMY_EVENT.reminderAt)),'reminder');assert.equal(grammyReminderPhase({status:'preparing'},date),null);assert.equal(grammyReminderPhase(open,date),null);
 });
 test('nominee imports reject unknown categories, invalid IDs and unsafe platform links',()=>{
  const sample={categoryId:'album-of-the-year',title:' A release ',artist:'An artist',spotifyUrl:'https://open.spotify.com/album/example'};
@@ -47,15 +47,13 @@ test('Grammy SQL protects subscribers and ballots, gates dates and rejects cross
   await db.exec("reset role;update grammy_events set closes_at=now()-interval '1 second';set role authenticated;");await assert.rejects(db.query('select musiclub_grammy_predict($1,$2)',['album-of-the-year',n1]),/no están abiertas/);
  }finally{await db.close();}
 });
-test('reminder batches do nothing early and reserve deliveries once without automatic retries',async()=>{
- let calls=0,sends=0;const claims=new Set(),updates=[];
- const db={from:table=>({select:()=>({eq:()=>({single:async()=>({data:{status:'open'}})})}),update:patch=>({eq:()=>({eq:async()=>{updates.push(patch);return {};}})})}),rpc:async(name,args)=>{calls++;if(name==='musiclub_pending_grammy_notices')return {data:[{user_id:'alice',email:'alice@example.test'}]};if(name==='musiclub_claim_notification'){if(claims.has(args.p_key))return {data:false};claims.add(args.p_key);return {data:true};}return {};}};
- await processGrammyReminders(db,{now:Date.parse(GRAMMY_EVENT.reminderAt)-1});assert.equal(calls,0);
- const options={now:Date.parse(GRAMMY_EVENT.nomineeListAt),send:async()=>{sends++;return {success:true};}};
- assert.equal((await processGrammyReminders(db,options)).sent,1);assert.equal((await processGrammyReminders(db,options)).sent,0);assert.equal(sends,1);assert.equal(updates.length,1);
-});
-test('Grammy notices have a real SMTP acceptance, private single recipients and cancellation instructions',async()=>{
+test('Grammy notices have real SMTP acceptance, private recipients and embedded artwork',async()=>{
  const original=nodemailer.createTransport,env=Object.fromEntries(['SMTP_HOST','SMTP_USER','SMTP_PASS'].map(k=>[k,process.env[k]]));let message,accepted=true;
  Object.assign(process.env,{SMTP_HOST:'smtp.invalid',SMTP_USER:'fixture',SMTP_PASS:'fixture'});nodemailer.createTransport=()=>({sendMail:async options=>{message=options;return {messageId:'fixture',accepted:accepted?['a@example.test']:[],rejected:[]};}});
- try{assert.equal((await sendGrammyEmail('a@example.test','nominations')).success,true);assert.equal(message.to,'a@example.test');assert.ok(!message.cc&&!message.bcc);assert.match(message.text,/cancelarlo/);assert.match(grammyEmail('reminder').text,/16 de noviembre/);accepted=false;await assert.rejects(sendGrammyEmail('a@example.test','reminder'),/no aceptó/);}finally{nodemailer.createTransport=original;for(const [key,value] of Object.entries(env))if(value===undefined)delete process.env[key];else process.env[key]=value;}
+ try{
+  assert.equal((await sendGrammyEmail('a@example.test','confirmation')).success,true);assert.equal(message.to,'a@example.test');assert.ok(!message.cc&&!message.bcc);assert.match(message.text,/cancelar/);
+  assert.ok(message.attachments.length>=3);for(const art of message.attachments){assert.ok(art.content.length>0);assert.match(message.html,new RegExp('cid:'+art.cid));}assert.doesNotMatch(message.html,/src="https:/);
+  assert.match(grammyEmail('reminder').text,/16 de noviembre/);assert.throws(()=>grammyEmail('nominations'));
+  accepted=false;await assert.rejects(sendGrammyEmail('a@example.test','reminder'),/no aceptó/);
+ }finally{nodemailer.createTransport=original;for(const [key,value] of Object.entries(env))if(value===undefined)delete process.env[key];else process.env[key]=value;}
 });

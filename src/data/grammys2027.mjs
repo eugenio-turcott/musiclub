@@ -1,5 +1,5 @@
 // Category labels supplied by Musiclub, checked against the Recording Academy's 2027 updates.
-export const GRAMMY_EVENT={id:'grammys-2027',year:2027,edition:69,nominationsAt:'2026-11-16T12:45:00Z',nomineeListAt:'2026-11-16T14:00:00Z',reminderAt:'2026-11-15T18:00:00Z',closesAt:'2027-02-07T20:00:00Z',ceremonyAt:'2027-02-08T00:00:00Z',source:'https://www.grammy.com/news/how-to-watch-2027-grammys-nominations/',updatesSource:'https://www.grammy.com/news/2027-grammys-new-categories-rule-updates/'};
+export const GRAMMY_EVENT={id:'grammys-2027',year:2027,edition:69,nominationsAt:'2026-11-16T12:45:00Z',nomineeListAt:'2026-11-16T14:00:00Z',reminderAt:'2026-11-16T01:00:00Z',reminderUntil:'2026-11-16T06:00:00Z',timeZone:'America/Mexico_City',closesAt:'2027-02-07T20:00:00Z',ceremonyAt:'2027-02-08T00:00:00Z',source:'https://www.grammy.com/news/how-to-watch-2027-grammys-nominations/',updatesSource:'https://www.grammy.com/news/2027-grammys-new-categories-rule-updates/'};
 export const GRAMMY_FIELDS=[
   {
     "id": "general",
@@ -1390,4 +1390,5 @@ export const GRAMMY_CATEGORIES=[
 ];
 export const GRAMMY_FEATURED=GRAMMY_CATEGORIES.filter(c=>c.priority<2).sort((a,b)=>a.priority-b.priority||a.order-b.order);
 export function grammyVotingOpen(event,now=Date.now()){return event?.status==='open'&&now>=Date.parse(GRAMMY_EVENT.nominationsAt)&&now<Date.parse(GRAMMY_EVENT.closesAt);}
-export function grammyReminderPhase(event,now=Date.now()){if(now>=Date.parse(GRAMMY_EVENT.closesAt))return null;if(now>=Date.parse(GRAMMY_EVENT.nomineeListAt)&&event?.status==='open')return 'nominations';if(now>=Date.parse(GRAMMY_EVENT.reminderAt)&&now<Date.parse(GRAMMY_EVENT.nominationsAt))return 'reminder';return null;}
+export function grammyReminderPhase(event,now=Date.now()){return now>=Date.parse(GRAMMY_EVENT.reminderAt)&&now<Date.parse(GRAMMY_EVENT.reminderUntil)?'reminder':null;}
+export const GRAMMY_EMAIL_PLAN={phases:['confirmation','reminder'],confirmation:'on-activation',reminderAt:GRAMMY_EVENT.reminderAt,reminderUntil:GRAMMY_EVENT.reminderUntil,timeZone:GRAMMY_EVENT.timeZone};

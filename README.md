@@ -6,7 +6,7 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.0.3 · **Última actualización:** 12 de noviembre de 2026.
+**Versión:** 12.0.4 · **Última actualización:** 12 de noviembre de 2026.
 
 ### Grammy 2027 en Musiclub
 
@@ -16,7 +16,7 @@ La migración `20261111_v1201_grammy_rewards.sql` registra ganadores verificados
 
 La [actividad Grammy](https://www.musiclub.org/grammys) prepara las 100 categorías y los 12 campos de la 69.ª edición. Campo General y las cinco categorías nuevas aparecen primero; las restantes se abren por campo y se pueden buscar. Incluye vinilos nativos, seis emblemas propios, animaciones con pausa y movimiento reducido. El anuncio aparece sobre la navbar, conservando su ancho y su comportamiento al desplazarse.
 
-«Notificarme» es voluntario y guarda sólo la suscripción del usuario autenticado. Cloudflare ejecuta un lote cada quince minutos: el recordatorio se prepara desde el 15 de noviembre a las 12:00 CDMX; el segundo aviso sólo procede cuando los nominados estén publicados. Las reservas durables evitan reenvíos concurrentes y no reintentan automáticamente entregas inciertas. El proceso usa `CRON_SECRET` y el SMTP existente. No realiza consultas a la base de datos antes de la ventana del evento.
+«Notificarme» guarda sólo la suscripción del usuario autenticado y envía inmediatamente la confirmación aprobada. El único aviso programado sale el **domingo 15 de noviembre de 2026 a las 19:00, America/Mexico_City** (16 de noviembre, 01:00 UTC); no hay correo adicional al publicar nominados. El proceso de Cloudflare comprueba cada quince minutos y sólo consulta destinatarios durante esa noche, hasta las 00:00 CDMX. Respeta las cancelaciones, cierra nuevas altas al comenzar el envío y adjunta las imágenes nativas al correo. Las reservas durables evitan duplicados y retienen cualquier entrega incierta para revisión. La migración `20261112_v1204_grammy_two_notices.sql` registra la confirmación; el panel de administración permite consultar totales y enviar una vez las confirmaciones pendientes de suscriptores activos. Usa `CRON_SECRET` y el SMTP existente.
 
 La migración `20261111_v120_grammys.sql` crea las categorías, el evento, nominados, suscripciones y predicciones con permisos separados. Cada persona puede consultar únicamente sus propios datos. La administración de `/grammys` acepta nominados verificados usando el formato descargable; publicar exige esperar al anuncio y tener al menos dos nominados en cada una de las 100 categorías. La fecha sola no abre predicciones. Los votos son editables hasta el 7 de febrero de 2027 a las 14:00 CDMX. Musiclub no interviene en la votación oficial y no incorpora apuestas ni pagos.
 
