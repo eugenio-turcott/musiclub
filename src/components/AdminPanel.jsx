@@ -17,6 +17,8 @@ import {
   DeezerLogo,
 } from './common/PlatformLogos';
 
+const AdminGrammys = dynamic(() => import('./AdminGrammys'), {loading:()=><p role="status" className="text-slate-400 py-8">Abriendo administración de los Grammy…</p>});
+
 const AdminVinylCatalog = dynamic(() => import('./AdminVinylCatalog'), {loading:()=><p className="text-slate-400 py-8" role="status">Abriendo catálogo de vinilos…</p>});
 
 function AdminPagination({
@@ -127,8 +129,8 @@ function AdminPagination({
 export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
   // Navigation Tabs
   const [activeTab, setActiveTab] = useState(initialTab);
-  const [systemRequested, setSystemRequested] = useState(initialTab !== 'vinyls');
-  const selectTab = tab => {setActiveTab(tab);if(tab !== 'vinyls')setSystemRequested(true);};
+  const [systemRequested, setSystemRequested] = useState(!['vinyls','grammys'].includes(initialTab));
+  const selectTab = tab => {setActiveTab(tab);if(!['vinyls','grammys'].includes(tab))setSystemRequested(true);};
 
   // Global Loading & Error
   const [loading, setLoading] = useState(true);
@@ -810,7 +812,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
       <div className="max-w-7xl mx-auto space-y-6 w-full">
         {/* Navigation Header */}
         {isPage && <AppHeader showTitle={false} />}
-        {activeTab !== 'vinyls' && !loading && !error && <ParticipationMetrics reviews={reviews} />}
+        {!['vinyls','grammys'].includes(activeTab) && !loading && !error && <ParticipationMetrics reviews={reviews} />}
 
         {/* Toast Feedback */}
         {actionSuccess && (
@@ -821,7 +823,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
         )}
 
         {/* Master Control Header */}
-        {activeTab !== 'vinyls' && <div className="relative rounded-3xl bg-linear-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
+        {!['vinyls','grammys'].includes(activeTab) && <div className="relative rounded-3xl bg-linear-to-br from-[#12162b] via-[#0b0e1d] to-[#060812] border border-white/10 p-6 sm:p-8 backdrop-blur-2xl shadow-2xl overflow-hidden text-left">
           <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-pink-500/10 via-purple-600/10 to-transparent rounded-full blur-3xl pointer-events-none"></div>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
@@ -938,7 +940,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
           >
             <span><InterfaceText>{"🗳️"}</InterfaceText></span>
             <span>Pool Semanal</span>
-            {activeTab !== 'vinyls' && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            {!['vinyls','grammys'].includes(activeTab) && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {poolActive.length + (poolWinner ? 1 : 0)}
             </span>}
           </button>
@@ -954,7 +956,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
           >
             <span><InterfaceText>{"🏆"}</InterfaceText></span>
             <span>Temporadas (Seasons)</span>
-            {activeTab !== 'vinyls' && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            {!['vinyls','grammys'].includes(activeTab) && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {seasons.length}
             </span>}
           </button>
@@ -970,7 +972,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
           >
             <span><InterfaceText>{"💿"}</InterfaceText></span>
             <span>Catálogo Universal</span>
-            {activeTab !== 'vinyls' && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            {!['vinyls','grammys'].includes(activeTab) && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {albums.length}
             </span>}
           </button>
@@ -986,7 +988,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
           >
             <span><InterfaceText>{"📝"}</InterfaceText></span>
             <span>Moderación de Reseñas</span>
-            {activeTab !== 'vinyls' && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            {!['vinyls','grammys'].includes(activeTab) && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {reviews.length}
             </span>}
           </button>
@@ -1002,9 +1004,12 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
           >
             <span><InterfaceText>{"👥"}</InterfaceText></span>
             <span>Usuarios & Perfiles</span>
-            {activeTab !== 'vinyls' && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
+            {!['vinyls','grammys'].includes(activeTab) && <span className="px-1.5 py-0.2 rounded-full bg-black/30 text-[10px]">
               {profiles.length}
             </span>}
+          </button>
+          <button type="button" onClick={() => selectTab('grammys')} aria-pressed={activeTab === 'grammys'} className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${activeTab === 'grammys' ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25' : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'}`}>
+            <UiIcon name="gramophone" size={21} tone={activeTab === 'grammys' ? 'white' : 'accent'}/>Grammys
           </button>
           <button type="button" onClick={() => selectTab('vinyls')} aria-pressed={activeTab === 'vinyls'} className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black transition-all flex items-center gap-2 ${activeTab === 'vinyls' ? 'bg-linear-to-r from-pink-500 to-purple-600 text-white shadow-lg shadow-pink-500/25' : 'bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/5'}`}>
             <UiIcon name="disc" size={21} tone={activeTab === 'vinyls' ? 'white' : 'accent'}/>Vinilos de géneros
@@ -1013,6 +1018,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
         </div>
 
         {activeTab === 'vinyls' && <AdminVinylCatalog/>}
+        {activeTab === 'grammys' && <AdminGrammys/>}
 
         {/* TAB 1: POOL SEMANAL */}
         {activeTab === 'pool' && (
