@@ -1389,6 +1389,6 @@ export const GRAMMY_CATEGORIES=[
   }
 ];
 export const GRAMMY_FEATURED=GRAMMY_CATEGORIES.filter(c=>c.priority<2).sort((a,b)=>a.priority-b.priority||a.order-b.order);
-export function grammyVotingOpen(event,now=Date.now()){return event?.status==='open'&&now>=Date.parse(GRAMMY_EVENT.nominationsAt)&&now<Date.parse(GRAMMY_EVENT.closesAt);}
+export function grammyVotingOpen(event,now=Date.now()){return event?.status==='open'&&now>=Date.parse(event?.nominations_at||GRAMMY_EVENT.nominationsAt)&&now<Date.parse(event?.closes_at||GRAMMY_EVENT.closesAt);}
 export function grammyReminderPhase(event,now=Date.now()){return now>=Date.parse(GRAMMY_EVENT.reminderAt)&&now<Date.parse(GRAMMY_EVENT.reminderUntil)?'reminder':null;}
 export const GRAMMY_EMAIL_PLAN={phases:['confirmation','reminder'],confirmation:'on-activation',reminderAt:GRAMMY_EVENT.reminderAt,reminderUntil:GRAMMY_EVENT.reminderUntil,timeZone:GRAMMY_EVENT.timeZone};

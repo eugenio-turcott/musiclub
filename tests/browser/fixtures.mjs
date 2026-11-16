@@ -43,3 +43,6 @@ for(const [index,name] of [...new Set(tables.public_reviews.map(r=>r.reviewer_na
 
 // A real content timestamp must survive aggregation and reach the server-rendered release metadata.
 albums[0].public_content_updated_at='2026-11-12T18:00:00Z';
+
+// Exercise unassociated release discovery and person categories, even with a catalog association.
+tables.grammy_nominees.push({id:'20000000-0000-4000-8000-000000000003',event_id:'grammys-2027',category_id:'song-of-the-year',title:'Canción sin ficha',artist:'Artista de Prueba'},{id:'20000000-0000-4000-8000-000000000004',event_id:'grammys-2027',category_id:'producer-of-the-year-non-classical',title:'Creador de Prueba',albums:albums[0]});

@@ -1,7 +1,7 @@
 import {albums} from './fixtures.mjs';
-export async function communityAccount(page,{expiresAt}={}){
+export async function communityAccount(page,{expiresAt,admin=false}={}){
   const id='00000000-0000-4000-8000-000000000081';
-  const profile={id,email:'private-account@example.test',name:'Camila de Prueba',avatar_url:'/musiclub_logo_3.png',bio:'Mi siguiente disco todavía no tiene nombre.',favorite_artist:'Radiohead',favorite_album:'In Rainbows',favorite_genres:['R&B / Soul','Latino / Trap'],role:'user'};
+  const profile={id,email:admin?'eugenioturcott@gmail.com':'private-account@example.test',name:'Camila de Prueba',avatar_url:'/musiclub_logo_3.png',bio:'Mi siguiente disco todavía no tiene nombre.',favorite_artist:'Radiohead',favorite_album:'In Rainbows',favorite_genres:['R&B / Soul','Latino / Trap'],role:admin?'admin':'user'};
   const member={...profile,id:'00000000-0000-4000-8000-000000000082',name:'Mateo del Club',email:'private-member@example.test',favorite_genres:['Indie','Pop']};
   const user={id,email:profile.email,user_metadata:{full_name:profile.name,avatar_url:profile.avatar_url},app_metadata:{provider:'google'},aud:'authenticated',created_at:'2026-10-01T00:00:00Z'};
   const longAlbum={...albums[0],id:'social-long-title',album_name:'Una historia interminable sobre todas las canciones que todavía nos quedan por descubrir (Edición especial del club)',artist_name:'Un artista con un nombre que también merece espacio',image_url:'/musiclub_logo_3.png'};
