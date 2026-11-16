@@ -3,13 +3,14 @@ import {authorize} from '../../../../server/authorize';
 import {GRAMMY_EVENT,GRAMMY_CATEGORIES} from '../../../../data/grammys2027.mjs';
 import {grammyDb} from '../../../../server/grammys';
 import {deliverGrammyNotice} from '../../../../services/grammyMail.mjs';
+import {readGrammyReviews} from '../../../../server/grammyReviews.mjs';
 export const dynamic='force-dynamic';
 export const runtime='nodejs';
 export async function GET(request){
  const auth=await authorize(request);if(auth.error)return auth.error;
- const [subscription,predictions,awards]=await Promise.all([auth.db.from('grammy_subscriptions').select('enabled').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id).maybeSingle(),auth.db.from('grammy_predictions').select('category_id,nominee_id').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id),auth.db.from('grammy_awards').select('category_id,xp').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id)]);
- if(subscription.error||predictions.error||awards.error)return NextResponse.json({error:'No pudimos cargar tus predicciones. Reintenta.'},{status:503});
- return NextResponse.json({subscribed:Boolean(subscription.data?.enabled),predictions:predictions.data||[],awards:awards.data||[]},{headers:{'Cache-Control':'private, no-store'}});
+ const [subscription,predictions,awards,reviews]=await Promise.all([auth.db.from('grammy_subscriptions').select('enabled').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id).maybeSingle(),auth.db.from('grammy_predictions').select('category_id,nominee_id').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id),auth.db.from('grammy_awards').select('category_id,xp').eq('user_id',auth.user.id).eq('event_id',GRAMMY_EVENT.id),readGrammyReviews(auth.db,auth.user.email).then(data=>({data})).catch(()=>({error:true}))]);
+ if(subscription.error||predictions.error||awards.error||reviews.error)return NextResponse.json({error:'No pudimos cargar tus predicciones. Reintenta.'},{status:503});
+ return NextResponse.json({subscribed:Boolean(subscription.data?.enabled),predictions:predictions.data||[],awards:awards.data||[],reviews:reviews.data},{headers:{'Cache-Control':'private, no-store'}});
 }
 export async function POST(request){
  const auth=await authorize(request);if(auth.error)return auth.error;

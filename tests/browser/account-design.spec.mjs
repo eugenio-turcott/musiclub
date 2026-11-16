@@ -111,7 +111,7 @@ test('account side panels stay below the header and fit short desktop and tablet
      });
      await expect.poll(()=>panel.evaluate(el=>{
        const rect=el.getBoundingClientRect();
-       const header=el.closest('.account-page').querySelector(':scope > header').getBoundingClientRect();
+       const header=document.querySelector('[data-site-navigation]').getBoundingClientRect();
        return {fits:rect.top>=header.bottom+12 && rect.bottom<=innerHeight-12,top:rect.top,bottom:rect.bottom,headerBottom:header.bottom,height:innerHeight,stickyTop:getComputedStyle(el).top};
      })).toMatchObject({fits:true});
      if(viewport.height===720){mkdirSync('outputs/v1011-proof',{recursive:true});await page.screenshot({path:`outputs/v1011-proof/${path.slice(1)}-sticky.png`});}
