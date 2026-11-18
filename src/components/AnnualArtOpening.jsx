@@ -6,10 +6,11 @@ import {useDialogFocus} from '../hooks/useDialogFocus';
 import {ANNUAL_ART as pieces} from '../data/annual2026Art.mjs';
 import styles from '../views/AnnualPage.module.css';
 
-const rows=[[0,1,2,3,4,5,6,7,8],[3,4,5,6,7,8,0,1,2],[6,7,8,0,1,2,3,4,5]];
+// Each release belongs to one band; all fifteen appear without repeats between rows.
+const rows=Array.from({length:3},(_,row)=>pieces.map((_,i)=>i).filter(i=>i%3===row));
 function ArtDetail({index,onClose,onSelect}){
   const ref=useDialogFocus(true,onClose),piece=pieces[index];
-  return createPortal(<div className={styles.artLightbox} onClick={e=>{if(e.target===e.currentTarget)onClose();}}><section ref={ref} role="dialog" aria-modal="true" aria-label="Ilustraciones de Musiclub 2026"><div className={styles.artLightboxTools}><span>Musiclub · Edición 2026</span><a href={piece.src} download={`${piece.id}-musiclub-2026.svg`} aria-label="Descargar ilustración SVG"><UiIcon name="download"/></a><button type="button" onClick={onClose} aria-label="Cerrar ilustración"><UiIcon name="close"/></button></div><img src={piece.src} alt={piece.description} width="600" height="600"/><div className={styles.artLightboxFoot}><button type="button" aria-label="Ilustración anterior" onClick={()=>onSelect((index+pieces.length-1)%pieces.length)}><UiIcon name="arrowLeft"/></button><p><strong>{piece.title}</strong><span>{piece.artist}</span></p><button type="button" aria-label="Siguiente ilustración" onClick={()=>onSelect((index+1)%pieces.length)}><UiIcon name="arrow"/></button></div></section></div>,document.body);
+  return createPortal(<div className={styles.artLightbox} onClick={e=>{if(e.target===e.currentTarget)onClose();}}><section ref={ref} role="dialog" aria-modal="true" aria-label="Ilustraciones de Musiclub 2026"><div className={styles.artLightboxTools}><span>Musiclub · Edición 2026</span><a href={piece.download} download={`${piece.id}-musiclub-2026.png`} aria-label="Descargar ilustración PNG"><UiIcon name="download"/></a><button type="button" onClick={onClose} aria-label="Cerrar ilustración"><UiIcon name="close"/></button></div><img src={piece.detailSrc} alt={piece.description} width="1200" height="1200"/><div className={styles.artLightboxFoot}><button type="button" aria-label="Ilustración anterior" onClick={()=>onSelect((index+pieces.length-1)%pieces.length)}><UiIcon name="arrowLeft"/></button><p><strong>{piece.title}</strong><span>{piece.artist}</span></p><button type="button" aria-label="Siguiente ilustración" onClick={()=>onSelect((index+1)%pieces.length)}><UiIcon name="arrow"/></button></div></section></div>,document.body);
 }
 export function AnnualArtOpening({next='adelanto'}){
   const [selected,setSelected]=useState(null);

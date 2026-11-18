@@ -1,12 +1,18 @@
-// Nine deliberately public art spoilers; the full editorial collection stays server-side.
+// Public artwork previews only. Editorial sources, ordering and statistics stay server-side.
 export const ANNUAL_ART = [
-  {id:'charli',title:'Wuthering Heights',artist:'Charli xcx',description:'Una copa, agua y manos sobre una fuente de piedra.'},
+  {id:'charli',title:'Wuthering Heights',artist:'Charli xcx',description:'Manos y una copa oscura sobre piedra, bajo una luz cálida lateral.'},
   {id:'mitski',title:'Nothing’s About to Happen to Me',artist:'Mitski',description:'Un gato blanco con un ojo dorado y otro azul, frente a un papel floral.'},
   {id:'gorillaz',title:'The Mountain',artist:'Gorillaz',description:'Cuatro figuras sobre una montaña, entre nubes y un sol de vinilo.'},
   {id:'raye',title:'THIS MUSIC MAY CONTAIN HOPE.',artist:'RAYE',description:'Una figura vestida de rojo abre una puerta luminosa entre nubes.'},
   {id:'slayyyter',title:'WOR$T GIRL IN AMERICA',artist:'Slayyyter',description:'Una gorra roja, prendas azules y un símbolo rojo sobre un cielo claro.'},
   {id:'robyn',title:'Sexistential',artist:'Robyn',description:'Una figura de cabello rubio baila con los brazos levantados.'},
   {id:'ratboys',title:'Singin’ to an Empty Chair',artist:'Ratboys',description:'Dos columpios rojos en un claro, bajo un dosel de árboles.'},
-  {id:'free-spirits',title:'FREE SPIRITS',artist:'CA7RIEL & Paco Amoroso',description:'Cuatro retratos geométricos en una composición de dos por dos.'},
+  {id:'free-spirits',title:'FREE SPIRITS',artist:'CA7RIEL & Paco Amoroso',description:'Cuatro retratos con las expresiones, peinados y lazos de la portada.'},
   {id:'olivia',title:'you seem pretty sad for a girl so in love',artist:'Olivia Rodrigo',description:'Una figura con vestido rosa se balancea de cabeza sobre el cielo.'},
-].map(piece=>({...piece,src:`/annual/2026/art/${piece.id}.svg`}));
+  {id:'underscores',title:'U',artist:'underscores',description:'Una bolsa blanca entre piernas, cables y objetos de una tienda, con líneas de tinta.'},
+  {id:'dry-cleaning',title:'Secret Love',artist:'Dry Cleaning',description:'Un rostro de cabeza, enmarcado por manos, una botella y un cojín azul.'},
+  {id:'neurosis',title:'An Undying Love for a Burning World',artist:'Neurosis',description:'Una silueta de sol negro y ramas enredadas sobre pigmento naranja y rojo.'},
+  {id:'rawayana',title:'¿Dónde Es El After?',artist:'Rawayana',description:'Una bailarina con vestido verde bajo un sol amarillo, sobre papel rojo.'},
+  {id:'vince',title:'Cry Baby',artist:'Vince Staples',description:'Un bebé que llora, entre gotas blancas y un fondo rosa intenso.'},
+  {id:'angine',title:'Vol.II',artist:'Angine de Poitrine',description:'Dos músicos de máscaras y lunares, con guitarra, batería y una pirámide dorada.'},
+].map(piece=>({...piece,src:`/annual/2026/art/${piece.id}.webp`,detailSrc:`/annual/2026/art/${piece.id}-detail.webp`,download:`/annual/2026/art/${piece.id}.png`}));

@@ -4,13 +4,13 @@ Ruta pública: `/2026`. Estado inicial: **Próximamente** para visitantes y miem
 
 ## Recorrido visual
 
-La primera escena presenta nueve interpretaciones vectoriales de releases incluidos en la selección. No tiene título, descripción, cifras ni franjas sobre las piezas; el título semántico sigue disponible para lectores de pantalla. Las tres bandas horizontales se mueven en sentidos alternados. Se detienen al pausar, enfocar con teclado o abrir la galería, y no se animan con movimiento reducido. La navegación sólo muestra el símbolo y controles de iconos al abrir; los capítulos y controles administrativos aparecen después de bajar.
+La primera escena presenta quince estudios pictóricos de releases incluidos en la selección. No tiene título, descripción, cifras ni franjas sobre las piezas; el título semántico sigue disponible para lectores de pantalla. Las tres bandas horizontales se mueven en sentidos alternados. Se detienen al pausar, enfocar con teclado o abrir la galería, y no se animan con movimiento reducido. La navegación sólo muestra el símbolo y controles de iconos al abrir; los capítulos y controles administrativos aparecen después de bajar.
 
-`scripts/build-annual-art.mjs` ejecuta `build-annual-release-art.mjs`: construye nueve collages vectoriales de **600 × 600**, vinculados por ID, título y artista a la selección real. Representan a Charli xcx, Mitski, Gorillaz, RAYE, Slayyyter, Robyn, Ratboys, CA7RIEL & Paco Amoroso y Olivia Rodrigo. Cada interpretación usa elementos reconocibles de la portada correspondiente, con capas de papel, surcos de vinilo y colores de Musiclub. Los originales están en `public/annual/2026/art/`; la relación pública está en `src/data/annual2026Art.mjs`. La galería identifica el release y su artista después de abrir la imagen y permite descargar el SVG cuadrado. Las portadas oficiales conservan sus propias imágenes y siguen sin banda inferior.
+`scripts/build-annual-art.mjs` ejecuta `build-annual-release-art.mjs`: construye quince reinterpretaciones pictóricas de las portadas reales, con pinceladas curvas, veladuras, lápiz y textura de papel, de **1200 × 1200**, vinculados por ID, título y artista a la selección real. Representan a Charli xcx, Mitski, Gorillaz, RAYE, Slayyyter, Robyn, Ratboys, CA7RIEL & Paco Amoroso y Olivia Rodrigo; se suman underscores, Dry Cleaning, Neurosis, Rawayana, Vince Staples y Angine de Poitrine. El tratamiento mantiene rasgos, expresiones y composición de cada portada, sin bloques geométricos ni modelos generativos. Es un tratamiento digital derivado de portadas, no un encargo dibujado por un artista ni un trabajo trazado a mano en Canva. Los originales están en `public/annual/2026/art/`; la relación pública está en `src/data/annual2026Art.mjs`. La galería identifica el release y su artista después de abrir la imagen y permite descargar el PNG de 1200 × 1200. Las portadas oficiales conservan sus propias imágenes y siguen sin banda inferior.
 
 La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
 
-Además de las nueve ilustraciones de la apertura, el adelanto público muestra tres portadas reales: Charli xcx, Mitski y Gorillaz. `src/data/annual2026Teaser.mjs` contiene esos tres ejemplos y `annual2026Art.mjs` únicamente los nueve releases ilustrados; ninguno importa el conjunto editorial protegido. Se puede cambiar de disco, sacar o guardar su vinilo y explorar los diseños de géneros. No aparecen estadísticas personales ni la colección completa. Cada release de la vista administrativa tiene una escena grande con su portada, vinilo, referencias y acceso a la ficha.
+Además de las quince ilustraciones de la apertura, el adelanto público muestra tres portadas reales: Charli xcx, Mitski y Gorillaz. `src/data/annual2026Teaser.mjs` contiene esos tres ejemplos y `annual2026Art.mjs` únicamente los quince releases ilustrados; ninguno importa el conjunto editorial protegido. Se puede cambiar de disco, sacar o guardar su vinilo y explorar los diseños de géneros. No aparecen estadísticas personales ni la colección completa. Cada release de la vista administrativa tiene una escena grande con su portada, vinilo, referencias y acceso a la ficha.
 
 ## Contenido y procedencia
 
@@ -37,7 +37,7 @@ La versión publicada usa las portadas oficiales verificadas por título, artist
 
 ## Acceso y privacidad
 
-`GET /api/annual/2026` llama a `authorize(request, {admin:true})` antes de consultar los datos. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa el conjunto editorial privado; muestra únicamente las nueve ilustraciones y las tres portadas del adelanto descritas arriba. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
+`GET /api/annual/2026` llama a `authorize(request, {admin:true})` antes de consultar los datos. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa el conjunto editorial privado; muestra únicamente las quince ilustraciones y las tres portadas del adelanto descritas arriba. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
 
 El resumen personal se consulta exclusivamente para el correo y el ID verificados de la sesión, bajo las reglas RLS existentes. No acepta identificadores de otras personas. La interfaz comprueba también el ID de la respuesta para evitar mostrar datos de otra sesión. No se modificaron permisos, tablas o políticas.
 
@@ -54,3 +54,8 @@ Las imágenes de compartir sólo se crean para el resumen propio autorizado. Hay
 ## Validación
 
 Pruebas de límites temporales, cálculo, deduplicación, paginación y privacidad: `tests/annual-recap.test.mjs`. Navegación, respuesta real del servidor ante visitantes y miembros, vista de administrador y exportación: `tests/browser/annual.spec.mjs`.
+
+
+### Producción y rendimiento del arte
+
+Los archivos se preparan en el proyecto con `scripts/annual-paint.mjs` y Sharp a partir de las portadas guardadas. Las miniaturas WebP de 640 × 640 se usan en las bandas; el detalle WebP y el PNG de 1200 × 1200 sólo se solicitan al ampliar o descargar. Son cinco releases distintos por banda, quince entre las tres, sin repetir el mismo disco en varias filas. No se consultan la base de datos ni servicios de imagen al recorrer el mural. Canva recibe una copia de los resultados: no es el origen del tratamiento pictórico.

@@ -115,7 +115,7 @@
 .root[data-opening=true] .loadNotice[role=status]{opacity:0;pointer-events:none}
 .artOpening[data-visible=false] .muralStrip{animation-play-state:paused}
 
-/* Square release editions: borderless paper collages on horizontal Musiclub ribbons. */
+/* Square pigment studies: lightweight moving previews, full detail only in the gallery. */
 .artOpening{background:#18172b;--art-edge:max(145px,calc((100svh - 36px)/3));--art-gap:12px}
 .artBands{position:absolute;inset:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:var(--art-gap);padding:6px 0;overflow:hidden}
 .artBand{display:flex;align-items:center;min-height:0;overflow:visible}.artBand:nth-child(2){margin-left:calc(var(--art-edge)*-.43)}.artBand:nth-child(3){margin-left:calc(var(--art-edge)*-.12)}

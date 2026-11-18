@@ -1,18 +1,22 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
+import sharp from 'sharp';
+import {fileURLToPath} from 'node:url';
 import {buildPersonalAnnual,buildClubAnnual,reviewsInYear} from '../src/utils/annualRecap.mjs';
 import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
 const now=Date.parse('2026-11-18T12:00:00Z');
-test('all nine illustrations are square originals tied to actual releases in the annual selection',async()=>{
-  assert.equal(ANNUAL_ART.length,9);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,9);
+test('fifteen square pigment studies match releases and keep previews lighter than downloads',async()=>{
+  assert.equal(ANNUAL_ART.length,15);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,15);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
-    const svg=await fs.readFile(new URL(`../public${art.src}`,import.meta.url),'utf8');
-    const [,width,height]=svg.match(/width="(\d+)" height="(\d+)"/);assert.equal(Number(width),Number(height));assert.ok(Number(width)>0);
-    const bounds=svg.match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);assert.equal(bounds[2],bounds[3]);
+    for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
+      const file=fileURLToPath(new URL(`../public${source}`,import.meta.url));
+      const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
+      if(source===art.src)assert.ok((await fs.stat(file)).size<150000,'The moving opening uses lightweight previews');
+    }
   }
 });
 const album={id:'a',album_name:'Uno',artist_name:'Artista Uno & Artista Dos',genres:['Pop','Rock'],release_year:2026,tracks:[{id:'t',name:'Canción real'}]};
