@@ -15,6 +15,7 @@ import { getFullMusicBrainzAlbumData } from '../services/musicBrainzService';
 import { supabaseService } from '../services/supabaseClient';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from '../services/deezerApi';
 import remoteGenres from '../utils/remoteReleaseGenres.cjs';
+import {resolveReleaseGenres} from '../services/releaseGenres.mjs';
 import { SearchSelectionNotice } from './SearchSelectionNotice';
 import { getReleaseUrl } from '../utils/ratingUtils';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
@@ -410,9 +411,9 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           ? rawRemote.tracks.length
           : (rawRemote?.totalTracks || mbData?.total_tracks || tracksToSave.length || null);
 
-        const genres = await remoteGenres.resolveGenres(
+        const genres = await resolveReleaseGenres(
           creditedArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
-          { search: searchDeezerAlbums, details: getDeezerAlbumDetails }
+          {barcode:rawRemote?.barcode || mbData?.barcode}
         );
         if (version !== selectionVersion.current) return;
         const albumPayload = {
@@ -426,7 +427,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           genres,
           label: mbData?.label || rawRemote?.label || null,
           country: mbData?.country || null,
-          barcode: mbData?.barcode || null,
+          barcode: rawRemote?.barcode || mbData?.barcode || null,
           totalTracks: totalTracksToSave,
           tracks: tracksToSave,
           spotifyLink:

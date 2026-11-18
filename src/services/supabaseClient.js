@@ -1,5 +1,6 @@
 import { createCoverRatingsStore } from './coverRatingsStore.mjs';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
+import {resolveReleaseGenres} from './releaseGenres.mjs';
 import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -690,7 +691,7 @@ export const supabaseService = {
       console.warn('Verificación previa de álbum existente:', checkErr);
     }
 
-    payload.genres = normalizeCanonicalGenres(payload.genres);
+    payload.genres = await resolveReleaseGenres(payload.artist_name, payload.album_name, [payload.genres], {barcode:payload.barcode});
     if (!payload.genres.length) throw new Error('Este lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.');
 
     try {

@@ -558,6 +558,7 @@ export const getAlbumDetails = async (albumId) => {
               release_type: releaseType,
               genres: genres,
               label: album.label || '',
+              barcode: album.external_ids?.upc || null,
               popularity: album.popularity || null,
               totalTracks: album.total_tracks,
               tracks: (album.tracks?.items || []).map((track) => ({

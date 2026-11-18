@@ -272,7 +272,8 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           ? parseInt(release.release_date.substring(0, 4), 10)
           : null,
         releaseType: release.release_type || 'ALBUM',
-        genres: spotifyAlbum.genres || release.genres || [],
+        genres: [...(spotifyAlbum.genres || []), ...(release.genres || [])],
+        barcode: spotifyAlbum.barcode || release.barcode || null,
         totalTracks: spotifyAlbum.totalTracks || release.total_tracks || tracks.length || null,
         reviews_enabled: true,
       };

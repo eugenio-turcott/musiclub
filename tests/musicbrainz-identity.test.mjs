@@ -29,6 +29,47 @@ test('the full credited collaboration must match, not just one contributor',()=>
 
 
 const { resolveGenres, sameRelease } = (await import('../src/utils/remoteReleaseGenres.cjs')).default;
+
+test('classical genres follow the verified edition UPC despite credit order, transliteration and leading zero differences',async()=>{
+ const calls=[];
+ const genres=await resolveGenres('Sergei Rachmaninoff, Valentina Lisitsa, London Symphony Orchestra, Michael Francis','Rachmaninov: Piano Concerto No.2',[[]],{
+  details:async id=>{calls.push(id);return {name:'Rachmaninov: Piano Concerto No.2',barcode:'028947851097',artists:['Valentina Lisitsa','London Symphony Orchestra','Sergei Rachmaninov','Michael Francis'],genres:['Clásica']};},
+  search:()=>{throw new Error('The exact UPC already resolved this edition');},
+ },{barcode:'00028947851097'});
+ assert.deepEqual(genres,['Clásica']);assert.deepEqual(calls,['upc:028947851097']);
+});
+
+test('a different recording or title cannot supply genres even when the classical composition name matches',async()=>{
+ for(const mismatch of [{barcode:'028947851098',name:'Rachmaninov: Piano Concerto No.2'},{barcode:'028947851097',name:'Rachmaninov: Piano Concerto No.3'}]){
+  const genres=await resolveGenres('Valentina Lisitsa','Rachmaninov: Piano Concerto No.2',[],{
+   search:async()=>({albums:[{id:'wrong',name:'Rachmaninov: Piano Concerto No.2',artist:'Valentina Lisitsa'}]}),
+   details:async()=>({...mismatch,artist:'Valentina Lisitsa',genres:['Clásica']}),
+  },{barcode:'00028947851097'});
+  assert.deepEqual(genres,[]);
+ }
+});
+
+test('the common album insertion recovers official genres before validation and preserves selected Spotify tracks and credits',async()=>{
+ process.env.NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='test-only-public-key';
+ const {supabaseService}=await import('../src/services/supabaseClient.js');
+ const fetchBefore=globalThis.fetch,findBefore=supabaseService.findAlbum,calls=[];
+ supabaseService.findAlbum=async()=>null;
+ try{
+  globalThis.fetch=async(input,options)=>{
+   const url=String(input);calls.push(url);
+   if(url==='https://api.deezer.com/album/upc:028947851097')return Response.json({id:6433904,title:'Rachmaninov: Piano Concerto No.2',upc:'028947851097',artist:{name:'Valentina Lisitsa'},genres:{data:[{name:'Clásica'}]}});
+   assert.ok(url.startsWith('https://test.supabase.co/rest/v1/albums'));
+   assert.equal(options.method,'POST');const [payload]=JSON.parse(options.body);
+   assert.deepEqual(payload.genres,['Clásica']);assert.equal(payload.barcode,'00028947851097');
+   return Response.json({...payload,id:'test-import'});
+  };
+  const tracks=[1,2,3].map(n=>({id:'spotify-track-'+n,name:'Movimiento '+n,track_number:n}));
+  const artist='Sergei Rachmaninoff, Valentina Lisitsa, London Symphony Orchestra, Michael Francis';
+  const saved=await supabaseService.createAlbum({albumName:'Rachmaninov: Piano Concerto No.2',artistName:artist,barcode:'00028947851097',tracks,genres:[],releaseType:'EP',skipMusicBrainzEnrichment:true});
+  assert.equal(saved.artist_name,artist);assert.equal(saved.release_type,'EP');assert.deepEqual(saved.tracks,tracks);
+  assert.equal(calls.length,2);
+ }finally{globalThis.fetch=fetchBefore;supabaseService.findAlbum=findBefore;}
+});
 test('Before The World Blows uses full Deezer main credits after a primary-artist-only summary',async()=>{
  const requested=[];
  const genres=await resolveGenres('Erykah Badu, The Alchemist','Before The World Blows',[],{

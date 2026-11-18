@@ -5,6 +5,7 @@ import { searchAlbum, getAlbumDetails } from './spotifyApi.js';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
 import { normalizeReleaseType } from './musicBrainzService.js';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
+import {resolveReleaseGenres} from './releaseGenres.mjs';
 
 const {sameReleaseTitle,sameArtistCredit} = tracklists;
 
@@ -295,6 +296,7 @@ function formatSpotifyAlbum(album) {
     release_year: album.releaseYear || null,
     release_type: album.release_type || 'ALBUM',
     label: album.label || null,
+    barcode: album.barcode || null,
     genres: album.genres || [],
     total_tracks: album.totalTracks || tracks.length,
     tracks,
@@ -389,7 +391,7 @@ export function build21ColumnPayload({
   }
 
   // 6. Barcode, País, Discográfica
-  const barcode = mbData?.barcode || deezerData?.barcode || null;
+  const barcode = rawItem.barcode || spotifyData?.barcode || mbData?.barcode || deezerData?.barcode || null;
   const country = mbData?.country || 'XW';
   const label = mbData?.label || spotifyData?.label || deezerData?.label || null;
 
@@ -600,6 +602,9 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
     };
   }
 
+  if (!payload.genres.length) {
+    payload.genres = await resolveReleaseGenres(payload.artist_name,payload.album_name,[],{barcode:payload.barcode});
+  }
   if (!payload.genres.length) {
     return { success: false, error: 'El lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.' };
   }
