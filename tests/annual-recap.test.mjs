@@ -7,17 +7,25 @@ import {buildPersonalAnnual,buildClubAnnual,reviewsInYear} from '../src/utils/an
 import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
+import {annualGenreGroups,annualReleaseDateLabel} from '../src/utils/annualPresentation.mjs';
 const now=Date.parse('2026-11-18T12:00:00Z');
-test('twenty square angular editions match releases and keep previews lighter than downloads',async()=>{
+test('twenty square cubist editions share the same palette and plane density, with lightweight previews',async()=>{
   assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
+    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist/${art.id}.svg`,import.meta.url),'utf8');
+    assert.match(svg,/data-main-planes="100"/);assert.match(svg,/data-inks="16"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,100);
     for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
       const file=fileURLToPath(new URL(`../public${source}`,import.meta.url));
       const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
       if(source===art.src)assert.ok((await fs.stat(file)).size<150000,'The moving opening uses lightweight previews');
     }
   }
+});
+test('releases are grouped by canonical genre and ordered by release date within each group',()=>{
+  const input=[{id:'later',title:'B',genre:'Pop',releaseDate:'2026-06-02'},{id:'other',title:'Rock',genre:'Rock',releaseDate:'2026-01-01'},{id:'earlier',title:'A',genre:'Pop',releaseDate:'2026-02-10'}];
+  const groups=annualGenreGroups(input);assert.equal(groups.length,2);assert.deepEqual(groups[0].releases.map(r=>r.id),['earlier','later']);assert.equal(input[0].id,'later');
+  assert.match(annualReleaseDateLabel(input[0]),/2.*jun.*2026/);assert.equal(annualReleaseDateLabel({year:2026}),'2026');
 });
 const album={id:'a',album_name:'Uno',artist_name:'Artista Uno & Artista Dos',genres:['Pop','Rock'],release_year:2026,tracks:[{id:'t',name:'Canción real'}]};
 const review=(id,day,extra={})=>({id,album_id:'a',reviewer_name:'Persona '+id,created_at:day,rating_general:8,track_ratings:{t:9},comment:'Una reseña.',...extra});
@@ -36,6 +44,11 @@ test('club rankings require eligible 2026 releases and the minimum annual review
   const old={...album,id:'old',album_name:'Viejo',release_year:2020};
   const r=buildClubAnnual({albums:[album,old],reviews:[review('1','2026-03-01'),review('2','2026-03-02'),review('3','2026-03-02',{album_id:'old',rating_general:10}),review('4','2025-12-01')]},{now});
   assert.equal(r.reviewCount,3);assert.equal(r.topReleases.length,1);assert.equal(r.topReleases[0].title,'Uno');assert.equal(r.topReleases[0].reviewCount,2);
+});
+test('club highlights accept one review and provide an album-only selection without excluding EPs from overall stats',()=>{
+  const albums=[{...album,release_type:'ALBUM'},{...album,id:'ep',album_name:'EP',release_type:'EP'}],reviews=[review('1','2026-03-01'),review('2','2026-03-02',{album_id:'ep',rating_general:10})];
+  const r=buildClubAnnual({albums,reviews},{now});assert.equal(r.minimumReviews,1);assert.equal(r.topReleases.length,2);assert.equal(r.topAlbums.length,1);assert.equal(r.topAlbums[0].reviewCount,1);assert.equal(r.releaseCount,2);
+  assert.equal(buildClubAnnual({albums,reviews},{now,minimumReviews:2}).topReleases.length,0);
 });
 test('empty personal histories remain empty rather than inventing activity or scores',()=>{
   const r=buildPersonalAnnual([],[],{now});assert.equal(r.reviewCount,0);assert.equal(r.meanScore,null);assert.equal(r.activityXP,0);assert.deepEqual(r.topReleases,[]);assert.equal(r.longestStreak,0);

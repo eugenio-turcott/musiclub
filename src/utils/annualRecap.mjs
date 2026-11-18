@@ -36,9 +36,9 @@ export function buildPersonalAnnual(reviews,albums=[],{year=ANNUAL_YEAR,now=Date
   const ranked=map=>[...map].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
   return {year,name,avatar,asOf:new Date(now).toISOString(),reviewCount:rows.length,artistCount:artists.size,trackCount:tracks,commentCount:comments,meanScore:mean(scores),activeDays:days.size,longestStreak:streak(days),activityXP:rows.length*XP_CONFIG.REVIEW_BASE+comments*XP_CONFIG.REVIEW_COMMENT_BONUS+tracks*XP_CONFIG.TRACK_RATED,genres:ranked(genres).slice(0,6),artists:ranked(artists).slice(0,5),months,topReleases:top,favorites:favorites.slice(0,5)};
 }
-export function buildClubAnnual(catalog,{year=ANNUAL_YEAR,now=Date.now(),minimumReviews=2}={}){
+export function buildClubAnnual(catalog,{year=ANNUAL_YEAR,now=Date.now(),minimumReviews=1}={}){
   const rows=reviewsInYear(catalog.reviews||[],year,now),albums=catalog.albums||[],byId=new Map(albums.flatMap(a=>(a.edition_member_ids||[a.id]).map(id=>[id,a]))),groups=new Map(),members=new Set();
   for(const r of rows){const a=albumFor(r,byId),key=releaseKey(a,r.album_id);if(!groups.has(key))groups.set(key,{album:a,reviews:[]});groups.get(key).reviews.push(r);members.add(r.reviewer_name||r.id);}
   const top=[...groups.values()].filter(({album,reviews})=>Number(album.release_year)===year&&reviews.length>=minimumReviews).map(({album,reviews})=>({id:album.id,title:album.album_name,artist:album.artist_name,image:album.image_url,genres:album.genres||[],reviewCount:reviews.length,score:mean(reviews.map(getWeightedReviewScore).filter(v=>v!==null)),release_type:album.release_type||'ALBUM'})).filter(a=>a.score!==null).sort((a,b)=>b.score-a.score||b.reviewCount-a.reviewCount||a.title.localeCompare(b.title));
-  return {reviewCount:rows.length,releaseCount:groups.size,memberCount:members.size,minimumReviews,topReleases:top.slice(0,12)};
+  return {reviewCount:rows.length,releaseCount:groups.size,memberCount:members.size,minimumReviews,topReleases:top.slice(0,16),topAlbums:top.filter(r=>String(r.release_type).toUpperCase()==='ALBUM').slice(0,16)};
 }
