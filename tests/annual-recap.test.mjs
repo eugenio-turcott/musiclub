@@ -4,7 +4,17 @@ import fs from 'node:fs/promises';
 import {buildPersonalAnnual,buildClubAnnual,reviewsInYear} from '../src/utils/annualRecap.mjs';
 import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
+import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
 const now=Date.parse('2026-11-18T12:00:00Z');
+test('all nine illustrations are square originals tied to actual releases in the annual selection',async()=>{
+  assert.equal(ANNUAL_ART.length,9);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,9);
+  for(const art of ANNUAL_ART){
+    const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
+    const svg=await fs.readFile(new URL(`../public${art.src}`,import.meta.url),'utf8');
+    const [,width,height]=svg.match(/width="(\d+)" height="(\d+)"/);assert.equal(Number(width),Number(height));assert.ok(Number(width)>0);
+    const bounds=svg.match(/viewBox="([^"]+)"/)[1].split(' ').map(Number);assert.equal(bounds[2],bounds[3]);
+  }
+});
 const album={id:'a',album_name:'Uno',artist_name:'Artista Uno & Artista Dos',genres:['Pop','Rock'],release_year:2026,tracks:[{id:'t',name:'Canción real'}]};
 const review=(id,day,extra={})=>({id,album_id:'a',reviewer_name:'Persona '+id,created_at:day,rating_general:8,track_ratings:{t:9},comment:'Una reseña.',...extra});
 test('annual boundaries use Mexico City time and never include future reviews',()=>{

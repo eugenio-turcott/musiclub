@@ -114,3 +114,17 @@
 
 .root[data-opening=true] .loadNotice[role=status]{opacity:0;pointer-events:none}
 .artOpening[data-visible=false] .muralStrip{animation-play-state:paused}
+
+/* Square release editions: borderless paper collages on horizontal Musiclub ribbons. */
+.artOpening{background:#18172b;--art-edge:max(145px,calc((100svh - 36px)/3));--art-gap:12px}
+.artBands{position:absolute;inset:0;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:var(--art-gap);padding:6px 0;overflow:hidden}
+.artBand{display:flex;align-items:center;min-height:0;overflow:visible}.artBand:nth-child(2){margin-left:calc(var(--art-edge)*-.43)}.artBand:nth-child(3){margin-left:calc(var(--art-edge)*-.12)}
+.artBandTrack{display:flex;width:max-content;will-change:transform;animation:releaseRibbon 170s linear infinite}.artBand:nth-child(2) .artBandTrack{animation-duration:196s;animation-direction:reverse}.artBand:nth-child(3) .artBandTrack{animation-duration:185s}
+.artBandRun{display:flex;min-width:100vw;justify-content:space-around;gap:var(--art-gap);padding-right:var(--art-gap);flex-shrink:0}
+.releaseArtTile{position:relative;display:block;flex:0 0 var(--art-edge);width:var(--art-edge);height:var(--art-edge);aspect-ratio:1;border:0;padding:0;border-radius:20px;background:#30283d;box-shadow:0 5px 15px #0706113d;overflow:hidden;transition:scale .4s,box-shadow .4s}
+.releaseArtTile img{display:block;width:100%;height:100%;aspect-ratio:1;object-fit:contain;user-select:none}.releaseArtTile:hover,.releaseArtTile:focus-visible{scale:1.025;z-index:3;box-shadow:0 10px 35px #06061370}.releaseArtTile:focus-visible{outline:3px solid #f078a9;outline-offset:-3px}
+.artBand:hover .artBandTrack,.artBands:has(:focus-visible) .artBandTrack,.artOpening[data-gallery-open=true] .artBandTrack,.artOpening[data-visible=false] .artBandTrack{animation-play-state:paused}
+.artLightboxFoot p{max-width:75%;line-height:1.25}.artLightboxFoot p strong{display:block;font-size:16px;color:#f4e9db}.artLightboxFoot p span{display:block;margin-top:5px;font-size:12px;color:#c9b8ca}
+@keyframes releaseRibbon{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:760px){.artOpening{--art-edge:max(145px,calc((100svh - 28px)/3));--art-gap:10px}.artBands{padding:4px 0}.releaseArtTile{border-radius:15px}.artLightboxFoot p strong{font-size:13px}.artLightboxFoot p span{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.artBandTrack{animation:none;will-change:auto}.releaseArtTile{transition:none}}
