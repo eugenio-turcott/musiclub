@@ -6,11 +6,11 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.1.2 · **Última actualización:** 18 de noviembre de 2026.
+**Versión:** 12.1.3 · **Última actualización:** 18 de noviembre de 2026.
 
 ### Musiclub 2026
 
-La [edición anual](https://www.musiclub.org/2026) abre con un mural animado de **nueve ilustraciones vectoriales originales, sin texto sobre el arte**. Cada pieza se puede ampliar y descargar como SVG. Al deslizar aparecen el adelanto público de tres discos reales, las fundas interactivas y los vinilos por género. La vista previa protegida para administradores conserva la colección completa, el año de la comunidad y **Mi 2026**, con estadísticas reales y cinco formatos para compartir. [Contenido, acceso y metodología](docs/annual-2026.md).
+La [edición anual](https://www.musiclub.org/2026) abre con **nueve ilustraciones cuadradas de releases de la selección, sin texto sobre el arte**. Su estilo de collage y las bandas horizontales animadas tienen identidad propia de Musiclub. Cada pieza identifica su release al ampliarse y se descarga como SVG de 600 × 600. Al deslizar aparecen el adelanto público, las fundas interactivas y los vinilos por género. La vista previa protegida para administradores conserva la colección completa, el año de la comunidad y **Mi 2026**, con estadísticas reales y cinco formatos para compartir. [Contenido, acceso y metodología](docs/annual-2026.md).
 
 ### Publicación automática y sitemaps
 

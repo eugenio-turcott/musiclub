@@ -58,15 +58,19 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await page.goto('/2026');
   const mural=page.getByRole('region',{name:'Mural artístico de Musiclub 2026'});
   await expect(mural.getByRole('heading',{level:1})).toHaveCSS('width','1px');
-  await expect(mural.locator('img').first()).toHaveAttribute('src','/annual/2026/art/tormenta.svg');
+  await expect(mural.locator('img').first()).toHaveAttribute('src','/annual/2026/art/charli.svg');
+  expect(await mural.locator('img').evaluateAll(images=>new Set(images.map(img=>img.getAttribute('src'))).size)).toBe(9);
+  expect(await mural.locator('img').evaluateAll(images=>images.every(img=>Math.abs(img.getBoundingClientRect().width-img.getBoundingClientRect().height)<1))).toBe(true);
   await expect(page.getByRole('link',{name:/02\s*El adelanto/})).toHaveCount(0);
   await expect(page.getByRole('button',{name:'Abrir capítulos',exact:true})).toBeVisible();
   await expect(page.getByText('MUSICLUB / 2026',{exact:true})).toHaveCount(0);
   await page.screenshot({path:`outputs/annual-art-mural-${info.project.name}.png`,animations:'disabled'});
-  const print=mural.getByRole('button',{name:'Ver ilustración: Ventana de tormenta, manos y cinta de seda',exact:true}).first();await print.press('Enter');
+  const print=mural.getByRole('button',{name:'Ver ilustración: Wuthering Heights',exact:true}).first();await print.press('Enter');
   const dialog=page.getByRole('dialog',{name:'Ilustraciones de Musiclub 2026'});await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('link',{name:'Descargar ilustración SVG',exact:true})).toHaveAttribute('href','/annual/2026/art/tormenta.svg');
-  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/art/gato.svg');
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración SVG',exact:true})).toHaveAttribute('href','/annual/2026/art/charli.svg');
+  await expect(dialog.getByText('Charli xcx',{exact:true})).toBeVisible();
+  await expect(dialog.getByRole('img')).toHaveAttribute('width','600');await expect(dialog.getByRole('img')).toHaveAttribute('height','600');
+  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/art/mitski.svg');await expect(dialog.getByText('Mitski',{exact:true})).toBeVisible();
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
