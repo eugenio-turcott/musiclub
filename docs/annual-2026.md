@@ -2,6 +2,12 @@
 
 Ruta pública: `/2026`. Estado inicial: **Próximamente** para visitantes y miembros. Los administradores autenticados ven una vista previa, con un control para comprobar la presentación pública. No hay fecha de estreno ni publicación automática.
 
+## Recorrido visual
+
+La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
+
+El adelanto público muestra expresamente tres portadas reales: Charli xcx, Mitski y Gorillaz. El archivo `src/data/annual2026Teaser.mjs` contiene sólo estos tres ejemplos autorizados para el adelanto; no importa el conjunto editorial protegido. Se puede cambiar de disco, sacar o guardar su vinilo y explorar los diseños de géneros. No aparecen estadísticas personales ni el resto de la selección. Cada release de la vista administrativa tiene una escena grande con su portada, vinilo, referencias y acceso a la ficha.
+
 ## Contenido y procedencia
 
 La selección inicial incluye 16 releases de 2026 y no depende de su presencia en el catálogo. Es una selección editorial en preparación, no un ranking calculado ni un premio de Musiclub. Corte de investigación: **18 de noviembre de 2026**.
@@ -27,7 +33,7 @@ La versión publicada usa las portadas oficiales verificadas por título, artist
 
 ## Acceso y privacidad
 
-`GET /api/annual/2026` llama a `authorize(request, {admin:true})` antes de consultar los datos. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa la selección editorial. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
+`GET /api/annual/2026` llama a `authorize(request, {admin:true})` antes de consultar los datos. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa el conjunto editorial privado; sólo muestra los tres ejemplos públicos descritos arriba. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
 
 El resumen personal se consulta exclusivamente para el correo y el ID verificados de la sesión, bajo las reglas RLS existentes. No acepta identificadores de otras personas. La interfaz comprueba también el ID de la respuesta para evitar mostrar datos de otra sesión. No se modificaron permisos, tablas o políticas.
 

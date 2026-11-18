@@ -55,7 +55,7 @@ export function ClientProviders({ children }) {
           overflow: 'hidden',
         }}
       />
-      <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider><GrammyAnnouncement/><SiteNavigation/>{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
+      <AuthProvider><ReleaseLibraryProvider><AdvertisingPlacementProvider>{pathname !== '/2026' && <><GrammyAnnouncement/><SiteNavigation/></>}{children}</AdvertisingPlacementProvider></ReleaseLibraryProvider></AuthProvider>
       <NavigationProgress/>
       <SiteMetrics />
     </ErrorBoundary>
