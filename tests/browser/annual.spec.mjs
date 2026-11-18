@@ -33,7 +33,7 @@ test('public spoilers reveal real covers and align each scene below the edition 
   if(info.project.name==='desktop'){
     expect(await main.evaluate(el=>[...el.querySelectorAll(':scope > section')].every(scene=>scene.getBoundingClientRect().height<=el.clientHeight+3))).toBe(true);
     const area=await main.boundingBox();await page.mouse.move(area.x+area.width*.8,area.y+area.height*.6);await page.mouse.wheel(0,area.height*.8);
-  }else await page.getByRole('link',{name:'Esto apenas empieza'}).click();
+  }else await page.getByRole('link',{name:'Continuar al adelanto',exact:true}).click();
   await expect.poll(()=>page.locator('#adelanto').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
   await page.getByRole('button',{name:'Mostrar The Mountain',exact:true}).click();
   await expect(page.locator('#adelanto').getByRole('heading',{name:'The Mountain',exact:true})).toBeVisible();
@@ -51,6 +51,23 @@ test('public spoilers reveal real covers and align each scene below the edition 
     await expect.poll(()=>page.locator('#inicio').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
   }
   await page.getByRole('link',{name:'Volver al club',exact:true}).click();await expect(page).toHaveURL(/\/catalogo/);await expect(page.getByRole('complementary',{name:'Grammy 2027 en Musiclub'})).toBeVisible();
+});
+
+test('the opening is an illustrated mural without visible copy, with an accessible original-art gallery',async({page},info)=>{
+  await page.route('**/*',r=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
+  await page.goto('/2026');
+  const mural=page.getByRole('region',{name:'Mural artístico de Musiclub 2026'});
+  await expect(mural.getByRole('heading',{level:1})).toHaveCSS('width','1px');
+  await expect(mural.locator('img').first()).toHaveAttribute('src','/annual/2026/art/tormenta.svg');
+  await expect(page.getByRole('link',{name:/02\s*El adelanto/})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Abrir capítulos',exact:true})).toBeVisible();
+  await expect(page.getByText('MUSICLUB / 2026',{exact:true})).toHaveCount(0);
+  await page.screenshot({path:`outputs/annual-art-mural-${info.project.name}.png`,animations:'disabled'});
+  const print=mural.getByRole('button',{name:'Ver ilustración: Ventana de tormenta, manos y cinta de seda',exact:true}).first();await print.press('Enter');
+  const dialog=page.getByRole('dialog',{name:'Ilustraciones de Musiclub 2026'});await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración SVG',exact:true})).toHaveAttribute('href','/annual/2026/art/tormenta.svg');
+  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/art/gato.svg');
+  await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
   const state=await setup(page,{admin:false});await page.goto('/2026?admin=true&user_id=someone-else');
@@ -79,7 +96,7 @@ test('administrators can explore external releases, references, personal chapter
   await page.getByRole('button',{name:/04\s*Mes a mes/}).click();await expect(page.getByRole('heading',{name:'Así fue tu año.',exact:true})).toBeVisible();
   await page.getByRole('button',{name:/05\s*Tus artistas/}).click();await expect(page.getByRole('heading',{name:'Los nombres de tu año.',exact:true})).toBeVisible();
   await page.getByRole('button',{name:'Ver Próximamente',exact:true}).click();await expect(page.getByText('PRÓXIMAMENTE',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Volver a la vista previa',exact:true}).click();await expect(page.locator('#seleccion article')).toHaveCount(16);expect(state.reads()).toBe(1);
+  await page.getByRole('button',{name:'Mostrar edición de administrador',exact:true}).click();await expect(page.locator('#seleccion article')).toHaveCount(16);expect(state.reads()).toBe(1);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:`outputs/annual-preview-${info.project.name}.png`,fullPage:true,animations:'disabled'});
 });
