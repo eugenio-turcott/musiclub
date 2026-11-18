@@ -94,5 +94,29 @@
     "spotifyUrl": "https://open.spotify.com/album/2M9F3AsbWy7n4LwmJ8pqEu",
     "releaseDate": "2026-02-27",
     "sourceCover": "https://i.scdn.co/image/ab67616d0000b273be1cdc30c83c5822adac15a9"
+  },
+  "jessie": {
+    "cover": "/annual/2026/covers/jessie.webp",
+    "spotifyUrl": "https://open.spotify.com/album/56sKKg6lpmwyvbvLw3nVCN",
+    "releaseDate": "2026-04-17",
+    "sourceCover": "https://i.scdn.co/image/ab67616d0000b273fc729e4f9d5e6d9a65f974c9"
+  },
+  "harry": {
+    "cover": "/annual/2026/covers/harry.webp",
+    "spotifyUrl": "https://open.spotify.com/album/69BqE1V8Bzb9GCyeP1fFeR",
+    "releaseDate": "2026-03-06",
+    "sourceCover": "https://i.scdn.co/image/ab67616d0000b27374959140f550b11049c18a38"
+  },
+  "fcukers": {
+    "cover": "/annual/2026/covers/fcukers.webp",
+    "spotifyUrl": "https://open.spotify.com/album/4RrsgnUbZIFTw42Apa8lXO",
+    "releaseDate": "2026-03-27",
+    "sourceCover": "https://i.scdn.co/image/ab67616d0000b27386b7c80f34422c3c287f698e"
+  },
+  "haute": {
+    "cover": "/annual/2026/covers/haute.webp",
+    "spotifyUrl": "https://open.spotify.com/album/3iyn2K7YlhKie8qrmUV6lS",
+    "releaseDate": "2026-03-13",
+    "sourceCover": "https://i.scdn.co/image/ab67616d0000b273528f41b9db60ce18ba04f252"
   }
 }

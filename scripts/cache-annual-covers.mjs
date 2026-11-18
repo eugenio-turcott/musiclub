@@ -4,6 +4,9 @@ import {fileURLToPath} from 'node:url';
 const file=new URL('../src/server/annual2026Covers.json',import.meta.url),covers=JSON.parse(await fs.readFile(file,'utf8'));
 const dir=new URL('../public/annual/2026/covers/',import.meta.url);await fs.mkdir(dir,{recursive:true});
 for(const [id,entry] of Object.entries(covers)){
+  if(process.argv.includes('--missing')&&entry.cover?.startsWith('/annual/2026/covers/')){
+    try{await fs.access(new URL(`../public${entry.cover}`,import.meta.url));continue;}catch{}
+  }
   const source=entry.sourceCover||entry.cover;
   if(!source?.startsWith('https://i.scdn.co/image/'))continue;
   const response=await fetch(source,{signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error(`Cover unavailable: ${id}`);

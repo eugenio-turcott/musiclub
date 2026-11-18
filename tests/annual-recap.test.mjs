@@ -8,8 +8,8 @@ import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
 const now=Date.parse('2026-11-18T12:00:00Z');
-test('fifteen square pigment studies match releases and keep previews lighter than downloads',async()=>{
-  assert.equal(ANNUAL_ART.length,15);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,15);
+test('twenty square angular editions match releases and keep previews lighter than downloads',async()=>{
+  assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
     for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
@@ -40,8 +40,8 @@ test('club rankings require eligible 2026 releases and the minimum annual review
 test('empty personal histories remain empty rather than inventing activity or scores',()=>{
   const r=buildPersonalAnnual([],[],{now});assert.equal(r.reviewCount,0);assert.equal(r.meanScore,null);assert.equal(r.activityXP,0);assert.deepEqual(r.topReleases,[]);assert.equal(r.longestStreak,0);
 });
-test('the initial external selection has sixteen unique releases with traceable, differentiated sources',()=>{
-  assert.equal(ANNUAL_SELECTION.length,16);assert.equal(new Set(ANNUAL_SELECTION.map(r=>r.id)).size,16);
+test('the external selection has twenty unique releases with traceable, differentiated sources',()=>{
+  assert.equal(ANNUAL_SELECTION.length,20);assert.equal(new Set(ANNUAL_SELECTION.map(r=>r.id)).size,20);
   for(const r of ANNUAL_SELECTION){assert.equal(r.year,2026);assert.ok(r.refs.length>=2);assert.ok(r.refs.every(id=>ANNUAL_SOURCES.some(s=>s.id===id)));assert.equal('score' in r,false);assert.equal('art' in r,false);}
   assert.ok(ANNUAL_SOURCES.some(s=>s.id==='billboard'&&s.mirror));assert.ok(ANNUAL_SOURCES.some(s=>s.type==='community'));assert.ok(ANNUAL_SOURCES.some(s=>s.type==='nomination'));
 });
