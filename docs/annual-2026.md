@@ -4,6 +4,10 @@ Ruta pública: `/2026`. Estado inicial: **Próximamente** para visitantes y miem
 
 ## Recorrido visual
 
+La primera escena es un mural de nueve composiciones vectoriales originales. No tiene título, descripción, cifras ni franjas sobre las piezas; el título semántico sigue disponible para lectores de pantalla. Las cuatro columnas (dos en móvil) se mueven en sentidos alternados. Se detienen al pausar, enfocar una pieza o abrir la galería, y no se animan con movimiento reducido. La navegación sólo muestra el símbolo y controles de iconos al abrir; los capítulos y controles administrativos aparecen después de bajar.
+
+`scripts/build-annual-art.mjs` construye las nueve piezas con trazados, formas, líneas y tintas planas. No usa un generador de imágenes ni dibujos de Record Club. Los originales están en `public/annual/2026/art/`: tormenta y manos, gato y libros, montañas, escenario, silla vacía, radio y flores, árbol, carta y vinilo. La galería permite ampliar cada composición y descargar su SVG. Las fundas de las portadas oficiales ya no llevan una banda inferior superpuesta.
+
 La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
 
 El adelanto público muestra expresamente tres portadas reales: Charli xcx, Mitski y Gorillaz. El archivo `src/data/annual2026Teaser.mjs` contiene sólo estos tres ejemplos autorizados para el adelanto; no importa el conjunto editorial protegido. Se puede cambiar de disco, sacar o guardar su vinilo y explorar los diseños de géneros. No aparecen estadísticas personales ni el resto de la selección. Cada release de la vista administrativa tiene una escena grande con su portada, vinilo, referencias y acceso a la ficha.
