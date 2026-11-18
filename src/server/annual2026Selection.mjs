@@ -2,6 +2,11 @@
 // endpoint only; it is never embedded in the public coming-soon page.
 export const RESEARCH_DATE = '2026-11-18';
 export const ANNUAL_SOURCES = [
+  {id:'vogue',name:'Vogue · selección de 2026',type:'editorial',url:'https://www.vogue.com/article/best-albums-of-2026',note:'Selección editorial de agosto de 2026; no es un premio ni un ranking de Musiclub.'},
+  {id:'aoty-jessie',name:'AOTY · Superbloom',type:'critics',url:'https://www.albumoftheyear.org/album/1655621-jessie-ware-superbloom.php',note:'Reseñas y datos del release; no se presentan como un premio.'},
+  {id:'aoty-harry',name:'AOTY · Kiss All The Time.',type:'critics',url:'https://www.albumoftheyear.org/album/1617971-harry-styles-kiss-all-the-time-disco-occasionally.php',note:'Reseñas y datos del release; no se presentan como un premio.'},
+  {id:'aoty-fcukers',name:'AOTY · Ö',type:'critics',url:'https://www.albumoftheyear.org/album/1614963-fcukers-o.php',note:'Reseñas y datos del release; no se presentan como un premio.'},
+  {id:'aoty-haute',name:'AOTY · Big Disgrace',type:'critics',url:'https://www.albumoftheyear.org/album/1608911-haute-freddy-big-disgrace.php',note:'Reseñas y datos del release; no se presentan como un premio.'},
   {id:'aoty',name:'AOTY · crítica',type:'critics',url:'https://www.albumoftheyear.org/ratings/6-highest-rated/2026/1',note:'Valoraciones de crítica; no son premios.'},
   {id:'aggregate',name:'AOTY · listas anuales',type:'critics',url:'https://www.albumoftheyear.org/list/summary/2026/',note:'Agregado provisional de cuatro listas al corte. Las publicaciones incluidas no se cuentan otra vez como votos independientes.'},
   {id:'rollingstone',name:'Rolling Stone',type:'editorial',url:'https://www.rollingstone.com/music/music-lists/best-albums-of-2026-so-far-1235569912/',mirror:'https://www.albumoftheyear.org/list/2650-rolling-stones-best-albums-of-2026-so-far/',note:'Selección de mitad de año, consultada mediante el índice de AOTY; el original requiere acceso.'},
@@ -30,4 +35,8 @@ export const ANNUAL_SELECTION = [
   item('rawayana','¿Dónde Es El After?','Rawayana','Latin Pop',1,['billboard','rollingstone','grammy'],'Álbum de pop latino · Grammy 2027'),
   item('vince','Cry Baby','Vince Staples','Hip-Hop',null,['aggregate','reddit-nov']),
   item('angine','Vol.II','Angine de Poitrine','Math Rock',4,['billboard','aggregate']),
+  item('jessie','Superbloom','Jessie Ware','Disco',4,['vogue','aoty-jessie']),
+  item('harry','Kiss All The Time. Disco, Occasionally.','Harry Styles','Dance-Pop',3,['vogue','aoty-harry']),
+  item('fcukers','Ö','Fcukers','Electrónica',3,['vogue','aoty-fcukers']),
+  item('haute','Big Disgrace','Haute & Freddy','Synthpop',3,['vogue','aoty-haute']),
 ];

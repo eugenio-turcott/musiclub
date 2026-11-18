@@ -53,12 +53,12 @@ function ComingSoon(){
   const [selected,setSelected]=useState(0),[unpacked,setUnpacked]=useState(false),[genre,setGenre]=useState('Pop');
   const release=ANNUAL_TEASER[selected];
   return <>
-  <AnnualArtOpening/>
-  <section id="adelanto" data-annual-scene data-annual-reveal className={styles.spoilerScene} aria-label="Un adelanto de los releases de 2026">
-    <div className={styles.spoilerCopy}><Label icon="disc">PRÓXIMAMENTE</Label><h2>Tres discos.<br/><em>Sólo el principio.</em></h2><p>Una pequeña parte de la selección que estamos preparando. Abre una funda y echa un vistazo.</p><div className={styles.teaserChoices} role="group" aria-label="Elegir release del adelanto">{ANNUAL_TEASER.map((r,i)=><button type="button" key={r.id} aria-pressed={selected===i} aria-label={`Mostrar ${r.title}`} onClick={()=>{setSelected(i);setUnpacked(false);}}><CoverImage src={r.cover} alt="" sizes="80px"/><span>{r.artist}</span></button>)}</div><span className={styles.teaserNote}><UiIcon name="lock"/>La selección completa llegará con la edición anual.</span></div>
+  <AnnualArtOpening>
+  <section className={styles.spoilerScene} aria-label="Un adelanto de los releases de 2026">
+    <div className={styles.spoilerCopy}><Label icon="disc">PRÓXIMAMENTE</Label><h2>Musiclub<br/><em>2026.</em></h2><p>El resumen del año está en camino. Mientras tanto, abre estas tres fundas.</p><div className={styles.teaserChoices} role="group" aria-label="Elegir release del adelanto">{ANNUAL_TEASER.map((r,i)=><button type="button" key={r.id} aria-pressed={selected===i} aria-label={`Mostrar ${r.title}`} onClick={()=>{setSelected(i);setUnpacked(false);}}><CoverImage src={r.cover} alt="" sizes="80px"/><span>{r.artist}</span></button>)}</div><span className={styles.teaserNote}><UiIcon name="lock"/>La selección completa llegará con la edición anual.</span></div>
     <div className={styles.spoilerStage} key={release.id} data-open={unpacked}><span className={styles.backdropWord} aria-hidden="true">2026</span><button type="button" className={styles.unpackButton} aria-pressed={unpacked} aria-label={`${unpacked?'Guardar':'Sacar'} vinilo de ${release.title}`} onClick={()=>setUnpacked(v=>!v)}><Sleeve release={release}/><span><UiIcon name={unpacked?'arrowLeft':'arrow'}/>{unpacked?'Guardar el vinilo':'Sacar el vinilo'}</span></button><div className={styles.teaserCaption} aria-live="polite"><span>{release.genre} / 2026</span><h3>{release.title}</h3><p>{release.artist}</p></div></div>
     <a href="#tu-2026" className={styles.scrollCue}>Y también está tu año <UiIcon name="arrowDown"/></a>
-  </section>
+  </section></AnnualArtOpening>
   <section id="tu-2026" data-annual-scene data-annual-reveal className={styles.soonBottom}><div className={styles.genreOrbit} aria-hidden="true"><GenreArtwork key={genre} genre={genre} size={520} animated/></div><div className={styles.yearTeaseCopy}><Label icon="heart">02 / TU PROPIO 2026</Label><h2>Tus discos.<br/>Tus géneros.<br/><em>Tu año.</em></h2><p>Los favoritos, las reseñas y los descubrimientos que hicieron tu 2026. Todo en una edición para compartir.</p><div className={styles.genrePills} role="group" aria-label="Explorar vinilos de géneros">{publicGenres.map(g=><button type="button" key={g} aria-pressed={genre===g} onClick={()=>setGenre(g)}>{g}</button>)}</div><span className={styles.soonTag}><i/> PRÓXIMAMENTE EN TU PERFIL</span><Link href="/catalogo" className={styles.primary}>Sigue construyendo tu año <UiIcon name="arrow"/></Link></div></section>
   </>;}
 function ReleaseCard({release,sources,index}){
@@ -105,7 +105,7 @@ export function AnnualPage(){
   const selection=visible?data.selection.filter(r=>filter==='all'||(filter==='nomination'?r.nomination:r.refs.some(id=>data.sources.find(s=>s.id===id)?.type===(filter==='community'?'community':'editorial')))):[];
   if(sort==='az')selection.sort((a,b)=>a.artist.localeCompare(b.artist));
   const retryLoad=()=>{previews.invalidate(auth.user.id);setRetry(v=>v+1);};
-  return <div className={styles.root} data-private={visible} data-admin={auth.isAdmin} data-opening={chapter==='inicio'}>
+  return <div className={styles.root} data-private={visible} data-admin={auth.isAdmin} data-opening={chapter==='inicio'||chapter==='adelanto'}>
     <EditionNav preview={visible} paused={paused} onToggle={()=>setPaused(v=>!v)} chapter={chapter} publicPreview={publicPreview} onPreview={auth.isAdmin?()=>setPublicPreview(v=>!v):undefined}/>
     {auth.isAdmin&&<aside className={styles.adminBar} aria-label="Controles de vista previa anual"><span><UiIcon name="shield"/>VISTA PREVIA · SÓLO ADMINISTRADORES</span><div><button type="button" onClick={()=>setPublicPreview(v=>!v)}>{publicPreview?'Volver a la vista previa':'Ver Próximamente'}<UiIcon name="eye"/></button><button type="button" onClick={retryLoad} disabled={loading}><UiIcon name="repeat"/>Actualizar datos</button></div></aside>}
     {auth.isAdmin&&loading&&<p role="status" className={styles.loadNotice}>Preparando tu vista previa del año…</p>}

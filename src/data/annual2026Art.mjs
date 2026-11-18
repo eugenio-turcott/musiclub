@@ -15,4 +15,9 @@ export const ANNUAL_ART = [
   {id:'rawayana',title:'¿Dónde Es El After?',artist:'Rawayana',description:'Una bailarina con vestido verde bajo un sol amarillo, sobre papel rojo.'},
   {id:'vince',title:'Cry Baby',artist:'Vince Staples',description:'Un bebé que llora, entre gotas blancas y un fondo rosa intenso.'},
   {id:'angine',title:'Vol.II',artist:'Angine de Poitrine',description:'Dos músicos de máscaras y lunares, con guitarra, batería y una pirámide dorada.'},
-].map(piece=>({...piece,src:`/annual/2026/art/${piece.id}.webp`,detailSrc:`/annual/2026/art/${piece.id}-detail.webp`,download:`/annual/2026/art/${piece.id}.png`}));
+  {id:'phoebe',title:'Lost Weekend',artist:'Phoebe Bridgers',description:'Una reinterpretación angular de la portada de Lost Weekend.'},
+  {id:'jessie',title:'Superbloom',artist:'Jessie Ware',description:'Una reinterpretación angular de la portada de Superbloom.'},
+  {id:'harry',title:'Kiss All The Time. Disco, Occasionally.',artist:'Harry Styles',description:'Una reinterpretación angular de la portada de Kiss All The Time. Disco, Occasionally.'},
+  {id:'fcukers',title:'Ö',artist:'Fcukers',description:'Una reinterpretación angular de la portada de Ö.'},
+  {id:'haute',title:'Big Disgrace',artist:'Haute & Freddy',description:'Una reinterpretación angular de la portada de Big Disgrace.'},
+].map(piece=>({...piece,src:`/annual/2026/facets/${piece.id}.webp`,detailSrc:`/annual/2026/facets/${piece.id}-detail.webp`,download:`/annual/2026/facets/${piece.id}.png`}));
