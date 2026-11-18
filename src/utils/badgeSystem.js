@@ -1,15 +1,11 @@
 // src/utils/badgeSystem.js
 import {GRAMMY_BADGES,grammyGamification} from './grammyRewards.mjs';
+import {XP_CONFIG} from './xpConfig.mjs';
+export {XP_CONFIG};
 
 /**
  * CONFIGURACIÓN DE PUNTOS BASE POR ACTIVIDAD (XP)
  */
-export const XP_CONFIG = {
-  REVIEW_BASE: 50, // XP por cada álbum reseñado
-  REVIEW_COMMENT_BONUS: 25, // XP adicional si la reseña incluye comentario en texto
-  TRACK_RATED: 5, // XP por cada canción/track calificado individualmente, incluido el historial
-  RECORD_CROWN_BONUS: 300, // XP bono activo por ostentar un récord #1
-};
 
 /**
  * ESTILOS VISUALES POR NIVEL DE TIER
