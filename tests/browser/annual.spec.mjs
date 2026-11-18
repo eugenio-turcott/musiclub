@@ -19,8 +19,38 @@ test('visitors see only the coming-soon presentation and never request the priva
   const response=await page.goto('/2026?preview=true');expect(await response.text()).not.toContain('Lost Weekend');
   await expect(page.getByRole('heading',{level:1})).toContainText('Musiclub');await expect(page.getByText('PRÓXIMAMENTE',{exact:true})).toBeVisible();
   await expect(page.getByRole('navigation',{name:'Capítulos del año'})).toHaveCount(0);expect(reads).toBe(0);
+  await expect(page.getByRole('link',{name:'Volver al club',exact:true})).toHaveAttribute('href','/catalogo');
+  await expect(page.getByRole('link',{name:'Pool Musical',exact:true})).toHaveCount(0);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
   await page.screenshot({path:`outputs/annual-coming-soon-${info.project.name}.png`,fullPage:true,animations:'disabled'});
+});
+
+test('public spoilers reveal real covers and align each scene below the edition navigation',async({page},info)=>{
+  await page.route('**/*',r=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
+  await page.goto('/2026');
+  const main=page.getByRole('main',{name:'Recorrido de Musiclub 2026'});
+  await expect(main).toHaveCSS('scroll-snap-type','y mandatory');
+  if(info.project.name==='desktop'){
+    expect(await main.evaluate(el=>[...el.querySelectorAll(':scope > section')].every(scene=>scene.getBoundingClientRect().height<=el.clientHeight+3))).toBe(true);
+    const area=await main.boundingBox();await page.mouse.move(area.x+area.width*.8,area.y+area.height*.6);await page.mouse.wheel(0,area.height*.8);
+  }else await page.getByRole('link',{name:'Esto apenas empieza'}).click();
+  await expect.poll(()=>page.locator('#adelanto').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
+  await page.getByRole('button',{name:'Mostrar The Mountain',exact:true}).click();
+  await expect(page.locator('#adelanto').getByRole('heading',{name:'The Mountain',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Sacar vinilo de The Mountain',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Guardar vinilo de The Mountain',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.screenshot({path:`outputs/annual-spoiler-scene-${info.project.name}.png`,animations:'disabled'});
+  await page.getByRole('link',{name:'Y también está tu año'}).click();
+  await expect.poll(()=>page.locator('#tu-2026').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
+  await page.getByRole('button',{name:'Hip-Hop',exact:true}).click();await expect(page.getByRole('button',{name:'Hip-Hop',exact:true})).toHaveAttribute('aria-pressed','true');
+  await page.getByRole('button',{name:'Pausar movimiento',exact:true}).click();await expect(page.getByRole('button',{name:'Activar movimiento',exact:true})).toHaveAttribute('aria-pressed','true');
+  expect(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+2)).toBe(true);
+  if(info.project.name==='mobile'){
+    await page.getByRole('button',{name:'Abrir capítulos',exact:true}).click();await page.getByRole('link',{name:/01\s*Inicio/}).click();
+    await expect(page.getByRole('button',{name:'Abrir capítulos',exact:true})).toHaveAttribute('aria-expanded','false');
+    await expect.poll(()=>page.locator('#inicio').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
+  }
+  await page.getByRole('link',{name:'Volver al club',exact:true}).click();await expect(page).toHaveURL(/\/catalogo/);await expect(page.getByRole('complementary',{name:'Grammy 2027 en Musiclub'})).toBeVisible();
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
   const state=await setup(page,{admin:false});await page.goto('/2026?admin=true&user_id=someone-else');
@@ -37,7 +67,10 @@ test('administrators can explore external releases, references, personal chapter
   await expect(page.locator('#seleccion article')).toHaveCount(16);
   await page.getByRole('button',{name:'Nominaciones',exact:true}).click();await expect(page.locator('#seleccion article')).toHaveCount(5);
   await page.getByRole('button',{name:'Todos',exact:true}).click();
-  const card=page.locator('#release-phoebe');await card.getByRole('button',{name:'Ver referencias de Lost Weekend',exact:true}).click();await expect(card).toContainText('Recording Academy');
+  const card=page.locator('#release-phoebe');await card.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
+  await expect.poll(()=>card.evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
+  await page.screenshot({path:`outputs/annual-release-scene-${info.project.name}.png`,animations:'disabled'});
+  await card.getByRole('button',{name:'Ver referencias de Lost Weekend',exact:true}).click();await expect(card).toContainText('Recording Academy');
   await expect(card.getByRole('link',{name:'Escuchar y reseñar'})).toHaveAttribute('href',/catalogo\?/);
   await card.getByRole('button',{name:'Ver portada original de Lost Weekend',exact:true}).click();await expect(card.getByAltText('Portada de Lost Weekend')).toBeVisible();
   await page.getByRole('button',{name:'Pausar movimiento',exact:true}).click();
