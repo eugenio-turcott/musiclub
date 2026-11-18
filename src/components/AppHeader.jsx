@@ -165,6 +165,7 @@ export function SiteNavigation({
 
   // Rutas para grupo Comunidad
   const communityPaths = [
+    '/2026',
     '/recomendaciones',
     '/para-ti',
     '/playlists',
@@ -306,6 +307,7 @@ export function SiteNavigation({
                         Social
                       </span>
                     </div>
+                    <Link to="/2026" onClick={()=>setOpenNavDropdown(null)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-white/5 hover:text-pink-200"><UiIcon name="calendar" size={21}/><div className="flex flex-col text-left"><span className="font-semibold">Musiclub 2026</span><span className="text-[10px] text-slate-400">Nuestro año en música · Próximamente</span></div></Link>
                     <Link
                       to="/recomendaciones"
                       onClick={() => setOpenNavDropdown(null)}
@@ -837,6 +839,7 @@ export function SiteNavigation({
             <span className="text-[10px] uppercase font-bold text-purple-300/70 tracking-wider px-1">
               Comunidad & Social
             </span>
+            <Link to="/2026" onClick={()=>setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-white/80 border border-white/5"><UiIcon name="calendar" size={21}/>Musiclub 2026 · Próximamente</Link>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/recomendaciones"

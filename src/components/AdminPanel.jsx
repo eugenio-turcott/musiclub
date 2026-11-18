@@ -1015,6 +1015,7 @@ export function AdminPanel({ onClose, isPage = true, initialTab = 'pool' }) {
             <UiIcon name="disc" size={21} tone={activeTab === 'vinyls' ? 'white' : 'accent'}/>Vinilos de géneros
           </button>
           <Link to="/admin/publicacion" className="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 bg-white/5 hover:bg-pink-500/10 text-slate-300 hover:text-pink-200 border border-white/5"><UiIcon name="search" size={21}/>Publicación en Google</Link>
+          <Link to="/2026" className="px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-black flex items-center gap-2 bg-amber-400/10 hover:bg-amber-400/20 text-amber-200 border border-amber-400/20"><UiIcon name="calendar" size={21}/>Vista previa · Musiclub 2026</Link>
         </div>
 
         {activeTab === 'vinyls' && <AdminVinylCatalog/>}

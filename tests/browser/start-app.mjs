@@ -11,6 +11,11 @@ const server=http.createServer(async(request,response)=>{
   response.setHeader('Access-Control-Allow-Headers','*');
   response.setHeader('Access-Control-Expose-Headers','Content-Range');
   response.setHeader('Content-Type','application/json');
+  // Explicit identities for annual API authorization tests, local harness only.
+  if(request.url==='/auth/v1/user' && ['Bearer annual-fixture-member','Bearer annual-fixture-admin'].includes(request.headers.authorization)){
+    const admin=request.headers.authorization==='Bearer annual-fixture-admin';
+    response.end(JSON.stringify({id:admin?'00000000-0000-4000-8000-000000000081':'00000000-0000-4000-8000-000000000082',email:admin?'eugenioturcott@gmail.com':'member@example.test',aud:'authenticated',user_metadata:{role:'admin'},app_metadata:{provider:'google'}}));return;
+  }
   // Local-only import fixture: lets the real SSR route read a newly imported
   // classical recording. No browser test ever writes to the production DB.
   if(request.method==='POST' && request.url==='/__fixture/import-classical-release') {
