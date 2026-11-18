@@ -19,16 +19,21 @@ export function AnnualArtOpening({next='adelanto',children}){
     const scene=ref.current,scroller=scene?.closest('main');
     if(!children||!scroller)return;
     const content=scene.querySelector('[data-opening-content]'),bands=scene.querySelector('[data-opening-bands]'),cue=scene.querySelector('[data-opening-cue]');
+    const intro=scene.querySelector('[data-opening-panel="intro"]'),year=scene.querySelector('[data-opening-panel="year"]');
     let frame=0;
     const draw=()=>{
       frame=0;
       const offset=scroller.scrollTop-scene.offsetTop,height=scroller.clientHeight;
       const progress=Math.max(0,Math.min(1,offset/(height*.92)));
+      const yearProgress=Math.max(0,Math.min(1,(offset/height-1.15)/.85));
       scene.style.setProperty('--opening-progress',String(progress));
+      scene.style.setProperty('--year-progress',String(yearProgress));
       content.style.visibility=progress>.12?'visible':'hidden';
       scroller.dataset.openingStory=String(offset<scene.offsetHeight-height-1);
       content.inert=progress<.35;content.setAttribute('aria-hidden',String(progress<.35));
       bands.inert=progress>=.35;bands.setAttribute('aria-hidden',String(progress>=.35));
+      if(intro){intro.inert=progress<.35||yearProgress>=.5;intro.setAttribute('aria-hidden',String(intro.inert));}
+      if(year){year.inert=yearProgress<.5;year.setAttribute('aria-hidden',String(year.inert));}
       // Keep an activated anchor in the document while native smooth scrolling
       // finishes. Making the focused cue inert cancels the scroll in some browsers.
       cue.tabIndex=progress===1?-1:0;cue.style.pointerEvents=progress===1?'none':'auto';
@@ -46,6 +51,7 @@ export function AnnualArtOpening({next='adelanto',children}){
       {children&&<div className={styles.artReveal} data-opening-content inert aria-hidden="true">{children}</div>}
     </div>
     {children&&<span id="adelanto" data-annual-scene data-chapter="adelanto" className={styles.artRevealAnchor} aria-hidden="true"/>}
+    {children&&<span id="tu-2026" data-annual-scene data-chapter="tu-2026" className={styles.yearRevealAnchor} aria-hidden="true"/>}
     {selected!==null&&<ArtDetail index={selected} onSelect={setSelected} onClose={()=>setSelected(null)}/>}
   </section>;
 }
