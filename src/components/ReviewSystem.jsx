@@ -22,6 +22,7 @@ import {
 } from '../utils/ratingUtils';
 import { clearPublicCatalog } from '../services/publicCatalog';
 import { reviewAssessment } from '../utils/reviewAssessment';
+import { restoreReviewDraft } from '../utils/reviewDraft.mjs';
 import { ShareReviewModal } from './ShareReviewModal';
 import { registerUntranslatableEntities } from '../utils/translateCrashGuard';
 
@@ -97,15 +98,7 @@ export function ReviewSystem({
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState('');
   const [userEmail, setUserEmail] = useState('');
-  const [ratings, setRatings] = useState({
-    produccion: 3,
-    composicion: 3,
-    letras: 3,
-    originalidad: 3,
-    cohesion: 3,
-    replay: 3,
-    general: 5,
-  });
+  const [ratings, setRatings] = useState({});
   const [trackRatings, setTrackRatings] = useState({});
   const [favoriteTrack, setFavoriteTrack] = useState(null);
   const [selectedFeeling, setSelectedFeeling] = useState(null);
@@ -174,35 +167,40 @@ export function ReviewSystem({
     }
   }, [album, tracks, reviews, user?.name]);
 
-  const draftKey = album?.id ? `musiclub_draft_${album.id}` : null;
-  const isDraftRestoredRef = React.useRef(false);
+  const draftKey = album?.id && user?.id ? `musiclub_draft_${album.id}_${user.id}` : null;
+  const legacyDraftKey = album?.id ? `musiclub_draft_${album.id}` : null;
+  const [draftReadyKey, setDraftReadyKey] = useState(null);
+  const [restoredDraft, setRestoredDraft] = useState(null);
+  const draftSubmittedRef = React.useRef(false);
+  const clearStoredDraft = () => {
+    if (!draftKey) return;
+    localStorage.removeItem(draftKey);
+    const legacy = localStorage.getItem(legacyDraftKey);
+    if (legacy && restoreReviewDraft(JSON.parse(legacy), user)) localStorage.removeItem(legacyDraftKey);
+  };
 
   // Restore draft on mount or when album.id changes
   useEffect(() => {
-    if (!draftKey) return;
+    let restored = null;
     try {
-      const saved = localStorage.getItem(draftKey);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.ratings) setRatings(parsed.ratings);
-        if (parsed.trackRatings) setTrackRatings(parsed.trackRatings);
-        if (parsed.favoriteTrack !== undefined)
-          setFavoriteTrack(parsed.favoriteTrack);
-        if (parsed.selectedFeeling) setSelectedFeeling(parsed.selectedFeeling);
-        if (parsed.comment !== undefined) setComment(parsed.comment);
-        if (parsed.wizardStep && parsed.wizardStep !== 'user') {
-          setWizardStep(parsed.wizardStep);
-        }
-        if (typeof parsed.currentTrackIndex === 'number')
-          setCurrentTrackIndex(parsed.currentTrackIndex);
-        if (typeof parsed.currentCriterionIndex === 'number')
-          setCurrentCriterionIndex(parsed.currentCriterionIndex);
-        isDraftRestoredRef.current = true;
-      }
+      const saved = draftKey && (localStorage.getItem(draftKey) || localStorage.getItem(legacyDraftKey));
+      if (saved) restored = restoreReviewDraft(JSON.parse(saved), user);
     } catch (e) {
       console.warn('Error reading review draft from localStorage', e);
     }
-  }, [draftKey, user]);
+    setRatings(restored?.ratings || {});
+    setTrackRatings(restored?.trackRatings || {});
+    setFavoriteTrack(restored?.favoriteTrack ?? null);
+    setSelectedFeeling(restored?.selectedFeeling || null);
+    setComment(typeof restored?.comment === 'string' ? restored.comment : '');
+    setWizardStep(restored?.wizardStep || 'tracks');
+    setCurrentTrackIndex(restored?.currentTrackIndex || 0);
+    setCurrentCriterionIndex(restored?.currentCriterionIndex || 0);
+    setIsEditing(Boolean(restored?.isEditing));
+    draftSubmittedRef.current = false;
+    setRestoredDraft(restored);
+    setDraftReadyKey(draftKey);
+  }, [draftKey, legacyDraftKey, user?.email]);
 
   useEffect(() => {
     if (user) {
@@ -284,7 +282,7 @@ export function ReviewSystem({
 
   // Ensure default wizard step is valid ('tracks' or 'criteria')
   useEffect(() => {
-    if (wizardStep === 'user') {
+    if (wizardStep === 'user' || (wizardStep === 'tracks' && !shouldShowTracks)) {
       setWizardStep(
         shouldShowTracks && effectiveTracks.length > 0 ? 'tracks' : 'criteria'
       );
@@ -293,23 +291,20 @@ export function ReviewSystem({
 
   // Auto-save draft changes to localStorage
   useEffect(() => {
-    if (!draftKey || isSubmitting) return;
+    if (!draftKey || draftReadyKey !== draftKey || isSubmitting || success || draftSubmittedRef.current) return;
     try {
       const hasChanges =
         Object.keys(trackRatings).length > 0 ||
         comment.trim().length > 0 ||
         currentTrackIndex > 0 ||
         currentCriterionIndex > 0 ||
-        ratings.general !== 5 ||
-        ratings.produccion !== 3 ||
-        ratings.composicion !== 3 ||
-        ratings.letras !== 3 ||
-        ratings.originalidad !== 3 ||
-        ratings.cohesion !== 3 ||
-        ratings.replay !== 3;
+        Object.keys(ratings).length > 0 || favoriteTrack !== null || selectedFeeling !== null || wizardStep !== 'tracks';
 
       if (hasChanges) {
         const draft = {
+          version: 2,
+          userId: user.id,
+          isEditing,
           ratings,
           trackRatings,
           favoriteTrack,
@@ -323,12 +318,17 @@ export function ReviewSystem({
           updatedAt: Date.now(),
         };
         localStorage.setItem(draftKey, JSON.stringify(draft));
+      } else {
+        localStorage.removeItem(draftKey);
       }
     } catch (e) {
       console.warn('Error saving review draft to localStorage', e);
     }
   }, [
     draftKey,
+    draftReadyKey,
+    isEditing,
+    success,
     ratings,
     trackRatings,
     favoriteTrack,
@@ -343,20 +343,14 @@ export function ReviewSystem({
   ]);
 
   const handleResetDraft = () => {
+    draftSubmittedRef.current = false;
     if (draftKey) {
       try {
-        localStorage.removeItem(draftKey);
+        clearStoredDraft();
       } catch (e) {}
     }
-    setRatings({
-      produccion: 3,
-      composicion: 3,
-      letras: 3,
-      originalidad: 3,
-      cohesion: 3,
-      replay: 3,
-      general: 5,
-    });
+    setRatings({});
+    setRestoredDraft(null);
     setTrackRatings({});
     setFavoriteTrack(null);
     setSelectedFeeling(null);
@@ -395,16 +389,17 @@ export function ReviewSystem({
 
   const handleStartEditing = () => {
     if (!existingUserReview) return;
+    draftSubmittedRef.current = false;
     setIsEditing(true);
     setShowReviewForm(true);
     setRatings({
-      produccion: existingUserReview.rating_produccion ?? 3,
-      composicion: existingUserReview.rating_composicion ?? 3,
-      letras: existingUserReview.rating_letras ?? 3,
-      originalidad: existingUserReview.rating_originalidad ?? 3,
-      cohesion: existingUserReview.rating_cohesion ?? 3,
-      replay: existingUserReview.rating_replay ?? 3,
-      general: existingUserReview.rating_general ?? 5,
+      produccion: existingUserReview.rating_produccion ?? null,
+      composicion: existingUserReview.rating_composicion ?? null,
+      letras: existingUserReview.rating_letras ?? null,
+      originalidad: existingUserReview.rating_originalidad ?? null,
+      cohesion: existingUserReview.rating_cohesion ?? null,
+      replay: existingUserReview.rating_replay ?? null,
+      general: existingUserReview.rating_general ?? null,
     });
 
     const rawTrackRatings =
@@ -451,12 +446,12 @@ export function ReviewSystem({
   // Auto-activar modo edición si viene initialEditing=true
   const hasAutoStartedRef = React.useRef(false);
   useEffect(() => {
-    if (initialEditing && existingUserReview && !isEditing && !hasAutoStartedRef.current) {
+    if (draftReadyKey === draftKey && initialEditing && existingUserReview && !isEditing && !hasAutoStartedRef.current) {
       hasAutoStartedRef.current = true;
       handleStartEditing();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialEditing, existingUserReview, isEditing]);
+  }, [initialEditing, existingUserReview, isEditing, draftReadyKey, draftKey]);
 
   const handleCancelEditing = () => {
     setIsEditing(false);
@@ -662,9 +657,10 @@ export function ReviewSystem({
       await authenticatedFetch('/api/catalog', { method: 'POST' }).catch(() => {});
 
       // Clear draft on successful submission
+      draftSubmittedRef.current = true;
       if (draftKey) {
         try {
-          localStorage.removeItem(draftKey);
+          clearStoredDraft();
         } catch (e) {}
       }
 
@@ -706,6 +702,7 @@ export function ReviewSystem({
   };
 
   const average = getAlbumWeightedAverage(reviews);
+  const areAllCriteriaRated = CRITERIOS.every(c => Number.isInteger(ratings[c.id]) && ratings[c.id] >= 1 && ratings[c.id] <= c.max);
   const areAllTracksRated = shouldShowTracks
     ? effectiveTracks.length > 0 &&
       effectiveTracks.every(
@@ -972,6 +969,8 @@ export function ReviewSystem({
           </div>
         ) : showReviewForm || isIndividual || isEditing ? (
           <div
+            role="group"
+            aria-label="Formulario de reseña"
             className={
               isModal
                 ? 'relative overflow-hidden'
@@ -1143,6 +1142,12 @@ export function ReviewSystem({
                     </div>
                   </div>
                 )}
+
+                {restoredDraft && <p role="status" className="mb-4 rounded-xl border border-cyan-400/20 bg-cyan-400/5 px-4 py-3 text-xs sm:text-sm text-cyan-100">
+                  {restoredDraft.migrated
+                    ? 'Recuperamos tu borrador anterior. Los criterios con notas automáticas quedan pendientes de confirmar.'
+                    : 'Retomaste tu borrador en el paso donde lo dejaste. Solo se conservan las notas que seleccionaste.'}
+                </p>}
 
                 {/* Nav Tab Bar del Wizard */}
                 <div className="flex flex-col xs:flex-row items-stretch xs:items-center gap-1.5 sm:gap-2 mb-5 sm:mb-6 bg-black/50 p-1.5 sm:p-2 rounded-2xl border border-white/10 relative z-10">
@@ -1476,42 +1481,16 @@ export function ReviewSystem({
                         {currentTrackIndex < effectiveTracks.length - 1 ? (
                           <button
                             type="button"
-                            onClick={() => {
-                              const trackKey = getTrackKey(
-                                currentTrack,
-                                currentTrackIndex
-                              );
-                              if (
-                                getTrackRating(
-                                  currentTrack,
-                                  currentTrackIndex
-                                ) === undefined
-                              ) {
-                                handleTrackRatingChange(trackKey, 5);
-                              }
-                              setCurrentTrackIndex((prev) => prev + 1);
-                            }}
-                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            disabled={getTrackRating(currentTrack, currentTrackIndex) === undefined}
+                            onClick={() => setCurrentTrackIndex(prev => prev + 1)}
+                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                           ><InterfaceText>{" Siguiente ➡️ "}</InterfaceText></button>
                         ) : (
                           <button
                             type="button"
-                            onClick={() => {
-                              const trackKey = getTrackKey(
-                                currentTrack,
-                                currentTrackIndex
-                              );
-                              if (
-                                getTrackRating(
-                                  currentTrack,
-                                  currentTrackIndex
-                                ) === undefined
-                              ) {
-                                handleTrackRatingChange(trackKey, 5);
-                              }
-                              setWizardStep('criteria');
-                            }}
-                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                            disabled={getTrackRating(currentTrack, currentTrackIndex) === undefined}
+                            onClick={() => setWizardStep('criteria')}
+                            className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                           ><InterfaceText>{" Ir a Criterios 📊 ➔ "}</InterfaceText></button>
                         )}
                       </div>
@@ -1552,16 +1531,18 @@ export function ReviewSystem({
                           <button
                             key={c.id}
                             type="button"
+                            aria-label={`Ir a ${c.label.substring(c.label.indexOf(' ') + 1)}: ${ratings[c.id] ?? 'sin calificar'}${ratings[c.id] ? ` de ${c.max}` : ''}`}
+                            aria-pressed={isActive}
                             onClick={() => setCurrentCriterionIndex(idx)}
                             className={`px-3 py-1.5 rounded-xl text-xs font-mono transition-all flex items-center gap-1.5 shrink-0 border ${
                               isActive
                                 ? 'bg-[#f5576c] text-white border-[#f5576c] shadow-lg shadow-[#f5576c]/30 ring-2 ring-[#f5576c]/50 font-bold'
-                                : 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                                : ratings[c.id] ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' : 'bg-white/5 text-white/50 border-white/10'
                             }`}
                           >
                             <span>{c.label.split(' ')[0]}</span>
                             <span className="text-[10px] opacity-70">
-                              ({ratings[c.id] || (c.max === 10 ? 5 : 3)}/{c.max}
+                              ({ratings[c.id] ?? '—'}/{c.max}
                               )
                             </span>
                           </button>
@@ -1593,16 +1574,14 @@ export function ReviewSystem({
                         {/* Valor del Criterio con Badge Dinámico */}
                         <div className="flex items-center justify-between sm:justify-end gap-2 w-full sm:w-auto shrink-0 pt-1 sm:pt-0">
                           <div
-                            className={`px-3.5 py-2 rounded-xl border text-sm font-bold flex items-center gap-1.5 ${getRatingBadgeColor(
-                              ratings[currentCriterion.id] ||
-                                (currentCriterion.max === 10 ? 5 : 3),
+                            className={`px-3.5 py-2 rounded-xl border text-sm font-bold flex items-center gap-1.5 ${ratings[currentCriterion.id] ? getRatingBadgeColor(
+                              ratings[currentCriterion.id],
                               currentCriterion.max
-                            )}`}
+                            ) : 'bg-white/5 text-white/50 border-white/10'}`}
                           >
                             <span className="text-xs"><InterfaceText>{"⭐"}</InterfaceText></span>
                             <span className="text-base font-mono">
-                              {ratings[currentCriterion.id] ||
-                                (currentCriterion.max === 10 ? 5 : 3)}
+                              {ratings[currentCriterion.id] ?? 'Sin calificar'}
                             </span>
                             <span className="text-[10px] opacity-60">
                               / {currentCriterion.max}
@@ -1633,6 +1612,8 @@ export function ReviewSystem({
                               <button
                                 key={score}
                                 type="button"
+                                aria-label={`${currentCriterion.label.substring(currentCriterion.label.indexOf(' ') + 1)}: ${score} de ${currentCriterion.max}`}
+                                aria-pressed={isSelected}
                                 onClick={() =>
                                   handleRatingChange(currentCriterion.id, score)
                                 }
@@ -1658,12 +1639,13 @@ export function ReviewSystem({
                         </div>
                         <input
                           type="range"
+                          aria-label={`Puntaje de ${currentCriterion.label.substring(currentCriterion.label.indexOf(' ') + 1)}`}
+                          aria-valuetext={ratings[currentCriterion.id] ? `${ratings[currentCriterion.id]} de ${currentCriterion.max}` : 'Sin calificar'}
                           min="1"
                           max={currentCriterion.max}
                           step="1"
                           value={
-                            ratings[currentCriterion.id] ||
-                            (currentCriterion.max === 10 ? 5 : 3)
+                            ratings[currentCriterion.id] ?? 1
                           }
                           onChange={(e) =>
                             handleRatingChange(
@@ -1674,14 +1656,12 @@ export function ReviewSystem({
                           className="w-full accent-[#f5576c] h-2.5 bg-white/10 rounded-lg cursor-pointer"
                           style={{
                             background: `linear-gradient(to right, #f5576c 0%, #f5576c ${
-                              (((ratings[currentCriterion.id] ||
-                                (currentCriterion.max === 10 ? 5 : 3)) -
+                              (((ratings[currentCriterion.id] ?? 1) -
                                 1) /
                                 (currentCriterion.max - 1)) *
                               100
                             }%, rgba(255,255,255,0.1) ${
-                              (((ratings[currentCriterion.id] ||
-                                (currentCriterion.max === 10 ? 5 : 3)) -
+                              (((ratings[currentCriterion.id] ?? 1) -
                                 1) /
                                 (currentCriterion.max - 1)) *
                               100
@@ -1726,14 +1706,16 @@ export function ReviewSystem({
                       {currentCriterionIndex < CRITERIOS.length - 1 ? (
                         <button
                           type="button"
+                          disabled={!ratings[currentCriterion.id]}
                           onClick={() =>
                             setCurrentCriterionIndex((prev) => prev + 1)
                           }
-                          className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
+                          className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-[#f5576c] to-[#f093fb] text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
                         ><InterfaceText>{" Siguiente ➡️ "}</InterfaceText></button>
                       ) : (
                         <button
                           type="button"
+                          disabled={!ratings[currentCriterion.id]}
                           onClick={() => setWizardStep('summary')}
                           className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg hover:scale-[1.02] active:scale-95 transition-all flex items-center justify-center gap-2"
                         ><InterfaceText>{" Ver Resumen 📝 ➔ "}</InterfaceText></button>
@@ -1900,7 +1882,7 @@ export function ReviewSystem({
                                 <InterfaceText>{c.label}</InterfaceText>
                               </span>
                               <span className="font-bold text-white text-base font-mono">
-                                {ratings[c.id]} / {c.max}
+                                {ratings[c.id] ?? 'Sin calificar'} / {c.max}
                               </span>
                             </div>
                           ))}
@@ -2152,7 +2134,7 @@ export function ReviewSystem({
                         type="button"
                         onClick={handleSubmitReview}
                         disabled={
-                          isSubmitting ||
+                          isSubmitting || !areAllCriteriaRated ||
                           (shouldShowTracks &&
                             effectiveTracks.length > 0 &&
                             !areAllTracksRated)
@@ -2164,7 +2146,7 @@ export function ReviewSystem({
                               ? 'from-blue-600 to-cyan-500 shadow-blue-500/20'
                               : 'from-[#f5576c] to-[#f093fb] shadow-[#f5576c]/20'
                         } text-white rounded-2xl text-sm sm:text-base font-bold shadow-xl transition-all flex items-center justify-center gap-2 ${
-                          isSubmitting ||
+                          isSubmitting || !areAllCriteriaRated ||
                           (shouldShowTracks &&
                             effectiveTracks.length > 0 &&
                             !areAllTracksRated)
