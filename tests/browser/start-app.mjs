@@ -6,11 +6,22 @@ import path from 'node:path';
 import { tables } from './fixtures.mjs';
 
 const dbPort=54329;
-const server=http.createServer((request,response)=>{
+const server=http.createServer(async(request,response)=>{
   response.setHeader('Access-Control-Allow-Origin','*');
   response.setHeader('Access-Control-Allow-Headers','*');
   response.setHeader('Access-Control-Expose-Headers','Content-Range');
   response.setHeader('Content-Type','application/json');
+  // Local-only import fixture: lets the real SSR route read a newly imported
+  // classical recording. No browser test ever writes to the production DB.
+  if(request.method==='POST' && request.url==='/__fixture/import-classical-release') {
+    let body='';for await(const chunk of request)body+=chunk;
+    const album=JSON.parse(body);
+    if(album.album_name!=='Rachmaninov: Piano Concerto No.2') {response.writeHead(400).end('{}');return;}
+    const row={...album,id:'00000000-0000-4000-8000-000000000098'};
+    const index=tables.albums.findIndex(a=>a.id===row.id);
+    if(index>=0)tables.albums[index]=row;else tables.albums.push(row);
+    response.end(JSON.stringify(row));return;
+  }
   // Explicit, local-only fixture write used to test the stale public collection cache.
   if(request.method==='POST' && request.url==='/__fixture/add-release') {
     if(!tables.albums.some(album=>album.id==='late-fixture')) tables.albums.push({
