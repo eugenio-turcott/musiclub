@@ -13,8 +13,8 @@ test('twenty square cubist editions share the same palette and plane density, wi
   assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
-    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist/${art.id}.svg`,import.meta.url),'utf8');
-    assert.match(svg,/data-main-planes="100"/);assert.match(svg,/data-inks="16"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,100);
+    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-portrait/${art.id}.svg`,import.meta.url),'utf8');
+    assert.match(svg,/data-main-planes="1600"/);assert.match(svg,/data-inks="128"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,1600);
     for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
       const file=fileURLToPath(new URL(`../public${source}`,import.meta.url));
       const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
