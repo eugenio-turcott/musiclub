@@ -15,11 +15,14 @@ test('twenty square cubist editions share the same palette and plane density, wi
   assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
-    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-squares/${art.id}.svg`,import.meta.url),'utf8');
+    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-collage/${art.id}.svg`,import.meta.url),'utf8');
     assert.match(svg,/data-main-planes="1600"/);assert.match(svg,/data-inks="128"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,1600);
     const quadrilaterals=[...svg.matchAll(/data-cubist-quad="true" d="([^"]+)"/g)];
     assert.ok(quadrilaterals.length>=400,'Every release has a visible layer of square and rectangular planes');
     assert.ok(quadrilaterals.every(([,d])=>(d.match(/[ML]/g)||[]).length===4),'Supporting planes have four corners, rather than triangles');
+    const areas=quadrilaterals.map(([,d])=>{const v=d.match(/[-\d.]+/g).map(Number),p=Array.from({length:4},(_,i)=>[v[i*2],v[i*2+1]]);return Math.abs(p.reduce((s,a,i)=>{const b=p[(i+1)%4];return s+a[0]*b[1]-b[0]*a[1];},0))/2;});
+    assert.ok(Math.max(...areas)/Math.min(...areas)>12,'Large and small cuts must coexist instead of forming a uniform grid');
+    assert.match(svg,/data-cubist-overlap="true"/,'The composition includes overlapping paper planes');
     for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
       const file=fileURLToPath(new URL(`../public${source}`,import.meta.url));
       const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
