@@ -1,5 +1,5 @@
 const officialNames = require('../data/musicGenres.json');
-const additionalNames = ['alternative', 'indie', 'arabic music', 'latin urban', 'soundtrack'];
+const additionalNames = ['alternative', 'indie', 'arabic music', 'latin urban', 'soundtrack', 'a cappella'];
 const fold = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   .replace(/&amp;/g, '&').replace(/[‐‑–—_-]+/g, ' ').replace(/\s+/g, ' ').trim();
 const aliases = {

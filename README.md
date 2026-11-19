@@ -6,11 +6,11 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.2.0 · **Última actualización:** 19 de noviembre de 2026.
+**Versión:** 12.2.1 · **Última actualización:** 19 de noviembre de 2026.
 
 ### Musiclub 2026
 
-La [edición anual](https://www.musiclub.org/2026) abre con **veinte collages cubistas cuadrados** y un Próximamente sobre el mismo mural animado. La vista administrativa comienza con **el ranking del club**, calculado con sus reseñas de 2026, del puesto 20 al 1 al deslizar. Después reúne álbumes, EPs, sencillos, meses, reseñas, listas, géneros, categorías y próximos lanzamientos del panorama global. Cada release compara las valoraciones verificadas de AOTY con la actividad real de Musiclub, conservando ambas escalas y la fecha del corte. **Todas las personas que reseñaron en el año tienen una voz**, sin repetir tarjetas de releases. El club y Mi 2026 amplían estadísticas, géneros y XP; el resumen propio se puede compartir en cinco formatos. Las referencias se conservan para revisión interna. [Contenido, acceso y metodología](docs/annual-2026.md).
+La [edición anual](https://www.musiclub.org/2026) abre con **veinte collages cubistas cuadrados** y un Próximamente sobre el mismo mural animado. Una bienvenida agradece las recomendaciones y reseñas antes de empezar. La vista administrativa comienza con **el ranking del club**, calculado con sus reseñas de 2026, del puesto 20 al 1 al deslizar. Después reúne álbumes, EPs, sencillos, meses, reseñas, listas, géneros, categorías y próximos lanzamientos del panorama global. Las portadas verificadas se sirven en archivos locales de 500–1200 px, con fuentes mayores para los rankings a pantalla completa. Los releases visibles tienen género y ficha propia en el catálogo; sus enlaces abren directamente el release. La selección por género parte de la actividad del club y no repite discos entre grupos. Los vinilos giran suavemente y respetan la pausa y el movimiento reducido. Cada release compara las valoraciones verificadas de AOTY con la actividad real de Musiclub, conservando ambas escalas y la fecha del corte. **Todas las personas que reseñaron en el año tienen una voz**, sin repetir tarjetas de releases. El club y Mi 2026 amplían estadísticas, géneros y XP; el resumen propio se puede compartir en cinco formatos. Las referencias se conservan para revisión interna. [Contenido, acceso y metodología](docs/annual-2026.md).
 
 ### Publicación automática y sitemaps
 

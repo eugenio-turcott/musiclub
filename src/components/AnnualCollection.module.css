@@ -18,3 +18,5 @@
 @media(max-width:760px){.connection{font-size:9px}.toolbar strong{max-width:150px;display:block}.stats strong{font-size:20px}}
 
 .empty{padding:calc(var(--annual-chrome) + 40px) 30px 60px;min-height:70cqh;background:#ed9dbe}.empty h2{font-size:clamp(2.4rem,5vw,5rem)}
+.track .card{container-type:inline-size}
+.track .card>span[aria-hidden=true]{left:3%;bottom:.03em;width:94%;font-size:clamp(1rem,calc(160cqw / var(--genre-length,10)),16cqw);letter-spacing:.015em;line-height:1.08;white-space:normal;overflow-wrap:anywhere;color:#211c2c22}

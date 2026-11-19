@@ -1,0 +1,41 @@
+{
+ "creditSource":"https://media.grammy.net/uploads/2026/05/69th-Awards_PressList_11152026.pdf",
+ "note":"Performers are the artists in parentheses in the official technical-category credits. Category genres are only used where the category actually specifies the musical form; remaining genres are checked against platform/artist metadata.",
+ "works":[
+  ["Varuvaaiy","Devan Ekambaram & Susha",["Indian Classical"]],
+  ["Oriadé","Davido",["Afrobeats"]],
+  ["Starrgirl","Ayra Starr",["Afrobeats"]],
+  ["Love Is A Kingdom","Tems",["Afrobeats","R&B"]],
+  ["All in Good Time","Snooknuk",["children's music"]],
+  ["Hasta La Vista…Baby","Lucky Diaz And The Family Jam Band",["children's music"]],
+  ["Starchild, Vol. 1","Divinity Roxx & Divi Roxx Kids",["children's music"]],
+  ["Coloring Book","Weezer",["Rock"]],
+  ["Power To The People","John Lennon & Yoko Ono/Plastic Ono Band",["Rock"]],
+  ["Clifton Chenier: King of Louisiana Blues & Zydeco","Clifton Chenier",["Zydeco","Blues"]],
+  ["Mother of the Blues: The Complete Paramount Recordings, 1923-1928","Ma Rainey",["Blues"]],
+  ["Ma Rainey: Mother Of The Blues, The Complete Paramount Recordings 1923-1928","Ma Rainey",["Blues"]],
+  ["Haydn: The Complete Decca Recordings","Antal Doráti",["Classical"]],
+  ["The Bootleg Series Vol. 18: Through The Open Window, 1956-1963","Bob Dylan",["Folk"]],
+  ["Classic V-Disc Big Band Jazz Sessions Limited Edition Box Set","Various Artists",["Jazz","Big Band"]],
+  ["Polish Radio Sessions 1970-1991","Tomasz Stańko",["Jazz"]],
+  ["The Thread","WILLOW",["Singer-Songwriter"]],
+  ["Shrink To Fantasy","WILLOW",["Singer-Songwriter"]],
+  ["Dvorák: Symphony No. 9, 'From the New World'; Simon: Four Black American Dances","Manfred Honeck & Pittsburgh Symphony Orchestra",["Classical"]],
+  ["Ustvolskaya: Symphony No. 5; Poulenc: La Voix Humaine","Franz Welser-Möst & The Cleveland Orchestra",["Classical"]],
+  ["Ghost of Yotei (Original Soundtrack)","Toma Otowa",["Soundtrack"]],
+  ["One Size Fits All","Frank Zappa & The Mothers of Invention",["Progressive Rock"]],
+  ["Solace (Compassion)","Andreas Graf, London Symphony Orchestra & Ben Palmer",["Classical"]],
+  ["Blackbird","New York Vocal Collective",["A Cappella"]],
+  ["Radio Newsreel","John Powell",["Orchestral"]],
+  ["Sir Duke","Kings Return",["A Cappella"]],
+  ["Send in the Clowns","Cécile McLorin Salvant, Metropole Orkest & Jules Buckley",["Jazz"]]
+ ],
+ "genreSources":[
+  "https://music.apple.com/us/album/oriade/6784220944",
+  "https://www.universalmusic.ca/2026/08/14/ayra-starr-releases-anticipated-new-album-starrgirl/",
+  "https://music.apple.com/us/album/love-is-a-kingdom/1853635930",
+  "https://api.deezer.com/album/983047391",
+  "https://www.prsa.pl/artykul/205236%2CPOLSKIE-RADIO-NOMINOWANE-DO-NAGRODY-GRAMMY",
+  "https://www.alec-longstreth.com/news/"
+ ]
+}

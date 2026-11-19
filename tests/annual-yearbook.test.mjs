@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
-import {buildAnnualVoices,buildAnnualYearbook} from '../src/utils/annualYearbook.mjs';
+import {buildAnnualVoices,buildAnnualYearbook,annualClubGenres,annualPrimaryGenre} from '../src/utils/annualYearbook.mjs';
+import sharp from 'sharp';
 import snapshot from '../src/server/annual2026Global.json' with {type:'json'};
 const now=Date.parse('2026-11-19T18:00:00Z');
 const album=(id,title)=>({id,album_name:title,artist_name:'Artista',genres:['Pop'],release_year:2026,release_type:'ALBUM',release_date:'2026-03-02',tracks:[{id:'track-'+id,name:'Canción '+id}]});
@@ -10,6 +11,21 @@ const review=(id,person,release,extra={})=>({id,album_id:release,reviewer_name:p
 test('every author receives a different release when a complete matching exists, even if greedy selection would fail',()=>{
  const albums=[album('a','A'),album('b','B'),album('c','C')],reviews=[review('1','Alicia','a'),review('2','Alicia','b'),review('3','Bruno','a'),review('4','Cecilia','b'),review('5','Cecilia','c')];
  const voices=buildAnnualVoices({albums,reviews},{now});assert.equal(voices.contributorCount,3);assert.equal(voices.releaseCount,3);assert.equal(new Set(voices.cards.map(r=>r.id)).size,3);assert.deepEqual(voices.cards.flatMap(r=>r.reviews.map(p=>p.name)).sort(),['Alicia','Bruno','Cecilia']);
+});
+
+test('genre selections come from club activity, use one principal genre and never repeat a release',()=>{
+ const albums=[{...album('a','A'),genres:['Contemporary R&b','Pop']},{...album('b','B'),genres:['R&b','Pop']},{...album('c','C'),genres:['Pop','R&B']},{...album('d','D'),genres:['Pop']},{...album('unused','No reviews'),genres:['Rock']}];
+ const reviews=[review('1','Ana','a'),review('2','Bruno','a'),review('3','Ana','b'),review('4','Ana','c'),review('5','Ana','d')];
+ const groups=annualClubGenres({albums,reviews},[],{now});assert.equal(annualPrimaryGenre(['R&b']),'R&B');assert.equal(annualPrimaryGenre(['Contemporary R&b']),'Contemporary R&B');assert.deepEqual(groups.map(g=>g.name),['R&B','Pop']);
+ const ids=groups.flatMap(g=>g.releases.map(r=>r.id));assert.equal(new Set(ids).size,4);assert.equal(ids.length,4);assert.deepEqual(groups[0].releases.map(r=>r.id),['a','b']);assert.ok(groups.every(g=>g.releases.length>=2));
+});
+
+test('every displayed global release has a real catalog destination, recognized genres and source-size artwork',async()=>{
+ for(const release of snapshot.releases.filter(r=>r.available!==false)){
+  assert.match(release.catalogId,/^[0-9a-f-]{36}$/);assert.match(release.catalogPath,/^\/(albumes|eps|sencillos|compilaciones|remixes)\//);assert.ok(release.genres.length);assert.ok(release.imageWidth>=(snapshot.groups.albums.includes(release.id)?600:500));
+  const metadata=await sharp(new URL('../public'+release.image,import.meta.url).pathname.replace(/^\/([A-Z]:)/,'$1')).metadata();assert.equal(metadata.width,release.imageWidth);
+ }
+ const result=buildAnnualYearbook(null,snapshot,{now});assert.ok(result.upcoming.every(r=>r.available!==false&&r.catalogId));
 });
 test('shared-only releases group all voices without duplicating the release or inventing comments',()=>{
  const a={...album('a','A'),edition_member_ids:['a','a-clean']},reviews=[review('1','Alicia','a'),review('2','Bruno','a-clean',{comment:''}),review('3','Alicia','a',{comment:'Esta es mi opinión completa.'}),review('4','Futuro','a',{created_at:'2026-12-01'}),review('5','Pasado','a',{created_at:'2025-12-01'})];
