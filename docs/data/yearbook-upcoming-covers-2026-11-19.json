@@ -1,0 +1,55 @@
+{
+  "verifiedAt": "2026-11-19",
+  "release": {
+    "id": "efbb0c44-0532-442d-a0ef-5e6a286e83b6",
+    "album_name": "Life is Beautiful",
+    "artist_name": "Nine Vicious",
+    "image_url": "https://www.musiclub.org/annual/2026/global/aoty-2020813-hd.webp",
+    "release_type": "ALBUM",
+    "genres": [
+      "Hip-Hop"
+    ],
+    "release_date": "2027-01-09",
+    "release_year": 2027,
+    "tracks": [],
+    "reviews_enabled": false,
+    "spotify_verified": false
+  },
+  "annualId": "aoty-2020813",
+  "catalogPath": "/albumes/nine-vicious-life-is-beautiful",
+  "artwork": {
+    "source": "https://cdn.albumoftheyear.org/album/2020813-life-is-beautiful_1606096ac3caf1eb840.jpg",
+    "sourcePage": "https://www.albumoftheyear.org/album/2020813-nine-vicious-life-is-beautiful.php",
+    "width": 1000,
+    "height": 1000,
+    "local": "/annual/2026/global/aoty-2020813-hd.webp",
+    "upscaled": false
+  },
+  "classification": {
+    "genres": [
+      "Hip-Hop"
+    ],
+    "basis": "Clasificación editorial general por el género del artista; AOTY aún no publica un género para este álbum.",
+    "artistEvidence": "https://music.apple.com/us/album/b4em/1872548382"
+  },
+  "schedule": {
+    "source": "https://www.albumoftheyear.org/album/2020813-nine-vicious-life-is-beautiful.php",
+    "status": "Provisional: fecha del calendario de AOTY, sujeta a cambios; sin tracklist publicado."
+  },
+  "pending": [
+    {
+      "id": "aoty-1784515",
+      "title": "PSYOPERA",
+      "artist": "Grimes",
+      "reason": "Portada oficial aún no publicada; revisado el 19 de noviembre de 2026",
+      "evidence": "https://www.albumoftheyear.org/album/1784515-grimes-psyopera.php"
+    }
+  ],
+  "catalogAudit": {
+    "total": 1006,
+    "withoutCover": 0,
+    "withoutGenre": 0,
+    "invalidGenres": 0,
+    "scope": "Presencia de URL de imagen y validación de géneros de todas las fichas; no equivale a verificar la resolución de las 1006 fuentes externas."
+  }
+}
