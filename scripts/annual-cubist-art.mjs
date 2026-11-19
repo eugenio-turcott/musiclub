@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import {fileURLToPath} from 'node:url';
 import {quadrilateralPlanes} from './annual-cubist-planes.mjs';
+import {coverIdentityDetails} from './annual-cover-details.mjs';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),num=v=>Number(v.toFixed(2));
 const escape=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;');
 const distance=(a,b)=>(a[0]-b[0])**2*.8+(a[1]-b[1])**2+(a[2]-b[2])**2*.7;
@@ -67,10 +68,11 @@ export async function buildCubistArt(piece,dir,{planes=1600,inks=128,gradient=tr
     return `<path d="${loops.map(p=>'M'+p.map(v=>v.map(num).join(' ')).join('L')+'Z').join('')}" fill="${gradient?`url(#p${k})`:hex(c)}" stroke="${hex(c)}" stroke-width="4" stroke-linejoin="bevel" fill-rule="evenodd"/>`;
   });
   const quads=quadrilateralPlanes(sample,{strength:quadStrength,seed:piece.id});
-  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 600 600" role="img" data-art-edition="cubist-collage" data-main-planes="${centers.length}" data-quad-planes="${quads.count}" data-inks="${inks}"><title>${escape(piece.title)} · ${escape(piece.artist)}</title><desc>Interpretación cubista de ${escape(piece.title)}, con recortes irregulares superpuestos, luz, volumen y detalles de la portada.</desc><defs>${definitions.join('')}${quads.definitions}<filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".68" numOctaves="3" seed="17" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".14"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter></defs><rect width="600" height="600" fill="${hex(ink(sample(300,300)))}"/>${paths.join('')}${quads.paths}<rect width="600" height="600" fill="#f6dfbc" opacity=".035" filter="url(#paper)"/></svg>`;
-  await fs.mkdir(dir,{recursive:true});await fs.writeFile(new URL(`${piece.id}.svg`,dir),svg);
+  const identityDetails=coverIdentityDetails(piece.id),assetId=piece.assetId||piece.id;
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 600 600" role="img" data-art-edition="cubist-collage" data-main-planes="${centers.length}" data-quad-planes="${quads.count}" data-inks="${inks}"><title>${escape(piece.title)} · ${escape(piece.artist)}</title><desc>Interpretación cubista de ${escape(piece.title)}, con recortes irregulares superpuestos, luz, volumen y detalles de la portada.</desc><defs>${definitions.join('')}${quads.definitions}<filter id="paper"><feTurbulence type="fractalNoise" baseFrequency=".68" numOctaves="3" seed="17" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="linear" slope=".14"/></feComponentTransfer><feBlend in="SourceGraphic" mode="multiply"/></filter></defs><rect width="600" height="600" fill="${hex(ink(sample(300,300)))}"/>${paths.join('')}${quads.paths}${identityDetails}<rect width="600" height="600" fill="#f6dfbc" opacity=".035" filter="url(#paper)"/></svg>`;
+  await fs.mkdir(dir,{recursive:true});await fs.writeFile(new URL(`${assetId}.svg`,dir),svg);
   const raster=await sharp(Buffer.from(svg)).png().toBuffer();
-  for(const [suffix,size,quality] of [['',640,87],['-detail',1200,94]])await fs.writeFile(new URL(`${piece.id}${suffix}.webp`,dir),await sharp(raster).resize(size,size).webp({quality,effort:6}).toBuffer());
-  await fs.writeFile(new URL(`${piece.id}.png`,dir),await sharp(raster).png().toBuffer());
+  for(const [suffix,size,quality] of [['',640,87],['-detail',1200,94]])await fs.writeFile(new URL(`${assetId}${suffix}.webp`,dir),await sharp(raster).resize(size,size).webp({quality,effort:6}).toBuffer());
+  await fs.writeFile(new URL(`${assetId}.png`,dir),await sharp(raster).png().toBuffer());
   return{id:piece.id,planes:centers.length};
 }

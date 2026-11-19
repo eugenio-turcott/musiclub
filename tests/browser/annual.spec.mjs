@@ -95,6 +95,11 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();
   await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-collage/mitski-detail.webp');await expect(dialog.getByText('Mitski',{exact:true})).toBeVisible();
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
+  await mural.getByRole('button',{name:'Ver ilustración: U',exact:true}).first().press('Enter');
+  await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-collage/underscores-u-detail.webp');
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-collage/underscores-u.png');
+  await page.screenshot({path:`outputs/annual-underscores-u-${info.project.name}.png`,animations:'disabled'});
+  await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
   const state=await setup(page,{admin:false});await page.goto('/2026?admin=true&user_id=someone-else');

@@ -9,7 +9,7 @@ export const ANNUAL_ART = [
   {id:'ratboys',title:'Singin’ to an Empty Chair',artist:'Ratboys',description:'Dos columpios rojos en un claro, bajo un dosel de árboles.'},
   {id:'free-spirits',title:'FREE SPIRITS',artist:'CA7RIEL & Paco Amoroso',description:'Cuatro retratos con las expresiones, peinados y lazos de la portada.'},
   {id:'olivia',title:'you seem pretty sad for a girl so in love',artist:'Olivia Rodrigo',description:'Una figura con vestido rosa se balancea de cabeza sobre el cielo.'},
-  {id:'underscores',title:'U',artist:'underscores',description:'Una bolsa blanca entre piernas, cables y objetos de una tienda, con líneas de tinta.'},
+  {id:'underscores',title:'U',artist:'underscores',description:'Un cartel blanco con la U de underscores, entre cables y objetos de una tienda.'},
   {id:'dry-cleaning',title:'Secret Love',artist:'Dry Cleaning',description:'Un rostro de cabeza, enmarcado por manos, una botella y un cojín azul.'},
   {id:'neurosis',title:'An Undying Love for a Burning World',artist:'Neurosis',description:'Una silueta de sol negro y ramas enredadas sobre pigmento naranja y rojo.'},
   {id:'rawayana',title:'¿Dónde Es El After?',artist:'Rawayana',description:'Una bailarina con vestido verde bajo un sol amarillo, sobre papel rojo.'},
@@ -20,4 +20,7 @@ export const ANNUAL_ART = [
   {id:'harry',title:'Kiss All The Time. Disco, Occasionally.',artist:'Harry Styles',description:'Una reinterpretación angular de la portada de Kiss All The Time. Disco, Occasionally.'},
   {id:'fcukers',title:'Ö',artist:'Fcukers',description:'Una reinterpretación angular de la portada de Ö.'},
   {id:'haute',title:'Big Disgrace',artist:'Haute & Freddy',description:'Una reinterpretación angular de la portada de Big Disgrace.'},
-].map(piece=>({...piece,src:`/annual/2026/cubist-collage/${piece.id}.webp`,detailSrc:`/annual/2026/cubist-collage/${piece.id}-detail.webp`,download:`/annual/2026/cubist-collage/${piece.id}.png`}));
+].map(piece=>{
+  const assetId=piece.id==='underscores'?'underscores-u':piece.id;
+  return {...piece,assetId,src:`/annual/2026/cubist-collage/${assetId}.webp`,detailSrc:`/annual/2026/cubist-collage/${assetId}-detail.webp`,download:`/annual/2026/cubist-collage/${assetId}.png`};
+});
