@@ -10,11 +10,11 @@ La primera escena presenta veinte collages cubistas de releases incluidos en la 
 
 La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
 
-Sobre las veinte ilustraciones de la apertura aparecen dos composiciones: el año del club y un adelanto del resumen personal. Ambas usan gráficos de Musiclub, sin portadas ni releases en primer plano. Se pueden probar seis vinilos de género sin consultar datos ni modificar información. En la vista administrativa, los releases se agrupan por género normalizado y se ordenan por fecha ascendente dentro de cada grupo; las fechas incompletas conservan su precisión real. No hay pantalla introductoria de filtros.
+Sobre las veinte ilustraciones de la apertura aparecen dos composiciones: el año del club y un adelanto del resumen personal. Ambas usan gráficos de Musiclub, sin portadas ni releases en primer plano. Se pueden probar seis vinilos de género sin consultar datos ni modificar información. En la vista administrativa, el ranking de la selección avanza horizontalmente del puesto 20 al 1 al bajar. Conserva el género y la fecha de cada release, con la precisión real de los datos. No hay pantalla introductoria de filtros.
 
 ## Contenido y procedencia
 
-La selección inicial incluye 20 releases de 2026 y no depende de su presencia en el catálogo. Es una selección editorial en preparación, no un ranking calculado ni un premio de Musiclub. Corte de investigación: **18 de noviembre de 2026**.
+La selección inicial incluye 20 releases de 2026 y no depende de su presencia en el catálogo. Es un ranking editorial de Musiclub en preparación; no un consenso calculado ni un premio. Corte de investigación: **18 de noviembre de 2026**.
 
 Se contrastaron el agregado anual y las valoraciones de AOTY, las selecciones de mitad de año de Rolling Stone y Billboard, conversaciones de r/indieheads de marzo, junio y noviembre, y el anuncio oficial de nominaciones de la Recording Academy del 16 de noviembre.
 
@@ -27,7 +27,7 @@ Referencias:
 - [Reddit: primer trimestre](https://www.reddit.com/r/indieheads/comments/1s6gg7k/first_quarter_of_2026_your_top_5_albums_of_the/), [junio](https://www.reddit.com/r/indieheads/comments/1u7ki9q/the_best_albums_of_2026_so_far/) y [noviembre](https://www.reddit.com/r/indieheads/comments/1xtqqyl/uncut_80_best_albums_of_2026/). Las conversaciones son muestras de opinión, no votaciones representativas ni premios.
 - [Nominaciones oficiales Grammy 2027](https://media.grammy.net/uploads/2026/11/2027_grammys_nominations_final.pdf). Las nominaciones no se presentan como victorias. Los releases de otros años no se añaden automáticamente a la selección de 2026 por estar nominados.
 
-Los enlaces y el contexto de cada referencia están en `src/server/annual2026Selection.mjs`. Las tarjetas permiten consultar las referencias asociadas a cada release. Antes del estreno hay que revisar las listas anuales completas y actualizar el corte.
+Los enlaces y el contexto de cada referencia están en `src/server/annual2026Selection.mjs`. Las referencias se conservan sólo para revisión interna; no se muestran en la interfaz ni se envían como parte de la selección. Antes del estreno hay que revisar las listas anuales completas y actualizar el corte.
 
 ## Arte y portadas
 
@@ -86,3 +86,12 @@ Referencia visual revisada: https://www.instagram.com/p/DemNPZDAQ4J/?img_index=1
 ### Contornos que identifican la portada
 
 En V12.1.10, la U del cartel de underscores se conserva con un contorno vectorial basado en la portada local. El suavizado y la agrupación por color borraban esa línea fina sobre blanco. `annual-cover-details.mjs` coloca el contorno por encima de los recortes, manteniendo visibles los planos del cartel. Los nuevos archivos `underscores-u` evitan reutilizar la edición anterior de la caché en mural, detalle y descarga. Una comprobación de contraste del contorno en los tres archivos y la navegación de la galería en celular y escritorio cubren esta regresión.
+
+
+### Ranking horizontal y estadísticas (V12.1.11)
+
+La colección conserva el orden de la selección de Musiclub como puestos 1–20 y se recorre del 20 al 1, sin confundir ese orden con la nota del club. `AnnualCollection` usa un escenario sticky y un desplazamiento horizontal derivado del scroll vertical nativo; no intercepta la rueda ni los gestos. Incluye botones, foco limitado al panel activo, redimensionamiento y controles sin desplazamiento suave si se prefiere movimiento reducido.
+
+Las notas, reseñas y votos de tracks de cada release se calculan con las reseñas de 2026 hasta la fecha actual, incluyendo sus ediciones agrupadas. Una favorita requiere una elección explícita; los releases sin reseñas no reciben una nota inventada. El resumen del club añade meses, distribución, mediana, notas perfectas, géneros por release distinto y actividad. El personal añade palabras y XP desglosada, usando las mismas reseñas deduplicadas de su resumen. No hay consultas adicionales por tarjeta.
+
+Las referencias no se renderizan en la navegación ni las tarjetas, y los campos de fuentes y nominaciones se excluyen de la respuesta de la colección. Se conservan en el servidor y esta documentación para revisión editorial interna. El acceso de administrador y el Próximamente público no cambian.

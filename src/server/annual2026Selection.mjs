@@ -17,7 +17,7 @@ export const ANNUAL_SOURCES = [
   {id:'grammy',name:'Recording Academy',type:'nomination',url:'https://media.grammy.net/uploads/2026/11/2027_grammys_nominations_final.pdf',note:'Nominaciones anunciadas el 16 de noviembre. Los Grammy 2027 todavía no tienen ganadores.'},
 ];
 const item=(id,title,artist,genre,month,refs,nomination=null)=>({id,title,artist,genre,month,year:2026,refs,nomination});
-// Order is editorial, not an invented consensus ranking or a Musiclub score.
+// Musiclub editorial ranking: first is #1. Club review scores are separate statistics.
 export const ANNUAL_SELECTION = [
   item('phoebe','Lost Weekend','Phoebe Bridgers','Indie Folk',8,['aoty','aggregate','reddit-nov','grammy'],'Álbum del año · Grammy 2027'),
   item('raye','THIS MUSIC MAY CONTAIN HOPE.','RAYE','R&B',3,['billboard','rollingstone','grammy'],'Álbum del año · Grammy 2027'),

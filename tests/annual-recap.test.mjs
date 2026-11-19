@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import {fileURLToPath} from 'node:url';
-import {buildPersonalAnnual,buildClubAnnual,reviewsInYear} from '../src/utils/annualRecap.mjs';
+import {buildPersonalAnnual,buildClubAnnual,buildReleaseAnnual,annualActivityStats,reviewsInYear} from '../src/utils/annualRecap.mjs';
 import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
@@ -97,4 +97,17 @@ test('the public route cannot serialize the editorial collection and the API req
   const page=await fs.readFile(new URL('../src/app/2026/page.jsx',import.meta.url),'utf8');
   const view=await fs.readFile(new URL('../src/views/AnnualPage.jsx',import.meta.url),'utf8');
   assert.match(route,/authorize\(request,\{admin:true\}\)/);assert.match(route,/private, no-store/);assert.doesNotMatch(page,/ANNUAL_SELECTION|annual2026Selection/);assert.doesNotMatch(view,/annual2026Selection|annual2026Covers/);assert.match(view,/data\?\.viewerId===auth\.user\?\.id/);
+});
+
+
+test('expanded activity stats count valid votes, words, distribution, dates and XP without inventing empty values',()=>{
+  const rows=[review('1','2026-03-01T12:00:00Z',{rating_general:10,comment:'Muy buen disco',track_ratings:{t:10,x:null,y:0,z:11},favorite_track:'t'}),review('2','2026-03-02T12:00:00Z',{rating_general:8,comment:'',track_ratings:{t:8},favorite_track:'t'})];
+  const stats=annualActivityStats(rows,[album]);assert.equal(stats.trackCount,2);assert.equal(stats.trackMean,9);assert.equal(stats.meanScore,9);assert.equal(stats.medianScore,9);assert.equal(stats.perfectCount,1);assert.equal(stats.genreCount,2);assert.equal(stats.genres[0].count,1);assert.equal(stats.commentCount,1);assert.equal(stats.wordCount,3);assert.equal(stats.activeDays,2);assert.equal(stats.longestStreak,2);assert.deepEqual(stats.peakMonth,{month:3,count:2});assert.equal(stats.firstDay,'2026-03-01');assert.equal(stats.lastDay,'2026-03-02');assert.equal(stats.scoreDistribution.reduce((n,b)=>n+b.count,0),2);assert.deepEqual(stats.xpBreakdown,{reviews:100,comments:25,tracks:10});assert.deepEqual(stats.favoriteTracks,[{name:'Canción real',count:2}]);
+  const empty=annualActivityStats([]);assert.equal(empty.meanScore,null);assert.equal(empty.trackMean,null);assert.equal(empty.medianScore,null);assert.equal(empty.peakMonth,null);
+});
+
+test('release statistics only include its editions and reviews inside the annual cutoff',()=>{
+  const grouped={...album,edition_member_ids:['a','clean']};
+  const result=buildReleaseAnnual({reviews:[review('1','2026-03-01',{track_ratings:{t:9},favorite_track:'t'}),review('2','2026-04-01',{album_id:'clean'}),review('3','2025-04-01'),review('4','2026-04-01',{album_id:'other'}),review('5','2026-12-01')]},grouped,{now});
+  assert.equal(result.reviewCount,2);assert.equal(result.trackCount,2);assert.equal(result.meanScore,8.7);assert.equal(result.memberCount,2);assert.deepEqual(result.favoriteTrack,{name:'Canción real',count:1});assert.equal(buildReleaseAnnual({reviews:[]},null).meanScore,null);
 });

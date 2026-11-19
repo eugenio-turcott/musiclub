@@ -25,7 +25,7 @@ async function revealSoon(page){
 
 async function setup(page,{admin=true,empty=false,error=false}={}){
   const {profile,own}=await communityAccount(page,{admin});let reads=0;
-  const selection=ANNUAL_SELECTION.map(r=>({...r,...covers[r.id]}));
+  const selection=ANNUAL_SELECTION.map((r,i)=>({...r,rank:i+1,...covers[r.id],stats:{reviewCount:3,meanScore:8.75,trackCount:30,commentCount:2,favoriteTrack:{name:'Canción real del club',count:2}}}));
   const rows=own.map(r=>({...r,created_at:'2026-06-03T12:00:00Z'}));
   const data={viewerId:profile.id,researchDate:'2026-11-18',selection,sources:ANNUAL_SOURCES,club:buildClubAnnual({albums:own.map(r=>r.albums),reviews:rows}),personal:buildPersonalAnnual(empty?[]:rows,own.map(r=>r.albums),{now:Date.parse('2026-11-18T12:00:00Z'),name:profile.name}),errors:[]};
   await page.route('**/api/annual/2026',route=>{reads++;expect(route.request().method()).toBe('GET');return route.fulfill({status:error?503:200,json:error?{error:'No se pudo abrir el resumen de prueba.'}:data});});
@@ -127,30 +127,44 @@ test('scrolling reveals coming soon over the same pinned moving mural without ne
 test('the server rejects unauthenticated and ordinary sessions, including editable admin claims',async({request})=>{
   expect((await request.get('/api/annual/2026')).status()).toBe(401);
   const member=await request.get('/api/annual/2026?user_id=00000000-0000-4000-8000-000000000081',{headers:{Authorization:'Bearer annual-fixture-member'}});expect(member.status()).toBe(403);expect(await member.text()).not.toContain('Lost Weekend');
-  const admin=await request.get('/api/annual/2026',{headers:{Authorization:'Bearer annual-fixture-admin'}});expect(admin.status()).toBe(200);expect(admin.headers()['cache-control']).toContain('private');expect((await admin.json()).selection).toHaveLength(20);
+  const admin=await request.get('/api/annual/2026',{headers:{Authorization:'Bearer annual-fixture-admin'}});expect(admin.status()).toBe(200);expect(admin.headers()['cache-control']).toContain('private');const payload=await admin.json();expect(payload.selection).toHaveLength(20);expect(payload.sources).toBeUndefined();expect(payload.selection.every(r=>r.refs===undefined&&r.nomination===undefined&&r.rank>0&&r.stats)).toBe(true);
 });
-test('administrators can explore external releases, references, personal chapters and the public preview with one read',async({page},info)=>{
+test('administrators scroll the ranking horizontally from 20 to 1 with statistics and no references',async({page},info)=>{
   const state=await setup(page);await page.goto('/2026');
-  await expect(page.getByRole('heading',{name:'Para volver a escuchar.',exact:true})).toHaveCount(0);
-  await expect(page.locator('#seleccion article')).toHaveCount(20);
-  expect(await page.locator('[data-annual-genre]').evaluateAll(groups=>groups.every(group=>{const dates=[...group.querySelectorAll('[data-release-date]')].map(el=>el.dataset.releaseDate);return dates.every((date,i)=>!i||dates[i-1]<=date);}))).toBe(true);
-  await expect(page.locator('#seleccion').getByRole('button',{name:'Nominaciones',exact:true})).toHaveCount(0);
-  const card=page.locator('#release-phoebe');await card.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
-  await expect.poll(()=>card.evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
-  await page.screenshot({path:`outputs/annual-release-scene-${info.project.name}.png`,animations:'disabled'});
-  await card.getByRole('button',{name:'Ver referencias de Lost Weekend',exact:true}).click();await expect(card).toContainText('Recording Academy');
-  await expect(card.getByRole('link',{name:'Escuchar y reseñar'})).toHaveAttribute('href',/catalogo\?/);
-  await card.getByRole('button',{name:'Ver portada original de Lost Weekend',exact:true}).click();await expect(card.getByAltText('Portada de Lost Weekend')).toBeVisible();
-  await page.getByRole('button',{name:'Pausar movimiento',exact:true}).click();
-  await page.getByRole('button',{name:/02\s*Tus releases/}).click();await expect(page.getByRole('heading',{name:'Los discos que destacaste.',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:/03\s*Tus géneros/}).click();await expect(page.getByRole('heading',{name:'Sonaron en tus reseñas.',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:/04\s*Mes a mes/}).click();await expect(page.getByRole('heading',{name:'Así fue tu año.',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:/05\s*Tus artistas/}).click();await expect(page.getByRole('heading',{name:'Los nombres de tu año.',exact:true})).toBeVisible();
+  const main=page.getByRole('main',{name:'Recorrido de Musiclub 2026'}),rail=page.locator('#seleccion');
+  await expect(rail.locator('article')).toHaveCount(20);
+  expect(await rail.locator('article').evaluateAll(cards=>cards.map(c=>Number(c.dataset.rank)))).toEqual(Array.from({length:20},(_,i)=>20-i));
+  await expect(page.locator('#fuentes')).toHaveCount(0);await expect(page.getByRole('link',{name:/Referencias/})).toHaveCount(0);await expect(rail.getByRole('button',{name:/Ver referencias/})).toHaveCount(0);
+  await page.getByRole('link',{name:'Continuar a los releases',exact:true}).press('Enter');
+  const first=page.locator('#release-haute');await expect(first.getByRole('heading',{name:'Big Disgrace',exact:true})).toBeVisible();
+  await expect(first).toContainText('8.75');await expect(first).toContainText('Canción real del club');
+  const firstX=await first.evaluate(el=>el.getBoundingClientRect().left);
+  await rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true}).click();
+  await expect.poll(()=>first.evaluate(el=>el.getBoundingClientRect().left)).toBeLessThan(firstX-200);
+  await expect(rail.getByRole('heading',{name:'Ö',exact:true})).toBeVisible();
+  expect(await rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true}).evaluate(el=>el.getBoundingClientRect().top-document.querySelector('[aria-label="Controles de vista previa anual"]').getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(0);
+  await page.screenshot({path:'outputs/annual-ranking-middle-'+info.project.name+'.png',animations:'disabled'});
+  await main.evaluate(el=>{const r=el.querySelector('#seleccion');el.scrollTo({top:el.scrollTop+r.getBoundingClientRect().top-el.getBoundingClientRect().top+r.offsetHeight-el.clientHeight,behavior:'instant'});});
+  const winner=page.locator('#release-phoebe');await expect(winner.getByRole('heading',{name:'Lost Weekend',exact:true})).toBeVisible();await expect(rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true})).toBeDisabled();
+  await expect(winner.getByRole('link',{name:'Escuchar y reseñar'})).toHaveAttribute('href',/catalogo\?/);
+  await winner.getByRole('button',{name:'Ver portada original de Lost Weekend',exact:true}).click();await expect(winner.getByAltText('Portada de Lost Weekend')).toBeVisible();
+  await page.screenshot({path:'outputs/annual-ranking-winner-'+info.project.name+'.png',animations:'disabled'});
+  await page.locator('#club').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
+  await expect(page.getByRole('region',{name:'Actividad del club por mes',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Distribución de notas del club',exact:true})).toBeVisible();
+  await page.getByRole('region',{name:'Actividad del club por mes',exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
+  await page.screenshot({path:'outputs/annual-club-stats-'+info.project.name+'.png',animations:'disabled'});
+  await page.locator('#mi-2026').getByRole('button',{name:/02\s*Tus releases/}).click();await expect(page.getByRole('heading',{name:'Los discos que destacaste.',exact:true})).toBeVisible();
+  await page.locator('#mi-2026').getByRole('button',{name:/03\s*Tus géneros/}).click();await expect(page.getByRole('heading',{name:'Sonaron en tus reseñas.',exact:true})).toBeVisible();
+  await page.locator('#mi-2026').getByRole('button',{name:/04\s*Mes a mes/}).click();await expect(page.getByRole('heading',{name:'Así fue tu año.',exact:true})).toBeVisible();
+  await page.locator('#mi-2026').getByRole('button',{name:/05\s*Tus artistas/}).click();await expect(page.getByRole('heading',{name:'Los nombres de tu año.',exact:true})).toBeVisible();
+  await expect(page.getByRole('region',{name:'Mi XP de actividad',exact:true})).toBeVisible();
+  await page.getByRole('region',{name:'Mi XP de actividad',exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'center'}));
+  await page.screenshot({path:'outputs/annual-personal-stats-'+info.project.name+'.png',animations:'disabled'});
   await page.getByRole('button',{name:'Ver Próximamente',exact:true}).click();await revealSoon(page);await expect(page.getByText('PRÓXIMAMENTE',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Mostrar edición de administrador',exact:true}).click();await expect(page.locator('#seleccion article')).toHaveCount(20);expect(state.reads()).toBe(1);
+  await page.getByRole('button',{name:'Mostrar edición de administrador',exact:true}).click();await expect(rail.locator('article')).toHaveCount(20);expect(state.reads()).toBe(1);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
-  await page.screenshot({path:`outputs/annual-preview-${info.project.name}.png`,fullPage:true,animations:'disabled'});
 });
+
 test('the personal year has empty and failed states without invented figures',async({page})=>{
   await setup(page,{empty:true});await page.goto('/2026');await expect(page.getByRole('heading',{name:'Tu primer disco empieza este resumen.',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Compartir mi 2026',exact:true})).toHaveCount(0);
 });
