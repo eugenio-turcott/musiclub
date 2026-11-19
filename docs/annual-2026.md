@@ -81,3 +81,8 @@ Los contenedores de la edición anual declaran `data-annual-icons` según su fon
 La V12.1.9 reemplaza la cuadrícula por una partición adaptada al detalle de cada portada. `annual-cubist-planes.mjs` divide cuadriláteros en direcciones y proporciones distintas, pondera su tamaño según el contraste local y añade recortes que se superponen a sus vecinos. La semilla por release mantiene el resultado reproducible sin repetir la misma geometría entre portadas. Se conservan 1600 regiones de detalle y se añaden 512 planos principales de cuatro lados.
 
 Referencia visual revisada: https://www.instagram.com/p/DemNPZDAQ4J/?img_index=1. Se toma la idea general de planos desiguales, inclinación y superposición; no se incorporan imágenes ni recortes del post. Los colores, sujetos y objetos proceden de las portadas verificadas de cada release.
+
+
+### Contornos que identifican la portada
+
+En V12.1.10, la U del cartel de underscores se conserva con un contorno vectorial basado en la portada local. El suavizado y la agrupación por color borraban esa línea fina sobre blanco. `annual-cover-details.mjs` coloca el contorno por encima de los recortes, manteniendo visibles los planos del cartel. Los nuevos archivos `underscores-u` evitan reutilizar la edición anterior de la caché en mural, detalle y descarga. Una comprobación de contraste del contorno en los tres archivos y la navegación de la galería en celular y escritorio cubren esta regresión.

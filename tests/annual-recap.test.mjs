@@ -15,7 +15,7 @@ test('twenty square cubist editions share the same palette and plane density, wi
   assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
-    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-collage/${art.id}.svg`,import.meta.url),'utf8');
+    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-collage/${art.assetId}.svg`,import.meta.url),'utf8');
     assert.match(svg,/data-main-planes="1600"/);assert.match(svg,/data-inks="128"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,1600);
     const quadrilaterals=[...svg.matchAll(/data-cubist-quad="true" d="([^"]+)"/g)];
     assert.ok(quadrilaterals.length>=400,'Every release has a visible layer of square and rectangular planes');
@@ -28,6 +28,21 @@ test('twenty square cubist editions share the same palette and plane density, wi
       const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
       if(source===art.src)assert.ok((await fs.stat(file)).size<150000,'The moving opening uses lightweight previews');
     }
+  }
+});
+
+test('the U cover retains its defining outline above the cubist planes at every public resolution',async()=>{
+  const art=ANNUAL_ART.find(a=>a.id==='underscores');
+  const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-collage/${art.assetId}.svg`,import.meta.url),'utf8');
+  assert.ok(svg.indexOf('data-cover-detail="underscores-u"')>svg.lastIndexOf('data-cubist-overlap="true"'),'The thin identity contour must not be obscured by the colour planes');
+  for(const file of [art.src,art.detailSrc,art.download]){
+    const {data,info}=await sharp(fileURLToPath(new URL(`../public${file}`,import.meta.url))).removeAlpha().raw().toBuffer({resolveWithObject:true});
+    let dark=0;
+    for(let y=Math.floor(info.height*.36);y<info.height*.55;y++)for(let x=Math.floor(info.width*.415);x<info.width*.58;x++){
+      const i=(y*info.width+x)*info.channels;
+      if(data[i]<125&&data[i+1]<125&&data[i+2]<125)dark++;
+    }
+    assert.ok(dark>info.width*.3,`The U outline remains visible in ${file}`);
   }
 });
 test('annual icon inks retain contrast on every pastel, dark panel and share-button background',()=>{
