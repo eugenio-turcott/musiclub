@@ -3728,7 +3728,7 @@
       "sourceUrl": "https://www.albumoftheyear.org/album/1784515-grimes-psyopera.php",
       "global": {},
       "available": false,
-      "pendingReason": "Portada y datos del anuncio pendientes de confirmación"
+      "pendingReason": "Portada oficial aún no publicada; revisado el 19 de noviembre de 2026"
     },
     {
       "id": "aoty-2102165",
@@ -3852,13 +3852,18 @@
       "artist": "Nine Vicious",
       "type": "lp",
       "releaseDate": "2027-01-09",
-      "genres": [],
-      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2020813-life-is-beautiful_1606096ac3caf1eb840.jpg",
-      "image": null,
+      "genres": [
+        "Hip-Hop"
+      ],
+      "imageSource": "https://cdn.albumoftheyear.org/album/2020813-life-is-beautiful_1606096ac3caf1eb840.jpg",
+      "image": "/annual/2026/global/aoty-2020813-hd.webp",
       "sourceUrl": "https://www.albumoftheyear.org/album/2020813-nine-vicious-life-is-beautiful.php",
       "global": {},
-      "available": false,
-      "pendingReason": "Portada y datos del anuncio pendientes de confirmación"
+      "available": true,
+      "imageWidth": 1000,
+      "catalogId": "efbb0c44-0532-442d-a0ef-5e6a286e83b6",
+      "catalogPath": "/albumes/nine-vicious-life-is-beautiful",
+      "release_type": "ALBUM"
     }
   ]
 }
