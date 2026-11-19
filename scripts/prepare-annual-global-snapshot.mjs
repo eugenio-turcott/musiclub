@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import sharp from 'sharp';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
+const prior=JSON.parse(await fs.readFile(new URL('../src/server/annual2026Global.json',import.meta.url),'utf8'));
 const evidence=JSON.parse(await fs.readFile(new URL('../docs/data/annual-2026-global-observed.json',import.meta.url),'utf8'));
 const counts=value=>{const s=String(value||'').replace(/[(),]/g,'').trim(),n=Number(s.match(/[\d.]+/)?.[0]);return Number.isFinite(n)?Math.round(n*(/k/i.test(s)?1000:1)):null;};
 const date=(label,year)=>{const raw=String(label||'').split(' • ')[0];const time=Date.parse(raw.includes(String(year))?raw:`${raw}, ${year}`);return Number.isFinite(time)?new Date(time).toISOString().slice(0,10):null;};
@@ -31,5 +32,7 @@ for(const r of snapshot.releases){
  if(buffer)await fs.writeFile(target,await sharp(buffer).resize(400,400,{fit:'cover',withoutEnlargement:true}).webp({quality:86}).toBuffer());
  else try{await fs.access(target);}catch{r.image=null;missing.push(r.id);}
 }
+// A statistics refresh must not discard reviewed catalog IDs or HD artwork.
+for(const release of snapshot.releases){const enriched=prior.releases.find(r=>r.id===release.id);if(enriched?.catalogId||enriched?.available===false)for(const key of ['catalogId','catalogPath','release_type','available','pendingReason','image','imageSource','imageWidth','genres'])if(key in enriched)release[key]=enriched[key];}
 await fs.writeFile(new URL('../src/server/annual2026Global.json',import.meta.url),JSON.stringify(snapshot,null,2)+'\n');
 console.log({releases:snapshot.releases.length,uncached:missing.length,groups:Object.fromEntries(Object.entries(groups).map(([key,ids])=>[key,ids.length]))});

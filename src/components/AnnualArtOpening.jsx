@@ -47,7 +47,7 @@ export function AnnualArtOpening({next='adelanto',children}){
     <h1 className={styles.artAccessibleTitle}>Musiclub 2026 · Nuestro año en música</h1>
     <div className={styles.artViewport}>
       <div className={styles.artBackground} data-opening-bands><div className={styles.artBands}>{rows.map((row,c)=><div key={c} className={styles.artBand}><div className={styles.artBandTrack}>{[0,1].map(copy=><div key={copy} className={styles.artBandRun} aria-hidden={copy===1?true:undefined}>{row.map((i,k)=>{const piece=pieces[i];return <button key={piece.id} type="button" className={styles.releaseArtTile} data-release-id={piece.id} tabIndex={copy===1?-1:0} aria-label={`Ver ilustración: ${piece.title}`} onClick={()=>setSelected(i)}><img src={piece.src} alt="" width="640" height="640" loading={copy===0&&k<5?'eager':'lazy'} draggable="false"/></button>;})}</div>)}</div></div>)}</div></div>
-      <a href={`#${next}`} data-opening-cue data-annual-icons="dark" className={styles.artContinue} aria-label={next==='adelanto'?'Continuar al adelanto':'Continuar a los releases'}><UiIcon name="arrowDown"/></a>
+      <a href={`#${next}`} data-opening-cue data-annual-icons="dark" className={styles.artContinue} aria-label={next==='adelanto'?'Continuar al adelanto':next==='bienvenida'?'Antes de comenzar':'Continuar a los releases'}><UiIcon name="arrowDown"/></a>
       {children&&<div className={styles.artReveal} data-opening-content inert aria-hidden="true">{children}</div>}
     </div>
     {children&&<span id="adelanto" data-annual-scene data-chapter="adelanto" className={styles.artRevealAnchor} aria-hidden="true"/>}

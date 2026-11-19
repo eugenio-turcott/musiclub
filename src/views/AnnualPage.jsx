@@ -63,6 +63,17 @@ function ClubSection({club}){
   return <section id="club" data-annual-icons="dark" data-annual-scene className={styles.club} data-annual-reveal><div className={styles.sectionHeading}><div><Label icon="users">EL CLUB EN 2026</Label><h2>El año del club.</h2></div><p>Lo que pasó por Musiclub, contado con las reseñas de 2026.</p></div>{club?<><div className={styles.clubNumbers}><div><UiIcon name="review"/><strong>{number(club.reviewCount)}</strong><span>reseñas publicadas</span></div><div><UiIcon name="disc"/><strong>{number(club.releaseCount)}</strong><span>releases reseñados</span></div><div><UiIcon name="users"/><strong>{number(club.memberCount)}</strong><span>nombres en las reseñas</span></div></div><AnnualActivity stats={club}/></>:<p role="status">El resumen del club no está disponible. Puedes reintentar desde la barra de vista previa.</p>}</section>;
 }
 
+function AnnualWelcome(){
+  return <section id="bienvenida" data-annual-scene data-chapter="inicio" data-annual-icons="light" className={styles.welcome}>
+    <div className={styles.welcomeRecords} aria-hidden="true"><GenreArtwork genre="Pop" size={100} animated rotateLabel/><img src="/musiclub_logo_corchea.png" width="66" height="66" alt=""/><GenreArtwork genre="Rock" size={100} animated rotateLabel/></div>
+    <Label icon="heart">ANTES DE COMENZAR</Label><h2>2026 en Musiclub.</h2>
+    <p>Hubo discos que escuchamos una y otra vez, canciones que nos sorprendieron y reseñas que nos hicieron darles otra oportunidad. Este resumen reúne un poco de todo eso.</p>
+    <p>Gracias por cada recomendación, cada opinión y cada descubrimiento compartido. Musiclub tiene sentido por las personas que lo hacen suyo.</p>
+    <p>Primero, los favoritos del club. Después, un recorrido por el año en la música y por tu propio 2026.</p>
+    <a href="#seleccion">Vamos a los discos <UiIcon name="arrowDown" size={30}/></a>
+  </section>;
+}
+
 function PersonalSection({personal,onShare}){
   const [page,setPage]=useState(0),[theme,setTheme]=useState('night');
   if(!personal)return <section id="mi-2026" data-annual-scene className={styles.personal}><h2>Mi 2026</h2><p>Tu resumen no está disponible. Reintenta la consulta desde la barra de vista previa.</p></section>;
@@ -100,7 +111,7 @@ export function AnnualPage(){
     {auth.isAdmin&&loading&&<p role="status" className={styles.loadNotice}>Preparando tu vista previa del año…</p>}
     {error&&auth.isAdmin&&<p role="alert" className={styles.loadNotice}>{error}<button type="button" onClick={retryLoad}>Reintentar</button></p>}
     <Motion paused={paused} onChapter={setChapter} key={visible?'preview':'public'}>{!visible?<AnnualComingSoon/>:<>
-      <AnnualArtOpening next="seleccion"/>
+      <AnnualArtOpening next="bienvenida"/><AnnualWelcome/>
       <AnnualCollection selection={data.selection}/>
       <ClubSection club={data.club}/><AnnualWorld yearbook={data.yearbook} playlists={data.playlists}/><PersonalSection personal={data.personal} onShare={setShare}/>
       <section className={styles.ending}><img src="/musiclub_logo_corchea.png" alt="" width="58" height="58"/><h2>Nos queda mucho<br/>por escuchar.</h2><Link href="/catalogo" data-annual-icons="dark" className={styles.primary}>Volver al catálogo <UiIcon name="arrow"/></Link></section>

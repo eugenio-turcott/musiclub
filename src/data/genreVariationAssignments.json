@@ -19,6 +19,12 @@
         "metronome"
       ]
     },
+    "a cappella": {
+      "figure": "choir",
+      "details": [
+        "heart"
+      ]
+    },
     "aak": {
       "figure": "janggu",
       "details": []
