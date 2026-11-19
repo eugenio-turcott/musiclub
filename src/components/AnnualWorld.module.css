@@ -11,3 +11,6 @@
 @media(prefers-reduced-motion:reduce){.review,.cover>span{transition:none}.review:hover{transform:none}}
 
 .reviewText{margin-top:17px}.reviewText blockquote{margin:0;font-size:14px;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}.reviewText button{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:#ed9dbe;padding:10px 0;margin-top:4px}.reviewText button :global(.ui-icon){width:19px;height:19px}
+
+.comparison.clubOnly{grid-template-columns:1fr}
+.comparison.clubOnly>div{border-left:0;padding-left:0}

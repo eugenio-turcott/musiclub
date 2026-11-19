@@ -58,6 +58,7 @@ test('both public panels stay over the same mural and contain no foreground rele
   await revealSoon(page);
   await expect.poll(()=>page.locator('#adelanto').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
   await expect(page.getByRole('region',{name:'Musiclub 2026 · Próximamente'})).toBeVisible();
+  await expect(page.locator('[aria-label="Edición anual de Musiclub"] [data-vinyl-edition]')).toHaveCount(2);
   await expect(page.locator('[data-opening-content] img')).toHaveCount(2);
   expect(await page.locator('[data-opening-content] img').evaluateAll(images=>images.every(img=>img.getAttribute('src')==='/musiclub_logo_corchea.png'))).toBe(true);
   await expect(page.getByRole('button',{name:/Sacar vinilo/})).toHaveCount(0);
@@ -168,6 +169,9 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   await page.locator('#mi-2026').getByRole('button',{name:/02\s*Tus releases/}).click();await expect(page.getByRole('heading',{name:'Los discos que destacaste.',exact:true})).toBeVisible();
   await page.locator('#mi-2026').getByRole('button',{name:/03\s*Tus géneros/}).click();await expect(page.getByRole('heading',{name:'Sonaron en tus reseñas.',exact:true})).toBeVisible();
   await page.locator('#mi-2026').getByRole('button',{name:/04\s*Mes a mes/}).click();await expect(page.getByRole('heading',{name:'Así fue tu año.',exact:true})).toBeVisible();
+  expect(await page.locator('[data-personal-months]>div>span').allTextContents()).toEqual(['Jul','Ago','Sep','Oct','Nov','Dic']);
+  for(const chart of await page.locator('[data-activity-months]').all())expect(await chart.locator(':scope>div>span').allTextContents()).toEqual(['Jul','Ago','Sep','Oct','Nov','Dic']);
+  await page.screenshot({path:'outputs/annual-july-personal-'+info.project.name+'.png',animations:'disabled'});
   await page.locator('#mi-2026').getByRole('button',{name:/05\s*Tus artistas/}).click();await expect(page.getByRole('heading',{name:'Los nombres de tu año.',exact:true})).toBeVisible();
   await expect(page.getByRole('region',{name:'Mi XP de actividad',exact:true})).toBeVisible();
   await page.getByRole('region',{name:'Mi XP de actividad',exact:true}).evaluate(el=>el.scrollIntoView({behavior:'instant',block:'center'}));
@@ -251,9 +255,14 @@ test('the global sections follow the annual sequence and every reviewer appears 
  expect(await voices.locator('[data-voice-release]').evaluateAll(nodes=>new Set(nodes.map(e=>e.dataset.voiceRelease)).size===nodes.length)).toBe(true);
  await voices.locator('[data-voice-release]').first().evaluate(el=>el.scrollIntoView({behavior:'instant',block:'center'}));await page.screenshot({path:'outputs/annual-yearbook-voices-'+info.project.name+'.png',animations:'disabled'});
  const more=voices.getByRole('button',{name:'Leer completa',exact:true}).first();await more.click();await expect(more).toHaveCount(0);await voices.getByRole('button',{name:'Ver menos',exact:true}).click();
- await page.locator('#meses').getByRole('button',{name:'Marzo',exact:true}).click();await expect(page.locator('#meses [data-global-release]')).toHaveCount(1);await expect(page.locator('#meses')).toContainText('AOTY');await expect(page.locator('#meses')).toContainText('Musiclub');
+ await page.locator('#meses').getByRole('button',{name:'Marzo',exact:true}).click();await expect(page.locator('#meses [data-global-release]')).toHaveCount(1);await expect(page.locator('#meses')).toContainText('Valoración externa');await expect(page.locator('#meses')).toContainText('Musiclub');
  await page.locator('#meses').getByRole('button',{name:'Diciembre',exact:true}).click();await expect(page.locator('#meses')).toContainText('No hay un release de este mes en el corte consultado.');
  await page.locator('#categorias').getByRole('button',{name:'Bandas sonoras',exact:true}).click();await expect(page.locator('#categorias [data-global-release]')).toHaveCount(8);
+ await expect(page.getByRole('main')).not.toContainText('AOTY');
+ await expect(page.locator('#seleccion')).not.toContainText('Valoración externa');
+ const genreCards=page.locator('#generos [data-global-release]');expect(await genreCards.count()).toBeGreaterThan(1);
+ for(const card of await genreCards.all()){await expect(card).toContainText('Musiclub');await expect(card).not.toContainText('Valoración externa');await expect(card).not.toContainText('/100');}
+ await page.locator('#generos').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await page.screenshot({path:'outputs/annual-club-only-genres-'+info.project.name+'.png',animations:'disabled'});
  await page.locator('#categorias').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await page.screenshot({path:'outputs/annual-yearbook-categories-'+info.project.name+'.png',animations:'disabled'});
  expect(state.reads()).toBe(1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

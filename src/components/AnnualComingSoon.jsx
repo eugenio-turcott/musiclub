@@ -18,7 +18,7 @@ export function AnnualComingSoon(){
       </div>
       <div data-annual-icons="light" className={styles.yearTicket} aria-label="Edición anual de Musiclub">
         <div className={styles.ticketBrand}><img src="/musiclub_logo_corchea.png" width="60" height="60" alt="Musiclub"/><span>EDICIÓN ANUAL</span><UiIcon name="headphones" size={44}/></div>
-        <div className={styles.ticketYear}>20<span>26</span><i aria-hidden="true"><UiIcon name="sparkles" size={65}/></i></div>
+        <div className={styles.ticketYear}>20<span>26</span><div className={styles.ticketRecords} aria-hidden="true"><GenreArtwork genre="Pop" size={220} animated rotateLabel/><GenreArtwork genre="Rock" size={150} animated rotateLabel/></div><i aria-hidden="true"><UiIcon name="sparkles" size={65}/></i></div>
         <div className={styles.ticketGrooves} aria-hidden="true"/>
         <div className={styles.ticketFeatures}>{[['review','Reseñas'],['users','Comunidad'],['share','Tu resumen']].map(([icon,label])=><div key={icon}><UiIcon name={icon} size={42}/><strong>{label}</strong></div>)}</div>
         <div className={styles.ticketFoot}><span>TU MÚSICA. TU CRITERIO.</span><span>MUSICLUB / 2026</span></div>

@@ -1,5 +1,8 @@
 import genres from './genreCatalog.cjs';
 
+// Musiclub's first edition starts with the club's creation in July 2026.
+export const annualClubMonths=(months=[])=>months.filter(m=>m.month>=7&&m.month<=12);
+
 export function annualReleaseDate(release){
   if(/^\d{4}-\d{2}-\d{2}$/.test(release.releaseDate||''))return release.releaseDate;
   return `${release.year||2026}-${release.month?String(release.month).padStart(2,'0'):'99'}-99`;
