@@ -13,6 +13,7 @@ import {getReleaseUrl} from '../utils/ratingUtils';
 import {AnnualComingSoon} from '../components/AnnualComingSoon';
 import {AnnualCollection} from '../components/AnnualCollection';
 import {AnnualActivity} from '../components/AnnualActivity';
+import {AnnualWorld} from '../components/AnnualWorld';
 import {AnnualArtOpening} from '../components/AnnualArtOpening';
 import styles from './AnnualPage.module.css';
 import '../styles/annual-icons.css';
@@ -27,7 +28,7 @@ function Brand(){return <Link href="/" className={styles.brand} aria-label="Volv
 function Label({icon='disc',children}){return <span className={styles.label}><UiIcon name={icon} size={30} tone="accent"/>{children}</span>;}
 function EditionNav({preview,paused,onToggle,chapter,onPreview,publicPreview}){
   const [open,setOpen]=useState(false);
-  const chapters=preview?[['inicio','Inicio'],['seleccion','Los releases'],['club','El club'],['mi-2026','Mi 2026']]:[['inicio','Inicio'],['adelanto','El adelanto'],['tu-2026','Tu 2026']];
+  const chapters=preview?[['inicio','Inicio'],['seleccion','Ranking del club'],['club','El club'],['panorama','El mundo'],['voces','Reseñas'],['mi-2026','Mi 2026']]:[['inicio','Inicio'],['adelanto','El adelanto'],['tu-2026','Tu 2026']];
   return <header className={styles.editionNav} data-annual-icons={!preview||chapter==='inicio'?'dark':'light'}>
     <Brand/>
     <nav data-annual-icons="light" className={styles.editionLinks} aria-label={preview?'Capítulos del año':'Adelanto de la edición anual'} data-open={open}>{chapters.map(([id,label],i)=><a href={`#${id}`} key={id} aria-current={chapter===id?'location':undefined} onClick={()=>setOpen(false)}><span>0{i+1}</span>{label}</a>)}</nav>
@@ -59,9 +60,7 @@ function Motion({children,paused,onChapter}){
 }
 
 function ClubSection({club}){
-  const albums=club?.topAlbums||club?.topReleases?.filter(r=>r.release_type==='ALBUM')||[];
-  const list=albums.length?albums:club?.topReleases||[];
-  return <section id="club" data-annual-icons="dark" data-annual-scene className={styles.club} data-annual-reveal><div className={styles.sectionHeading}><div><Label icon="users">02 / LA COMUNIDAD</Label><h2>El año del club.</h2></div><p>Lo que pasó por Musiclub, contado con las reseñas de 2026.</p></div>{club?<><div className={styles.clubNumbers}><div><UiIcon name="review"/><strong>{number(club.reviewCount)}</strong><span>reseñas publicadas</span></div><div><UiIcon name="disc"/><strong>{number(club.releaseCount)}</strong><span>releases reseñados</span></div><div><UiIcon name="users"/><strong>{number(club.memberCount)}</strong><span>nombres en las reseñas</span></div></div><AnnualActivity stats={club}/><div className={styles.clubTopHeading}><h3>{albums.length?'Álbumes de 2026 destacados':'Releases de 2026 destacados'}</h3><small>Desde {club.minimumReviews} reseña{club.minimumReviews===1?'':'s'} · Promedio ponderado</small></div>{list.length?<ol className={styles.clubList}>{list.slice(0,16).map((release,i)=><li key={release.id}><b>{String(i+1).padStart(2,'0')}</b><CoverImage src={release.image} alt="" sizes="90px"/><Link href={getReleaseUrl({id:release.id,album_name:release.title,artist_name:release.artist,release_type:release.release_type})}><strong>{release.title}</strong><span>{release.artist}</span></Link><span className={styles.clubScore}><UiIcon name="star"/>{release.score.toFixed(2)}<small>{release.reviewCount} {release.reviewCount===1?'reseña':'reseñas'}</small></span></li>)}</ol>:<p>Todavía no hay reseñas de releases de 2026 para mostrar.</p>}</>:<p role="status">El resumen del club no está disponible. Puedes reintentar desde la barra de vista previa.</p>}</section>;
+  return <section id="club" data-annual-icons="dark" data-annual-scene className={styles.club} data-annual-reveal><div className={styles.sectionHeading}><div><Label icon="users">EL CLUB EN 2026</Label><h2>El año del club.</h2></div><p>Lo que pasó por Musiclub, contado con las reseñas de 2026.</p></div>{club?<><div className={styles.clubNumbers}><div><UiIcon name="review"/><strong>{number(club.reviewCount)}</strong><span>reseñas publicadas</span></div><div><UiIcon name="disc"/><strong>{number(club.releaseCount)}</strong><span>releases reseñados</span></div><div><UiIcon name="users"/><strong>{number(club.memberCount)}</strong><span>nombres en las reseñas</span></div></div><AnnualActivity stats={club}/></>:<p role="status">El resumen del club no está disponible. Puedes reintentar desde la barra de vista previa.</p>}</section>;
 }
 
 function PersonalSection({personal,onShare}){
@@ -69,7 +68,7 @@ function PersonalSection({personal,onShare}){
   if(!personal)return <section id="mi-2026" data-annual-scene className={styles.personal}><h2>Mi 2026</h2><p>Tu resumen no está disponible. Reintenta la consulta desde la barra de vista previa.</p></section>;
   const slides=['Tus reseñas','Tus releases','Tus géneros','Mes a mes','Tus artistas'];
   const peak=Math.max(1,...personal.months.map(m=>m.count));
-  return <section id="mi-2026" data-annual-scene className={styles.personal} data-annual-reveal><div className={styles.sectionHeading}><div><Label icon="heart">03 / MI 2026</Label><h2>Tu año, disco por disco.</h2></div><p>Tus reseñas en Musiclub. Cada disco cuenta, aunque haya salido antes de 2026.</p></div>
+  return <section id="mi-2026" data-annual-scene className={styles.personal} data-annual-reveal><div className={styles.sectionHeading}><div><Label icon="heart">MI 2026</Label><h2>Tu año, disco por disco.</h2></div><p>Tus reseñas en Musiclub. Cada disco cuenta, aunque haya salido antes de 2026.</p></div>
     {!personal.reviewCount?<div className={styles.emptyPersonal}><GenreArtwork genre="Indie" size={160} animated/><h3>Tu primer disco empieza este resumen.</h3><p>Cuando publiques una reseña este año, aparecerá aquí.</p><Link href="/catalogo" data-annual-icons="dark" className={styles.primary}>Encontrar un release <UiIcon name="arrow"/></Link></div>:<div className={styles.personalLayout}>
       <div className={styles.personalControls}><span className={styles.privateLabel}><UiIcon name="lock"/>Sólo tu actividad</span><h3>{personal.name}</h3><p>Esta es tu edición del año. Cambia de capítulo y elige cómo quieres compartirla.</p><nav aria-label="Capítulos de mi año">{slides.map((label,i)=><button type="button" key={label} aria-pressed={page===i} data-annual-icons={page===i?'dark':'light'} onClick={()=>setPage(i)}><span>0{i+1}</span>{label}<UiIcon name={['review','disc','headphones','calendar','mic'][i]}/></button>)}</nav><fieldset><legend>Elige tu edición</legend>{[['night','Noche del club'],['paper','En papel'],['mint','Menta']].map(([id,label])=><button type="button" key={id} aria-pressed={theme===id} onClick={()=>setTheme(id)} className={styles.themeButton}><i data-theme={id}/>{label}</button>)}</fieldset><button type="button" data-annual-icons="dark" className={styles.primary} onClick={()=>onShare({personal,theme})}><UiIcon name="share"/>Compartir mi 2026</button><small>Se genera una imagen. Tú decides dónde publicarla.</small></div>
       <div className={styles.personalPoster} data-annual-icons={theme==='night'?'dark':'light'} data-theme={theme} aria-live="polite"><div className={styles.posterOrnaments} aria-hidden="true"><GenreArtwork genre={personal.genres[0]?.name||'Pop'} size={165}/><span>2026</span></div><div className={styles.posterBrand}><img src="/musiclub_logo_corchea.png" alt="Musiclub" width="38" height="38"/><strong>MI 2026</strong><span>{String(page+1).padStart(2,'0')} / 05</span></div><div className={styles.personalSlide} key={page}><div className={styles.slideEmblem} aria-hidden="true"><UiIcon name={['review','disc','headphones','calendar','mic'][page]} size={38}/><span>EDICIÓN PERSONAL</span></div>
@@ -103,7 +102,7 @@ export function AnnualPage(){
     <Motion paused={paused} onChapter={setChapter} key={visible?'preview':'public'}>{!visible?<AnnualComingSoon/>:<>
       <AnnualArtOpening next="seleccion"/>
       <AnnualCollection selection={data.selection}/>
-      <ClubSection club={data.club}/><PersonalSection personal={data.personal} onShare={setShare}/>
+      <ClubSection club={data.club}/><AnnualWorld yearbook={data.yearbook} playlists={data.playlists}/><PersonalSection personal={data.personal} onShare={setShare}/>
       <section className={styles.ending}><img src="/musiclub_logo_corchea.png" alt="" width="58" height="58"/><h2>Nos queda mucho<br/>por escuchar.</h2><Link href="/catalogo" data-annual-icons="dark" className={styles.primary}>Volver al catálogo <UiIcon name="arrow"/></Link></section>
     </>}<Footer showAd={false}/></Motion>
     {visible&&share&&<AnnualShare personal={share.personal} initialTheme={share.theme} onClose={()=>setShare(null)}/>}
