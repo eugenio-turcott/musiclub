@@ -41,13 +41,19 @@ function Motion({children,paused,onChapter}){
     const scroller=ref.current;
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)entry.target.dataset.revealed='true';entry.target.dataset.visible=String(entry.isIntersecting);}),{root:scroller,threshold:.08});
     ref.current?.querySelectorAll('[data-annual-reveal]').forEach(el=>observer.observe(el));
-    const chapters=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)onChapter(entry.target.dataset.chapter||entry.target.id);}),{root:scroller,rootMargin:'-20% 0px -65% 0px',threshold:0});
-    scroller?.querySelectorAll('[data-annual-scene]').forEach(el=>chapters.observe(el));
-    const progress=()=>{const max=scroller.scrollHeight-scroller.clientHeight;scroller.parentElement.style.setProperty('--scroll-progress',max>0?scroller.scrollTop/max:0);};
-    scroller?.addEventListener('scroll',progress,{passive:true});progress();
+    const scenes=[...scroller.querySelectorAll('[data-annual-scene]')];let frame=0,lastChapter='';
+    const progress=()=>{
+      frame=0;const max=scroller.scrollHeight-scroller.clientHeight;scroller.parentElement.style.setProperty('--scroll-progress',max>0?scroller.scrollTop/max:0);
+      const marker=scroller.getBoundingClientRect().top+scroller.clientHeight*.35;
+      const scene=scenes.find(el=>{const bounds=el.getBoundingClientRect();return bounds.top<=marker&&bounds.bottom>marker;});
+      const current=scene?.dataset.chapter||scene?.id;
+      if(current&&current!==lastChapter){lastChapter=current;onChapter(current);}
+    };
+    const schedule=()=>{if(!frame)frame=requestAnimationFrame(progress);};
+    const resize=new ResizeObserver(schedule);resize.observe(scroller);scroller.addEventListener('scroll',schedule,{passive:true});progress();
     const hash=window.location.hash.slice(1);if(hash)scroller?.querySelector(`#${CSS.escape(hash)}`)?.scrollIntoView({behavior:'instant',block:'start'});
     const visibility=()=>{if(ref.current)ref.current.dataset.hidden=String(document.hidden);};visibility();document.addEventListener('visibilitychange',visibility);
-    return()=>{observer.disconnect();chapters.disconnect();scroller?.removeEventListener('scroll',progress);document.removeEventListener('visibilitychange',visibility);};
+    return()=>{observer.disconnect();resize.disconnect();cancelAnimationFrame(frame);scroller?.removeEventListener('scroll',schedule);document.removeEventListener('visibilitychange',visibility);};
   },[onChapter]);
   return <main ref={ref} className={styles.experience} data-paused={paused} aria-label="Recorrido de Musiclub 2026" tabIndex={0}>{children}</main>;
 }
