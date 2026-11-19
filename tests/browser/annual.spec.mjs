@@ -146,6 +146,9 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   await expect(page.locator('[data-private=true]')).toHaveAttribute('data-opening','false');
   const first=rail.locator('article').first();await expect(first.getByRole('heading',{name:state.data.selection.at(-1).title,exact:true})).toBeVisible();
   await expect(first).toContainText(state.data.selection.at(-1).stats.meanScore.toFixed(2));
+  const trackStat=first.getByText(/^tracks? del release$/).locator('..');
+  await expect(trackStat.locator('strong')).toHaveText(String(state.data.selection.at(-1).stats.trackCount));
+  await expect(first).not.toContainText('tracks calificados');
   const firstX=await first.evaluate(el=>el.getBoundingClientRect().left);
   await rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true}).click();
   await expect.poll(()=>first.evaluate(el=>el.getBoundingClientRect().left)).toBeLessThan(firstX-200);
