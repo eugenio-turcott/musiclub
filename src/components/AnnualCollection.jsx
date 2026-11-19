@@ -22,7 +22,7 @@ function ReleaseCard({release,index}){
       <h3>{release.title}</h3><p className={styles.artist}>{release.artist}</p>
       <div className={rail.stats} aria-label={`Estadísticas de ${release.title} en el club durante 2026`}>
         <div><UiIcon name="star"/><strong>{stats?.meanScore==null?'—':stats.meanScore.toFixed(2)}<small>/10</small></strong><span>nota del club</span></div>
-        <div><UiIcon name="review"/><strong>{stats?stats.reviewCount:'—'}</strong><span>reseñas</span></div>
+        <div><UiIcon name="review"/><strong>{stats?stats.reviewCount:'—'}</strong><span>{stats?.reviewCount===1?'reseña':'reseñas'}</span></div>
         <div><UiIcon name="music"/><strong>{stats?stats.trackCount:'—'}</strong><span>tracks calificados</span></div>
       </div>
       {stats?.favoriteTrack?<div className={rail.favorite}><UiIcon name="heart"/><span>Favorita del club<strong>{stats.favoriteTrack.name}</strong></span><b>{stats.favoriteTrack.count} {stats.favoriteTrack.count===1?'voto':'votos'}</b></div>:<p className={rail.note}>{stats?.reviewCount?'Todavía no hay una canción favorita registrada.':stats?'Aún sin reseñas del club. Tu opinión puede ser la primera.':'Las estadísticas del club no están disponibles.'}</p>}

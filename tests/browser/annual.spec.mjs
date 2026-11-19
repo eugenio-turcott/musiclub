@@ -136,6 +136,7 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   expect(await rail.locator('article').evaluateAll(cards=>cards.map(c=>Number(c.dataset.rank)))).toEqual(Array.from({length:20},(_,i)=>20-i));
   await expect(page.locator('#fuentes')).toHaveCount(0);await expect(page.getByRole('link',{name:/Referencias/})).toHaveCount(0);await expect(rail.getByRole('button',{name:/Ver referencias/})).toHaveCount(0);
   await page.getByRole('link',{name:'Continuar a los releases',exact:true}).press('Enter');
+  await expect(page.locator('[data-private=true]')).toHaveAttribute('data-opening','false');
   const first=page.locator('#release-haute');await expect(first.getByRole('heading',{name:'Big Disgrace',exact:true})).toBeVisible();
   await expect(first).toContainText('8.75');await expect(first).toContainText('Canción real del club');
   const firstX=await first.evaluate(el=>el.getBoundingClientRect().left);
@@ -145,6 +146,7 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   expect(await rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true}).evaluate(el=>el.getBoundingClientRect().top-document.querySelector('[aria-label="Controles de vista previa anual"]').getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(0);
   await page.screenshot({path:'outputs/annual-ranking-middle-'+info.project.name+'.png',animations:'disabled'});
   await main.evaluate(el=>{const r=el.querySelector('#seleccion');el.scrollTo({top:el.scrollTop+r.getBoundingClientRect().top-el.getBoundingClientRect().top+r.offsetHeight-el.clientHeight,behavior:'instant'});});
+  await expect(page.locator('[data-private=true]')).toHaveAttribute('data-opening','false');
   const winner=page.locator('#release-phoebe');await expect(winner.getByRole('heading',{name:'Lost Weekend',exact:true})).toBeVisible();await expect(rail.getByRole('button',{name:'Siguiente puesto del ranking',exact:true})).toBeDisabled();
   await expect(winner.getByRole('link',{name:'Escuchar y reseñar'})).toHaveAttribute('href',/catalogo\?/);
   await winner.getByRole('button',{name:'Ver portada original de Lost Weekend',exact:true}).click();await expect(winner.getByAltText('Portada de Lost Weekend')).toBeVisible();
