@@ -177,6 +177,38 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
+test('ranking scroll settles smoothly, skips distant cards and respects reduced motion',async({page},info)=>{
+  const state=await setup(page);await page.goto('/2026');
+  const main=page.getByRole('main',{name:'Recorrido de Musiclub 2026'}),rail=page.locator('#seleccion');
+  await expect(rail.locator('article')).toHaveCount(20);
+  await main.evaluate(el=>{const section=el.querySelector('#seleccion');el.scrollTo({top:el.scrollTop+section.getBoundingClientRect().top-el.getBoundingClientRect().top,behavior:'instant'});});
+  await expect.poll(()=>rail.getAttribute('data-rail-visible')).toBe('true');
+  await expect.poll(()=>rail.locator('[data-ranking-track]').evaluate(el=>Math.abs(new DOMMatrixReadOnly(getComputedStyle(el).transform).m41))).toBeLessThan(.1);
+  const motion=await main.evaluate(async el=>{
+    const rail=el.querySelector('#seleccion'),track=rail.querySelector('[data-ranking-track]'),root=el.parentElement,positions=[];let rootStyleWrites=0;
+    const observer=new MutationObserver(changes=>{rootStyleWrites+=changes.length;});observer.observe(root,{attributes:true,attributeFilter:['style']});
+    const initial=el.scrollTop,start=performance.now();el.scrollTo({top:initial+150,behavior:'instant'});
+    do{await new Promise(requestAnimationFrame);positions.push(-new DOMMatrixReadOnly(getComputedStyle(track).transform).m41);}while(performance.now()-start<750);
+    observer.disconnect();
+    return{positions,rootStyleWrites,expected:(el.scrollTop-(initial))/Math.max(1,rail.offsetHeight-el.clientHeight)*(track.scrollWidth-rail.clientWidth),skipped:[...rail.querySelectorAll('[data-near=false]')].filter(p=>getComputedStyle(p).contentVisibility==='hidden').length};
+  });
+  expect(new Set(motion.positions.map(x=>x.toFixed(1))).size).toBeGreaterThan(4);
+  expect(motion.positions.every((value,i)=>!i||value>=motion.positions[i-1]-.1)).toBe(true);
+  expect(Math.abs(motion.positions.at(-1)-motion.expected)).toBeLessThan(.2);
+  expect(motion.rootStyleWrites).toBe(0);expect(motion.skipped).toBeGreaterThanOrEqual(17);
+  await fs.writeFile('outputs/annual-scroll-'+info.project.name+'.json',JSON.stringify(motion,null,2));
+  const before=await main.evaluate(el=>el.scrollTop);await main.hover();await page.mouse.wheel(0,120);await expect.poll(()=>main.evaluate(el=>el.scrollTop)).toBeGreaterThan(before);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  const reduced=await main.evaluate(async el=>{
+    const rail=el.querySelector('#seleccion'),track=rail.querySelector('[data-ranking-track]');el.scrollTo({top:el.scrollTop+120,behavior:'instant'});
+    await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+    const start=el.scrollTop+rail.getBoundingClientRect().top-el.getBoundingClientRect().top,expected=Math.max(0,Math.min(1,(el.scrollTop-start)/(rail.offsetHeight-el.clientHeight)))*(track.scrollWidth-rail.clientWidth);
+    return{actual:-new DOMMatrixReadOnly(getComputedStyle(track).transform).m41,expected};
+  });
+  expect(Math.abs(reduced.actual-reduced.expected)).toBeLessThan(.2);expect(state.reads()).toBe(1);
+  await page.screenshot({path:'outputs/annual-scroll-'+info.project.name+'.png',animations:'disabled'});
+});
+
 test('the personal year has empty and failed states without invented figures',async({page})=>{
   await setup(page,{empty:true});await page.goto('/2026');await expect(page.getByRole('heading',{name:'Tu primer disco empieza este resumen.',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Compartir mi 2026',exact:true})).toHaveCount(0);
 });
