@@ -179,3 +179,6 @@
 
 /* Stable dark surfaces keep controls readable over changing cover art. */
 .root[data-opening=true] .editionTools{background:#211e27f5}.artContinue{background:#211e27f5}
+
+/* The ranking needs continuous native vertical scrolling through its pinned rail. */
+.root[data-private=true] .experience{scroll-snap-type:none}
