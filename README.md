@@ -6,11 +6,11 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.1.11 · **Última actualización:** 19 de noviembre de 2026.
+**Versión:** 12.2.0 · **Última actualización:** 19 de noviembre de 2026.
 
 ### Musiclub 2026
 
-La [edición anual](https://www.musiclub.org/2026) abre con **veinte collages cubistas de releases, todos en formato 1:1 y sin texto sobre el mural inicial**. Conservan rostros, expresiones y objetos de las portadas, con recortes de tamaños distintos, inclinados y superpuestos sobre una base detallada. Los íconos ajustan su tono a fondos claros y oscuros para mantener el contraste. Al deslizar aparecen dos composiciones del **Próximamente sobre el mismo fondo animado**, con gráficos de Musiclub y sin portadas en primer plano. Las vistas WebP son ligeras; cada pieza se puede ampliar o descargar como PNG de 1200 × 1200. La vista protegida para administradores presenta un ranking horizontal del puesto 20 al 1 que avanza con el desplazamiento vertical. Cada release incluye cifras reales del club. **El club** y **Mi 2026** amplían la actividad mensual, las notas y los géneros, con un desglose de XP en el resumen personal. Las referencias se conservan en la documentación interna y no aparecen en la interfaz. [Contenido, acceso y metodología](docs/annual-2026.md).
+La [edición anual](https://www.musiclub.org/2026) abre con **veinte collages cubistas cuadrados** y un Próximamente sobre el mismo mural animado. La vista administrativa comienza con **el ranking del club**, calculado con sus reseñas de 2026, del puesto 20 al 1 al deslizar. Después reúne álbumes, EPs, sencillos, meses, reseñas, listas, géneros, categorías y próximos lanzamientos del panorama global. Cada release compara las valoraciones verificadas de AOTY con la actividad real de Musiclub, conservando ambas escalas y la fecha del corte. **Todas las personas que reseñaron en el año tienen una voz**, sin repetir tarjetas de releases. El club y Mi 2026 amplían estadísticas, géneros y XP; el resumen propio se puede compartir en cinco formatos. Las referencias se conservan para revisión interna. [Contenido, acceso y metodología](docs/annual-2026.md).
 
 ### Publicación automática y sitemaps
 

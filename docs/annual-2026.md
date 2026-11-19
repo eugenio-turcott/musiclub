@@ -10,11 +10,11 @@ La primera escena presenta veinte collages cubistas de releases incluidos en la 
 
 La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
 
-Sobre las veinte ilustraciones de la apertura aparecen dos composiciones: el año del club y un adelanto del resumen personal. Ambas usan gráficos de Musiclub, sin portadas ni releases en primer plano. Se pueden probar seis vinilos de género sin consultar datos ni modificar información. En la vista administrativa, el ranking de la selección avanza horizontalmente del puesto 20 al 1 al bajar. Conserva el género y la fecha de cada release, con la precisión real de los datos. No hay pantalla introductoria de filtros.
+Sobre las veinte ilustraciones de la apertura aparecen dos composiciones: el año del club y un adelanto del resumen personal. Ambas usan gráficos de Musiclub, sin portadas ni releases en primer plano. Se pueden probar seis vinilos de género sin consultar datos ni modificar información. En la vista administrativa, el ranking del club abre la edición y avanza horizontalmente del puesto 20 al 1 al bajar. Conserva el género y la fecha de cada release, con la precisión real de los datos. No hay pantalla introductoria de filtros.
 
 ## Contenido y procedencia
 
-La selección inicial incluye 20 releases de 2026 y no depende de su presencia en el catálogo. Es un ranking editorial de Musiclub en preparación; no un consenso calculado ni un premio. Corte de investigación: **18 de noviembre de 2026**.
+La selección editorial inicial de veinte releases permanece como colección artística del mural. Desde V12.2.0, no representa el ranking principal: éste se calcula con las reseñas de Musiclub. El panorama global usa un corte separado de AOTY del **19 de noviembre de 2026**. La investigación editorial inicial tuvo corte el 18 de noviembre.
 
 Se contrastaron el agregado anual y las valoraciones de AOTY, las selecciones de mitad de año de Rolling Stone y Billboard, conversaciones de r/indieheads de marzo, junio y noviembre, y el anuncio oficial de nominaciones de la Recording Academy del 16 de noviembre.
 
@@ -66,7 +66,7 @@ Los archivos se preparan en el proyecto con `scripts/annual-cubist-art.mjs` y Sh
 La apertura pública ocupa 330svh con un escenario sticky de 100svh. El avance del scroll actualiza una variable CSS con un listener pasivo y requestAnimationFrame, sin renders de React por fotograma ni consultas. Las dos composiciones aparecen sobre las mismas bandas animadas. Los enlaces de adelanto e inicio siguen funcionando; al salir de la apertura vuelve el ajuste por escenas. Durante el inicio, el contenido del adelanto es inerte para teclado y lectores de pantalla; al aparecer, el fondo deja de recibir foco. La pausa, la pestaña oculta y el movimiento reducido siguen deteniendo las animaciones. Los veinte títulos y artistas de las piezas son públicos; las fuentes editoriales, orden de la colección y estadísticas personales siguen protegidos por el servidor.
 
 
-Los destacados del club admiten desde una reseña y priorizan hasta dieciséis álbumes de 2026. Cada nota incluye su cantidad de opiniones; una sola reseña no se presenta como consenso. Las tarjetas personales y los cinco formatos de exportación usan el logo completo, vinilos de géneros, surcos y emblemas nativos.
+El ranking del club admite desde una reseña y muestra hasta veinte releases de 2026. Cada nota incluye su cantidad de opiniones; una sola reseña no se presenta como consenso. Las tarjetas personales y los cinco formatos de exportación usan el logo completo, vinilos de géneros, surcos y emblemas nativos.
 
 
 ### Planos cuadrados y contraste
@@ -88,10 +88,25 @@ Referencia visual revisada: https://www.instagram.com/p/DemNPZDAQ4J/?img_index=1
 En V12.1.10, la U del cartel de underscores se conserva con un contorno vectorial basado en la portada local. El suavizado y la agrupación por color borraban esa línea fina sobre blanco. `annual-cover-details.mjs` coloca el contorno por encima de los recortes, manteniendo visibles los planos del cartel. Los nuevos archivos `underscores-u` evitan reutilizar la edición anterior de la caché en mural, detalle y descarga. Una comprobación de contraste del contorno en los tres archivos y la navegación de la galería en celular y escritorio cubren esta regresión.
 
 
-### Ranking horizontal y estadísticas (V12.1.11)
+### Ranking horizontal y estadísticas (introducido en V12.1.11)
 
-La colección conserva el orden de la selección de Musiclub como puestos 1–20 y se recorre del 20 al 1, sin confundir ese orden con la nota del club. `AnnualCollection` usa un escenario sticky y un desplazamiento horizontal derivado del scroll vertical nativo; no intercepta la rueda ni los gestos. Incluye botones, foco limitado al panel activo, redimensionamiento y controles sin desplazamiento suave si se prefiere movimiento reducido.
+El recorrido se introdujo con el orden editorial; V12.2.0 lo sustituye por un ranking calculado con las notas del club, descrito abajo. Se recorre del puesto 20 al 1. `AnnualCollection` usa un escenario sticky y un desplazamiento horizontal derivado del scroll vertical nativo; no intercepta la rueda ni los gestos. Incluye botones, foco limitado al panel activo, redimensionamiento y controles sin desplazamiento suave si se prefiere movimiento reducido.
 
 Las notas, reseñas y votos de tracks de cada release se calculan con las reseñas de 2026 hasta la fecha actual, incluyendo sus ediciones agrupadas. Una favorita requiere una elección explícita; los releases sin reseñas no reciben una nota inventada. El resumen del club añade meses, distribución, mediana, notas perfectas, géneros por release distinto y actividad. El personal añade palabras y XP desglosada, usando las mismas reseñas deduplicadas de su resumen. No hay consultas adicionales por tarjeta.
 
 Las referencias no se renderizan en la navegación ni las tarjetas, y los campos de fuentes y nominaciones se excluyen de la respuesta de la colección. Se conservan en el servidor y esta documentación para revisión editorial interna. El acceso de administrador y el Próximamente público no cambian.
+
+
+### El club primero y el panorama global (V12.2.0)
+
+El primer ranking incluye hasta veinte releases publicados en 2026 y reseñados durante el año en Musiclub. Ordena por promedio de notas ponderadas de las reseñas; desempata por cantidad de reseñas y título. El puesto 1 es la nota más alta. Admite una sola reseña, cuya cantidad se muestra para no sugerir un consenso. La apertura artística conserva sus veinte piezas independientes del ranking.
+
+Después del resumen del club, el recorrido sigue álbumes, EPs, sencillos, meses, reseñas de la comunidad, listas, géneros, categorías y próximos lanzamientos, adaptando el orden de Record Club 2024. La fuente global es AOTY: sus notas de usuarios y crítica se mantienen en escala /100, junto a las notas /10 y cantidad de reseñas de Musiclub. No se mezclan en un promedio, no representan reproducciones ni una encuesta mundial. La correspondencia usa título y créditos normalizados.
+
+`docs/data/annual-2026-global-observed.json` conserva los hechos observados en las páginas fuente. `scripts/prepare-annual-global-snapshot.mjs` prepara `src/server/annual2026Global.json` y las portadas locales disponibles. El corte es del 19 de noviembre de 2026 y comprende 122 releases distintos. Las cifras con K conservan su carácter aproximado. Los meses eligen el LP con más valoraciones dentro de la muestra de popularidad consultada; los géneros agrupan los álbumes verificados de los rankings consultados. No son rankings exhaustivos de toda la música. Un mes sin datos queda vacío. Las fechas de 2027 están sujetas a cambios.
+
+Las portadas disponibles se sirven como WebP locales o desde el catálogo ya cargado; las restantes usan el vinilo nativo del género y no una portada inventada. Las referencias se mantienen internas; sólo se muestran la identificación AOTY, escalas y fecha de corte. El runtime no consulta páginas externas al navegar ni crea releases automáticamente. Una misma lectura del catálogo alimenta ranking, comparaciones y reseñas. Las playlists consultan únicamente campos de presentación bajo las reglas existentes.
+
+`buildAnnualVoices` contempla todas las personas con reseñas públicas durante 2026, aunque el release sea de otro año. Busca una asignación de releases distintos mediante emparejamiento máximo, conservando el comentario original y la nota ponderada. Si no hay suficientes releases distintos para todos, reúne las opiniones en la misma tarjeta del release, sin excluir personas ni duplicar tarjetas. No inventa un comentario cuando sólo se calificó. Los comentarios largos se pueden expandir. No se envían correos ni identificadores privados.
+
+El acceso administrativo y el Próximamente público siguen separados por autorización del servidor. Las pruebas `tests/annual-yearbook.test.mjs` cubren orden, escalas, metadatos, archivos de portadas y cobertura de autores; las pruebas de navegador comprueban el recorrido, estados vacíos, contraste y tarjetas sin duplicados en celular y escritorio.

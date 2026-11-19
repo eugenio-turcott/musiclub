@@ -1,0 +1,3006 @@
+{
+  "asOf": "2026-11-19",
+  "source": "AOTY",
+  "sources": {
+    "eps": "https://www.albumoftheyear.org/2026/releases/?type=ep",
+    "singles": "https://www.albumoftheyear.org/2026/releases/?type=single",
+    "popular": "https://www.albumoftheyear.org/2026/releases/?reviews=100&s=user",
+    "albums": "https://www.albumoftheyear.org/ratings/user-highest-rated/lp/2026/",
+    "critics": "https://www.albumoftheyear.org/ratings/6-highest-rated/2026/1",
+    "live": "https://www.albumoftheyear.org/ratings/user-highest-rated/live/2026/",
+    "soundtracks": "https://www.albumoftheyear.org/ratings/user-highest-rated/soundtrack/2026/",
+    "compilations": "https://www.albumoftheyear.org/ratings/user-highest-rated/compilation/2026/",
+    "upcoming": "https://www.albumoftheyear.org/2027/releases/january-01/"
+  },
+  "groups": {
+    "albums": [
+      "aoty-2010013",
+      "aoty-1794481",
+      "aoty-1943093",
+      "aoty-1701933",
+      "aoty-1884687",
+      "aoty-1754822",
+      "aoty-1460350",
+      "aoty-1885198",
+      "aoty-1797235",
+      "aoty-1590468",
+      "aoty-1785197",
+      "aoty-1496108",
+      "aoty-1860305",
+      "aoty-1919866",
+      "aoty-1786950",
+      "aoty-1732300",
+      "aoty-1755639",
+      "aoty-1607077",
+      "aoty-2001669",
+      "aoty-1616353"
+    ],
+    "eps": [
+      "aoty-1892884",
+      "aoty-1947257",
+      "aoty-1881811",
+      "aoty-1706429",
+      "aoty-1884190",
+      "aoty-1644375",
+      "aoty-1616245",
+      "aoty-1873191",
+      "aoty-1769637",
+      "aoty-1745150"
+    ],
+    "singles": [
+      "aoty-1807417",
+      "aoty-1761892",
+      "aoty-1827986",
+      "aoty-1913998",
+      "aoty-1576625",
+      "aoty-1810910",
+      "aoty-1849529",
+      "aoty-1769633",
+      "aoty-1831220",
+      "aoty-1798393"
+    ],
+    "popular": [
+      "aoty-564912",
+      "aoty-1087819",
+      "aoty-1754822",
+      "aoty-1701933",
+      "aoty-1460350",
+      "aoty-1616431",
+      "aoty-1370239",
+      "aoty-1675875",
+      "aoty-1849096",
+      "aoty-1943093",
+      "aoty-1460893",
+      "aoty-1884687",
+      "aoty-1792171",
+      "aoty-1798052",
+      "aoty-1429666",
+      "aoty-1572710",
+      "aoty-1617518",
+      "aoty-1821290",
+      "aoty-1616353",
+      "aoty-1529704",
+      "aoty-1515797",
+      "aoty-1919866",
+      "aoty-1821291",
+      "aoty-1796033",
+      "aoty-1607775",
+      "aoty-1384430",
+      "aoty-1415073",
+      "aoty-1608192",
+      "aoty-1617971",
+      "aoty-1471943",
+      "aoty-1761543",
+      "aoty-1732300",
+      "aoty-1526856",
+      "aoty-1607077",
+      "aoty-1786950",
+      "aoty-1636079",
+      "aoty-1931016",
+      "aoty-1860919",
+      "aoty-1929479",
+      "aoty-1616412",
+      "aoty-1892884",
+      "aoty-1656151",
+      "aoty-1438836",
+      "aoty-1977552",
+      "aoty-1706527",
+      "aoty-1806319",
+      "aoty-1176404",
+      "aoty-1600367",
+      "aoty-1871357",
+      "aoty-1529670",
+      "aoty-1910708",
+      "aoty-1643177",
+      "aoty-710558",
+      "aoty-1377283",
+      "aoty-1686949",
+      "aoty-1557730",
+      "aoty-1947257",
+      "aoty-1797235",
+      "aoty-2010013",
+      "aoty-1755639"
+    ],
+    "critics": [
+      "aoty-1884687",
+      "aoty-2010013",
+      "aoty-1734755",
+      "aoty-1701933",
+      "aoty-1544298",
+      "aoty-1754822",
+      "aoty-1607155",
+      "aoty-1903509",
+      "aoty-1617518",
+      "aoty-2013582"
+    ],
+    "live": [
+      "aoty-1984694",
+      "aoty-1930239",
+      "aoty-1962089",
+      "aoty-1637566",
+      "aoty-1919907",
+      "aoty-1875805",
+      "aoty-1773837",
+      "aoty-1615049"
+    ],
+    "soundtracks": [
+      "aoty-1602256",
+      "aoty-1734343",
+      "aoty-1687641",
+      "aoty-1866355",
+      "aoty-1821353",
+      "aoty-1861963",
+      "aoty-1709835",
+      "aoty-2049459"
+    ],
+    "compilations": [
+      "aoty-1958169",
+      "aoty-1815225",
+      "aoty-1695089",
+      "aoty-1507177",
+      "aoty-1757051",
+      "aoty-1853836",
+      "aoty-1883978",
+      "aoty-1893796"
+    ],
+    "upcoming": [
+      "aoty-1784515",
+      "aoty-2102165",
+      "aoty-2093995",
+      "aoty-2119087",
+      "aoty-1595896",
+      "aoty-2000228",
+      "aoty-2023226",
+      "aoty-2020813"
+    ]
+  },
+  "releases": [
+    {
+      "id": "aoty-2010013",
+      "title": "you made me / skin on linen",
+      "artist": "PISS",
+      "type": "lp",
+      "releaseDate": "2026-10-30",
+      "genres": [
+        "Noise Rock",
+        "Post-Hardcore"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2010013-you-made-me-skin-on-linen_133306.jpg",
+      "image": "/annual/2026/global/aoty-2010013.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2010013-piss-you-made-me-skin-on-linen.php",
+      "global": {
+        "user": {
+          "score": 85,
+          "count": 5235,
+          "countDisplay": "5,235",
+          "approximate": false
+        },
+        "critic": {
+          "score": 88,
+          "count": 13,
+          "countDisplay": "13",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1794481",
+      "title": "友達がいました [Tomodachi ga imashita]",
+      "artist": "Trooper Salute",
+      "type": "lp",
+      "releaseDate": "2026-06-17",
+      "genres": [
+        "Indie Pop",
+        "Indie Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1794481-_122751.jpg",
+      "image": "/annual/2026/global/aoty-1794481.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1794481-trooper-salute--tomodachi-ga-imashita.php",
+      "global": {
+        "user": {
+          "score": 84,
+          "count": 3905,
+          "countDisplay": "3,905",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1943093",
+      "title": "ii",
+      "artist": "Denzel Curry & Kenneth Blume",
+      "type": "lp",
+      "releaseDate": "2026-08-21",
+      "genres": [
+        "Southern Hip Hop",
+        "Boom Bap",
+        "Hardcore Hip Hop"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1943093-ii_043318.jpg",
+      "image": "/annual/2026/global/aoty-1943093.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1943093-denzel-curry-ii.php",
+      "global": {
+        "user": {
+          "score": 84,
+          "count": 14400,
+          "countDisplay": "14.4K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 73,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1701933",
+      "title": "U",
+      "artist": "underscores",
+      "type": "lp",
+      "releaseDate": "2026-03-20",
+      "genres": [
+        "Electropop",
+        "Dance-Pop",
+        "Electronic Dance Music"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1701933-u_172807.jpg",
+      "image": "/annual/2026/global/aoty-1701933.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1701933-underscores-u.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 22300,
+          "countDisplay": "22.3K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 88,
+          "count": 11,
+          "countDisplay": "11",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1884687",
+      "title": "Lost Weekend",
+      "artist": "Phoebe Bridgers",
+      "type": "lp",
+      "releaseDate": "2026-08-14",
+      "genres": [
+        "Singer-Songwriter",
+        "Indie Folk"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1884687-lost-weekend_130542.jpg",
+      "image": "/annual/2026/global/aoty-1884687.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1884687-phoebe-bridgers-lost-weekend.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 13200,
+          "countDisplay": "13.2K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 91,
+          "count": 32,
+          "countDisplay": "32",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1754822",
+      "title": "you seem pretty sad for a girl so in love",
+      "artist": "Olivia Rodrigo",
+      "type": "lp",
+      "releaseDate": "2026-06-12",
+      "genres": [
+        "Pop Rock",
+        "Singer-Songwriter"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1754822-you-seem-pretty-sad-for-a-girl-so-in-love_03141.jpg",
+      "image": "/annual/2026/global/aoty-1754822.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1754822-olivia-rodrigo-you-seem-pretty-sad-for-a-girl-so-in-love.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 22500,
+          "countDisplay": "22.5K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 85,
+          "count": 32,
+          "countDisplay": "32",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1460350",
+      "title": "WOR$T GIRL IN AMERICA",
+      "artist": "Slayyyter",
+      "type": "lp",
+      "releaseDate": "2026-03-27",
+      "genres": [
+        "Electroclash",
+        "Electropop"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1460350-wort-girl-in-america_034044.jpg",
+      "image": "/annual/2026/global/aoty-1460350.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1460350-slayyyter-wort-girl-in-america.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 20600,
+          "countDisplay": "20.6K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 79,
+          "count": 9,
+          "countDisplay": "9",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1885198",
+      "title": "“cantu” of the sower",
+      "artist": "heavensouls",
+      "type": "lp",
+      "releaseDate": "2026-10-07",
+      "genres": [
+        "IDM",
+        "Epic Collage"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1885198-cantu-of-the-sower_205925.jpg",
+      "image": "/annual/2026/global/aoty-1885198.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1885198-heavensouls-cantu-of-the-sower.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 2113,
+          "countDisplay": "2,113",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1797235",
+      "title": "status update music",
+      "artist": "leroy",
+      "type": "lp",
+      "releaseDate": "2026-05-14",
+      "genres": [
+        "Dariacore",
+        "Hard Dance"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1797235-status-update-music_012818.jpg",
+      "image": "/annual/2026/global/aoty-1797235.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1797235-leroy-status-update-music.php",
+      "global": {
+        "user": {
+          "score": 82,
+          "count": 5265,
+          "countDisplay": "5,265",
+          "approximate": false
+        },
+        "critic": {
+          "score": 75,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1590468",
+      "title": "Det hjemsøkte hjertet",
+      "artist": "Panopticon",
+      "type": "lp",
+      "releaseDate": "2026-05-08",
+      "genres": [
+        "Atmospheric Black Metal",
+        "Post-Metal"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1590468-det-hjemsokte-hjertet_214607.jpg",
+      "image": "/annual/2026/global/aoty-1590468.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1590468-panopticon-det-hjemsokte-hjertet.php",
+      "global": {
+        "user": {
+          "score": 83,
+          "count": 1494,
+          "countDisplay": "1,494",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1785197",
+      "title": "lucy miró al mundo y notó que está girando",
+      "artist": "AKRIILA",
+      "type": "lp",
+      "releaseDate": "2026-09-03",
+      "genres": [
+        "Indietronica"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1785197-lucy-miro-al-mundo-y-noto-que-esta-girando_200643.jpg",
+      "image": "/annual/2026/global/aoty-1785197.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1785197-akriila-lucy-miro-al-mundo-y-noto-que-esta-girando.php",
+      "global": {
+        "user": {
+          "score": 82,
+          "count": 3694,
+          "countDisplay": "3,694",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1496108",
+      "title": "Human Error",
+      "artist": "Olēka",
+      "type": "lp",
+      "releaseDate": "2026-10-21",
+      "genres": [
+        "Folk Rock",
+        "Chamber Pop"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1496108-human-error_0113406adab4c4dc72e.jpg",
+      "image": "/annual/2026/global/aoty-1496108.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1496108-oleka-human-error.php",
+      "global": {
+        "user": {
+          "score": 82,
+          "count": 2260,
+          "countDisplay": "2,260",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1860305",
+      "title": "Who Loves the Sun",
+      "artist": "Chat Pile",
+      "type": "lp",
+      "releaseDate": "2026-09-04",
+      "genres": [
+        "Sludge Metal",
+        "Noise Rock",
+        "Pigfuck"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1860305-who-loves-the-sun_120410.jpg",
+      "image": "/annual/2026/global/aoty-1860305.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1860305-chat-pile-who-loves-the-sun.php",
+      "global": {
+        "user": {
+          "score": 82,
+          "count": 3408,
+          "countDisplay": "3,408",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1919866",
+      "title": "Popstar",
+      "artist": "Tinashe",
+      "type": "lp",
+      "releaseDate": "2026-09-25",
+      "genres": [
+        "Alternative R&B",
+        "Electronic Dance Music"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1919866-popstar_132932.jpg",
+      "image": "/annual/2026/global/aoty-1919866.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1919866-tinashe-popstar.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 10500,
+          "countDisplay": "10.5K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 84,
+          "count": 12,
+          "countDisplay": "12",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1786950",
+      "title": "Inferno",
+      "artist": "Boards of Canada",
+      "type": "lp",
+      "releaseDate": "2026-05-29",
+      "genres": [
+        "Downtempo",
+        "IDM"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1786950-inferno_135147.jpg",
+      "image": "/annual/2026/global/aoty-1786950.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1786950-boards-of-canada-inferno.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 7499,
+          "countDisplay": "7,499",
+          "approximate": false
+        },
+        "critic": {
+          "score": 82,
+          "count": 25,
+          "countDisplay": "25",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1732300",
+      "title": "Life 1",
+      "artist": "Quadeca",
+      "type": "lp",
+      "releaseDate": "2026-10-01",
+      "genres": [
+        "Art Pop",
+        "Indietronica"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1732300-life-1_1704206aba9e143f3ad.jpg",
+      "image": "/annual/2026/global/aoty-1732300.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1732300-quadeca-life-1.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 8465,
+          "countDisplay": "8,465",
+          "approximate": false
+        },
+        "critic": {
+          "score": 80,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1755639",
+      "title": "Hell for a Basement",
+      "artist": "drug bug",
+      "type": "lp",
+      "releaseDate": "2026-04-12",
+      "genres": [
+        "Indie Rock",
+        "Chamber Pop",
+        "Art Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1755639-hell-for-a-basement_195726.jpg",
+      "image": "/annual/2026/global/aoty-1755639.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1755639-drug-bug-hell-for-a-basement.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 5165,
+          "countDisplay": "5,165",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1607077",
+      "title": "c",
+      "artist": "Lucy Bedroque",
+      "type": "lp",
+      "releaseDate": "2026-09-18",
+      "genres": [
+        "Rage"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1607077-c_193439.jpg",
+      "image": "/annual/2026/global/aoty-1607077.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1607077-lucy-bedroque-c.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 7538,
+          "countDisplay": "7,538",
+          "approximate": false
+        },
+        "critic": {
+          "score": 65,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-2001669",
+      "title": "past curfew",
+      "artist": "midwest, post death",
+      "type": "lp",
+      "releaseDate": "2026-10-31",
+      "genres": [
+        "Noise Pop",
+        "Slacker Rock",
+        "Emo"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2001669-past-curfew_233513.jpg",
+      "image": "/annual/2026/global/aoty-2001669.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2001669-midwest-post-death-past-curfew.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 1561,
+          "countDisplay": "1,561",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1616353",
+      "title": "My Ghosts Go Ghost",
+      "artist": "By Storm",
+      "type": "lp",
+      "releaseDate": "2026-01-30",
+      "genres": [
+        "Experimental Hip Hop",
+        "Abstract Hip Hop"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1616353-my-ghosts-go-ghost_160833.jpg",
+      "image": "/annual/2026/global/aoty-1616353.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1616353-by-storm-my-ghosts-go-ghost.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 10800,
+          "countDisplay": "10.8K",
+          "approximate": true
+        },
+        "critic": {
+          "score": 81,
+          "count": 9,
+          "countDisplay": "9",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1892884",
+      "title": "AVANT NOVA",
+      "artist": "slayr",
+      "type": "ep",
+      "releaseDate": "2026-07-10",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1892884-avant-nova_210335.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1892884-slayr-avant-nova.php",
+      "global": {
+        "critic": {
+          "score": 80,
+          "count": 1,
+          "countDisplay": "1",
+          "approximate": false
+        },
+        "user": {
+          "score": 76,
+          "count": 6976,
+          "countDisplay": "6,976",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1947257",
+      "title": "Maverick “Almost Forever” EP",
+      "artist": "Lil Uzi Vert",
+      "type": "ep",
+      "releaseDate": "2026-07-31",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1947257-maverick-almost-forever-ep_035237.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1947257-lil-uzi-vert-maverick-almost-forever-ep.php",
+      "global": {
+        "critic": {
+          "score": 41,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 70,
+          "count": 5338,
+          "countDisplay": "5,338",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1881811",
+      "title": "Tweaker Poem",
+      "artist": "Frost Children",
+      "type": "ep",
+      "releaseDate": "2026-07-10",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1881811-tweaker-poem_120140.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1881811-frost-children-tweaker-poem.php",
+      "global": {
+        "critic": {
+          "score": 80,
+          "count": 1,
+          "countDisplay": "1",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 5012,
+          "countDisplay": "5,012",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1706429",
+      "title": "N0rth4evr",
+      "artist": "North West",
+      "type": "ep",
+      "releaseDate": "2026-05-01",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1706429-n0rth4evr_024716.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1706429-north-west-n0rth4evr.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 54,
+          "count": 4954,
+          "countDisplay": "4,954",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1884190",
+      "title": "Q: From Where Do Our Primal Instincts Originate? A: MTV!",
+      "artist": "Portraits Of Tracy",
+      "type": "ep",
+      "releaseDate": "2026-07-24",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1884190-q-from-where-do-our-primal-instincts-originate-a-mtv_205519.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1884190-portraits-of-tracy-q-from-where-do-our-primal-instincts-originate-a-mtv.php",
+      "global": {
+        "critic": {
+          "score": 87,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 83,
+          "count": 4267,
+          "countDisplay": "4,267",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1644375",
+      "title": "The Boy who cried Terrified .",
+      "artist": "fakemink",
+      "type": "ep",
+      "releaseDate": "2026-01-29",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1644375-the-boy-who-cried-terrified-_125256.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1644375-fakemink-the-boy-who-cried-terrified-.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 65,
+          "count": 4044,
+          "countDisplay": "4,044",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1616245",
+      "title": "DEADLINE",
+      "artist": "BLACKPINK",
+      "type": "ep",
+      "releaseDate": "2026-02-27",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1616245-deadline_134308.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1616245-blackpink-deadline.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 5,
+          "countDisplay": "5",
+          "approximate": false
+        },
+        "user": {
+          "score": 42,
+          "count": 3952,
+          "countDisplay": "3,952",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1873191",
+      "title": "Empty Clip",
+      "artist": "che",
+      "type": "ep",
+      "releaseDate": "2026-06-19",
+      "genres": [],
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1873191-che-empty-clip.php",
+      "global": {
+        "user": {
+          "score": 76,
+          "count": 3778,
+          "countDisplay": "3,778",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1769637",
+      "title": "WILD",
+      "artist": "KATSEYE",
+      "type": "ep",
+      "releaseDate": "2026-08-14",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1769637-wild_190507.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1769637-katseye-wild.php",
+      "global": {
+        "critic": {
+          "score": 47,
+          "count": 4,
+          "countDisplay": "4",
+          "approximate": false
+        },
+        "user": {
+          "score": 35,
+          "count": 3731,
+          "countDisplay": "3,731",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1745150",
+      "title": "Fully Loaded",
+      "artist": "che",
+      "type": "ep",
+      "releaseDate": "2026-03-27",
+      "genres": [],
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1745150-che-fully-loaded.php",
+      "global": {
+        "user": {
+          "score": 67,
+          "count": 3462,
+          "countDisplay": "3,462",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1807417",
+      "title": "Rock Music",
+      "artist": "Charli xcx",
+      "type": "single",
+      "releaseDate": "2026-05-08",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1807417-rock-music_034723.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1807417-charli-xcx-rock-music.php",
+      "global": {
+        "critic": {
+          "score": 80,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 57,
+          "count": 3977,
+          "countDisplay": "3,977",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1761892",
+      "title": "drop dead",
+      "artist": "Olivia Rodrigo",
+      "type": "single",
+      "releaseDate": "2026-04-17",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1761892-drop-dead_033128.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1761892-olivia-rodrigo-drop-dead.php",
+      "global": {
+        "critic": {
+          "score": 80,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 3819,
+          "countDisplay": "3,819",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1827986",
+      "title": "the cure",
+      "artist": "Olivia Rodrigo",
+      "type": "single",
+      "releaseDate": "2026-05-22",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1827986-the-cure_160339.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1827986-olivia-rodrigo-the-cure.php",
+      "global": {
+        "critic": {
+          "score": 90,
+          "count": 1,
+          "countDisplay": "1",
+          "approximate": false
+        },
+        "user": {
+          "score": 91,
+          "count": 3768,
+          "countDisplay": "3,768",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1913998",
+      "title": "brand new chanel$",
+      "artist": "Slayyyter",
+      "type": "single",
+      "releaseDate": "2026-07-31",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1913998-brand-new-chanel_213044.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1913998-slayyyter-brand-new-chanel.php",
+      "global": {
+        "user": {
+          "score": 94,
+          "count": 3552,
+          "countDisplay": "3,552",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1576625",
+      "title": "PUNK ROCKY",
+      "artist": "A$AP Rocky",
+      "type": "single",
+      "releaseDate": "2026-01-05",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1576625-punk-rocky_205804.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1576625-asap-rocky-punk-rocky.php",
+      "global": {
+        "user": {
+          "score": 84,
+          "count": 3178,
+          "countDisplay": "3,178",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1810910",
+      "title": "hate that i made you love me",
+      "artist": "Ariana Grande",
+      "type": "single",
+      "releaseDate": "2026-05-29",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1810910-hate-that-i-made-you-love-me_150113.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1810910-ariana-grande-hate-that-i-made-you-love-me.php",
+      "global": {
+        "user": {
+          "score": 79,
+          "count": 2422,
+          "countDisplay": "2,422",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1849529",
+      "title": "I Knew It, I Knew You (From “Toy Story 5”)",
+      "artist": "Taylor Swift",
+      "type": "single",
+      "releaseDate": "2026-06-05",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1849529-i-knew-it-i-knew-you_123957.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1849529-taylor-swift-i-knew-it-i-knew-you-from-toy-story-5.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 76,
+          "count": 2410,
+          "countDisplay": "2,410",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1769633",
+      "title": "WannaCry",
+      "artist": "Ninajirachi & Porter Robinson",
+      "type": "single",
+      "releaseDate": "2026-07-28",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1769633-wannacry_215518.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1769633-ninajirachi-wannacry.php",
+      "global": {
+        "user": {
+          "score": 93,
+          "count": 2387,
+          "countDisplay": "2,387",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1831220",
+      "title": "SS26",
+      "artist": "Charli xcx",
+      "type": "single",
+      "releaseDate": "2026-05-21",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1831220-ss26_224517.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1831220-charli-xcx-ss26.php",
+      "global": {
+        "user": {
+          "score": 73,
+          "count": 2345,
+          "countDisplay": "2,345",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1798393",
+      "title": "babygirl",
+      "artist": "JPEGMAFIA",
+      "type": "single",
+      "releaseDate": "2026-04-30",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1798393-babygirl_034044.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1798393-jpegmafia-babygirl.php",
+      "global": {
+        "user": {
+          "score": 72,
+          "count": 2326,
+          "countDisplay": "2,326",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-564912",
+      "title": "Don't Be Dumb",
+      "artist": "A$AP Rocky",
+      "type": "lp",
+      "releaseDate": "2026-01-16",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/564912-dont-be-dumb_084139.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/564912-asap-rocky-dont-be-dumb.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 17,
+          "countDisplay": "17",
+          "approximate": false
+        },
+        "user": {
+          "score": 74,
+          "count": 24500,
+          "countDisplay": "24.5K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1087819",
+      "title": "BULLY",
+      "artist": "Ye",
+      "type": "lp",
+      "releaseDate": "2026-03-28",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1087819-bully_141411.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1087819-kanye-west-bully.php",
+      "global": {
+        "critic": {
+          "score": 56,
+          "count": 6,
+          "countDisplay": "6",
+          "approximate": false
+        },
+        "user": {
+          "score": 62,
+          "count": 22700,
+          "countDisplay": "22.7K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1616431",
+      "title": "The Fall-Off",
+      "artist": "J. Cole",
+      "type": "lp",
+      "releaseDate": "2026-02-06",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1616431-the-fall-off_015348.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1616431-j-cole-the-fall-off.php",
+      "global": {
+        "critic": {
+          "score": 69,
+          "count": 11,
+          "countDisplay": "11",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 17700,
+          "countDisplay": "17.7K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1370239",
+      "title": "ICEMAN",
+      "artist": "Drake",
+      "type": "lp",
+      "releaseDate": "2026-05-15",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1370239-iceman_030801.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1370239-drake-iceman.php",
+      "global": {
+        "critic": {
+          "score": 51,
+          "count": 16,
+          "countDisplay": "16",
+          "approximate": false
+        },
+        "user": {
+          "score": 53,
+          "count": 17600,
+          "countDisplay": "17.6K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1675875",
+      "title": "Ca$ino",
+      "artist": "Baby Keem",
+      "type": "lp",
+      "releaseDate": "2026-02-20",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1675875-caino_212535.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1675875-baby-keem-caino.php",
+      "global": {
+        "critic": {
+          "score": 73,
+          "count": 8,
+          "countDisplay": "8",
+          "approximate": false
+        },
+        "user": {
+          "score": 73,
+          "count": 17300,
+          "countDisplay": "17.3K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1849096",
+      "title": "Music, Fashion, Film",
+      "artist": "Charli xcx",
+      "type": "lp",
+      "releaseDate": "2026-07-24",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1849096-music-fashion-film_202736.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1849096-charli-xcx-music-fashion-film.php",
+      "global": {
+        "critic": {
+          "score": 78,
+          "count": 35,
+          "countDisplay": "35",
+          "approximate": false
+        },
+        "user": {
+          "score": 72,
+          "count": 15900,
+          "countDisplay": "15.9K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1460893",
+      "title": "The Mountain",
+      "artist": "Gorillaz",
+      "type": "lp",
+      "releaseDate": "2026-02-27",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1460893-the-mountain_162157.jpg",
+      "image": "/annual/2026/global/aoty-1460893.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1460893-gorillaz-the-mountain.php",
+      "global": {
+        "critic": {
+          "score": 82,
+          "count": 34,
+          "countDisplay": "34",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 14300,
+          "countDisplay": "14.3K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1792171",
+      "title": "Cry Baby",
+      "artist": "Vince Staples",
+      "type": "lp",
+      "releaseDate": "2026-06-05",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1792171-cry-baby_042756.jpg",
+      "image": "/annual/2026/global/aoty-1792171.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1792171-vince-staples-cry-baby.php",
+      "global": {
+        "critic": {
+          "score": 83,
+          "count": 17,
+          "countDisplay": "17",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 12300,
+          "countDisplay": "12.3K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1798052",
+      "title": "EXPERIMENTAL RAP",
+      "artist": "JPEGMAFIA",
+      "type": "lp",
+      "releaseDate": "2026-05-21",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1798052-experimental-rap_220850.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1798052-jpegmafia-experimental-rap.php",
+      "global": {
+        "critic": {
+          "score": 62,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 59,
+          "count": 12200,
+          "countDisplay": "12.2K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1429666",
+      "title": "Oh yeah?",
+      "artist": "Steve Lacy",
+      "type": "lp",
+      "releaseDate": "2026-07-17",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1429666-oh-yeah_224831.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1429666-steve-lacy-oh-yeah.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 11,
+          "countDisplay": "11",
+          "approximate": false
+        },
+        "user": {
+          "score": 78,
+          "count": 11700,
+          "countDisplay": "11.7K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1572710",
+      "title": "Half Blood (BloodLuxe)",
+      "artist": "slayr",
+      "type": "reissue",
+      "releaseDate": "2026-03-06",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1572710-half-blood-bloodluxe_233054.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1572710-slayr-half-blood-bloodluxe.php",
+      "global": {
+        "critic": {
+          "score": 74,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 84,
+          "count": 11300,
+          "countDisplay": "11.3K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1617518",
+      "title": "Nothing's About to Happen to Me",
+      "artist": "Mitski",
+      "type": "lp",
+      "releaseDate": "2026-02-27",
+      "genres": [
+        "Singer-Songwriter",
+        "Chamber Pop",
+        "Americana"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1617518-nothings-about-to-happen-to-me_130138.jpg",
+      "image": "/annual/2026/global/aoty-1617518.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1617518-mitski-nothings-about-to-happen-to-me.php",
+      "global": {
+        "critic": {
+          "score": 85,
+          "count": 30,
+          "countDisplay": "30",
+          "approximate": false
+        },
+        "user": {
+          "score": 77,
+          "count": 11200,
+          "countDisplay": "11.2K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1821290",
+      "title": "MAID OF HONOUR",
+      "artist": "Drake",
+      "type": "lp",
+      "releaseDate": "2026-05-15",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1821290-maid-of-honour_194132.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1821290-drake-maid-of-honour.php",
+      "global": {
+        "critic": {
+          "score": 61,
+          "count": 10,
+          "countDisplay": "10",
+          "approximate": false
+        },
+        "user": {
+          "score": 27,
+          "count": 11100,
+          "countDisplay": "11.1K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1529704",
+      "title": "Wuthering Heights",
+      "artist": "Charli xcx",
+      "type": "soundtrack",
+      "releaseDate": "2026-02-13",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1529704-wuthering-heights_170944.jpg",
+      "image": "/annual/2026/global/aoty-1529704.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1529704-charli-xcx-wuthering-heights.php",
+      "global": {
+        "critic": {
+          "score": 78,
+          "count": 24,
+          "countDisplay": "24",
+          "approximate": false
+        },
+        "user": {
+          "score": 73,
+          "count": 10700,
+          "countDisplay": "10.7K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1515797",
+      "title": "OCTANE",
+      "artist": "Don Toliver",
+      "type": "lp",
+      "releaseDate": "2026-01-30",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1515797-octane_204731.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1515797-don-toliver-octane.php",
+      "global": {
+        "critic": {
+          "score": 63,
+          "count": 5,
+          "countDisplay": "5",
+          "approximate": false
+        },
+        "user": {
+          "score": 64,
+          "count": 10700,
+          "countDisplay": "10.7K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1821291",
+      "title": "HABIBTI",
+      "artist": "Drake",
+      "type": "lp",
+      "releaseDate": "2026-05-15",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1821291-habibti_194217.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1821291-drake-habibti.php",
+      "global": {
+        "critic": {
+          "score": 46,
+          "count": 10,
+          "countDisplay": "10",
+          "approximate": false
+        },
+        "user": {
+          "score": 29,
+          "count": 10400,
+          "countDisplay": "10.4K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1796033",
+      "title": "petal",
+      "artist": "Ariana Grande",
+      "type": "lp",
+      "releaseDate": "2026-07-31",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1796033-petal_150119.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1796033-ariana-grande-petal.php",
+      "global": {
+        "critic": {
+          "score": 64,
+          "count": 20,
+          "countDisplay": "20",
+          "approximate": false
+        },
+        "user": {
+          "score": 72,
+          "count": 10400,
+          "countDisplay": "10.4K",
+          "approximate": true
+        }
+      }
+    },
+    {
+      "id": "aoty-1607775",
+      "title": "The Romantic",
+      "artist": "Bruno Mars",
+      "type": "lp",
+      "releaseDate": "2026-02-27",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1607775-the-romantic_200500.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1607775-bruno-mars-the-romantic.php",
+      "global": {
+        "critic": {
+          "score": 62,
+          "count": 12,
+          "countDisplay": "12",
+          "approximate": false
+        },
+        "user": {
+          "score": 61,
+          "count": 9666,
+          "countDisplay": "9,666",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1384430",
+      "title": "Strictly 4 The Scythe",
+      "artist": "The Scythe",
+      "type": "mixtape",
+      "releaseDate": "2026-03-06",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1384430-strictly-4-the-scythe_053159.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1384430-the-scythe-strictly-4-the-scythe.php",
+      "global": {
+        "critic": {
+          "score": 68,
+          "count": 6,
+          "countDisplay": "6",
+          "approximate": false
+        },
+        "user": {
+          "score": 67,
+          "count": 8849,
+          "countDisplay": "8,849",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1415073",
+      "title": "Detour",
+      "artist": "Kim Petras",
+      "type": "lp",
+      "releaseDate": "2026-05-29",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1415073-detour_161933.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1415073-kim-petras-detour.php",
+      "global": {
+        "critic": {
+          "score": 72,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 8840,
+          "countDisplay": "8,840",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1608192",
+      "title": "HALO",
+      "artist": "Tiffany Day",
+      "type": "lp",
+      "releaseDate": "2026-04-03",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1608192-halo_184812.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1608192-tiffany-day-halo.php",
+      "global": {
+        "critic": {
+          "score": 60,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 78,
+          "count": 8812,
+          "countDisplay": "8,812",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1617971",
+      "title": "Kiss All The Time. Disco, Occasionally.",
+      "artist": "Harry Styles",
+      "type": "lp",
+      "releaseDate": "2026-03-06",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1617971-kiss-all-the-time-disco-occasionally_001316.jpg",
+      "image": "/annual/2026/global/aoty-1617971.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1617971-harry-styles-kiss-all-the-time-disco-occasionally.php",
+      "global": {
+        "critic": {
+          "score": 73,
+          "count": 30,
+          "countDisplay": "30",
+          "approximate": false
+        },
+        "user": {
+          "score": 63,
+          "count": 8685,
+          "countDisplay": "8,685",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1471943",
+      "title": "THIS MUSIC MAY CONTAIN HOPE.",
+      "artist": "RAYE",
+      "type": "lp",
+      "releaseDate": "2026-03-27",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1471943-this-music-may-contain-hope_195812.jpg",
+      "image": "/annual/2026/global/aoty-1471943.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1471943-raye-this-music-may-contain-hope.php",
+      "global": {
+        "critic": {
+          "score": 83,
+          "count": 23,
+          "countDisplay": "23",
+          "approximate": false
+        },
+        "user": {
+          "score": 76,
+          "count": 8642,
+          "countDisplay": "8,642",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1761543",
+      "title": "Reality Awaits",
+      "artist": "The Strokes",
+      "type": "lp",
+      "releaseDate": "2026-07-24",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1761543-reality-awaits_164520.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1761543-the-strokes-reality-awaits.php",
+      "global": {
+        "critic": {
+          "score": 67,
+          "count": 26,
+          "countDisplay": "26",
+          "approximate": false
+        },
+        "user": {
+          "score": 54,
+          "count": 8601,
+          "countDisplay": "8,601",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1526856",
+      "title": "Piss In The Wind",
+      "artist": "Joji",
+      "type": "lp",
+      "releaseDate": "2026-02-06",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1526856-piss-in-the-wind_150209.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1526856-joji-piss-in-the-wind.php",
+      "global": {
+        "critic": {
+          "score": 60,
+          "count": 8,
+          "countDisplay": "8",
+          "approximate": false
+        },
+        "user": {
+          "score": 58,
+          "count": 8177,
+          "countDisplay": "8,177",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1636079",
+      "title": "Trying Times",
+      "artist": "James Blake",
+      "type": "lp",
+      "releaseDate": "2026-03-13",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1636079-trying-times_183603.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1636079-james-blake-trying-times.php",
+      "global": {
+        "critic": {
+          "score": 78,
+          "count": 19,
+          "countDisplay": "19",
+          "approximate": false
+        },
+        "user": {
+          "score": 79,
+          "count": 7346,
+          "countDisplay": "7,346",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1931016",
+      "title": "PRIMA",
+      "artist": "ADÉLA",
+      "type": "lp",
+      "releaseDate": "2026-09-04",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1931016-prima_162200.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1931016-adela-prima.php",
+      "global": {
+        "critic": {
+          "score": 70,
+          "count": 12,
+          "countDisplay": "12",
+          "approximate": false
+        },
+        "user": {
+          "score": 66,
+          "count": 7253,
+          "countDisplay": "7,253",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1860919",
+      "title": "BULLY - DELUXE",
+      "artist": "Ye",
+      "type": "reissue",
+      "releaseDate": "2026-06-19",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1860919-bully-deluxe_233415.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1860919-kanye-west-bully-deluxe.php",
+      "global": {
+        "user": {
+          "score": 74,
+          "count": 7225,
+          "countDisplay": "7,225",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1929479",
+      "title": "$TARFACE",
+      "artist": "$TARFACE",
+      "type": "lp",
+      "releaseDate": "2026-07-31",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1929479-tarface_171326.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1929479-tyga-tarface.php",
+      "global": {
+        "critic": {
+          "score": 7,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 1,
+          "count": 7190,
+          "countDisplay": "7,190",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1616412",
+      "title": "CONFESSIONS II",
+      "artist": "Madonna",
+      "type": "lp",
+      "releaseDate": "2026-07-03",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1616412-confessions-ii_132631.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1616412-madonna-confessions-ii.php",
+      "global": {
+        "critic": {
+          "score": 77,
+          "count": 25,
+          "countDisplay": "25",
+          "approximate": false
+        },
+        "user": {
+          "score": 78,
+          "count": 7093,
+          "countDisplay": "7,093",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1656151",
+      "title": "Distracted",
+      "artist": "Thundercat",
+      "type": "lp",
+      "releaseDate": "2026-04-03",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1656151-distracted_170748.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1656151-thundercat-distracted.php",
+      "global": {
+        "critic": {
+          "score": 76,
+          "count": 13,
+          "countDisplay": "13",
+          "approximate": false
+        },
+        "user": {
+          "score": 76,
+          "count": 6504,
+          "countDisplay": "6,504",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1438836",
+      "title": "e.t.d.s. A Mixtape by .idk.",
+      "artist": "IDK",
+      "type": "mixtape",
+      "releaseDate": "2026-01-23",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1438836-etds-a-mixtape-by-idk_1532456ace4f1dc47b6.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1438836-idk-etds-a-mixtape-by-idk.php",
+      "global": {
+        "critic": {
+          "score": 78,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 77,
+          "count": 6473,
+          "countDisplay": "6,473",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1977552",
+      "title": "Dopamine Chamber",
+      "artist": "Fontaines D.C.",
+      "type": "lp",
+      "releaseDate": "2026-10-16",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1977552-dopamine-chamber_091129.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1977552-fontaines-dc-dopamine-chamber.php",
+      "global": {
+        "critic": {
+          "score": 84,
+          "count": 39,
+          "countDisplay": "39",
+          "approximate": false
+        },
+        "user": {
+          "score": 78,
+          "count": 6393,
+          "countDisplay": "6,393",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1706527",
+      "title": "REDSTAR WU & THE WORLDWIDE SCOURGE",
+      "artist": "Genesis Owusu",
+      "type": "lp",
+      "releaseDate": "2026-05-15",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1706527-redstar-wu-the-worldwide-scourge_160421.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1706527-genesis-owusu-redstar-wu-the-worldwide-scourge.php",
+      "global": {
+        "critic": {
+          "score": 83,
+          "count": 10,
+          "countDisplay": "10",
+          "approximate": false
+        },
+        "user": {
+          "score": 81,
+          "count": 6113,
+          "countDisplay": "6,113",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1806319",
+      "title": "new avatar",
+      "artist": "Kelela",
+      "type": "lp",
+      "releaseDate": "2026-07-10",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1806319-new-avatar_151837.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1806319-kelela-new-avatar.php",
+      "global": {
+        "critic": {
+          "score": 82,
+          "count": 16,
+          "countDisplay": "16",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 6093,
+          "countDisplay": "6,093",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1176404",
+      "title": "ADL",
+      "artist": "Yeat",
+      "type": "lp",
+      "releaseDate": "2026-03-27",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1176404-adl_204337.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1176404-yeat-adl.php",
+      "global": {
+        "critic": {
+          "score": 48,
+          "count": 6,
+          "countDisplay": "6",
+          "approximate": false
+        },
+        "user": {
+          "score": 51,
+          "count": 5896,
+          "countDisplay": "5,896",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1600367",
+      "title": "ARIRANG",
+      "artist": "BTS",
+      "type": "lp",
+      "releaseDate": "2026-03-20",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1600367-arirang_040551.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1600367-bts-arirang.php",
+      "global": {
+        "critic": {
+          "score": 74,
+          "count": 11,
+          "countDisplay": "11",
+          "approximate": false
+        },
+        "user": {
+          "score": 41,
+          "count": 5829,
+          "countDisplay": "5,829",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1871357",
+      "title": "The Real Me",
+      "artist": "Future",
+      "type": "lp",
+      "releaseDate": "2026-07-10",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1871357-the-real-me_065141.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1871357-future-the-real-me.php",
+      "global": {
+        "critic": {
+          "score": 58,
+          "count": 6,
+          "countDisplay": "6",
+          "approximate": false
+        },
+        "user": {
+          "score": 45,
+          "count": 5795,
+          "countDisplay": "5,795",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1529670",
+      "title": "xperiment",
+      "artist": "Ken Carson",
+      "type": "lp",
+      "releaseDate": "2026-07-03",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1529670-the-xperiment_161704.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1529670-ken-carson-xperiment.php",
+      "global": {
+        "critic": {
+          "score": 60,
+          "count": 3,
+          "countDisplay": "3",
+          "approximate": false
+        },
+        "user": {
+          "score": 62,
+          "count": 5729,
+          "countDisplay": "5,729",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1910708",
+      "title": "Age of the Exhibitionist",
+      "artist": "Rebecca Black",
+      "type": "lp",
+      "releaseDate": "2026-09-04",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1910708-age-of-the-exhibitionist_171151.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1910708-rebecca-black-age-of-the-exhibitionist.php",
+      "global": {
+        "critic": {
+          "score": 69,
+          "count": 8,
+          "countDisplay": "8",
+          "approximate": false
+        },
+        "user": {
+          "score": 80,
+          "count": 5720,
+          "countDisplay": "5,720",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1643177",
+      "title": "trojan horse",
+      "artist": "matt proxy",
+      "type": "lp",
+      "releaseDate": "2026-06-19",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1643177-trojan-horse_200622.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1643177-matt-proxy-trojan-horse.php",
+      "global": {
+        "critic": {
+          "score": 65,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 77,
+          "count": 5681,
+          "countDisplay": "5,681",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-710558",
+      "title": "IT'S BEEN AWFUL",
+      "artist": "Isaiah Rashad",
+      "type": "lp",
+      "releaseDate": "2026-05-01",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/710558-its-been-awful_082541.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/710558-isaiah-rashad-its-been-awful.php",
+      "global": {
+        "critic": {
+          "score": 75,
+          "count": 10,
+          "countDisplay": "10",
+          "approximate": false
+        },
+        "user": {
+          "score": 76,
+          "count": 5671,
+          "countDisplay": "5,671",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1377283",
+      "title": "Icon",
+      "artist": "Brent Faiyaz",
+      "type": "lp",
+      "releaseDate": "2026-02-13",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1377283-icon_174247.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1377283-brent-faiyaz-icon.php",
+      "global": {
+        "critic": {
+          "score": 64,
+          "count": 2,
+          "countDisplay": "2",
+          "approximate": false
+        },
+        "user": {
+          "score": 73,
+          "count": 5607,
+          "countDisplay": "5,607",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1686949",
+      "title": "My New Band Believe",
+      "artist": "My New Band Believe",
+      "type": "lp",
+      "releaseDate": "2026-04-10",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1686949-my-new-band-believe_135047.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1686949-my-new-band-believe-my-new-band-believe.php",
+      "global": {
+        "critic": {
+          "score": 84,
+          "count": 17,
+          "countDisplay": "17",
+          "approximate": false
+        },
+        "user": {
+          "score": 78,
+          "count": 5572,
+          "countDisplay": "5,572",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1557730",
+      "title": "Vol.II",
+      "artist": "Angine de Poitrine",
+      "type": "lp",
+      "releaseDate": "2026-04-03",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1557730-volii_210909.jpg",
+      "image": "/annual/2026/global/aoty-1557730.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1557730-angine-de-poitrine-volii.php",
+      "global": {
+        "critic": {
+          "score": 85,
+          "count": 13,
+          "countDisplay": "13",
+          "approximate": false
+        },
+        "user": {
+          "score": 77,
+          "count": 5470,
+          "countDisplay": "5,470",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1734755",
+      "title": "An Undying Love for a Burning World",
+      "artist": "Neurosis",
+      "type": "lp",
+      "releaseDate": "2026-03-20",
+      "genres": [
+        "Atmospheric Sludge Metal"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1734755-an-undying-love-for-a-burning-world_143414.jpg",
+      "image": "/annual/2026/global/aoty-1734755.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1734755-neurosis-an-undying-love-for-a-burning-world.php",
+      "global": {
+        "critic": {
+          "score": 89,
+          "count": 9,
+          "countDisplay": "9",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1544298",
+      "title": "Love Is Not Enough",
+      "artist": "Converge",
+      "type": "lp",
+      "releaseDate": "2026-02-13",
+      "genres": [
+        "Metalcore"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1544298-love-is-not-enough_004159.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1544298-converge-love-is-not-enough.php",
+      "global": {
+        "critic": {
+          "score": 87,
+          "count": 13,
+          "countDisplay": "13",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1607155",
+      "title": "IT’S THE LONG GOODBYE",
+      "artist": "The Twilight Sad",
+      "type": "lp",
+      "releaseDate": "2026-03-27",
+      "genres": [
+        "Post-Punk Revival"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1607155-its-the-long-goodbye_102433.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1607155-the-twilight-sad-its-the-long-goodbye.php",
+      "global": {
+        "critic": {
+          "score": 86,
+          "count": 14,
+          "countDisplay": "14",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1903509",
+      "title": "Pugnello",
+      "artist": "Gilla Band",
+      "type": "lp",
+      "releaseDate": "2026-09-25",
+      "genres": [
+        "Industrial Rock",
+        "Noise Rock",
+        "Experimental Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1903509-pugnello_215117.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1903509-gilla-band-pugnello.php",
+      "global": {
+        "critic": {
+          "score": 85,
+          "count": 20,
+          "countDisplay": "20",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-2013582",
+      "title": "A Man from the Future",
+      "artist": "Pet Shop Boys, Juliet Stevenson & Manchester Camerata Octet",
+      "type": "lp",
+      "releaseDate": "2026-10-09",
+      "genres": [
+        "Synthpop",
+        "Spoken Word",
+        "Orchestral"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2013582-a-man-from-the-future_100033.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/2013582-pet-shop-boys-a-man-from-the-future.php",
+      "global": {
+        "critic": {
+          "score": 89,
+          "count": 7,
+          "countDisplay": "7",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1984694",
+      "title": "Live at Carnegie Hall",
+      "artist": "Cameron Winter",
+      "type": "live",
+      "releaseDate": "2026-10-09",
+      "genres": [
+        "Singer-Songwriter"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1984694-live-at-carnegie-hall_155411.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1984694-cameron-winter-live-at-carnegie-hall.php",
+      "global": {
+        "user": {
+          "score": 90,
+          "count": 4764,
+          "countDisplay": "4,764",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1930239",
+      "title": "Newly Sentient Being",
+      "artist": "Swans",
+      "type": "live",
+      "releaseDate": "2026-10-02",
+      "genres": [
+        "Post-Rock",
+        "Experimental Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1930239-newly-sentient-being_054851.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1930239-swans-newly-sentient-being.php",
+      "global": {
+        "user": {
+          "score": 88,
+          "count": 1365,
+          "countDisplay": "1,365",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1962089",
+      "title": "Gingerbee At Thalia Hall",
+      "artist": "Gingerbee",
+      "type": "live",
+      "releaseDate": "2026-08-14",
+      "genres": [
+        "Chamber Pop",
+        "Emo",
+        "Indie Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1962089-live-at-thalia-hall_222904.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1962089-gingerbee-gingerbee-at-thalia-hall.php",
+      "global": {
+        "user": {
+          "score": 88,
+          "count": 481,
+          "countDisplay": "481",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1637566",
+      "title": "15th Anniversary Concert",
+      "artist": "青葉市子 [Ichiko Aoba]",
+      "type": "live",
+      "releaseDate": "2026-01-28",
+      "genres": [
+        "Contemporary Folk",
+        "Singer-Songwriter"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1637566-15th-anniversary-concert_100709.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1637566-ichiko-aoba-15th-anniversary-concert.php",
+      "global": {
+        "user": {
+          "score": 88,
+          "count": 386,
+          "countDisplay": "386",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1919907",
+      "title": "More Than We Ever Imagined (Live in Mexico City)",
+      "artist": "twenty one pilots",
+      "type": "live",
+      "releaseDate": "2026-08-07",
+      "genres": [
+        "Alternative Rock",
+        "Indie Rock",
+        "Pop Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1919907-more-than-we-ever-imagined-live-from-mexico-city_003127.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1919907-twenty-one-pilots-more-than-we-ever-imagined-live-in-mexico-city.php",
+      "global": {
+        "user": {
+          "score": 87,
+          "count": 617,
+          "countDisplay": "617",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1875805",
+      "title": "Live From Miami Beach",
+      "artist": "Lupe Fiasco & Nu Deco Ensemble",
+      "type": "live",
+      "releaseDate": "2026-06-19",
+      "genres": [
+        "Conscious Hip Hop",
+        "Pop Rap"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1875805-live-from-miami-beach_173051.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1875805-lupe-fiasco-live-from-miami-beach.php",
+      "global": {
+        "user": {
+          "score": 88,
+          "count": 178,
+          "countDisplay": "178",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1773837",
+      "title": "Apple Music Live: MAYHEM Requiem",
+      "artist": "Lady Gaga",
+      "type": "live",
+      "releaseDate": "2026-05-15",
+      "genres": [
+        "Synthpop",
+        "Alternative Rock",
+        "Electronic"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1773837-apple-music-live-mayhem-requiem_233115.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1773837-lady-gaga-apple-music-live-mayhem-requiem.php",
+      "global": {
+        "user": {
+          "score": 86,
+          "count": 222,
+          "countDisplay": "222",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1615049",
+      "title": "Live at Third Man Records",
+      "artist": "Geese",
+      "type": "live",
+      "releaseDate": "2026-02-27",
+      "genres": [
+        "Indie Rock",
+        "Art Rock",
+        "Blues Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1615049-live-at-third-man-records_151756.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1615049-geese-live-at-third-man-records.php",
+      "global": {
+        "user": {
+          "score": 85,
+          "count": 219,
+          "countDisplay": "219",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1602256",
+      "title": "Mario Kart World",
+      "artist": "Nintendo Sound Team",
+      "type": "soundtrack",
+      "releaseDate": "2026-06-01",
+      "genres": [
+        "Jazz Fusion"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1602256-mario-kart-world_181330.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1602256-nintendo-sound-team-mario-kart-world.php",
+      "global": {
+        "user": {
+          "score": 93,
+          "count": 96,
+          "countDisplay": "96",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1734343",
+      "title": "Project Hail Mary (Original Motion Picture Score)",
+      "artist": "Daniel Pemberton",
+      "type": "soundtrack",
+      "releaseDate": "2026-03-20",
+      "genres": [
+        "Choral",
+        "Orchestral",
+        "Space Ambient"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1734343-project-hail-mary-original-motion-picture-score_052908.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1734343-daniel-pemberton-project-hail-mary-original-motion-picture-score.php",
+      "global": {
+        "user": {
+          "score": 87,
+          "count": 328,
+          "countDisplay": "328",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1687641",
+      "title": "Mewgenics (Original Soundtrack)",
+      "artist": "Ridiculon",
+      "type": "soundtrack",
+      "releaseDate": "2026-02-17",
+      "genres": [
+        "Vocal Jazz",
+        "Blues Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1687641-mewgenics-original-soundtrack_144048.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1687641-ridiculon-mewgenics-original-soundtrack.php",
+      "global": {
+        "user": {
+          "score": 87,
+          "count": 188,
+          "countDisplay": "188",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1866355",
+      "title": "The Odyssey (Original Motion Picture Soundtrack)",
+      "artist": "Ludwig Göransson",
+      "type": "soundtrack",
+      "releaseDate": "2026-07-17",
+      "genres": [
+        "Cinematic Classical",
+        "Dark Ambient"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1866355-the-odyssey-original-motion-picture-soundtrack_221202.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1866355-ludwig-goransson-the-odyssey-original-motion-picture-soundtrack.php",
+      "global": {
+        "user": {
+          "score": 85,
+          "count": 542,
+          "countDisplay": "542",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1821353",
+      "title": "Obsession (Original Motion Picture Soundtrack)",
+      "artist": "Rock Burwell",
+      "type": "soundtrack",
+      "releaseDate": "2026-05-15",
+      "genres": [
+        "Ambient",
+        "Horror Synth",
+        "Dark Ambient"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1821353-obsession_045654.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1821353-rock-burwell-obsession-original-motion-picture-soundtrack.php",
+      "global": {
+        "user": {
+          "score": 84,
+          "count": 719,
+          "countDisplay": "719",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1861963",
+      "title": "DELTARUNE Chapter 5 (Original Game Soundtrack)",
+      "artist": "Toby Fox",
+      "type": "soundtrack",
+      "releaseDate": "2026-06-24",
+      "genres": [
+        "Digital Fusion",
+        "Sequencer & Tracker"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1861963-deltarune-chapter-5-original-game-soundtrack_192240.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1861963-toby-fox-deltarune-chapter-5-original-game-soundtrack.php",
+      "global": {
+        "user": {
+          "score": 84,
+          "count": 891,
+          "countDisplay": "891",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1709835",
+      "title": "ULTRAKILL: FRAUD",
+      "artist": "Heaven Pierce Her",
+      "type": "soundtrack",
+      "releaseDate": "2026-03-04",
+      "genres": [
+        "Industrial Metal",
+        "Symphonic Metal"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1709835-ultrakill-fraud_180639.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1709835-heaven-pierce-her-ultrakill-fraud.php",
+      "global": {
+        "user": {
+          "score": 85,
+          "count": 259,
+          "countDisplay": "259",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-2049459",
+      "title": "You Can See Everything (Original Soundtrack)",
+      "artist": "Ari Balouzian",
+      "type": "soundtrack",
+      "releaseDate": "2026-10-16",
+      "genres": [
+        "Ambient",
+        "Impressionism"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2049459-you-can-see-everything-original-soundtrack_1441046ad23780abc47.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/2049459-ari-balouzian-you-can-see-everything-original-soundtrack.php",
+      "global": {
+        "user": {
+          "score": 87,
+          "count": 111,
+          "countDisplay": "111",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1958169",
+      "title": "songs of a drug bug",
+      "artist": "drug bug",
+      "type": "compilation",
+      "releaseDate": "2026-08-05",
+      "genres": [
+        "Indie Rock",
+        "Indie Folk",
+        "Chamber Pop",
+        "Noise Pop"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1958169-songs-of-a-drug-bug_000156.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1958169-drug-bug-songs-of-a-drug-bug.php",
+      "global": {
+        "user": {
+          "score": 81,
+          "count": 136,
+          "countDisplay": "136",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1815225",
+      "title": "b4c",
+      "artist": "lucybedroque",
+      "type": "compilation",
+      "releaseDate": "2026-05-10",
+      "genres": [
+        "Rage"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1815225-b4c_015859.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1815225-lucy-bedroque-b4c.php",
+      "global": {
+        "user": {
+          "score": 79,
+          "count": 928,
+          "countDisplay": "928",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1695089",
+      "title": "The Coming Strife: Dusk's Cold Embrace",
+      "artist": "Various Artists",
+      "type": "compilation",
+      "releaseDate": "2026-02-28",
+      "genres": [
+        "Melodic Metalcore"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1695089-the-coming-strife-dusks-cold-embrace_043315.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1695089-various-artists-the-coming-strife-dusks-cold-embrace.php",
+      "global": {
+        "user": {
+          "score": 82,
+          "count": 56,
+          "countDisplay": "56",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1507177",
+      "title": "EP 1 + EP 2",
+      "artist": "After",
+      "type": "compilation",
+      "releaseDate": "2026-02-02",
+      "genres": [
+        "Pop Rock",
+        "Electronic"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1507177-ep-1-ep-2_054740.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1507177-after-ep-1-ep-2.php",
+      "global": {
+        "user": {
+          "score": 80,
+          "count": 56,
+          "countDisplay": "56",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1757051",
+      "title": "VARIETY 01　~1ˢᵗ 117★FC COMPILATION ALBUM~",
+      "artist": "117★FC",
+      "type": "compilation",
+      "releaseDate": "2026-04-01",
+      "genres": [
+        "Dariacore",
+        "Mashup",
+        "Electronic Dance Music"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1757051-variety-011-117fc-compilation-album_191449.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1757051-117fc-variety-011-117fc-compilation-album.php",
+      "global": {
+        "user": {
+          "score": 80,
+          "count": 66,
+          "countDisplay": "66",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1853836",
+      "title": "Timeless",
+      "artist": "Prince",
+      "type": "compilation",
+      "releaseDate": "2026-08-28",
+      "genres": [
+        "Contemporary R&B",
+        "Synth Funk",
+        "Pop Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1853836-timeless_130038.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1853836-prince-timeless.php",
+      "global": {
+        "user": {
+          "score": 77,
+          "count": 273,
+          "countDisplay": "273",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1883978",
+      "title": "Billy",
+      "artist": "Midwestern Roadkill",
+      "type": "compilation",
+      "releaseDate": "2026-06-27",
+      "genres": [
+        "Emo",
+        "Shitgaze",
+        "Noise Rock"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1883978-billy_012652.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1883978-midwestern-roadkill-billy.php",
+      "global": {
+        "user": {
+          "score": 77,
+          "count": 183,
+          "countDisplay": "183",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1893796",
+      "title": "MY SKYSCRAPER",
+      "artist": "Nirosta Steel",
+      "type": "compilation",
+      "releaseDate": "2026-06-29",
+      "genres": [
+        "Art Pop",
+        "Neo-Psychedelia"
+      ],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1893796-my-skyscraper_194548.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1893796-steven-hall-my-skyscraper.php",
+      "global": {
+        "user": {
+          "score": 76,
+          "count": 956,
+          "countDisplay": "956",
+          "approximate": false
+        }
+      }
+    },
+    {
+      "id": "aoty-1784515",
+      "title": "PSYOPERA",
+      "artist": "Grimes",
+      "type": "lp",
+      "releaseDate": "2027-01-22",
+      "genres": [],
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/1784515-grimes-psyopera.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2102165",
+      "title": "The Teardrop Throbs",
+      "artist": "The Flaming Lips",
+      "type": "lp",
+      "releaseDate": "2027-01-22",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2102165-the-teardrop-throbs_1802356adf95bb98eca.jpg",
+      "image": "/annual/2026/global/aoty-2102165.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2102165-the-flaming-lips-the-teardrop-throbs.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2093995",
+      "title": "Middle of Nowhere Vol. 2: Tex Mex Tapes",
+      "artist": "Kacey Musgraves",
+      "type": "lp",
+      "releaseDate": "2027-01-15",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2093995-middle-of-nowhere-vol-2-tex-mex-tapes_1253486ada075cc6935.jpg",
+      "image": "/annual/2026/global/aoty-2093995.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2093995-kacey-musgraves-middle-of-nowhere-vol-2-tex-mex-tapes.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2119087",
+      "title": "Polesden Lacey",
+      "artist": "glaive",
+      "type": "lp",
+      "releaseDate": "2027-01-22",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2119087-polesden-lacey_2001306aece09a97662.jpg",
+      "image": "/annual/2026/global/aoty-2119087.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2119087-glaive-polesden-lacey.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-1595896",
+      "title": "Arin Cot",
+      "artist": "Asian Glow",
+      "type": "lp",
+      "releaseDate": "2027-01-01",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/1595896-arin-cot_0442556af9384f1a0f0.jpg",
+      "image": "/annual/2026/global/aoty-1595896.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/1595896-asian-glow-arin-cot.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2000228",
+      "title": "All The King’s Men",
+      "artist": "CHVRCHES",
+      "type": "lp",
+      "releaseDate": "2027-01-22",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2000228-all-the-kings-men_1616466ad8e56ee4aac.jpg",
+      "image": "/annual/2026/global/aoty-2000228.webp",
+      "sourceUrl": "https://www.albumoftheyear.org/album/2000228-chvrches-all-the-kings-men.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2023226",
+      "title": "Somewhere Further Than Far Away",
+      "artist": "Carissa's Wierd",
+      "type": "lp",
+      "releaseDate": "2027-01-08",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2023226-somewhere-further-than-far-away_132215.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/2023226-carissas-wierd-somewhere-further-than-far-away.php",
+      "global": {}
+    },
+    {
+      "id": "aoty-2020813",
+      "title": "Life is Beautiful",
+      "artist": "Nine Vicious",
+      "type": "lp",
+      "releaseDate": "2027-01-09",
+      "genres": [],
+      "imageSource": "https://cdn2.albumoftheyear.org/400x0/album/2020813-life-is-beautiful_1606096ac3caf1eb840.jpg",
+      "image": null,
+      "sourceUrl": "https://www.albumoftheyear.org/album/2020813-nine-vicious-life-is-beautiful.php",
+      "global": {}
+    }
+  ]
+}
