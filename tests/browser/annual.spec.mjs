@@ -4,6 +4,18 @@ import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../../src/server/annual2026Select
 import covers from '../../src/server/annual2026Covers.json' with {type:'json'};
 import {buildPersonalAnnual,buildClubAnnual} from '../../src/utils/annualRecap.mjs';
 import fs from 'node:fs/promises';
+import {contrastRatio} from '../../src/utils/annualIconContrast.mjs';
+
+async function expectReadableIcons(scope){
+  const pairs=await scope.locator('.ui-icon[data-ui-icon]').evaluateAll(icons=>icons.map(icon=>{
+    const hex=value=>'#'+value.match(/[\d.]+/g).slice(0,3).map(v=>Math.round(Number(v)).toString(16).padStart(2,'0')).join('');
+    let parent=icon.parentElement,background='#ffffff';
+    while(parent){const bg=getComputedStyle(parent).backgroundColor,n=bg.match(/[\d.]+/g)?.map(Number);if(n&&(n.length===3||n[3]>.99)){background=hex(bg);break;}parent=parent.parentElement;}
+    return{name:icon.dataset.uiIcon,ink:hex(getComputedStyle(icon).color),background};
+  }));
+  expect(pairs.length).toBeGreaterThan(0);
+  for(const {name,ink,background} of pairs)expect(contrastRatio(ink,background),`${name}: ${ink} on ${background}`).toBeGreaterThanOrEqual(3);
+}
 
 async function revealSoon(page){
   await page.getByRole('link',{name:'Continuar al adelanto',exact:true}).press('Enter');
@@ -66,7 +78,7 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await page.goto('/2026');
   const mural=page.getByRole('region',{name:'Mural artístico de Musiclub 2026'});
   await expect(mural.getByRole('heading',{level:1})).toHaveCSS('width','1px');
-  await expect(mural.locator('[data-release-id] img').first()).toHaveAttribute('src','/annual/2026/cubist-portrait/charli.webp');
+  await expect(mural.locator('[data-release-id] img').first()).toHaveAttribute('src','/annual/2026/cubist-squares/charli.webp');
   expect(await mural.locator('[data-release-id] img').evaluateAll(images=>new Set(images.map(img=>img.getAttribute('src'))).size)).toBe(20);
   expect(await mural.locator('[data-release-id]').evaluateAll(tiles=>tiles.length)).toBe(40);
   expect(await mural.locator('[data-release-id] img').evaluateAll(images=>images.every(img=>Math.abs(img.getBoundingClientRect().width-img.getBoundingClientRect().height)<1))).toBe(true);
@@ -76,12 +88,12 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await page.screenshot({path:`outputs/annual-art-mural-${info.project.name}.png`,animations:'disabled'});
   const print=mural.getByRole('button',{name:'Ver ilustración: Wuthering Heights',exact:true}).first();await print.press('Enter');
   const dialog=page.getByRole('dialog',{name:'Ilustraciones de Musiclub 2026'});await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-portrait/charli.png');
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-squares/charli.png');
   await expect(dialog.getByText('Charli xcx',{exact:true})).toBeVisible();
   await expect(dialog.getByRole('img')).toHaveAttribute('width','1200');await expect(dialog.getByRole('img')).toHaveAttribute('height','1200');
   await dialog.getByRole('button',{name:'Ilustración anterior',exact:true}).click();await expect(dialog.getByText('Haute & Freddy',{exact:true})).toBeVisible();
   await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();
-  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-portrait/mitski-detail.webp');await expect(dialog.getByText('Mitski',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-squares/mitski-detail.webp');await expect(dialog.getByText('Mitski',{exact:true})).toBeVisible();
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
@@ -136,6 +148,18 @@ test('administrators can explore external releases, references, personal chapter
 });
 test('the personal year has empty and failed states without invented figures',async({page})=>{
   await setup(page,{empty:true});await page.goto('/2026');await expect(page.getByRole('heading',{name:'Tu primer disco empieza este resumen.',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Compartir mi 2026',exact:true})).toHaveCount(0);
+});
+
+test('native icons stay readable across release scenes, personal themes and the public ticket',async({page})=>{
+  await setup(page);await page.goto('/2026');await expect(page.locator('#seleccion article')).toHaveCount(20);
+  await expectReadableIcons(page.locator('#seleccion'));
+  for(const [name,theme,bg] of [['Noche del club','night','rgb(36, 32, 46)'],['En papel','paper','rgb(245, 236, 216)'],['Menta','mint','rgb(159, 217, 203)']]){
+    await page.locator('#mi-2026').getByRole('button',{name,exact:true}).click();
+    await expect(page.locator(`#mi-2026 [aria-live="polite"][data-theme="${theme}"]`)).toHaveCSS('background-color',bg);
+    await expectReadableIcons(page.locator(`#mi-2026 [aria-live="polite"][data-theme="${theme}"]`));
+  }
+  await page.getByRole('button',{name:'Ver Próximamente',exact:true}).click();await revealSoon(page);
+  await expectReadableIcons(page.locator('[aria-label="Edición anual de Musiclub"]'));
 });
 test('own annual cards export every format and keep the correct image proportions',async({page},info)=>{
   await setup(page);await page.goto('/2026');await page.getByRole('button',{name:'Compartir mi 2026',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Compartir mi 2026',exact:true});

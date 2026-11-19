@@ -8,18 +8,29 @@ import {readPersonalAnnual} from '../src/server/annualRecap.mjs';
 import {ANNUAL_SELECTION,ANNUAL_SOURCES} from '../src/server/annual2026Selection.mjs';
 import {ANNUAL_ART} from '../src/data/annual2026Art.mjs';
 import {annualGenreGroups,annualReleaseDateLabel} from '../src/utils/annualPresentation.mjs';
+import artwork from '../src/utils/interfaceArtwork.cjs';
+import {ANNUAL_ICON_SURFACES,contrastRatio,contrastingInk} from '../src/utils/annualIconContrast.mjs';
 const now=Date.parse('2026-11-18T12:00:00Z');
 test('twenty square cubist editions share the same palette and plane density, with lightweight previews',async()=>{
   assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(ANNUAL_ART.map(r=>r.id)).size,20);
   for(const art of ANNUAL_ART){
     const release=ANNUAL_SELECTION.find(r=>r.id===art.id);assert.ok(release);assert.equal(art.title,release.title);assert.equal(art.artist,release.artist);
-    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-portrait/${art.id}.svg`,import.meta.url),'utf8');
+    const svg=await fs.readFile(new URL(`../public/annual/2026/cubist-squares/${art.id}.svg`,import.meta.url),'utf8');
     assert.match(svg,/data-main-planes="1600"/);assert.match(svg,/data-inks="128"/);assert.doesNotMatch(svg,/<image|<polygon/);assert.equal((svg.match(/fill-rule="evenodd"/g)||[]).length,1600);
+    const quadrilaterals=[...svg.matchAll(/data-cubist-quad="true" d="([^"]+)"/g)];
+    assert.ok(quadrilaterals.length>=400,'Every release has a visible layer of square and rectangular planes');
+    assert.ok(quadrilaterals.every(([,d])=>(d.match(/[ML]/g)||[]).length===4),'Supporting planes have four corners, rather than triangles');
     for(const [source,size] of [[art.src,640],[art.detailSrc,1200],[art.download,1200]]){
       const file=fileURLToPath(new URL(`../public${source}`,import.meta.url));
       const meta=await sharp(file).metadata();assert.equal(meta.width,size);assert.equal(meta.height,size);
       if(source===art.src)assert.ok((await fs.stat(file)).size<150000,'The moving opening uses lightweight previews');
     }
+  }
+});
+test('annual icon inks retain contrast on every pastel, dark panel and share-button background',()=>{
+  for(const backgrounds of Object.values(ANNUAL_ICON_SURFACES))for(const [name,color] of Object.entries(artwork.ICON_COLORS)){
+    const ink=contrastingInk(color,backgrounds);assert.match(ink,/^#[0-9a-f]{6}$/i);
+    for(const bg of backgrounds)assert.ok(contrastRatio(ink,bg)>=3.5,`${name} must remain readable on ${bg}`);
   }
 });
 test('releases are grouped by canonical genre and ordered by release date within each group',()=>{
