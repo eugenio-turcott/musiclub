@@ -109,5 +109,17 @@ test('expanded activity stats count valid votes, words, distribution, dates and 
 test('release statistics only include its editions and reviews inside the annual cutoff',()=>{
   const grouped={...album,edition_member_ids:['a','clean']};
   const result=buildReleaseAnnual({reviews:[review('1','2026-03-01',{track_ratings:{t:9},favorite_track:'t'}),review('2','2026-04-01',{album_id:'clean'}),review('3','2025-04-01'),review('4','2026-04-01',{album_id:'other'}),review('5','2026-12-01')]},grouped,{now});
-  assert.equal(result.reviewCount,2);assert.equal(result.trackCount,2);assert.equal(result.meanScore,8.7);assert.equal(result.memberCount,2);assert.deepEqual(result.favoriteTrack,{name:'Canción real',count:1});assert.equal(buildReleaseAnnual({reviews:[]},null).meanScore,null);
+  assert.equal(result.reviewCount,2);assert.equal(result.trackCount,1);assert.equal(result.trackRatingCount,2);assert.equal(result.meanScore,8.7);assert.equal(result.memberCount,2);assert.deepEqual(result.favoriteTrack,{name:'Canción real',count:1});assert.equal(buildReleaseAnnual({reviews:[]},null).meanScore,null);
+});
+
+test('a release counts its tracklist once regardless of how many people rate it',()=>{
+  const tracks=Array.from({length:12},(_,i)=>({id:'track-'+i,name:'Canción '+i}));
+  const reviews=Array.from({length:3},(_,i)=>review(String(i),'2026-03-01',{track_ratings:Object.fromEntries(tracks.map(t=>[t.id,9]))}));
+  const result=buildReleaseAnnual({reviews},{...album,tracks},{now});
+  assert.equal(result.reviewCount,3);assert.equal(result.trackCount,12);assert.equal(result.trackRatingCount,36);
+  assert.equal(buildReleaseAnnual({reviews:reviews.slice(0,1)},{...album,tracks},{now}).trackCount,12);
+  assert.equal(buildReleaseAnnual({reviews:[]},{...album,tracks:[],total_tracks:12},{now}).trackCount,12);
+  assert.equal(buildReleaseAnnual({reviews:[]},{...album,tracks:tracks.slice(0,2),total_tracks:'12'},{now}).trackCount,12);
+  assert.equal(buildReleaseAnnual({reviews:[]},{...album,tracks,total_tracks:-1},{now}).trackCount,12);
+  assert.equal(buildReleaseAnnual({reviews},{...album,tracks:[]},{now}).trackCount,null);
 });

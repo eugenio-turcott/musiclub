@@ -41,7 +41,9 @@ export function buildReleaseAnnual(catalog,album,{year=ANNUAL_YEAR,now=Date.now(
   const ids=new Set(album?.edition_member_ids||[album?.id]);
   const rows=album?reviewsInYear(catalog.reviews||[],year,now).filter(r=>ids.has(r.album_id)):[];
   const stats=annualActivityStats(rows,album?[album]:[]);
-  return {reviewCount:rows.length,memberCount:new Set(rows.map(r=>r.reviewer_name||r.id)).size,meanScore:stats.meanScore,trackCount:stats.trackCount,commentCount:stats.commentCount,favoriteTrack:stats.favoriteTracks[0]||null,trackMean:stats.trackMean};
+  const listedTracks=Array.isArray(album?.tracks)?album.tracks.length:0,declaredTracks=Number(album?.total_tracks);
+  const trackCount=Math.max(listedTracks,Number.isInteger(declaredTracks)&&declaredTracks>0?declaredTracks:0)||null;
+  return {reviewCount:rows.length,memberCount:new Set(rows.map(r=>r.reviewer_name||r.id)).size,meanScore:stats.meanScore,trackCount,trackRatingCount:stats.trackCount,commentCount:stats.commentCount,favoriteTrack:stats.favoriteTracks[0]||null,trackMean:stats.trackMean};
 }
 
 export function buildPersonalAnnual(reviews,albums=[],{year=ANNUAL_YEAR,now=Date.now(),name='Tu año',avatar=null}={}){
