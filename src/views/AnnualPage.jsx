@@ -33,7 +33,7 @@ function EditionNav({preview,paused,onToggle,chapter,onPreview,publicPreview}){
     <Brand/>
     <nav data-annual-icons="light" className={styles.editionLinks} aria-label={preview?'Capítulos del año':'Adelanto de la edición anual'} data-open={open}>{chapters.map(([id,label],i)=><a href={`#${id}`} key={id} aria-current={chapter===id?'location':undefined} onClick={()=>setOpen(false)}><span>0{i+1}</span>{label}</a>)}</nav>
     <div className={styles.editionTools}><button type="button" aria-label={paused?'Activar movimiento':'Pausar movimiento'} aria-pressed={paused} onClick={onToggle}><UiIcon name={paused?'play':'pause'}/></button>{onPreview&&<button type="button" aria-label={publicPreview?'Mostrar edición de administrador':'Mostrar adelanto público'} onClick={onPreview}><UiIcon name={publicPreview?'shield':'eye'}/></button>}<button type="button" className={styles.menuToggle} aria-label="Abrir capítulos" aria-expanded={open} onClick={()=>setOpen(v=>!v)}><UiIcon name={open?'close':'list'}/></button><Link href="/catalogo" className={styles.editionExit} aria-label="Volver al club"><span>Volver al club</span><UiIcon name="arrow"/></Link></div>
-    <div className={styles.editionProgress} aria-hidden="true"/>
+    <div className={styles.editionProgress} data-annual-progress aria-hidden="true"/>
   </header>;
 }
 function Motion({children,paused,onChapter}){
@@ -42,12 +42,13 @@ function Motion({children,paused,onChapter}){
     const scroller=ref.current;
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting)entry.target.dataset.revealed='true';entry.target.dataset.visible=String(entry.isIntersecting);}),{root:scroller,threshold:.08});
     ref.current?.querySelectorAll('[data-annual-reveal]').forEach(el=>observer.observe(el));
-    const scenes=[...scroller.querySelectorAll('[data-annual-scene]')];let frame=0,lastChapter='';
+    const scenes=[...scroller.querySelectorAll('[data-annual-scene]')],progressBar=scroller.parentElement.querySelector('[data-annual-progress]');let frame=0,lastChapter='';
     const progress=()=>{
-      frame=0;const max=scroller.scrollHeight-scroller.clientHeight;scroller.parentElement.style.setProperty('--scroll-progress',max>0?scroller.scrollTop/max:0);
+      frame=0;const max=scroller.scrollHeight-scroller.clientHeight,progress=max>0?scroller.scrollTop/max:0;
       const marker=scroller.getBoundingClientRect().top+scroller.clientHeight*.35;
       const scene=scenes.find(el=>{const bounds=el.getBoundingClientRect();return bounds.top<=marker&&bounds.bottom>marker;});
       const current=scene?.dataset.chapter||scene?.id;
+      if(progressBar)progressBar.style.transform=`scaleX(${progress})`;
       if(current&&current!==lastChapter){lastChapter=current;onChapter(current);}
     };
     const schedule=()=>{if(!frame)frame=requestAnimationFrame(progress);};

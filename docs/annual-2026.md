@@ -127,3 +127,9 @@ La API reúne los IDs con el catálogo, incluidas sus ediciones agrupadas, y gen
 `annualClubGenres` usa releases reseñados durante 2026 en Musiclub, aunque sean de otro año. Agrupa por la familia de su género principal, prioriza cantidad de reseñas y nota, muestra hasta ocho releases por grupo y las diez familias con mayor actividad. Cada edición equivalente sólo entra una vez y cada release pertenece a un único grupo. Se omiten grupos de un solo release. No se convierten reseñas en reproducciones.
 
 Los discos y sus etiquetas giran con movimiento suave, pausado fuera de pantalla, al ocultar la pestaña, con la pausa global o por preferencia de movimiento reducido. La bienvenida, nombres largos, calidad de assets y destinos directos se comprueban en las pruebas de unidad y de navegador de la edición anual.
+
+### Fluidez del recorrido
+
+La barra superior actualiza únicamente su propio transform, sin propagar una variable de estilo por todo el árbol de la página. El ranking conserva sus tarjetas entre cambios de puesto, mide su geometría al cambiar el tamaño o entrar en pantalla y mueve el carril por fotogramas con una transición breve ajustada al tiempo transcurrido. El gesto táctil conserva su respuesta directa; las anclas lejanas y la preferencia de movimiento reducido se resuelven sin interpolación. Sólo se dibujan la tarjeta actual y sus vecinas, conservando el resto de posiciones y el orden del ranking. La barra inferior sigue la posición continua del carril.
+
+Las pruebas en escritorio y celular comprueban posiciones intermedias, llegada al destino, desplazamiento nativo con rueda, movimiento reducido, tarjetas lejanas omitidas del dibujo y ausencia de escrituras de estilos en la raíz durante el scroll. Las estadísticas, las portadas y los enlaces del ranking se verifican en el mismo recorrido.
