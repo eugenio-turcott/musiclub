@@ -20,4 +20,4 @@ export const ANNUAL_ART = [
   {id:'harry',title:'Kiss All The Time. Disco, Occasionally.',artist:'Harry Styles',description:'Una reinterpretación angular de la portada de Kiss All The Time. Disco, Occasionally.'},
   {id:'fcukers',title:'Ö',artist:'Fcukers',description:'Una reinterpretación angular de la portada de Ö.'},
   {id:'haute',title:'Big Disgrace',artist:'Haute & Freddy',description:'Una reinterpretación angular de la portada de Big Disgrace.'},
-].map(piece=>({...piece,src:`/annual/2026/cubist-squares/${piece.id}.webp`,detailSrc:`/annual/2026/cubist-squares/${piece.id}-detail.webp`,download:`/annual/2026/cubist-squares/${piece.id}.png`}));
+].map(piece=>({...piece,src:`/annual/2026/cubist-collage/${piece.id}.webp`,detailSrc:`/annual/2026/cubist-collage/${piece.id}-detail.webp`,download:`/annual/2026/cubist-collage/${piece.id}.png`}));
