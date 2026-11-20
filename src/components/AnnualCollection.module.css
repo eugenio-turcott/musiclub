@@ -23,3 +23,29 @@
 .empty{padding:calc(var(--annual-chrome) + 40px) 30px 60px;min-height:70cqh;background:#ed9dbe}.empty h2{font-size:clamp(2.4rem,5vw,5rem)}
 .track .card{container-type:inline-size}
 .track .card>span[aria-hidden=true]{left:3%;bottom:.03em;width:94%;font-size:clamp(1rem,calc(160cqw / var(--genre-length,10)),16cqw);letter-spacing:.015em;line-height:1.08;white-space:normal;overflow-wrap:anywhere;color:#211c2c22}
+.personalMessage{font-size:13px;line-height:1.45!important;max-width:60ch;color:#493347;overflow-wrap:anywhere;margin:8px 0 14px!important}
+.toolbar>span{min-width:0;flex:1}.toolbar>span>strong{min-width:0;overflow-wrap:anywhere}.toolbar>div{flex-shrink:0}
+.empty>svg{margin-bottom:20px}.empty>p{font-size:18px;line-height:1.6;max-width:55ch}.emptyActions{display:flex;flex-wrap:wrap;gap:14px;margin-top:25px}.emptyActions>a{display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border:1px solid #211c2c40;border-radius:12px;font-size:14px;font-weight:700}.emptyActions>a:hover{background:#f2eddf80}
+@media(max-width:760px){.personalMessage{font-size:11px;margin:7px 0 10px!important}.collection[data-scope=personal] .toolbar{height:76px}.collection[data-scope=personal] .track .card{padding-top:94px}.toolbar>span{gap:8px}.toolbar>span>strong{max-width:none}.toolbar>div{gap:5px}.toolbar>div>span{min-width:42px}.toolbar button{width:29px;height:29px}.emptyActions{flex-direction:column;align-items:flex-start}.empty>p{font-size:16px}}
+@media(min-width:761px){
+ .collection[data-scope=personal] .card{padding-top:86px;padding-bottom:44px}
+ .collection[data-scope=personal] .card>div:first-of-type{width:min(100%,max(200px,calc(100cqh - var(--annual-chrome) - 180px)));justify-self:center}
+ .collection[data-scope=personal] .rank{margin-bottom:8px}.collection[data-scope=personal] .rank>span{font-size:42px}
+ .collection[data-scope=personal] .rank+div{margin-bottom:8px}
+ .collection[data-scope=personal] .card h3{font-size:clamp(1.7rem,3vw,2.8rem)}
+ .collection[data-scope=personal] .card[data-long-title=true] h3{font-size:clamp(1.3rem,2.1vw,1.9rem);line-height:1.12}
+ .collection[data-scope=personal] .card h3+p{font-size:22px;line-height:1.25;margin:8px 0 12px}
+ .collection[data-scope=personal] .stats{padding-block:12px}.collection[data-scope=personal] .stats strong{font-size:25px}
+ .collection[data-scope=personal] .card>div:last-child>div:last-child{margin-top:14px;padding-top:12px}
+}
+@media(max-width:760px){
+ .collection[data-scope=personal] .track .card{grid-template-rows:minmax(90px,1fr) auto}
+ .collection[data-scope=personal] .track .card>div:first-of-type{width:auto;max-width:220px;height:calc(100% - 18px);aspect-ratio:1;justify-self:center;align-self:center}
+}
+/* On short phones, the full card remains readable with native scrolling. */
+@media(max-width:760px) and (max-height:740px){
+ .collection[data-scope=personal] [data-ranking-panel]{overflow-y:auto;overscroll-behavior-y:auto}
+ .collection[data-scope=personal] .track .card{height:auto;min-height:100%;grid-template-rows:auto auto;padding:94px 22px 44px}
+ .collection[data-scope=personal] .track .card>div:first-of-type{width:140px;height:140px}
+ .collection[data-scope=personal] .card[data-long-title=true] h3{font-size:21px}
+}

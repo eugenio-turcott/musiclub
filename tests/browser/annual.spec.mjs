@@ -27,12 +27,14 @@ async function revealSoon(page){
   await expect(page.locator('[data-opening-content]')).toHaveCSS('opacity','1');
 }
 
-async function setup(page,{admin=true,empty=false,error=false}={}){
+async function setup(page,{admin=true,empty=false,error=false,personalCount=null}={}){
   const {profile,own}=await communityAccount(page,{admin});let reads=0;
   const rows=own.map(r=>({...r,created_at:'2026-06-03T12:00:00Z',albums:{...r.albums,release_year:2026}}));
   const extra=Array.from({length:20},(_,i)=>{const album={...rows[0].albums,id:'club-'+i,album_name:'Disco del club '+String(i+1).padStart(2,'0'),artist_name:'Artista '+i,genres:[i===0?'Russian Orthodox Liturgical Music':i===1?'Contemporary R&b':'Pop']};return {...rows[0],id:'club-review-'+i,album_id:album.id,reviewer_name:'Persona '+i,rating_general:5+i*.2,comment:i===0?'Esta es una reseña completa del club. '.repeat(20):'Una opinión diferente de la comunidad.',albums:album};});
-  const catalog={albums:[...rows,...extra].map(r=>r.albums),reviews:[...rows,...extra]},yearbook=buildAnnualYearbook(catalog,globalSnapshot,{now:Date.parse('2026-11-19T18:00:00Z')});
-  const data={viewerId:profile.id,researchDate:'2026-11-19',selection:yearbook.clubRanking,yearbook,playlists:[],club:buildClubAnnual(catalog),personal:buildPersonalAnnual(empty?[]:rows,rows.map(r=>r.albums),{now:Date.parse('2026-11-19T18:00:00Z'),name:profile.name}),errors:[]};
+  const single={...extra[0],id:'single-review',album_id:'single',rating_general:10,albums:{...extra[0].albums,id:'single',album_name:'Sencillo fuera del ranking',release_type:'SENCILLO'}};
+  const catalog={albums:[...rows,...extra,single].map(r=>r.albums),reviews:[...rows,...extra,single]},yearbook=buildAnnualYearbook(catalog,globalSnapshot,{now:Date.parse('2026-11-19T18:00:00Z')});
+  const personalRows=personalCount===null?rows:Array.from({length:personalCount},(_,i)=>{const album={...rows[0].albums,id:'personal-'+i,album_name:personalCount===1?rows[1].albums.album_name:'Mi álbum '+String(i+1).padStart(2,'0'),release_date:'2026-05-01'};return {...rows[0],id:'personal-review-'+i,album_id:album.id,rating_general:5+i/6,favorite_track:'track-0',albums:album};});
+  const data={viewerId:profile.id,researchDate:'2026-11-19',selection:yearbook.clubRanking,yearbook,playlists:[],club:buildClubAnnual(catalog),personal:buildPersonalAnnual(empty?[]:personalRows,personalRows.map(r=>r.albums),{now:Date.parse('2026-11-19T18:00:00Z'),name:profile.name}),errors:[]};
   await page.route('**/api/annual/2026',route=>{reads++;expect(route.request().method()).toBe('GET');return route.fulfill({status:error?503:200,json:error?{error:'No se pudo abrir el resumen de prueba.'}:data});});
   return {profile,data,reads:()=>reads};
 }
@@ -144,6 +146,8 @@ test('administrators scroll the ranking horizontally from 20 to 1 with statistic
   await page.getByRole('link',{name:'Antes de comenzar',exact:true}).press('Enter');
   await expect(page.locator('#bienvenida').getByRole('heading',{name:'2026 en Musiclub.',exact:true})).toBeVisible();
   await page.getByRole('link',{name:'Vamos a los discos',exact:true}).click();
+  await expect(page.locator('#mi-ranking')).toHaveAttribute('data-chapter','mi-ranking');
+  await page.locator('#seleccion').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
   await expect(page.locator('[data-private=true]')).toHaveAttribute('data-opening','false');
   const first=rail.locator('article').first();await expect(first.getByRole('heading',{name:state.data.selection.at(-1).title,exact:true})).toBeVisible();
   await expect(first).toContainText(state.data.selection.at(-1).stats.meanScore.toFixed(2));
@@ -248,7 +252,7 @@ test('own annual cards export every format and keep the correct image proportion
 
 test('the global sections follow the annual sequence and every reviewer appears on a distinct release card',async({page},info)=>{
  const state=await setup(page);await page.goto('/2026');await expect(page.locator('#seleccion article')).toHaveCount(20);
- const ids=['bienvenida','seleccion','club','panorama','eps','sencillos','meses','voces','listas','generos','categorias','proximo-2027','mi-2026'];
+ const ids=['bienvenida','mi-ranking','seleccion','club','panorama','eps','sencillos','meses','voces','listas','generos','categorias','proximo-2027','mi-2026'];
  expect(await page.locator('main').evaluate((main,ids)=>ids.map(id=>main.querySelector('#'+id)).every((el,i,all)=>el&&(!i||(all[i-1].compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING))),ids)).toBe(true);
  const voices=page.locator('#voces');await expect(voices.locator('[data-voice-author]')).toHaveCount(state.data.yearbook.voices.contributorCount);
  expect(await voices.locator('[data-voice-author]').evaluateAll(nodes=>new Set(nodes.map(e=>e.dataset.voiceAuthor)).size)).toBe(state.data.yearbook.voices.contributorCount);
@@ -265,6 +269,43 @@ test('the global sections follow the annual sequence and every reviewer appears 
  await page.locator('#generos').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await page.screenshot({path:'outputs/annual-club-only-genres-'+info.project.name+'.png',animations:'disabled'});
  await page.locator('#categorias').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await page.screenshot({path:'outputs/annual-yearbook-categories-'+info.project.name+'.png',animations:'disabled'});
  expect(state.reads()).toBe(1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+});
+
+for(const count of [0,1,3,25])test(`the personal 2026 album ranking adapts to ${count} reviews before the album-only club ranking`,async({page},info)=>{
+ const state=await setup(page,{personalCount:count});await page.goto('/2026');
+ const ranking=page.locator('#mi-ranking'),shown=Math.min(count,20);
+ await expect(ranking).toHaveAttribute('data-chapter','mi-ranking');await expect(ranking.locator('article')).toHaveCount(shown);
+ expect(await ranking.evaluate(el=>Boolean(el.compareDocumentPosition(document.querySelector('#seleccion'))&Node.DOCUMENT_POSITION_FOLLOWING))).toBe(true);
+ await ranking.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
+ await expect(ranking).toContainText(state.profile.name);
+ if(!count){await expect(ranking).toContainText('todavía no has reseñado álbumes de 2026');await expect(ranking.getByRole('link',{name:'Ver el ranking del club'})).toBeInViewport();}
+ else{
+  const first=ranking.locator('article').first(),expected=state.data.personal.albumRanking.releases.at(-1);
+  await expect(first.getByRole('heading',{name:expected.title,exact:true})).toBeInViewport();
+  await expect(first.getByText('tu nota',{exact:true})).toBeVisible();await expect(first).not.toContainText('nota del club');
+  await expect(first.getByText('tu nota',{exact:true}).locator('..').locator('strong')).toContainText(expected.stats.meanScore.toFixed(2));
+  await expect(first.getByRole('link',{name:'Ver tu reseña'})).toBeInViewport();
+  expect(await first.getByRole('heading').evaluate(el=>{const copy=el.parentElement.getBoundingClientRect(),card=el.closest('article').getBoundingClientRect(),toolbar=el.closest('section').querySelector('[data-ranking-toolbar]').getBoundingClientRect();return copy.top>=toolbar.bottom&&copy.bottom<=card.bottom-15;})).toBe(true);
+  if(info.project.name==='mobile')expect(await first.getByRole('img',{name:'Portada de '+expected.title,exact:true}).evaluate(el=>el.getBoundingClientRect().bottom<=el.closest('article').querySelector('h3').parentElement.getBoundingClientRect().top)).toBe(true);
+  expect(await ranking.locator('article').evaluateAll(cards=>cards.map(c=>Number(c.dataset.rank)))).toEqual(Array.from({length:shown},(_,i)=>shown-i));
+  if(count===1){await expect(ranking).toContainText('Tu único álbum de 2026');await expect(ranking.getByRole('button',{name:'Siguiente puesto del ranking',exact:true})).toBeDisabled();}
+  if(count===3)await expect(first).toContainText('Poquitos');
+  if(count===25)await expect(first).toContainText('25 álbumes de este año. Aquí están los 20 que mejor calificaste.');
+  await expectReadableIcons(ranking);
+ }
+ await expect(page.locator('#seleccion')).not.toContainText('Sencillo fuera del ranking');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:`outputs/annual-personal-ranking-${count}-${info.project.name}.png`,animations:'disabled'});
+});
+
+test('a long personal album title stays readable on a short 320px phone',async({page})=>{
+ await page.setViewportSize({width:320,height:700});await setup(page,{personalCount:1});await page.goto('/2026');
+ const ranking=page.locator('#mi-ranking');await expect(ranking.locator('article')).toHaveCount(1);await ranking.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));
+ const panel=ranking.locator('[data-ranking-panel]'),link=panel.getByRole('link',{name:'Ver tu reseña'});
+ await expect(panel).toHaveCSS('overflow-y','auto');await link.evaluate(el=>el.scrollIntoView({behavior:'instant',block:'nearest'}));await expect(link).toBeInViewport();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ expect(await ranking.locator('article').evaluate(el=>el.scrollWidth<=el.clientWidth+2)).toBe(true);
+ await page.screenshot({path:'outputs/annual-personal-ranking-short-phone.png',animations:'disabled'});
 });
 
 test('the welcome precedes the ranking, long genre names fit and real covers link directly to releases',async({page},info)=>{

@@ -43,3 +43,9 @@ test('global sections retain the reference sequence, their observed source and r
  for(const r of snapshot.releases){assert.match(r.sourceUrl,/^https:\/\/www\.albumoftheyear\.org\/album\/\d+/);assert.ok(r.title&&r.artist);assert.match(r.releaseDate,/^202[67]-\d{2}-\d{2}$/);if(r.image)await fs.access(new URL('../public'+r.image,import.meta.url));for(const rating of Object.values(r.global)){assert.ok(rating.score>=0&&rating.score<=100);assert.ok(rating.count>=0);}}
  const view=await fs.readFile(new URL('../src/components/AnnualWorld.jsx',import.meta.url),'utf8');const ids=['id="panorama"','id="eps"','id="sencillos"','id="meses"','<Reviews voices=','id="listas"','id="generos"','id="categorias"','id="proximo-2027"'];assert.ok(ids.every((id,i)=>!i||view.indexOf(id)>view.indexOf(ids[i-1])));
 });
+test('the main club ranking excludes singles, EPs, compilations and albums from other years',()=>{
+ const albums=[album('album','Álbum de 2026'),{...album('single','Sencillo'),release_type:'SENCILLO'},{...album('ep','EP'),release_type:'EP'},{...album('compilation','Recopilación'),release_type:'COMPILACION'},{...album('old','Otro año'),release_year:2025}];
+ const reviews=albums.map(a=>review(a.id,'Persona',a.id,{rating_general:a.id==='album'?8:10}));
+ const result=buildAnnualYearbook({albums,reviews},snapshot,{now});assert.deepEqual(result.clubRanking.map(r=>r.id),['album']);assert.equal(result.clubRanking[0].rank,1);assert.equal(result.clubRanking[0].stats.reviewCount,1);
+ assert.equal(result.voices.contributorCount,1,'Other release types remain part of club activity');
+});

@@ -4,6 +4,7 @@ import genreCatalog from './genreCatalog.cjs';
 import editions from './releaseEditions.cjs';
 
 export const ANNUAL_YEAR=2026;
+export const isAnnualAlbum=(album,year=ANNUAL_YEAR)=>String(album?.release_type||'').trim().toUpperCase()==='ALBUM'&&Number(album.release_year||String(album.release_date||'').slice(0,4))===year;
 const dayFormat=new Intl.DateTimeFormat('en-CA',{timeZone:'America/Mexico_City',year:'numeric',month:'2-digit',day:'2-digit'});
 export const annualDay=value=>{const date=new Date(value);return Number.isFinite(date.getTime())?dayFormat.format(date):null;};
 export function reviewsInYear(reviews,year=ANNUAL_YEAR,now=Date.now()){
@@ -62,8 +63,13 @@ export function buildPersonalAnnual(reviews,albums=[],{year=ANNUAL_YEAR,now=Date
     if(favorite){const track=getTrackDisplayName(favorite,a.tracks||[]),knownName=(a.tracks||[]).some(t=>(typeof t==='string'?t:t.name)===favorite);if(track&&(track!==favorite||knownName)&&!/^[A-Za-z0-9]{22}$/.test(track))favorites.push({title:track,release:a.album_name,artist:a.artist_name,image:a.image_url});}
   }
   const top=rows.map(r=>{const a=albumFor(r,byId);return {id:a.id||r.album_id,title:a.album_name||'Release',artist:a.artist_name||'',image:a.image_url||null,score:annualScore(r),genres:a.genres||[],release_type:a.release_type||'ALBUM'};}).filter(r=>r.score!==null).sort((a,b)=>b.score-a.score||a.title.localeCompare(b.title)).slice(0,10);
+  const rankedAlbums=rows.filter(r=>isAnnualAlbum(albumFor(r,byId),year)).map(r=>{
+    const a=albumFor(r,byId),stats=buildReleaseAnnual({reviews:[r]},a,{year,now});
+    return {id:a.id||r.album_id,title:a.album_name,artist:a.artist_name,cover:a.image_url||null,releaseDate:a.release_date||null,year,genre:genreCatalog.normalizeGenres(a.genres||[])[0]||'Música',release_type:a.release_type,stats,catalogId:a.id||r.album_id};
+  }).filter(r=>r.stats.meanScore!==null).sort((a,b)=>b.stats.meanScore-a.stats.meanScore||a.title.localeCompare(b.title,'es')||String(a.id).localeCompare(String(b.id)));
+  const albumRanking={total:rankedAlbums.length,releases:rankedAlbums.slice(0,20).map((r,i)=>({...r,rank:i+1}))};
   const ranked=map=>[...map].map(([name,count])=>({name,count})).sort((a,b)=>b.count-a.count||a.name.localeCompare(b.name));
-  return {...annualActivityStats(rows,albums),year,name,avatar,asOf:new Date(now).toISOString(),reviewCount:rows.length,artistCount:artists.size,trackCount:tracks,commentCount:comments,meanScore:mean(scores),activeDays:days.size,longestStreak:streak(days),activityXP:rows.length*XP_CONFIG.REVIEW_BASE+comments*XP_CONFIG.REVIEW_COMMENT_BONUS+tracks*XP_CONFIG.TRACK_RATED,genres:ranked(genres).slice(0,6),artists:ranked(artists).slice(0,5),months,topReleases:top,favorites:favorites.slice(0,5)};
+  return {...annualActivityStats(rows,albums),year,name,avatar,asOf:new Date(now).toISOString(),reviewCount:rows.length,artistCount:artists.size,trackCount:tracks,commentCount:comments,meanScore:mean(scores),activeDays:days.size,longestStreak:streak(days),activityXP:rows.length*XP_CONFIG.REVIEW_BASE+comments*XP_CONFIG.REVIEW_COMMENT_BONUS+tracks*XP_CONFIG.TRACK_RATED,genres:ranked(genres).slice(0,6),artists:ranked(artists).slice(0,5),months,topReleases:top,albumRanking,favorites:favorites.slice(0,5)};
 }
 export function buildClubAnnual(catalog,{year=ANNUAL_YEAR,now=Date.now(),minimumReviews=1}={}){
   const rows=reviewsInYear(catalog.reviews||[],year,now),albums=catalog.albums||[],byId=new Map(albums.flatMap(a=>(a.edition_member_ids||[a.id]).map(id=>[id,a]))),groups=new Map(),members=new Set();
