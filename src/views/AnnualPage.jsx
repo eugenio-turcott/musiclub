@@ -12,7 +12,7 @@ import {Footer} from '../components/Footer';
 import {getReleaseUrl} from '../utils/ratingUtils';
 import {annualClubMonths} from '../utils/annualPresentation.mjs';
 import {AnnualComingSoon} from '../components/AnnualComingSoon';
-import {AnnualCollection} from '../components/AnnualCollection';
+import {AnnualCollection,AnnualPersonalRanking} from '../components/AnnualCollection';
 import {AnnualActivity} from '../components/AnnualActivity';
 import {AnnualWorld} from '../components/AnnualWorld';
 import {AnnualArtOpening} from '../components/AnnualArtOpening';
@@ -29,7 +29,7 @@ function Brand(){return <Link href="/" className={styles.brand} aria-label="Volv
 function Label({icon='disc',children}){return <span className={styles.label}><UiIcon name={icon} size={30} tone="accent"/>{children}</span>;}
 function EditionNav({preview,paused,onToggle,chapter,onPreview,publicPreview}){
   const [open,setOpen]=useState(false);
-  const chapters=preview?[['inicio','Inicio'],['seleccion','Ranking del club'],['club','El club'],['panorama','El mundo'],['voces','Reseñas'],['mi-2026','Mi 2026']]:[['inicio','Inicio'],['adelanto','El adelanto'],['tu-2026','Tu 2026']];
+  const chapters=preview?[['inicio','Inicio'],['mi-ranking','Tu ranking'],['seleccion','Ranking del club'],['club','El club'],['panorama','El mundo'],['voces','Reseñas'],['mi-2026','Mi 2026']]:[['inicio','Inicio'],['adelanto','El adelanto'],['tu-2026','Tu 2026']];
   return <header className={styles.editionNav} data-annual-icons={!preview||chapter==='inicio'?'dark':'light'}>
     <Brand/>
     <nav data-annual-icons="light" className={styles.editionLinks} aria-label={preview?'Capítulos del año':'Adelanto de la edición anual'} data-open={open}>{chapters.map(([id,label],i)=><a href={`#${id}`} key={id} aria-current={chapter===id?'location':undefined} onClick={()=>setOpen(false)}><span>0{i+1}</span>{label}</a>)}</nav>
@@ -73,7 +73,7 @@ function AnnualWelcome({name}){
     <p><strong>{greeting}</strong> Musiclub nació el <time dateTime="2026-07-07">7 de julio de 2026</time> y, en pocos meses, hemos construido mucho juntos.</p>
     <p>Sumamos Pools, Gashapon, XP e insignias, predicciones Grammy y nuevas formas de compartir; también mejoramos el catálogo y las reseñas de discos y canciones.</p>
     <p>Cada recomendación y cada opinión le dan vida al club. Este recorrido reúne nuestros favoritos, las voces de la comunidad y tu propio 2026.</p>
-    <a href="#seleccion">Vamos a los discos <UiIcon name="arrowDown" size={30}/></a>
+    <a href="#mi-ranking">Vamos a los discos <UiIcon name="arrowDown" size={30}/></a>
   </section>;
 }
 
@@ -115,6 +115,7 @@ export function AnnualPage(){
     {error&&auth.isAdmin&&<p role="alert" className={styles.loadNotice}>{error}<button type="button" onClick={retryLoad}>Reintentar</button></p>}
     <Motion paused={paused} onChapter={setChapter} key={visible?'preview':'public'}>{!visible?<AnnualComingSoon/>:<>
       <AnnualArtOpening next="bienvenida"/><AnnualWelcome name={data.personal?.name}/>
+      <AnnualPersonalRanking personal={data.personal}/>
       <AnnualCollection selection={data.selection}/>
       <ClubSection club={data.club}/><AnnualWorld yearbook={data.yearbook} playlists={data.playlists}/><PersonalSection personal={data.personal} onShare={setShare}/>
       <section className={styles.ending}><img src="/musiclub_logo_corchea.png" alt="" width="58" height="58"/><h2>Nos queda mucho<br/>por escuchar.</h2><Link href="/catalogo" data-annual-icons="dark" className={styles.primary}>Volver al catálogo <UiIcon name="arrow"/></Link></section>

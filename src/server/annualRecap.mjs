@@ -7,7 +7,7 @@ export async function readPersonalAnnual(db,user,{now=Date.now()}={}){
   // RLS still applies. The identity comes exclusively from the verified session.
   for(let offset=0;;offset+=500){
     const result=await db.from('reviews')
-      .select(`${PUBLIC_REVIEW_FIELDS},albums(id,album_name,artist_name,image_url,genres,tracks,release_type)`)
+      .select(`${PUBLIC_REVIEW_FIELDS},albums(id,album_name,artist_name,image_url,genres,tracks,total_tracks,release_type,release_year,release_date)`)
       .eq('reviewer_email',user.email).gte('created_at','2026-01-01T06:00:00Z').lt('created_at','2027-01-01T06:00:00Z')
       .order('created_at').order('id').range(offset,offset+499);
     if(result.error)throw new Error('No pudimos consultar tus reseñas de 2026');
