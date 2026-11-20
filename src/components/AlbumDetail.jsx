@@ -1283,7 +1283,7 @@ export function AlbumDetail({
                     album.genres && album.genres.length > 0
                       ? album.genres
                       : spotifyMeta?.genres || [];
-                  if (genres.length === 0) return null;
+                  if (genres.length === 0) return <p className="text-xs font-semibold text-amber-200 pt-2">Género por verificar · Ya puedes reseñar este release</p>;
                   return (
                     <div className="flex items-center justify-center md:justify-start gap-1.5 flex-wrap pt-1.5">
                       <span className="text-[10px] text-slate-400 uppercase font-bold tracking-wider mr-1">

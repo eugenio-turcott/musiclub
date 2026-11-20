@@ -3,6 +3,7 @@ import { isAlbumAlreadyInCatalog } from '../utils/albumDeduplication.js';
 import { searchDeezerAlbums, getDeezerAlbumDetails } from './deezerApi.js';
 import { slugifyArtist } from '../utils/ratingUtils.js';
 import { spotifyFetch as fetch } from '../utils/spotifyFetch.js';
+import appleGenres from '../utils/appleMusicGenres.cjs';
 
 
 
@@ -478,7 +479,7 @@ export const getAlbumDetails = async (albumId) => {
               releaseYear: releaseYear,
               release_type: releaseType,
               totalTracks: totalTracks,
-              genres: albumItem.primaryGenreName ? [albumItem.primaryGenreName] : [],
+              genres: appleGenres.normalizeAppleGenres(albumItem),
               label: albumItem.copyright || null,
               external_urls: {
                 spotify: `https://open.spotify.com/search/${encodeURIComponent(albumItem.artistName + ' ' + albumItem.collectionName)}`,

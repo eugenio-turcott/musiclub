@@ -1,13 +1,13 @@
 import {test,expect} from '@playwright/test';
 import {communityAccount} from './community-session.mjs';
 
-for(const entrance of ['catalogue','header'])for(const source of ['localized genre','regional UPC'])test(`${entrance} opens BICHOTA SEASON with ${source} while MusicBrainz is down`,async({page})=>{
+for(const entrance of ['catalogue','header'])for(const source of ['localized genre','regional UPC','pending genre'])test(`${entrance} opens BICHOTA SEASON with ${source} while MusicBrainz is down`,async({page})=>{
  await communityAccount(page);
  await page.route('**/api/catalog?view=collection',route=>route.fulfill({json:{albums:[]}}));
  await page.route('https://musicbrainz.org/**',route=>route.fulfill({status:503,json:{error:'Temporarily unavailable'}}));
- const title='MAÑANA SERÁ BONITO (BICHOTA SEASON)',names=['BICHOTAG','OKI DOKI','MI EX TENÍA RAZÓN','S91','QLONA','UNA NOCHE EN MEDELLÍN (REMIX)','ME TENGO QUE IR','GATITA GANGSTER','DISPO','PROVENZA (REMIX)'];
+ const title=source==='pending genre'?'Lanzamiento sin clasificación (Prueba)':'MAÑANA SERÁ BONITO (BICHOTA SEASON)',names=['BICHOTAG','OKI DOKI','MI EX TENÍA RAZÓN','S91','QLONA','UNA NOCHE EN MEDELLÍN (REMIX)','ME TENGO QUE IR','GATITA GANGSTER','DISPO','PROVENZA (REMIX)'];
  const songs=names.map((name,i)=>({id:3000+i,title:name,duration:180}));
- const edition={id:474422645,title,upc:'602458356403',artist:{name:'KAROL G'},contributors:[{name:'KAROL G',role:'Main'}],cover_xl:'/musiclub_logo.png',record_type:'album',release_date:'2023-08-11',nb_tracks:10,genre_id:197,genres:{data:[{id:197,name:source==='localized genre'?'Latin Music':'unrecognized-localized-label'}]},tracks:{data:songs}};
+ const edition={id:474422645,title,upc:'602458356403',artist:{name:'KAROL G'},contributors:[{name:'KAROL G',role:'Main'}],cover_xl:'/musiclub_logo.png',record_type:'album',release_date:'2023-08-11',nb_tracks:10,genre_id:source==='pending genre'?0:197,genres:{data:[{id:source==='pending genre'?999999:197,name:source==='localized genre'?'Latin Music':'unrecognized-localized-label'}]},tracks:{data:songs}};
  const spotify={id:'1f2q2JQ3GFwIrWch2JLC0u',name:title,artists:[{id:'karol-g',name:'KAROL G'}],album_type:'album',genres:[],total_tracks:10,release_date:'2023-08-11',external_ids:{upc:source==='regional UPC'?'602458356397':edition.upc},images:[{url:edition.cover_xl}],tracks:{items:names.map((name,i)=>({id:`spotify-latin-${i}`,name,track_number:i+1,duration_ms:180000}))}};
  const writes=[];let fallbackSearches=0;
  await page.route('**/api/spotify?*',route=>{
@@ -34,12 +34,13 @@ for(const entrance of ['catalogue','header'])for(const source of ['localized gen
   await page.goto('/');await page.getByRole('button',{name:'Buscar álbum',exact:true}).filter({visible:true}).click();
   await page.getByPlaceholder('Escribe el nombre del álbum o artista...',{exact:true}).fill('MAÑANA SERA');await page.getByText(title,{exact:true}).first().click();
  }
- await expect(page).toHaveURL(/\/albumes\/karol-g-manana-sera-bonito-bichota-season/);
- expect(writes).toHaveLength(1);expect(writes[0].genres).toEqual(['Latino']);expect(writes[0].total_tracks).toBe(10);
+ await expect(page).toHaveURL(source==='pending genre'?/\/albumes\/karol-g-lanzamiento-sin-clasificacion-prueba/:/\/albumes\/karol-g-manana-sera-bonito-bichota-season/);
+ expect(writes).toHaveLength(1);expect(writes[0].genres).toEqual(source==='pending genre'?[]:['Latino']);expect(writes[0].total_tracks).toBe(10);
  expect(writes[0].tracks.map(t=>t.name)).toEqual(names);
- expect(writes[0].tracks.map(t=>t.id)).toEqual(entrance==='header'&&source==='localized genre'?songs.map(t=>`dz_track_${t.id}`):spotify.tracks.items.map(t=>t.id));
+ expect(writes[0].tracks.map(t=>t.id)).toEqual(entrance==='header'&&source!=='regional UPC'?songs.map(t=>`dz_track_${t.id}`):spotify.tracks.items.map(t=>t.id));
  if(source==='regional UPC')expect(fallbackSearches).toBeGreaterThan(0);
  await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();
+ if(source==='pending genre')await expect(page.getByText('Género por verificar · Ya puedes reseñar este release',{exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Reseñar',exact:true}).click();await expect(page.getByRole('heading',{name:'Escribir Reseña',exact:true})).toBeVisible();
 });
 

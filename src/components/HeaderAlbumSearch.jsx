@@ -451,9 +451,6 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           skipMusicBrainzEnrichment: true, // Ya enriquecido de forma optimizada
         };
 
-        if (!genres.length) {
-          throw new Error('GENRES_UNAVAILABLE');
-        }
         finalAlbum = await supabaseService.createAlbum(albumPayload);
       }
 
@@ -463,9 +460,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     } catch (err) {
       if (version !== selectionVersion.current) return;
       console.error('Error al seleccionar y abrir álbum:', err);
-      setStatusMessage(err.message === 'GENRES_UNAVAILABLE'
-        ? 'No pudimos recuperar la información completa de esta edición. Vuelve a intentarlo en unos momentos.'
-        : 'No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
+      setStatusMessage('No pudimos abrir esta edición. Intenta de nuevo en unos momentos.');
     } finally {
       if (version === selectionVersion.current) setSelectingAlbumId(null);
     }

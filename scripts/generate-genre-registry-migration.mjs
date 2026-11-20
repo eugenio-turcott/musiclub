@@ -23,7 +23,7 @@ on conflict (id) do update set name=excluded.name;
 create or replace function public.musiclub_release_genres_are_valid(release_genres text[])
 returns boolean language sql stable security invoker set search_path = public, pg_temp
 as $$
-  select release_genres is not null and cardinality(release_genres)>0
+  select release_genres is not null
     and not exists (
       select 1 from unnest(release_genres) as candidate(name)
       left join public.musiclub_genre_registry registry on registry.name=candidate.name

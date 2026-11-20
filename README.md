@@ -6,7 +6,11 @@
 
 [Musiclub](https://www.musiclub.org) es un club musical en español para descubrir lanzamientos, publicar reseñas, calificar portadas y escuchar en comunidad.
 
-**Versión:** 12.2.2 · **Última actualización:** 19 de noviembre de 2026.
+**Versión:** 12.2.2 · **Última actualización:** 20 de noviembre de 2026.
+
+### Importación y géneros pendientes
+
+Un género ausente ya no impide agregar ni reseñar un release. Apple Music tiene sus 525 categorías mapeadas y Deezer utiliza identificadores independientes del idioma. Si las fuentes no permiten verificar la clasificación, aparece **Género por verificar**, se avisa en [Administración → Géneros pendientes](https://www.musiclub.org/admin/generos) y se programa la recuperación automática. El administrador puede reintentar o asignar géneros del registro. [Funcionamiento y mantenimiento](docs/release-genres.md).
 
 ### Musiclub 2026
 

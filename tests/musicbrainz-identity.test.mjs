@@ -83,7 +83,7 @@ test('the common album insertion recovers official genres before validation and 
   const artist='Sergei Rachmaninoff, Valentina Lisitsa, London Symphony Orchestra, Michael Francis';
   const saved=await supabaseService.createAlbum({albumName:'Rachmaninov: Piano Concerto No.2',artistName:artist,barcode:'00028947851097',tracks,genres:[],releaseType:'EP',skipMusicBrainzEnrichment:true});
   assert.equal(saved.artist_name,artist);assert.equal(saved.release_type,'EP');assert.deepEqual(saved.tracks,tracks);
-  assert.equal(calls.length,2);
+  assert.equal(calls.filter(url=>url.startsWith('https://test.supabase.co/rest/v1/albums')).length,1);assert.ok(calls.includes('https://api.deezer.com/album/upc:028947851097'));
  }finally{globalThis.fetch=fetchBefore;supabaseService.findAlbum=findBefore;}
 });
 test('Before The World Blows uses full Deezer main credits after a primary-artist-only summary',async()=>{

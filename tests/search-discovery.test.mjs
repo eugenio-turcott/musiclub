@@ -72,8 +72,8 @@ test('edits to a secondary edition advance the canonical sitemap date without cr
 
 
 test('five-minute discovery checks preserve the approved Sunday 19:00 CDMX Grammy reminder cadence',()=>{
- assert.deepEqual(scheduledPaths(Date.parse('2026-11-16T01:00:00Z')),['/api/search-discovery','/api/grammys/reminders']);
+ assert.deepEqual(scheduledPaths(Date.parse('2026-11-16T01:00:00Z')),['/api/search-discovery','/api/grammys/reminders','/api/genres/pending']);
  assert.deepEqual(scheduledPaths(Date.parse('2026-11-16T01:05:00Z')),['/api/search-discovery']);
- assert.deepEqual(scheduledPaths(Date.parse('2026-11-16T01:15:00Z')),['/api/search-discovery','/api/grammys/reminders']);
+ assert.deepEqual(scheduledPaths(Date.parse('2026-11-16T01:15:00Z')),['/api/search-discovery','/api/grammys/reminders','/api/genres/pending']);
  assert.throws(()=>scheduledPaths('invalid'));
 });
