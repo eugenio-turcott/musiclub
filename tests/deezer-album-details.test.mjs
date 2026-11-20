@@ -1,9 +1,25 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {getDeezerAlbumDetails} from '../src/services/deezerApi.js';
+import deezerGenres from '../src/utils/deezerGenres.cjs';
 
 const songs = Array.from({length:34}, (_, i) => ({id:1000+i,title:`Song ${i+1}`,duration:180}));
 const album = {id:1119883012,title:'Grand Theft Auto VI: The Album',artist:{name:'Grand Theft Auto VI'},nb_tracks:34,record_type:'album',upc:'075679556431',genres:{data:[{name:'Películas/Juegos'},{name:'Scores de Películas'}]},tracks:{data:songs.slice(0,25)}};
+
+test('Deezer genres remain usable across languages and unknown localized labels',()=>{
+ for(const name of ['Latin Music','Latino','Musique latine','provider-localized-label']){
+  assert.deepEqual(deezerGenres.normalizeDeezerGenres({genres:{data:[{id:197,name}]}}),['Latino']);
+ }
+ assert.deepEqual(deezerGenres.normalizeDeezerGenres({genre_id:197}),['Latino']);
+ assert.deepEqual(deezerGenres.normalizeDeezerGenres({genres:{data:[{id:169,name:'Soul & Funk'},{id:173,name:'Films/Games'}]}}),['Soul','Funk','Soundtrack']);
+ assert.deepEqual(deezerGenres.normalizeDeezerGenres({genres:{data:[{id:999999,name:'Not a genre'}]}}),[]);
+});
+
+test('BICHOTA SEASON keeps its ten tracks and canonical genre from English Deezer metadata',async t=>{
+ t.mock.method(globalThis,'fetch',async()=>Response.json({...album,id:474422645,title:'MAÑANA SERÁ BONITO (BICHOTA SEASON)',artist:{name:'KAROL G'},nb_tracks:10,upc:'602458356403',genres:{data:[{id:197,name:'Latin Music'}]},tracks:{data:songs.slice(0,10)}}));
+ const result=await getDeezerAlbumDetails('deezer_474422645');
+ assert.deepEqual(result.genres,['Latino']);assert.equal(result.tracks.length,10);
+});
 
 test('album details retrieve every track when the embedded first page omits its next link', async t => {
   const urls=[];

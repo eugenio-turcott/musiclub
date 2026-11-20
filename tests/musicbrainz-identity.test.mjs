@@ -30,6 +30,22 @@ test('the full credited collaboration must match, not just one contributor',()=>
 
 const { resolveGenres, sameRelease } = (await import('../src/utils/remoteReleaseGenres.cjs')).default;
 
+test('different regional UPCs recover genres only after verifying complete ordered tracks and full credits',async()=>{
+ const tracks=['BICHOTAG','OKI DOKI','MI EX TENÍA RAZÓN'].map((name,i)=>({name,duration_ms:180000+i*1000}));
+ const title='MAÑANA SERÁ BONITO (BICHOTA SEASON)',requests=[];
+ const provider={search:async()=>({albums:[{id:'digital',name:title,artist:'KAROL G'}]}),details:async id=>{
+  requests.push(id);if(id.startsWith('upc:'))return null;
+  return {name:title,artist:'KAROL G',barcode:'602458356403',tracks:tracks.map(t=>({...t,duration_ms:t.duration_ms-500})),totalTracks:3,genres:['Latin Music']};
+ }};
+ const edition={barcode:'602458356397',tracks,totalTracks:3};
+ assert.deepEqual(await resolveGenres('KAROL G',title,[],provider,edition),['Latino']);
+ assert.deepEqual(requests,['upc:602458356397','digital']);
+ for(const invalid of [{...edition,totalTracks:4},{...edition,tracks:[...tracks].reverse()},{...edition,tracks:tracks.map(t=>({...t,duration_ms:t.duration_ms+10000}))}])
+  assert.deepEqual(await resolveGenres('KAROL G',title,[],provider,invalid),[]);
+ assert.deepEqual(await resolveGenres('Another artist',title,[],provider,edition),[]);
+ assert.deepEqual(await resolveGenres('KAROL G',title+' (Deluxe)',[],provider,edition),[]);
+});
+
 test('classical genres follow the verified edition UPC despite credit order, transliteration and leading zero differences',async()=>{
  const calls=[];
  const genres=await resolveGenres('Sergei Rachmaninoff, Valentina Lisitsa, London Symphony Orchestra, Michael Francis','Rachmaninov: Piano Concerto No.2',[[]],{

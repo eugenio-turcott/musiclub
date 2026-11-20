@@ -413,7 +413,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
 
         const genres = await resolveReleaseGenres(
           creditedArtist, searchTitle, [mbData?.genres, rawRemote?.genres],
-          {barcode:rawRemote?.barcode || mbData?.barcode}
+          {barcode:rawRemote?.barcode || mbData?.barcode,tracks:tracksToSave,totalTracks:totalTracksToSave}
         );
         if (version !== selectionVersion.current) return;
         const albumPayload = {
