@@ -8,6 +8,7 @@
  * Utiliza JSONP en el navegador para evitar problemas de CORS nativos de api.deezer.com.
  */
 
+import deezerGenres from '../utils/deezerGenres.cjs';
 const DEEZER_API_BASE = 'https://api.deezer.com';
 
 /**
@@ -180,7 +181,7 @@ export async function getDeezerAlbumDetails(deezerId) {
     }
 
     const releaseType = mapDeezerRecordType(data.record_type, data.nb_tracks);
-    const genres = (data.genres?.data || []).map((g) => g.name).filter(Boolean);
+    const genres = deezerGenres.normalizeDeezerGenres(data);
 
     // Album details embed only the first page, sometimes without a `next` link.
     // Request the missing pages for this exact edition before saving its tracks.

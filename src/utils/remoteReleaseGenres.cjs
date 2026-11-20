@@ -1,6 +1,6 @@
 const { normalizeGenres } = require('./genreCatalog.cjs');
 const { titleKey } = require('./musicBrainzIdentity.cjs');
-const { artistCreditKey } = require('./releaseIdentity.cjs');
+const { artistCreditKey, slugify } = require('./releaseIdentity.cjs');
 
 // Credit separators differ between providers; the complete names must still match.
 const sameTitle = (a,b) => Boolean(a && b && titleKey(a) === titleKey(b));
@@ -20,6 +20,22 @@ function sameRelease(artist, title, album) {
   return Boolean(credited && sameTitle(title,album.name || album.album_name) && artistCreditKey(artist) === artistCreditKey(credited));
 }
 
+function sameTracklist(selected, candidate) {
+  const tracks=selected?.tracks,other=candidate?.tracks;
+  if(!Array.isArray(tracks)||!Array.isArray(other)||!tracks.length||tracks.length!==other.length)return false;
+  // A truncated preview cannot prove that two regional editions are equivalent.
+  for(const album of [selected,candidate]){
+    const total=Number(album.totalTracks||album.total_tracks||album.tracks.length);
+    if(total!==album.tracks.length)return false;
+  }
+  return tracks.every((track,index)=>{
+    const counterpart=other[index],name=slugify(track.name||track.title,true);
+    if(!name||name!==slugify(counterpart.name||counterpart.title,true))return false;
+    const duration=Number(track.duration_ms),otherDuration=Number(counterpart.duration_ms);
+    return !(duration>0&&otherDuration>0)||Math.abs(duration-otherDuration)<=2500;
+  });
+}
+
 // Some Spotify embed responses omit genres. Look up only this exact edition;
 // a standard, live or similarly named release must never supply its metadata.
 async function resolveGenres(artist, title, sources, provider, edition = {}) {
@@ -29,7 +45,8 @@ async function resolveGenres(artist, title, sources, provider, edition = {}) {
   }
   const barcode = barcodeKey(edition.barcode || edition.upc);
   const matchesEdition = album => sameTitle(title, album?.name || album?.album_name) &&
-    (barcode ? barcodeKey(album?.barcode || album?.upc) === barcode : sameRelease(artist, title, album));
+    (barcode ? barcodeKey(album?.barcode || album?.upc) === barcode ||
+      (sameRelease(artist,title,album)&&sameTracklist(edition,album)) : sameRelease(artist, title, album));
   // UPC/EAN padding differs between platforms. The exact edition code also
   // survives classical composer/performer credits being reordered or translated.
   if (barcode) try {
@@ -56,4 +73,4 @@ async function resolveGenres(artist, title, sources, provider, edition = {}) {
   } catch (_) { /* Keep the required-genre validation; never invent a classification. */ }
   return [];
 }
-module.exports = { sameRelease, sameTitle, resolveGenres, mainArtists, barcodeKey };
+module.exports = { sameRelease, sameTitle, resolveGenres, mainArtists, barcodeKey, sameTracklist };

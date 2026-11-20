@@ -1,6 +1,48 @@
 import {test,expect} from '@playwright/test';
 import {communityAccount} from './community-session.mjs';
 
+for(const entrance of ['catalogue','header'])for(const source of ['localized genre','regional UPC'])test(`${entrance} opens BICHOTA SEASON with ${source} while MusicBrainz is down`,async({page})=>{
+ await communityAccount(page);
+ await page.route('**/api/catalog?view=collection',route=>route.fulfill({json:{albums:[]}}));
+ await page.route('https://musicbrainz.org/**',route=>route.fulfill({status:503,json:{error:'Temporarily unavailable'}}));
+ const title='MAÑANA SERÁ BONITO (BICHOTA SEASON)',names=['BICHOTAG','OKI DOKI','MI EX TENÍA RAZÓN','S91','QLONA','UNA NOCHE EN MEDELLÍN (REMIX)','ME TENGO QUE IR','GATITA GANGSTER','DISPO','PROVENZA (REMIX)'];
+ const songs=names.map((name,i)=>({id:3000+i,title:name,duration:180}));
+ const edition={id:474422645,title,upc:'602458356403',artist:{name:'KAROL G'},contributors:[{name:'KAROL G',role:'Main'}],cover_xl:'/musiclub_logo.png',record_type:'album',release_date:'2023-08-11',nb_tracks:10,genre_id:197,genres:{data:[{id:197,name:source==='localized genre'?'Latin Music':'unrecognized-localized-label'}]},tracks:{data:songs}};
+ const spotify={id:'1f2q2JQ3GFwIrWch2JLC0u',name:title,artists:[{id:'karol-g',name:'KAROL G'}],album_type:'album',genres:[],total_tracks:10,release_date:'2023-08-11',external_ids:{upc:source==='regional UPC'?'602458356397':edition.upc},images:[{url:edition.cover_xl}],tracks:{items:names.map((name,i)=>({id:`spotify-latin-${i}`,name,track_number:i+1,duration_ms:180000}))}};
+ const writes=[];let fallbackSearches=0;
+ await page.route('**/api/spotify?*',route=>{
+  const resource=new URL(route.request().url()).searchParams.get('path');
+  const data=resource.startsWith('/v1/albums/')?spotify:resource.startsWith('/v1/artists/')?{genres:[]}:{albums:{items:entrance==='catalogue'||source==='regional UPC'?[spotify]:[],next:null},artists:{items:[]},tracks:{items:[]}};
+  return route.fulfill({json:data});
+ });
+ await page.route('https://api.deezer.com/**',route=>{
+  const url=new URL(route.request().url()),callback=url.searchParams.get('callback');let data={data:[]};
+  if(url.pathname==='/search/album'){fallbackSearches++;data={data:[edition]};}
+  if(['/album/474422645','/album/upc:602458356403'].includes(url.pathname))data=edition;
+  if(url.pathname==='/album/upc:602458356397')data={error:{message:'no data'}};
+  return route.fulfill({contentType:'application/javascript',body:`${callback}(${JSON.stringify(data)});`});
+ });
+ await page.route('**/rest/v1/albums*',async route=>{
+  if(route.request().method()!=='POST')return route.fulfill({json:[]});
+  const [payload]=route.request().postDataJSON();writes.push(payload);
+  const saved=await page.request.post('http://127.0.0.1:54329/__fixture/import-latin-release',{data:payload});
+  return route.fulfill({json:await saved.json()});
+ });
+ if(entrance==='catalogue'){
+  await page.goto('/catalogo?q=BICHOTA&tab=releases');await page.getByRole('button',{name:'Ver Álbum en Musiclub',exact:true}).click();
+ }else{
+  await page.goto('/');await page.getByRole('button',{name:'Buscar álbum',exact:true}).filter({visible:true}).click();
+  await page.getByPlaceholder('Escribe el nombre del álbum o artista...',{exact:true}).fill('MAÑANA SERA');await page.getByText(title,{exact:true}).first().click();
+ }
+ await expect(page).toHaveURL(/\/albumes\/karol-g-manana-sera-bonito-bichota-season/);
+ expect(writes).toHaveLength(1);expect(writes[0].genres).toEqual(['Latino']);expect(writes[0].total_tracks).toBe(10);
+ expect(writes[0].tracks.map(t=>t.name)).toEqual(names);
+ expect(writes[0].tracks.map(t=>t.id)).toEqual(entrance==='header'&&source==='localized genre'?songs.map(t=>`dz_track_${t.id}`):spotify.tracks.items.map(t=>t.id));
+ if(source==='regional UPC')expect(fallbackSearches).toBeGreaterThan(0);
+ await expect(page.getByRole('heading',{name:title,exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Reseñar',exact:true}).click();await expect(page.getByRole('heading',{name:'Escribir Reseña',exact:true})).toBeVisible();
+});
+
 for(const entrance of ['catalogue','header'])test(`${entrance} imports the exact classical edition and opens its review form when Spotify omits genres`,async({page})=>{
  await communityAccount(page);
  await page.route('**/api/catalog?view=collection',route=>route.fulfill({json:{albums:[]}}));
