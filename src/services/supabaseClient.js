@@ -645,36 +645,13 @@ export const supabaseService = {
       }
     }
 
-    // Fallback de canciones vía iTunes Search API si no se encontraron en MusicBrainz ni Spotify
-    if (!payload.tracks || payload.tracks.length === 0) {
+    // Only a complete, verified collection may supply missing tracks.
+    if (!payload.tracks?.length) {
       try {
-        const queryTerm = `${payload.artist_name || ''} ${payload.album_name || ''}`.trim();
-        if (queryTerm) {
-          const itunesRes = await fetch(
-            `https://itunes.apple.com/search?term=${encodeURIComponent(queryTerm)}&entity=song&limit=50`
-          );
-          if (itunesRes.ok) {
-            const itData = await itunesRes.json();
-            if (itData.results && itData.results.length > 0) {
-              const matchedTracks = itData.results
-                .filter((r) => r.wrapperType === 'track')
-                .map((song, idx) => ({
-                  id: String(song.trackId || idx + 1),
-                  name: song.trackName,
-                  duration_ms: song.trackTimeMillis || 0,
-                  track_number: song.trackNumber || idx + 1,
-                }));
-
-              if (matchedTracks.length > 0) {
-                payload.tracks = matchedTracks;
-                if (!payload.total_tracks) payload.total_tracks = matchedTracks.length;
-              }
-            }
-          }
-        }
-      } catch (e) {
-        console.warn('iTunes tracks auto-enrichment warning (continuando):', e);
-      }
+        const {findAppleRelease}=await import('./appleMusicCatalog.mjs');
+        const edition=await findAppleRelease(payload.artist_name,payload.album_name);
+        if(edition){payload.tracks=edition.tracks;payload.total_tracks=edition.totalTracks;payload.genres=normalizeCanonicalGenres([...(payload.genres||[]),...edition.genres]);}
+      } catch { /* The release remains available while metadata is pending. */ }
     }
 
     // 0. Si ya existe en la base de datos (por MBID o por album_name y artist_name), recuperarlo y retornarlo
@@ -692,7 +669,6 @@ export const supabaseService = {
     }
 
     payload.genres = await resolveReleaseGenres(payload.artist_name, payload.album_name, [payload.genres], {barcode:payload.barcode,tracks:payload.tracks,totalTracks:payload.total_tracks});
-    if (!payload.genres.length) throw new Error('Este lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.');
 
     try {
       const { data, error } = await supabase

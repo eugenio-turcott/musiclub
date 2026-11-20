@@ -14,7 +14,7 @@ export function ReleaseGenresPanel({ genres }) {
           <GenreArtwork genre={name} size={180} className="mx-auto h-auto w-full max-w-44 transition-transform motion-safe:group-hover:scale-105" />
           <span className="mt-2 block text-xs font-bold text-slate-200">{name}</span>
         </Link>)}
-      </div> : <p className="py-6 text-center text-sm text-slate-400">Los géneros aún no están disponibles.</p>}
+      </div> : <div role="status" className="py-6 text-center"><p className="text-sm font-bold text-amber-200">Género por verificar</p><p className="mt-2 text-xs leading-relaxed text-slate-400">Puedes escuchar y reseñar este release. Completaremos su género automáticamente; el equipo de Musiclub también tiene el aviso.</p></div>}
       {names.length > 3 && <p className="mt-3 text-center text-[11px] text-slate-400">Desliza para explorar todos los géneros</p>}
     </div>
   </aside>;

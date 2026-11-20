@@ -605,9 +605,6 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
   if (!payload.genres.length) {
     payload.genres = await resolveReleaseGenres(payload.artist_name,payload.album_name,[],{barcode:payload.barcode,tracks:payload.tracks,totalTracks:payload.total_tracks});
   }
-  if (!payload.genres.length) {
-    return { success: false, error: 'El lanzamiento necesita al menos un género musical reconocido antes de agregarse al catálogo.' };
-  }
 
   // 6. Inserción a la tabla "albums"
   const { data: inserted, error: insertError } = await db

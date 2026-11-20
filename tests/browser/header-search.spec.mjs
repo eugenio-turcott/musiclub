@@ -44,16 +44,12 @@ test('the real collaboration credits recover genres automatically from a first-a
  await expect(page.getByRole('form',{name:'Completar género del release'})).toHaveCount(0);
 });
 
-test('an upstream genre outage never asks the user to classify a release or saves an invented genre',async({page})=>{
- const {metrics,input}=await setup(page,{genres:[]});
- await expect(page.getByRole('alert').filter({hasText:'No pudimos recuperar la información completa'})).toBeVisible();
- expect(metrics.writes).toHaveLength(0);
+test('a genre outage imports the release for review without inventing a genre or blocking the user',async({page})=>{
+ const {metrics}=await setup(page,{genres:[]});
+ await expect(page).toHaveURL(/\/albumes\/erykah-badu-the-alchemist-before-the-world-blows/);
+ expect(metrics.writes).toHaveLength(1);expect(metrics.writes[0][0].genres).toEqual([]);
+ expect(metrics.writes[0][0].tracks[0].id).toBe('sp-track');
  await expect(page.getByRole('form',{name:'Completar género del release'})).toHaveCount(0);
- await expect(page.getByRole('alert').filter({hasText:'No pudimos recuperar'}).locator('.animate-spin')).toHaveCount(0);
- await input.fill('Azul');
- await expect(page.getByText('No pudimos recuperar la información completa de esta edición. Vuelve a intentarlo en unos momentos.',{exact:true})).toHaveCount(0);
- await page.getByText('Azul',{exact:true}).filter({visible:true}).last().click();
- await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul/);expect(metrics.writes).toHaveLength(0);
 });
 
 test('a recognized source genre opens directly without asking for a classification',async({page})=>{

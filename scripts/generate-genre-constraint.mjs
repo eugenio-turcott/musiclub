@@ -6,7 +6,7 @@ const sql = `-- Run after migrate-release-genres.mjs --apply. Regenerate when ex
 begin;
 alter table public.albums drop constraint if exists musiclub_release_genres_valid;
 alter table public.albums add constraint musiclub_release_genres_valid check (
-  genres is not null and cardinality(genres) > 0
+  genres is not null
   and array_position(genres, null) is null
   and genres <@ array[
     ${values}

@@ -1,5 +1,9 @@
 const officialNames = require('../data/musicGenres.json');
-const additionalNames = ['alternative', 'indie', 'arabic music', 'latin urban', 'soundtrack', 'a cappella'];
+const additionalNames = ['alternative', 'indie', 'arabic music', 'latin urban', 'soundtrack', 'a cappella',
+  'african music','asian music','brazilian music','chinese music','korean music','indian music',
+  'russian music','turkish music','cuban music','jewish music','christian music','holiday',
+  'world music','vocal music','anime music','fitness & workout','karaoke','marching music',
+  'inspirational music','tarab','disney music'];
 const fold = value => String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
   .replace(/&amp;/g, '&').replace(/[‐‑–—_-]+/g, ' ').replace(/\s+/g, ' ').trim();
 const aliases = {
@@ -20,6 +24,12 @@ const aliases = {
   arabe: 'arabic music', arabic: 'arabic music', 'musica arabe': 'arabic music',
   balada: 'ballad', 'rock & roll': 'rock and roll', 'rock n roll': 'rock and roll',
   synthpop: 'synth-pop', kpop: 'k-pop', jpop: 'j-pop',
+  'singer/songwriter':'singer-songwriter','contemporary singer/songwriter':'singer-songwriter',
+  worldwide:'world music',world:'world music',christian:'christian music',vocal:'vocal music',
+  anime:'anime music',brazilian:'brazilian music',african:'african music',chinese:'chinese music',
+  korean:'korean music',indian:'indian music',russian:'russian music',turkish:'turkish music',
+  cuban:'cuban music',marching:'marching music',inspirational:'inspirational music',disney:'disney music',
+  horspiele:'spoken word','french pop':'pop','german pop':'pop','german folk':'folk',
 };
 const translations = {
   'hip hop': 'Hip-Hop', 'r&b': 'R&B', electronic: 'Electrónica',
@@ -31,6 +41,13 @@ const translations = {
   'regional mexicano': 'Regional Mexicano', reggaeton: 'Reggaetón', 'arabic music': 'Música Árabe',
   ballad: 'Balada', 'jazz fusion': 'Jazz Fusión', 'k-pop': 'K-Pop', 'j-pop': 'J-Pop',
   idm: 'IDM', edm: 'EDM', ebm: 'EBM', 'uk garage': 'UK Garage', 'neo-soul': 'Neo-Soul', 'lo-fi': 'Lo-Fi',
+  'african music':'Música Africana','asian music':'Música Asiática','brazilian music':'Música Brasileña',
+  'chinese music':'Música China','korean music':'Música Coreana','indian music':'Música India',
+  'russian music':'Música Rusa','turkish music':'Música Turca','cuban music':'Música Cubana',
+  'jewish music':'Música Judía','christian music':'Música Cristiana',holiday:'Música Festiva',
+  'world music':'Músicas del Mundo','vocal music':'Música Vocal','anime music':'Música de Anime',
+  'fitness & workout':'Música para Entrenar','marching music':'Marchas',
+  'inspirational music':'Música Inspiracional',tarab:'Tarab','disney music':'Música de Disney',
 };
 const byName = new Map([...officialNames, ...additionalNames].map(name => [fold(name), name]));
 const exactNames = new Map([...officialNames, ...additionalNames].map(name => [name.normalize('NFC').toLowerCase(), name]));
