@@ -52,6 +52,11 @@ test('migration checks identity and refuses an unresolved release before writing
   assert.equal(plan.changed,true);
   assert.equal(planReleaseGenres([{...row, genres:['Jazz']}],[])[0].changed,false);
 });
+test('official localized soundtrack genres resolve without manual entry or splitting their label', () => {
+  assert.deepEqual(normalizeCanonicalGenres(['Películas/Juegos', 'Scores de Películas']), ['Soundtrack']);
+  assert.deepEqual(genres.normalizeGenres([{name:'Films/Games'}, {name:'Film Scores'}, 'Banda sonora', 'Bandas sonoras']), ['Soundtrack']);
+  assert.deepEqual(genres.normalizeGenres(['unknown soundtrack guess', 'unverified/game']), []);
+});
 test('every registered genre has a stable unique capsule and a readable label', () => {
   assert.ok(genres.GENRES.length >= 2215);
   const ids = new Set();

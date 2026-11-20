@@ -182,7 +182,21 @@ export async function getDeezerAlbumDetails(deezerId) {
     const releaseType = mapDeezerRecordType(data.record_type, data.nb_tracks);
     const genres = (data.genres?.data || []).map((g) => g.name).filter(Boolean);
 
-    const tracks = (data.tracks?.data || []).map((t, idx) => ({
+    // Album details embed only the first page, sometimes without a `next` link.
+    // Request the missing pages for this exact edition before saving its tracks.
+    const rawTracks = [...(data.tracks?.data || [])];
+    const expectedTracks = Number(data.nb_tracks) || rawTracks.length;
+    if (!Number.isInteger(expectedTracks) || expectedTracks < 0 || expectedTracks > 10000) {
+      throw new Error('Invalid Deezer album track count');
+    }
+    while (rawTracks.length < expectedTracks) {
+      const page = await fetchDeezer(`/album/${encodeURIComponent(data.id || cleanId)}/tracks?index=${rawTracks.length}&limit=100`);
+      if (!Array.isArray(page?.data) || !page.data.length || rawTracks.length + page.data.length > expectedTracks) {
+        throw new Error('Incomplete Deezer album tracklist');
+      }
+      rawTracks.push(...page.data);
+    }
+    const tracks = rawTracks.map((t, idx) => ({
       id: `dz_track_${t.id || idx + 1}`,
       name: t.title || t.title_short || `Track ${idx + 1}`,
       duration_ms: (t.duration || 0) * 1000,

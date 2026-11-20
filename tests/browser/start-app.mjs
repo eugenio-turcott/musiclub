@@ -16,13 +16,14 @@ const server=http.createServer(async(request,response)=>{
     const admin=request.headers.authorization==='Bearer annual-fixture-admin';
     response.end(JSON.stringify({id:admin?'00000000-0000-4000-8000-000000000081':'00000000-0000-4000-8000-000000000082',email:admin?'eugenioturcott@gmail.com':'member@example.test',aud:'authenticated',user_metadata:{role:'admin'},app_metadata:{provider:'google'}}));return;
   }
-  // Local-only import fixture: lets the real SSR route read a newly imported
-  // classical recording. No browser test ever writes to the production DB.
-  if(request.method==='POST' && request.url==='/__fixture/import-classical-release') {
+  // Local-only import fixtures: let the real SSR route read the imported edition.
+  // No browser test ever writes to the production DB.
+  if(request.method==='POST' && ['/__fixture/import-classical-release','/__fixture/import-soundtrack-release'].includes(request.url)) {
     let body='';for await(const chunk of request)body+=chunk;
     const album=JSON.parse(body);
-    if(album.album_name!=='Rachmaninov: Piano Concerto No.2') {response.writeHead(400).end('{}');return;}
-    const row={...album,id:'00000000-0000-4000-8000-000000000098'};
+    const classical=request.url==='/__fixture/import-classical-release';
+    if(album.album_name!==(classical?'Rachmaninov: Piano Concerto No.2':'Grand Theft Auto VI: The Album')) {response.writeHead(400).end('{}');return;}
+    const row={...album,id:classical?'00000000-0000-4000-8000-000000000098':'00000000-0000-4000-8000-000000000099'};
     const index=tables.albums.findIndex(a=>a.id===row.id);
     if(index>=0)tables.albums[index]=row;else tables.albums.push(row);
     response.end(JSON.stringify(row));return;
