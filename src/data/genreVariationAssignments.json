@@ -2150,6 +2150,13 @@
         "piano"
       ]
     },
+    "chanchona": {
+      "figure": "lyre",
+      "details": [
+        "compass",
+        "banjo"
+      ]
+    },
     "changa tuki": {
       "figure": "synthesizer",
       "details": [
@@ -2545,6 +2552,13 @@
       "figure": "violin",
       "details": [
         "clock",
+        "bassGuitar"
+      ]
+    },
+    "cleveland-style polka": {
+      "figure": "lyre",
+      "details": [
+        "compass",
         "bassGuitar"
       ]
     },
@@ -3601,6 +3615,13 @@
       "details": [
         "radio",
         "headphones"
+      ]
+    },
+    "deutscher krach": {
+      "figure": "lyre",
+      "details": [
+        "compass",
+        "cassette"
       ]
     },
     "dhaanto": {
@@ -9609,6 +9630,13 @@
         "disc"
       ]
     },
+    "osare kei": {
+      "figure": "lyre",
+      "details": [
+        "compass",
+        "cello"
+      ]
+    },
     "outlaw country": {
       "figure": "cowboyHat",
       "details": [
@@ -13091,6 +13119,13 @@
         "ear"
       ]
     },
+    "text-sound composition": {
+      "figure": "lyre",
+      "details": [
+        "compass",
+        "choir"
+      ]
+    },
     "thai classical": {
       "figure": "violin",
       "details": [
@@ -13686,6 +13721,13 @@
       "details": [
         "violin",
         "sun"
+      ]
+    },
+    "ufie music": {
+      "figure": "lyre",
+      "details": [
+        "compass",
+        "feather"
       ]
     },
     "uk drill": {
@@ -14458,6 +14500,13 @@
       "figure": "djembe",
       "details": [
         "accordion",
+        "acousticGuitar"
+      ]
+    },
+    "zikiri": {
+      "figure": "lyre",
+      "details": [
+        "compass",
         "acousticGuitar"
       ]
     },
