@@ -17,7 +17,7 @@ import {readRelatedRows} from './readRelatedRows.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from './catalogSnapshot.mjs';
 
 const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
-const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid,public_content_updated_at';
+const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid,public_content_updated_at,canonical_album_id';
 function client() {
   return createClient(publicDatabaseURL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
@@ -65,11 +65,11 @@ async function buildPublicCatalog() {
       total_reviewed_albums: detailed.filter(a => a.review_count > 0).length,
       total_users: profiles.length, top_score: getCommunityTopAlbum(detailed)?.final_rating ?? null } };
 }
-const getPackedCatalog=unstable_cache(async()=>packCatalogSnapshot(await buildPublicCatalog()),['public-catalog-snapshot-v1205',publicDatabaseURL],{revalidate:300,tags:['catalog']});
+const getPackedCatalog=unstable_cache(async()=>packCatalogSnapshot(await buildPublicCatalog()),['public-catalog-snapshot-v1223',publicDatabaseURL],{revalidate:300,tags:['catalog']});
 export const getPublicCatalog=cache(async()=>unpackCatalogSnapshot(await getPackedCatalog()));
 
-const INDEX_FIELDS='id,album_name,artist_name,release_type,total_tracks';
-const getReleaseIndex=unstable_cache(()=>allRows(client(),'albums',INDEX_FIELDS,false),['release-index-v1060',publicDatabaseURL],{revalidate:300,tags:['catalog']});
+const INDEX_FIELDS='id,album_name,artist_name,release_type,total_tracks,canonical_album_id';
+const getReleaseIndex=unstable_cache(()=>allRows(client(),'albums',INDEX_FIELDS,false),['release-index-v1223',publicDatabaseURL],{revalidate:300,tags:['catalog']});
 const getPublicProfiles=unstable_cache(()=>allRows(client(),'public_profiles','id,name,avatar_url',false),['public-profiles-v1060',publicDatabaseURL],{revalidate:300,tags:['catalog']});
 const getReleaseDetails=unstable_cache(async ids=>{
   const db=client();
@@ -82,9 +82,9 @@ const getReleaseDetails=unstable_cache(async ids=>{
     ...buildAlbumWithFullStats(album,reviews.filter(r=>(album.edition_member_ids || [album.id]).includes(r.album_id)),profiles),
     reviews_enabled:album.reviews_enabled,album:album.album_name,artista:album.artist_name,imagen:album.image_url,
   }));
-},['release-details-v1205',publicDatabaseURL],{revalidate:60,tags:['catalog']});
+},['release-details-v1223',publicDatabaseURL],{revalidate:60,tags:['catalog']});
 
-export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v1118', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
+export const getPublicCollection = unstable_cache(async () => cards.catalogCards((await getPublicCatalog()).albums), ['public-collection-cards-v1223', publicDatabaseURL], { revalidate:300,tags:['catalog'] });
 
 export const getPublicAlbum = cache(async slug => {
   let index=await getReleaseIndex();

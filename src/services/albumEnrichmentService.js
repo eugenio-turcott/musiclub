@@ -1,4 +1,5 @@
 import tracklists from '../utils/releaseTracks.cjs';
+import catalogIdentity from '../utils/catalogReleaseIdentity.cjs';
 // src/services/albumEnrichmentService.js
 import { supabase } from './supabaseClient.js';
 import { searchAlbum, getAlbumDetails } from './spotifyApi.js';
@@ -440,37 +441,37 @@ export function build21ColumnPayload({
  * Comprueba si un álbum ya se encuentra en la tabla "albums" de Supabase.
  * Devuelve el registro completo si existe, o null si no.
  */
-export async function findAlbumInDatabase(albumName, artistName, mbid = null) {
+export async function findAlbumInDatabase(albumName, artistName, mbid = null, evidence = {}, db = supabase) {
   if (!albumName) return null;
 
   try {
     // 1. Si tenemos MBID, buscar por MBID (máxima precisión)
     if (mbid) {
-      const { data: mbidMatch } = await supabase
+      const { data: mbidMatch } = await db
         .from('albums')
         .select('*')
         .eq('mbid', mbid)
         .maybeSingle();
 
-      if (mbidMatch && sameReleaseTitle(mbidMatch.album_name,albumName)) return mbidMatch;
+      if (mbidMatch && sameReleaseTitle(mbidMatch.album_name,albumName)) return catalogIdentity.canonicalAlbum(db,mbidMatch);
     }
 
     // 2. Coincidencia exacta de nombre y artista
     const cleanAlbum = albumName.trim();
     const cleanArtist = (artistName || '').trim();
 
-    let query = supabase.from('albums').select('*').ilike('album_name', cleanAlbum);
+    let query = db.from('albums').select('*').ilike('album_name', cleanAlbum);
     if (cleanArtist) {
       query = query.ilike('artist_name', `%${cleanArtist}%`);
     }
 
     const { data: exactMatches } = await query.limit(5);
     if (exactMatches && exactMatches.length > 0) {
-      return exactMatches[0];
+      return catalogIdentity.canonicalAlbum(db,exactMatches[0]);
     }
 
     // 3. Coincidencia sin signos de puntuación
-    const { data: allAlbums } = await supabase
+    const { data: allAlbums } = await db
       .from('albums')
       .select('*')
       .ilike('album_name', `%${cleanAlbum.slice(0, 15)}%`)
@@ -486,10 +487,10 @@ export async function findAlbumInDatabase(albumName, artistName, mbid = null) {
         return aNormAlb === normAlb && (!normArt || aNormArt.includes(normArt) || normArt.includes(aNormArt));
       });
 
-      if (found) return found;
+      if (found) return catalogIdentity.canonicalAlbum(db,found);
     }
 
-    return null;
+    return await catalogIdentity.findCompilation(db,{...evidence,album_name:albumName,artist_name:artistName});
   } catch (err) {
     console.warn('Error verificando existencia del álbum en BD:', err.message);
     return null;
@@ -511,7 +512,7 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
   const albumName = releaseItem.album_name;
 
   // 1. COMPROBACIÓN PREVIA: Si ya está en "albums", comprobar si amerita actualización
-  const existing = await findAlbumInDatabase(albumName, artistName, releaseItem.mbid);
+  const existing = await findAlbumInDatabase(albumName, artistName, releaseItem.mbid, releaseItem, db);
   const existingTracksCount = existing
     ? (existing.total_tracks || (Array.isArray(existing.tracks) ? existing.tracks.length : 0))
     : 0;
@@ -593,7 +594,7 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
   }
 
   // 5. Doble comprobación antes de insertar (prevenir race condition)
-  const doubleCheck = await findAlbumInDatabase(payload.album_name, payload.artist_name, payload.mbid);
+  const doubleCheck = await findAlbumInDatabase(payload.album_name, payload.artist_name, payload.mbid, payload, db);
   if (doubleCheck) {
     return {
       success: true,
