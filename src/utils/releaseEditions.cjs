@@ -25,18 +25,21 @@ function preference(release) {
 }
 function groupReleaseEditions(releases=[],artist='') {
  const groups=new Map();
+ const byId=new Map(releases.map(row=>[row.id,row]));
+ const root=release=>{const seen=new Set();while(release.canonical_album_id&&byId.has(release.canonical_album_id)&&!seen.has(release.id)){seen.add(release.id);release=byId.get(release.canonical_album_id);}return release;};
  for(const release of releases) {
-  const key=editionKey(release,artist);
+  const key=editionKey(root(release),artist);
   if(!groups.has(key))groups.set(key,[]);
   groups.get(key).push(release);
  }
  return [...groups.values()].map(rows=>{
-  const representative=[...rows].sort((a,b)=>preference(b)-preference(a))[0];
+  const representative=[...rows].sort((a,b)=>Number(Boolean(a.canonical_album_id))-Number(Boolean(b.canonical_album_id))||preference(b)-preference(a))[0];
   const name=editionTitle(representative.album_name || representative.album || representative.name).name;
   const result={...representative,
    public_content_updated_at:rows.map(row=>row.public_content_updated_at).filter(Boolean).sort((a,b)=>Date.parse(b)-Date.parse(a))[0] || null,
    edition_member_ids:[...new Set(rows.flatMap(row=>row.edition_member_ids || [row.id]).filter(Boolean))],
    edition_names:[...new Set(rows.flatMap(row=>row.edition_names || [row.album_name || row.album || row.name]).filter(Boolean))],
+   artist_aliases:[...new Set(rows.flatMap(row=>[row.artist_name||row.artist||row.artista,...(row.artist_aliases||[])]).filter(Boolean))],
    genres:[...new Set(rows.flatMap(row=>row.genres || []))],
    sources:[...new Map(rows.flatMap(row=>row.sources||[]).map(source=>[`${source.provider}:${source.id}`,source])).values()]};
   for(const field of ['name','album_name','album'])if(representative[field])result[field]=name;

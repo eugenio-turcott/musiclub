@@ -1,5 +1,28 @@
 import {test,expect} from '@playwright/test';
 import {communityAccount} from './community-session.mjs';
+import {albums} from './fixtures.mjs';
+
+test('a verified alternate artist credit shows the existing release once and opens its canonical page',async({page})=>{
+ await communityAccount(page);
+ await page.route('**/api/catalog?view=collection',route=>route.fulfill({json:{albums:[{...albums[0],artist_aliases:['Artista de Prueba','Crédito alternativo'],review_count:2}]}}));
+ await page.route('**/api/spotify?*',route=>route.fulfill({json:{albums:{items:[{id:'alternate-source',name:'Azul',artists:[{name:'Crédito alternativo'}],album_type:'album',images:[{url:'/musiclub_logo.png'}]}]}}}));
+ await page.route('https://api.deezer.com/**',route=>{
+  const callback=new URL(route.request().url()).searchParams.get('callback');
+  return route.fulfill({contentType:'application/javascript',body:`${callback}(${JSON.stringify({data:[]})});`});
+ });
+ await page.goto('/');
+ await page.getByRole('button',{name:'Buscar álbum',exact:true}).filter({visible:true}).click();
+ const input=page.getByPlaceholder('Escribe el nombre del álbum o artista...', {exact:true});
+ const dialog=page.getByRole('dialog',{name:'Buscador Universal de Álbumes'});
+ for(const query of ['Azul','Crédito alternativo']){
+  await Promise.all([page.waitForResponse(response=>response.url().includes('/api/spotify?')),input.fill(query)]);
+  await expect(dialog.getByText('Azul',{exact:true})).toHaveCount(1);
+  await expect(dialog.getByText('Musiclub (2 reviews)',{exact:true})).toBeVisible();
+ }
+ await dialog.getByText('Azul',{exact:true}).click();
+ await expect(page).toHaveURL(/\/albumes\/artista-de-prueba-azul$/);
+ await expect(page.getByRole('heading',{name:'Azul',exact:true}).first()).toBeVisible();
+});
 
 async function setup(page,{genres=['R&B'],holdDetail}={}){
  await communityAccount(page);

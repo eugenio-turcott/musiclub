@@ -85,7 +85,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
     return clubAlbums.filter((a) => {
       const name = (a.album_name || a.album || '').toLowerCase();
       const artist = (a.artist_name || a.artista || '').toLowerCase();
-      return name.includes(q) || artist.includes(q);
+      return name.includes(q) || artist.includes(q) || (a.artist_aliases || []).some(alias=>alias.toLowerCase().includes(q));
     });
   }, [clubAlbums, query]);
 
@@ -166,6 +166,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
         .toLowerCase();
       const key = editions.editionKey({name:normName,artist:normArtist,releaseType:ca.release_type || ca.releaseType});
       seenKeys.add(key);
+      for(const alias of ca.artist_aliases || []) seenKeys.add(editions.editionKey({name:normName,artist:alias,releaseType:ca.release_type || ca.releaseType}));
 
       results.push({
         type: 'CLUB',
@@ -198,7 +199,7 @@ export function HeaderAlbumSearch({ isMobileMode = false, onAlbumReviewed, user,
           .trim()
           .toLowerCase();
         return (
-          (cName === normName && cArtist === normArtist) ||
+          (cName === normName && (cArtist === normArtist || (ca.artist_aliases || []).some(alias=>alias.trim().toLowerCase()===normArtist))) ||
           (cName === normName && (!cArtist || !normArtist))
         );
       });

@@ -1,6 +1,7 @@
 import { createCoverRatingsStore } from './coverRatingsStore.mjs';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
 import {resolveReleaseGenres} from './releaseGenres.mjs';
+import catalogIdentity from '../utils/catalogReleaseIdentity.cjs';
 import { publicCatalog } from './publicCatalog.js';
 import { createClient } from '@supabase/supabase-js';
 import {
@@ -300,6 +301,7 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
     id: alb.id,
     edition_member_ids: alb.edition_member_ids || [alb.id],
     edition_names: alb.edition_names || [alb.album_name],
+    artist_aliases: alb.artist_aliases || [alb.artist_name],
     album_name: alb.album_name,
     artist_name: alb.artist_name,
     image_url: alb.image_url,
@@ -521,7 +523,7 @@ export const supabaseService = {
     return data;
   },
 
-  findAlbum: async (albumName, artistName, mbid = null) => {
+  findAlbum: async (albumName, artistName, mbid = null, evidence = {}) => {
     if (mbid) {
       const { data: byMbid, error: mbidErr } = await supabase
         .from('albums')
@@ -529,7 +531,7 @@ export const supabaseService = {
         .eq('mbid', mbid)
         .maybeSingle();
 
-      if (!mbidErr && byMbid) return byMbid;
+      if (!mbidErr && byMbid) return catalogIdentity.canonicalAlbum(supabase,byMbid);
     }
 
     const { data, error } = await supabase
@@ -540,11 +542,11 @@ export const supabaseService = {
       .maybeSingle();
 
     if (error) throw new Error(error.message);
-    return data;
+    return data?catalogIdentity.canonicalAlbum(supabase,data):catalogIdentity.findCompilation(supabase,{...evidence,album_name:albumName,artist_name:artistName});
   },
 
-  getAlbumByNameAndArtist: async (albumName, artistName, mbid = null) => {
-    return supabaseService.findAlbum(albumName, artistName, mbid);
+  getAlbumByNameAndArtist: async (albumName, artistName, mbid = null, evidence = {}) => {
+    return supabaseService.findAlbum(albumName, artistName, mbid,evidence);
   },
 
   createAlbum: async (albumData) => {
@@ -659,7 +661,7 @@ export const supabaseService = {
       const existing = await supabaseService.getAlbumByNameAndArtist(
         payload.album_name,
         payload.artist_name,
-        payload.mbid
+        payload.mbid, payload
       );
       if (existing) {
         return existing;
@@ -688,7 +690,7 @@ export const supabaseService = {
           const existing = await supabaseService.getAlbumByNameAndArtist(
             payload.album_name,
             payload.artist_name,
-            payload.mbid
+            payload.mbid, payload
           );
           if (existing) return existing;
         }
@@ -722,7 +724,7 @@ export const supabaseService = {
             const existing = await supabaseService.getAlbumByNameAndArtist(
               payload.album_name,
               payload.artist_name,
-              payload.mbid
+              payload.mbid, payload
             );
             if (existing) return existing;
           }
