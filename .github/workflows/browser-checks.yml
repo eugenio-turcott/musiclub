@@ -11,7 +11,11 @@ concurrency:
 jobs:
   navigation:
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        device: [desktop, mobile]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -21,14 +25,14 @@ jobs:
       - run: npm ci
       # The hosted image already contains Chrome and its system dependencies.
       - run: google-chrome --version
-      - run: npm run test:browser
+      - run: npm run test:browser -- --project=${{ matrix.device }}
         env:
           PLAYWRIGHT_CHANNEL: chrome
           PLAYWRIGHT_CLOUDFLARE: '1'
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: browser-navigation-report
+          name: browser-navigation-report-${{ matrix.device }}
           path: |
             playwright-report/
             test-results/

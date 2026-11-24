@@ -3,13 +3,13 @@ name: Automated GitHub Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*.0.0'
   workflow_dispatch:
     inputs:
       tag_name:
-        description: 'Nombre del Tag / Versión (ej. v8.2)'
+        description: 'Versión mayor oficial (ej. v13.0.0)'
         required: true
-        default: 'v8.2'
+        default: 'v12.0.0'
 
 permissions:
   contents: write

@@ -10,7 +10,8 @@ test('the review guide includes every real track, updates its local score and ke
  const review=page.locator('#resenas'),editor=review.locator('[data-track-rating-example]');
  await expect(editor.locator('[data-tour-track]')).toHaveCount(3);
  const original=await review.locator('output').first().innerText(),requests=[];
- page.on('request',r=>{if(/\/rest\/v1\/|\/api\//.test(r.url()))requests.push(r.method()+' '+r.url());});
+ // Header/Pool reads may finish later; the example must never persist data.
+ page.on('request',r=>{if(!['GET','HEAD','OPTIONS'].includes(r.method())&&/\/rest\/v1\/|\/api\//.test(r.url()))requests.push(r.method()+' '+r.url());});
  await editor.getByRole('slider',{name:'Nota de ejemplo de Canción de prueba',exact:true}).press('Home');
  await expect(editor.getByRole('slider',{name:'Nota de ejemplo de Canción de prueba',exact:true})).toHaveValue('1');
  await expect.poll(()=>review.locator('output').first().innerText()).not.toBe(original);

@@ -1,0 +1,386 @@
+[
+  {
+    "version": "V.12.0.0",
+    "major": 12,
+    "latestVersion": "V.12.2.4",
+    "date": "2026-11-11",
+    "updatedAt": "2026-11-24",
+    "title": "Grammy 2027 y el año del club",
+    "summary": "Las predicciones de los Grammy y Musiclub 2026 reúnen música, reseñas, logros y recuerdos personales.",
+    "tag": "Musiclub 12",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Grammy 2027",
+        "description": "Categorías y nominados se consultan en la página; cada miembro puede escuchar, reseñar y guardar sus predicciones."
+      },
+      {
+        "type": "feature",
+        "title": "XP e insignias doradas",
+        "description": "Los aciertos verificados otorgarán 100, 200 o 500 XP según la categoría, además de logros exclusivos."
+      },
+      {
+        "type": "feature",
+        "title": "Musiclub 2026",
+        "description": "El resumen del año reúne rankings personales y del club, estadísticas y tarjetas para compartir."
+      },
+      {
+        "type": "improvement",
+        "title": "Agregar y reseñar sin bloqueos por género",
+        "description": "Las fuentes se contrastan automáticamente; si falta clasificación, el release queda disponible y se avisa a administración."
+      },
+      {
+        "type": "fix",
+        "title": "La edición correcta",
+        "description": "Las canciones, los créditos y las fichas duplicadas se verifican entre fuentes, conservando las referencias anteriores."
+      },
+      {
+        "type": "improvement",
+        "title": "Versiones más claras",
+        "description": "Las novedades se consolidan por versión mayor; el repositorio reúne documentación visual y controles de publicación."
+      }
+    ]
+  },
+  {
+    "version": "V.11.0.0",
+    "major": 11,
+    "latestVersion": "V.11.1.16",
+    "date": "2026-11-06",
+    "updatedAt": "2026-11-11",
+    "title": "Un nuevo inicio para Musiclub",
+    "summary": "La portada incorpora una tornamesa interactiva, vinilos por género y ejemplos reales de la comunidad.",
+    "tag": "Musiclub 11",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "design",
+        "title": "Una tornamesa para explorar",
+        "description": "El inicio presenta releases del club con vinilo, aguja, nota y estado de ánimo."
+      },
+      {
+        "type": "feature",
+        "title": "Descubrir y compartir",
+        "description": "Los ejemplos de reseñas, Gashapon y tarjetas utilizan información real del club."
+      },
+      {
+        "type": "improvement",
+        "title": "Perfiles y tiers",
+        "description": "Las tarjetas organizan identidad, XP, insignias y géneros en cada formato."
+      },
+      {
+        "type": "performance",
+        "title": "Navegación y portadas",
+        "description": "La caché, las imágenes y las transiciones reciben ajustes para reducir esperas."
+      }
+    ]
+  },
+  {
+    "version": "V.10.0.0",
+    "major": 10,
+    "latestVersion": "V.10.9.0",
+    "date": "2026-10-28",
+    "updatedAt": "2026-11-04",
+    "title": "Tu música también se comparte",
+    "summary": "Las tarjetas para redes, los perfiles y la guía acercan las herramientas del club a cada miembro.",
+    "tag": "Musiclub 10",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Tarjetas en varios formatos",
+        "description": "Reseñas y perfiles se preparan para historias, publicaciones y formatos horizontales."
+      },
+      {
+        "type": "feature",
+        "title": "Perfiles y progresión",
+        "description": "Insignias, niveles y estadísticas se reúnen en un perfil común."
+      },
+      {
+        "type": "feature",
+        "title": "Guía de Musiclub",
+        "description": "Los ejemplos interactivos explican el catálogo, las reseñas y las herramientas del club."
+      },
+      {
+        "type": "improvement",
+        "title": "Más claridad al reseñar",
+        "description": "Los criterios y sus colores se unifican entre fichas, perfiles y tarjetas."
+      }
+    ]
+  },
+  {
+    "version": "V.9.0.0",
+    "major": 9,
+    "latestVersion": "V.9.43.1",
+    "date": "2026-09-18",
+    "updatedAt": "2026-10-28",
+    "title": "Salas, catálogo y comunidad",
+    "summary": "Las salas del Pool, las listas personales y las identidades de género amplían el espacio del club.",
+    "tag": "Musiclub 9",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Pools con su propio espacio",
+        "description": "Salas, temporadas y propuestas organizan las escuchas compartidas."
+      },
+      {
+        "type": "feature",
+        "title": "Tu biblioteca personal",
+        "description": "Las listas permiten guardar próximas escuchas y organizar descubrimientos."
+      },
+      {
+        "type": "design",
+        "title": "Cada género, su vinilo",
+        "description": "Un registro común de géneros conecta catálogo, Gashapon y elementos gráficos."
+      },
+      {
+        "type": "improvement",
+        "title": "Perfiles y reseñas",
+        "description": "Las opiniones y los perfiles ganan espacio en los recorridos del club."
+      }
+    ]
+  },
+  {
+    "version": "V.8.0.0",
+    "major": 8,
+    "latestVersion": "V.8.12",
+    "date": "2026-09-10",
+    "updatedAt": "2026-09-18",
+    "title": "Navegación e identidad del club",
+    "summary": "El trabajo de esta etapa reúne mejoras de navegación, presentación y organización de Musiclub.",
+    "tag": "Musiclub 8",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "performance",
+        "title": "Navegación y carga",
+        "description": "La apertura de páginas y los recorridos por el catálogo reciben mejoras."
+      },
+      {
+        "type": "design",
+        "title": "Tipografía e identidad",
+        "description": "Gabarito y los elementos visuales del club unifican la presentación."
+      },
+      {
+        "type": "improvement",
+        "title": "Fichas para compartir y descubrir",
+        "description": "Las páginas de releases y artistas incorporan metadatos y vistas previas."
+      }
+    ]
+  },
+  {
+    "version": "V.7.0.0",
+    "major": 7,
+    "latestVersion": "V.7.9",
+    "date": "2026-09-07",
+    "updatedAt": "2026-09-09",
+    "title": "Más formas de participar",
+    "summary": "Las reacciones, los comentarios y el Gashapon abren nuevas formas de compartir descubrimientos.",
+    "tag": "Musiclub 7",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Conversaciones en las reseñas",
+        "description": "La comunidad puede reaccionar y comentar las opiniones."
+      },
+      {
+        "type": "feature",
+        "title": "Gashapon",
+        "description": "Las cápsulas animadas permiten descubrir música por género."
+      },
+      {
+        "type": "improvement",
+        "title": "Un catálogo más conectado",
+        "description": "La actualización de la biblioteca y las alternativas de escucha amplían el catálogo."
+      }
+    ]
+  },
+  {
+    "version": "V.6.0.0",
+    "major": 6,
+    "latestVersion": "V.6.7",
+    "date": "2026-09-01",
+    "updatedAt": "2026-09-04",
+    "title": "Portadas y formatos musicales",
+    "summary": "Los vinilos interactivos y las portadas ganan presencia; álbumes, EPs y sencillos se distinguen mejor.",
+    "tag": "Musiclub 6",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "design",
+        "title": "Discos y portadas",
+        "description": "Las imágenes y los vinilos interactivos tienen más protagonismo."
+      },
+      {
+        "type": "improvement",
+        "title": "Cada formato en su lugar",
+        "description": "El catálogo distingue álbumes, EPs y sencillos y muestra sus canciones."
+      },
+      {
+        "type": "feature",
+        "title": "Escucha en tus plataformas",
+        "description": "Los enlaces conectan con Spotify, Apple Music, YouTube y Deezer."
+      }
+    ]
+  },
+  {
+    "version": "V.5.0.0",
+    "major": 5,
+    "latestVersion": "V.5.9",
+    "date": "2026-08-20",
+    "updatedAt": "2026-08-31",
+    "title": "Descubre música a tu gusto",
+    "summary": "Las recomendaciones personales, las playlists y la búsqueda amplían las formas de encontrar música.",
+    "tag": "Musiclub 5",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Recomendaciones y playlists",
+        "description": "La actividad del club ayuda a descubrir próximas escuchas."
+      },
+      {
+        "type": "improvement",
+        "title": "El dominio del club",
+        "description": "Musiclub estrena musiclub.org y una navegación común."
+      },
+      {
+        "type": "feature",
+        "title": "Más idiomas",
+        "description": "La interfaz incorpora traducciones conservando los nombres musicales."
+      }
+    ]
+  },
+  {
+    "version": "V.4.0.0",
+    "major": 4,
+    "latestVersion": "V.4.4",
+    "date": "2026-08-17",
+    "updatedAt": "2026-08-19",
+    "title": "Reseñas canción por canción",
+    "summary": "La valoración incorpora criterios musicales, notas por track e insignias por participar.",
+    "tag": "Musiclub 4",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Criterios y canciones",
+        "description": "Producción, composición, letras, originalidad, cohesión y replay acompañan la nota general."
+      },
+      {
+        "type": "feature",
+        "title": "Primeros logros",
+        "description": "Las insignias reconocen la participación de los miembros."
+      },
+      {
+        "type": "improvement",
+        "title": "Ayuda para reseñar",
+        "description": "Las preguntas frecuentes y las guías explican cómo participar."
+      }
+    ]
+  },
+  {
+    "version": "V.3.0.0",
+    "major": 3,
+    "latestVersion": "V.3.5",
+    "date": "2026-08-04",
+    "updatedAt": "2026-08-14",
+    "title": "Elige la próxima escucha",
+    "summary": "La Máquina Musical, el buscador y las reseñas de la comunidad ayudan a elegir qué escuchar.",
+    "tag": "Musiclub 3",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Máquina Musical",
+        "description": "Tres carretes y una selección animada para descubrir discos."
+      },
+      {
+        "type": "feature",
+        "title": "Búsqueda y ganadores",
+        "description": "El buscador y el podio conectan el catálogo con la escucha semanal."
+      },
+      {
+        "type": "feature",
+        "title": "Opiniones del club",
+        "description": "Las reseñas tienen un espacio compartido en la comunidad."
+      }
+    ]
+  },
+  {
+    "version": "V.2.0.0",
+    "major": 2,
+    "latestVersion": "V.2.4",
+    "date": "2026-08-03",
+    "updatedAt": "2026-08-03",
+    "title": "Tu cuenta en Musiclub",
+    "summary": "El inicio de sesión con Google conecta las reseñas con cada miembro del club.",
+    "tag": "Musiclub 2",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Cuentas personales",
+        "description": "Las reseñas quedan asociadas a tu cuenta de Google."
+      },
+      {
+        "type": "design",
+        "title": "Tu identidad en la navegación",
+        "description": "La foto y el menú personal se integran en la cabecera."
+      }
+    ]
+  },
+  {
+    "version": "V.1.0.0",
+    "major": 1,
+    "latestVersion": "V.1.9",
+    "date": "2026-07-26",
+    "updatedAt": "2026-08-03",
+    "title": "El club pasa a la web",
+    "summary": "Musiclub deja la hoja de cálculo y reúne catálogo, reseñas y selección musical en una página propia.",
+    "tag": "Musiclub 1",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Catálogo y reseñas",
+        "description": "Los miembros pueden descubrir discos y compartir sus opiniones."
+      },
+      {
+        "type": "feature",
+        "title": "Los favoritos del club",
+        "description": "Un ranking reúne los álbumes mejor calificados."
+      },
+      {
+        "type": "improvement",
+        "title": "Un lugar para empezar",
+        "description": "Las primeras guías y las vistas previas de enlaces acompañan la llegada a la web."
+      }
+    ]
+  },
+  {
+    "version": "V.0.0.0",
+    "major": 0,
+    "latestVersion": "V.0.2",
+    "date": "2026-07-14",
+    "updatedAt": "2026-07-15",
+    "title": "Los primeros prototipos",
+    "summary": "El catálogo, la galería y el selector musical comenzaron como las primeras pruebas del club.",
+    "tag": "Prototipos",
+    "authorName": "Eugenio Turcott",
+    "changes": [
+      {
+        "type": "feature",
+        "title": "Primer catálogo",
+        "description": "Una colección de discos para explorar y elegir la próxima escucha."
+      },
+      {
+        "type": "design",
+        "title": "Identidad inicial",
+        "description": "Las primeras pantallas y la galería de álbumes dieron forma a Musiclub."
+      }
+    ]
+  }
+]

@@ -41,6 +41,7 @@ const nextConfig = {
     return config;
   },
   env: {
+    MUSICLUB_BUILD_SHA: process.env.WORKERS_CI_COMMIT_SHA || process.env.GITHUB_SHA || 'local',
     REACT_APP_SUPABASE_URL:
       process.env.NEXT_PUBLIC_SUPABASE_URL ||
       process.env.REACT_APP_SUPABASE_URL ||
