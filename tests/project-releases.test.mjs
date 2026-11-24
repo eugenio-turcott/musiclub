@@ -22,7 +22,7 @@ test('public releases consolidate every recorded major exactly once, in numeric 
  assert.equal(new Set(releases.map(n=>n.major)).size,releases.length);
  assert.deepEqual(releases.map(n=>n.major),[12,11,10,9,8,7,6,5,4,3,2,1,0]);
  assert.ok(releases.every(n=>/^V\.\d+\.0\.0$/.test(n.version)&&n.changes.length<=8));
- assert.equal(releases[0].latestVersion,'V.12.2.4');
+ assert.equal(releases[0].latestVersion,CURATED_PATCH_NOTES[0].version);
  assert.match(releaseBody(releases[0]),/Grammy 2027/);
  const shuffled=consolidateMajorReleases([...CURATED_PATCH_NOTES].reverse());
  assert.deepEqual(shuffled,releases);
