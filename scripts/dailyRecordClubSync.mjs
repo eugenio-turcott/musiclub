@@ -814,11 +814,8 @@ async function syncRecordClubReleasesWithAlbums() {
       const matchedAlb = albumMap.get(kExact);
 
       if (matchedAlb) {
-        const albTracksCount = matchedAlb.total_tracks || (Array.isArray(matchedAlb.tracks) ? matchedAlb.tracks.length : 0);
-        const rcTracksCount = rc.total_tracks || 0;
-
         const graduating = rc.release_type === 'ALBUM' && matchedAlb.release_type === 'SENCILLO';
-        const needsRefresh = tracklists.tracklistIssues(matchedAlb).length > 0 || rcTracksCount !== albTracksCount || graduating;
+        const needsRefresh = tracklists.shouldRefreshTracklist(matchedAlb,rc);
         if (needsRefresh) {
           const fetched = await fetchRecordClubTracks(rc.id);
           const selected = tracklists.selectTracklist(matchedAlb.tracks, fetched);

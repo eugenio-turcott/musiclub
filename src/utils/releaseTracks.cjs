@@ -30,6 +30,14 @@ function tracklistIssues(release, today = new Date().toISOString().slice(0,10)) 
   else if (Number(release.total_tracks) > 0 && Number(release.total_tracks) < tracks.length) issues.push('count_mismatch');
   return issues;
 }
+// A secondary catalogue may describe a physical/expanded edition under the same
+// title. More songs alone are not evidence that a complete released list is wrong.
+function shouldRefreshTracklist(existing, incoming, today = new Date().toISOString().slice(0,10)) {
+  const count=Number(existing.total_tracks)||existing.tracks?.length||0;
+  const incomingCount=Number(incoming.total_tracks)||incoming.tracks?.length||0;
+  const graduating=(String(incoming.release_type).toUpperCase()==='ALBUM'||incomingCount>=3) && (String(existing.release_type).toUpperCase()==='SENCILLO'||count<=1) && incomingCount>1;
+  return !existing.tracks?.length || tracklistIssues(existing,today).length>0 || graduating || (String(existing.release_date||'').slice(0,10)>today && incomingCount>count);
+}
 function selectTracklist(...candidates) {
   return candidates.filter(Array.isArray).filter(list=>list.length).map((list,priority)=>({list,priority,named:list.filter(t=>!isPlaceholderTrack(t)).length,provisional:list.filter(isPlaceholderTrack).length}))
     .sort((a,b)=>b.named-a.named || a.provisional-b.provisional || b.list.length-a.list.length || a.priority-b.priority)[0]?.list || [];
@@ -57,4 +65,4 @@ function mergeTracklist(existing = [], incoming = []) {
   old.forEach((track,index)=>{if(!consumed.has(index))result.push(track);});
   return result;
 }
-module.exports = {trackName,providerTitleKey,sameReleaseTitle,sameArtistCredit,isPlaceholderTrack,tracklistIssues,selectTracklist,mergeTracklist};
+module.exports = {trackName,providerTitleKey,sameReleaseTitle,sameArtistCredit,isPlaceholderTrack,tracklistIssues,shouldRefreshTracklist,selectTracklist,mergeTracklist};

@@ -183,6 +183,7 @@ export async function fetchDeezerDetails(artistName, albumName) {
     const cleanId = String(candidate.deezer_id || candidate.id).replace('deezer_', '');
     const details = await getDeezerAlbumDetails(cleanId);
     if (!details) return candidate;
+    if (!sameReleaseTitle(details.name,albumName) || (artistName && !sameArtistCredit(details.artists || details.artist,artistName))) return null;
 
     return {
       deezer_id: cleanId,
@@ -268,7 +269,7 @@ export async function fetchSpotifyDetails(artistName, albumName, spotifyId = nul
       if (!best) return null;
 
       const details = await getAlbumDetails(best.id);
-      if (details?.success && details.album) {
+      if (details?.success && details.album && sameReleaseTitle(details.album.name || details.album.album_name,albumName) && (!artistName || sameArtistCredit(details.album.artists || details.album.artist,artistName))) {
         return formatSpotifyAlbum(details.album);
       }
     }
@@ -513,22 +514,7 @@ export async function enrichAndInsertAlbum(releaseItem, db = supabase) {
 
   // 1. COMPROBACIÓN PREVIA: Si ya está en "albums", comprobar si amerita actualización
   const existing = await findAlbumInDatabase(albumName, artistName, releaseItem.mbid, releaseItem, db);
-  const existingTracksCount = existing
-    ? (existing.total_tracks || (Array.isArray(existing.tracks) ? existing.tracks.length : 0))
-    : 0;
-  const isExistingSingle =
-    existing &&
-    ((existing.release_type || '').toUpperCase() === 'SENCILLO' || existingTracksCount <= 1);
-  const incomingIsAlbum =
-    (releaseItem.release_type || '').toUpperCase() === 'ALBUM' ||
-    (releaseItem.total_tracks || 0) >= 3;
-
-  const shouldUpgrade =
-    existing &&
-    ((isExistingSingle && incomingIsAlbum) ||
-      ((releaseItem.total_tracks || 0) > existingTracksCount && (releaseItem.total_tracks || 0) >= 2) ||
-      (!existing.tracks || existing.tracks.length === 0) ||
-      tracklists.tracklistIssues(existing).length > 0);
+  const shouldUpgrade = existing && tracklists.shouldRefreshTracklist(existing,releaseItem);
 
   if (existing && !shouldUpgrade) {
     return {
