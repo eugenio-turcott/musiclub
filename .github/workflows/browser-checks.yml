@@ -2,7 +2,9 @@ name: Musiclub browser navigation checks
 on:
   push:
     branches: [master]
+    paths: ['src/**','public/**','tests/**','package*.json','*.config.*','wrangler.jsonc','scripts/build-cloudflare.mjs','scripts/verify-cloudflare-build.mjs','.github/workflows/browser-checks.yml']
   pull_request:
+    paths: ['src/**','public/**','tests/**','package*.json','*.config.*','wrangler.jsonc','scripts/build-cloudflare.mjs','scripts/verify-cloudflare-build.mjs','.github/workflows/browser-checks.yml']
 permissions:
   contents: read
 concurrency:

@@ -14,6 +14,9 @@ function authorization(){
 export async function repositoryRequest(path,{method='GET',body}={}){
  if(!path.startsWith('/')||path.startsWith('//'))throw new Error('Repository-relative path required');
  const response=await fetch(base+path,{method,redirect:'error',headers:{Authorization:`Bearer ${authorization()}`,Accept:'application/vnd.github+json','Content-Type':'application/json','User-Agent':'Musiclub-repository-maintenance'},...(body?{body:JSON.stringify(body)}:{})});
- if(!response.ok)throw new Error(`GitHub repository request failed (${response.status})`);
+ if(!response.ok){
+  const error=await response.json().catch(()=>({}));
+  throw new Error(`GitHub repository request failed (${response.status}): ${String(error.message||'Request rejected').slice(0,300)}`);
+ }
  return response.status===204?null:response.json();
 }
