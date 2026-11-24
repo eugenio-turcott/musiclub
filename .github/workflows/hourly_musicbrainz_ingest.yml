@@ -58,6 +58,8 @@ jobs:
             echo "Sin cambios para commitear."
           else
             version=$(node -p "require('./package.json').version")
+            node scripts/update-project-docs.mjs
+            git add README.md src/data/publicReleases.json
             git commit -m "Musiclub Updates - V.$version" -m "Actualización automática del catálogo. [skip ci]"
             git push
           fi

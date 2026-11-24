@@ -2,172 +2,21 @@
 import { InterfaceText } from './UiIcon';
 import { MusiclubVinyl } from './MusiclubVinyl';
 // src/components/PatchNotes.jsx
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { SEO } from './SEO';
-import {
-  GITHUB_COMMITS_API,
-  GITHUB_REPO_OWNER,
-  GITHUB_REPO_NAME,
-  mergeGithubCommitsWithCuratedNotes,
-} from '../data/patchNotesData';
+import publicReleases from '../data/publicReleases.json';
 
 const ITEMS_PER_PAGE = 6;
 
 export function PatchNotes({ isPage = false }) {
-  const [githubCommits, setGithubCommits] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [lastSyncTime, setLastSyncTime] = useState(null);
-  const [syncError, setSyncError] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState('ALL');
-  const [currentPage, setCurrentPage] = useState(1);
-
-  // Cargar commits desde GitHub API con fallback a notas curadas
-  const fetchGithubCommits = useCallback(async () => {
-    setLoading(true);
-    setSyncError(null);
-    try {
-      const response = await fetch(GITHUB_COMMITS_API, {
-        headers: {
-          Accept: 'application/vnd.github.v3+json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`GitHub API HTTP ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setGithubCommits(data);
-        setLastSyncTime(new Date());
-      }
-    } catch (err) {
-      console.warn('Nota: Usando historial local de Musiclub:', err.message);
-      setSyncError('Mostrando historial local sin conexión directa a GitHub.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchGithubCommits();
-  }, [fetchGithubCommits]);
-
-  // Fusionar commits en vivo con notas curadas y asegurar exclusión de bots o rutinas automáticas
-  const allPatchNotes = useMemo(() => {
-    return mergeGithubCommitsWithCuratedNotes(githubCommits).filter((note) => {
-      const author = (note.authorName || '').toLowerCase();
-      const title = (note.title || '').toLowerCase();
-      const summary = (note.summary || '').toLowerCase();
-
-      if (author.includes('bot') || author.includes('github-actions'))
-        return false;
-      if (
-        title.includes('automated hourly') ||
-        title.includes('hourly catalog ingestion') ||
-        title.includes('[skip ci]') ||
-        title.includes('sitemap update') ||
-        title.startsWith('merge ') ||
-        title.includes('merge branch') ||
-        title.includes('conflicts:')
-      )
-        return false;
-      if (
-        summary.includes('automated hourly') ||
-        summary.includes('hourly catalog ingestion') ||
-        summary.includes('[skip ci]') ||
-        summary.startsWith('merge ') ||
-        summary.includes('conflicts:')
-      )
-        return false;
-
-      return true;
-    });
-  }, [githubCommits]);
-
-  // Filtrado reactivo por texto y por tags
-  const filteredNotes = useMemo(() => {
-    const q = searchQuery.toLowerCase().trim();
-
-    return allPatchNotes.filter((note) => {
-      // Filtro de tag
-      if (
-        selectedTag === 'V9' &&
-        !note.version.startsWith('V.9') &&
-        !note.version.startsWith('v.9')
-      )
-        return false;
-      if (
-        selectedTag === 'V8' &&
-        !note.version.startsWith('V.8') &&
-        !note.version.startsWith('v.8')
-      )
-        return false;
-      if (
-        selectedTag === 'V7' &&
-        !note.version.startsWith('V.7') &&
-        !note.version.startsWith('v.7')
-      )
-        return false;
-      if (
-        selectedTag === 'V6' &&
-        !note.version.startsWith('V.6') &&
-        !note.version.startsWith('v.6')
-      )
-        return false;
-      if (
-        selectedTag === 'V5' &&
-        !note.version.startsWith('V.5') &&
-        !note.version.startsWith('v.5')
-      )
-        return false;
-      if (
-        selectedTag === 'V4' &&
-        !note.version.startsWith('V.4') &&
-        !note.version.startsWith('v.4')
-      )
-        return false;
-      if (
-        selectedTag === 'V3' &&
-        !note.version.startsWith('V.3') &&
-        !note.version.startsWith('v.3')
-      )
-        return false;
-      if (
-        selectedTag === 'V2' &&
-        !note.version.startsWith('V.2') &&
-        !note.version.startsWith('v.2')
-      )
-        return false;
-      if (
-        selectedTag === 'V1' &&
-        !note.version.startsWith('V.1') &&
-        !note.version.startsWith('v.1')
-      )
-        return false;
-      if (
-        selectedTag === 'V0' &&
-        !note.version.startsWith('V.0') &&
-        !note.version.startsWith('v.0')
-      )
-        return false;
-
-      if (!q) return true;
-
-      // Filtro de texto
-      const matchesTitle = (note.title || '').toLowerCase().includes(q);
-      const matchesVersion = (note.version || '').toLowerCase().includes(q);
-      const matchesSummary = (note.summary || '').toLowerCase().includes(q);
-      const matchesChanges = (note.changes || []).some(
-        (c) =>
-          (c.title || '').toLowerCase().includes(q) ||
-          (c.description || '').toLowerCase().includes(q)
-      );
-
-      return matchesTitle || matchesVersion || matchesSummary || matchesChanges;
-    });
-  }, [allPatchNotes, searchQuery, selectedTag]);
+  const [searchQuery,setSearchQuery]=useState('');
+  const [selectedTag,setSelectedTag]=useState('ALL');
+  const [currentPage,setCurrentPage]=useState(1);
+  const allPatchNotes=publicReleases;
+  const filteredNotes=useMemo(()=>{
+    const q=searchQuery.toLocaleLowerCase().trim();
+    return allPatchNotes.filter(note=>(selectedTag==='ALL'||note.major===Number(selectedTag.slice(1)))&&(!q||[note.version,note.title,note.summary,...note.changes.flatMap(c=>[c.title,c.description])].some(value=>value.toLocaleLowerCase().includes(q))));
+  },[searchQuery,selectedTag]);
 
   // Resetear a la página 1 cuando cambia la búsqueda o el filtro
   useEffect(() => {
@@ -195,7 +44,7 @@ export function PatchNotes({ isPage = false }) {
     <div className="w-full max-w-7xl mx-auto space-y-6 sm:space-y-8 pb-12">
       <SEO
         title="Patch Notes & Historial de Actualizaciones | Musiclub"
-        description="Consulta el registro completo de cambios, nuevas funciones, mejoras y correcciones de Musiclub sincronizado en tiempo real con GitHub."
+        description="Las novedades de Musiclub, reunidas en un resumen por cada versión mayor."
         url="https://www.musiclub.org/patch-notes"
       />
 
@@ -220,9 +69,7 @@ export function PatchNotes({ isPage = false }) {
               Patch Notes Musiclub
             </h1>
             <p className="text-white/70 text-xs sm:text-sm md:text-base max-w-2xl leading-relaxed">
-              Consulta en tiempo real cada mejora, nueva función y corrección
-              implementada en la plataforma, sincronizado directamente con la
-              rama principal de GitHub.
+              Lo más importante de cada etapa del club. Un resumen por versión mayor, con sus mejoras reunidas en un solo lugar.
             </p>
           </div>
 
@@ -236,7 +83,7 @@ export function PatchNotes({ isPage = false }) {
                     Registradas
                   </p>
                   <p className="text-white font-black text-xs sm:text-sm leading-tight">
-                    {allPatchNotes.length} Versiones
+                    {allPatchNotes.length} etapas
                   </p>
                 </div>
               </div>
@@ -245,7 +92,7 @@ export function PatchNotes({ isPage = false }) {
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
                 <div className="text-left">
                   <p className="text-[10px] text-white/50 uppercase font-bold tracking-wider">
-                    Versión Actual
+                    Última versión mayor
                   </p>
                   <p className="text-white font-black text-base sm:text-lg leading-tight">
                     {allPatchNotes[0]?.version || 'V.8.6'}
@@ -254,18 +101,7 @@ export function PatchNotes({ isPage = false }) {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={fetchGithubCommits}
-              disabled={loading}
-              className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 hover:text-white text-xs font-bold transition-all flex items-center gap-2 active:scale-95 disabled:opacity-50"
-              title="Volver a consultar los commits de GitHub"
-            >
-              <span className={loading ? 'animate-spin' : ''}><InterfaceText>{"🔄"}</InterfaceText></span>
-              <span>
-                {loading ? 'Actualizando...' : 'Actualizar Novedades'}
-              </span>
-            </button>
+            <a href="https://github.com/eugenio-turcott/musiclub/releases" target="_blank" rel="noopener noreferrer" className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white/80 text-xs font-bold transition-colors">Ver versiones en GitHub ↗</a>
           </div>
         </div>
 
@@ -284,19 +120,7 @@ export function PatchNotes({ isPage = false }) {
           </div>
 
           <div className="flex items-center gap-2">
-            {lastSyncTime ? (
-              <span>
-                Última actualización:{' '}
-                {lastSyncTime.toLocaleTimeString([], {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </span>
-            ) : syncError ? (
-              <span className="text-amber-300">{syncError}</span>
-            ) : (
-              <span>Cargando datos...</span>
-            )}
+            <span>Resumen actualizado: {allPatchNotes[0]?.updatedAt}</span>
           </div>
         </div>
       </div>
@@ -325,19 +149,7 @@ export function PatchNotes({ isPage = false }) {
 
         {/* Filtros de Versión */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          {[
-            { id: 'ALL', label: `Todas (${allPatchNotes.length})` },
-            { id: 'V9', label: 'V9.x' },
-            { id: 'V8', label: 'V8.x' },
-            { id: 'V7', label: 'V7.x' },
-            { id: 'V6', label: 'V6.x' },
-            { id: 'V5', label: 'V5.x' },
-            { id: 'V4', label: 'V4.x' },
-            { id: 'V3', label: 'V3.x' },
-            { id: 'V2', label: 'V2.x' },
-            { id: 'V1', label: 'V1.x' },
-            { id: 'V0', label: 'V0.x (Prototipos)' },
-          ].map((tab) => (
+          {[{id:'ALL',label:'Todas ('+allPatchNotes.length+')'},...allPatchNotes.map(note=>({id:'V'+note.major,label:note.major===0?'Prototipos':'V'+note.major+'.x'}))].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setSelectedTag(tab.id)}
@@ -460,7 +272,7 @@ export function PatchNotes({ isPage = false }) {
                 {release.changes && release.changes.length > 0 && (
                   <div className="space-y-2.5 pt-1">
                     <h4 className="text-[11px] uppercase font-bold tracking-wider text-white/40">
-                      Detalle de Cambios ({release.changes.length})
+                      Lo principal de esta etapa ({release.changes.length})
                     </h4>
                     <div className="grid grid-cols-1 gap-2.5">
                       {release.changes.map((change, cIdx) => {

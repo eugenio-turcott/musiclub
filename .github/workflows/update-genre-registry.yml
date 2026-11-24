@@ -40,8 +40,10 @@ jobs:
           if git diff --cached --quiet; then exit 0; fi
           npm version patch --no-git-tag-version
           git add package.json package-lock.json
+          node scripts/update-project-docs.mjs
+          git add README.md src/data/publicReleases.json
           version=$(node -p "require('./package.json').version")
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Musiclub Updates - V.$version"
+          git commit -m "Musiclub Updates - V.$version" -m "Actualiza el registro verificado de géneros, sus gráficos y la documentación del proyecto."
           git push origin HEAD:master

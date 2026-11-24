@@ -1,0 +1,41 @@
+name: Record verified Musiclub deployment
+on:
+  check_run:
+    types: [completed]
+  workflow_dispatch:
+permissions:
+  contents: read
+  checks: read
+  deployments: write
+concurrency:
+  group: musiclub-production-record
+  cancel-in-progress: false
+jobs:
+  record:
+    if: >-
+      github.event_name == 'workflow_dispatch' || (github.event.check_run.name == 'Workers Builds: musiclub' && github.event.check_run.app.slug == 'cloudflare-workers-and-pages')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const repo=context.repo;
+            const {data:branch}=await github.rest.repos.getBranch({...repo,branch:'master'});
+            const sha=context.payload.check_run?.head_sha || branch.commit.sha;
+            if(sha!==branch.commit.sha){core.info('A newer master revision exists.');return;}
+            const {data:checks}=await github.rest.checks.listForRef({...repo,ref:sha});
+            const check=checks.check_runs.find(c=>c.name==='Workers Builds: musiclub'&&c.app?.id===85455&&c.status==='completed');
+            if(!check){core.info('Cloudflare has not completed this deployment.');return;}
+            if(check.conclusion!=='success'){core.setFailed('Cloudflare did not publish successfully.');return;}
+            let verified=false;
+            for(let attempt=0;attempt<8;attempt++){
+              const response=await fetch('https://www.musiclub.org/api/version',{cache:'no-store'});
+              if(response.ok&&(await response.json()).revision===sha){verified=true;break;}
+              await new Promise(resolve=>setTimeout(resolve,10000));
+            }
+            if(!verified)throw new Error('The public site does not confirm this revision.');
+            const {data:existing}=await github.rest.repos.listDeployments({...repo,sha,environment:'Production',per_page:100});
+            const deployment=existing[0] || (await github.rest.repos.createDeployment({...repo,ref:sha,environment:'Production',auto_merge:false,required_contexts:[],production_environment:true,description:'Cloudflare Workers · verified public revision'})).data;
+            if(!deployment.id)throw new Error('No deployment record was created.');
+            await github.rest.repos.createDeploymentStatus({...repo,deployment_id:deployment.id,state:'success',environment_url:'https://www.musiclub.org',log_url:check.details_url,description:'Cloudflare build and public revision verified',auto_inactive:true});

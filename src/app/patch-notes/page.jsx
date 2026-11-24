@@ -4,7 +4,7 @@ import { PatchNotesPage } from '../../views/PatchNotesPage';
 export const metadata = {
   title: 'Patch Notes & Historial de Actualizaciones',
   description:
-    'Consulta el registro completo de cambios, nuevas funciones, mejoras y correcciones de Musiclub sincronizado en tiempo real con GitHub.',
+    'Las novedades de Musiclub, reunidas en un resumen por cada versión mayor.',
   alternates: {
     canonical: 'https://www.musiclub.org/patch-notes',
   },

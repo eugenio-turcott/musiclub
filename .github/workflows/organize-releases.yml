@@ -1,0 +1,25 @@
+name: Consolidate official major releases
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  consolidate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/organize-github-releases.mjs --apply
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: releases-before-consolidation
+          path: outputs/repository-maintenance/releases-before.json
+          retention-days: 30

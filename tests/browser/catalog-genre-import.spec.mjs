@@ -1,6 +1,18 @@
 import {test,expect} from '@playwright/test';
 import {communityAccount} from './community-session.mjs';
 
+test.beforeEach(async({page})=>{
+ // Begin with an unregistered edition even after a shared cache refresh.
+ await page.request.post('http://127.0.0.1:54329/__fixture/reset-imported-releases');
+ const cleared=await page.request.post('/api/catalog',{headers:{Authorization:'Bearer annual-fixture-admin'}});
+ expect(cleared.ok()).toBe(true);
+ await expect.poll(async()=>{
+  const response=await page.request.get('/api/catalog?view=collection');
+  const data=await response.json();
+  return data.albums?.some(album=>/00000000-0000-4000-8000-00000000009[5789]/.test(album.id));
+ }).toBe(false);
+});
+
 for(const entrance of ['catalogue','header'])for(const source of ['localized genre','regional UPC','pending genre'])test(`${entrance} opens BICHOTA SEASON with ${source} while MusicBrainz is down`,async({page})=>{
  await communityAccount(page);
  await page.route('**/api/catalog?view=collection',route=>route.fulfill({json:{albums:[]}}));
