@@ -25,7 +25,9 @@ console.log(JSON.stringify({mode:apply?'apply':'preview',official:plan.map(p=>({
 if(apply){
  // Publish verified major summaries first; only then hide the reversible archives.
  for(const {note,existing,sha,tag} of plan){
+  console.log(`Consolidating ${note.version}`);
   const body={name:`Musiclub Updates - ${note.version}`,body:releaseBody(note),draft:false,prerelease:false,make_latest:note.major===majors[0].major?'true':'false'};
+  if(existing&&existing.name===body.name&&existing.body===body.body&&!existing.draft&&!existing.prerelease)continue;
   await repositoryRequest(existing?`/releases/${existing.id}`:'/releases',{method:existing?'PATCH':'POST',body:{...body,...(!existing?{tag_name:tag,target_commitish:sha}:{})}});
  }
  for(const release of minorReleases)await repositoryRequest(`/releases/${release.id}`,{method:'PATCH',body:{draft:true}});

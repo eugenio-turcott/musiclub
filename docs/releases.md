@@ -21,6 +21,8 @@ node scripts/generate-release-body.mjs v13.0.0
 
 El generador rechaza versiones menores, inexistentes y sin resumen preparado. Nunca utiliza otra versión como alternativa. El tag señala el commit que inició la versión mayor; no se mueven tags publicados para actualizar su resumen. Las mejoras posteriores se consolidan en la misma entrada.
 
+La consolidación histórica conserva una copia y mueve los Releases menores a borrador. Se puede revisar con `node scripts/organize-github-releases.mjs` y aplicar con `--apply`. No vuelve a escribir resúmenes que ya coinciden. Si GitHub limita al token de Actions para modificar una publicación antigua, el propietario puede ejecutar el mismo proceso con su conexión autorizada; no se amplían permisos ni se borran tags para resolverlo.
+
 ## Historial e identidad
 
 Los commits y tags anteriores se conservan. Reescribir títulos o autores publicados cambia sus identificadores y necesita una decisión explícita. El correo de los nuevos commits debe pertenecer a `eugenio-turcott`; puede usarse su dirección `noreply` verificada.
