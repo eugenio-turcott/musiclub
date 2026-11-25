@@ -1,6 +1,7 @@
 export const albums = ['Azul','Rojo','Verde'].map((name,index) => ({
   id:`00000000-0000-4000-8000-00000000000${index+1}`,
   album_name:name, artist_name:'Artista de Prueba', image_url:'/musiclub_logo.png',
+  spotify_link:'https://open.spotify.com/album/'+String(index+1).padStart(22,'0'),apple_music_link:'https://music.apple.com/mx/album/fixture/'+(1000+index),
   genres:[['Pop'],['Rock'],['Jazz']][index], release_type:'ALBUM', release_year:2025,
   release_date:'2025-01-01', created_at:'2025-01-01T00:00:00Z', reviews_enabled:true,
   tracks:[{id:`track-${index}`,name:'Canción de prueba',track_number:1}], total_tracks:1,
@@ -18,7 +19,7 @@ tables.seasons[0].season_number=2;
 tables.seasons.push({id:'fixture-past-season',room_id:tables.pool_rooms[0].id,season_number:1,name:'El origen del club',description:'Nuestra primera escucha compartida.',is_active:false,is_open:false,appearance:{},start_date:'2025-01-01',end_date:'2025-02-01'});
 tables.public_pool_entries.push({id:'past-entry',season_id:'fixture-past-season',album_id:albums[0].id,status:'GRADUADO',created_at:'2025-01-01T00:00:00Z',nominated_by:'Miembro de Prueba'});
 
-tables.artist_discographies=[{slug:'artista-de-prueba',name:'Artista de Prueba',refresh_after:'2099-01-01T00:00:00Z',checked_at:'2026-10-20T00:00:00Z',profile:{source:'OFFICIAL',artist:{name:'Artista de Prueba',image:'/musiclub_logo.png',genres:['Pop']},providers:{DEEZER:{status:'ok'}},discography:[{id:'deezer_fixture',name:'Edición exclusiva oficial',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-02-01',releaseYear:2025,image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'fixture'}]}]}}];
+tables.artist_discographies=[{slug:'artista-de-prueba',name:'Artista de Prueba',refresh_after:'2099-01-01T00:00:00Z',checked_at:'2026-10-20T00:00:00Z',profile:{source:'OFFICIAL',artist:{name:'Artista de Prueba',image:'/musiclub_logo.png',genres:['Pop']},providers:{DEEZER:{status:'ok'}},discography:[{id:'deezer_fixture',name:'Edición compartida oficial',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-02-01',releaseYear:2025,image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'fixture'},{provider:'APPLE',id:'fixture-apple'}]}]}}];
 
 tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estreno-oficial',artist_slug:'artista-proximo',artist_name:'Artista Próximo',album_name:'Estreno oficial',release_type:'ALBUM',release_date:'2099-01-01',image_url:'/musiclub_logo.png',tracks:[],total_tracks:10}];
 
@@ -26,7 +27,7 @@ tables.record_club_upcoming=[{id:'upcoming-fixture',slug:'artista-proximo-estren
 tables.albums.push({...albums[0],id:'clean-variant-fixture',album_name:'Azul (Clean)',tracks:[{id:'clean-track',name:'Canción de prueba',track_number:1}]});
 tables.public_reviews.push({...reviews[0],id:'clean-variant-review',album_id:'clean-variant-fixture',reviewer_name:'Otra persona',comment:'Reseña de la variante limpia.',created_at:'2025-01-01T00:00:00Z'});
 
-tables.artist_discographies.push({slug:'the-weeknd',name:'the weeknd',refresh_after:'2099-01-01',updated_at:'2026-10-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd',genres:['Pop']},discography:[{id:'deezer_weeknd_fixture',name:'Starboy',artists:['The Weeknd'],release_type:'ALBUM',releaseDate:'2016-11-25',image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'weeknd_fixture'}]}]}});
+tables.artist_discographies.push({slug:'the-weeknd',name:'the weeknd',refresh_after:'2099-01-01',updated_at:'2026-10-01',profile:{source:'OFFICIAL',artist:{name:'the weeknd',genres:['Pop']},discography:[{id:'deezer_weeknd_fixture',name:'Starboy',artists:['The Weeknd'],release_type:'ALBUM',releaseDate:'2016-11-25',image:'/musiclub_logo.png',sources:[{provider:'DEEZER',id:'weeknd_fixture'},{provider:'APPLE',id:'weeknd_apple_fixture'}]}]}});
 
 for(const review of tables.public_reviews.filter(review=>[albums[0].id,'clean-variant-fixture'].includes(review.album_id))) review.feeling='intrigado';
 
@@ -46,3 +47,11 @@ albums[0].public_content_updated_at='2026-11-12T18:00:00Z';
 
 // Exercise unassociated release discovery and person categories, even with a catalog association.
 tables.grammy_nominees.push({id:'20000000-0000-4000-8000-000000000003',event_id:'grammys-2027',category_id:'song-of-the-year',title:'Canción sin ficha',artist:'Artista de Prueba'},{id:'20000000-0000-4000-8000-000000000004',event_id:'grammys-2027',category_id:'producer-of-the-year-non-classical',title:'Creador de Prueba',albums:albums[0]});
+
+// A provider-only edition stays stored, but is not public discography evidence.
+tables.artist_discographies[0].profile.discography.push({id:'itunes_only_fixture',name:'Sólo Apple sin verificar',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-03-01',image:'/musiclub_logo.png',sources:[{provider:'APPLE',id:'only-fixture'}]});
+
+// Disc grouping and stored palettes are exercised on the existing release.
+albums[0].tracks[2].disc_number=2;
+albums[0].dominant_colors=['#2878c0','#db477b'];albums[0].palette_image_url=albums[0].image_url;
+tables.artist_discographies[0].dominant_colors=['#3a536f','#c14c79'];tables.artist_discographies[0].palette_image_url='/musiclub_logo.png';

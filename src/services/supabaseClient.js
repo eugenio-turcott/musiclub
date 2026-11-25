@@ -221,6 +221,7 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
       scores: [],
       track_number: typeof t === 'object' && t.track_number ? t.track_number : idx + 1,
       duration_ms: typeof t === 'object' ? t.duration_ms : undefined,
+      disc_number: typeof t === 'object' ? t.disc_number : 1,
     };
     canonicalTracks.push(trackObj);
     if (tId) {
@@ -284,6 +285,7 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
       id: ts.id,
       name: ts.name,
       track_number: ts.track_number,
+      disc_number: ts.disc_number || 1,
       duration_ms: ts.duration_ms,
       rating_count: ts.scores.length,
       avg_rating: avg ? parseFloat(avg.toFixed(1)) : null,
@@ -305,6 +307,7 @@ export function buildAlbumWithFullStats(alb, rawAlbumReviews = [], profiles = []
     album_name: alb.album_name,
     artist_name: alb.artist_name,
     image_url: alb.image_url,
+    dominant_colors: alb.palette_image_url===alb.image_url ? (alb.dominant_colors || []) : [],
     mbid: alb.mbid,
     label: alb.label,
     country: alb.country,

@@ -27,4 +27,4 @@ El mantenimiento de discografías trabaja en lotes de hasta 120 artistas, cuatro
 
 Las fichas públicas se calculan en el servidor. Las preferencias, predicciones y datos propios conservan sus permisos privados. Los cambios de esquema se revisan por separado de la presentación de la web.
 
-Consulta [versiones](releases.md), [géneros](release-genres.md) y [la edición anual](annual-2026.md) para el mantenimiento específico.
+Consulta [versiones](releases.md), [géneros](release-genres.md), [la edición anual](annual-2026.md) y [reseñas relacionadas, discos y paletas](release-experience.md) para el mantenimiento específico.

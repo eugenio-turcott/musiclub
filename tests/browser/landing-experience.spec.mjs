@@ -118,7 +118,9 @@ test('the integrated turntable has local needle controls, full artwork and natur
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).click();await expect(player).toHaveAttribute('data-needle-down','false');
  await page.getByRole('button',{name:'Bajar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','true');
  await page.getByRole('button',{name:'Levantar aguja',exact:true}).press('Enter');await expect(player).toHaveAttribute('data-needle-down','false');
- const needle=page.getByRole('button',{name:'Bajar aguja',exact:true});await needle.scrollIntoViewIfNeeded();const bounds=await needle.boundingBox();
+ const needle=page.getByRole('button',{name:'Bajar aguja',exact:true});await needle.scrollIntoViewIfNeeded();
+ await expect.poll(()=>needle.evaluate(el=>el.getAnimations().some(animation=>animation.playState==='running'))).toBe(false);
+ const bounds=await needle.boundingBox();
  const x=bounds.x+bounds.width/2,y=bounds.y+bounds.height/2;
  await page.mouse.move(x,y);await page.mouse.down();await page.mouse.move(x-22,y+28);await page.mouse.up();
  await expect(player).toHaveAttribute('data-needle-down','true');
@@ -231,7 +233,10 @@ test('sharing formats crossfade stable layouts and smoothly reverse without stre
  await page.getByRole('button',{name:'Horizontal',exact:true}).click();
  await page.waitForTimeout(150);
  const intermediate=await stage.evaluate(el=>el.getBoundingClientRect().height);
- expect(intermediate).toBeLessThan(initial-1);expect(intermediate).toBeGreaterThan(landscapeSize.height+40+1);
+ // Allow subpixel rounding when a busy runner samples near the transition end.
+ expect(intermediate).toBeLessThan(initial-1);expect(intermediate).toBeGreaterThan(landscapeSize.height+40-1);
+ expect(await stage.evaluate(el=>getComputedStyle(el).transitionProperty)).toBe('height');
+ expect(parseFloat(await stage.evaluate(el=>getComputedStyle(el).transitionDuration))).toBeGreaterThan(.5);
  expect(await story.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}))).toEqual(storySize);
  expect(await landscape.evaluate(el=>({width:el.offsetWidth,height:el.offsetHeight}))).toEqual(landscapeSize);
  await expect.poll(()=>stage.evaluate(el=>Math.abs(el.getBoundingClientRect().height-(el.querySelector('[data-share-preview]').offsetHeight+40)))).toBeLessThan(1);

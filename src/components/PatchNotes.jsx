@@ -6,7 +6,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { SEO } from './SEO';
 import publicReleases from '../data/publicReleases.json';
 
-const ITEMS_PER_PAGE = 6;
+const ITEMS_PER_PAGE = 1;
 
 export function PatchNotes({ isPage = false }) {
   const [searchQuery,setSearchQuery]=useState('');
@@ -15,7 +15,7 @@ export function PatchNotes({ isPage = false }) {
   const allPatchNotes=publicReleases;
   const filteredNotes=useMemo(()=>{
     const q=searchQuery.toLocaleLowerCase().trim();
-    return allPatchNotes.filter(note=>(selectedTag==='ALL'||note.major===Number(selectedTag.slice(1)))&&(!q||[note.version,note.title,note.summary,...note.changes.flatMap(c=>[c.title,c.description])].some(value=>value.toLocaleLowerCase().includes(q))));
+    return allPatchNotes.filter(note=>(selectedTag==='ALL'||note.major===Number(selectedTag.slice(1)))&&(!q||[note.version,note.title,note.summary,...note.changes.flatMap(c=>[c.title,c.description]),...(note.details||[]).flatMap(section=>section.changes.flatMap(c=>[c.title,c.description]))].some(value=>value.toLocaleLowerCase().includes(q))));
   },[searchQuery,selectedTag]);
 
   // Resetear a la página 1 cuando cambia la búsqueda o el filtro
@@ -196,7 +196,7 @@ export function PatchNotes({ isPage = false }) {
             return (
               <div
                 key={release.version + '-' + (release.sha || idx)}
-                className={`relative overflow-hidden rounded-3xl bg-linear-to-br from-[#0f1122] via-[#15172e] to-[#0a0c1a] border ${
+                className={`patch-version-page relative overflow-hidden rounded-3xl bg-linear-to-br from-[#0f1122] via-[#15172e] to-[#0a0c1a] border ${
                   isPending
                     ? 'border-pink-500/40 shadow-pink-500/10'
                     : 'border-white/15'
@@ -272,7 +272,7 @@ export function PatchNotes({ isPage = false }) {
                 {release.changes && release.changes.length > 0 && (
                   <div className="space-y-2.5 pt-1">
                     <h4 className="text-[11px] uppercase font-bold tracking-wider text-white/40">
-                      Lo principal de esta etapa ({release.changes.length})
+                      Resumen de la versión ({release.changes.length})
                     </h4>
                     <div className="grid grid-cols-1 gap-2.5">
                       {release.changes.map((change, cIdx) => {
@@ -334,6 +334,7 @@ export function PatchNotes({ isPage = false }) {
                     </div>
                   </div>
                 )}
+                {release.details?.length>0&&<div className="patch-version-details" aria-label="Detalles de esta versión">{release.details.map(section=><section key={section.title}><h4>{section.title}</h4><div>{section.changes.map(change=><article key={change.title}><h5>{change.title}</h5><p>{change.description}</p></article>)}</div></section>)}</div>}
               </div>
             );
           })

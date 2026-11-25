@@ -1,3 +1,6 @@
+import {ReviewContinuation} from './ReviewContinuation';
+import {TrackDiscs} from './TrackDiscs';
+import trackDiscs from '../utils/trackDiscs.cjs';
 import {CompactReviewCard} from './CompactReviewCard';
 import ReviewCriteria from './ReviewCriteria';
 import {DetailLoading} from './DetailLoading';
@@ -212,7 +215,7 @@ export function ReviewSystem({
     }
   }, [user]);
 
-  const effectiveTracks =
+  const rawEffectiveTracks =
     tracks && tracks.length > 0
       ? tracks
       : album?.tracks && Array.isArray(album.tracks)
@@ -225,6 +228,7 @@ export function ReviewSystem({
     return t.id || t.spotify_id || t.name || String(idx);
   };
 
+  const effectiveTracks = trackDiscs.normalizeTrackDiscs(rawEffectiveTracks);
   const getTrackName = (t, idx) => {
     if (!t) return `Pista ${idx + 1}`;
     if (typeof t === 'string') return t;
@@ -609,7 +613,7 @@ export function ReviewSystem({
             targetAlbumId = existing.id;
           } else {
             const trackList = (album.tracks || []).map((t) =>
-              typeof t === 'string' ? t : t.name || String(t)
+              typeof t === 'string' ? {name:t} : t
             );
             const newAlbum = await supabaseService.createAlbumWithTracks({
               albumName: album.album_name || album.album || album.name,
@@ -664,6 +668,7 @@ export function ReviewSystem({
         } catch (e) {}
       }
 
+      window.dispatchEvent(new CustomEvent('musiclub:review-saved'));
       setSuccess(true);
       setIsEditing(false);
 
@@ -1217,6 +1222,7 @@ export function ReviewSystem({
                   effectiveTracks.length > 0 &&
                   currentTrack && (
                     <div className="space-y-4 animate-fadeIn">
+                      <ReviewContinuation albumId={album.id} enabled={!!user?.id && !existingUserReview && !loading} onApply={incoming=>setTrackRatings(old=>({...incoming,...old}))}/>
                       {/* Progress Bar de Canciones */}
                       <div>
                         <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-1 text-xs text-white/60 mb-2 font-medium">
@@ -1241,7 +1247,7 @@ export function ReviewSystem({
 
                       {/* Strip selector de canciones (Pills/Drawer rápido) */}
                       <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto py-1.5 px-0.5 custom-scrollbar">
-                        {effectiveTracks.map((t, idx) => {
+                        <TrackDiscs tracks={effectiveTracks} compact>{(t, idx) => {
                           const isRated = getTrackRating(t, idx) !== undefined;
                           const isActive = idx === currentTrackIndex;
                           const isFav =
@@ -1267,7 +1273,7 @@ export function ReviewSystem({
                               }`}
                               title={getTrackName(t, idx)}
                             >
-                              <span>#{t.track_number || idx + 1}</span>
+                              <span>{new Set(effectiveTracks.map(t=>t.disc_number)).size>1?`D${t.disc_number} · `:''}#{t.track_number || idx + 1}</span>
                               {isFav ? (
                                 <span className="text-[10px]"><InterfaceText>{"⭐"}</InterfaceText></span>
                               ) : (
@@ -1277,7 +1283,7 @@ export function ReviewSystem({
                               )}
                             </button>
                           );
-                        })}
+                        }}</TrackDiscs>
                       </div>
 
                       {/* CARD DE CANCIÓN ACTUAL */}
@@ -1286,7 +1292,7 @@ export function ReviewSystem({
                           <div className="flex-1 min-w-0 w-full">
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="text-white/40 text-xs font-mono bg-white/10 px-2.5 py-0.5 rounded-md">
-                                Pista #
+                                {new Set(effectiveTracks.map(t=>t.disc_number)).size>1?`Disco ${currentTrack.disc_number} · `:''}Pista #
                                 {currentTrack.track_number ||
                                   currentTrackIndex + 1}
                               </span>
@@ -1978,7 +1984,7 @@ export function ReviewSystem({
                                           : 'bg-white/10 text-white/50'
                                       }`}
                                     >
-                                      #{t.track_number || idx + 1}
+                                      {new Set(effectiveTracks.map(t=>t.disc_number)).size>1?`D${t.disc_number} · `:''}#{t.track_number || idx + 1}
                                     </span>
                                     <span
                                       translate="no"

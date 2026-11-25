@@ -1,3 +1,4 @@
+import {commonDiscography} from '../utils/verifiedDiscography.mjs';
 import cards from '../utils/catalogCards.cjs';
 import editions from '../utils/releaseEditions.cjs';
 import reviewChronology from '../utils/reviewChronology.cjs';
@@ -17,7 +18,7 @@ import {readRelatedRows} from './readRelatedRows.mjs';
 import {packCatalogSnapshot,unpackCatalogSnapshot} from './catalogSnapshot.mjs';
 
 const publicDatabaseURL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.REACT_APP_SUPABASE_URL || process.env.SUPABASE_URL;
-const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid,public_content_updated_at,canonical_album_id';
+const ALBUM_FIELDS = 'id,album_name,artist_name,image_url,release_type,release_year,release_date,tracks,genres,spotify_link,youtube_link,apple_music_link,other_link,reviews_enabled,created_at,total_tracks,label,country,barcode,mbid,public_content_updated_at,canonical_album_id,dominant_colors,palette_image_url';
 function client() {
   return createClient(publicDatabaseURL,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.REACT_APP_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY,
@@ -128,10 +129,10 @@ export const getPublicArtist = cache(async slug => {
     const editionKey=name=>releaseIdentity.slugify(editions.editionTitle(name).name,true);
     const match = discography.find(d => (d.sources || []).some(source=>source.url && links.includes(source.url.split('?')[0].replace(/\/$/,'')))) ||
       discography.find(d => editionKey(d.name)===editionKey(a.album_name));
-    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; match.genres=a.genres || match.genres; }
+    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; match.genres=a.genres || match.genres;match.spotify_link=a.spotify_link;match.apple_music_link=a.apple_music_link;match.other_link=a.other_link;match.mbid=a.mbid; }
     else discography.push({ id: a.id, clubAlbumId:a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
       image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
-      genres:a.genres || [], release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link });
+      genres:a.genres || [], release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link,spotify_link:a.spotify_link,apple_music_link:a.apple_music_link,other_link:a.other_link });
   }
   for (const release of upcoming || []) {
     const match = discography.find(d => d.name.toLowerCase().trim() === release.album_name.toLowerCase().trim());
@@ -139,11 +140,11 @@ export const getPublicArtist = cache(async slug => {
     if (match) Object.assign(match, metadata);
     else discography.push({ id: release.id, name: release.album_name, releaseDate: release.release_date || '', releaseYear: Number(release.release_date?.slice(0,4)) || null, release_type: release.release_type || 'ALBUM', ...metadata });
   }
-  const groupedDiscography=editions.groupReleaseEditions(discography).map(({editionVariants,...release})=>release);
+  const groupedDiscography=commonDiscography(editions.groupReleaseEditions(discography).map(({editionVariants,...release})=>release));
   groupedDiscography.sort((a,b) => (b.releaseDate || '').localeCompare(a.releaseDate || ''));
   return { albums: clubAlbums, profile: { ...external, success: true, artist: {
     ...external?.artist, name: external?.artist?.name || name,
-    image: external?.artist?.image || sample?.image_url || '',
+    image: external?.artist?.image || '',
     genres: [...new Set([...(external?.artist?.genres || []), ...clubAlbums.flatMap(a => a.genres || [])])],
   }, topTracks: external?.topTracks || [], discography:groupedDiscography,
     albums: groupedDiscography.filter(a => a.release_type === 'ALBUM'), eps: groupedDiscography.filter(a => a.release_type === 'EP'),

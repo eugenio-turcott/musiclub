@@ -1,4 +1,6 @@
 'use client';
+import {TrackDiscs} from './TrackDiscs';
+import {ArtworkAtmosphere,artworkPageClass} from './ArtworkAtmosphere';
 import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import MoodIcon from './MoodIcon';
@@ -336,6 +338,7 @@ export function AlbumDetail({
                     name: t.name || t.track_name || `Track ${idx + 1}`,
                     track_name: t.name || t.track_name || `Track ${idx + 1}`,
                     track_number: t.track_number || idx + 1,
+                    disc_number: t.disc_number || 1,
                     duration_ms: t.duration_ms || null,
                   }));
 
@@ -417,6 +420,7 @@ export function AlbumDetail({
                       name: t.name || t.track_name || `Track ${idx + 1}`,
                       track_name: t.name || t.track_name || `Track ${idx + 1}`,
                       track_number: t.track_number || idx + 1,
+                      disc_number: t.disc_number || 1,
                       duration_ms: t.duration_ms || null,
                     }));
                     current.total_tracks = discoveredTracks.length;
@@ -551,8 +555,10 @@ export function AlbumDetail({
 
                 if (!current) {
                   const spTracks = (spAlbum.tracks || []).map((t, idx) => ({
+                    id: t.id,
                     name: t.name,
                     track_number: t.track_number || idx + 1,
+                    disc_number: t.disc_number || 1,
                     duration_ms: t.duration_ms || null,
                     avg_rating: null,
                     votes_count: 0,
@@ -572,7 +578,7 @@ export function AlbumDetail({
                     release_type: spAlbum.release_type || 'ALBUM',
                     genres: spAlbum.genres || [],
                     label: spAlbum.label || '',
-                    tracks: spAlbum.tracks.map((t) => t.name),
+                    tracks: spAlbum.tracks,
                     track_stats: spTracks,
                     reviews: [],
                     stats: { totalReviews: 0, averageRating: null },
@@ -1009,7 +1015,8 @@ export function AlbumDetail({
   }
 
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black">
+    <div className={`${artworkPageClass} min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black`}>
+      <ArtworkAtmosphere colors={album.dominant_colors || []}/>
       {/* Background ambient light */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute top-48 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
@@ -1752,6 +1759,7 @@ export function AlbumDetail({
                         name: t.name || t.track_name || `Track ${idx + 1}`,
                         track_name: t.name || t.track_name || `Track ${idx + 1}`,
                         track_number: t.track_number || idx + 1,
+                        disc_number: t.disc_number || 1,
                         duration_ms: t.duration_ms || null,
                         rating_count: 0,
                         avg_rating: null,
@@ -1769,7 +1777,7 @@ export function AlbumDetail({
                     </div>
                   )}
                   <div className="divide-y divide-white/5 space-y-1">
-                    {renderedTracks.map((t, idx) => {
+                    <TrackDiscs tracks={renderedTracks}>{(t, idx) => {
                       const isTop =
                         topTrack &&
                         (t.id === topTrack.id ||
@@ -1848,7 +1856,7 @@ export function AlbumDetail({
                           </div>
                         </div>
                       );
-                    })}
+                    }}</TrackDiscs>
                   </div>
                 </div>
               ) : isAnticipated ? (

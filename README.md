@@ -4,7 +4,7 @@
 
 Un club para descubrir discos, reseñar lo que escuchas y compartirlo con otras personas.
 
-**V.12.2.6** · Novedades agrupadas en [V.12](https://www.musiclub.org/patch-notes).
+**V.12.3.0** · Novedades agrupadas en [V.12](https://www.musiclub.org/patch-notes).
 
 <a href="https://www.musiclub.org/gashapon"><img src="public/readme/genres.png" alt="Los vinilos de Pop, Rock, R&B, Hip-Hop, Indie, Electrónica, Jazz y Latino" width="100%" /></a>
 
@@ -27,4 +27,4 @@ npm run dev
 
 [Configuración y pruebas](docs/development.md) · [Publicar una versión](docs/releases.md) · [Géneros pendientes](docs/release-genres.md)
 
-<!-- Musiclub documentation revision: 01ce6163bc942f52 -->
+<!-- Musiclub documentation revision: caf767a01a29b713 -->

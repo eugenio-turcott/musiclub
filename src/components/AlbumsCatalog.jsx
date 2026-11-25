@@ -1,4 +1,5 @@
 import {DetailLoading} from './DetailLoading';
+import catalogStyles from './CatalogPresentation.module.css';
 import { InterfaceText } from './UiIcon';
 import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
@@ -109,6 +110,9 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
   // Pestañas principales inspiradas en Musiclub: 'releases' | 'artists' | 'genres' (V.8.5)
   // Inicializado de forma determinista para evitar hydration mismatch entre SSR y cliente
   const [activeMainTab, setActiveMainTab] = useState('releases');
+  const [releaseSection,setReleaseSection]=useState(initialQuery.trim()||initialPage>1?'collection':'trending');
+  useEffect(()=>{if(window.location.hash==='#explorador-catalogo')setReleaseSection('collection');},[]);
+  useEffect(()=>{if(initialQuery.trim())setReleaseSection('collection');},[initialQuery]);
 
   // Sincronizar pestaña activa desde la URL en el cliente tras la hidratación inicial
   useEffect(() => {
@@ -333,6 +337,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
 
     // Si viene con filtro tipo o con el ancla de explorador, programar scroll suave directo al Explorador
     if (hasTipo || location.hash === '#explorador-catalogo') {
+      setReleaseSection('collection');
       pendingScrollToExplorerRef.current = true;
       if (!loading && albums.length > 0) {
         const timer = setTimeout(() => {
@@ -805,36 +810,13 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
   }, [filteredAlbums, currentPage, itemsPerPage]);
 
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans">
-      <div className="max-w-7xl mx-auto space-y-6 sm:space-y-8 w-full">
+    <div className={`${catalogStyles.page} min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden text-white font-sans`}>
+      <div className={`${catalogStyles.layout} max-w-7xl mx-auto w-full`}>
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <div data-catalog-hero className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#131526]/80 via-[#0e101f]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
-          {/* Subtle Ambient Glow */}
-          <div className="absolute -top-12 -left-12 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <MusiclubVinyl
-              src="/musiclub_logo_4.png"
-              alt=""
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
-            />
-          </div>
-
-          <div className="relative z-10 space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-cyan-200">
-              Catálogo Musical
-            </h1>
-            <p className="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed">
-              Explora discografías completas, lanzamientos en tendencia e indaga
-              en los álbumes calificados por los miembros del club con desglose
-              de reseñas y canciones.
-            </p>
-          </div>
-        </div>
+        <section data-catalog-hero className={catalogStyles.hero}><div className={catalogStyles.heading}><span className={catalogStyles.vinyl}><MusiclubVinyl alt=""/></span><div><h1>Catálogo Musical</h1><p>Elige una escucha. Explora lo que llega y lo que ya suena en el club.</p></div></div><dl><div><dt>releases</dt><dd>{globalStats.totalClub.toLocaleString('es-MX')}</dd></div><div><dt>artistas</dt><dd>{new Set(albums.map(a=>a.artist_name)).size.toLocaleString('es-MX')}</dd></div><div><dt>reseñas</dt><dd>{globalStats.totalReviews}</dd></div></dl></section>
 
         {/* Barra superior de carga no invasiva al abrir o procesar un álbum */}
         {proposingId && (
@@ -856,74 +838,10 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           </div>
         )}
 
-        {/* Musiclub Style Stats Ribbon */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-cyan-500/40 transition-all shadow-lg">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Lanzamientos en Musiclub
-            </span>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-white">
-                {globalStats.totalClub.toLocaleString('es-MX')}
-              </span>
-            </div>
-            <p className="text-[11px] text-cyan-300 font-medium mt-1">
-              Catálogo de la comunidad
-            </p>
-          </div>
-
-          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-pink-500/40 transition-all shadow-lg">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Artistas del club
-            </span>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-white">
-                {new Set(albums.map(a => a.artist_name)).size.toLocaleString('es-MX')}
-              </span>
-            </div>
-            <p className="text-[11px] text-pink-300 font-medium mt-1">
-              Artistas presentes en el catálogo del club
-            </p>
-          </div>
-
-          <div className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-amber-500/40 transition-all shadow-lg">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Reseñas en Club
-            </span>
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-black text-amber-400">
-                {loading && globalStats.totalReviews === 0
-                  ? '...'
-                  : globalStats.totalReviews}
-              </span>
-            </div>
-            <p className="text-[11px] text-amber-300/80 font-medium mt-1">
-              Promedio: {globalStats.avgClubScore}<InterfaceText>{" ⭐ por álbum "}</InterfaceText></p>
-          </div>
-
-          <div data-catalog-top className="bg-[#12141F]/80 border border-white/10 p-4 sm:p-5 rounded-2xl backdrop-blur-md relative overflow-hidden group hover:border-yellow-500/40 transition-all shadow-lg">
-            <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-400">
-              Top del Club
-            </span>
-            <div className="mt-1">
-              <p className="text-sm sm:text-base font-black text-yellow-300 truncate">
-                {globalStats.topRatedAlbum
-                  ? globalStats.topRatedAlbum.album_name
-                  : '—'}
-              </p>
-            </div>
-            <p className="text-[11px] text-yellow-200/80 font-semibold mt-1">
-              <InterfaceText>{globalStats.topRatedAlbum
-                ? `${globalStats.topRatedAlbum.final_rating} ⭐ · ${globalStats.topRatedAlbum.artist_name}`
-                : 'Sin álbumes con al menos 2 reseñas'}</InterfaceText>
-            </p>
-          </div>
-        </div>
-
         {/* ========================================================================= */}
         {/* MUSICLUB BROWSE MAIN TABS: Releases | Artistas | Géneros (V.8.5)      */}
         {/* ========================================================================= */}
-        <div className="bg-[#12141F]/95 border border-white/10 rounded-2xl p-2 sm:p-2.5 backdrop-blur-xl shadow-2xl flex items-center justify-center gap-2 sm:gap-4 flex-wrap sticky top-16 z-30">
+        <div className={`${catalogStyles.mainTabs} bg-[#12141F]/95 border border-white/10 rounded-2xl p-2 sm:p-2.5 flex items-center justify-center gap-2 sm:gap-4`}>
           <button
             type="button"
             onClick={() => handleTabChange('releases')}
@@ -977,28 +895,11 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           />
         ) : (
           <>
-            {!initialQuery.trim() && <>
-            {/* 1. SECCIÓN DE TRENDING RELEASES MENSUALES (Top 20, mayoría POP, corte semanal viernes) */}
-            <TrendingMonthlySection
-              trendingData={monthlyTrending}
-              clubAlbums={albums}
-              loading={loadingTrending}
-              onQuickPropose={handleQuickPropose}
-              proposingId={proposingId}
-            />
-
-            {/* 2. SECCIÓN DE RELEASES ANTICIPADOS (No calificables hasta estreno, indexables) */}
-            <AdsterraAdvertising variant="inline" slot="catalog-trending" />
-            <AnticipatedSection
-              anticipatedReleases={anticipatedReleases}
-              loading={loadingAnticipated}
-            />
-
-            {/* 3. SECCIÓN DE MÁS RECOMENDADOS POR LOS USUARIOS DEL CLUB */}
-            <AdsterraAdvertising variant="native" slot="catalog-upcoming" />
-            <RecommendedSection albums={albums} />
-            </>}
-
+            <nav className={catalogStyles.releaseSections} aria-label="Explorar releases">{[['trending','Tendencias'],['collection','Todo el catálogo'],['upcoming','Próximos estrenos'],['recommended','Recomendados']].map(([key,label])=><button key={key} type="button" aria-pressed={releaseSection===key} onClick={()=>setReleaseSection(key)}>{label}</button>)}</nav>
+            {releaseSection==='trending'&&<TrendingMonthlySection trendingData={monthlyTrending} clubAlbums={albums} loading={loadingTrending} onQuickPropose={handleQuickPropose} proposingId={proposingId}/>}
+            {releaseSection==='upcoming'&&<AnticipatedSection anticipatedReleases={anticipatedReleases} loading={loadingAnticipated}/>}
+            {releaseSection==='recommended'&&<RecommendedSection albums={albums}/>}
+            {releaseSection==='collection'&&<>
             {/* 4. SECCIÓN DE CATÁLOGO COMPLETO Y EXPLORADOR */}
             <AdsterraAdvertising variant="rectangle" slot="catalog-explorer" />
             <div
@@ -1890,6 +1791,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
               </>
             )}
             {showingSpotify && spotifySearch.nextOffset!=null && <div className="text-center"><button type="button" onClick={loadMoreSpotify} disabled={spotifySearch.status==='more'} className="cursor-pointer rounded-xl border border-emerald-400/25 bg-emerald-400/10 px-5 py-3 text-xs font-bold text-emerald-200 disabled:opacity-50">{spotifySearch.status==='more'?'Cargando…':'Ver más resultados de Spotify'}</button>{spotifySearch.pageError && <p role="alert" className="mt-2 text-xs text-amber-200">{spotifySearch.pageError}</p>}</div>}
+            </>}
           </>
         )}
 

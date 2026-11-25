@@ -182,14 +182,16 @@ test('a slow discovery panel cannot delay the catalogue or upcoming releases',as
  await page.route('**/api/trending?type=weekly*',async route=>{await waiting;await route.fulfill({json:{success:true,releases:[{id:'weekly-fixture',album_name:'Weekly pick',artist_name:'Fixture',image_url:'/musiclub_logo.png',genres:['Pop']}]}});});
  try {
   await page.goto('/catalogo');
+  await page.getByRole('button',{name:'Todo el catálogo',exact:true}).click();
   await expect(page.getByRole('heading',{name:'Explorador de Catálogo y Colección',exact:true})).toBeVisible();
+  await page.getByRole('button',{name:'Próximos estrenos',exact:true}).click();
   await expect(page.getByRole('link',{name:'Estreno oficial',exact:true})).toBeVisible();
  } finally {releasePanel();}
 });
 
 test('decorative vinyl pauses offscreen, resumes onscreen and respects reduced motion',async({page})=>{
  await page.goto('/catalogo');
- const vinyl=page.locator('[data-catalog-hero] [data-musiclub-vinyl]');
+ const vinyl=page.locator('[data-catalog-hero]').filter({visible:true}).locator('[data-musiclub-vinyl]');
  await expect(vinyl).toHaveAttribute('data-motion-visible','true');
  await expect(vinyl.locator('g').first()).toHaveCSS('animation-play-state','running');
  await page.locator('footer').scrollIntoViewIfNeeded();
@@ -305,7 +307,8 @@ test('artist pages preserve club discography and review badges',async({page})=>{
   await page.goto('/artista/artista-de-prueba');
   await expect(page.getByRole('heading',{name:'Artista de Prueba',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Discografía',exact:false})).toBeVisible();
-  await expect(page.getByText('Edición exclusiva oficial',{exact:true})).toBeVisible();
+  await expect(page.getByText('Edición compartida oficial',{exact:true})).toBeVisible();
+  await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toHaveCount(0);
   await expect(page.getByRole('status').filter({hasText:'Catálogo guardado en Musiclub'})).toBeVisible();
   await expect(page.getByText('EN MUSICLUB',{exact:true}).first()).toBeVisible();
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
@@ -368,7 +371,7 @@ test('a release added after the public catalogue cache was warmed opens immediat
 test('artists with only an upcoming release open immediately from local metadata',async({page})=>{
   await page.goto('/artista/artista-proximo');
   await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
-  await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
+  await expect(page.getByText('Aún no hay releases con coincidencias verificadas en dos plataformas.',{exact:false})).toBeVisible();
 });
 
 

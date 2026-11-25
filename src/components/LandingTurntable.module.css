@@ -33,3 +33,9 @@
 @media(max-width:350px){.deck{aspect-ratio:1.22}.display{top:16%}}
 
 .score{grid-template-columns:clamp(13px,4.2cqw,26px) minmax(0,1fr);column-gap:clamp(2px,.7cqw,5px)}.score>svg{width:clamp(13px,4.2cqw,26px);height:clamp(13px,4.2cqw,26px)}.score strong{font-size:clamp(16px,5.4cqw,33px)}.score strong>small{font-size:clamp(5px,1.5cqw,10px);margin-left:clamp(1px,.4cqw,3px)}.score>span{font-size:clamp(5px,1.2cqw,7px)}.mood{width:clamp(22px,7.2cqw,43px);height:clamp(22px,7.2cqw,43px);margin-left:0}.mood svg{width:88%!important;height:88%!important}
+
+/* V.12.3: keep the score, mood and hardware labels in separate spaces. */
+.score{column-gap:clamp(5px,1.1cqw,8px)}.brand small{letter-spacing:.2px;padding-left:8px}.readout{column-gap:clamp(7px,1.5cqw,10px)}
+@media(max-width:600px){.studio{padding-top:18px}.deck{margin-top:12px}.brand{gap:12px}.brand small{font-size:clamp(6px,2cqw,8px);margin-left:0;padding-left:10px}.display{top:30%}.genre{bottom:calc(100% + 8px);font-size:8px;line-height:1.25;white-space:normal;overflow-wrap:anywhere;gap:4px}.genre svg{width:9px;height:9px;flex-shrink:0}.readout{width:36%;right:3%;grid-template-columns:minmax(0,1fr) clamp(22px,7.2cqw,33px);column-gap:8px;row-gap:7px}.score{grid-template-columns:clamp(13px,4.2cqw,20px) minmax(0,1fr);column-gap:5px}.score strong{font-size:clamp(18px,5.4cqw,28px);letter-spacing:-.25px}.score strong>small{font-size:clamp(5px,1.45cqw,8px);margin-left:2px}.score>span{font-size:clamp(5px,1.3cqw,7px)}.visualizer{height:15px}.console{bottom:6%}}
+
+@media(max-width:600px){.deck{--sleeve-width:34%}.display{top:24%}.readout{width:var(--sleeve-width)}.score strong{font-size:clamp(16px,5.4cqw,28px)}}

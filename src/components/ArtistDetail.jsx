@@ -1,4 +1,7 @@
 'use client';
+import {ArtistHero} from './ArtistHero';
+import {ArtworkAtmosphere,artworkPageClass} from './ArtworkAtmosphere';
+import {verifiedArtistProfile,verifiedPlatforms} from '../utils/verifiedDiscography.mjs';
 import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import { InterfaceText } from './UiIcon';
@@ -28,7 +31,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
   const navigate = useNavigate();
   const { user, isAdmin, loginWithGoogle, logout } = useAuth();
 
-  const [profileData, setProfileData] = useState(() => initialProfileData || null);
+  const [profileData, setProfileData] = useState(() => verifiedArtistProfile(initialProfileData) || null);
   const [clubAlbums, setClubAlbums] = useState(() => initialClubAlbums || []);
   const [loading, setLoading] = useState(() => !initialProfileData);
   const [error, setError] = useState(null);
@@ -48,7 +51,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
       const response = await fetch(`/api/artists/${encodeURIComponent(slug)}`);
       if (!response.ok) throw new Error('No se pudo recuperar la discografía');
       const data = await response.json();
-      setProfileData(data.profile);
+      setProfileData(verifiedArtistProfile(data.profile));
       setClubAlbums(data.albums || []);
     } catch (err) {
       console.error('Error cargando página de artista:', err);
@@ -72,7 +75,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         const response=await fetch(`/api/artists/${encodeURIComponent(slug)}`,{cache:'no-store'});
         if(response.ok) {
           const data=await response.json();
-          if(!cancelled && data.profile?.source==='OFFICIAL') {setProfileData(data.profile);setClubAlbums(data.albums||[]);return;}
+          if(!cancelled && data.profile?.source==='OFFICIAL') {setProfileData(verifiedArtistProfile(data.profile));setClubAlbums(data.albums||[]);return;}
         }
       } catch { /* Keep the local releases visible. */ }
       if(!cancelled && ++attempts<3) timer=setTimeout(poll,10000 * 2**attempts);
@@ -166,6 +169,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         name: t.name,
         duration_ms: t.duration_ms,
         track_number: t.track_number,
+        disc_number: t.disc_number,
       }));
 
       const artistName =
@@ -237,7 +241,8 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
   if(loading)return <NavigationLoading label='Abriendo perfil y discografía del artista…'/>;
   return (
-    <div className="min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
+    <div className={`${artworkPageClass} min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden`}>
+      <ArtworkAtmosphere colors={artist?.dominant_colors || []}/>
       <SEO
         title={`${formattedArtistName} - Discografía, Álbumes y Reviews | Musiclub`}
         description={`Explora la discografía, álbumes, EPs, sencillos, opiniones y calificaciones de la comunidad para ${formattedArtistName} en Musiclub.`}
@@ -320,141 +325,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         {/* ARTIST HERO BANNER (Spotify Aesthetic) */}
         {!loading && profileData && artist && (
           <div className="space-y-8">
-            <div className="relative rounded-3xl bg-linear-to-br from-[#121626] via-[#0d101c] to-[#080912] border border-white/10 p-6 sm:p-8 md:p-10 shadow-2xl overflow-hidden backdrop-blur-xl">
-              {/* Background ambient glow image */}
-              {artist.image && (
-                <div
-                  className="absolute inset-0 opacity-15 bg-cover bg-center blur-3xl pointer-events-none scale-125"
-                  style={{ backgroundImage: `url(${artist.image})` }}
-                />
-              )}
-              <div className="absolute -top-32 -right-32 w-96 h-96 bg-linear-to-br from-[#1db954]/20 via-cyan-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
-
-              {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-              <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-                <MusiclubVinyl
-                  src="/musiclub_logo.png"
-                  alt=""
-                  className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(6,182,212,0.3)]"
-                />
-              </div>
-
-              <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start gap-6 sm:gap-8 lg:gap-10">
-                {/* Artist Avatar */}
-                <div className="relative shrink-0 group">
-                  <div className="w-40 h-40 sm:w-52 sm:h-52 md:w-60 md:h-60 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl bg-black/60 relative">
-                    <img
-                      src={
-                        artist.image ||
-                        '/musiclub_logo_corchea.png'
-                      }
-                      alt={artist.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                    />
-                  </div>
-                  {Boolean(artist.popularity && artist.popularity > 0) && (
-                    <div className="absolute -bottom-2 -right-2 bg-linear-to-r from-[#1db954] to-emerald-400 text-black font-black text-xs px-3 py-1 rounded-full shadow-lg border border-black/20 flex items-center gap-1">
-                      <span><InterfaceText>{"🔥 "}</InterfaceText>{artist.popularity}%</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Artist Info & Header */}
-                <div className="flex-1 min-w-0 text-center md:text-left space-y-3 sm:space-y-4">
-                  <div className="flex items-center justify-center md:justify-start gap-2 flex-wrap">
-                    {clubStats.total > 0 && (
-                      <span className="text-[11px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 py-0.5 rounded-full flex items-center gap-1.5 shadow-sm">
-                        <img src="/musiclub_logo_corchea.png" alt="Musiclub" className="w-3.5 h-3.5 object-contain" />
-                        <span>En Musiclub</span>
-                      </span>
-                    )}
-                  </div>
-
-                  <h1
-                    translate="no"
-                    className="notranslate text-3xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-cyan-200 tracking-tight leading-tight"
-                  >
-                    {artist.name}
-                  </h1>
-
-                  {/* Monthly Followers / Popularity */}
-                  <div className="flex items-center justify-center md:justify-start gap-4 text-xs sm:text-sm text-slate-300 flex-wrap font-medium">
-                    {profileData.discography?.length > 0 && (
-                      <>
-                        <span>
-                          <strong>{profileData.discography.length}</strong>{' '}
-                          lanzamientos discográficos
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  {/* Genres */}
-                  {artist.genres && artist.genres.length > 0 && (
-                    <div className="flex items-center justify-center md:justify-start gap-1.5 flex-wrap pt-1">
-                      {artist.genres.map((g) => (
-                        <span
-                          key={g}
-                          className="text-[11px] font-semibold px-3 py-1 rounded-full bg-[#0c0e1a]/90 backdrop-blur-md border border-white/20 text-cyan-200 capitalize hover:bg-white/20 transition-colors shadow-sm"
-                        >
-                          <GenreLabel genre={g} link size={20} />
-                        </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Club Quick Stats Bar */}
-                  <div className="grid grid-cols-3 gap-2.5 sm:gap-3 pt-3 max-w-lg">
-                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                        En Musiclub
-                      </span>
-                      <span className="text-xl sm:text-2xl font-black text-white mt-0.5 block">
-                        {clubStats.total}<InterfaceText>{" 💿 "}</InterfaceText></span>
-                    </div>
-
-                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                        Nota Promedio
-                      </span>
-                      <span className="text-xl sm:text-2xl font-black text-amber-400 mt-0.5 block">
-                        <InterfaceText>{clubStats.avgRating
-                          ? `${clubStats.avgRating} ⭐`
-                          : 'N/A'}</InterfaceText>
-                      </span>
-                    </div>
-
-                    <div className="bg-[#0c0e1a]/95 backdrop-blur-md border border-white/20 rounded-2xl p-3 text-center shadow-xl">
-                      <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                        Total Reviews
-                      </span>
-                      <span className="text-xl sm:text-2xl font-black text-cyan-400 mt-0.5 block">
-                        {clubStats.totalReviews}<InterfaceText>{" ✍️ "}</InterfaceText></span>
-                    </div>
-                  </div>
-
-                  {/* Spotify Button */}
-                  {artist.spotifyUrl && (
-                    <div className="pt-2 flex items-center justify-center md:justify-start gap-3">
-                      <a
-                        href={artist.spotifyUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#1db954] hover:bg-[#1ed760] text-black font-black text-xs sm:text-sm shadow-xl hover:scale-105 active:scale-95 transition-all"
-                      >
-                        <svg
-                          className="w-4 h-4 fill-current"
-                          viewBox="0 0 24 24"
-                        >
-                          <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.503 17.306c-.216.353-.674.468-1.027.252-2.81-1.718-6.347-2.107-10.514-1.155-.403.092-.807-.16-.899-.563-.092-.403.16-.807.563-.899 4.568-1.044 8.49-.607 11.625 1.338.353.216.468.674.252 1.027zm1.47-3.268c-.272.443-.853.585-1.296.313-3.218-1.978-8.123-2.55-11.928-1.395-.499.151-1.03-.134-1.181-.633-.151-.499.134-1.03.633-1.181 4.354-1.322 9.775-.684 13.459 1.58.443.272.585.853.313 1.296zm.126-3.41c-3.858-2.29-10.222-2.502-13.886-1.39-.59.179-1.217-.156-1.396-.746-.179-.59.156-1.217.746-1.396 4.218-1.28 11.248-1.036 15.688 1.597.531.315.704 1.002.389 1.533-.315.531-1.002.704-1.541.402z" />
-                        </svg>
-                        <span>Abrir Perfil en Spotify</span>
-                      </a>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <ArtistHero artist={artist} stats={clubStats} releaseCount={profileData.discography.length}/>
 
             {/* DISCOGRAPHY SECTION (Spotify Tabs: Álbumes, EPs, Sencillos, Compilaciones) */}
             <AdsterraAdvertising variant="inline" slot="artist-discography" />
@@ -484,10 +355,10 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               </div>
 
               <p className="text-xs text-slate-400 mb-4" role="status">
-                {profileData.source === 'OFFICIAL'
-                  ? `Fuentes: ${Object.entries(profileData.providers || {}).filter(([,source])=>source.status==='ok'||source.status==='partial').map(([provider])=>({SPOTIFY:'Spotify',DEEZER:'Deezer',APPLE:'Apple Music'}[provider])).join(' · ')}. Catálogo guardado en Musiclub.`
-                  : 'Mostrando los releases del club. La discografía oficial está pendiente de verificación.'}
-                {profileData.source === 'OFFICIAL' && Object.values(profileData.providers || {}).some(source=>source.status!=='ok') && ' Algunas fuentes tienen cobertura parcial; conservamos los releases ya verificados.'}
+                  {profileData.discography?.length
+                    ? `Coincidencias verificadas entre ${[...new Set(profileData.discography.flatMap(verifiedPlatforms))].map(provider=>({SPOTIFY:'Spotify',DEEZER:'Deezer',APPLE:'Apple Music',YOUTUBE_MUSIC:'YouTube Music',MUSICBRAINZ:'MusicBrainz',TIDAL:'Tidal'}[provider])).join(' · ')}. Catálogo guardado en Musiclub.`
+                    : 'Estamos contrastando esta discografía entre plataformas.'}
+                  {' Sólo se muestran releases confirmados en al menos dos plataformas.'}
               </p>
 
               {/* Category Tabs */}
@@ -551,7 +422,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               {filteredDiscography.length === 0 ? (
                 <div className="bg-[#121424] border border-white/10 rounded-3xl p-10 text-center space-y-2">
                   <p className="text-slate-400 text-sm font-semibold">
-                    No se encontraron lanzamientos en esta categoría.
+                    {profileData.discography?.length ? 'No se encontraron lanzamientos en esta categoría.' : 'Aún no hay releases con coincidencias verificadas en dos plataformas. Las reseñas del club se conservan.'}
                   </p>
                 </div>
               ) : (

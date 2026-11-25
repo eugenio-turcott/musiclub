@@ -1,5 +1,5 @@
 import { collectOfficialArtist, mergeOfficialReleases, storedOfficialArtistName } from './officialArtistCatalog.mjs';
-export const ARTIST_FIELDS='slug,name,profile,providers,checked_at,refresh_after,updated_at';
+export const ARTIST_FIELDS='slug,name,profile,providers,checked_at,refresh_after,updated_at,dominant_colors,palette_image_url';
 export async function repairStoredArtistName(db, slug) {
   const stored = await readStoredArtist(db, slug);
   if (!stored) return;
@@ -47,6 +47,7 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
 export async function loadStoredArtist(db,slug,{hasLocal=false,canDiscover=false,refresh,schedule,repairName}={}) {
   const stored=await readStoredArtist(db,slug);
   let profile=stored?.profile?.discography?.length ? stored.profile : null;
+  if(profile&&stored.dominant_colors?.length&&stored.palette_image_url===profile.artist?.image)profile={...profile,artist:{...profile.artist,dominant_colors:stored.dominant_colors}};
   if (profile) {
     const name = storedOfficialArtistName(profile, stored.name);
     if (name && (name !== profile.artist?.name || name !== stored.name)) {

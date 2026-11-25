@@ -138,34 +138,8 @@ export function TrendingMonthlySection({
   };
 
   return (
-    <section ref={sectionRef} className="space-y-4 my-8">
-      {/* Header Banner */}
-      <div className="bg-linear-to-r from-pink-500/20 via-purple-500/15 to-orange-500/15 border border-pink-500/30 rounded-3xl p-5 sm:p-6 backdrop-blur-xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/20 border border-pink-500/30 text-pink-300 text-xs font-black uppercase tracking-wider">
-            <span><InterfaceText>{"🔥"}</InterfaceText></span>
-            <span>Tendencias de la Semana</span>
-            <span className="text-white/40">•</span>
-            <span className="text-amber-300">Top 100</span>
-          </div>
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
-            <span>{monthLabel}</span>
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-            Los {releases.length} lanzamientos más populares y destacados de la
-            semana ordenados por rotación, reproducciones e impacto global.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0 self-start md:self-auto bg-black/40 border border-white/10 px-4 py-2.5 rounded-2xl">
-          <span className="text-sm"><InterfaceText>{"🗓️"}</InterfaceText></span>
-          <div className="text-left">
-            <span className="block text-[10px] text-slate-400 uppercase font-bold tracking-wider">
-              Ciclo Semanal
-            </span>
-          </div>
-        </div>
-      </div>
+    <section ref={sectionRef} className="space-y-4">
+      <header className="flex flex-wrap items-end justify-between gap-3 border-b border-white/10 pb-3"><div><h2 className="text-xl sm:text-2xl font-black text-white">Tendencias de la semana</h2><p className="mt-1 text-xs text-slate-400">Popularidad fuera del club. Notas y reseñas de Musiclub.</p></div><span className="text-xs text-pink-300">{releases.length} releases · {monthLabel}</span></header>
 
       {/* Controles y Filtros rápidos de Tendencias */}
       {!loading && releases.length > 0 && (

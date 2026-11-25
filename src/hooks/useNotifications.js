@@ -1,3 +1,4 @@
+import {authenticatedFetch} from '../services/authenticatedFetch';
 // src/hooks/useNotifications.js
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase, supabaseService } from '../services/supabaseClient';
@@ -101,6 +102,7 @@ export function useNotifications(user) {
       if (user && (user.email || user.id || user.name)) {
         const uEmail = (user.email || '').toLowerCase().trim();
         const uName = (user.name || '').toLowerCase().trim();
+        if(user.id){try{const response=await authenticatedFetch('/api/reviews/continuations');if(response.ok){const data=await response.json();for(const item of data.continuations||[])notifs.push({id:item.id,type:'continuation',category:'Completa tu reseña',title:item.title,description:`Ya calificaste ${item.matchedTracks} de sus ${item.totalTracks} canciones. Usa tus notas y completa la reseña.`,timestamp:Date.parse(item.createdAt)||0,dateFormatted:item.createdAt,icon:'🎶',image:item.image,badgeColor:'from-cyan-500 to-purple-500',link:item.link});}}catch{ /* Existing notifications remain available during a retry. */ }}
 
         // A. BUZÓN DE CANCIONES (Recomendaciones recibidas)
         try {
@@ -316,9 +318,11 @@ export function useNotifications(user) {
     fetchNotifications();
 
     const refresh=()=>{if(document.visibilityState==='visible')fetchNotifications();};
+    const reviewSaved=()=>fetchNotifications(true);
+    window.addEventListener('musiclub:review-saved',reviewSaved);
     window.addEventListener('focus',refresh);
     document.addEventListener('visibilitychange',refresh);
-    return()=>{window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
+    return()=>{window.removeEventListener('musiclub:review-saved',reviewSaved);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
   }, [fetchNotifications]);
 
   // Filtrar notificaciones eliminadas

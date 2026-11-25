@@ -2,13 +2,195 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.2.6",
+    "latestVersion": "V.12.3.0",
     "date": "2026-11-11",
-    "updatedAt": "2026-11-24",
+    "updatedAt": "2026-11-25",
     "title": "Grammy 2027 y el año del club",
     "summary": "Las predicciones de los Grammy y Musiclub 2026 reúnen música, reseñas, logros y recuerdos personales.",
     "tag": "Musiclub 12",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Continúa desde lo que ya calificaste",
+            "description": "Las notificaciones encuentran cinco o más grabaciones compartidas entre tus reseñas y otro release. Los sencillos permiten comenzar con una canción; primero se propone el álbum normal y luego el Deluxe. Puedes reutilizar tus notas de canciones, conservando tus cambios y dejando los criterios por responder.",
+            "type": "feature"
+          },
+          {
+            "title": "Disco 1, Disco 2",
+            "description": "Los releases con varios discos muestran sus divisiones en la ficha y durante la reseña, manteniendo el orden y las calificaciones de cada pista.",
+            "type": "improvement"
+          },
+          {
+            "title": "Los criterios pendientes no tienen nota",
+            "description": "El formulario deja de asignar 3/5 y 5/10 automáticamente. Solo una selección tuya cuenta como calificación y el envío requiere completar los criterios y tracks.",
+            "type": "fix"
+          },
+          {
+            "title": "Vuelve al track o criterio donde te detuviste",
+            "description": "Se restaura la posición sin sobrescribir el borrador durante la carga ni los cambios de sesión. Cada cuenta conserva su propio borrador por release.",
+            "type": "fix"
+          },
+          {
+            "title": "Compatibilidad con borradores anteriores",
+            "description": "Se recuperan tus tracks, comentarios y posición. Las notas predeterminadas antiguas quedan pendientes de confirmar, conservando las puntuaciones distintas de esos valores.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Los colores de cada portada",
+            "description": "Guardamos hasta cinco colores predominantes por portada y foto de artista. Un fondo animado y tenue acompaña la página, con una versión sin movimiento para quienes lo prefieran.",
+            "type": "design"
+          },
+          {
+            "title": "Discografías confirmadas",
+            "description": "Las páginas de artista muestran releases verificados en al menos dos plataformas. Las entradas pendientes se conservan para futuras comprobaciones.",
+            "type": "improvement"
+          },
+          {
+            "title": "Carga completa y visible",
+            "description": "El indicador de carga crece y aparece por debajo de la navegación al cambiar de página.",
+            "type": "fix"
+          },
+          {
+            "title": "Una versión por página",
+            "description": "Las novedades amplían sus detalles y presentan una sola versión mayor completa por página, con búsqueda y filtros.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tocadiscos en pantallas pequeñas",
+            "description": "Separamos la calificación, el ánimo, el género y la velocidad del vinilo para evitar textos e íconos apretados.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Un banner para cada artista",
+            "description": "La fotografía, los vinilos de Musiclub, los géneros y las estadísticas del club dan forma a una nueva cabecera adaptable.",
+            "type": "design"
+          },
+          {
+            "title": "Un catálogo más directo",
+            "description": "Las portadas aparecen antes. Tendencias, el catálogo completo, los próximos estrenos y las recomendaciones se exploran por separado.",
+            "type": "design"
+          },
+          {
+            "title": "Ediciones de Rosalía corregidas",
+            "description": "LUX recupera las 15 pistas de su edición digital de 2025. Complete Works conserva sus 18 pistas de 2026 y los nominados Grammy abren sus enlaces directos.",
+            "type": "fix"
+          },
+          {
+            "title": "Tracklists completos protegidos",
+            "description": "Más canciones en una fuente secundaria no sustituyen un álbum publicado y completo. Los detalles de Spotify y Deezer vuelven a comprobar la edición tras la búsqueda.",
+            "type": "fix"
+          },
+          {
+            "title": "Abrir y reseñar sin clasificar a mano",
+            "description": "Ver en Musiclub desde el catálogo utiliza la misma recuperación de géneros que el buscador superior y las importaciones de releases.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Logo sin línea inferior",
+            "description": "El relleno de exportación es transparente y conserva completo el símbolo de Musiclub.",
+            "type": "fix"
+          },
+          {
+            "title": "Rótulos centrados en sus piezas",
+            "description": "Los nombres de los ocho géneros se centran bajo sus vinilos. También se ajustan los rótulos de la tornamesa y de las tarjetas Grammy y 2026.",
+            "type": "design"
+          },
+          {
+            "title": "Oro de extremo a extremo",
+            "description": "El anuncio superior lleva un degradado metálico animado sin morados ni rosados, con letras e íconos en oro oscuro para mantener la lectura sobre el fondo dorado.",
+            "type": "improvement"
+          },
+          {
+            "title": "Brillo dorado sin cortes en el fondo",
+            "description": "El anuncio superior lleva un degradado animado. Grammy 2027 y el gramófono reflejan un brillo suave; la pregunta queda más cerca del título y el fondo se desvanece sin bordes rectangulares. El hover de recordatorios conserva el degradado y aparece gradualmente. Las animaciones respetan la pausa y la preferencia de reducir movimiento.",
+            "type": "improvement"
+          },
+          {
+            "title": "La portada marca los límites de la consola",
+            "description": "El género queda sobre la esquina superior derecha de la portada. La calificación empieza en su borde izquierdo y la línea de sonido ocupa exactamente su ancho, con ajustes propios para celular.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "La edición anual",
+        "changes": [
+          {
+            "title": "Life is Beautiful",
+            "description": "El próximo álbum de Nine Vicious tiene portada de 1000 × 1000 px, clasificación Hip-Hop y enlace directo a su ficha.",
+            "type": "improvement"
+          },
+          {
+            "title": "Antes de comenzar",
+            "description": "La bienvenida aparece después del mural. Los géneros de fondo se adaptan a nombres largos, con más espacio entre letras y R&B escrito correctamente.",
+            "type": "improvement"
+          },
+          {
+            "title": "Portadas reales y enlaces directos",
+            "description": "Los álbumes, EPs, sencillos y demás selecciones visibles tienen portada verificada, géneros y ficha propia. Las 498 nominaciones musicales quedan enlazadas al catálogo, conservando los créditos técnicos en la actividad Grammy.",
+            "type": "fix"
+          },
+          {
+            "title": "Los géneros más reseñados en el club",
+            "description": "La sección reúne releases según las reseñas de Musiclub y su género principal, sin repetir un disco entre grupos. Los vinilos giran cuando están visibles y respetan los controles de movimiento.",
+            "type": "improvement"
+          },
+          {
+            "title": "Musiclub va primero",
+            "description": "El primer ranking se calcula con las notas reales del club. Los releases avanzan del puesto 20 al 1 e incluyen reseñas, tracks y favoritas.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Grammy y actividades",
+        "changes": [
+          {
+            "title": "Edición completa desde el Panel de Admin",
+            "description": "Actualiza nombres, imágenes, enlaces, asociaciones con el catálogo, categorías, fechas y fuente oficial. Las predicciones conservan su nominado al editarlo.",
+            "type": "feature"
+          },
+          {
+            "title": "Tus releases reseñados llevan borde dorado",
+            "description": "Reconoce los releases que ya calificaste con tu cuenta. Cada nominado a un release incluye Escuchar y calificar; si aún no tiene ficha asociada, abre su búsqueda en el catálogo. Las categorías de artistas no muestran este enlace.",
+            "type": "feature"
+          },
+          {
+            "title": "Recordatorios finalizados fuera de la página",
+            "description": "Después del cierre de recordatorios desaparecen los controles y el mensaje de suscripción, también al abrir una categoría sin nominados.",
+            "type": "fix"
+          },
+          {
+            "title": "Confirmación al activar Notificarme",
+            "description": "Tu suscripción envía su confirmación y permite cancelarla desde la actividad. El panel de administración consulta las entregas y envía las confirmaciones anteriores pendientes sin duplicarlas.",
+            "type": "fix"
+          },
+          {
+            "title": "Domingo 15, a las 7:00 p. m. CDMX",
+            "description": "El aviso previo a las nominaciones queda programado para ese horario, exclusivamente para suscriptores activos. No se envía un tercer correo al publicar nominados. Los dos diseños incorporan imágenes nativas adjuntas y conservan su lectura en celular.",
+            "type": "improvement"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -52,6 +234,138 @@
     "summary": "La portada incorpora una tornamesa interactiva, vinilos por género y ejemplos reales de la comunidad.",
     "tag": "Musiclub 11",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Una misma alineación en todos los tiers",
+            "description": "Las portadas empiezan a la izquierda en los cinco formatos para compartir, también cuando hay pocas o la última fila queda incompleta.",
+            "type": "fix"
+          },
+          {
+            "title": "Cada bloque de tu perfil tiene su espacio",
+            "description": "Compactamos la identidad, favoritos, XP, insignias y géneros con una distribución propia para cada tamaño. La XP es amarilla en los temas oscuros y conserva su contraste en Edición en papel.",
+            "type": "fix"
+          },
+          {
+            "title": "Tu tier list en una sola lámina",
+            "description": "Los seis tiers se comparten juntos en cualquiera de los cinco formatos, usando únicamente las portadas seleccionadas, hasta diez por tier. Quitamos los nombres de releases, artistas y las páginas separadas de la exportación.",
+            "type": "improvement"
+          },
+          {
+            "title": "Perfil musical para compartir",
+            "description": "Los cinco formatos incorporan los vinilos de tus géneros con sus nombres, tu XP real, nivel e insignias destacadas. Cada formato tiene su propia distribución y el logo conserva su imagen completa. La vista previa de Configuración consulta el progreso una vez al abrirse y lo reutiliza al cambiar de tamaño o tema.",
+            "type": "improvement"
+          },
+          {
+            "title": "La misma navbar en todas las páginas",
+            "description": "La navegación se muestra una sola vez en el diseño global, con un ancho máximo de 1.280 píxeles y ajustes para celular. Su tamaño deja de depender del contenedor de cada sección y sus menús conservan su posición durante la navegación.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Galería completa de géneros",
+            "description": "La administración incorpora un catálogo visual con buscador, páginas y vista ampliada de los 2.224 vinilos. Cada diseño se puede descargar en PNG transparente o SVG editable. La galería utiliza archivos estáticos y no consulta álbumes ni reseñas al abrirla directamente.",
+            "type": "feature"
+          },
+          {
+            "title": "Una regla para fichas y tarjetas",
+            "description": "Dos artistas aparecen como Artista & Artista. Tres o más aparecen como Artista, Artista, Artista en el catálogo, las fichas y las secciones que comparten estos enlaces.",
+            "type": "fix"
+          },
+          {
+            "title": "Espacios y separadores visibles",
+            "description": "Los nombres ya no se pegan entre sí en las tarjetas compactas. Se conserva la identidad de las bandas con puntuación propia y cada artista mantiene su enlace individual.",
+            "type": "fix"
+          },
+          {
+            "title": "Créditos importados sin nombres pegados",
+            "description": "La importación de MusicBrainz separa cada nombre acreditado aunque falte la frase de unión. También se repararon los créditos guardados de Before the World Blows.",
+            "type": "fix"
+          },
+          {
+            "title": "Créditos completos antes de descartar un resultado",
+            "description": "Algunas búsquedas de Deezer muestran sólo al primer artista. Musiclub consulta la ficha de la edición y verifica todos los artistas principales antes de recuperar sus géneros.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Tres releases y tres vinilos diferentes",
+            "description": "La demostración incluye releases con y sin reseñas de todo el catálogo. Cada grupo usa registros distintos, prioriza géneros diferentes y conserva tres diseños de vinilo únicos.",
+            "type": "fix"
+          },
+          {
+            "title": "Navegar sin una pantalla de espera",
+            "description": "La página actual y su encabezado siguen visibles mientras abre el destino, con una línea de progreso discreta. Los enlaces preparan su contenido al mostrar intención de abrirlos, sin precargar todas las tarjetas.",
+            "type": "improvement"
+          },
+          {
+            "title": "Menos datos y portadas más ligeras",
+            "description": "El catálogo transmite cada tracklist una sola vez y la landing evita repetirlos en sus ejemplos. Las portadas de Spotify utilizan tamaños disponibles según la pantalla y la tornamesa prepara sólo las imágenes cercanas al disco actual.",
+            "type": "improvement"
+          },
+          {
+            "title": "Animaciones cuando hacen falta",
+            "description": "Los carruseles de insignias completan sus elementos al acercarse a su sección; las lecturas propias de cada sección usan un indicador compacto.",
+            "type": "improvement"
+          },
+          {
+            "title": "Una tornamesa que puedes escuchar",
+            "description": "El reproductor queda completamente visible. Pulsa o arrastra la aguja para escuchar o pausar una muestra de la canción top del release, si el proveedor dispone de ella. Los datos se muestran debajo del equipo.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Calificación, ánimo y barra de escucha juntos",
+            "description": "La nota aumenta de tamaño junto al ánimo y la barra animada se extiende debajo. El estéreo pasa a la esquina superior y el género queda bajo la portada, sin contador. Los accesos a Pools, Gashapon y las demostraciones sustituyen la fila de discos.",
+            "type": "improvement"
+          },
+          {
+            "title": "MOTOMAMI y MOTOMAMI + por separado",
+            "description": "La edición de 24 canciones ya no utiliza el tracklist de 16. Las reseñas de MOTOMAMI + recuperan los nombres de sus canciones y favoritas, incluida CHIRI.",
+            "type": "fix"
+          },
+          {
+            "title": "Ediciones remasterizadas y de aniversario",
+            "description": "Amor Prohibido (Remasterizado 2024/30th Anniversary), de Selena, conserva sus 10 pistas y sus tres reseñas, separadas de la edición original.",
+            "type": "fix"
+          },
+          {
+            "title": "Auditoría de canciones y favoritas",
+            "description": "Se comprobaron 522 releases, 449 reseñas y sus referencias a canciones. La corrección resuelve las cuatro reseñas afectadas sin modificar calificaciones, comentarios ni datos originales.",
+            "type": "fix"
+          },
+          {
+            "title": "Califica los tracks en la guía",
+            "description": "El ejemplo de reseña incluye el tracklist completo, notas de 1 a 10 y selección de favorita. Los cambios actualizan la nota simulada y nunca se publican.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "La edición anual",
+        "changes": [
+          {
+            "title": "Sin clasificación manual",
+            "description": "Se retiró el selector de género del buscador. La recuperación es automática y conserva las canciones y la portada de la edición elegida.",
+            "type": "fix"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "design",
@@ -85,6 +399,123 @@
     "summary": "Las tarjetas para redes, los perfiles y la guía acercan las herramientas del club a cada miembro.",
     "tag": "Musiclub 10",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Máquina Musical con un máximo de 5 % por antigüedad",
+            "description": "Unificamos el nombre en la interfaz y explicamos los pesos de selección en el FAQ con negritas y ejemplos gráficos.",
+            "type": "improvement"
+          },
+          {
+            "title": "Guía con información del club",
+            "description": "Portadas, pistas, reseñas y perfiles públicos reales, con controles que sólo modifican su copia de demostración. Navegación lateral fija y títulos directos.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tier lists con los datos correctos",
+            "description": "Recuperamos nombres y portadas de las reseñas de los miembros, permitimos elegir hasta diez releases por tier y compartimos selecciones propias en tarjetas paginadas legibles.",
+            "type": "fix"
+          },
+          {
+            "title": "Tarjetas con mejor jerarquía",
+            "description": "Acercamos el artista al título y colocamos la canción favorita debajo, conservando formatos y estilos.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tira de la palanca",
+            "description": "Tres carretes, una palanca y nuevas animaciones adaptadas al móvil y al movimiento reducido. Cada giro realiza una sola selección y guarda un único ganador.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Insignias y XP detallados",
+            "description": "Cada insignia tiene una figura distinta. El perfil desglosa actividad, tiers y récords, muestra los dieciséis niveles y ordena las metas sin saturación de texto.",
+            "type": "improvement"
+          },
+          {
+            "title": "Buzón y perfiles",
+            "description": "Rediseñamos la recomendación de canciones con selección accesible de destinatario y logos de streaming. Ampliamos el avatar y limitamos compartir al contenido propio.",
+            "type": "improvement"
+          },
+          {
+            "title": "Un estudio para compartir",
+            "description": "Reseñas y perfiles se exportan como historia, publicación vertical, cuadrada, horizontal o compacta. Nuevas composiciones, menos texto y una identidad visual de Musiclub.",
+            "type": "improvement"
+          },
+          {
+            "title": "El mismo perfil para toda la comunidad",
+            "description": "Los perfiles del Leaderboard comparten el diseño de Mi Perfil y muestran reseñas, insignias y estadísticas. Recomendar Canción permanece disponible.",
+            "type": "improvement"
+          },
+          {
+            "title": "Más recorrido por delante",
+            "description": "Dieciséis niveles y nuevas metas de insignias amplían la progresión sin borrar los logros existentes. El Leaderboard incluye todos los perfiles registrados.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Reseñas compactas y colores consistentes",
+            "description": "Los criterios comparten sus colores entre fichas, reseñas, perfiles y exportaciones. El panel de valoración usa tarjetas compactas y evita volver a consultar las reviews al cambiar de pestaña.",
+            "type": "fix"
+          },
+          {
+            "title": "Reseñas con y sin texto",
+            "description": "Las reseñas de cada release conservan sus comentarios completos y sus saltos de línea. Cuando una persona sólo dejó calificaciones, se indica que no añadió un comentario escrito.",
+            "type": "improvement"
+          },
+          {
+            "title": "Cada reseña a su ritmo",
+            "description": "Expandir las canciones evaluadas ya no estira ni reparte el contenido de la tarjeta vecina. El ícono de Cohesión se redibuja con eslabones completos en ambas vistas de reseñas.",
+            "type": "fix"
+          },
+          {
+            "title": "Más presencia para quien escribe",
+            "description": "La página de Reviews amplía la foto y el nombre de cada persona. En La Voz de la Comunidad el ánimo se muestra sólo con su cara, conservando una etiqueta accesible. Las reseñas extensas del recomendado de la hora terminan con puntos suspensivos.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Pools y Gashapon",
+        "changes": [
+          {
+            "title": "Avisos del Pool con confirmación",
+            "description": "La elección y la graduación comprueban el resultado del correo. Un fallo se muestra al administrador y no repite la acción. Las imágenes opcionales dejan de bloquear el envío.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Géneros favoritos individuales",
+            "description": "El Perfil separa las preferencias antiguas como R&B / Soul y Latino / Trap, sin tener que volver a guardarlas en Configuración.",
+            "type": "fix"
+          },
+          {
+            "title": "Tus géneros, uno por uno",
+            "description": "R&B, Soul, Latino y Trap se seleccionan por separado, incluyendo las preferencias anteriores. ¿Falta alguno? busca géneros y subgéneros existentes en Musiclub y permite añadirlos sin duplicados. Configuración simplifica su encabezado.",
+            "type": "improvement"
+          },
+          {
+            "title": "Pistas y artistas bien identificados",
+            "description": "Contrastamos los tracklists publicados y corregimos nombres provisionales y conteos. La actualización conserva los IDs vinculados a las calificaciones y evita mezclar Deluxe con la edición estándar. Los créditos de colaboraciones se separan por comas sin dividir nombres de grupos conocidos.",
+            "type": "fix"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -118,6 +549,168 @@
     "summary": "Las salas del Pool, las listas personales y las identidades de género amplían el espacio del club.",
     "tag": "Musiclub 9",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Caritas y texto más grandes",
+            "description": "La carita del ánimo crece hasta 104 px en escritorio y mantiene al menos 76 px en móvil. El nombre de la emoción también aumenta de tamaño; los ánimos mixtos conservan una distribución adaptable.",
+            "type": "improvement"
+          },
+          {
+            "title": "Explorar de un vistazo",
+            "description": "Los pools cerrados se muestran como tarjetas independientes. El radar avanza con barras de tiempo, sin flechas ni botón de pausa, y los íconos de las acciones del catálogo son más compactos.",
+            "type": "improvement"
+          },
+          {
+            "title": "La emoción de una escucha",
+            "description": "La ficha muestra el ánimo más compartido por las reseñas y reconoce los empates como ánimo mixto. Intrigado / Reflexivo tiene una carita propia. El Top Score Comunitario exige un álbum y al menos dos reseñas.",
+            "type": "feature"
+          },
+          {
+            "title": "Una navegación compartida",
+            "description": "Los géneros colocan su vinilo a la izquierda y comparten el encabezado con Sobre Musiclub, Contacto y Guías, que renuevan su presentación. Redes simplifica su portada, amplía el logo e incluye el repositorio público y ambos enlaces legales. El selector de idiomas del footer conserva un solo globo.",
+            "type": "improvement"
+          },
+          {
+            "title": "Cada función, su identidad",
+            "description": "Pool, Gashapon, configuración y administración ya tienen dibujos diferentes. Los íconos usan colores vivos, rellenos y un grosor coherente.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Pools y Gashapon",
+        "changes": [
+          {
+            "title": "Pools anteriores",
+            "description": "Las salas muestran los Pools pasados como cerrados, con sus propuestas y discos elegidos disponibles para explorar. Los borradores futuros quedan fuera del historial.",
+            "type": "feature"
+          },
+          {
+            "title": "Menos espera al entrar",
+            "description": "Cada Pool carga solo sus releases y reseñas. Se elimina la descarga inicial del catálogo completo y la consulta duplicada de temporadas; la Máquina Musical y el formulario de reseña se descargan al abrirlos.",
+            "type": "improvement"
+          },
+          {
+            "title": "Íconos y texto centrados",
+            "description": "Las etiquetas compartidas centran verticalmente el texto con sus íconos, incluidos los estilos visuales de las portadas.",
+            "type": "fix"
+          },
+          {
+            "title": "Descartes del Gashapon",
+            "description": "Descarta un resultado para excluirlo de tus sorteos. Su historial permanece disponible para reactivarlo cuando quieras, sin afectar al resto del club ni a tu lista de próximas escuchas.",
+            "type": "feature"
+          },
+          {
+            "title": "Un Pool por sala",
+            "description": "Cada sala tiene sus propias propuestas, temporadas, disco elegido e historial. Abrir, cerrar o cambiar el Pool de una sala no modifica los de las demás.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Íconos del mismo tamaño",
+            "description": "Ver release y A la cola usan la misma medida. Los bloques de funciones comparten tamaño y toman el acento de su propio fondo.",
+            "type": "fix"
+          },
+          {
+            "title": "Contraste y respuesta",
+            "description": "Los íconos de los botones acompañan el color legible del texto. Todos los controles cuentan con respuesta al pasar el cursor y al enfocarlos con el teclado.",
+            "type": "improvement"
+          },
+          {
+            "title": "Descubrir y escuchar juntos",
+            "description": "El selector rápido utiliza tres flechas circulares. La portada presenta pools públicos y privados, sin fijar una temporada ni mostrar un estado de propuestas desactualizado.",
+            "type": "improvement"
+          },
+          {
+            "title": "Escuchar más tarde",
+            "description": "Las fichas incluyen un botón con reloj para guardar o quitar releases. Encuentra tu lista privada en el perfil; se conserva al cambiar de dispositivo.",
+            "type": "feature"
+          },
+          {
+            "title": "Escucha desde el resultado",
+            "description": "El resultado del Gashapon incluye Spotify, Apple Music, YouTube Music y Deezer. Se usan los enlaces disponibles del release y búsquedas por artista y título cuando no hay un enlace directo.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Tu siguiente reseña, más cerca",
+            "description": "Canción Top y Pistas comparten una columna en dos filas. A la cola está junto a Reseñar, con el mismo tamaño de letra.",
+            "type": "improvement"
+          },
+          {
+            "title": "Calificaciones de un vistazo",
+            "description": "Un medidor circular pasa de rojo a verde según la nota. General ocupa una columna propia junto a los seis criterios.",
+            "type": "improvement"
+          },
+          {
+            "title": "Fecha y confirmación de reseña",
+            "description": "Programa una fecha para el ganador. Si perteneces a un Pool que sigue activo o aún no abre reseñas, verás un aviso antes de reseñar por tu cuenta.",
+            "type": "feature"
+          },
+          {
+            "title": "Salas más claras",
+            "description": "El directorio muestra el título del Pool y su disco elegido. La cabecera identifica al dueño del Pool.",
+            "type": "improvement"
+          },
+          {
+            "title": "Orden por fecha de publicación",
+            "description": "El inicio deja de priorizar comentarios largos o autores diferentes. Muestra las últimas tres publicaciones desde la carga inicial, incluso si son breves o de la misma persona.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Verificaciones del catálogo",
+            "description": "Las pruebas de las acciones de las tarjetas buscan ahora en la tarjeta correspondiente, conservando la comprobación del guardado y de su distribución responsiva.",
+            "type": "fix"
+          },
+          {
+            "title": "Catálogo más ligero",
+            "description": "Las listas de canciones y los detalles completos se reservan para la ficha del disco. Los filtros siguen funcionando sobre todo el catálogo.",
+            "type": "improvement"
+          },
+          {
+            "title": "Comprobaciones de búsqueda precisas",
+            "description": "La prueba distingue la búsqueda del catálogo de las consultas de tendencias y verifica ambos comportamientos.",
+            "type": "improvement"
+          },
+          {
+            "title": "Spotify amplía tu búsqueda",
+            "description": "Cuando no hay coincidencias internas, el catálogo muestra resultados de Spotify con su origen visible y sin calificaciones del club. Puedes abrir su ficha en Musiclub al iniciar sesión.",
+            "type": "improvement"
+          },
+          {
+            "title": "Centro fijo y giro continuo",
+            "description": "Solo gira el disco exterior. Al terminar de manipularlo, retoma el giro automático sin pulsar ningún botón.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "La edición anual",
+        "changes": [
+          {
+            "title": "Reseñas con apertura manual",
+            "description": "Elegir un ganador ya no abre sus reseñas automáticamente. Quien administra el Pool decide cuándo habilitarlas.",
+            "type": "fix"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -151,6 +744,138 @@
     "summary": "El trabajo de esta etapa reúne mejoras de navegación, presentación y organización de Musiclub.",
     "tag": "Musiclub 8",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Slider Automático Continuo en \"En Rotación & Tendencias\"",
+            "description": "En vez de apilarse hacia abajo en filas múltiples, la sección presenta un slider automático inteligente: si existen hasta 4 lanzamientos (en Pool Activo, Top Obras Maestras o Recientes) permanece en una fila estática limpia y no se mueve; si existen más de 4, se activa el desplazamiento continuo infinito a 60 FPS con halo de desvanecimiento en los bordes, pausa automática al posar el cursor (hover) y botón de control de estado en vivo.",
+            "type": "feature"
+          },
+          {
+            "title": "Elementos Gráficos de Marca y Vinilos Giratorios Continuos",
+            "description": "Se desplegaron los isotipos oficiales musiclub_logo, musiclub_logo_2, musiclub_logo_3, musiclub_logo_4 y musiclub_logo_corchea en AppHeader, Footer, Catálogo Musical, Leaderboard, Pool Comunitario, Patch Notes, FAQ, Playlists, Reseñas, Configuración de Perfil, Ficha de Artista, Ficha de Álbum, Máquina Musical Gaversiónpon y Release de la Hora. Todos los vinilos cuentan con rotación perpetua suave (animate-spin-slow), aura ambiental luminosa y escala responsiva acorde a cada vista.",
+            "type": "feature"
+          },
+          {
+            "title": "Paginación de 15 Usuarios en Leaderboard de Miembros",
+            "description": "El ranking de la comunidad ahora muestra hasta 15 usuarios por página con controles de paginación interactivos (anterior/siguiente y salto directo de página), indicador de rango global (ej. \"Mostrando 1 - 15 de 42 miembros\") y auto-scroll fluido a la cabecera del listado al cambiar de página.",
+            "type": "feature"
+          },
+          {
+            "title": "Acceso Directo al Gaversiónpon Arcade en Selector Rápido",
+            "description": "El botón de la máquina tragamonedas en el Selector Rápido del Club fue sustituido por un acceso directo al Gaversiónpon Arcade (/gaversiónpon) con vinilo giratorio neón musiclub_logo_3 e isotipo corchea en la cabecera.",
+            "type": "improvement"
+          },
+          {
+            "title": "Estabilidad de Hooks en Release Recomendado de la Hora",
+            "description": "Se corrigió el orden de ejecución de hooks en HourlyRecommendedRelease, garantizando el cumplimiento riguroso de las Reglas de Hooks de React y erradicando advertencias en la consola.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Primera Reseña Histórica en Release Recomendado de la Hora",
+            "description": "En el componente de Release Recomendado de la Hora, la Reseña Destacada de la Comunidad ahora presenta con precisión cronológica la primera reseña que se registró históricamente en la plataforma para dicho lanzamiento, incluyendo su fecha original de registro.",
+            "type": "improvement"
+          },
+          {
+            "title": "Ingesta Reactiva Centralizada en Hooks useAlbums y useUserReviews",
+            "description": "Los hooks globales del catálogo y de reseñas sincronizan automáticamente en tiempo real todos los títulos de lanzamientos (album_name), nombres de artistas (artist_name), nombres de críticos (reviewer_name) y creadores (added_by) en la base de datos de entidades blindadas en cuanto se cargan o actualizan desde la biblioteca musical.",
+            "type": "improvement"
+          },
+          {
+            "title": "Blindaje en Detalle de Álbum, Tracklist y Sistema de Calificación",
+            "description": "En AlbumDetail y ReviewSystem se blindaron el título principal del release, todos los nombres de pistas en la lista de reproducción, la insignia de canción favorita comunitaria y personal, y los encabezados individuales del wizard de evaluación de canciones.",
+            "type": "security"
+          },
+          {
+            "title": "Centrado Milimétrico de la Calificación dentro de su Contenedor",
+            "description": "Se corrigió el desfase donde la calificación aparecía empujada hacia la parte inferior del contenedor gradiente. Al aplicar `textBaseline = \"middle\"` y calcular el anclaje exacto en `pillY + pillH / 2`, el puntaje (ej. `★ 9.6 /10` o `★ 10/10`) queda perfectamente centrado en los ejes vertical y horizontal sin sobresalir del borde.",
+            "type": "fix"
+          },
+          {
+            "title": "Alineación de Fecha a la Retícula Principal e Iconografía Vectorial Limpia",
+            "description": "La píldora de fecha superior derecha ahora se acopla con exactitud al límite de 1016px de la retícula general (alineada al divisor, tarjetas y pie de página). Se eliminó el emoji `🗓️` que en WebKit/iOS generaba cajas blancas no renderizadas y desplazaba la métrica de texto, sustituyéndolo por un icono vectorial nativo de calendario y tipografía centrada matemáticamente.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Aislamiento de la plataformacs en Insignias del Leaderboard",
+            "description": "Al hacer la plataformac en el botón \"+N más\" o en las insignias de un usuario en el Leaderboard, la interacción se aísla de forma precisa para abrir la guía detallada de medallas sin activar involuntariamente el modal de perfil de usuario completo.",
+            "type": "improvement"
+          },
+          {
+            "title": "Blindaje en Perfiles de Usuario y Buscadores Universales",
+            "description": "Se blindó el nombre de usuario en la barra de navegación superior (AppHeader), menús desplegables, ficha de Mi Perfil (UserProfile) y modal de miembro (MemberProfileModal), incluyendo artistas y álbumes favoritos. Asimismo, el buscador universal del header (HeaderAlbumSearch) y el explorador de álbumes (AlbumSearch) protegen en tiempo real todos los resultados, títulos y pistas sugeridas.",
+            "type": "improvement"
+          },
+          {
+            "title": "Centrado Vertical Matemático de Insignias Laterales en Cada Fila",
+            "description": "El bloque de la insignia (letra de tier, nombre en mayúsculas, píldora de rango y contador de discos) se posiciona exactamente en el centro vertical de la fila (rowHeight / 2), eliminando el espacio vacío inferior.",
+            "type": "fix"
+          },
+          {
+            "title": "Diseño Fijo y Depuración de Controles (Sin Ajustes ni Vinilo 3D)",
+            "description": "Se eliminó por completo la sección de \"Ajustes de la Story\" (el checkbox de disco de vinilo 3D y los switches de visibilidad de comentario, pilares y tracks). El diseño ahora es completamente fijo, estándar y editorial, calculando automáticamente y sin fricción la inclusión armónica de los datos reales de la reseña, ofreciendo una experiencia instantánea y sin pasos intermedios.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tipografía de Alta Legibilidad y Comentarios Dinámicos (29px–36px)",
+            "description": "El tamaño de la tipografía del comentario de la reseña en las Stories 9:16 fue incrementado significativamente, pasando de los 22px anteriores a un rango dinámico de 29px a 36px con interlineado holgado de 41px a 50px según la longitud del texto. Se agregó una comilla estilizada de apertura (“) de 48px y texto blanco de alto contraste sobre fondos oscuros translúimágenes integradas en alta calidados, garantizando una lectura inmediata y cómoda en teléfonos celulares.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Blindaje en Tarjetas de Catálogo, Artistas y Secciones Curadas",
+            "description": "Se asignaron atributos translate=\"no\" y clases semánticas notranslate, music-title y artist-name en todas las tarjetas del Catálogo (activas, individuales e inactivas en AlbumGrid), enlaces del componente ArtistLinks, directorio de artistas (CatalogArtistsView), y en los 84 lanzamientos semanales, sencillos anticipados y álbumes recomendados de TrendingMonthlySection, AnticipatedSection y RecommendedSection.",
+            "type": "improvement"
+          },
+          {
+            "title": "Navegación Integral del Catálogo (Releases, Artistas, Géneros)",
+            "description": "Se implementó una barra superior persistente con pestañas dedicadas para Releases, Artistas y Géneros (omitiendo Labels). Cada pestaña cuenta con sincronización bidireccional en URL (?tab=releases, ?tab=artists, ?tab=genres) y vistas optimizadas tanto en móvil como en escritorio.",
+            "type": "feature"
+          },
+          {
+            "title": "Paginación Inteligente en la Exploración por Géneros",
+            "description": "Se incorporó un sistema de paginación reactivo y autónomo para cada categoría dentro del explorador de géneros. En la vista global de \"Todos los Géneros\", cada bloque limita la muestra a 10 álbumes por página (2 filas de 5), evitando la sobrecarga visual de listas infinitas. En la vista aislada por género, muestra 15 álbumes por página. Incluye controles completos de navegación (primera página, anterior, selector numérico con elipsis, siguiente, última página) y acceso directo \"Ver solo [Género]\".",
+            "type": "feature"
+          },
+          {
+            "title": "Directorio de Artistas y Desambiguación Multi-Artista en Colaboraciones",
+            "description": "Nuevo directorio de artistas con buscador en vivo, filtro alfabético (A-Z, #) y tarjetas con avatares circulares y conteo de lanzamientos. Mediante el nuevo componente ArtistLinks y el algoritmo splitArtists(), colaboraciones complejas como \"piri & tommy, piri, Tommy Villiers\" ahora se descomponen en 3 enlaces individuales e independientes.",
+            "type": "feature"
+          },
+          {
+            "title": "Tabla Canónica de Artistas en la biblioteca musical y Registro de la plataformacs",
+            "description": "Creación de la tabla canónica artists en la biblioteca musical con campos de slug, biografía, seguidores, popularidad y la plataformack_count. Cada vez que un usuario interactúa con un enlace de artista, se registra y actualiza la popularidad del perfil en la base de datos.",
+            "type": "database"
+          }
+        ]
+      },
+      {
+        "title": "La edición anual",
+        "changes": [
+          {
+            "title": "Explorador en Vivo de Álbumes Más Famosos y Tendencia de 2026",
+            "description": "Se implementó una consulta multi-mercado (Regional MX y Global) a el catálogo oficial de Spotify filtrando estrictamente por año en curso (year:2026). Para superar el límite estricto de 10 resultados de Spotify, el servicio ejecuta peticiones paralelas con offsets de 0 a 70 mediante Promise.all con caché en memoria en el servidor, entregando en menos de 90ms los álbumes más reproduimágenes integradas en alta calidados de 2026 (Karol G, Drake, Olivia Rodrigo, Bruno Mars, BTS, Ariana Grande, Feid, Quevedo, Peso Pluma, etc.).",
+            "type": "feature"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "performance",
@@ -179,6 +904,138 @@
     "summary": "Las reacciones, los comentarios y el Gashapon abren nuevas formas de compartir descubrimientos.",
     "tag": "Musiclub 7",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Optimización Crítica de Veloimágenes integradas en alta calidadad de Carga y Rendimiento",
+            "description": "Eliminación del cuello de botella que ralentizaba la web: supresión del bucle de microtareas del MutationObserver en el banner de anuncios, retiro del script síncrono bloqueante de Social Bar, purga de fuentes tipográficas en desuso en el head (dejando Figtree optimizado con display=swap) y migración de la regla CSS de fuentes hacia herencia limpia nativa, restaurando la veloimágenes integradas en alta calidadad de carga instantánea del sitio.",
+            "type": "performance"
+          },
+          {
+            "title": "Desactivación Preventiva del Banner y Filtrado de Contenido",
+            "description": "Desactivación temporal del banner publicitario en la Landing Page y Footer mientras se completan las exclusiones de categorías en la red publicitaria para erradicar anuncios para adultos (18+), citas/dating internacional, alertas engañosas de software y contenido no familiar, manteniendo un entorno 100% seguro, limpio y acorde a la comunidad de Musiclub.",
+            "type": "fix"
+          },
+          {
+            "title": "Adopción Universal de Tipografía Figtree (Google Fonts)",
+            "description": "Implementación de la fuente Figtree (pesos 300 a 900) como la tipografía única y universal para el 100% de la plataforma: encabezados principales, títulos h1-h6, subtítulos, texto corrido, botones, tablas, navegación y componentes interactivos, brindando una experiencia visual de máxima legibilidad, elegancia contemporánea y nitidez en cualquier resolución.",
+            "type": "improvement"
+          },
+          {
+            "title": "Erradicación Definitiva del Formato Popunder (Onla plataformack)",
+            "description": "Retiro integral del script de anuncios Popunder para proteger la experiencia del usuario y evitar aperturas de ventanas indeseadas en el navegador. Se garantiza que todas las interacciones (búsquedas, la plataformacs en enlaces, botones o elementos de la interfaz) permanezcan exclusivamente dentro del flujo de la aplicación.",
+            "type": "fix"
+          },
+          {
+            "title": "Tope Estricto de Espera Anti-Freeze en Retry-After",
+            "description": "Detección y limitación de tiempos de espera en respuestas HTTP pantallas de espera a un máximo de 5 segundos. Si la el catálogo oficial de Spotify solicita pausas prolongadas (como penalizaciones de miles de segundos), el proceso cancela la espera a 0s y pausa Spotify para esa tanda, previniendo congelamientos indefinidos.",
+            "type": "security"
+          }
+        ]
+      },
+      {
+        "title": "Pools y Gashapon",
+        "changes": [
+          {
+            "title": "Gaversiónpon Cinemático de Cápsulas a Pantalla Completa",
+            "description": "Evolución visual del Gaversiónpon: apertura de cápsulas en un modal cinemático a pantalla completa con backdrop blur oscuro, modelado a gran escala, animaciones de flotación y apertura física, rayos dorados y renderizado centrado libre de recortes o desbordes superiores.",
+            "type": "feature"
+          },
+          {
+            "title": "Monetización Estratégica con anuncios de apoyo (Modo Claro/Oscuro Blindado)",
+            "description": "Integración cuidada de formatos oficiales de anuncios de apoyo (Native Banner colocado estratégicamente entre el Navbar y el Hero de la Landing, Social Bar y Smartlink de apoyo en footer). Incluye blindaje de alto contraste universal que fuerza texto blanco (#f8fafc) sin importar el tema claro/oscuro del dispositivo, MutationObserver reactivo y soporte de la opción onlyImages para modo solo imágenes.",
+            "type": "feature"
+          },
+          {
+            "title": "Corrección de Salto Visual en Menú Desplegable de Comunidad",
+            "description": "Estabilización de posición y transiciones CSS en el menú dropdown del AppHeader, eliminando el reacomodo tardío de layout al abrirse y garantizando una apertura fluida y perfectamente centrada.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Universalización del Gaversiónpon a Todo el Catálogo",
+            "description": "Eliminación de la terminología de Ex-Pool y status individual en el Gaversiónpon: adaptación completa a la arquitectura de release_type (álbumes, singles y EPs), permitiendo que cualquier lanzamiento de la base de datos pueda ser obtenido en la Máquina Musical.",
+            "type": "improvement"
+          },
+          {
+            "title": "Auto-Sanación Continua de Metadatos (código oficial de lanzamiento & Géneros)",
+            "description": "Creación de populateMissingcódigo oficial de lanzamientoAndGenres.mjs e integración en el cron de actualizaciones automáticas continuas (minutos 17 y 47 para evitar cuellos de botella). Consulta rate-limited (1.25s) a la biblioteca mundial de música con backoff exponencial y fallback a Deezer para poblar automáticamente identificadores código oficial de lanzamiento y etiquetas de géneros faltantes.",
+            "type": "improvement"
+          },
+          {
+            "title": "Migración de Flujo en actualizaciones automáticas continuas a Smart Catalog Seeder",
+            "description": "Sustitución definitiva del crawler secuencial de la biblioteca mundial de música por el motor inteligente de siembra en .github/workflows/hourly_la biblioteca mundial de música_ingest.yml, asegurando que cada 30 minutos se ingesten únicamente álbumes populares completos con portadas HD y enlaces oficiales de streaming.",
+            "type": "feature"
+          },
+          {
+            "title": "Selector Dinámico de Cuota en Actions (workflow_dispatch)",
+            "description": "Inclusión de un parámetro interactivo \"target\" en actualizaciones automáticas continuas para permitir ejecuciones manuales desde la interfaz web de GitHub eligiendo la cantidad de álbumes a sembrar (50, 100, etc.), manteniendo un valor predeterminado de 50 en la ejecución periódica automatizada.",
+            "type": "improvement"
+          },
+          {
+            "title": "Persistencia de Estado del Seeder en Git",
+            "description": "Actualización de la rutina de versionado automático en Actions para mejoraear rutina automática en lugar del antiguo crawler_state.json, conservando el avance continuo de offsets, artistas y décadas sin repeticiones.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Sincronización de Métricas de Comunidad (Críticos & Reviewers)",
+            "description": "Alineación del cálculo de usuarios entre la Landing Page (\"Críticos & Miembros\") y la sección de Reseñas (\"Reviewers Únicos\"). Ambos módulos y el servicio global consultan ahora a los 19 críticos activos que han publicado reseñas, eliminando discrepancias contra perfiles sin actividad.",
+            "type": "fix"
+          },
+          {
+            "title": "Calificador y Explorador de Portadas de Álbumes (Cover Art Ratings)",
+            "description": "Nuevo módulo dedicado en /portadas para evaluar el arte gráfico y visual de las portadas de discos (escala del 1 al 10 con medallas honoríficas de dirección de arte). Incluye etiquetado estético (Fotografía, Ilustración, Minimalista, Psicodélico, Surrealista, Cyberpunk, etc.), podio de mejores carátulas, filtros avanzados y vista modal de detalles visuales.",
+            "type": "feature"
+          },
+          {
+            "title": "Sistema de Comentarios y Discusión en Reseñas",
+            "description": "Integración de hilos de comentarios para cada reseña publicada: permite iniciar debates musicales, responder directamente a otros miembros del club, visualizar avatares de perfil con enlaces interactivos y moderar comentarios propios o como administrador.",
+            "type": "feature"
+          },
+          {
+            "title": "Optimización Extrema de Latencia al Calificar Nuevos Álbumes (0 ms & <100 ms)",
+            "description": "Eliminación del cuello de botella de más de 30 segundos al buscar y pulsar \"Calificar\": incorporación de Circuit Breaker y cooldown automático de 60s ante saturaciones (HTTP 503) de la biblioteca mundial de música, timeouts estrictos de 2.5s con AbortController, endpoint granular getAlbumWithFullStats(slug) que previene la descarga masiva de los 1,421 álbumes, y renderizado visual instantáneo con preloadedAlbum en React Router.",
+            "type": "improvement"
+          },
+          {
+            "title": "Resiliencia CORS en Portadas Externas y Normalización de Estadísticas en Reviews",
+            "description": "Soporte de proxies CORS de respaldo para evitar bloqueos al generar las imágenes descargables de reviews con imágenes alojadas en CDNs externos. Corrección y nitidez en el contador global de \"Álbumes Evaluados\" dentro de la sección de Reseñas.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Rediseño de Perfiles en Leaderboard estilo \"Mi Perfil\"",
+            "description": "Al hacer la plataformac en cualquier miembro desde el Leaderboard o listados comunitarios, se abre un perfil enriqueimágenes integradas en alta calidado idéntico a la experiencia de \"Mi Perfil\": portada, biografía, insignias de gamificación (rango, nivel, reputación), estadísticas de calificaciones y acceso a sus álbumes favoritos.",
+            "type": "feature"
+          },
+          {
+            "title": "Depuración de Pestañas en Mi Perfil",
+            "description": "Se eliminó definitivamente la sección \"Por Calificar\" de la vista de perfil de usuario, manteniendo una interfaz más limpia, ágil y enfocada exclusivamente en el contenido y reseñas evaluadas.",
+            "type": "improvement"
+          },
+          {
+            "title": "Corrección Visual en Modales de Compartir y Story Canvas (Threads, Snapchat y Layout)",
+            "description": "Actualización de los isotipos vectoriales oficiales de Threads y Snapchat en el modal de compartir review y Tier List. Corrección del margen superior del overlay para cubrir el 100% del viewport sin transparencias indeseadas, y ajuste al renderizado de canciones con títulos extensos en \"Tracks Destacados\" para evitar desbordamientos visuales.",
+            "type": "fix"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -207,6 +1064,133 @@
     "summary": "Los vinilos interactivos y las portadas ganan presencia; álbumes, EPs y sencillos se distinguen mejor.",
     "tag": "Musiclub 6",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Desacoplamiento Canónico de user_id en la Tabla albums",
+            "description": "Se preparó y ejecutó la migración la base de datos para eliminar la columna user_id y la restricción albums_user_id_fkey en la biblioteca del club. Las nominaciones, autoría y estados activos del club quedan centralizados exclusivamente en la tabla pool_entries.",
+            "type": "refactor"
+          },
+          {
+            "title": "Refactorización del Sistema de Notificaciones Comunitarias",
+            "description": "Ajuste en useNotifications.js para obtener las reseñas de álbumes propuestos por el usuario a través de pool_entries en lugar de albums.user_id, previniendo excepciones la base de datos de columna inexistente y reflejando con exactitud las nominaciones activas.",
+            "type": "fix"
+          },
+          {
+            "title": "Filtro Anti-Ruido en Patch Notes (Exclusión de Bots de automatización continua y mejora de Merge)",
+            "description": "Integración de un filtro dual en patchNotesData.js y PatchNotes.jsx que oculta automáticamente mejora de github-actions[bot], tareas de ingesta horaria, tags [skip ci], mejora de merge (Merge branch...) y líneas generadas por conflictos de Git (# Conflicts:).",
+            "type": "feature"
+          },
+          {
+            "title": "Motor de Ordenamiento Semántico y Cronológico de Versiones",
+            "description": "Nuevo algoritmo de ordenamiento descendente por fecha y versión semántica (Major.Minor.Patch) que combina armónicamente los mejora en vivo de la API de GitHub con las notas de versión curadas de Musiclub.",
+            "type": "improvement"
+          },
+          {
+            "title": "Depuración de Álbumes Fantasma y Restauración de Estadísticas Globales",
+            "description": "Se eliminaron con éxito los 1,009 registros vacíos generados sin canciones en la biblioteca musical, reajustando la base de datos a 161 lanzamientos legítimos del club y recalculando de inmediato los contadores del Catálogo (Total Lanzamientos, Total Reseñas, Mejor Calificado y Promedio Global).",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Pools y Gashapon",
+        "changes": [
+          {
+            "title": "Limpieza de Servicios y Mapeos de Estado (useAlbums, poolService, syncPoolGraduates)",
+            "description": "Eliminación del campo obsoleto user_id en las transformaciones de useAlbums, la biblioteca musicalla plataformaent y poolService, así como en los scripts de sincronización de álbumes graduados.",
+            "type": "improvement"
+          },
+          {
+            "title": "Corrección de Notificaciones Globales de Álbum Ganador",
+            "description": "Ajuste en la biblioteca musicalService.getCurrentWinner() para consultar exclusivamente la tabla pool_entries por status = \"GANADOR\" en lugar de basarse en reviews_enabled de la tabla albums. Esto elimina las notificaciones erróneas generadas tras la ingesta masiva de álbumes externos y garantiza que solo se anuncie el disco ganador oficial de la semana del club.",
+            "type": "fix"
+          },
+          {
+            "title": "Sincronización y Graduación de 21 Álbumes Históricos en pool_entries",
+            "description": "Comprobación, normalización y registro completo en pool_entries de los 21 álbumes históricos del club (incluyendo Weyes Blood, Judeline, Madonna, Little Jesus, Knocked Loose, Todos mueren en abril, Ashe, Serú Girán, Sampha, DANNA, Silvana Estrada, Tango Astral, Sade y Jane Remover). Los álbumes que no figuraban en el pool fueron integrados como GRADUADOS con sus respectivos campos de autor (nominated_by, user_id, email) y temporada activa.",
+            "type": "feature"
+          },
+          {
+            "title": "Buscador y Crawler Musical Resiliente con Fallback Multi-Tier",
+            "description": "Incorporación de un Circuit Breaker inteligente en spotifyApi.js que conmuta fluidamente a iTunes Search API y Deezer cuando la el catálogo oficial de Spotify devuelve pantallas de espera (pantallas de espera y pausas de carga). Resolución de portadas HD de hasta 1000x1000, soporte de tracks completo, validación de cabeceras HEAD en Cover Art Archive para evitar imágenes rotas (404) y concatenación precisa de artistas colaboradores con join phrases en la ingesta de la biblioteca mundial de música.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Buscador Musical Híbrido, Invisible y Silencioso",
+            "description": "Búsqueda en tiempo real a través de APIs de streaming que guarda directamente la ficha del álbum con metadatos canónicos de la biblioteca mundial de música (código oficial de lanzamiento, tracks, sello, año y formato) y carátulas HD, ocultando de forma transparente cualquier mención a proveedores externos en la interfaz de usuario.",
+            "type": "feature"
+          },
+          {
+            "title": "Soporte de 4 Plataformas de Streaming y Logos Vectoriales Oficiales",
+            "description": "Componente global de logos vectoriales (Spotify, Apple Music, YouTube y Deezer) integrado de extremo a extremo en la ficha del lanzamiento (AlbumDetail), Panel de Administración, Buzón de Canciones, Catálogo de Playlists y Recomendaciones.",
+            "type": "feature"
+          },
+          {
+            "title": "Pipeline de Ingesta Automática cada 30 Minutos con Pacing y Timeouts",
+            "description": "Se actualizó la frecuencia del cron y workflow a 30 minutos, procesando lotes de 50 álbumes con portadas HD (1000x1000) y pausas de seguridad entre llamadas a APIs para evitar bloqueos por pantallas de espera y pausas de carga.",
+            "type": "improvement"
+          },
+          {
+            "title": "Enriquecimiento Retroactivo de los 262 Lanzamientos en Base de Datos",
+            "description": "Se procesó el 100% de los álbumes en la biblioteca musical para completar enlaces a Deezer (other_link), Apple Music, YouTube, verificación Spotify en true y resolución de código oficial de lanzamientos canónicos.",
+            "type": "fix"
+          },
+          {
+            "title": "Corrección de \"Álbum / Artista\" en Mi Perfil (Mis Reviews)",
+            "description": "Ajuste en UserProfile.jsx para enriquecer las reseñas utilizando la relación directa review.albums / review.album cuando el álbum no se encuentre precargado en el mapa local. Las reviews personales ahora muestran siempre el título, artista, portada y canciones reales.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Garantía de Canciones en Creación de Álbumes e Ingesta Controlada",
+            "description": "Tanto HeaderAlbumSearch como la biblioteca musicalService.createAlbum cuentan ahora con extracción en cascada de tracklists (Spotify -> la biblioteca mundial de música -> iTunes) para asegurar que ningún álbum se cree con canciones vacías ([]). Asimismo, el script de ingesta por lotes y su workflow de actualizaciones automáticas continuas se calibraron a 25 lanzamientos verificados con tracklists completos y filtrado estricto.",
+            "type": "feature"
+          },
+          {
+            "title": "Paginación Dinámica en \"Mis Reviews\" (Mi Perfil)",
+            "description": "Se incorporó paginación interactiva en la pestaña de Mis Reviews de UserProfile.jsx con selector personalizable de elementos por página (10, 20 o 50 reviews), botones de avance/retroceso rápido y desplazamiento suave automático directo al inicio del listado.",
+            "type": "feature"
+          },
+          {
+            "title": "Meta Description y Metadatos Globales SEO en index.html",
+            "description": "Incorporación de meta description oficial, palabras clave, oficial URL y etiquetas Open Graph y Twitter Cards directamente en index.html para una indexación inmediata y previsualizaciones enriqueimágenes integradas en alta calidadas en motores de búsqueda (Google, Bing) y redes sociales.",
+            "type": "feature"
+          },
+          {
+            "title": "Actualización de actualizaciones automáticas continuas a servidores de alta veloimágenes integradas en alta calidadad",
+            "description": "Actualización del sistema automático en el flujo hourly_la biblioteca mundial de música_ingest.yml a servidores de alta veloimágenes integradas en alta calidadad, satisfaciendo los nuevos requerimientos nativos de @la biblioteca musical/la biblioteca musical-js.",
+            "type": "fix"
+          },
+          {
+            "title": "Blindaje WebSocket y Sesión Ligera en Scripts la plataforma",
+            "description": "Implementación de polyfill de WebSocket e inicialización auth.persistSession: false en hourlyla biblioteca mundial de músicaIngestion.mjs, generate-guías para buscadores de internet.js y enrichMissingla biblioteca mundial de música.mjs, garantizando ejecución sin fallos en cualquier entorno de Node.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Eliminación Integral de LoadingOverlay y Rediseño Hero Institucional",
+            "description": "Limpieza y desacoplamiento de componentes de carga invasivos (LoadingOverlay) en todas las vistas de la aplicación, sustituyéndolos por transiciones fluidas de skeleton y adaptando las páginas de FAQ, Privaimágenes integradas en alta calidadad y Términos a la estética visual moderna y metadatos SEO implementados en Patch Notes.",
+            "type": "improvement"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "design",
@@ -235,6 +1219,133 @@
     "summary": "Las recomendaciones personales, las playlists y la búsqueda amplían las formas de encontrar música.",
     "tag": "Musiclub 5",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Traductor Multi-Idioma Global en Tiempo Real",
+            "description": "Integración de LanguageSelector en el Header y Footer con soporte para 10 idiomas (Español, Inglés, Portugués, Francés, Alemán, Italiano, Japonés, Coreano, Chino y Ruso). Traduce al instante la plataforma completa con diseño neón personalizado, detección de idioma y persistencia.",
+            "type": "feature"
+          },
+          {
+            "title": "Aislamiento Inteligente de Metadatos Musicales y Usuarios",
+            "description": "Implementación de protecciones granulares (translate=\"no\" y .notranslate) en títulos de álbumes (e.g. Marchita, Mon Laferte Vol. 1), artistas, nombres de canciones y nombres de usuarios en podios, cuadrículas, catálogo y reseñas, permitiendo traducir las etiquetas de interfaz (\"Añadido por:\", \"canciones\", \"Ganador\", \"reviews\") sin alterar los nombres propios originales.",
+            "type": "feature"
+          },
+          {
+            "title": "Corrección de Repetición Visual del Fondo",
+            "description": "Ajuste en la capa del fondo de la aplicación (fixed inset-0 con background-repeat: no-repeat y cover) eliminando el efecto de mosaico y corte en scrolls largos y pantallas de alta resolución.",
+            "type": "fix"
+          },
+          {
+            "title": "Ajustes de Compatibilidad con musiclub.org",
+            "description": "Modificaciones en los archivos de configuración y rutas de la aplicación para asegurar la compatibilidad total con el nuevo dominio musiclub.org y la resolución correcta de URLs en entornos locales y de previsualización.",
+            "type": "improvement"
+          },
+          {
+            "title": "Lanzamiento del dominio Oficial musiclub.org & guías para buscadores de internet",
+            "description": "Migración completa de la plataforma hacia su dominio propio https://musiclub.org, incluyendo guías para buscadores de internet.xml regenerado con más de 250 rutas canónicas indexables, guía para motores de búsqueda actualizado y metaetiquetas OpenGraph/SEO oficiales.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Página 404 \"Pista Fuera de Órbita\" & Enrutamiento Universal",
+            "description": "Diseño interactivo con estética visual cyberpunk/neón de Musiclub, animación de disco de vinilo en rotación holográfica, accesos rápidos (Inicio, Álbumes, Leaderboard, Gaversiónpon) y enrutamiento catch-all universal (* y /404).",
+            "type": "feature"
+          },
+          {
+            "title": "Buzón Social de Recomendaciones de Canciones",
+            "description": "Buzón privado en el perfil de usuario para intercambiar y recomendar exclusivamente canciones entre miembros, con dedicatorias, vista previa de Spotify y notificaciones en tiempo real respaldadas en la biblioteca musical.",
+            "type": "feature"
+          },
+          {
+            "title": "Emociones y Sentimientos en Reseñas",
+            "description": "Selector de sensaciones emocionales (Mindblown, Sad, Chill, Hype, etc.) respaldado en la biblioteca musical.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Archivo guía para motores de búsqueda Estandarizado para musiclub.org",
+            "description": "Generación del archivo guía para motores de búsqueda en public/ configurando rastreo universal para Googlebot y buscadores internacionales, protección de rutas privadas y referencia al guías para buscadores de internet.xml canónico.",
+            "type": "improvement"
+          },
+          {
+            "title": "Resolución On-Demand de Álbumes con Spotify & Programmatic SEO",
+            "description": "Capaimágenes integradas en alta calidadad para navegar y consultar cualquier álbum del mundo por su URL (e.g. /albumes/sour). Si el disco no existe en la base de datos de Musiclub, el sistema lo resuelve en milisegundos desde Spotify con su portada HD, tracklist oficial y metadatos, y lo registra automáticamente en la biblioteca musical en cuanto un usuario lo califica.",
+            "type": "feature"
+          },
+          {
+            "title": "Curaduría de Álbumes Populares & guías para buscadores de internet Expandido a 540+ URLs",
+            "description": "Incorporación de popularMusicData.js con los discos y artistas más emblemáticos de la música global y actualización del guías para buscadores de internet.xml a más de 540 URLs canónicas para indexación masiva en Google.",
+            "type": "feature"
+          },
+          {
+            "title": "Auto-Registro en Base de Datos al Calificar",
+            "description": "Optimización en ReviewSystem.jsx para registrar álbumes resueltos on-demand de forma automática e inmediata en la biblioteca musical al momento de emitir la primera calificación.",
+            "type": "improvement"
+          },
+          {
+            "title": "Depuración y Optimización de el catálogo oficial de Spotify (Error 403)",
+            "description": "Eliminación de llamadas directas y obsoletas a top-tracks restringidas por los nuevos tokens de la plataformaente de Spotify, optimizando la carga de discografía del artista de forma fluida y sin advertencias en consola.",
+            "type": "fix"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "SF Tiers Tier List Maker Automático en Mi Perfil",
+            "description": "Generador automático de Tier Lists basado en las calificaciones personales del usuario en 6 niveles: S (GOD TIER / OBRAS MAESTRAS, 9.5-10.0), A (EXCELENTES, 8.5-9.4), B (MUY BUENOS, 7.5-8.4), C (BUENOS, 6.5-7.4), D (REGULARES, 5.0-6.4) y F (DECEPCIONANTES, < 4.9 morada). Incluye modo lista vertical optimizado para móviles.",
+            "type": "feature"
+          },
+          {
+            "title": "Actualización del Nivel de Melómano",
+            "description": "Ajuste y sincronización de los rangos de Melómano y estadísticas detalladas del perfil de usuario.",
+            "type": "improvement"
+          },
+          {
+            "title": "Diseño 100% Responsivo en Header y Banner de Proponer",
+            "description": "Alineación de navegación fluida evitando solapamientos y banner \"¿Tienes un álbum en mente? +50 XP\" adaptado para pantallas móviles de 320px a 480px.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Pools y Gashapon",
+        "changes": [
+          {
+            "title": "Máquina Gaversiónpon Arcade 3D Independiente",
+            "description": "Se separó el Gaversiónpon a su propia página dedicada (/gaversiónpon) con una cúpula de cristal con más de 18 cápsulas esféricas multicolor con física vibrante, manivela 3D y selección aleatoria de álbumes individuales.",
+            "type": "feature"
+          },
+          {
+            "title": "Buscador Global Directo en Header",
+            "description": "Campo de búsqueda directo integrado en la barra de navegación y en el menú móvil (sin necesidad de abrir popups para buscar). Muestra resultados en vivo mientras se escribe, soporte de teclado y calificación directa.",
+            "type": "feature"
+          },
+          {
+            "title": "Página de Patch Notes y Sincronización con GitHub",
+            "description": "Historial completo de versiones y mejora sincronizado en tiempo real con la rama principal de GitHub, con filtros de versión y buscador de novedades.",
+            "type": "feature"
+          },
+          {
+            "title": "Corrección de Tarjetas 3D Flip (Puestos 4 al 10 en Rankings)",
+            "description": "Se corrigió la rotación inicial de la cara frontal en CSS para que las portadas, insignias y puntuaciones se muestren de inmediato sin necesidad de hacer la plataformac primero.",
+            "type": "fix"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -263,6 +1374,93 @@
     "summary": "La valoración incorpora criterios musicales, notas por track e insignias por participar.",
     "tag": "Musiclub 4",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Sistema de Insignias y Medallas (Badge System)",
+            "description": "Creación del motor de insignias por hitos: crítico prolífico, descubridor de joyas, géneros explorados y constancia semanal.",
+            "type": "feature"
+          },
+          {
+            "title": "Balanceo de Fórmulas Ponderadas",
+            "description": "Ajuste en el algoritmo de cálculo general para equilibrar las notas de canciones individuales con los 6 criterios técnicos.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Optimización de Carga en Catálogo y Perfiles",
+            "description": "Mejoras en el rendimiento de consultas a la biblioteca musical y estados reactivos en UserProfile y AlbumsCatalog.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Página de Preguntas Frecuentes (FAQ) con Buscador",
+            "description": "Guía completa con 8 categorías sobre dinámica del club, Máquina Musical, puntuación técnica, insignias y catálogo de Spotify.",
+            "type": "feature"
+          },
+          {
+            "title": "Páginas Legales y Footer Dinámico",
+            "description": "Integración de páginas dedicadas de Política de Privaimágenes integradas en alta calidadad y Términos de Servicio accesibles desde el pie de página.",
+            "type": "feature"
+          },
+          {
+            "title": "Física Cinemática de Desaceleración",
+            "description": "Curvas de transición bezier personalizadas para detener los carretes secuencialmente con mayor realismo.",
+            "type": "improvement"
+          },
+          {
+            "title": "Sincronización de Probabilidad Ponderada por Antigüedad",
+            "description": "Ajuste fino del algoritmo para otorgar hasta +40% de probabilidad justa a discos antiguos en lista de espera.",
+            "type": "improvement"
+          },
+          {
+            "title": "Queries Agregadas de Alto Rendimiento",
+            "description": "Optimización de búsqueda en la biblioteca en la biblioteca musical para contabilizar reviews, propuestas y XP sin cuello de botella.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Refactorización de Utilidades de Calificación (ratingUtils.js)",
+            "description": "Modularización y pruebas de utilidades para formateo de promedios y cálculo de bonificaciones.",
+            "type": "improvement"
+          },
+          {
+            "title": "Evaluación Técnica en 6 Dimensiones",
+            "description": "Sliders reactivos para Producción, Composición, Letras, Originalidad, Cohesión y Replay Value con escala visual.",
+            "type": "feature"
+          },
+          {
+            "title": "Calificación Pista por Pista (Track Ratings)",
+            "description": "Puntuación individual para cada canción del álbum sincronizada con el tracklist oficial de Spotify.",
+            "type": "feature"
+          },
+          {
+            "title": "Nuevas Páginas de Navegación",
+            "description": "Creación de rutas y componentes dedicados: LeaderboardPage, ProfilePage, SettingsPage y AlbumsPage.",
+            "type": "feature"
+          },
+          {
+            "title": "Migración la base de datos de Calificaciones por Pista",
+            "description": "Ejecución del script update_track_ratings.la base de datos para almacenar ratings en formato JSONB estructurado.",
+            "type": "database"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -291,6 +1489,63 @@
     "summary": "La Máquina Musical, el buscador y las reseñas de la comunidad ayudan a elegir qué escuchar.",
     "tag": "Musiclub 3",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Renderizado de Portadas en AlbumGrid",
+            "description": "Optimización de carga diferida (lazy loading) y placeholders elegantes para portadas de Spotify.",
+            "type": "improvement"
+          },
+          {
+            "title": "Filtros Rápidos en Cuadrícula",
+            "description": "Selector visual entre álbumes del Pool activo, Álbumes Individuales y Ganadores anteriores.",
+            "type": "improvement"
+          },
+          {
+            "title": "Podio Visual de Campeones (#1, #2 y #3)",
+            "description": "Efectos dorados, plateados y de bronce con animaciones de resplandor para los discos mejor evaluados.",
+            "type": "feature"
+          },
+          {
+            "title": "Panel de Administración (AdminPanel)",
+            "description": "Herramientas de moderador para activar, desactivar o remover álbumes del catálogo.",
+            "type": "feature"
+          },
+          {
+            "title": "Modal de Ganador Integrado (WinnerDisplay)",
+            "description": "Presentación destacada con botón de reproducción en Spotify y acceso rápido a reseñas.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Buscador de Álbumes con el catálogo oficial de Spotify (AlbumSearch)",
+            "description": "Búsqueda en tiempo real de álbumes, artistas y años de lanzamiento con autocompletado y carátulas HD.",
+            "type": "feature"
+          },
+          {
+            "title": "Integración Directa con el catálogo oficial de Spotify",
+            "description": "Recuperación de enlaces oficiales de reproducción y arte de portada en alta definición.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Feed de Reseñas en Vivo (ReviewsPage)",
+            "description": "Muro interactivo con las últimas reseñas enviadas por los miembros, comentarios y puntuaciones.",
+            "type": "feature"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -319,6 +1574,58 @@
     "summary": "El inicio de sesión con Google conecta las reseñas con cada miembro del club.",
     "tag": "Musiclub 2",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Alineación de Contenedores en App.js",
+            "description": "Corrección de márgenes y paddings en la vista general de la aplicación.",
+            "type": "fix"
+          },
+          {
+            "title": "Perfil en AppHeader",
+            "description": "Visualización de la foto de perfil del usuario autenticidado y menú desplegable de acciones.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Gestión de Sesión en tu cuenta conectada.js",
+            "description": "Sincronización del estado de autenticación con onAuthStateChange de la biblioteca musical.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tema Visual Cyberpunk en global.css",
+            "description": "Fondo de cuadrícula cibernética, efectos de neón rosa/violeta y scrollbars personalizados.",
+            "type": "feature"
+          },
+          {
+            "title": "Ruta de Administración (/admin)",
+            "description": "Acceso protegido para moderación de álbumes y usuarios administradores.",
+            "type": "feature"
+          },
+          {
+            "title": "inicio de sesión seguro con Google 2.0 con la biblioteca musical",
+            "description": "Inicio de sesión con un solo la plataformac, almacenamiento de perfiles de usuario y roles de permisos.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Protección de Reseñas y Propuestas",
+            "description": "Vinculación de cada reseña y propuesta musical a la cuenta autenticidada del usuario.",
+            "type": "feature"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -342,6 +1649,78 @@
     "summary": "Musiclub deja la hoja de cálculo y reúne catálogo, reseñas y selección musical en una página propia.",
     "tag": "Musiclub 1",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Reseñas y canciones",
+        "changes": [
+          {
+            "title": "Google Search Console Verification",
+            "description": "Inclusión del archivo de validación pública para monitoreo de indexación web.",
+            "type": "improvement"
+          },
+          {
+            "title": "Scripts de Migración (migrateAlbums / migrateReviews)",
+            "description": "Migración automatizada de registros históricos manteniendo la integridad de fechas y puntuaciones.",
+            "type": "database"
+          },
+          {
+            "title": "Primer Sistema de Reseñas y Puntuación",
+            "description": "Formulario para calificar discos y almacenar comentarios de los miembros.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Consentimiento OAuth en Producción",
+            "description": "Configuración de credenciales seguras para el flujo de autorización OAuth.",
+            "type": "improvement"
+          },
+          {
+            "title": "Componente SEO (SEO.jsx)",
+            "description": "Generación dinámica de Open Graph meta tags, títulos y descripción del club musical.",
+            "type": "feature"
+          },
+          {
+            "title": "Control de Errores de Inicio de Sesión",
+            "description": "Notificaciones amigables cuando se cancela el flujo de inicio de sesión seguro con Google.",
+            "type": "fix"
+          },
+          {
+            "title": "Estructura Legal Inicial",
+            "description": "Primer borrador de PrivacyPolicy y TermsOfService en el pie de página.",
+            "type": "feature"
+          },
+          {
+            "title": "Optimización de la plataformaente la biblioteca musical",
+            "description": "Uso de transacciones limpias y control de reconexiones en la biblioteca musicalla plataformaent.js.",
+            "type": "improvement"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "LoginModal con Diseño Cyberpunk",
+            "description": "Ventana emergente estilizada con botón directo de Google Login y soporte de email.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Conexión con la biblioteca musical y el catálogo oficial de Spotify",
+            "description": "Búsqueda en catálogo oficial de Spotify y persistencia de propuestas y votos en la biblioteca musical.",
+            "type": "feature"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
@@ -370,6 +1749,43 @@
     "summary": "El catálogo, la galería y el selector musical comenzaron como las primeras pruebas del club.",
     "tag": "Prototipos",
     "authorName": "Eugenio Turcott",
+    "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "Prototipo de Máquina Musical Circular SVG (Wheel.jsx)",
+            "description": "Rueda gráfica con segmentos divididos por álbum y animación de rotación.",
+            "type": "feature"
+          },
+          {
+            "title": "Modal Emergente de Ganador (WinnerPopup.jsx)",
+            "description": "Ventana básica para mostrar el disco resultante del giro.",
+            "type": "feature"
+          },
+          {
+            "title": "Primer Boceto de la Máquina Musical Musical",
+            "description": "Maquetación de la Máquina Musical de discos para las reuniones del club.",
+            "type": "feature"
+          },
+          {
+            "title": "Setup Inicial con los cimientos de la plataforma",
+            "description": "Configuración del entorno de desarrollo, gitignore, package.json y estructura base.",
+            "type": "feature"
+          }
+        ]
+      },
+      {
+        "title": "Perfiles, diseño y comunidad",
+        "changes": [
+          {
+            "title": "Configuración de diseño visual estilizado y Estilos Base",
+            "description": "Estructura de fuentes, colores oscuros y componentes iniciales de UI.",
+            "type": "feature"
+          }
+        ]
+      }
+    ],
     "changes": [
       {
         "type": "feature",
