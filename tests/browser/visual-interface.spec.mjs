@@ -181,7 +181,7 @@ test('community reviews preserve written text and explicitly identify ratings wi
 
 test('catalogue Top del Club excludes a single perfect review and home mood badges contain only artwork',async({page})=>{
  await page.goto('/catalogo');
- const top=page.locator('[data-catalog-top]');
+ const top=page.locator('[data-catalog-top]').filter({visible:true});
  await expect(top).toContainText('Azul');
  await expect(top).not.toContainText('Verde');
  await page.goto('/');

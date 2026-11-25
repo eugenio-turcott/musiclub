@@ -6,3 +6,5 @@
 .layout{display:flex;flex-direction:column;gap:18px}.hero{padding:4px 2px 12px}.hero h1{margin:0}.hero p{margin-top:4px}@media(max-width:650px){.layout{gap:14px}.hero{gap:10px}}
 
 @media(max-width:650px){.mainTabs{gap:6px}.mainTabs button{flex:1;min-width:0;padding:10px 6px;font-size:12px;justify-content:center;gap:6px}.mainTabs button svg{width:19px;height:19px}.releaseSections{flex-wrap:nowrap;overflow-x:auto;padding-bottom:5px}.releaseSections button{flex-shrink:0;white-space:nowrap}}
+
+.statCluster{min-width:0;max-width:350px;flex-shrink:0}.topPick{display:flex;align-items:center;justify-content:flex-end;gap:7px;min-width:0;margin-top:10px;font-size:11px;color:#f3d77c}.topPick svg{flex-shrink:0}.topPick small{font-size:10px;color:#afaac0;white-space:nowrap}.topPick strong{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eee6fa;max-width:190px}.topPick>span{font-weight:800;white-space:nowrap}@media(max-width:650px){.statCluster{max-width:100%;width:100%}.statCluster dl{justify-content:space-between;gap:10px}.topPick{justify-content:flex-start}.topPick strong{max-width:none;flex:1}}

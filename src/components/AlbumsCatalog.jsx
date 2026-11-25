@@ -1,6 +1,6 @@
 import {DetailLoading} from './DetailLoading';
 import catalogStyles from './CatalogPresentation.module.css';
-import { InterfaceText } from './UiIcon';
+import { InterfaceText, UiIcon } from './UiIcon';
 import dynamic from 'next/dynamic';
 import { GenreIconStrip } from './GenreIconStrip';
 import { MusiclubVinyl } from './MusiclubVinyl';
@@ -203,6 +203,18 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
   const [trendingReleases, setTrendingReleases] = useState([]);
   const [loadingTrending, setLoadingTrending] = useState(!initialQuery.trim());
   const [loadingAnticipated, setLoadingAnticipated] = useState(!initialQuery.trim());
+  const selectReleaseSection = (key) => {
+    setReleaseSection(key);
+    // Search opens the collection directly. Load discovery only if it is selected.
+    if (key === 'trending' && !loadingTrending && !monthlyTrending?.releases?.length) {
+      setLoadingTrending(true);
+      getMonthlyTrendingReleases().then(data => { if (data) setMonthlyTrending(data); }).catch(() => {}).finally(() => setLoadingTrending(false));
+    }
+    if (key === 'upcoming' && !loadingAnticipated && !anticipatedReleases.length) {
+      setLoadingAnticipated(true);
+      getAnticipatedReleases(albums).then(data => setAnticipatedReleases(data || [])).catch(() => {}).finally(() => setLoadingAnticipated(false));
+    }
+  };
   const [proposingId, setProposingId] = useState(null);
   const [proposeError, setProposeError] = useState(null);
 
@@ -816,7 +828,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
         <AppHeader showTitle={false} />
 
         {/* Header Title & Musiclub Aesthetics */}
-        <section data-catalog-hero className={catalogStyles.hero}><div className={catalogStyles.heading}><span className={catalogStyles.vinyl}><MusiclubVinyl alt=""/></span><div><h1>Catálogo Musical</h1><p>Elige una escucha. Explora lo que llega y lo que ya suena en el club.</p></div></div><dl><div><dt>releases</dt><dd>{globalStats.totalClub.toLocaleString('es-MX')}</dd></div><div><dt>artistas</dt><dd>{new Set(albums.map(a=>a.artist_name)).size.toLocaleString('es-MX')}</dd></div><div><dt>reseñas</dt><dd>{globalStats.totalReviews}</dd></div></dl></section>
+        <section data-catalog-hero className={catalogStyles.hero}><div className={catalogStyles.heading}><span className={catalogStyles.vinyl}><MusiclubVinyl alt=""/></span><div><h1>Catálogo Musical</h1><p>Elige una escucha. Explora lo que llega y lo que ya suena en el club.</p></div></div><div className={catalogStyles.statCluster}><dl><div><dt>releases</dt><dd>{globalStats.totalClub.toLocaleString('es-MX')}</dd></div><div><dt>artistas</dt><dd>{new Set(albums.map(a=>a.artist_name)).size.toLocaleString('es-MX')}</dd></div><div><dt>reseñas</dt><dd>{globalStats.totalReviews}</dd></div></dl>{globalStats.topRatedAlbum&&<Link data-catalog-top className={catalogStyles.topPick} to={getReleaseUrl(globalStats.topRatedAlbum)}><UiIcon name="star" size={18}/><small>Top del club</small><strong>{globalStats.topRatedAlbum.album_name}</strong><span>{Number(globalStats.topRatedAlbum.final_rating).toFixed(2)}</span></Link>}</div></section>
 
         {/* Barra superior de carga no invasiva al abrir o procesar un álbum */}
         {proposingId && (
@@ -895,7 +907,7 @@ export function AlbumsCatalog({ isPage = false, initialAlbums = [], initialPage 
           />
         ) : (
           <>
-            <nav className={catalogStyles.releaseSections} aria-label="Explorar releases">{[['trending','Tendencias'],['collection','Todo el catálogo'],['upcoming','Próximos estrenos'],['recommended','Recomendados']].map(([key,label])=><button key={key} type="button" aria-pressed={releaseSection===key} onClick={()=>setReleaseSection(key)}>{label}</button>)}</nav>
+            <nav className={catalogStyles.releaseSections} aria-label="Explorar releases">{[['trending','Tendencias'],['collection','Todo el catálogo'],['upcoming','Próximos estrenos'],['recommended','Recomendados']].map(([key,label])=><button key={key} type="button" aria-pressed={releaseSection===key} onClick={()=>selectReleaseSection(key)}>{label}</button>)}</nav>
             {releaseSection==='trending'&&<TrendingMonthlySection trendingData={monthlyTrending} clubAlbums={albums} loading={loadingTrending} onQuickPropose={handleQuickPropose} proposingId={proposingId}/>}
             {releaseSection==='upcoming'&&<AnticipatedSection anticipatedReleases={anticipatedReleases} loading={loadingAnticipated}/>}
             {releaseSection==='recommended'&&<RecommendedSection albums={albums}/>}

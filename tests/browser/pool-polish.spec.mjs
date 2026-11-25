@@ -9,10 +9,14 @@ test('a client-only Pool read keeps navigation visible with a compact loading ro
   const loading=page.getByRole('status').filter({hasText:'Cargando salas'});
   await expect(loading).toContainText('Cargando salas');
   await expect(loading.locator('svg')).toBeVisible();
-  expect((await loading.locator('svg').boundingBox()).width).toBeLessThanOrEqual(60);
+  const icon=await loading.locator('svg').boundingBox();
+  expect(icon.width).toBeGreaterThanOrEqual(62);
+  expect(icon.width).toBeLessThanOrEqual(72);
   expect((await loading.boundingBox()).height).toBeLessThan(150);
   expect((await loading.boundingBox()).height).toBeLessThan(page.viewportSize().height*.65);
   await expect(page.getByRole('banner')).toBeVisible();
+  const navigation=await page.getByRole('banner').boundingBox();
+  expect((await loading.boundingBox()).y).toBeGreaterThanOrEqual(navigation.y+navigation.height+12);
   await expect(page.getByRole('heading',{name:/Cada sala/})).toHaveCount(0);
   await page.screenshot({path:`outputs/loading-v1070-${testInfo.project.name}.png`});
   release();await expect(page.getByRole('heading',{name:/Cada sala/})).toBeVisible();

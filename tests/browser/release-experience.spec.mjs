@@ -64,6 +64,19 @@ test('patch notes show a complete major version and its sections on one page',as
  await expect(page.locator('.patch-version-page')).toContainText('V.11.0.0');
 });
 
+test('a direct catalogue search can open trends and upcoming releases on demand',async({page})=>{
+ let reads=0;
+ await page.route('**/api/trending?type=weekly*',route=>{reads++;return route.fulfill({json:{success:true,releases:[{...albums[0],slug:'artista-de-prueba-azul',trending_rank:1}]}});});
+ await page.goto('/catalogo?q=Azul');
+ await expect(page.getByRole('heading',{name:'Explorador de Catálogo y Colección',exact:true})).toBeVisible();
+ expect(reads).toBe(0);
+ await page.getByRole('button',{name:'Tendencias',exact:true}).click();
+ await expect(page.getByRole('img',{name:'Azul',exact:true}).first()).toBeVisible();
+ expect(reads).toBe(1);
+ await page.getByRole('button',{name:'Próximos estrenos',exact:true}).click();
+ await expect(page.getByRole('link',{name:'Estreno oficial',exact:true})).toBeVisible();
+});
+
 test('private continuation data requires an authenticated account',async({request})=>{
  const response=await request.get('/api/reviews/continuations?reviewer_email=someone@example.test');
  expect(response.status()).toBe(401);

@@ -8,7 +8,7 @@ Los tracklists conservan `disc_number` y `track_number`. Cuando una fuente antig
 
 ## Colores de las imágenes
 
-La migración `20261125212609_release_artwork_palettes.sql` añade `dominant_colors` y `palette_image_url` a `albums` y `artist_discographies`. Cada paleta contiene hasta cinco colores hexadecimales medidos en la imagen. La interfaz utiliza la paleta sólo cuando corresponde a la imagen actual y respeta la preferencia de reducir movimiento.
+La migración `20261125212702_release_artwork_palettes.sql` añade `dominant_colors` y `palette_image_url` a `albums` y `artist_discographies`. Cada paleta contiene hasta cinco colores hexadecimales medidos en la imagen. La interfaz utiliza la paleta sólo cuando corresponde a la imagen actual y respeta la preferencia de reducir movimiento.
 
 ```sh
 npm run artwork:palettes
