@@ -17,7 +17,7 @@ npm run artwork:palettes -- --apply
 
 La primera orden sólo analiza; la segunda guarda usando la conexión administrativa del entorno. No colocar la clave de servicio en el navegador. El script valida las direcciones y redirecciones de las imágenes y guarda un informe en `outputs/v1230/palette-report.json`.
 
-GitHub Actions ejecuta **Musiclub artwork colors** cada seis horas, al minuto 23, y permite ejecución manual. Reutiliza los secretos existentes de Supabase y no genera commits. Sólo procesa imágenes nuevas o cambiadas; la condición sobre la URL evita guardar colores de una portada sustituida durante el análisis.
+GitHub Actions ejecuta **Musiclub artwork colors** cada seis horas, al minuto 23, y permite ejecución manual. Reutiliza los secretos existentes de Supabase y no genera commits. Sólo procesa imágenes nuevas o cambiadas; la condición sobre la URL evita guardar colores de una portada sustituida durante el análisis. Las consultas de artistas proyectan únicamente la URL de la foto, en lotes de 50, y guardan un informe después de cada lote. No descargan las discografías completas.
 
 ## Discografías verificadas
 

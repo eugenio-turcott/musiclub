@@ -10,6 +10,11 @@ const input=inputFile?JSON.parse(await fs.readFile(inputFile,'utf8')):null;
 const updates=[];
 const db=input?null:createClient(process.env.NEXT_PUBLIC_SUPABASE_URL||process.env.REACT_APP_SUPABASE_URL,process.env.SUPABASE_SERVICE_ROLE_KEY||process.env.REACT_APP_SUPABASE_SERVICE_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
 const report={checked:0,saved:0,unchanged:0,unavailable:0,errors:[]},cache=new Map();
+async function writeReport(){
+ await fs.mkdir('outputs/v1230',{recursive:true});
+ await fs.writeFile('outputs/v1230/palette-report.json',JSON.stringify({...report,apply},null,2));
+ await fs.writeFile('outputs/v1230/palette-plan.json',JSON.stringify(updates));
+}
 async function palette(url){
  if(!cache.has(url))cache.set(url,(async()=>{
   let safe=permittedArtworkURL(url);if(!safe)throw Error('Unsupported artwork host');
@@ -21,9 +26,9 @@ async function palette(url){
  return cache.get(url);
 }
 for(const table of ['albums','artist_discographies']){
- const key=table==='albums'?'id':'slug';
- for(let offset=0;;offset+=200){
-  const {data,error}=input?{data:(table==='albums'?input.albums:input.artists).slice(offset,offset+200)}:await db.from(table).select(table==='albums'?'id,image_url,dominant_colors,palette_image_url':'slug,profile,dominant_colors,palette_image_url').order(key).range(offset,offset+199);if(error)throw Error(`Cannot read ${table}: ${error.message}`);
+ const key=table==='albums'?'id':'slug',pageSize=table==='albums'?200:50;
+ for(let offset=0;;offset+=pageSize){
+  const {data,error}=input?{data:(table==='albums'?input.albums:input.artists).slice(offset,offset+pageSize)}:await db.from(table).select(table==='albums'?'id,image_url,dominant_colors,palette_image_url':'slug,image_url:profile->artist->>image,dominant_colors,palette_image_url').order(key).range(offset,offset+pageSize-1);if(error){report.errors.push({table,offset,reason:error.message});await writeReport();throw Error(`Cannot read ${table}: ${error.message}`);}
   let next=0;
   await Promise.all(Array.from({length:6},async()=>{while(next<data.length){const row=data[next++],url=row.image_url||row.profile?.artist?.image;if(!url)continue;report.checked++;
    if(row.palette_image_url===url&&row.dominant_colors?.length){report.unchanged++;continue;}
@@ -32,9 +37,8 @@ for(const table of ['albums','artist_discographies']){
     updates.push({table,id:row[key],image_url:url,colors});report.saved++;
    }catch(error){report.unavailable++;report.errors.push({table,id:row[key],reason:error.message});}
   }}));
-  console.log(JSON.stringify({table,offset,checked:report.checked,saved:report.saved,unavailable:report.unavailable}));if(data.length<200)break;
+  await writeReport();console.log(JSON.stringify({table,offset,checked:report.checked,saved:report.saved,unavailable:report.unavailable}));if(data.length<pageSize)break;
  }
 }
-await fs.mkdir('outputs/v1230',{recursive:true});await fs.writeFile('outputs/v1230/palette-report.json',JSON.stringify({...report,apply},null,2));
-await fs.writeFile('outputs/v1230/palette-plan.json',JSON.stringify(updates));
+await writeReport();
 console.log(JSON.stringify({checked:report.checked,saved:report.saved,unavailable:report.unavailable}));
