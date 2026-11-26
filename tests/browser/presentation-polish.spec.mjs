@@ -72,12 +72,12 @@ test('native image decoding retains the background when the palette service is t
  await expect(page.getByRole('heading',{name:'Rojo',exact:true})).toBeVisible();
 });
 
-test('cover atmosphere fills the page while the gold banner keeps an opaque backing',async({page})=>{
+test('cover atmosphere fills the page without the retired announcement',async({page})=>{
  for(const path of ['/albumes/artista-de-prueba-azul','/artista/artista-de-prueba']){
   await page.goto(path);const layer=page.locator('[data-artwork-boundary]');await expect(layer).toBeAttached();
   await expect(layer).toHaveCSS('clip-path','none');
   const rect=await layer.boundingBox();expect(rect.y).toBe(0);expect(rect.height).toBeGreaterThanOrEqual(page.viewportSize().height);
-  await expect(page.locator('.grammy-announcement')).toHaveCSS('background-color','rgb(0, 0, 0)');
+  await expect(page.locator('.grammy-announcement')).toHaveCount(0);
   await expect(page.locator('.musiclub-site-header')).toHaveCSS('background-color','rgb(12, 12, 24)');
   await page.evaluate(()=>window.scrollBy(0,250));await expect(layer).toHaveCSS('clip-path','none');
  }

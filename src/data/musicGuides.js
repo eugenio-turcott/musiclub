@@ -1,7 +1,8 @@
 export const MUSIC_GUIDES = [
   { slug: 'como-calificamos', title: 'Cómo se calcula una calificación en Musiclub', description: 'Las escalas y ponderaciones de las canciones, los seis pilares y la nota general del club.',
     sections: [
-      ['La reseña del club', 'Musiclub utiliza una reseña completa: evalúa las canciones disponibles, los seis pilares y tu nota general. También puedes elegir una canción favorita y añadir un comentario para explicar tu experiencia.'],
+      ['Una canción, una nota', 'Si el release contiene exactamente una canción, su nota del 1 al 10 es toda la calificación: no pide pilares ni otra nota general.'],
+      ['La reseña del club', 'Para releases con varias canciones, Musiclub utiliza una reseña completa: evalúa las canciones disponibles, los seis pilares y tu nota general. También puedes elegir una canción favorita y añadir un comentario para explicar tu experiencia.'],
       ['Qué significa cada escala', 'Las canciones y la nota general se califican sobre 10. Producción, Composición, Letras, Originalidad, Cohesión y Replay Value se califican sobre 5. Para combinar escalas, el cálculo convierte los pilares a una escala de 10.'],
       ['Cómo se combina la reseña', 'Con canciones, los seis pilares y la nota general, la ponderación es 50 % canciones, 30 % pilares y 20 % general. Cuando el lanzamiento no tiene canciones disponibles para calificar, se utiliza 60 % pilares y 40 % general.'],
       ['La nota del club y el número de reseñas', 'La ficha promedia las notas ponderadas de las reseñas disponibles. No añade un bono por acumular reseñas. Un disco con un 10 y una reseña tiene menos respaldo comunitario que otro con muchas opiniones: consulta siempre cuántas personas participaron.'],

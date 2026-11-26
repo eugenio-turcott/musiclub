@@ -1,4 +1,5 @@
 import releaseIdentity from './releaseIdentity.cjs';
+import {singleTrackScore} from './releaseScoring.cjs';
 // src/utils/ratingUtils.js
 
 /**
@@ -9,6 +10,8 @@ import releaseIdentity from './releaseIdentity.cjs';
  */
 export function getWeightedReviewScore(review) {
   if (!review) return null;
+  const singleScore=singleTrackScore(review.albums||review,review.track_ratings||review.trackRatings||{});
+  if(singleScore!==null)return singleScore;
 
   // 1. Canciones (50%)
   const trackRatings = review.track_ratings || review.trackRatings || {};

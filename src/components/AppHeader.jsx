@@ -166,6 +166,7 @@ export function SiteNavigation({
   // Rutas para grupo Comunidad
   const communityPaths = [
     '/2026',
+    '/grammys',
     '/recomendaciones',
     '/para-ti',
     '/playlists',
@@ -308,6 +309,7 @@ export function SiteNavigation({
                       </span>
                     </div>
                     <Link to="/2026" onClick={()=>setOpenNavDropdown(null)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-slate-300 hover:bg-white/5 hover:text-pink-200"><UiIcon name="calendar" size={21}/><div className="flex flex-col text-left"><span className="font-semibold">Musiclub 2026</span><span className="text-[10px] text-slate-400">Nuestro año en música · Próximamente</span></div></Link>
+                    <Link to="/grammys" onClick={()=>setOpenNavDropdown(null)} className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-amber-200 hover:bg-amber-400/10 hover:text-amber-100"><UiIcon name="gramophone" size={21}/><div className="flex flex-col text-left"><span className="font-semibold">Grammy 2027</span><span className="text-[10px] text-amber-200/70">Nominados y tus predicciones</span></div></Link>
                     <Link
                       to="/recomendaciones"
                       onClick={() => setOpenNavDropdown(null)}
@@ -840,6 +842,7 @@ export function SiteNavigation({
               Comunidad & Social
             </span>
             <Link to="/2026" onClick={()=>setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-white/5 text-white/80 border border-white/5"><UiIcon name="calendar" size={21}/>Musiclub 2026 · Próximamente</Link>
+            <Link to="/grammys" onClick={()=>setIsMobileMenuOpen(false)} className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-semibold bg-amber-400/5 text-amber-200 border border-amber-300/15"><UiIcon name="gramophone" size={21}/>Grammy 2027</Link>
             <div className="grid grid-cols-2 gap-2">
               <Link
                 to="/recomendaciones"

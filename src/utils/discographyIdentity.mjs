@@ -24,6 +24,8 @@ export function attachClubReleases(external=[],albums=[]){
    // Spotify's edition artwork and count take precedence over local fallbacks.
    if(!(match.sources||[]).some(s=>s.provider==='SPOTIFY')){match.image=album.image_url||match.image;match.totalTracks=album.total_tracks||album.tracks?.length||match.totalTracks;}
    for(const field of ['spotify_link','apple_music_link','other_link','mbid'])if(album[field])match[field]=album[field];
+   const spotify=(match.sources||[]).find(s=>s.provider==='SPOTIFY'&&/^[A-Za-z0-9]{22}$/.test(String(s.id)));
+   if(spotify)match.spotify_link=`https://open.spotify.com/album/${spotify.id}`;
   }else rows.push({...album,name:album.album_name,artists:[album.artist_name],image:album.image_url,releaseYear:album.release_year,releaseDate:album.release_date||'',totalTracks:album.total_tracks||album.tracks?.length,clubAlbumId:album.id});
  }
  return rows;

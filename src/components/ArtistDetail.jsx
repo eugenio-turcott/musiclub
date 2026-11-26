@@ -160,8 +160,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
 
     try {
       // 1. Obtener detalles de canciones desde Spotify
-      const mb = release.mbid ? await getMusicBrainzReleaseGroupDetails(release.mbid) : null;
-      const details = release.mbid ? null : await getAlbumDetails(release.id);
+      const spotifySource=(release.sources||[]).find(source=>source.provider==='SPOTIFY'&&/^[A-Za-z0-9]{22}$/.test(String(source.id)));
+      const mb = !spotifySource&&release.mbid ? await getMusicBrainzReleaseGroupDetails(release.mbid) : null;
+      const details = mb ? null : await getAlbumDetails(spotifySource?.id||release.id);
       const spotifyAlbum = mb ? { ...release, ...mb } : details?.success ? details.album : release;
 
       const tracks = (spotifyAlbum.tracks || []).map((t) => ({
@@ -170,16 +171,19 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         duration_ms: t.duration_ms,
         track_number: t.track_number,
         disc_number: t.disc_number,
+        ...(t.isrc?{isrc:t.isrc}:{}),
+        ...(t.artists?.length?{artists:t.artists}:{}),
+        ...(t.id_aliases?.length?{id_aliases:t.id_aliases}:{}),
       }));
 
-      const artistName =
-        profileData?.artist?.name || release.artists?.[0] || 'Artista';
+      const credits=(spotifyAlbum.artists||release.artists||[]).map(artist=>typeof artist==='string'?artist:artist?.name).filter(Boolean);
+      const artistName = credits.join(' & ') || profileData?.artist?.name || 'Artista';
 
       const albumPayload = {
         albumName: spotifyAlbum.name,
         artistName: artistName,
         imageUrl: spotifyAlbum.image || release.image,
-        spotifyLink: spotifyAlbum.external_urls?.spotify || release.spotifyUrl,
+        spotifyLink: spotifyAlbum.external_urls?.spotify || spotifySource?.url || release.spotify_link || release.spotifyUrl,
         addedBy: user?.name || user?.email?.split('@')[0] || 'Miembro Musiclub',
         addedByEmail: user?.email || '',
         status: 'INDIVIDUAL',
@@ -187,7 +191,9 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
         releaseDate: spotifyAlbum.releaseDate || release.releaseDate || null,
         releaseYear: spotifyAlbum.releaseYear || release.releaseYear || null,
         releaseType: release.release_type || 'ALBUM',
-        genres: mb?.genres?.length ? mb.genres : profileData?.artist?.genres || [],
+        genres: [...(spotifyAlbum.genres||[]),...(release.genres||[]),...(profileData?.artist?.genres||[])],
+        totalTracks: spotifyAlbum.totalTracks || release.totalTracks || tracks.length || null,
+        barcode: spotifyAlbum.barcode || release.barcode || null,
         mbid: release.mbid || null,
         reviews_enabled: true,
       };

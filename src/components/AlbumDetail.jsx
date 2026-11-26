@@ -1,4 +1,5 @@
 'use client';
+import {isSingleTrackRelease} from '../utils/releaseScoring.cjs';
 import {ArtworkLightbox} from './ArtworkLightbox';
 import {TrackDiscs} from './TrackDiscs';
 import {ArtworkAtmosphere,artworkPageClass} from './ArtworkAtmosphere';
@@ -1678,7 +1679,7 @@ export function AlbumDetail({
         )}
 
         {/* CRITERIA BREAKDOWN SECTION */}
-        <div className="space-y-4">
+        {!isSingleTrackRelease(album) && <div className="space-y-4">
           <div className="flex items-center justify-between flex-wrap gap-2">
             <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
               <span><InterfaceText>{"📊"}</InterfaceText></span>
@@ -1727,7 +1728,7 @@ export function AlbumDetail({
               );
             })}
           </div>
-        </div>
+        </div>}
 
         {/* TRACKLIST & RATINGS SECTION */}
         <AdsterraAdvertising variant="inline" slot="release-tracklist" />

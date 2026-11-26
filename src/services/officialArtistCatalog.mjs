@@ -2,6 +2,8 @@ import editions from '../utils/releaseEditions.cjs';
 import identity from '../utils/releaseIdentity.cjs';
 import genreCatalog from '../utils/genreCatalog.cjs';
 import {artistPlatformConcordance} from './artistPlatformConcordance.mjs';
+import {spotifyPublicArtist} from './spotifyPublicCatalog.mjs';
+import {spotifyRequest} from '../utils/spotifyBackoff.cjs';
 const { slugify } = identity;
 const artistKey = value => slugify(value);
 export function storedOfficialArtistName(profile, fallback = '') {
@@ -19,7 +21,7 @@ export function storedOfficialArtistName(profile, fallback = '') {
   return evidence.sort((a,b) => a.rank - b.rank)[0]?.name || original;
 }
 const titleKey = value => slugify(String(value || '').replace(/ - (Single|EP)$/i,''), true);
-export function mergeOfficialReleases(previous = [], incoming = []) {
+export function mergeOfficialReleases(previous = [], incoming = [], {artistName=''}={}) {
   const variants=new Map();
   for(const grouped of [...previous,...incoming]) {
     for(const release of grouped.editionVariants || [grouped]) {
@@ -33,8 +35,12 @@ export function mergeOfficialReleases(previous = [], incoming = []) {
     }
   }
   const rows=[...variants.values()];
-  return editions.groupReleaseEditions(rows).map(group=>({...group,
-    editionVariants:rows.filter(row=>editions.editionKey(row)===editions.editionKey(group))
+  // Every row here belongs to one independently verified artist catalogue.
+  // Primary and featured credits differ between providers; retain Spotify's
+  // actual credit while grouping the same work inside that catalogue only.
+  const key=r=>editions.editionKey(artistName?{...r,artist_name:artistName}:r);
+  return editions.groupReleaseEditions(rows,artistName,{artistContext:!!artistName}).map(group=>({...group,
+    editionVariants:rows.filter(row=>key(row)===key(group))
   })).sort((a,b)=>(b.releaseDate || '').localeCompare(a.releaseDate || ''));
 }
 function releaseType(name, type, count) {
@@ -42,7 +48,7 @@ function releaseType(name, type, count) {
   if (/\b(live|en vivo)\b/i.test(name)) return 'EN VIVO';
   if (/soundtrack/i.test(name)) return 'SOUNDTRACK';
   if (['compilation','compile'].includes(type)) return 'COMPILACION';
-  if (type === 'ep' || /(?: - |\()EP(?:\)|$)/i.test(name)) return 'EP';
+  if (type === 'ep' || /(?:^|[\s(])EP(?:[)\s]|$)/i.test(name)) return 'EP';
   return type === 'single' ? 'SENCILLO' : 'ALBUM';
 }
 // A matching name alone cannot disambiguate namesakes. Confirm against releases
@@ -72,7 +78,7 @@ export async function selectOfficialArtist(candidates,{knownId,idOf,catalog,know
 export async function collectOfficialArtist(name, { fetcher = fetch, env = process.env, knownIds = {}, knownReleases = [], knownDiscography = [], timeoutMs = 45000 } = {}) {
   const controller = new AbortController(), timer = setTimeout(()=>controller.abort(),timeoutMs);
   const json = async (url, headers={}) => {
-    const response = await fetcher(url,{headers,signal:controller.signal,cache:'no-store'});
+    const response = await spotifyRequest(url,{headers,signal:controller.signal,cache:'no-store'},fetcher);
     if (!response.ok) throw new Error(`Provider HTTP ${response.status}`);
     const data=await response.json(); if(data.error) throw new Error('Provider unavailable'); return data;
   };
@@ -165,15 +171,16 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
     if(anchor && !matches.some(a=>a.id===anchor.id)) matches.push(await json(`https://api.spotify.com/v1/artists/${anchor.id}`,headers));
     const {artist,items}=await selectOfficialArtist(matches,{knownId:knownIds.spotify || anchor?.id,idOf:a=>a.id,knownReleases,catalog:async a=>{
       const rows=await paginate(`https://api.spotify.com/v1/artists/${a.id}/albums?include_groups=album,single,compilation,appears_on&limit=10`,'https://api.spotify.com','items',headers);
-      return rows.filter(release=>(release.artists||[]).some(credit=>credit.id===a.id));
+      return rows;
     }});
     return {artist:{name:artist.name,image:artist.images?.[0]?.url || '',genres:genreCatalog.normalizeGenres(artist.genres || [])},provider:'SPOTIFY',artistId:artist.id,complete:true,
-      releases:items.filter(a=>(a.artists||[]).some(credit=>credit.id===artist.id)).map(a=>({id:a.id,name:a.name,artists:a.artists.map(credit=>credit.name),
+      releases:items.map(a=>({id:a.id,name:a.name,artists:a.artists.map(credit=>credit.name),
         releaseDate:a.release_date || '',releaseYear:Number(a.release_date?.slice(0,4)) || null,release_type:releaseType(a.name,a.album_type,a.total_tracks),totalTracks:a.total_tracks || null,
         explicit:a.explicit ?? null,genres:[],image:a.images?.[0]?.url || '',source:'SPOTIFY',sources:[{provider:'SPOTIFY',id:a.id,url:a.external_urls?.spotify}]}))};
   }
   try {
-    const results=await Promise.allSettled([spotify(),deezer(),apple()]);
+    const spotifyWithPublicFallback=async()=>{try{return await spotify();}catch{return spotifyPublicArtist(name,{artistId:knownIds.spotify,knownReleases,fetcher,signal:controller.signal});}};
+    const results=await Promise.allSettled([spotifyWithPublicFallback(),deezer(),apple()]);
     const accepted=results.filter(r=>r.status==='fulfilled').map(r=>r.value);
     ['SPOTIFY','DEEZER','APPLE'].forEach((provider,i)=>{providers[provider]=results[i].status==='fulfilled' ? {status:results[i].value.complete?'ok':'partial',count:results[i].value.releases.length,artistId:results[i].value.artistId} : {status:'unavailable'};});
     let concordance=[];
@@ -182,7 +189,7 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
       concordance=extra.releases;Object.assign(providers,extra.providers);
     }catch{for(const provider of ['MUSICBRAINZ','YOUTUBE_MUSIC','TIDAL'])providers[provider]={status:'unavailable'};}
     return {success:accepted.some(a=>a.releases.length),source:'OFFICIAL',artist:{name:accepted.find(a=>a.releases.length && a.artist.name)?.artist.name || name,image:accepted.find(a=>a.artist.image)?.artist.image || '',genres:[...new Set(accepted.flatMap(a=>a.artist.genres))]},
-      discography:mergeOfficialReleases([], [...accepted.flatMap(a=>a.releases),...concordance]),providers,checkedAt:new Date().toISOString()};
+      discography:mergeOfficialReleases([], [...accepted.flatMap(a=>a.releases),...concordance],{artistName:name}),providers,checkedAt:new Date().toISOString()};
   } finally {clearTimeout(timer);}
 }
 
@@ -218,5 +225,5 @@ export async function repairOfficialMetadata(profile,{fetcher=fetch,requestInter
       } catch {unavailable++;}
     }
   }));
-  return {profile:{...profile,discography:mergeOfficialReleases([],releases)},repaired,unavailable};
+  return {profile:{...profile,discography:mergeOfficialReleases([],releases,{artistName:profile.artist?.name})},repaired,unavailable};
 }

@@ -81,9 +81,23 @@ test('the common album insertion recovers official genres before validation and 
   };
   const tracks=[1,2,3].map(n=>({id:'spotify-track-'+n,name:'Movimiento '+n,track_number:n}));
   const artist='Sergei Rachmaninoff, Valentina Lisitsa, London Symphony Orchestra, Michael Francis';
-  const saved=await supabaseService.createAlbum({albumName:'Rachmaninov: Piano Concerto No.2',artistName:artist,barcode:'00028947851097',tracks,genres:[],releaseType:'EP',skipMusicBrainzEnrichment:true});
+  const saved=await supabaseService.createAlbum({albumName:'Rachmaninov: Piano Concerto No.2',artistName:artist,barcode:'00028947851097',tracks,totalTracks:3,spotifyLink:'https://open.spotify.com/album/1234567890123456789012',genres:[],releaseType:'EP'});
   assert.equal(saved.artist_name,artist);assert.equal(saved.release_type,'EP');assert.deepEqual(saved.tracks,tracks);
+  assert.equal(saved.total_tracks,3);
   assert.equal(calls.filter(url=>url.startsWith('https://test.supabase.co/rest/v1/albums')).length,1);assert.ok(calls.includes('https://api.deezer.com/album/upc:028947851097'));
+ }finally{globalThis.fetch=fetchBefore;supabaseService.findAlbum=findBefore;}
+});
+test('a complete Spotify edition with verified genres never searches for a different MusicBrainz edition on import',async()=>{
+ process.env.NEXT_PUBLIC_SUPABASE_URL='https://test.supabase.co';process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY='test-only-public-key';
+ const {supabaseService}=await import('../src/services/supabaseClient.js');
+ const fetchBefore=globalThis.fetch,findBefore=supabaseService.findAlbum,calls=[];
+ supabaseService.findAlbum=async()=>null;
+ const tracks=Array.from({length:8},(_,i)=>({id:'spotify-quantum-'+i,name:'Recording '+i}));
+ try{
+  globalThis.fetch=async(input,options)=>{const url=String(input);calls.push(url);assert.equal(new URL(url).origin+new URL(url).pathname,'https://test.supabase.co/rest/v1/albums');assert.equal(options.method,'POST');const [payload]=JSON.parse(options.body);return Response.json({...payload,id:'verified-quantum'});};
+  const saved=await supabaseService.createAlbum({albumName:'Quantum Baby',artistName:'Tinashe',tracks,totalTracks:8,spotifyLink:'https://open.spotify.com/album/6lCHEpHcYgC24XO87InJjZ',genres:['Pop'],releaseType:'ALBUM',releaseDate:'2024-08-16'});
+  assert.equal(saved.total_tracks,8);assert.deepEqual(saved.tracks,tracks);assert.equal(saved.release_date,'2024-08-16');assert.equal(saved.artist_name,'Tinashe');
+  assert.equal(calls.length,1);assert.equal(calls.some(url=>url.includes('musicbrainz.org')),false);
  }finally{globalThis.fetch=fetchBefore;supabaseService.findAlbum=findBefore;}
 });
 test('Before The World Blows uses full Deezer main credits after a primary-artist-only summary',async()=>{

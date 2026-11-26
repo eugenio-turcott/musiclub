@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { allowRequest } from '../../../server/rateLimit';
+import {spotifyRequest} from '../../../utils/spotifyBackoff.cjs';
 
 let token;
 let expires = 0;
@@ -39,7 +40,7 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Parámetros no permitidos' }, { status: 400 });
   }
   try {
-    const response = await fetch(upstream, { headers: { Authorization: `Bearer ${await appToken()}` },
+    const response = await spotifyRequest(upstream, { headers: { Authorization: `Bearer ${await appToken()}` },
       signal: AbortSignal.timeout(10000), next: { revalidate: 300 } });
     if (response.status === 401) { token = null; expires = 0; }
     if (!response.ok) return NextResponse.json({ error: 'Spotify no está disponible' }, {

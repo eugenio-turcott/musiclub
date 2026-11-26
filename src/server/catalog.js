@@ -1,4 +1,5 @@
 import {attachClubReleases} from '../utils/discographyIdentity.mjs';
+import {mergeOfficialReleases} from '../services/officialArtistCatalog.mjs';
 import {commonDiscography} from '../utils/verifiedDiscography.mjs';
 import cards from '../utils/catalogCards.cjs';
 import editions from '../utils/releaseEditions.cjs';
@@ -124,7 +125,7 @@ export const getPublicArtist = cache(async slug => {
   const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : upcoming?.[0]?.artist_name || canonicalSlug.replace(/-/g, ' ');
   const external = await getStoredArtistProfile(client(), canonicalSlug, name, Boolean(sample || upcoming?.length));
   if (!sample && !external && !upcoming?.length) return null;
-  const discography = attachClubReleases(editions.groupReleaseEditions(external?.discography || []),clubAlbums);
+  const discography = attachClubReleases(mergeOfficialReleases([],external?.discography || [],{artistName:external?.artist?.name||name}),clubAlbums);
   for (const release of upcoming || []) {
     const match = discography.find(d => d.name.toLowerCase().trim() === release.album_name.toLowerCase().trim());
     const metadata = { image: release.image_url, totalTracks: release.total_tracks, clubUrl: `/albumes/${release.slug}`, isUpcoming: true };

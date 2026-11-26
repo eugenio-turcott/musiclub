@@ -1,4 +1,10 @@
-export function reviewAssessment(ratings, trackRatings) {
+import {isSingleTrackRelease,singleTrackScore} from './releaseScoring.cjs';
+export function reviewAssessment(ratings, trackRatings, release) {
+  if(isSingleTrackRelease(release)){
+    const score=singleTrackScore(release,trackRatings);
+    if(score===null)throw new Error('Califica la canción entre 1 y 10.');
+    return {trackRatings,ratingGeneral:score,ratingProduccion:null,ratingComposicion:null,ratingLetras:null,ratingOriginalidad:null,ratingCohesion:null,ratingReplay:null};
+  }
   const general = Number(ratings.general);
   if (!Number.isFinite(general) || general < 1 || general > 10) throw new Error('Elige una calificación entre 1 y 10.');
   const result = { trackRatings, ratingGeneral: general };

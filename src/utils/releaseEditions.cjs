@@ -11,7 +11,7 @@ function editionTitle(value) {
 }
 function editionKey(release,artist='') {
  const title=editionTitle(release.album_name || release.album || release.name);
- const credit=release.artist_name || release.artista || release.artist || artist;
+ const credit=release.artist_name || release.artista || release.artist || release.artists?.map(a=>typeof a==='string'?a:a.name).filter(Boolean).join(' & ') || artist;
  const raw=String(release.release_type || release.releaseType || 'ALBUM').toUpperCase();
  const kind=/^(SINGLE|SENCILLO|TRACK|CANCION)$/.test(raw)?'SENCILLO':raw;
  return [slugify(credit),slugify(title.name,true),kind].join('|');
@@ -23,12 +23,13 @@ function preference(release) {
  const providers=release.sources?.map(source=>source.provider) || [];
  return (standard?1000:0)+(release.type==='CLUB'?5000:0)+(release.explicit===true?100:0)+(providers.includes('SPOTIFY')?700:providers.includes('APPLE')?20:10)+(Number(release.review_count)>0?5:0)+(Number(release.totalTracks || release.total_tracks)||0)/1000;
 }
-function groupReleaseEditions(releases=[],artist='') {
+function groupReleaseEditions(releases=[],artist='',{artistContext=false}={}) {
  const groups=new Map();
  const byId=new Map(releases.map(row=>[row.id,row]));
  const root=release=>{const seen=new Set();while(release.canonical_album_id&&byId.has(release.canonical_album_id)&&!seen.has(release.id)){seen.add(release.id);release=byId.get(release.canonical_album_id);}return release;};
  for(const release of releases) {
-  const key=editionKey(root(release),artist);
+  const record=root(release);
+  const key=editionKey(artistContext?{...record,artist_name:artist}:record,artist);
   if(!groups.has(key))groups.set(key,[]);
   groups.get(key).push(release);
  }

@@ -1,3 +1,4 @@
+import {isSingleTrackRelease} from './releaseScoring.cjs';
 import {drawUiIcon} from './drawInterfaceText.js';
 import {REVIEW_CRITERIA} from './reviewCriteria.mjs';
 import {getWeightedReviewScore,getReviewFavoriteTrack,getTrackDisplayName} from './ratingUtils.js';
@@ -65,6 +66,7 @@ function background(ctx,W,H,t,logo,story=false){
   return p;
 }
 function criteria(ctx,review,x,y,width,t){
+  if(REVIEW_CRITERIA.slice(0,6).every(([key])=>review[key]==null))return;
   const gap=width*.012,cell=(width-gap*6)/7;
   REVIEW_CRITERIA.forEach(([key,label,icon,max,color],i)=>{
     const left=x+i*(cell+gap);box(ctx,left,y,cell,cell*1.15,cell*.2,t.surface,t.muted+'22');
@@ -111,14 +113,14 @@ export async function renderSocialCard({kind='review',review={},album={},profile
     line(ctx,artist,tx,artistY,tw,W*(columns?.026:.032),t.muted,600);
     const fav=getReviewFavoriteTrack(review),favorite=fav?getTrackDisplayName(fav,album.tracks||[]):null;
     if(favorite){const fy=artistY+W*.055;drawUiIcon(ctx,'crown',tx,fy-W*.025,W*.030,t.accent);line(ctx,favorite,tx+W*.044,fy,tw-W*.046,W*.026,t.ink,700);}
-    const score=getWeightedReviewScore(review)??review.rating_general;
+    const score=getWeightedReviewScore({...review,albums:album})??review.rating_general;
     const sx=columns?tx:x+size*.70,sy=columns?H*(landscape?.565:.48):y+size*.72,sw=W*(columns?.24:.245),sh=landscape?H*.16:W*.145;
     box(ctx,sx,sy,sw,sh,sh*.26,t.accent);
     type(ctx,score==null?'—':Number(score).toFixed(1).replace(/\.0$/,''),sx+sw*.44,sy+sh*.73,landscape?H*.105:W*.092,t.bg,900,'center');type(ctx,'/10',sx+sw*.81,sy+sh*.7,W*.023,t.bg,700,'center');
     const criteriaY=H*(landscape?.78:square?.72:format==='story'?.78:format==='portrait'?.755:.775);
     const criteriaW=landscape?W*.40:available;
     if(includeQuote&&review.comment)title(ctx,'“'+String(review.comment).slice(0,140)+'”',landscape?W*.53:p,criteriaY+W*.032,criteriaW,W*.026,t.ink,2);
-    else criteria(ctx,review,landscape?W*.53:p,criteriaY,criteriaW,t);
+    else if(!isSingleTrackRelease(album)) criteria(ctx,review,landscape?W*.53:p,criteriaY,criteriaW,t);
     footer(ctx,W,H,t,avatar,review.reviewer_name||profile.name,'Una reseña. Un nuevo descubrimiento.',format==='story'||landscape?.91:.95);
   }
 

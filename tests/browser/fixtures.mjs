@@ -48,6 +48,12 @@ albums[0].public_content_updated_at='2026-11-12T18:00:00Z';
 // Exercise unassociated release discovery and person categories, even with a catalog association.
 tables.grammy_nominees.push({id:'20000000-0000-4000-8000-000000000003',event_id:'grammys-2027',category_id:'song-of-the-year',title:'Canción sin ficha',artist:'Artista de Prueba'},{id:'20000000-0000-4000-8000-000000000004',event_id:'grammys-2027',category_id:'producer-of-the-year-non-classical',title:'Creador de Prueba',albums:albums[0]});
 
+// One verified artist can have a featured work whose primary credit is someone else.
+tables.artist_discographies.push({slug:'tinashe-de-prueba',name:'Tinashe de Prueba',refresh_after:'2099-01-01',profile:{source:'OFFICIAL',artist:{name:'Tinashe de Prueba',genres:['Pop'],image:'/musiclub_logo.png'},discography:[
+ {id:'1234567890123456789012',name:'Quantum Baby',artists:['Artista Principal'],release_type:'ALBUM',releaseDate:'2024-08-16',totalTracks:8,image:'/musiclub_logo.png',genres:['Pop'],mbid:'11111111-1111-4111-8111-111111111111',sources:[{provider:'SPOTIFY',id:'1234567890123456789012',url:'https://open.spotify.com/album/1234567890123456789012'}]},
+ {id:'itunes_quantum_test',name:'QUANTUM BABY',artists:['Tinashe de Prueba'],release_type:'ALBUM',releaseDate:'2024-08-16',totalTracks:10,image:'/musiclub_logo_3.png',sources:[{provider:'APPLE',id:'123'},{provider:'DEEZER',id:'456'}]}
+]}});
+
 // Single-provider editions remain visible with lower weighted relevance.
 tables.artist_discographies[0].profile.discography.push({id:'itunes_only_fixture',name:'Sólo Apple sin verificar',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-03-01',image:'/musiclub_logo.png',sources:[{provider:'APPLE',id:'only-fixture'}]});
 

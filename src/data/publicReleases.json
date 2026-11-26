@@ -2,7 +2,7 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.3.4",
+    "latestVersion": "V.12.3.5",
     "date": "2026-11-11",
     "updatedAt": "2026-11-26",
     "title": "Grammy 2027 y el año del club",
@@ -11,8 +11,43 @@
     "authorName": "Eugenio Turcott",
     "details": [
       {
+        "title": "Catálogo y descubrimiento",
+        "changes": [
+          {
+            "title": "Discografías sin fichas repetidas",
+            "description": "El club y las fuentes usan la misma identidad al agrupar ediciones. Spotify conserva prioridad en portada, fecha y pistas; se incluyen sus colaboraciones y los sencillos que faltaban de Tinashe. Al abrirlos se mantienen los créditos reales y una edición completa de Spotify no se sustituye por otra de MusicBrainz. Si la API falla, las páginas oficiales permiten verificar una copia parcial sin reemplazar el historial completo.",
+            "type": "fix"
+          },
+          {
+            "title": "Una canción, una calificación",
+            "description": "Todo release con exactamente una pista usa su nota del 1 al 10 como calificación general. El formulario, resumen, ficha y tarjeta para compartir dejan de pedir o mostrar criterios para esos releases. El guardado también valida esta regla.",
+            "type": "feature"
+          },
+          {
+            "title": "Del álbum a sus sencillos",
+            "description": "Tus canciones calificadas permiten descubrir e invitarte a reseñar sus releases individuales, incluso fuera del club, después de comprobar que contienen una sola pista y la misma grabación. Las búsquedas avanzan por lotes para cubrir todo el álbum.",
+            "type": "feature"
+          },
+          {
+            "title": "Artistas y portadas más cerca",
+            "description": "Retratos cuadrados y un fondo más definido en los banners. Las portadas de las fichas se pueden ampliar con una lupa, cerrar con Escape y explorar sin salir de la página.",
+            "type": "design"
+          },
+          {
+            "title": "Un banner para cada artista",
+            "description": "La fotografía, los vinilos de Musiclub, los géneros y las estadísticas del club dan forma a una nueva cabecera adaptable.",
+            "type": "design"
+          }
+        ]
+      },
+      {
         "title": "Grammy y actividades",
         "changes": [
+          {
+            "title": "Grammy dentro de Comunidad",
+            "description": "El anuncio superior se retira. Grammy 2027 queda debajo de Musiclub 2026 en Comunidad, tanto en escritorio como en móvil, y conserva su acceso desde la página principal.",
+            "type": "improvement"
+          },
           {
             "title": "Tus artistas, en dorado",
             "description": "Las tarjetas de artistas nominados muestran el borde dorado si reseñaste al menos un release acreditado a ellos en Musiclub, de cualquier año. También se reconocen colaboraciones, conservando la identidad de los grupos.",
@@ -32,11 +67,6 @@
             "title": "Completa también lo que falta en el club",
             "description": "Las recomendaciones buscan fuera de Musiclub y sólo incorporan ediciones completas después de comprobar canciones compartidas. Se mantiene la excepción de sencillos y la prioridad del álbum normal sobre el Deluxe.",
             "type": "feature"
-          },
-          {
-            "title": "Grammy, con tu recorrido",
-            "description": "El trofeo dorado se comparte con la homepage. La página cuenta releases reseñados y artistas explorados sin duplicar nominaciones; las personas muestran su nombre una sola vez y desaparece el filtro de todas las categorías.",
-            "type": "design"
           }
         ]
       },
@@ -97,36 +127,6 @@
             "title": "Los colores de cada portada",
             "description": "Guardamos hasta cinco colores predominantes por portada y foto de artista. Un fondo animado y tenue acompaña la página, con una versión sin movimiento para quienes lo prefieran.",
             "type": "design"
-          }
-        ]
-      },
-      {
-        "title": "Catálogo y descubrimiento",
-        "changes": [
-          {
-            "title": "Artistas y portadas más cerca",
-            "description": "Retratos cuadrados y un fondo más definido en los banners. Las portadas de las fichas se pueden ampliar con una lupa, cerrar con Escape y explorar sin salir de la página.",
-            "type": "design"
-          },
-          {
-            "title": "Un banner para cada artista",
-            "description": "La fotografía, los vinilos de Musiclub, los géneros y las estadísticas del club dan forma a una nueva cabecera adaptable.",
-            "type": "design"
-          },
-          {
-            "title": "Un catálogo más directo",
-            "description": "Las portadas aparecen antes. Tendencias, el catálogo completo, los próximos estrenos y las recomendaciones se exploran por separado.",
-            "type": "design"
-          },
-          {
-            "title": "Ediciones de Rosalía corregidas",
-            "description": "LUX recupera las 15 pistas de su edición digital de 2025. Complete Works conserva sus 18 pistas de 2026 y los nominados Grammy abren sus enlaces directos.",
-            "type": "fix"
-          },
-          {
-            "title": "Tracklists completos protegidos",
-            "description": "Más canciones en una fuente secundaria no sustituyen un álbum publicado y completo. Los detalles de Spotify y Deezer vuelven a comprobar la edición tras la búsqueda.",
-            "type": "fix"
           }
         ]
       },

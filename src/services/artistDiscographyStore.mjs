@@ -33,7 +33,7 @@ export async function refreshStoredArtist(db,slug,name,{collect=collectOfficialA
   const patch={lease_until:null,refresh_after:new Date(now.getTime()+(profile.success?86400000:3600000)).toISOString(),updated_at:now.toISOString()};
   if(profile.success) {
     patch.name=profile.artist?.name || previous?.name || name;
-    patch.profile={...profile,discography:mergeOfficialReleases(previous?.profile?.discography || [],profile.discography)};
+    patch.profile={...profile,discography:mergeOfficialReleases(previous?.profile?.discography || [],profile.discography,{artistName:patch.name})};
     patch.providers=Object.fromEntries(Object.entries(profile.providers).map(([provider,value])=>[provider,{...previous?.providers?.[provider],...value}]));
     patch.profile.providers=patch.providers;patch.checked_at=profile.checkedAt;
   }

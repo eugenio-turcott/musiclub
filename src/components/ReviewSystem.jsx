@@ -24,6 +24,7 @@ import {
   getTopRatedTrack,
 } from '../utils/ratingUtils';
 import { clearPublicCatalog } from '../services/publicCatalog';
+import {isSingleTrackRelease} from '../utils/releaseScoring.cjs';
 import { reviewAssessment } from '../utils/reviewAssessment';
 import { restoreReviewDraft } from '../utils/reviewDraft.mjs';
 import { ShareReviewModal } from './ShareReviewModal';
@@ -117,7 +118,6 @@ export function ReviewSystem({
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
   const [currentCriterionIndex, setCurrentCriterionIndex] = useState(0);
 
-  const shouldShowTracks = isIndividual || showTrackReviews;
 
   const idsKey=JSON.stringify([...new Set(album?.edition_member_ids || (album?.id?[album.id]:[]))].sort());
   const reviewKey=JSON.stringify([user?.id || 'guest',idsKey]);
@@ -229,6 +229,9 @@ export function ReviewSystem({
   };
 
   const effectiveTracks = trackDiscs.normalizeTrackDiscs(rawEffectiveTracks);
+  const scoringRelease = {...album,tracks:effectiveTracks};
+  const singleTrackRelease = isSingleTrackRelease(scoringRelease);
+  const shouldShowTracks = singleTrackRelease || isIndividual || showTrackReviews;
   const getTrackName = (t, idx) => {
     if (!t) return `Pista ${idx + 1}`;
     if (typeof t === 'string') return t;
@@ -286,12 +289,13 @@ export function ReviewSystem({
 
   // Ensure default wizard step is valid ('tracks' or 'criteria')
   useEffect(() => {
+    if(singleTrackRelease && wizardStep === 'criteria'){setWizardStep('tracks');return;}
     if (wizardStep === 'user' || (wizardStep === 'tracks' && !shouldShowTracks)) {
       setWizardStep(
         shouldShowTracks && effectiveTracks.length > 0 ? 'tracks' : 'criteria'
       );
     }
-  }, [wizardStep, shouldShowTracks, effectiveTracks.length]);
+  }, [wizardStep, shouldShowTracks, effectiveTracks.length,singleTrackRelease]);
 
   // Auto-save draft changes to localStorage
   useEffect(() => {
@@ -477,7 +481,7 @@ export function ReviewSystem({
       return;
     }
 
-    const missingCriterios = CRITERIOS.filter((c) => !ratings[c.id]);
+    const missingCriterios = singleTrackRelease ? [] : CRITERIOS.filter((c) => !ratings[c.id]);
     if (missingCriterios.length > 0) {
       setError(`Por favor califica todos los criterios`);
       setIsSubmitting(false);
@@ -525,6 +529,7 @@ export function ReviewSystem({
 
     // Calcular sentimiento predeterminado si el usuario no eligió uno explícito
     const currentScore = getWeightedReviewScore({
+      albums:scoringRelease,
       track_ratings: finalTrackRatings,
       rating_produccion: ratings.produccion,
       rating_composicion: ratings.composicion,
@@ -543,7 +548,7 @@ export function ReviewSystem({
       (favoriteTrack || getTopRatedTrack(finalTrackRatings, false) || null);
 
     let assessment;
-    try { assessment = reviewAssessment(ratings, finalTrackRatings); } catch (error) { setError(error.message); setIsSubmitting(false); return; }
+    try { assessment = reviewAssessment(ratings, finalTrackRatings,scoringRelease); } catch (error) { setError(error.message); setIsSubmitting(false); return; }
     const reviewData = {
       albumId: album.id,
       reviewerName: finalReviewerName,
@@ -555,13 +560,6 @@ export function ReviewSystem({
         existingUserReview?.reviewer_avatar ||
         null,
       ...assessment,
-      ratingProduccion: ratings.produccion,
-      ratingComposicion: ratings.composicion,
-      ratingLetras: ratings.letras,
-      ratingOriginalidad: ratings.originalidad,
-      ratingCohesion: ratings.cohesion,
-      ratingReplay: ratings.replay,
-      ratingGeneral: ratings.general,
       feeling: finalFeeling,
       favoriteTrack: finalFavoriteTrack,
       comment: comment.trim(),
@@ -707,7 +705,7 @@ export function ReviewSystem({
   };
 
   const average = getAlbumWeightedAverage(reviews);
-  const areAllCriteriaRated = CRITERIOS.every(c => Number.isInteger(ratings[c.id]) && ratings[c.id] >= 1 && ratings[c.id] <= c.max);
+  const areAllCriteriaRated = singleTrackRelease || CRITERIOS.every(c => Number.isInteger(ratings[c.id]) && ratings[c.id] >= 1 && ratings[c.id] <= c.max);
   const areAllTracksRated = shouldShowTracks
     ? effectiveTracks.length > 0 &&
       effectiveTracks.every(
@@ -1022,7 +1020,7 @@ export function ReviewSystem({
                       </span>
                     ) : isIndividual ? (
                       <span className="bg-linear-to-r from-blue-300 via-cyan-200 to-white bg-clip-text text-transparent font-bold">
-                        Review de Álbum Individual
+                        {singleTrackRelease?'Reseña de una canción':'Review de Álbum Individual'}
                       </span>
                     ) : isFromSpotify ? (
                       <>Nueva Review · Álbum</>
@@ -1170,11 +1168,12 @@ export function ReviewSystem({
                     >
                       <span><InterfaceText>{"🎵"}</InterfaceText></span>
                       <span>
-                        1. Canciones ({trackProgress}/{effectiveTracks.length})
+                        {singleTrackRelease?'1. Calificación':`1. Canciones (${trackProgress}/${effectiveTracks.length})`}
                       </span>
                     </button>
                   )}
 
+                  {!singleTrackRelease && (
                   <button
                     type="button"
                     onClick={() => setWizardStep('criteria')}
@@ -1193,6 +1192,7 @@ export function ReviewSystem({
                         : '1. Criterios'}
                     </span>
                   </button>
+                  )}
 
                   <button
                     type="button"
@@ -1208,7 +1208,7 @@ export function ReviewSystem({
                     <span><InterfaceText>{"📝"}</InterfaceText></span>
                     <span>
                       {shouldShowTracks && effectiveTracks.length > 0
-                        ? '3. Resumen'
+                        ? (singleTrackRelease?'2. Resumen':'3. Resumen')
                         : '2. Resumen'}
                     </span>
                   </button>
@@ -1495,9 +1495,9 @@ export function ReviewSystem({
                           <button
                             type="button"
                             disabled={getTrackRating(currentTrack, currentTrackIndex) === undefined}
-                            onClick={() => setWizardStep('criteria')}
+                            onClick={() => setWizardStep(singleTrackRelease?'summary':'criteria')}
                             className="w-full xs:w-auto px-6 py-3 bg-linear-to-r from-emerald-500 to-teal-400 text-white rounded-xl text-sm font-bold shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
-                          ><InterfaceText>{" Ir a Criterios 📊 ➔ "}</InterfaceText></button>
+                          ><InterfaceText>{singleTrackRelease?'Continuar al resumen ➔':' Ir a Criterios 📊 ➔ '}</InterfaceText></button>
                         )}
                       </div>
                     </div>
@@ -1506,7 +1506,7 @@ export function ReviewSystem({
                 {/* ======================================================== */}
                 {/* STEP 3: CRITERIOS (1 POR 1) */}
                 {/* ======================================================== */}
-                {wizardStep === 'criteria' && (
+                {!singleTrackRelease && wizardStep === 'criteria' && (
                   <div className="space-y-4 animate-fadeIn">
                     {/* Progress Bar de Criterios */}
                     <div>
@@ -1742,6 +1742,7 @@ export function ReviewSystem({
                         </h6>
                         {(() => {
                           const currentReviewScore = getWeightedReviewScore({
+                            albums:scoringRelease,
                             track_ratings: trackRatings,
                             rating_produccion: ratings.produccion,
                             rating_composicion: ratings.composicion,
@@ -1756,7 +1757,7 @@ export function ReviewSystem({
                             currentReviewScore !== undefined &&
                             !isNaN(Number(currentReviewScore));
                           return hasScore ? (
-                            <div className="bg-linear-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold"><InterfaceText>{" ★ Promedio Ponderado Final:"}</InterfaceText>{' '}
+                            <div className="bg-linear-to-r from-emerald-500/20 to-teal-500/20 px-3.5 py-1.5 rounded-full border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-bold"><InterfaceText>{singleTrackRelease?' ★ Calificación:':' ★ Promedio Ponderado Final:'}</InterfaceText>{' '}
                               {Number(currentReviewScore).toFixed(2)} / 10
                             </div>
                           ) : null;
@@ -1866,7 +1867,7 @@ export function ReviewSystem({
                       )}
 
                       {/* Resumen de Criterios */}
-                      <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
+                      {!singleTrackRelease && <div className="bg-black/30 p-4 rounded-xl border border-white/5 space-y-2.5">
                         <div className="flex justify-between items-center text-xs">
                           <span className="text-white/70 font-semibold flex items-center gap-1.5">
                             <span><InterfaceText>{"📊"}</InterfaceText></span> Criterios del Álbum
@@ -1893,10 +1894,10 @@ export function ReviewSystem({
                             </div>
                           ))}
                         </div>
-                      </div>
+                      </div>}
 
                       {/* Selección de Canción Favorita (⭐ Track Destacado del Álbum) */}
-                      {shouldShowTracks && effectiveTracks.length > 0 && (
+                      {shouldShowTracks && effectiveTracks.length > 1 && (
                         <div className="bg-linear-to-r from-amber-500/10 via-yellow-500/10 to-amber-500/10 p-4 sm:p-5 rounded-2xl border border-amber-400/30 space-y-3.5 shadow-[0_0_25px_rgba(251,191,36,0.08)]">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                             <div>
@@ -2020,7 +2021,7 @@ export function ReviewSystem({
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                           <div>
                             <h6 className="text-white text-sm sm:text-base font-bold flex items-center gap-2">
-                              <span><InterfaceText>{"🎭"}</InterfaceText></span> ¿Cómo te hizo sentir el álbum?
+                              <span><InterfaceText>{"🎭"}</InterfaceText></span> {singleTrackRelease?'¿Cómo te hizo sentir la canción?':'¿Cómo te hizo sentir el álbum?'}
                             </h6>
                             <p className="text-white/40 text-xs mt-0.5">
                               Selecciona el sentimiento o vibra principal que te
@@ -2029,6 +2030,7 @@ export function ReviewSystem({
                           </div>
                           {(() => {
                             const currentScore = getWeightedReviewScore({
+                              albums:scoringRelease,
                               track_ratings: trackRatings,
                               rating_produccion: ratings.produccion,
                               rating_composicion: ratings.composicion,
@@ -2052,6 +2054,7 @@ export function ReviewSystem({
                         <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 sm:gap-2.5 pt-1">
                           {EMOTIONS.map((emo) => {
                             const currentScore = getWeightedReviewScore({
+                              albums:scoringRelease,
                               track_ratings: trackRatings,
                               rating_produccion: ratings.produccion,
                               rating_composicion: ratings.composicion,
@@ -2105,7 +2108,7 @@ export function ReviewSystem({
                         <textarea
                           value={comment}
                           onChange={(e) => setComment(e.target.value)}
-                          placeholder="Escribe tus impresiones del álbum..."
+                          placeholder={singleTrackRelease?'Escribe tus impresiones de la canción...':'Escribe tus impresiones del álbum...'}
                           rows="3"
                           className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white text-sm placeholder-white/30 focus:outline-none focus:border-[#f5576c]/60 resize-none transition-colors"
                         />

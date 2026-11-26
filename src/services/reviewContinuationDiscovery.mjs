@@ -1,11 +1,14 @@
 import identity from '../utils/releaseIdentity.cjs';
 import {splitArtists} from '../utils/ratingUtils.js';
-import {reviewContinuations} from '../utils/reviewContinuations.mjs';
+import {reviewContinuations,ratedReleaseTracks} from '../utils/reviewContinuations.mjs';
+import {isSingleTrackRelease} from '../utils/releaseScoring.cjs';
 import {searchAppleReleases,getAppleReleaseDetails} from './appleMusicCatalog.mjs';
 import {searchDeezerAlbums,getDeezerAlbumDetails} from './deezerApi.js';
 import {createHash} from 'node:crypto';
 import {compatibleDiscographyRelease} from '../utils/discographyIdentity.mjs';
 const pending=new Map(),cooldown=new Map();
+const singleOffsets=new Map();
+const discoveryKey=(album,review)=>identity.slugify(album.artist_name)+'|'+album.id+'|'+(review.id||createHash('sha256').update(JSON.stringify(review.track_ratings||{})).digest('hex'));
 const baseTitle=value=>String(value||'').replace(/\s*[(\[][^)\]]*(?:deluxe|expanded|extended|complete works|bonus)[^)\]]*[)\]]/ig,'').replace(/\s*(?:[-–:]\s*)?\b(?:deluxe|expanded|extended)\b.*$/i,'').trim();
 const artistKey=r=>new Set(splitArtists(r.artist_name||r.artist||r.artists?.join(', ')||'').map(a=>identity.slugify(a.name)));
 function related(a,b){const names=artistKey(a);return [...artistKey(b)].some(n=>names.has(n));}
@@ -17,20 +20,20 @@ function discoveryId(album){
 
 // Discover outside the local catalogue, but import only after the complete
 // edition proves the shared recordings, including repeated-track multiplicity.
-export async function discoverReviewContinuations(db,albums,reviews,{searchApple=searchAppleReleases,appleDetails=getAppleReleaseDetails,searchDeezer=searchDeezerAlbums,deezerDetails=getDeezerAlbumDetails,now=Date.now(),limit=3}={}){
+export async function discoverReviewContinuations(db,albums,reviews,{searchApple=searchAppleReleases,appleDetails=getAppleReleaseDetails,searchDeezer=searchDeezerAlbums,deezerDetails=getDeezerAlbumDetails,now=Date.now(),limit=3,singleSearchLimit=3}={}){
  const byId=new Map(albums.flatMap(a=>(a.edition_member_ids||[a.id]).map(id=>[id,a]))),added=[];
  const eligible=reviews.toSorted((a,b)=>String(b.created_at).localeCompare(String(a.created_at))).filter(r=>{
-  const a=byId.get(r.album_id);return a&&!(cooldown.get(identity.slugify(a.artist_name)+'|'+a.id)>now)&&Object.values(r.track_ratings||{}).filter(v=>v!==null&&v!==''&&Number.isFinite(Number(v))).length>=(/^(SINGLE|SENCILLO)$/.test(a.release_type)?1:5);
+  const a=byId.get(r.album_id);return a&&!(cooldown.get(discoveryKey(a,r))>now)&&ratedReleaseTracks(a,r).length>0;
  });
  for(const review of eligible.slice(0,limit)){
-  const source=byId.get(review.album_id),key=identity.slugify(source.artist_name)+'|'+source.id;
+  const source=byId.get(review.album_id),key=discoveryKey(source,review);
   if(cooldown.get(key)>now)continue;
   if(pending.has(key)){added.push(...await pending.get(key));continue;}
   const task=(async()=>{
    const imported=[],candidates=[];let available=false;
    // The standard edition is searched first; singles also search the artist's
    // album catalogue so the target need not share the single's title.
-   const query=source.artist_name+' '+(/^(SINGLE|SENCILLO)$/.test(source.release_type)?'':baseTitle(source.album_name));
+   const query=source.artist_name+' '+(isSingleTrackRelease(source)?'':baseTitle(source.album_name));
    for(const [provider,search,details] of [['APPLE',searchApple,appleDetails],['DEEZER',searchDeezer,deezerDetails]]){
     try{
      const found=await search(query.trim(),15);available=true;
@@ -44,6 +47,28 @@ export async function discoverReviewContinuations(db,albums,reviews,{searchApple
     }catch{ /* A provider outage does not prevent the next independent source. */ }
     if(candidates.length)break;
    }
+   // Reverse direction: a rated album recording can also have its own one-track
+   // release outside Musiclub. Rotate bounded batches instead of losing later tracks.
+   const rated=isSingleTrackRelease(source)?[]:ratedReleaseTracks(source,review);
+   const offset=(singleOffsets.get(key)||0)%Math.max(1,rated.length),batch=rated.slice(offset,offset+singleSearchLimit);
+   let next=0;
+   await Promise.all(Array.from({length:Math.min(3,batch.length)},async()=>{while(next<batch.length){
+    const {track}=batch[next++],query=source.artist_name+' '+(track.name||track.track_name||'');let foundSingle=false;
+    for(const [provider,search,details] of [['APPLE',searchApple,appleDetails],['DEEZER',searchDeezer,deezerDetails]]){
+     try{
+      const found=await search(query,8);available=true;
+      for(const summary of (found.albums||[]).filter(r=>related(source,r)&&Number(r.totalTracks)===1).slice(0,3)){
+       const full=await details(summary.id);if(!full||!related(source,full)||Number(full.totalTracks)!==1||full.tracks?.length!==1)continue;
+       const album=asAlbum(full,provider);
+       if(!album.image_url||!album.release_date||albums.some(a=>compatibleDiscographyRelease(a,album)))continue;
+       if(reviewContinuations([source,album],[review],{today:new Date(now).toISOString().slice(0,10)}).some(r=>r.albumId===album.id)){candidates.push(album);foundSingle=true;}
+      }
+     }catch{ /* A verified recording from the next provider can still qualify. */ }
+     if(foundSingle)break;
+    }
+   }}));
+   const hasMore=offset+batch.length<rated.length;
+   if(singleOffsets.size>500)singleOffsets.clear();singleOffsets.set(key,hasMore?offset+batch.length:0);
    for(const invitation of reviewContinuations([...albums,...added,...candidates],reviews)){
     const candidate=candidates.find(a=>a.id===invitation.albumId);if(!candidate)continue;
     const existing=await db.from('albums').select('*').eq('album_name',candidate.album_name).eq('artist_name',candidate.artist_name).limit(1);
@@ -53,7 +78,7 @@ export async function discoverReviewContinuations(db,albums,reviews,{searchApple
     if(saved.error?.code==='23505')saved=await db.from('albums').select('*').eq('id',payload.id).maybeSingle();
     if(!saved.error&&saved.data)imported.push(saved.data);
    }
-   if(cooldown.size>500)cooldown.clear();cooldown.set(key,now+(available?15*60000:60000));return imported;
+   if(cooldown.size>500)cooldown.clear();cooldown.set(key,now+(hasMore?30000:available?15*60000:60000));return imported;
   })();
   pending.set(key,task);
   try{added.push(...await task);}finally{pending.delete(key);}

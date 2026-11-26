@@ -40,6 +40,7 @@ jobs:
           REACT_APP_SUPABASE_ANON_KEY: ${{ secrets.REACT_APP_SUPABASE_ANON_KEY }}
           REACT_APP_SPOTIFY_CLIENT_ID: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_ID }}
           REACT_APP_SPOTIFY_CLIENT_SECRET: ${{ secrets.REACT_APP_SPOTIFY_CLIENT_SECRET }}
+          SPOTIFY_API_RETRY_UNTIL: ${{ vars.SPOTIFY_API_RETRY_UNTIL }}
         run: node scripts/smartCatalogSeeder.mjs --target=${{ github.event.inputs.target || '50' }} --sitemap
 
       - name: Continuous Healing of Legacy Albums (MBID & Genres)

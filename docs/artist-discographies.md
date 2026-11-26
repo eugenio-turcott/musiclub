@@ -8,14 +8,14 @@ La migración `20261020_artist_discographies.sql` crea una tabla de metadatos p�
 
 ## Cobertura
 
-- Spotify: catálogo del ID oficial, con paginación y comprobación de créditos, incluyendo colaboraciones cuando el artista está acreditado.
+- Spotify: catálogo del ID oficial con paginación, incluyendo las colaboraciones que aparecen en su propia discografía. Si la autorización de la API falla, se contrastan el ID, el nombre y las fichas con los metadatos de las páginas públicas de Spotify; esa copia se registra como parcial y conserva el historial anterior. Nunca se interpreta como una lectura completa de la API.
 - Deezer: álbumes del ID oficial con paginación y detalles para comparar pistas y ediciones.
 - Apple: API pública de iTunes/Apple Music, región MX, hasta 200 colecciones. Si alcanza el límite, se registra cobertura parcial. No implica acceso ilimitado a MusicKit.
 - Los enlaces oficiales de álbumes conocidos se verifican por título y créditos para obtener el ID correcto antes de comparar homónimos. No se descarta un artista por tener más de seis coincidencias; la comparación utiliza un máximo de tres consultas simultáneas. Los homónimos se comparan mediante releases ya atribuidos al artista en Musiclub. Solo una coincidencia inequívoca permite guardar sus IDs oficiales; si la evidencia sigue siendo ambigua, se conserva la copia anterior. Una fuente no disponible se registra como tal; no se rellena con resultados comunitarios de MusicBrainz.
 - La unión conserva enlaces e IDs de origen, variantes de pistas, ediciones, versiones limpias y explícitas. Cambios posteriores de metadatos de un mismo ID actualizan el registro sin crear duplicados.
 - Se conservan releases verificados anteriormente si desaparecen temporalmente de un proveedor. La copia no certifica disponibilidad actual en todos los países.
 
-La interfaz muestra la procedencia y cobertura, conserva los tags EN MUSICLUB en la edición correspondiente y presenta 48 tarjetas por bloque, sin limitar el buscador ni eliminar releases del catálogo.
+La interfaz conserva los tags EN MUSICLUB en la edición correspondiente y presenta 48 tarjetas por bloque, sin limitar el buscador ni eliminar releases del catálogo.
 
 ## Reparación y auditoría
 
@@ -32,3 +32,11 @@ La reparación espacia sus solicitudes al menos 150 ms y reintenta hasta tres ve
 La presentación agrupa variantes limpias, explícitas, regionales y de remasterización del mismo lanzamiento en una tarjeta; las ediciones deluxe permanecen aparte. Los conciertos y remixes que constituyen obras distintas mantienen su identidad. La regla no usa diferencias de barcode, número de pistas o año para multiplicar una obra. Se conserva una referencia estándar preferente con sus datos coherentes y se archivan los metadatos originales en `editionVariants`, incluidos todos los enlaces oficiales, para poder actualizar sin perder procedencia.
 
 El catálogo del club agrupa las fichas al leer y reúne sus reseñas. Los registros y votos originales no se eliminan ni se trasladan. Los enlaces de variantes anteriores resuelven a la ficha unificada. Al editar una reseña, se conserva su registro y la comprobación de permisos del álbum original. Los géneros, portadas y recomendaciones reciben la misma colección agrupada.
+
+## Identidades y precedencia desde V12.3.5
+
+La identidad compartida reconoce tanto `artist_name` del club como `artists` de las fuentes. En una discografía ya verificada, una misma obra se agrupa dentro del contexto de ese artista aunque un servicio lo acredite como invitado y otro como principal. Se conserva el crédito real de la edición preferida, con la portada, fecha y cantidad de pistas de Spotify; las variantes originales permanecen guardadas. Fuera de ese contexto, dos artistas distintos con el mismo título mantienen identidades separadas.
+
+La conexión comparte una espera por proceso cuando Spotify responde 429 y respeta `Retry-After`, sin reintentar durante ese intervalo. `SPOTIFY_API_RETRY_UNTIL` permite conservar una espera conocida al reiniciar o desplegar el servicio. Las páginas públicas verificadas sirven como copia parcial durante una interrupción de la API.
+
+Al incorporar un release desde una discografía, el ID de Spotify tiene prioridad sobre un MBID secundario y se conservan los créditos propios del release. Una edición completa con enlace canónico de Spotify no vuelve a buscar una edición alternativa en MusicBrainz durante la inserción. La recuperación independiente de géneros sigue disponible.

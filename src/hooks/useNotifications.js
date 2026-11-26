@@ -102,7 +102,7 @@ export function useNotifications(user) {
       if (user && (user.email || user.id || user.name)) {
         const uEmail = (user.email || '').toLowerCase().trim();
         const uName = (user.name || '').toLowerCase().trim();
-        if(user.id){try{const response=await authenticatedFetch('/api/reviews/continuations');if(response.ok){const data=await response.json();for(const item of data.continuations||[])notifs.push({id:item.id,type:'continuation',category:'Completa tu reseña',title:item.title,description:`Ya calificaste ${item.matchedTracks} de sus ${item.totalTracks} canciones. Usa tus notas y completa la reseña.`,timestamp:Date.parse(item.createdAt)||0,dateFormatted:item.createdAt,icon:'🎶',image:item.image,badgeColor:'from-cyan-500 to-purple-500',link:item.link});}}catch{ /* Existing notifications remain available during a retry. */ }}
+        if(user.id){try{const response=await authenticatedFetch('/api/reviews/continuations');if(response.ok){const data=await response.json();for(const item of data.continuations||[])notifs.push({id:item.id,type:'continuation',category:'Completa tu reseña',title:item.title,description:item.totalTracks===1?`Ya calificaste esta canción en ${item.sourceTitle}. Usa tu nota y reseña el sencillo.`:`Ya calificaste ${item.matchedTracks} de sus ${item.totalTracks} canciones. Usa tus notas y completa la reseña.`,timestamp:Date.parse(item.createdAt)||0,dateFormatted:item.createdAt,icon:'🎶',image:item.image,badgeColor:'from-cyan-500 to-purple-500',link:item.link});}}catch{ /* Existing notifications remain available during a retry. */ }}
 
         // A. BUZÓN DE CANCIONES (Recomendaciones recibidas)
         try {

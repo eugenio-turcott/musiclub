@@ -4,6 +4,7 @@ import {REVIEW_CRITERIA} from '../utils/reviewCriteria.mjs';
 export {REVIEW_CRITERIA};
 
 export default function ReviewCriteria({ review }) {
+  if(REVIEW_CRITERIA.slice(0,6).every(([key])=>review[key]==null))return null;
   return <div className="review-criteria" aria-label="Criterios de la reseña">
     {REVIEW_CRITERIA.map(([key,label,icon,max,color]) => <div key={key} className="review-criterion" title={`${label}: ${review[key] ?? 'sin calificar'} / ${max}`} aria-label={`${label}: ${review[key] ?? 'sin calificar'} de ${max}`}>
       <UiIcon name={icon} size={26} tone="inherit" style={{color}}/>

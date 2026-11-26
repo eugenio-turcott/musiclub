@@ -618,7 +618,8 @@ export const supabaseService = {
     // y los metadatos canónicos (MBID, release_type, géneros, fecha, discográfica,
     // país, barcode, tracks) provienen de MusicBrainz.
     // =========================================================================
-    if ((!payload.mbid || !normalizeCanonicalGenres(payload.genres).length) && !albumData.skipMusicBrainzEnrichment) {
+    const completeSpotifyEdition=/^https:\/\/open\.spotify\.com\/album\/[A-Za-z0-9]{22}(?:[/?#]|$)/.test(payload.spotify_link||'')&&payload.tracks?.length>0&&payload.tracks.length===Number(payload.total_tracks||payload.tracks.length);
+    if ((!payload.mbid || !normalizeCanonicalGenres(payload.genres).length) && !albumData.skipMusicBrainzEnrichment && !completeSpotifyEdition) {
       try {
         const { enrichAlbumWithMusicBrainz } = await import('./musicBrainzService.js');
         const mbData = await enrichAlbumWithMusicBrainz(

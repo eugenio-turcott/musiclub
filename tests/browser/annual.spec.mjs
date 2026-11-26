@@ -79,7 +79,7 @@ test('both public panels stay over the same mural and contain no foreground rele
     await expect(page.getByRole('button',{name:'Abrir capítulos',exact:true})).toHaveAttribute('aria-expanded','false');
     await expect.poll(()=>page.locator('#inicio').evaluate(el=>Math.abs(el.getBoundingClientRect().top-el.closest('main').getBoundingClientRect().top))).toBeLessThan(3);
   }
-  await page.getByRole('link',{name:'Volver al club',exact:true}).click();await expect(page).toHaveURL(/\/catalogo/);await expect(page.getByRole('complementary',{name:'Grammy 2027 en Musiclub'})).toBeVisible();
+  await page.getByRole('link',{name:'Volver al club',exact:true}).click();await expect(page).toHaveURL(/\/catalogo/);await expect(page.locator('.musiclub-site-header')).toBeVisible();await expect(page.getByRole('complementary',{name:'Grammy 2027 en Musiclub'})).toHaveCount(0);
 });
 
 test('the opening is an illustrated mural without visible copy, with an accessible original-art gallery',async({page},info)=>{

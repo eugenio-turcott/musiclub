@@ -96,7 +96,7 @@ const FAQ_BASE = [
     id: 'calificacion-canciones',
     category: 'reviews',
     question: '¿Puedo publicar con canciones sin calificar?',
-    answer: 'Si la ficha tiene canciones disponibles, el formulario pide calificar todas antes de publicar. También debes completar los seis pilares y la nota general. El comentario es opcional. Si el release no tiene canciones disponibles, puedes continuar con los pilares y la nota general.',
+    answer: 'Si el release tiene exactamente una canción, basta con calificarla del 1 al 10: esa será su nota general y no se piden criterios. Si tiene varias canciones disponibles, el formulario pide calificar todas antes de publicar. También debes completar los seis pilares y la nota general. El comentario es opcional. Si el release no tiene canciones disponibles, puedes continuar con los pilares y la nota general.',
   },
   {
     id: 'calificacion-general',
