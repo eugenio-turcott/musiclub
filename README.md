@@ -27,4 +27,4 @@ npm run dev
 
 [Configuración y pruebas](docs/development.md) · [Publicar una versión](docs/releases.md) · [Géneros pendientes](docs/release-genres.md)
 
-<!-- Musiclub documentation revision: 56de2f3923338ac0 -->
+<!-- Musiclub documentation revision: 4b572cb824f10673 -->
