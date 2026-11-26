@@ -158,12 +158,12 @@ test('expanding track ratings does not stretch or redistribute a neighboring com
  await page.goto('/albumes/artista-de-prueba-azul');
  const neighbor=page.locator('.community-review-card').nth(1);
  await page.evaluate(()=>document.fonts.ready.then(()=>true));
- const layout=()=>neighbor.evaluate(el=>({height:el.getBoundingClientRect().height,criteriaOffset:el.querySelector('.review-criteria').getBoundingClientRect().y-el.getBoundingClientRect().y}));
+ const layout=()=>neighbor.evaluate(el=>({height:el.getBoundingClientRect().height,commentOffset:el.querySelector('[data-review-comment]').getBoundingClientRect().y-el.getBoundingClientRect().y}));
  const before=await layout();
  await page.locator('.community-review-card').first().locator('details summary').click();
  const after=await layout();
  expect(Math.abs(after.height-before.height)).toBeLessThan(1);
- expect(Math.abs(after.criteriaOffset-before.criteriaOffset)).toBeLessThan(1);
+ expect(Math.abs(after.commentOffset-before.commentOffset)).toBeLessThan(1);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
 
@@ -176,7 +176,8 @@ test('community reviews preserve written text and explicitly identify ratings wi
  await page.goto('/albumes/artista-de-prueba-verde');
  await expect(page.locator('.community-review-card')).toHaveCount(1);
  await expect(page.locator('[data-review-comment="empty"]')).toHaveText('Este miembro no añadió un comentario escrito.');
- await expect(page.locator('.community-review-card .review-criteria')).toBeVisible();
+ await expect(page.locator('.community-review-card .review-criteria')).toHaveCount(0);
+ await expect(page.locator('.community-review-card [aria-label="Promedio ponderado de la reseña"]')).toContainText('10');
 });
 
 test('catalogue Top del Club excludes a single perfect review and home mood badges contain only artwork',async({page})=>{

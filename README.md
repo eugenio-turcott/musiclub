@@ -12,7 +12,7 @@ Un club para descubrir discos, reseñar lo que escuchas y compartirlo con otras 
 
 <a href="https://www.musiclub.org/grammys"><img src="public/readme/editions.png" alt="Grammy 2027 y Musiclub 2026 con los elementos gráficos del club" width="100%" /></a>
 
-**Participa.** Reseña releases y canciones, gana XP e insignias y prepara tarjetas para tus redes. Un release de una canción se califica con una sola nota.
+**Participa.** Reseña releases y canciones, gana XP e insignias y prepara tarjetas para tus redes. Un release de una canción conserva su nota directa, sin criterios.
 
 **Tu año.** Grammy 2027 reconoce con un borde dorado a los artistas de los que ya reseñaste música. Musiclub 2026 reúne rankings, recuerdos y veinte portadas verificadas del año.
 
@@ -27,4 +27,4 @@ npm run dev
 
 [Configuración y pruebas](docs/development.md) · [Publicar una versión](docs/releases.md) · [Géneros pendientes](docs/release-genres.md)
 
-<!-- Musiclub documentation revision: e558a6a3abe442c9 -->
+<!-- Musiclub documentation revision: 56de2f3923338ac0 -->
