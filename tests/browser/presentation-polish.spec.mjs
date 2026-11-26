@@ -37,7 +37,7 @@ test('community headers are compact and the artwork gallery gives the cover the 
 test('queue actions have a warm yellow focus and hover across release and catalogue views',async({page},info)=>{
  for(const path of ['/albumes/artista-de-prueba-azul','/catalogo?q=Azul']){
   await page.goto(path);const button=page.locator('.musiclub-queue-button').first();await expect(button).toBeEnabled();
-  await button.focus();await expect(button).toHaveCSS('color','rgb(38, 29, 8)');
+  await page.keyboard.press('Tab');await button.focus();await expect(button).toHaveCSS('color','rgb(38, 29, 8)');
   if(info.project.name==='desktop'){await button.hover();await expect(button).toHaveCSS('color','rgb(38, 29, 8)');}
   expect(await button.evaluate(el=>getComputedStyle(el,'::before').backgroundImage)).toContain('rgb(255, 199, 67)');
  }

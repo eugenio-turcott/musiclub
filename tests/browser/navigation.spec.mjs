@@ -308,7 +308,7 @@ test('artist pages preserve club discography and review badges',async({page})=>{
   await expect(page.getByRole('heading',{name:'Artista de Prueba',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Discografía',exact:false})).toBeVisible();
   await expect(page.getByText('Edición compartida oficial',{exact:true})).toBeVisible();
-  await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toBeVisible();
+  await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toHaveCount(0);
   await expect(page.getByText('Catálogo guardado en Musiclub',{exact:false})).toHaveCount(0);
   await expect(page.getByText('EN MUSICLUB',{exact:true}).first()).toBeVisible();
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
