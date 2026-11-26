@@ -3,7 +3,7 @@ import {GenreLabel} from './GenreLabel';
 import {GenreArtwork} from './GenreArtwork';
 import styles from './ArtistHero.module.css';
 export function ArtistHero({artist,stats,releaseCount}){
- return <section className={styles.hero} aria-label={`Perfil de ${artist.name}`}>
+ return <section data-artwork-start className={styles.hero} aria-label={`Perfil de ${artist.name}`}>
   {artist.image&&<img className={styles.backdrop} src={artist.image} alt="" aria-hidden="true"/>}
   <div className={styles.vinyl} aria-hidden="true"><GenreArtwork genre={artist.genres?.[0]||'Pop'} animated size={300}/></div>
   <div className={styles.portrait}><img src={artist.image||'/musiclub_logo_corchea.png'} alt={artist.name}/></div>

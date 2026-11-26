@@ -31,6 +31,7 @@ async function setup(page,{admin=true,empty=false,error=false,personalCount=null
   const {profile,own}=await communityAccount(page,{admin});let reads=0;
   const rows=own.map(r=>({...r,created_at:'2026-06-03T12:00:00Z',albums:{...r.albums,release_year:2026}}));
   const extra=Array.from({length:20},(_,i)=>{const album={...rows[0].albums,id:'club-'+i,album_name:'Disco del club '+String(i+1).padStart(2,'0'),artist_name:'Artista '+i,genres:[i===0?'Russian Orthodox Liturgical Music':i===1?'Contemporary R&b':'Pop']};return {...rows[0],id:'club-review-'+i,album_id:album.id,reviewer_name:'Persona '+i,rating_general:5+i*.2,comment:i===0?'Esta es una reseña completa del club. '.repeat(20):'Una opinión diferente de la comunidad.',albums:album};});
+  extra[1].comment='';
   const single={...extra[0],id:'single-review',album_id:'single',rating_general:10,albums:{...extra[0].albums,id:'single',album_name:'Sencillo fuera del ranking',release_type:'SENCILLO'}};
   const catalog={albums:[...rows,...extra,single].map(r=>r.albums),reviews:[...rows,...extra,single]},yearbook=buildAnnualYearbook(catalog,globalSnapshot,{now:Date.parse('2026-11-19T18:00:00Z')});
   const personalRows=personalCount===null?rows:Array.from({length:personalCount},(_,i)=>{const album={...rows[0].albums,id:'personal-'+i,album_name:personalCount===1?rows[1].albums.album_name:'Mi álbum '+String(i+1).padStart(2,'0'),release_date:'2026-05-01'};return {...rows[0],id:'personal-review-'+i,album_id:album.id,rating_general:5+i/6,favorite_track:'track-0',albums:album};});
@@ -86,7 +87,7 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await page.goto('/2026');
   const mural=page.getByRole('region',{name:'Mural artístico de Musiclub 2026'});
   await expect(mural.getByRole('heading',{level:1})).toHaveCSS('width','1px');
-  await expect(mural.locator('[data-release-id] img').first()).toHaveAttribute('src','/annual/2026/cubist-collage/charli.webp');
+  await expect(mural.locator('[data-release-id] img').first()).toHaveAttribute('src','/annual/2026/cubist-grammys/raye.webp');
   expect(await mural.locator('[data-release-id] img').evaluateAll(images=>new Set(images.map(img=>img.getAttribute('src'))).size)).toBe(20);
   expect(await mural.locator('[data-release-id]').evaluateAll(tiles=>tiles.length)).toBe(40);
   expect(await mural.locator('[data-release-id] img').evaluateAll(images=>images.every(img=>Math.abs(img.getBoundingClientRect().width-img.getBoundingClientRect().height)<1))).toBe(true);
@@ -94,24 +95,45 @@ test('the opening is an illustrated mural without visible copy, with an accessib
   await expect(page.getByRole('button',{name:'Abrir capítulos',exact:true})).toBeVisible();
   await expect(page.getByText('MUSICLUB / 2026',{exact:true})).not.toBeVisible();
   await page.screenshot({path:`outputs/annual-art-mural-${info.project.name}.png`,animations:'disabled'});
-  const print=mural.getByRole('button',{name:'Ver ilustración: Wuthering Heights',exact:true}).first();await print.press('Enter');
+  const print=mural.getByRole('button',{name:'Ver ilustración: THIS MUSIC MAY CONTAIN HOPE.',exact:true}).first();await print.press('Enter');
   const dialog=page.getByRole('dialog',{name:'Ilustraciones de Musiclub 2026'});await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-collage/charli.png');
-  await expect(dialog.getByText('Charli xcx',{exact:true})).toBeVisible();
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-grammys/raye.png');
+  await expect(dialog.getByText('Raye',{exact:true})).toBeVisible();
   await expect(dialog.getByRole('img')).toHaveAttribute('width','1200');await expect(dialog.getByRole('img')).toHaveAttribute('height','1200');
-  await dialog.getByRole('button',{name:'Ilustración anterior',exact:true}).click();await expect(dialog.getByText('Haute & Freddy',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Ilustración anterior',exact:true}).click();await expect(dialog.getByText('Asake',{exact:true})).toBeVisible();
   await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();
-  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-collage/mitski-detail.webp');await expect(dialog.getByText('Mitski',{exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Siguiente ilustración',exact:true}).click();await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-grammys/rosalia-detail.webp');await expect(dialog.getByText('ROSALÍA',{exact:true})).toBeVisible();
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
-  await mural.getByRole('button',{name:'Ver ilustración: U',exact:true}).first().press('Enter');
-  await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-collage/underscores-u-detail.webp');
-  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-collage/underscores-u.png');
+  await mural.getByRole('button',{name:'Ver ilustración: REVIVE+',exact:true}).first().press('Enter');
+  await expect(dialog.getByRole('img')).toHaveAttribute('src','/annual/2026/cubist-grammys/ive-detail.webp');
+  await expect(dialog.getByRole('link',{name:'Descargar ilustración PNG',exact:true})).toHaveAttribute('href','/annual/2026/cubist-grammys/ive.png');
   await page.screenshot({path:`outputs/annual-underscores-u-${info.project.name}.png`,animations:'disabled'});
   await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);
 });
 test('ordinary members also see only coming soon, regardless of preview parameters',async({page})=>{
   const state=await setup(page,{admin:false});await page.goto('/2026?admin=true&user_id=someone-else');
   await revealSoon(page);await expect(page.getByText('PRÓXIMAMENTE',{exact:true})).toBeVisible();await expect(page.getByRole('heading',{name:'Para volver a escuchar.',exact:true})).toHaveCount(0);expect(state.reads()).toBe(0);
+});
+
+test('the public notice remains readable and within a short phone viewport',async({page},info)=>{
+ await page.route('**/*',r=>['127.0.0.1','localhost'].includes(new URL(r.request().url()).hostname)?r.continue():r.abort());
+ for(const [width,height] of [[320,600],[390,700],[768,600]]){
+  await page.setViewportSize({width,height});await page.goto('/2026');await revealSoon(page);
+  const button=page.getByRole('button',{name:'Notificarme',exact:true});await expect(button).toBeInViewport();await expectReadableIcons(button);
+  const bounds=await button.boundingBox(),ticket=await page.locator('[aria-label="Edición anual de Musiclub"]').boundingBox();expect(bounds.x).toBeGreaterThanOrEqual(0);expect(bounds.x+bounds.width).toBeLessThanOrEqual(width);expect(bounds.y+bounds.height).toBeLessThan(height);expect(bounds.x+bounds.width).toBeLessThanOrEqual(ticket.x+3);
+  await page.screenshot({path:`outputs/v1232/notice-${width}-${info.project.name}.png`,animations:'disabled'});
+ }
+});
+
+test('a member can save and cancel the annual notice without supplying an email or another account ID',async({page})=>{
+ await setup(page,{admin:false});let enabled=false,writes=0;
+ await page.route('**/api/annual/2026/notifications',route=>{if(route.request().method()==='POST'){const body=route.request().postDataJSON();expect(Object.keys(body)).toEqual(['enabled']);enabled=body.enabled;writes++;}return route.fulfill({json:{subscribed:enabled,confirmationStatus:'not_approved_or_due'}});});
+ await page.goto('/2026');await revealSoon(page);const save=page.getByRole('button',{name:'Notificarme',exact:true});await expect(save).toBeEnabled();await save.click();await expect(page.getByRole('button',{name:'Aviso guardado',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByText('Te avisaremos al correo de tu cuenta cuando abra tu edición.')).toBeVisible();
+ await page.getByRole('button',{name:'Cancelar aviso',exact:true}).click();await expect(save).toHaveAttribute('aria-pressed','false');expect(writes).toBe(2);await expect(page.locator('[data-opening-panel="intro"]')).toContainText('12:00 p. m.');
+});
+
+test('members receive their own complete annual edition once the announced launch time arrives',async({page})=>{
+ await page.clock.install({time:new Date('2026-12-28T18:00:00Z')});const state=await setup(page,{admin:false,personalCount:1});await page.goto('/2026');await expect(page.locator('#mi-ranking')).toBeAttached();await expect(page.locator('#mi-ranking article')).toHaveCount(1);await expect(page.getByRole('button',{name:'Compartir mi 2026',exact:true})).toBeAttached();expect(state.reads()).toBe(1);await expect(page.getByRole('complementary',{name:'Controles de vista previa anual'})).toHaveCount(0);
 });
 
 test('scrolling reveals coming soon over the same pinned moving mural without new private reads',async({page},info)=>{
@@ -250,17 +272,19 @@ test('own annual cards export every format and keep the correct image proportion
 });
 
 
-test('the global sections follow the annual sequence and every reviewer appears on a distinct release card',async({page},info)=>{
+test('global sections follow the annual sequence and show written reviews while preserving every author in statistics',async({page},info)=>{
  const state=await setup(page);await page.goto('/2026');await expect(page.locator('#seleccion article')).toHaveCount(20);
  const ids=['bienvenida','mi-ranking','seleccion','club','panorama','eps','sencillos','meses','voces','listas','generos','categorias','proximo-2027','mi-2026'];
  expect(await page.locator('main').evaluate((main,ids)=>ids.map(id=>main.querySelector('#'+id)).every((el,i,all)=>el&&(!i||(all[i-1].compareDocumentPosition(el)&Node.DOCUMENT_POSITION_FOLLOWING))),ids)).toBe(true);
- const voices=page.locator('#voces');await expect(voices.locator('[data-voice-author]')).toHaveCount(state.data.yearbook.voices.contributorCount);
- expect(await voices.locator('[data-voice-author]').evaluateAll(nodes=>new Set(nodes.map(e=>e.dataset.voiceAuthor)).size)).toBe(state.data.yearbook.voices.contributorCount);
+ const voices=page.locator('#voces'),writtenCount=state.data.yearbook.voices.cards.reduce((n,r)=>n+r.reviews.length,0);await expect(voices.locator('[data-voice-author]')).toHaveCount(writtenCount);
+ expect(writtenCount).toBeLessThan(state.data.yearbook.voices.contributorCount);await expect(voices).toContainText(`${state.data.yearbook.voices.contributorCount} autores · Distintos releases.`);await expect(voices.getByText('Calificó este release sin comentario escrito.')).toHaveCount(0);
+ expect(await voices.locator('[data-voice-author]').evaluateAll(nodes=>new Set(nodes.map(e=>e.dataset.voiceAuthor)).size)).toBe(writtenCount);
  expect(await voices.locator('[data-voice-release]').evaluateAll(nodes=>new Set(nodes.map(e=>e.dataset.voiceRelease)).size===nodes.length)).toBe(true);
  await voices.locator('[data-voice-release]').first().evaluate(el=>el.scrollIntoView({behavior:'instant',block:'center'}));await page.screenshot({path:'outputs/annual-yearbook-voices-'+info.project.name+'.png',animations:'disabled'});
  const more=voices.getByRole('button',{name:'Leer completa',exact:true}).first();await more.click();await expect(more).toHaveCount(0);await voices.getByRole('button',{name:'Ver menos',exact:true}).click();
- await page.locator('#meses').getByRole('button',{name:'Marzo',exact:true}).click();await expect(page.locator('#meses [data-global-release]')).toHaveCount(1);await expect(page.locator('#meses')).toContainText('Valoración externa');await expect(page.locator('#meses')).toContainText('Musiclub');
- await page.locator('#meses').getByRole('button',{name:'Diciembre',exact:true}).click();await expect(page.locator('#meses')).toContainText('No hay un release de este mes en el corte consultado.');
+ await page.locator('#meses').evaluate(el=>el.scrollIntoView({behavior:'instant',block:'start'}));await expect(page.locator('#meses [data-month]')).toHaveCount(12);
+ await expect(page.locator('#meses [data-month="3"] a')).toHaveCount(1);await expect(page.locator('#meses [data-month="12"]')).toContainText('Por descubrir');
+ const calendar=await page.locator('#meses').boundingBox();expect(calendar.height).toBeLessThan(page.viewportSize().height);await expect.poll(()=>page.locator('#meses h2').evaluate(el=>el.getBoundingClientRect().top-document.querySelector('[aria-label="Controles de vista previa anual"]').getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(0);expect((await page.locator('#meses [data-month="12"]').boundingBox()).y+(await page.locator('#meses [data-month="12"]').boundingBox()).height).toBeLessThanOrEqual(page.viewportSize().height);await page.screenshot({path:'outputs/v1232/calendar-'+info.project.name+'.png',animations:'disabled'});expect(await page.locator('#meses').evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
  await page.locator('#categorias').getByRole('button',{name:'Bandas sonoras',exact:true}).click();await expect(page.locator('#categorias [data-global-release]')).toHaveCount(8);
  await expect(page.getByRole('main')).not.toContainText('AOTY');
  await expect(page.locator('#seleccion')).not.toContainText('Valoración externa');

@@ -1,26 +1,143 @@
-// Public artwork previews only. Editorial sources, ordering and statistics stay server-side.
+// Twenty project artworks selected from the 2027 Grammy field. Public previews only.
 export const ANNUAL_ART = [
-  {id:'charli',title:'Wuthering Heights',artist:'Charli xcx',description:'Manos y una copa oscura sobre piedra, bajo una luz cálida lateral.'},
-  {id:'mitski',title:'Nothing’s About to Happen to Me',artist:'Mitski',description:'Un gato blanco con un ojo dorado y otro azul, frente a un papel floral.'},
-  {id:'gorillaz',title:'The Mountain',artist:'Gorillaz',description:'Cuatro figuras sobre una montaña, entre nubes y un sol de vinilo.'},
-  {id:'raye',title:'THIS MUSIC MAY CONTAIN HOPE.',artist:'RAYE',description:'Una figura vestida de rojo abre una puerta luminosa entre nubes.'},
-  {id:'slayyyter',title:'WOR$T GIRL IN AMERICA',artist:'Slayyyter',description:'Una gorra roja, prendas azules y un símbolo rojo sobre un cielo claro.'},
-  {id:'robyn',title:'Sexistential',artist:'Robyn',description:'Una figura de cabello rubio baila con los brazos levantados.'},
-  {id:'ratboys',title:'Singin’ to an Empty Chair',artist:'Ratboys',description:'Dos columpios rojos en un claro, bajo un dosel de árboles.'},
-  {id:'free-spirits',title:'FREE SPIRITS',artist:'CA7RIEL & Paco Amoroso',description:'Cuatro retratos con las expresiones, peinados y lazos de la portada.'},
-  {id:'olivia',title:'you seem pretty sad for a girl so in love',artist:'Olivia Rodrigo',description:'Una figura con vestido rosa se balancea de cabeza sobre el cielo.'},
-  {id:'underscores',title:'U',artist:'underscores',description:'Un cartel blanco con la U de underscores, entre cables y objetos de una tienda.'},
-  {id:'dry-cleaning',title:'Secret Love',artist:'Dry Cleaning',description:'Un rostro de cabeza, enmarcado por manos, una botella y un cojín azul.'},
-  {id:'neurosis',title:'An Undying Love for a Burning World',artist:'Neurosis',description:'Una silueta de sol negro y ramas enredadas sobre pigmento naranja y rojo.'},
-  {id:'rawayana',title:'¿Dónde Es El After?',artist:'Rawayana',description:'Una bailarina con vestido verde bajo un sol amarillo, sobre papel rojo.'},
-  {id:'vince',title:'Cry Baby',artist:'Vince Staples',description:'Un bebé que llora, entre gotas blancas y un fondo rosa intenso.'},
-  {id:'angine',title:'Vol.II',artist:'Angine de Poitrine',description:'Dos músicos de máscaras y lunares, con guitarra, batería y una pirámide dorada.'},
-  {id:'phoebe',title:'Lost Weekend',artist:'Phoebe Bridgers',description:'Una reinterpretación angular de la portada de Lost Weekend.'},
-  {id:'jessie',title:'Superbloom',artist:'Jessie Ware',description:'Una reinterpretación angular de la portada de Superbloom.'},
-  {id:'harry',title:'Kiss All The Time. Disco, Occasionally.',artist:'Harry Styles',description:'Una reinterpretación angular de la portada de Kiss All The Time. Disco, Occasionally.'},
-  {id:'fcukers',title:'Ö',artist:'Fcukers',description:'Una reinterpretación angular de la portada de Ö.'},
-  {id:'haute',title:'Big Disgrace',artist:'Haute & Freddy',description:'Una reinterpretación angular de la portada de Big Disgrace.'},
-].map(piece=>{
-  const assetId=piece.id==='underscores'?'underscores-u':piece.id;
-  return {...piece,assetId,src:`/annual/2026/cubist-collage/${assetId}.webp`,detailSrc:`/annual/2026/cubist-collage/${assetId}-detail.webp`,download:`/annual/2026/cubist-collage/${assetId}.png`};
-});
+  {
+    "id": "raye",
+    "title": "THIS MUSIC MAY CONTAIN HOPE.",
+    "artist": "Raye",
+    "description": "La portada de THIS MUSIC MAY CONTAIN HOPE., de Raye, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/raye-this-music-may-contain-hope"
+  },
+  {
+    "id": "rosalia",
+    "title": "LUX (Complete Works)",
+    "artist": "ROSALÍA",
+    "description": "La portada de LUX (Complete Works), de ROSALÍA, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/rosalia-lux-complete-works"
+  },
+  {
+    "id": "olivia",
+    "title": "you seem pretty sad for a girl so in love",
+    "artist": "Olivia Rodrigo",
+    "description": "La portada de you seem pretty sad for a girl so in love, de Olivia Rodrigo, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/olivia-rodrigo-you-seem-pretty-sad-for-a-girl-so-in-love"
+  },
+  {
+    "id": "phoebe",
+    "title": "Lost Weekend",
+    "artist": "Phoebe Bridgers",
+    "description": "La portada de Lost Weekend, de Phoebe Bridgers, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/phoebe-bridgers-lost-weekend"
+  },
+  {
+    "id": "bruno",
+    "title": "The Romantic",
+    "artist": "Bruno Mars",
+    "description": "La portada de The Romantic, de Bruno Mars, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/bruno-mars-the-romantic"
+  },
+  {
+    "id": "olivia-dean",
+    "title": "The Art of Loving",
+    "artist": "Olivia Dean",
+    "description": "La portada de The Art of Loving, de Olivia Dean, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/olivia-dean-the-art-of-loving"
+  },
+  {
+    "id": "ella",
+    "title": "Dandelion",
+    "artist": "Ella Langley",
+    "description": "La portada de Dandelion, de Ella Langley, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/ella-langley-dandelion"
+  },
+  {
+    "id": "taylor",
+    "title": "The Life of a Showgirl",
+    "artist": "Taylor Swift",
+    "description": "La portada de The Life of a Showgirl, de Taylor Swift, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/taylor-swift-the-life-of-a-showgirl"
+  },
+  {
+    "id": "ariana",
+    "title": "petal",
+    "artist": "Ariana Grande",
+    "description": "La portada de petal, de Ariana Grande, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/ariana-grande-petal"
+  },
+  {
+    "id": "geese",
+    "title": "Getting Killed",
+    "artist": "Geese",
+    "description": "La portada de Getting Killed, de Geese, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/geese-getting-killed"
+  },
+  {
+    "id": "slayyyter",
+    "title": "WOR$T GIRL IN AMERICA",
+    "artist": "Slayyyter",
+    "description": "La portada de WOR$T GIRL IN AMERICA, de Slayyyter, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/slayyyter-wor-t-girl-in-america"
+  },
+  {
+    "id": "angine",
+    "title": "Vol.II",
+    "artist": "Angine de Poitrine",
+    "description": "La portada de Vol.II, de Angine de Poitrine, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/angine-de-poitrine-vol-ii"
+  },
+  {
+    "id": "don-toliver",
+    "title": "OCTANE",
+    "artist": "Don Toliver",
+    "description": "La portada de OCTANE, de Don Toliver, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/don-toliver-octane"
+  },
+  {
+    "id": "leon-thomas",
+    "title": "PHOLKS",
+    "artist": "Leon Thomas",
+    "description": "La portada de PHOLKS, de Leon Thomas, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/leon-thomas-pholks"
+  },
+  {
+    "id": "madonna",
+    "title": "CONFESSIONS II",
+    "artist": "Madonna",
+    "description": "La portada de CONFESSIONS II, de Madonna, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/madonna-confessions-ii"
+  },
+  {
+    "id": "laufey",
+    "title": "A Matter of Time: The Final Hour",
+    "artist": "Laufey",
+    "description": "La portada de A Matter of Time: The Final Hour, de Laufey, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/laufey-a-matter-of-time-the-final-hour"
+  },
+  {
+    "id": "kacey",
+    "title": "Middle of Nowhere",
+    "artist": "Kacey Musgraves",
+    "description": "La portada de Middle of Nowhere, de Kacey Musgraves, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/kacey-musgraves-middle-of-nowhere"
+  },
+  {
+    "id": "karol-g",
+    "title": "NO ME ARREPIENTO DE SENTIR TANTO",
+    "artist": "KAROL G",
+    "description": "La portada de NO ME ARREPIENTO DE SENTIR TANTO, de KAROL G, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/karol-g-no-me-arrepiento-de-sentir-tanto"
+  },
+  {
+    "id": "ive",
+    "title": "REVIVE+",
+    "artist": "IVE",
+    "description": "La portada de REVIVE+, de IVE, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/ive-revive-plus"
+  },
+  {
+    "id": "asake",
+    "title": "M$NEY",
+    "artist": "Asake",
+    "description": "La portada de M$NEY, de Asake, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/asake-m-ney"
+  }
+].map(piece=>({...piece,assetId:piece.id,src:`/annual/2026/cubist-grammys/${piece.id}.webp`,detailSrc:`/annual/2026/cubist-grammys/${piece.id}-detail.webp`,download:`/annual/2026/cubist-grammys/${piece.id}.png`}));

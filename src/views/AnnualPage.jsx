@@ -16,6 +16,7 @@ import {AnnualCollection,AnnualPersonalRanking} from '../components/AnnualCollec
 import {AnnualActivity} from '../components/AnnualActivity';
 import {AnnualWorld} from '../components/AnnualWorld';
 import {AnnualArtOpening} from '../components/AnnualArtOpening';
+import {annualIsPublished} from '../data/annual2026Launch.mjs';
 import styles from './AnnualPage.module.css';
 import '../styles/annual-icons.css';
 
@@ -98,26 +99,28 @@ function PersonalSection({personal,onShare}){
 }
 export function AnnualPage(){
   const [chapter,setChapter]=useState('inicio');
+  const [published,setPublished]=useState(false);
+  useEffect(()=>{const check=()=>setPublished(annualIsPublished());check();const timer=setInterval(check,30000);document.addEventListener('visibilitychange',check);return()=>{clearInterval(timer);document.removeEventListener('visibilitychange',check);};},[]);
   const auth=useAuth(),[data,setData]=useState(null),[loading,setLoading]=useState(false),[error,setError]=useState(''),[retry,setRetry]=useState(0),[publicPreview,setPublicPreview]=useState(false),[paused,setPaused]=useState(false),[share,setShare]=useState(null);
   useEffect(()=>{
-    setData(null);setError('');setShare(null);if(!auth.isAdmin||!auth.user?.id)return;
-    let active=true;const key=auth.user.id;setLoading(true);
-    previews.read(key,async()=>{const response=await authenticatedFetch('/api/annual/2026');const result=await response.json();if(!response.ok)throw new Error(result.error||'No pudimos abrir la vista previa');return result;}).then(result=>{if(active&&result.viewerId===key)setData(result);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};
-  },[auth.isAdmin,auth.user?.id,retry]);
-  const allowed=auth.isAdmin&&data?.viewerId===auth.user?.id;
+    setData(null);setError('');setShare(null);setLoading(false);if((!auth.isAdmin&&!published)||auth.loading)return;
+    let active=true;const viewer=auth.user?.id||null,key=viewer||'public';setLoading(true);
+    previews.read(key,async()=>{const response=await (viewer?authenticatedFetch('/api/annual/2026'):fetch('/api/annual/2026'));const result=await response.json();if(!response.ok)throw new Error(result.error||'No pudimos abrir la edición');return result;}).then(result=>{if(active&&result.viewerId===viewer)setData(result);}).catch(e=>{if(active)setError(e.message);}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};
+  },[auth.isAdmin,auth.user?.id,auth.loading,published,retry]);
+  const allowed=(auth.isAdmin||published)&&!!data&&data.viewerId===(auth.user?.id||null);
   const visible=allowed&&!publicPreview;
 
-  const retryLoad=()=>{previews.invalidate(auth.user.id);setRetry(v=>v+1);};
+  const retryLoad=()=>{previews.invalidate(auth.user?.id||'public');setRetry(v=>v+1);};
   return <div className={styles.root} data-annual-icons="light" data-private={visible} data-admin={auth.isAdmin} data-opening={!visible||chapter==='inicio'}>
     <EditionNav preview={visible} paused={paused} onToggle={()=>setPaused(v=>!v)} chapter={chapter} publicPreview={publicPreview} onPreview={auth.isAdmin?()=>setPublicPreview(v=>!v):undefined}/>
     {auth.isAdmin&&<aside className={styles.adminBar} data-annual-icons="dark" aria-label="Controles de vista previa anual"><span><UiIcon name="shield"/>VISTA PREVIA · SÓLO ADMINISTRADORES</span><div><button type="button" onClick={()=>setPublicPreview(v=>!v)}>{publicPreview?'Volver a la vista previa':'Ver Próximamente'}<UiIcon name="eye"/></button><button type="button" onClick={retryLoad} disabled={loading}><UiIcon name="repeat"/>Actualizar datos</button></div></aside>}
-    {auth.isAdmin&&loading&&<p role="status" className={styles.loadNotice}>Preparando tu vista previa del año…</p>}
-    {error&&auth.isAdmin&&<p role="alert" className={styles.loadNotice}>{error}<button type="button" onClick={retryLoad}>Reintentar</button></p>}
+    {loading&&<p role="status" className={styles.loadNotice}>Preparando tu edición del año…</p>}
+    {error&&(auth.isAdmin||published)&&<p role="alert" className={styles.loadNotice}>{error}<button type="button" onClick={retryLoad}>Reintentar</button></p>}
     <Motion paused={paused} onChapter={setChapter} key={visible?'preview':'public'}>{!visible?<AnnualComingSoon/>:<>
       <AnnualArtOpening next="bienvenida"/><AnnualWelcome name={data.personal?.name}/>
-      <AnnualPersonalRanking personal={data.personal}/>
+      {auth.user?<AnnualPersonalRanking personal={data.personal}/>:<section id="mi-ranking" className={styles.welcome}><Label icon="user">TU RANKING PERSONAL</Label><h2>Tu ranking empieza contigo.</h2><p>Entra a tu cuenta para ver los álbumes de 2026 que mejor calificaste.</p><button type="button" onClick={auth.loginWithGoogle} className={styles.primary}>Ver mi año <UiIcon name="arrow"/></button></section>}
       <AnnualCollection selection={data.selection}/>
-      <ClubSection club={data.club}/><AnnualWorld yearbook={data.yearbook} playlists={data.playlists}/><PersonalSection personal={data.personal} onShare={setShare}/>
+      <ClubSection club={data.club}/><AnnualWorld yearbook={data.yearbook} playlists={data.playlists}/>{auth.user?<PersonalSection personal={data.personal} onShare={setShare}/>:<section id="mi-2026" className={styles.personal}><h2>Tu año, disco por disco.</h2><p>Entra a tu cuenta para descubrir tu edición personal.</p><button type="button" onClick={auth.loginWithGoogle} className={styles.primary}>Entrar a Musiclub <UiIcon name="arrow"/></button></section>}
       <section className={styles.ending}><img src="/musiclub_logo_corchea.png" alt="" width="58" height="58"/><h2>Nos queda mucho<br/>por escuchar.</h2><Link href="/catalogo" data-annual-icons="dark" className={styles.primary}>Volver al catálogo <UiIcon name="arrow"/></Link></section>
     </>}<Footer showAd={false}/></Motion>
     {visible&&share&&<AnnualShare personal={share.personal} initialTheme={share.theme} onClose={()=>setShare(null)}/>}

@@ -29,7 +29,7 @@ test('every displayed global release has a real catalog destination, recognized 
 });
 test('shared-only releases group all voices without duplicating the release or inventing comments',()=>{
  const a={...album('a','A'),edition_member_ids:['a','a-clean']},reviews=[review('1','Alicia','a'),review('2','Bruno','a-clean',{comment:''}),review('3','Alicia','a',{comment:'Esta es mi opinión completa.'}),review('4','Futuro','a',{created_at:'2026-12-01'}),review('5','Pasado','a',{created_at:'2025-12-01'})];
- const result=buildAnnualVoices({albums:[a],reviews},{now});assert.equal(result.contributorCount,2);assert.equal(result.releaseCount,1);assert.equal(result.cards[0].reviews.length,2);assert.equal(result.cards[0].reviews.find(r=>r.name==='Bruno').comment,'');assert.equal(JSON.stringify(result).includes('reviewer_email'),false);
+ const result=buildAnnualVoices({albums:[a],reviews},{now});assert.equal(result.contributorCount,2);assert.equal(result.releaseCount,1);assert.equal(result.cards[0].reviews.length,1);assert.ok(result.cards[0].reviews.every(r=>r.comment.trim()));assert.equal(result.cards[0].reviews.some(r=>r.name==='Bruno'),false);assert.equal(JSON.stringify(result).includes('reviewer_email'),false);
 });
 test('the club ranks by its own annual score while global notes and scales remain separate',()=>{
  const albums=[album('a','Más alto'),album('b','Más bajo')],reviews=[review('a','Uno','a',{rating_general:9}),review('b','Dos','b',{rating_general:7})];

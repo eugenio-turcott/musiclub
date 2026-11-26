@@ -1,4 +1,5 @@
 'use client';
+import {MusiclubEditions} from './MusiclubEditions';
 import {createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {UiIcon} from './UiIcon';
@@ -95,6 +96,7 @@ export function LandingHero({albums,reviews,stats,user,onLogin}){
    <div className={styles.motionControl}><span>{icon('disc',16)} Hecho para quienes escuchan más allá del sencillo.</span><button type="button" aria-pressed={motion.paused} onClick={motion.toggle}>{icon(motion.paused?'play':'pause',16)}{motion.paused?'Activar animaciones':'Pausar animaciones'}</button></div>
  </section>
  <section className={styles.stats} aria-label="Musiclub en cifras" data-reveal=""><Stat value={stats.total_reviewed_albums} label="Lanzamientos con Reviews" figure="disc"/><Stat value={stats.total_reviews} label="Reseñas publicadas" figure="review"/><Stat value={stats.total_users} label="Críticos & Miembros" figure="users"/><Stat value={stats.top_score} label="Top Score Comunitario" figure="star" decimal/></section>
+ <MusiclubEditions/>
  <section className={styles.genreRibbon} data-landing-scene="" aria-label="Vinilos por género"><div><p className={styles.eyebrow}>CADA SONIDO, SU VINILO.</p><h2>¿Qué quieres escuchar?</h2></div><div className={styles.genreButtons}>{GENRES.map(g=><Link key={g} to={genreRoutes.genrePath(g)} aria-label={`Explorar ${g}`}><Vinyl genre={g}/><span>{g}</span>{icon('arrow',16)}</Link>)}</div><PlatformStrip/></section>
  </>;
 }

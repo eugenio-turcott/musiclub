@@ -3758,15 +3758,16 @@
       "genres": [
         "Country"
       ],
-      "imageSource": "https://kaceymusgraves.com/cdn/shop/files/DIGIPAK_MAIN_TRANSPARENT.png?v=1792624678",
-      "image": "/annual/2026/global/aoty-2093995-hd.webp",
+      "imageSource": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/33/5a/4d/335a4d64-a908-5f3e-5220-b767f8a7415f/26UM1IM30839.rgb.jpg/1200x1200bb.jpg",
+      "image": "/annual/2026/global/aoty-2093995-digital-hd.webp",
       "sourceUrl": "https://www.albumoftheyear.org/album/2093995-kacey-musgraves-middle-of-nowhere-vol-2-tex-mex-tapes.php",
       "global": {},
       "imageWidth": 1200,
       "catalogId": "be1663b2-45a6-4032-a1c7-03f4114087af",
       "catalogPath": "/albumes/kacey-musgraves-middle-of-nowhere-vol-2-tex-mex-tapes",
       "release_type": "ALBUM",
-      "available": true
+      "available": true,
+      "appleMusicLink": "https://music.apple.com/us/album/middle-of-nowhere-vol-2-tex-mex-tapes/6825118037?uo=4"
     },
     {
       "id": "aoty-2119087",
@@ -3816,15 +3817,16 @@
         "Synth-Pop",
         "Rock Alternativo"
       ],
-      "imageSource": "https://assets.diggersfactory.com/projects/d269fc1e-ed8c-42a0-ac0a-35e6b162cb9e/preview.png",
-      "image": "/annual/2026/global/aoty-2000228-hd.webp",
+      "imageSource": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/8f/60/268f6064-3770-14e1-428a-9bb67329a9f6/823375530411_Cover.jpg/1200x1200bb.jpg",
+      "image": "/annual/2026/global/aoty-2000228-digital-hd.webp",
       "sourceUrl": "https://www.albumoftheyear.org/album/2000228-chvrches-all-the-kings-men.php",
       "global": {},
-      "imageWidth": 700,
+      "imageWidth": 1200,
       "catalogId": "3f9751da-1b5c-423a-9b00-669f4561e834",
       "catalogPath": "/albumes/chvrches-all-the-kings-men",
       "release_type": "ALBUM",
-      "available": true
+      "available": true,
+      "appleMusicLink": "https://music.apple.com/us/album/all-the-kings-men/6822790479?uo=4"
     },
     {
       "id": "aoty-2023226",

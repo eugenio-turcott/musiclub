@@ -22,7 +22,7 @@ export function verifiedPlatforms(release){
  return [...platforms];
 }
 export function releaseRelevance(release){return verifiedPlatforms(release).reduce((total,provider)=>total+PLATFORM_WEIGHTS[provider],0);}
-export function commonDiscography(releases=[]){return releases.map(r=>({...r,verifiedPlatforms:verifiedPlatforms(r),relevance:releaseRelevance(r)})).filter(r=>r.verifiedPlatforms.length||r.clubAlbumId||r.clubUrl).sort((a,b)=>b.relevance-a.relevance||(b.releaseDate||'').localeCompare(a.releaseDate||'')||String(a.id).localeCompare(String(b.id)));}
+export function commonDiscography(releases=[]){return releases.map(r=>({...r,verifiedPlatforms:verifiedPlatforms(r),relevance:releaseRelevance(r)})).filter(r=>r.verifiedPlatforms.length||r.clubAlbumId||r.clubUrl).sort((a,b)=>String(b.releaseDate||b.release_date||b.releaseYear||b.release_year||'').localeCompare(String(a.releaseDate||a.release_date||a.releaseYear||a.release_year||''))||b.relevance-a.relevance||String(a.id).localeCompare(String(b.id)));}
 export function verifiedArtistProfile(profile){
  if(!profile)return profile;
  const discography=commonDiscography(profile.discography||[]);

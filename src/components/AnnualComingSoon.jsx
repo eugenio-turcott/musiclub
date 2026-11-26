@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import {AnnualNotifyButton} from './AnnualNotifyButton';
 import {useState} from 'react';
 import {UiIcon} from './UiIcon';
 import {GenreArtwork} from './GenreArtwork';
@@ -14,6 +15,7 @@ export function AnnualComingSoon(){
         <span className={styles.soonEyebrow}><UiIcon name="sparkles" size={32}/> PRÓXIMAMENTE</span>
         <h2>Musiclub<br/><em>2026.</em></h2>
         <p>Los descubrimientos, las reseñas y la música que compartimos este año.</p>
+        <AnnualNotifyButton/>
         <a href="#tu-2026" className={styles.soonMainLink}>Y tu propio 2026 <UiIcon name="arrowDown" size={30}/></a>
       </div>
       <div data-annual-icons="light" className={styles.yearTicket} aria-label="Edición anual de Musiclub">

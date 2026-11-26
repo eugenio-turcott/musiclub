@@ -1,12 +1,12 @@
 # Musiclub 2026
 
-Ruta pública: `/2026`. Estado inicial: **Próximamente** para visitantes y miembros. Los administradores autenticados ven una vista previa, con un control para comprobar la presentación pública. No hay fecha de estreno ni publicación automática.
+Ruta pública: `/2026`. Estado inicial: **Próximamente** para visitantes y miembros. Los administradores autenticados ven una vista previa, con un control para comprobar la presentación pública. La apertura automática está fijada para el **28 de diciembre de 2026, 12:00 p. m. de Ciudad de México** (`2026-12-28T18:00:00Z`). Hasta ese instante, los datos completos exigen autorización administrativa.
 
 ## Recorrido visual
 
 La primera escena presenta veinte collages cubistas de releases incluidos en la selección. No tiene título, descripción, cifras ni franjas sobre las piezas; el título semántico sigue disponible para lectores de pantalla. Las tres bandas horizontales se mueven en sentidos alternados. Se detienen al pausar, enfocar con teclado o abrir la galería, y no se animan con movimiento reducido. La navegación sólo muestra el símbolo y controles de iconos al abrir; los capítulos y controles administrativos aparecen después de bajar.
 
-`scripts/build-annual-art.mjs` ejecuta `build-annual-release-art.mjs`: prepara veinte composiciones vectoriales de **1200 × 1200** vinculadas por ID, título y artista a la selección. `annual-cubist-art.mjs` usa 1600 regiones de color por composición y una paleta de 128 tonos, con gradaciones de iluminación dentro de los planos. Parte de las portadas verificadas, conserva rasgos y objetos, simplifica los contornos y elimina sólo las motas aisladas. Los planos se adaptan a las siluetas; no forman una malla triangular. Los masters anteriores se conservan para comparar, pero no se cargan en la página. La referencia visual solicitada es https://www.instagram.com/p/DbGTKhPgYiK/; no se incorporan sus imágenes ni se presenta como una colaboración con su artista. Las piezas son composiciones digitales del proyecto, no dibujos manuales hechos en Canva. Los SVG, PNG y WebP están en `public/annual/2026/cubist-collage/`; el manifiesto público está en `src/data/annual2026Art.mjs`. La galería identifica el release y permite descargar el PNG cuadrado.
+`scripts/build-annual-art.mjs` ejecuta `build-annual-academy-art.mjs`: prepara veinte composiciones vectoriales de **1200 × 1200** vinculadas por ID, título y artista a la selección. `annual-cubist-art.mjs` usa 1600 regiones de color por composición y una paleta de 128 tonos, con gradaciones de iluminación dentro de los planos. Parte de las portadas verificadas, conserva rasgos y objetos, simplifica los contornos y elimina sólo las motas aisladas. Los planos se adaptan a las siluetas; no forman una malla triangular. Los masters anteriores se conservan para comparar, pero no se cargan en la página. La referencia visual solicitada es https://www.instagram.com/p/DbGTKhPgYiK/; no se incorporan sus imágenes ni se presenta como una colaboración con su artista. Las piezas son composiciones digitales del proyecto, no dibujos manuales hechos en Canva. Los SVG, PNG y WebP actuales están en `public/annual/2026/cubist-grammys/`; el manifiesto público está en `src/data/annual2026Art.mjs`. La galería identifica el release y permite descargar el PNG cuadrado.
 
 La edición usa una navegación propia, independiente de la barra habitual y del anuncio Grammy. El área de lectura ocupa el espacio disponible y encaja las escenas mediante desplazamiento nativo (`scroll-snap`), sin capturar eventos de rueda ni gestos. Las escenas crecen cuando el contenido o el tamaño del texto lo requieren; las secciones largas siguen siendo desplazables. Hay enlaces directos a capítulos, indicador de avance, menú móvil y pausa de movimiento. Se respeta la preferencia de movimiento reducido.
 
@@ -14,7 +14,7 @@ Sobre las veinte ilustraciones de la apertura aparecen dos composiciones: el añ
 
 ## Contenido y procedencia
 
-La selección editorial inicial de veinte releases permanece como colección artística del mural. Desde V12.2.0, no representa el ranking principal: éste se calcula con las reseñas de Musiclub. El panorama global usa un corte separado de AOTY del **19 de noviembre de 2026**. La investigación editorial inicial tuvo corte el 18 de noviembre.
+El mural actual reúne los ocho proyectos nominados a Álbum del Año de Grammy 2027 y doce proyectos de otras categorías relevantes, usando el álbum completo como referencia. El manifiesto y procedencia están en `src/server/annual2026Academy.json`. La selección artística no es un ranking ni representa premios ganados. Desde V12.2.0, no representa el ranking principal: éste se calcula con las reseñas de Musiclub. El panorama global usa un corte separado de AOTY del **19 de noviembre de 2026**. La investigación editorial inicial tuvo corte el 18 de noviembre.
 
 Se contrastaron el agregado anual y las valoraciones de AOTY, las selecciones de mitad de año de Rolling Stone y Billboard, conversaciones de r/indieheads de marzo, junio y noviembre, y el anuncio oficial de nominaciones de la Recording Academy del 16 de noviembre.
 
@@ -25,7 +25,7 @@ Referencias:
 - [Rolling Stone: selección de mitad de año](https://www.rollingstone.com/music/music-lists/best-albums-of-2026-so-far-1235569912/), contrastada mediante [su índice en AOTY](https://www.albumoftheyear.org/list/2650-rolling-stones-best-albums-of-2026-so-far/) y la segunda página. El original exige acceso.
 - [Billboard: selección de mitad de año](https://www.billboard.com/lists/best-albums-2026-so-far/), contrastada mediante [su índice en AOTY](https://www.albumoftheyear.org/list/2656-billboards-50-best-albums-of-2026-so-far/). No es el Billboard 200.
 - [Reddit: primer trimestre](https://www.reddit.com/r/indieheads/comments/1s6gg7k/first_quarter_of_2026_your_top_5_albums_of_the/), [junio](https://www.reddit.com/r/indieheads/comments/1u7ki9q/the_best_albums_of_2026_so_far/) y [noviembre](https://www.reddit.com/r/indieheads/comments/1xtqqyl/uncut_80_best_albums_of_2026/). Las conversaciones son muestras de opinión, no votaciones representativas ni premios.
-- [Nominaciones oficiales Grammy 2027](https://media.grammy.net/uploads/2026/11/2027_grammys_nominations_final.pdf). Las nominaciones no se presentan como victorias. Los releases de otros años no se añaden automáticamente a la selección de 2026 por estar nominados.
+- [Nominaciones oficiales Grammy 2027](https://media.grammy.net/uploads/2026/11/2027_grammys_nominations_final.pdf). Las nominaciones no se presentan como victorias. La colección artística puede incluir proyectos de 2025 elegibles para Grammy 2027. El ranking del club conserva exclusivamente álbumes publicados en 2026.
 
 Los enlaces y el contexto de cada referencia están en `src/server/annual2026Selection.mjs`. Las referencias se conservan sólo para revisión interna; no se muestran en la interfaz ni se envían como parte de la selección. Antes del estreno hay que revisar las listas anuales completas y actualizar el corte.
 
@@ -37,9 +37,9 @@ La versión publicada usa las portadas oficiales verificadas por título, artist
 
 ## Acceso y privacidad
 
-`GET /api/annual/2026` llama a `authorize(request, {admin:true})` antes de consultar los datos. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa las referencias, criterios o estadísticas de la edición privada; muestra únicamente las veinte ilustraciones y los gráficos públicos de Musiclub descritos arriba. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
+`GET /api/annual/2026` usa `annualAccess`: antes del estreno llama a `authorize` con `admin:true`. Después del estreno los visitantes reciben sólo el resumen público, mientras que cada sesión autenticada obtiene exclusivamente su resumen personal. La autorización usa la sesión validada y la lista de administradores del servidor. La vista pública no importa ni serializa las referencias, criterios o estadísticas de la edición privada; muestra únicamente las veinte ilustraciones y los gráficos públicos de Musiclub descritos arriba. Los parámetros de URL no otorgan acceso. La respuesta es `private, no-store` y varía por autorización.
 
-El resumen personal se consulta exclusivamente para el correo y el ID verificados de la sesión, bajo las reglas RLS existentes. No acepta identificadores de otras personas. La interfaz comprueba también el ID de la respuesta para evitar mostrar datos de otra sesión. No se modificaron permisos, tablas o políticas.
+El resumen personal se consulta exclusivamente para el correo y el ID verificados de la sesión, bajo las reglas RLS existentes. No acepta identificadores de otras personas. La interfaz comprueba también el ID de la respuesta para evitar mostrar datos de otra sesión. Los avisos usan las políticas privadas descritas abajo.
 
 ## Qué cuenta Mi 2026
 
@@ -137,3 +137,17 @@ Las pruebas en escritorio y celular comprueban posiciones intermedias, llegada a
 ### Presentación de cifras externas y primer año del club
 
 La interfaz identifica las notas ajenas al club como «Valoración externa», con su escala de 100, y las distingue de Musiclub sobre 10. El nombre de la fuente permanece en los manifiestos internos y no en el texto de la página. El ranking del club y las tarjetas por género muestran únicamente estadísticas de Musiclub. Las gráficas de actividad del club y de Mi 2026 presentan julio–diciembre, a partir de la creación del club el 7 de julio; el calendario de lanzamientos externos conserva sus doce meses. Este recorte visual no modifica las reseñas, las cifras de actividad ni la XP. La tarjeta pública del adelanto incorpora dos vinilos nativos, adaptados a su tamaño y a las preferencias de movimiento.
+
+## Avisos y estreno · V.12.3.2
+
+`annual_subscriptions` conserva un aviso por persona y año, con correo tomado de la sesión validada. RLS impide leer o modificar avisos ajenos, suplantar el correo o escribir marcas de envío. `annual_mail_campaigns` sólo es accesible al servicio; su ausencia deliberada de políticas públicas mantiene cerrada la aprobación de campañas. Las tres fases nacen pausadas y sin `approved_at`: preparar el diseño o pulsar Notificarme nunca aprueba un envío.
+
+Tres diseños de 640 px: anuncio general en papel, confirmación en menta y estreno en noche del club. `scripts/build-annual-mail-art.mjs` produce gráficos nativos y vistas de celular/escritorio sin leer destinatarios ni enviar. `scripts/annual-mail.mjs --phase=announcement` genera una vista previa; `--send` sólo puede enviar si esa fase está aprobada y despausada en la base de datos. El anuncio general no forma parte de tareas automáticas.
+
+El cron existente de Cloudflare consulta `/api/annual/2026/mail` cada cinco minutos hasta el cierre de 2026. Revisa confirmaciones pendientes antes del estreno y avisos de lanzamiento desde las 18:00 UTC del 28 de diciembre. Cada destinatario se vuelve a comprobar y cada fase tiene una clave única en el registro de entregas. Un error incierto no se reintenta automáticamente. La fecha abre la página aunque los correos sigan pendientes de aprobación. La hora programada inicia el procesamiento; la llegada a cada buzón depende del proveedor.
+
+La página conserva el aviso sin afirmar que se haya enviado un correo. Al cerrar sesión borra el estado anterior; la respuesta anual sólo se acepta si coincide con la cuenta actual. Los correos se adjuntan como PNG mediante CID, con texto alternativo y versión de texto plano.
+
+El calendario anual muestra doce meses en una cuadrícula adaptable; los EPs y sencillos usan calificación externa descendente. Las tarjetas de opiniones requieren comentario escrito, mientras la cantidad de autores y las estadísticas generales cuentan también reseñas sin comentario. Las explicaciones personales derivan de datos reales y no acreditan XP o insignias nuevas.
+
+Canva: archivo `DAHbTQNNVCg`, veinte páginas cuadradas guardadas con aprobación del propietario. Los PNG originales son de 1200 px; Canva conserva páginas cuadradas de 1600 px al importar el PDF. Las imágenes siguen siendo ilustraciones terminadas, no capas vectoriales editables.

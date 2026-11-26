@@ -55,9 +55,9 @@ test('turntable score stays beside its star with a visible gap at every responsi
  await expect(score).toBeVisible();
  for(const width of [320,360,376,390,600,768,1280]){
   await page.setViewportSize({width,height:1000});
-  const star=await score.locator(':scope > svg').boundingBox(),number=await score.locator('strong').boundingBox();
-  expect(number.x-star.x-star.width,`gap at ${width}px`).toBeGreaterThanOrEqual(6);
-  expect(Math.abs(number.y-star.y),`same line at ${width}px`).toBeLessThan(13);
+  const measurement=()=>score.evaluate(el=>{const star=el.querySelector(':scope > svg')?.getBoundingClientRect(),number=el.querySelector('strong')?.getBoundingClientRect();return star&&number?{gap:number.x-star.right,line:Math.abs(number.y-star.y)}:null;});
+  await expect.poll(async()=>(await measurement())?.gap??-1,{message:`gap at ${width}px`}).toBeGreaterThanOrEqual(6);
+  expect((await measurement()).line,`same line at ${width}px`).toBeLessThan(13);
   const cover=await deck.locator('[data-turntable-display]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox();
   expect(mood.x+mood.width,`mood inside artwork margin at ${width}px`).toBeLessThanOrEqual(cover.x+cover.width+1);
  }
@@ -70,4 +70,14 @@ test('native image decoding retains the background when the palette service is t
  await expect(page.locator('[class*="atmosphere"]')).toHaveCount(1);
  expect(await page.locator('[class*="atmosphere"]').evaluate(el=>getComputedStyle(el).getPropertyValue('--art-0'))).toMatch(/^#[a-f0-9]{6}$/);
  await expect(page.getByRole('heading',{name:'Rojo',exact:true})).toBeVisible();
+});
+
+test('cover atmosphere stays below the hero and never tints navigation or breadcrumbs',async({page})=>{
+ for(const path of ['/albumes/artista-de-prueba-azul','/artista/artista-de-prueba']){
+  await page.goto(path);const layer=page.locator('[data-artwork-boundary]');await expect(layer).toBeAttached();
+  const geometry=await layer.evaluate(el=>({cutoff:parseFloat(getComputedStyle(el).getPropertyValue('--artwork-cutoff')),hero:el.parentElement.querySelector('[data-artwork-start]').getBoundingClientRect().top,nav:document.querySelector('[data-site-navigation]').getBoundingClientRect().bottom,clip:getComputedStyle(el).clipPath}));
+  expect(geometry.cutoff).toBeGreaterThanOrEqual(Math.min(page.viewportSize().height,Math.max(geometry.hero,geometry.nav))-1);expect(geometry.clip).toMatch(/^inset\(/);
+  await expect(page.locator('.musiclub-site-header')).toHaveCSS('background-color','rgb(12, 12, 24)');
+  await page.evaluate(()=>window.scrollBy(0,250));await expect.poll(()=>layer.evaluate(el=>parseFloat(getComputedStyle(el).getPropertyValue('--artwork-cutoff')))).toBeLessThanOrEqual(geometry.cutoff);
+ }
 });

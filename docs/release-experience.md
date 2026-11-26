@@ -1,4 +1,4 @@
-# Releases y artistas · V.12.3.1
+# Releases y artistas · V.12.3.2
 
 Las invitaciones a completar reseñas comparan grabaciones del catálogo con las canciones de las reseñas publicadas de la persona autenticada. Requieren cinco coincidencias, excepto cuando la reseña de origen es de un sencillo. Cada aparición cuenta una vez. Se contrastan ISRC, identificadores compartidos o título y duración; un remix no equivale a la grabación original.
 
@@ -25,6 +25,8 @@ Como respaldo, GitHub Actions ejecuta **Musiclub artwork colors** cada seis hora
 
 ## Discografías verificadas
 
-El orden suma evidencias por plataforma, una vez por proveedor: Spotify 70 puntos y Apple Music, Deezer, MusicBrainz, YouTube Music y Tidal 6 puntos cada uno. A igual puntuación, se usa la fecha de lanzamiento más reciente. No representa un número de escuchas ni una popularidad inventada. Los releases con una fuente y los que ya tienen ficha en Musiclub permanecen visibles.
+La discografía se ordena de fecha más reciente a más antigua. A igual fecha, suma evidencias una vez por proveedor: Spotify 70 puntos y Apple Music, Deezer, MusicBrainz, YouTube Music y Tidal 6 puntos cada uno. No representa un número de escuchas ni una popularidad inventada. Los releases con una fuente y los que ya tienen ficha en Musiclub permanecen visibles.
 
 La recolección consulta los catálogos disponibles de Spotify, Apple Music y Deezer y contrasta las relaciones de releases de MusicBrainz, que también pueden aportar enlaces directos a YouTube Music y Tidal. Se exige concordancia con títulos conocidos para desambiguar artistas homónimos y se respeta el límite de una consulta por segundo de MusicBrainz. Se conservan las evidencias previas si falla un proveedor. No se cuentan búsquedas, páginas de artista ni enlaces inventados; `linked` distingue enlaces confirmados de un catálogo consultado directamente.
+
+El fondo de color se recorta desde el inicio del banner de la ficha. La barra de navegación tiene una base opaca y las migas de navegación conservan el fondo normal. El límite sigue la geometría del banner y la barra durante scroll y redimensionado, sin recalcular colores.

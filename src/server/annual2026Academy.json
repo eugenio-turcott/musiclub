@@ -1,0 +1,377 @@
+{
+  "asOf": "2026-11-26",
+  "source": "https://media.grammy.net/uploads/2026/11/2027_grammys_nominations_final.pdf",
+  "method": "Ocho proyectos nominados a Álbum del Año y doce proyectos de categorías relevantes. Los sencillos se representan con el arte de su proyecto completo; una nominación de interpretación no se atribuye al álbum.",
+  "releases": [
+    {
+      "id": "raye",
+      "date": "2026-03-27",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Raye%20THIS%20MUSIC%20MAY%20CONTAIN%20HOPE.",
+      "image": "https://cdn-images.dzcdn.net/images/cover/b181b1871e57fb1f7273b43343941766/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/945900541",
+      "title": "THIS MUSIC MAY CONTAIN HOPE.",
+      "artist": "Raye",
+      "genres": [
+        "R&B",
+        "Pop"
+      ],
+      "spotify": "https://open.spotify.com/album/3ZN01xzenGMhWHdC5kfAe9",
+      "albumId": "ab62877e-a7c7-4340-82d1-e27788279cc8",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "rosalia",
+      "date": "2026-04-16",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/mx/album/lux-complete-works/1893474283",
+      "image": "https://cdn-images.dzcdn.net/images/cover/dfd5a96d3e47a50989785a61a7a6fc7a/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/961635041",
+      "title": "LUX (Complete Works)",
+      "artist": "ROSALÍA",
+      "genres": [
+        "Alternativo"
+      ],
+      "spotify": "https://open.spotify.com/album/3goLwu2fkSSmghikOcVufU",
+      "albumId": "27f83e5e-4f6e-481d-9974-8f738d5e2f48",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "olivia",
+      "date": "2026-06-12",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Olivia%20Rodrigo%20you%20seem%20pretty%20sad%20for%20a%20girl%20so%20in%20love",
+      "image": "https://cdn-images.dzcdn.net/images/cover/07d6896c8afea3a87dcf9381c3d0e6c7/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/search/Olivia%20Rodrigo%20you%20seem%20pretty%20sad%20for%20a%20girl%20so%20in%20love",
+      "title": "you seem pretty sad for a girl so in love",
+      "artist": "Olivia Rodrigo",
+      "genres": [
+        "Pop",
+        "Pop Rock",
+        "Cantautor"
+      ],
+      "spotify": "https://open.spotify.com/album/3WZZF72ihlKPZBS4zSsNHl",
+      "albumId": "81628c16-d175-439c-be57-705a972916dd",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "phoebe",
+      "date": "2026-08-14",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Phoebe%20Bridgers%20Lost%20Weekend",
+      "image": "https://cdn-images.dzcdn.net/images/cover/01971eab99b872cd6afb0110a5b8931d/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/1050716582",
+      "title": "Lost Weekend",
+      "artist": "Phoebe Bridgers",
+      "genres": [
+        "Folk",
+        "Alternativo",
+        "Cantautor",
+        "Indie Folk"
+      ],
+      "spotify": "https://open.spotify.com/album/2NSzwyYvQvdOQAoEjrlw9c",
+      "albumId": "df388f1b-b7e5-4a1c-a528-1865ca1e30b8",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "bruno",
+      "date": "2026-02-27",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/mx/album/the-romantic/1866732792",
+      "image": "https://cdn-images.dzcdn.net/images/cover/d68fc5f1f260273691180b9f4b77b354/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/927507111",
+      "title": "The Romantic",
+      "artist": "Bruno Mars",
+      "genres": [
+        "R&B",
+        "Pop",
+        "Funk"
+      ],
+      "spotify": "https://open.spotify.com/album/7vI4iTxDmgEN63liQHPEX1",
+      "albumId": "6ff694c6-2b6e-4b9c-907a-36ef58d735c5",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "olivia-dean",
+      "date": "2025-09-26",
+      "type": "ALBUM",
+      "year": 2025,
+      "apple": "https://music.apple.com/search?term=Olivia%20Dean%20The%20Art%20of%20Loving",
+      "image": "https://cdn-images.dzcdn.net/images/cover/b7aaad0f696b5dbfe7f1ebf2c72346a5/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/search/Olivia%20Dean%20The%20Art%20of%20Loving",
+      "title": "The Art of Loving",
+      "artist": "Olivia Dean",
+      "genres": [
+        "Pop"
+      ],
+      "spotify": "https://open.spotify.com/album/0l8zYqoUeBYg47Gmevq9HZ",
+      "albumId": "9dbba544-63f5-4d82-995a-04359a6d8fad",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "ella",
+      "date": "2026-01-30",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Ella%20Langley%20Dandelion",
+      "image": "https://cdn-images.dzcdn.net/images/cover/b1bde069e57968a190b0506aef2b6e3e/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/905476672",
+      "title": "Dandelion",
+      "artist": "Ella Langley",
+      "genres": [
+        "Country",
+        "Pop"
+      ],
+      "spotify": null,
+      "albumId": "a2af1eea-016c-4875-80d9-817e317148b7",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "taylor",
+      "date": "2025-10-03",
+      "type": "ALBUM",
+      "year": 2025,
+      "apple": "https://music.apple.com/search?term=Taylor%20Swift%20The%20Life%20of%20a%20Showgirl",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/25/0d/7e/250d7e42-3a2f-19ac-f865-f1e04a4a1f97/12UMDIM01007.rgb.jpg/1000x1000bb.jpg",
+      "other": "https://www.deezer.com/search/Taylor%20Swift%20The%20Life%20of%20a%20Showgirl",
+      "title": "The Life of a Showgirl",
+      "artist": "Taylor Swift",
+      "genres": [
+        "Pop",
+        "Country",
+        "Rock"
+      ],
+      "spotify": "https://open.spotify.com/search/Taylor%20Swift%20Red",
+      "albumId": "137e2ef1-97b9-473d-90be-ae458472b809",
+      "category": "Álbum del año"
+    },
+    {
+      "id": "ariana",
+      "date": "2026-07-31",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Ariana%20Grande%20petal",
+      "image": "https://cdn-images.dzcdn.net/images/cover/d7353e7f013511372451627aed94c974/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/1040312472",
+      "title": "petal",
+      "artist": "Ariana Grande",
+      "genres": [
+        "Pop"
+      ],
+      "spotify": "https://open.spotify.com/album/2k4FmEtXR0WiDW0Ac2QArT",
+      "albumId": "208d747a-9a57-49bd-b498-54a3de0571bf",
+      "category": "Álbum vocal pop"
+    },
+    {
+      "id": "geese",
+      "date": "2025-09-26",
+      "type": "ALBUM",
+      "year": 2025,
+      "apple": "https://music.apple.com/search?term=Geese%20Getting%20Killed",
+      "image": "https://cdn-images.dzcdn.net/images/cover/1a3a5db10b99646e925aa979d01c4c80/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/767299021",
+      "title": "Getting Killed",
+      "artist": "Geese",
+      "genres": [
+        "Indie Rock",
+        "Alternativo",
+        "Rock"
+      ],
+      "spotify": "https://open.spotify.com/album/0eeXb23yMW6EaIgm63xxPC",
+      "albumId": "c0f399b9-d71d-42bc-9bdb-4ef7a13e367b",
+      "category": "Artista nuevo · Música alternativa"
+    },
+    {
+      "id": "slayyyter",
+      "date": "2026-03-27",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Slayyyter%20WOR%24T%20GIRL%20IN%20AMERICA",
+      "image": "https://cdn-images.dzcdn.net/images/cover/9b717d3011fd7ce7f7206c110a624536/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/945645941",
+      "title": "WOR$T GIRL IN AMERICA",
+      "artist": "Slayyyter",
+      "genres": [
+        "Synth-Pop",
+        "Pop",
+        "Electrónica",
+        "Electroclash",
+        "Electropop"
+      ],
+      "spotify": "https://open.spotify.com/album/5siV9C6eK0NpAqER2FfCVA",
+      "albumId": "05edc5f2-045a-4670-abe0-bddf3e7f103b",
+      "category": "Artista nuevo · Dance/electrónica"
+    },
+    {
+      "id": "angine",
+      "date": "2026-04-03",
+      "type": "EP",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Angine%20de%20Poitrine%20Vol.II",
+      "image": "https://cdn-images.dzcdn.net/images/cover/081d76954770ca7c4d9e4138fe717629/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/916215321",
+      "title": "Vol.II",
+      "artist": "Angine de Poitrine",
+      "genres": [
+        "Pop",
+        "Alternativo",
+        "Rock"
+      ],
+      "spotify": "https://open.spotify.com/album/3FqqIeynZXFBcyLS9FlWMo",
+      "albumId": "d0a26b76-5d90-49c6-8c77-4955fe7c38ff",
+      "category": "Artista nuevo · Interpretación rock"
+    },
+    {
+      "id": "don-toliver",
+      "date": "2026-01-30",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Don%20Toliver%20OCTANE",
+      "image": "https://cdn-images.dzcdn.net/images/cover/123eb0268dfea84370a28c4a2114dc28/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/908068642",
+      "title": "OCTANE",
+      "artist": "Don Toliver",
+      "genres": [
+        "Hip-Hop"
+      ],
+      "spotify": null,
+      "albumId": "d606f56a-1144-4ff2-b559-da6cfa3f9571",
+      "category": "Artista nuevo · Rap"
+    },
+    {
+      "id": "leon-thomas",
+      "date": "2025-10-23",
+      "type": "ALBUM",
+      "year": 2025,
+      "apple": "https://music.apple.com/us/album/pholks/1847991335?uo=4",
+      "image": "https://cdn-images.dzcdn.net/images/cover/3b7b514909218c5821a6abbfb67d9c4c/1000x1000-000000-80-0-0.jpg",
+      "other": null,
+      "title": "PHOLKS",
+      "artist": "Leon Thomas",
+      "genres": [
+        "R&B",
+        "Soul"
+      ],
+      "spotify": null,
+      "albumId": "b70dad32-baf4-4084-9f2d-dc210d54b889",
+      "category": "R&B progresivo"
+    },
+    {
+      "id": "madonna",
+      "date": "2026-07-03",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Madonna%20CONFESSIONS%20II",
+      "image": "https://cdn-images.dzcdn.net/images/cover/368e162b61376cf1a35311d69e5744c8/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/1030107202",
+      "title": "CONFESSIONS II",
+      "artist": "Madonna",
+      "genres": [
+        "Pop",
+        "Dance-Pop",
+        "Electrónica",
+        "Dance"
+      ],
+      "spotify": "https://open.spotify.com/album/1CWY6mfnuLlF4BKRLFcUDQ",
+      "albumId": "bcd5763e-5226-4aa3-8e29-d7d34b4419ea",
+      "category": "Dance/electrónica"
+    },
+    {
+      "id": "laufey",
+      "albumId": "22b8aa6c-325f-4b73-b5db-d7341941e2d9",
+      "title": "A Matter of Time: The Final Hour",
+      "artist": "Laufey",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ef/14/a0/ef14a03b-47a9-4bf0-f7c8-907b33ca430d/820200874818.jpg/1200x1200bb.jpg",
+      "date": "2026-04-09",
+      "year": 2026,
+      "genres": [
+        "Pop",
+        "Jazz",
+        "Traditional Pop"
+      ],
+      "type": "ALBUM",
+      "apple": "https://music.apple.com/us/album/a-matter-of-time-the-final-hour/1890301251?uo=4",
+      "category": "Interpretación vocal pop tradicional",
+      "newRecord": true,
+      "totalTracks": 19
+    },
+    {
+      "id": "kacey",
+      "date": "2026-04-17",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=Kacey%20Musgraves%20Middle%20of%20Nowhere",
+      "image": "https://cdn-images.dzcdn.net/images/cover/97eafa46695c2708becd77df73766e7c/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/971813221",
+      "title": "Middle of Nowhere",
+      "artist": "Kacey Musgraves",
+      "genres": [
+        "Pop",
+        "Alternativo",
+        "Country"
+      ],
+      "spotify": "https://open.spotify.com/album/2yE21F6MW1XcfwIqAOMFfb",
+      "albumId": "fda61231-882b-4794-a3f8-fc6936c6dc71",
+      "category": "Country contemporáneo"
+    },
+    {
+      "id": "karol-g",
+      "date": "2026-08-07",
+      "type": "ALBUM",
+      "year": 2026,
+      "apple": "https://music.apple.com/search?term=KAROL%20G%20NO%20ME%20ARREPIENTO%20DE%20SENTIR%20TANTO",
+      "image": "https://cdn-images.dzcdn.net/images/cover/f794dd1931dac42fc13f938850b686c6/1000x1000-000000-80-0-0.jpg",
+      "other": "https://www.deezer.com/album/1048237582",
+      "title": "NO ME ARREPIENTO DE SENTIR TANTO",
+      "artist": "KAROL G",
+      "genres": [
+        "Reggaetón",
+        "Latino",
+        "Pop Latino"
+      ],
+      "spotify": "https://open.spotify.com/album/7a0lnWtCz0eW15WsWu3dHQ",
+      "albumId": "f16e9529-c84d-45fd-ab06-3056b6ad77d4",
+      "category": "Pop latino"
+    },
+    {
+      "id": "ive",
+      "albumId": "9d5596e0-757f-4d8c-8e72-4890ffce832e",
+      "title": "REVIVE+",
+      "artist": "IVE",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9d/54/fd/9d54fd06-fc19-c30c-c9ec-3fcc20eab4a3/199806315972.jpg/1200x1200bb.jpg",
+      "date": "2026-02-23",
+      "year": 2026,
+      "genres": [
+        "K-Pop"
+      ],
+      "type": "ALBUM",
+      "apple": "https://music.apple.com/us/album/revive/1873882195?uo=4",
+      "category": "Interpretación de pop asiático",
+      "newRecord": true,
+      "totalTracks": 12
+    },
+    {
+      "id": "asake",
+      "albumId": "9775b358-af1a-48b9-a576-8646e291f96c",
+      "title": "M$NEY",
+      "artist": "Asake",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/31/e4/eb/31e4ebf4-97bd-c193-59c7-1b72ed7ab53a/ticket.wlorjbae.jpg/1200x1200bb.jpg",
+      "date": "2026-04-30",
+      "year": 2026,
+      "genres": [
+        "Afrobeats",
+        "Música Africana"
+      ],
+      "type": "ALBUM",
+      "apple": "https://music.apple.com/us/album/m%24ney/1891869190?uo=4",
+      "category": "Interpretación de música africana",
+      "newRecord": true,
+      "totalTracks": 13
+    }
+  ]
+}

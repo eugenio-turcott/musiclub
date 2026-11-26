@@ -1064,7 +1064,7 @@ export function AlbumDetail({
         </nav>
 
         {/* HERO SECTION: Responsive Layout (Left = Artwork, Right = Title & Info on desktop; Top = Artwork, Bottom = Info on mobile) */}
-        <div className="relative rounded-3xl bg-linear-to-br from-[#131522] via-[#0f111d] to-[#090a12] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl overflow-hidden backdrop-blur-xl">
+        <div data-artwork-start className="relative rounded-3xl bg-linear-to-br from-[#131522] via-[#0f111d] to-[#090a12] border border-white/10 p-5 sm:p-7 md:p-8 shadow-2xl overflow-hidden backdrop-blur-xl">
           {/* Subtle Background Glow behind cover */}
           <div className="absolute -top-24 -left-24 w-72 h-72 bg-linear-to-r from-cyan-500/20 to-blue-500/20 rounded-full blur-3xl pointer-events-none" />
 

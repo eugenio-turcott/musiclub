@@ -5,6 +5,7 @@ import genreCatalog from './genreCatalog.cjs';
 import {genreFamily} from './genreFamilies.cjs';
 const fold=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export const annualReleaseIdentity=r=>`${fold(r.title||r.album_name)}|${splitArtists(r.artist||r.artist_name||'').map(a=>a.slug).sort().join('|')}`;
+export const externalRatingOrder=(a,b)=>(b.global?.user?.score??-1)-(a.global?.user?.score??-1)||(b.global?.user?.count||0)-(a.global?.user?.count||0)||a.title.localeCompare(b.title,'es');
 const search=r=>`/catalogo?${new URLSearchParams({q:`${r.title} ${r.artist}`,tab:'releases'})}`;
 export const annualPrimaryGenre=raw=>(genreCatalog.normalizeGenres(raw||[])[0]||'Música').replace(/\br&b\b/gi,'R&B');
 export function annualClubGenres(catalog,globalReleases,{now=Date.now()}={}){
@@ -27,10 +28,11 @@ export function buildAnnualVoices(catalog,{now=Date.now()}={}){
   const album=byId.get(review.album_id)||review.albums;if(!album?.album_name)continue;
   const person=String(review.reviewer_name||'Miembro de Musiclub').trim(),personKey=person.normalize('NFC').toLocaleLowerCase('es'),key=editions.editionKey(album);
   if(!people.has(personKey))people.set(personKey,{name:person,candidates:new Map()});
+  if(!review.comment?.trim())continue;
   const candidate=people.get(personKey).candidates.get(key),priority=Math.min(600,review.comment?.trim().length||0);
   if(!candidate||priority>candidate.priority||priority===candidate.priority&&review.created_at>candidate.review.created_at)people.get(personKey).candidates.set(key,{review,album,priority});
  }
- const authors=[...people.keys()].sort((a,b)=>people.get(a).candidates.size-people.get(b).candidates.size||a.localeCompare(b));
+ const authors=[...people.keys()].filter(person=>people.get(person).candidates.size).sort((a,b)=>people.get(a).candidates.size-people.get(b).candidates.size||a.localeCompare(b));
  const owner=new Map(),chosen=new Map();
  const assign=(person,seen)=>{const candidates=[...people.get(person).candidates].sort((a,b)=>b[1].priority-a[1].priority||a[0].localeCompare(b[0]));for(const [key] of candidates){if(seen.has(key))continue;seen.add(key);const previous=owner.get(key);if(!previous||assign(previous,seen)){owner.set(key,person);chosen.set(person,key);return true;}}return false;};
  for(const person of authors)assign(person,new Set());
@@ -38,7 +40,7 @@ export function buildAnnualVoices(catalog,{now=Date.now()}={}){
  // its already-used release card rather than silently dropping a person.
  for(const person of authors)if(!chosen.has(person))chosen.set(person,[...people.get(person).candidates.keys()].sort()[0]);
  const cards=new Map();
- for(const person of [...people.keys()].sort()){
+ for(const person of [...chosen.keys()].sort()){
   const key=chosen.get(person),{review,album}=people.get(person).candidates.get(key);
   if(!cards.has(key))cards.set(key,{id:album.id,title:album.album_name,artist:album.artist_name,image:album.image_url||null,genres:album.genres||[],release_type:album.release_type||'ALBUM',reviews:[]});
   const favorite=getReviewFavoriteTrack(review),favoriteName=favorite&&getTrackDisplayName(favorite,album.tracks||[]);
@@ -57,5 +59,5 @@ export function buildAnnualYearbook(catalog,snapshot,{now=Date.now()}={}){
  const popular=getGroup('popular').filter(r=>r.type==='lp'&&r.releaseDate&&r.releaseDate<=new Date(now).toISOString().slice(0,10));
  const monthly=Array.from({length:12},(_,i)=>{const candidates=popular.filter(r=>Number(r.releaseDate?.slice(5,7))===i+1).sort((a,b)=>(b.global.user?.count||0)-(a.global.user?.count||0));return {month:i+1,release:candidates[0]||null};});
  const genres=annualClubGenres(catalog,globalReleases,{now});
- return {asOf:snapshot.asOf,source:snapshot.source,clubAvailable:available,clubRanking,albums:getGroup('albums'),eps:getGroup('eps'),singles:getGroup('singles'),monthly,voices:buildAnnualVoices(catalog,{now}),lists:[{id:'comunidad',title:'Favoritos de la comunidad global',icon:'users',releases:getGroup('albums').slice(0,6)},{id:'critica',title:'Destacados de la crítica',icon:'review',releases:getGroup('critics').slice(0,6)}],genres,categories:[['live','En vivo','mic'],['soundtracks','Bandas sonoras','film'],['compilations','Recopilaciones','archive']].map(([id,title,icon])=>({id,title,icon,releases:getGroup(id)})),upcoming:getGroup('upcoming')};
+ return {asOf:snapshot.asOf,source:snapshot.source,clubAvailable:available,clubRanking,albums:getGroup('albums'),eps:getGroup('eps').sort(externalRatingOrder).map((r,i)=>({...r,rank:i+1})),singles:getGroup('singles').sort(externalRatingOrder).map((r,i)=>({...r,rank:i+1})),monthly,voices:buildAnnualVoices(catalog,{now}),lists:[{id:'comunidad',title:'Favoritos de la comunidad global',icon:'users',releases:getGroup('albums').slice(0,6)},{id:'critica',title:'Destacados de la crítica',icon:'review',releases:getGroup('critics').slice(0,6)}],genres,categories:[['live','En vivo','mic'],['soundtracks','Bandas sonoras','film'],['compilations','Recopilaciones','archive']].map(([id,title,icon])=>({id,title,icon,releases:getGroup(id)})),upcoming:getGroup('upcoming')};
 }

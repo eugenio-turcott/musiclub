@@ -15,6 +15,19 @@ async function openLanding(page){
  await page.goto('/');await initial;
 }
 
+test('turntable crossfades vinyl, metadata, score and mood together while preserving its motor',async({page})=>{
+ await page.clock.install();await openLanding(page);const deck=page.locator('[data-turntable-deck]');await expect(page.locator('[data-turntable-cycling]')).toHaveAttribute('data-turntable-cycling','true');
+ await page.clock.fastForward(6600);await expect(deck.locator('[data-crossfade="incoming"]')).toHaveCount(4);await expect(deck.locator('[data-crossfade="outgoing"]')).toHaveCount(4);
+ const animations=await deck.locator('[data-crossfade="incoming"]').evaluateAll(nodes=>nodes.map(n=>({name:getComputedStyle(n).animationName,duration:getComputedStyle(n).animationDuration})));expect(new Set(animations.map(a=>a.name)).size).toBe(1);expect(new Set(animations.map(a=>a.duration))).toEqual(new Set(['0.85s']));
+ await expect(deck.locator('[role="img"][aria-label^="Estado de ánimo"]')).toHaveCount(1);await expect(deck.locator('[aria-label^="Calificación del club"]')).toHaveCount(1);
+ expect(await deck.locator('[data-turntable-record]').evaluate(el=>getComputedStyle(el).animationName)).not.toBe('none');await page.clock.fastForward(1000);await expect(deck.locator('[data-crossfade="outgoing"]')).toHaveCount(0);await expect(deck.locator('[data-turntable-record] img')).toHaveCount(2);
+});
+
+test('home links both special editions immediately after its statistics',async({page})=>{
+ await openLanding(page);const editions=page.getByRole('region',{name:'Las ediciones especiales de Musiclub'});await expect(editions.locator('a[href="/2026"]')).toHaveCount(1);await expect(editions.locator('a[href="/grammys"]')).toHaveCount(1);
+ expect(await editions.evaluate(el=>el.previousElementSibling?.className)).toMatch(/stats/);expect(await editions.evaluate(el=>el.scrollWidth<=el.clientWidth)).toBe(true);
+});
+
 test('landing presents real releases, native genre vinyls and working catalogue search without navigation refreshes',async({page},info)=>{
  const hydrationErrors=[];page.on('console',message=>{if(message.type()==='error'&&/hydrated|hydration mismatch/i.test(message.text()))hydrationErrors.push(message.text());});
  await openLanding(page);
@@ -131,7 +144,7 @@ test('the integrated turntable has local needle controls, full artwork and natur
  const score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox(),genre=await deck.locator('[class*="genre"]').boundingBox(),cover=await deck.locator('[data-turntable-display]').boundingBox();
  expect(wave.y).toBeGreaterThanOrEqual(score.y+score.height);expect(wave.width).toBeGreaterThan(score.width);expect(mood.x).toBeGreaterThanOrEqual(score.x+score.width-1);expect(genre.y+genre.height).toBeLessThan(cover.y);expect(Math.abs(genre.x+genre.width-cover.x-cover.width)).toBeLessThan(2);
  for(const width of [320,393,768,1280,1920]){
-  await page.setViewportSize({width,height:1000});const cover=await deck.locator('[data-turntable-display]').boundingBox(),score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),genre=await deck.locator('[class*="genre"]').boundingBox(),mood=await deck.locator('[role="img"]').boundingBox();
+  await page.setViewportSize({width,height:1000});await expect(deck.locator('[class*="metaFace"]:not([aria-hidden]) [class*="genre"]')).toBeVisible();const cover=await deck.locator('[data-turntable-display]').boundingBox(),score=await deck.locator('[aria-label^="Calificación del club"]').boundingBox(),wave=await deck.locator('[data-turntable-waveform]').boundingBox(),genre=await deck.locator('[class*="metaFace"]:not([aria-hidden]) [class*="genre"]').evaluate(el=>{const r=el.getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:r.height};}),mood=await deck.locator('[role="img"]').boundingBox();
   expect(Math.abs(score.x-cover.x)).toBeLessThan(2);expect(Math.abs(wave.x-cover.x)).toBeLessThan(2);expect(Math.abs(wave.x+wave.width-cover.x-cover.width)).toBeLessThan(2);expect(genre.y+genre.height).toBeLessThan(cover.y);expect(score.x+score.width).toBeLessThanOrEqual(mood.x+1);expect(mood.x+mood.width).toBeLessThanOrEqual(cover.x+cover.width+1);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  }
  await page.setViewportSize(info.project.name==='mobile'?{width:393,height:851}:{width:1440,height:1000});
@@ -157,7 +170,7 @@ test('turntable crossfades all sampled covers locally, reveals metadata and resp
  expect(parseFloat(await active.evaluate(el=>getComputedStyle(el).transitionDuration))).toBeGreaterThan(.5);
  await page.clock.install();const first=await display.getAttribute('href'),seen=new Set([first]);
  for(let i=0;i<3;i++){await page.clock.fastForward(6500);await expect(display).not.toHaveAttribute('href',[...seen].at(-1));seen.add(await display.getAttribute('href'));}
- expect(seen.size).toBe(3);await expect(display).toHaveAttribute('href',first);
+ expect(seen.size).toBe(3);await expect(display).toHaveAttribute('href',first);await page.clock.fastForward(1000);
  const title=await active.locator('img').getAttribute('alt');
  await expect(display).toContainText(/Pop|Rock|Jazz/);
  const metadata=display.locator('[class*="displayText"]');

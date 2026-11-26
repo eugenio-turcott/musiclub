@@ -1,6 +1,6 @@
 // Editorial working selection. This file is imported by the authenticated server
 // endpoint only; it is never embedded in the public coming-soon page.
-export const RESEARCH_DATE = '2026-11-18';
+export const RESEARCH_DATE = '2026-11-26';
 export const ANNUAL_SOURCES = [
   {id:'vogue',name:'Vogue · selección de 2026',type:'editorial',url:'https://www.vogue.com/article/best-albums-of-2026',note:'Selección editorial de agosto de 2026; no es un premio ni un ranking de Musiclub.'},
   {id:'aoty-jessie',name:'AOTY · Superbloom',type:'critics',url:'https://www.albumoftheyear.org/album/1655621-jessie-ware-superbloom.php',note:'Reseñas y datos del release; no se presentan como un premio.'},
@@ -19,24 +19,264 @@ export const ANNUAL_SOURCES = [
 const item=(id,title,artist,genre,month,refs,nomination=null)=>({id,title,artist,genre,month,year:2026,refs,nomination});
 // Musiclub editorial ranking: first is #1. Club review scores are separate statistics.
 export const ANNUAL_SELECTION = [
-  item('phoebe','Lost Weekend','Phoebe Bridgers','Indie Folk',8,['aoty','aggregate','reddit-nov','grammy'],'Álbum del año · Grammy 2027'),
-  item('raye','THIS MUSIC MAY CONTAIN HOPE.','RAYE','R&B',3,['billboard','rollingstone','grammy'],'Álbum del año · Grammy 2027'),
-  item('gorillaz','The Mountain','Gorillaz','Art Pop',2,['rollingstone','aggregate','reddit-q1','grammy'],'Álbum de música alternativa · Grammy 2027'),
-  item('underscores','U','underscores','Electropop',3,['billboard','reddit-june','reddit-nov']),
-  item('mitski',"Nothing’s About to Happen to Me",'Mitski','Chamber Pop',2,['billboard','aggregate','reddit-q1','reddit-june']),
-  item('slayyyter','WOR$T GIRL IN AMERICA','Slayyyter','Electroclash',3,['billboard','rollingstone','reddit-nov']),
-  item('olivia','you seem pretty sad for a girl so in love','Olivia Rodrigo','Pop Rock',6,['billboard','rollingstone','aggregate','grammy'],'Álbum del año · Grammy 2027'),
-  item('charli','Wuthering Heights','Charli xcx','Art Pop',2,['billboard','reddit-q1']),
-  item('robyn','Sexistential','Robyn','Dance-Pop',3,['billboard','rollingstone']),
-  item('ratboys',"Singin’ to an Empty Chair",'Ratboys','Indie Rock',2,['billboard','rollingstone','aggregate','reddit-q1']),
-  item('dry-cleaning','Secret Love','Dry Cleaning','Post-Punk',1,['rollingstone','aggregate','reddit-q1']),
-  item('neurosis','An Undying Love for a Burning World','Neurosis','Metal',3,['rollingstone','aggregate']),
-  item('free-spirits','FREE SPIRITS','CA7RIEL & Paco Amoroso','Latin Pop',3,['billboard','reddit-q1']),
-  item('rawayana','¿Dónde Es El After?','Rawayana','Latin Pop',1,['billboard','rollingstone','grammy'],'Álbum de pop latino · Grammy 2027'),
-  item('vince','Cry Baby','Vince Staples','Hip-Hop',null,['aggregate','reddit-nov']),
-  item('angine','Vol.II','Angine de Poitrine','Math Rock',4,['billboard','aggregate']),
-  item('jessie','Superbloom','Jessie Ware','Disco',4,['vogue','aoty-jessie']),
-  item('harry','Kiss All The Time. Disco, Occasionally.','Harry Styles','Dance-Pop',3,['vogue','aoty-harry']),
-  item('fcukers','Ö','Fcukers','Electrónica',3,['vogue','aoty-fcukers']),
-  item('haute','Big Disgrace','Haute & Freddy','Synthpop',3,['vogue','aoty-haute']),
+  {
+    "id": "raye",
+    "title": "THIS MUSIC MAY CONTAIN HOPE.",
+    "artist": "Raye",
+    "genre": "R&B",
+    "year": 2026,
+    "releaseDate": "2026-03-27",
+    "month": 3,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "rosalia",
+    "title": "LUX (Complete Works)",
+    "artist": "ROSALÍA",
+    "genre": "Alternativo",
+    "year": 2026,
+    "releaseDate": "2026-04-16",
+    "month": 4,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "olivia",
+    "title": "you seem pretty sad for a girl so in love",
+    "artist": "Olivia Rodrigo",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-06-12",
+    "month": 6,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "phoebe",
+    "title": "Lost Weekend",
+    "artist": "Phoebe Bridgers",
+    "genre": "Folk",
+    "year": 2026,
+    "releaseDate": "2026-08-14",
+    "month": 8,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "bruno",
+    "title": "The Romantic",
+    "artist": "Bruno Mars",
+    "genre": "R&B",
+    "year": 2026,
+    "releaseDate": "2026-02-27",
+    "month": 2,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "olivia-dean",
+    "title": "The Art of Loving",
+    "artist": "Olivia Dean",
+    "genre": "Pop",
+    "year": 2025,
+    "releaseDate": "2025-09-26",
+    "month": 9,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "ella",
+    "title": "Dandelion",
+    "artist": "Ella Langley",
+    "genre": "Country",
+    "year": 2026,
+    "releaseDate": "2026-01-30",
+    "month": 1,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "taylor",
+    "title": "The Life of a Showgirl",
+    "artist": "Taylor Swift",
+    "genre": "Pop",
+    "year": 2025,
+    "releaseDate": "2025-10-03",
+    "month": 10,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum del año · Grammy 2027"
+  },
+  {
+    "id": "ariana",
+    "title": "petal",
+    "artist": "Ariana Grande",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-07-31",
+    "month": 7,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Álbum vocal pop · Grammy 2027"
+  },
+  {
+    "id": "geese",
+    "title": "Getting Killed",
+    "artist": "Geese",
+    "genre": "Indie Rock",
+    "year": 2025,
+    "releaseDate": "2025-09-26",
+    "month": 9,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Artista nuevo · Música alternativa · Grammy 2027"
+  },
+  {
+    "id": "slayyyter",
+    "title": "WOR$T GIRL IN AMERICA",
+    "artist": "Slayyyter",
+    "genre": "Synth-Pop",
+    "year": 2026,
+    "releaseDate": "2026-03-27",
+    "month": 3,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Artista nuevo · Dance/electrónica · Grammy 2027"
+  },
+  {
+    "id": "angine",
+    "title": "Vol.II",
+    "artist": "Angine de Poitrine",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-04-03",
+    "month": 4,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Artista nuevo · Interpretación rock · Grammy 2027"
+  },
+  {
+    "id": "don-toliver",
+    "title": "OCTANE",
+    "artist": "Don Toliver",
+    "genre": "Hip-Hop",
+    "year": 2026,
+    "releaseDate": "2026-01-30",
+    "month": 1,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Artista nuevo · Rap · Grammy 2027"
+  },
+  {
+    "id": "leon-thomas",
+    "title": "PHOLKS",
+    "artist": "Leon Thomas",
+    "genre": "R&B",
+    "year": 2025,
+    "releaseDate": "2025-10-23",
+    "month": 10,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "R&B progresivo · Grammy 2027"
+  },
+  {
+    "id": "madonna",
+    "title": "CONFESSIONS II",
+    "artist": "Madonna",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-07-03",
+    "month": 7,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Dance/electrónica · Grammy 2027"
+  },
+  {
+    "id": "laufey",
+    "title": "A Matter of Time: The Final Hour",
+    "artist": "Laufey",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-04-09",
+    "month": 4,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Interpretación vocal pop tradicional · Grammy 2027"
+  },
+  {
+    "id": "kacey",
+    "title": "Middle of Nowhere",
+    "artist": "Kacey Musgraves",
+    "genre": "Pop",
+    "year": 2026,
+    "releaseDate": "2026-04-17",
+    "month": 4,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Country contemporáneo · Grammy 2027"
+  },
+  {
+    "id": "karol-g",
+    "title": "NO ME ARREPIENTO DE SENTIR TANTO",
+    "artist": "KAROL G",
+    "genre": "Reggaetón",
+    "year": 2026,
+    "releaseDate": "2026-08-07",
+    "month": 8,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Pop latino · Grammy 2027"
+  },
+  {
+    "id": "ive",
+    "title": "REVIVE+",
+    "artist": "IVE",
+    "genre": "K-Pop",
+    "year": 2026,
+    "releaseDate": "2026-02-23",
+    "month": 2,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Interpretación de pop asiático · Grammy 2027"
+  },
+  {
+    "id": "asake",
+    "title": "M$NEY",
+    "artist": "Asake",
+    "genre": "Afrobeats",
+    "year": 2026,
+    "releaseDate": "2026-04-30",
+    "month": 4,
+    "refs": [
+      "grammy"
+    ],
+    "nomination": "Interpretación de música africana · Grammy 2027"
+  }
 ];

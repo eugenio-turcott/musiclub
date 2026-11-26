@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-26",
+  "version": "12.3.2",
+  "added": [
+    {
+      "id": "22b8aa6c-325f-4b73-b5db-d7341941e2d9",
+      "title": "A Matter of Time: The Final Hour",
+      "artist": "Laufey",
+      "source": "https://music.apple.com/us/album/a-matter-of-time-the-final-hour/1890301251?uo=4",
+      "tracks": 19,
+      "genres": [
+        "Pop",
+        "Jazz",
+        "Traditional Pop"
+      ],
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/ef/14/a0/ef14a03b-47a9-4bf0-f7c8-907b33ca430d/820200874818.jpg/1200x1200bb.jpg"
+    },
+    {
+      "id": "9d5596e0-757f-4d8c-8e72-4890ffce832e",
+      "title": "REVIVE+",
+      "artist": "IVE",
+      "source": "https://music.apple.com/us/album/revive/1873882195?uo=4",
+      "tracks": 12,
+      "genres": [
+        "K-Pop"
+      ],
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/9d/54/fd/9d54fd06-fc19-c30c-c9ec-3fcc20eab4a3/199806315972.jpg/1200x1200bb.jpg"
+    },
+    {
+      "id": "9775b358-af1a-48b9-a576-8646e291f96c",
+      "title": "M$NEY",
+      "artist": "Asake",
+      "source": "https://music.apple.com/us/album/m%24ney/1891869190?uo=4",
+      "tracks": 13,
+      "genres": [
+        "Afrobeats",
+        "Música Africana"
+      ],
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music211/v4/31/e4/eb/31e4ebf4-97bd-c193-59c7-1b72ed7ab53a/ticket.wlorjbae.jpg/1200x1200bb.jpg"
+    }
+  ],
+  "flatCovers": [
+    {
+      "id": "be1663b2-45a6-4032-a1c7-03f4114087af",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/33/5a/4d/335a4d64-a908-5f3e-5220-b767f8a7415f/26UM1IM30839.rgb.jpg/1200x1200bb.jpg",
+      "source": "https://music.apple.com/us/album/middle-of-nowhere-vol-2-tex-mex-tapes/6825118037?uo=4"
+    },
+    {
+      "id": "3f9751da-1b5c-423a-9b00-669f4561e834",
+      "image": "https://is1-ssl.mzstatic.com/image/thumb/Music221/v4/26/8f/60/268f6064-3770-14e1-428a-9bb67329a9f6/823375530411_Cover.jpg/1200x1200bb.jpg",
+      "source": "https://music.apple.com/us/album/all-the-kings-men/6822790479?uo=4"
+    }
+  ],
+  "tracklistCompleted": {
+    "id": "b70dad32-baf4-4084-9f2d-dc210d54b889",
+    "title": "PHOLKS",
+    "artist": "Leon Thomas",
+    "tracks": 7,
+    "source": "https://music.apple.com/us/album/pholks/1847991335"
+  }
+}

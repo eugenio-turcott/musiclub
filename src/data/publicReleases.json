@@ -2,7 +2,7 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.3.1",
+    "latestVersion": "V.12.3.2",
     "date": "2026-11-11",
     "updatedAt": "2026-11-26",
     "title": "Grammy 2027 y el año del club",
@@ -10,6 +10,36 @@
     "tag": "Musiclub 12",
     "authorName": "Eugenio Turcott",
     "details": [
+      {
+        "title": "La edición anual",
+        "changes": [
+          {
+            "title": "Veinte proyectos, una colección",
+            "description": "El mural reúne veinte proyectos destacados en las nominaciones Grammy 2027 con ilustraciones cuadradas y las portadas del álbum como referencia. La colección también está guardada en Canva.",
+            "type": "design"
+          },
+          {
+            "title": "Un recorrido anual más claro",
+            "description": "EPs y sencillos se ordenan por calificación externa. Doce meses de música presenta un calendario completo y adaptable. Las reseñas visibles tienen comentario, conservando las estadísticas de todas las personas.",
+            "type": "improvement"
+          },
+          {
+            "title": "Tu actividad tiene significado",
+            "description": "Las cifras personales explican tus hábitos de reseña y destacan logros derivados de tu actividad. Se reducen espacios vacíos sin acortar el recorrido de los rankings.",
+            "type": "improvement"
+          },
+          {
+            "title": "Guarda tu aviso",
+            "description": "La edición abre el 28 de diciembre de 2026 a las 12:00 p. m., hora de Ciudad de México. El adelanto permite guardar o cancelar el aviso en la cuenta.",
+            "type": "feature"
+          },
+          {
+            "title": "Portadas y fichas consistentes",
+            "description": "Las próximas ediciones de Kacey Musgraves y CHVRCHES muestran sus portadas digitales, sin montajes del producto. Las nuevas piezas del mural enlazan con fichas completas del catálogo.",
+            "type": "fix"
+          }
+        ]
+      },
       {
         "title": "Mejoras del club",
         "changes": [
@@ -127,36 +157,6 @@
             "title": "La portada marca los límites de la consola",
             "description": "El género queda sobre la esquina superior derecha de la portada. La calificación empieza en su borde izquierdo y la línea de sonido ocupa exactamente su ancho, con ajustes propios para celular.",
             "type": "fix"
-          }
-        ]
-      },
-      {
-        "title": "La edición anual",
-        "changes": [
-          {
-            "title": "Life is Beautiful",
-            "description": "El próximo álbum de Nine Vicious tiene portada de 1000 × 1000 px, clasificación Hip-Hop y enlace directo a su ficha.",
-            "type": "improvement"
-          },
-          {
-            "title": "Antes de comenzar",
-            "description": "La bienvenida aparece después del mural. Los géneros de fondo se adaptan a nombres largos, con más espacio entre letras y R&B escrito correctamente.",
-            "type": "improvement"
-          },
-          {
-            "title": "Portadas reales y enlaces directos",
-            "description": "Los álbumes, EPs, sencillos y demás selecciones visibles tienen portada verificada, géneros y ficha propia. Las 498 nominaciones musicales quedan enlazadas al catálogo, conservando los créditos técnicos en la actividad Grammy.",
-            "type": "fix"
-          },
-          {
-            "title": "Los géneros más reseñados en el club",
-            "description": "La sección reúne releases según las reseñas de Musiclub y su género principal, sin repetir un disco entre grupos. Los vinilos giran cuando están visibles y respetan los controles de movimiento.",
-            "type": "improvement"
-          },
-          {
-            "title": "Musiclub va primero",
-            "description": "El primer ranking se calcula con las notas reales del club. Los releases avanzan del puesto 20 al 1 e incluyen reseñas, tracks y favoritas.",
-            "type": "improvement"
           }
         ]
       },
