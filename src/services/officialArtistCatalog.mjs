@@ -1,6 +1,7 @@
 import editions from '../utils/releaseEditions.cjs';
 import identity from '../utils/releaseIdentity.cjs';
 import genreCatalog from '../utils/genreCatalog.cjs';
+import {artistPlatformConcordance} from './artistPlatformConcordance.mjs';
 const { slugify } = identity;
 const artistKey = value => slugify(value);
 export function storedOfficialArtistName(profile, fallback = '') {
@@ -175,8 +176,13 @@ export async function collectOfficialArtist(name, { fetcher = fetch, env = proce
     const results=await Promise.allSettled([spotify(),deezer(),apple()]);
     const accepted=results.filter(r=>r.status==='fulfilled').map(r=>r.value);
     ['SPOTIFY','DEEZER','APPLE'].forEach((provider,i)=>{providers[provider]=results[i].status==='fulfilled' ? {status:results[i].value.complete?'ok':'partial',count:results[i].value.releases.length,artistId:results[i].value.artistId} : {status:'unavailable'};});
+    let concordance=[];
+    try {
+      const extra=await artistPlatformConcordance(name,[...accepted.flatMap(a=>a.releases),...knownDiscography],{fetcher,knownId:knownIds.musicbrainz,signal:controller.signal});
+      concordance=extra.releases;Object.assign(providers,extra.providers);
+    }catch{for(const provider of ['MUSICBRAINZ','YOUTUBE_MUSIC','TIDAL'])providers[provider]={status:'unavailable'};}
     return {success:accepted.some(a=>a.releases.length),source:'OFFICIAL',artist:{name:accepted.find(a=>a.releases.length && a.artist.name)?.artist.name || name,image:accepted.find(a=>a.artist.image)?.artist.image || '',genres:[...new Set(accepted.flatMap(a=>a.artist.genres))]},
-      discography:mergeOfficialReleases([],accepted.flatMap(a=>a.releases)),providers,checkedAt:new Date().toISOString()};
+      discography:mergeOfficialReleases([], [...accepted.flatMap(a=>a.releases),...concordance]),providers,checkedAt:new Date().toISOString()};
   } finally {clearTimeout(timer);}
 }
 

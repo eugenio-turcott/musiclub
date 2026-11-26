@@ -1,4 +1,6 @@
 'use client';
+import {SectionHeader} from '../components/SectionHeader';
+import {ArtworkLightbox} from '../components/ArtworkLightbox';
 import {DetailLoading} from '../components/DetailLoading';
 import { InterfaceText } from '../components/UiIcon';
 // src/pages/CoverRatingsPage.jsx
@@ -610,66 +612,11 @@ export function CoverRatingsPage() {
           <div className="absolute top-10 -left-10 w-96 h-96 bg-linear-to-tr from-pink-500/15 via-purple-600/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
           <div className="absolute top-20 -right-10 w-96 h-96 bg-linear-to-bl from-cyan-500/15 via-amber-500/10 to-transparent rounded-full blur-3xl pointer-events-none -z-10"></div>
 
-          <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-6 pb-6 border-b border-white/10">
-            <div className="space-y-3 max-w-2xl">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight leading-tight">
-                Califica las Portadas de los{' '}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-pink-400 via-purple-300 to-rose-400">
-                  Releases
-                </span>
-              </h1>
-              <p className="text-white/70 text-xs sm:text-sm md:text-base leading-relaxed">
-                El arte visual define el alma de cada producción. Todos los
-                releases que cuentan con al menos 1 reseña comunitaria se
-                presentan en rotación aleatoria continua para calificar su
-                carátula del 1 al 10 y clasificar su estilo estético.
-              </p>
-            </div>
+          {ratingsError && <div role="alert" className="mb-4 rounded-xl border border-amber-300/30 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">{ratingsError}</div>}
+          <SectionHeader title="Califica las Portadas de los Releases" description="Mira de cerca. Descubre el arte de cada disco." stats={[["portadas",eligibleAlbums.length],["votadas",globalCoverMetrics.totalRatedAlbums],["votos",globalCoverMetrics.totalVotes]]}/>
 
-            {/* Quick Metrics Bar */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-3 w-full lg:w-auto">
-              <div className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-                <span className="block text-xl sm:text-2xl font-black text-cyan-300">
-                  {loadingReviewedIds ? '...' : eligibleAlbums.length}
-                </span>
-                <span className="text-[10px] text-white/50 uppercase font-semibold tracking-wider">
-                  Releases con Reseña
-                </span>
-              </div>
-
-              <div className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-                <span className="block text-xl sm:text-2xl font-black text-white">
-                  {globalCoverMetrics.totalRatedAlbums}
-                </span>
-                <span className="text-[10px] text-white/50 uppercase font-semibold tracking-wider">
-                  Portadas Votadas
-                </span>
-              </div>
-
-              <div className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-                <span className="block text-xl sm:text-2xl font-black text-pink-400">
-                  {globalCoverMetrics.totalVotes}
-                </span>
-                <span className="text-[10px] text-white/50 uppercase font-semibold tracking-wider">
-                  Votos Totales
-                </span>
-              </div>
-
-              <div className="flex-1 sm:flex-initial px-4 py-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-center">
-                <span className="block text-xl sm:text-2xl font-black text-amber-300"><InterfaceText>{" ⭐ "}</InterfaceText>{globalCoverMetrics.avg}
-                </span>
-                <span className="text-[10px] text-white/50 uppercase font-semibold tracking-wider">
-                  Promedio Visual
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {ratingsError && <p role="alert" className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200">{ratingsError}</p>}
-
-          {/* Tab Navigation Switcher */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
               <button
                 type="button"
                 onClick={() => setActiveTab('curator')}
@@ -810,10 +757,10 @@ export function CoverRatingsPage() {
                 </button>
               </div>
             ) : currentAlbum ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
+              <div data-cover-curator className="cover-curator grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
                 {/* COLUMNA IZQUIERDA: LA PORTADA EN GRANDE (PROTAGONISTA ABSOLUTA) */}
-                <div className="lg:col-span-7 flex flex-col items-center">
-                  <div className="relative w-full max-w-[540px] group">
+                <div className="cover-art-stage lg:col-span-8 flex flex-col items-center">
+                  <div className="relative w-full max-w-[680px] group">
                     {/* Dynamic Ambient Colored Glow behind artwork */}
                     <div className="absolute -inset-4 bg-linear-to-tr from-pink-500/25 via-purple-600/20 to-cyan-500/25 rounded-3xl blur-3xl opacity-70 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
 
@@ -871,7 +818,7 @@ export function CoverRatingsPage() {
                   </div>
 
                   {/* Barra de Navegación Rápida Debajo de la Portada */}
-                  <div className="w-full max-w-[540px] mt-4 flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
+                  <div className="w-full max-w-[680px] mt-4 flex items-center justify-between gap-3 p-3 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl">
                     <button
                       type="button"
                       onClick={handlePrevAlbum}
@@ -899,7 +846,7 @@ export function CoverRatingsPage() {
 
                   {/* Tira visual de portadas en la cola aleatoria */}
                   {curatorPool.length > 1 && (
-                    <div className="w-full max-w-[540px] mt-3 p-2.5 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md">
+                    <div className="w-full max-w-[680px] mt-3 p-2.5 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-md">
                       <div className="flex items-center justify-between px-1 pb-1.5 text-[10px] text-white/50 font-bold uppercase tracking-wider">
                         <span><InterfaceText>{"🎲 Cola Aleatoria"}</InterfaceText></span>
                         <span>{curatorPool.length} en rotación</span>
@@ -945,7 +892,7 @@ export function CoverRatingsPage() {
                 </div>
 
                 {/* COLUMNA DERECHA: PANEL DE CALIFICACIÓN & ESTADÍSTICAS */}
-                <div className="lg:col-span-5 space-y-5">
+                <div className="cover-rating-panel lg:col-span-4 space-y-5">
                   {/* Ficha del Álbum */}
                   <div className="p-5 rounded-3xl bg-[#111324]/90 border border-white/10 backdrop-blur-xl space-y-2 shadow-xl">
                     <div className="flex items-center justify-between gap-2">
@@ -1447,50 +1394,7 @@ export function CoverRatingsPage() {
         {/* =========================================================================
             5. MODAL MODO MUSEO (FULLSCREEN ARTWORK VIEW)
             ========================================================================= */}
-        {isFullscreenMuseum && currentAlbum && (
-          <div
-            className="fixed inset-0 z-50 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-4 sm:p-8 animate-fadeIn"
-            onClick={() => setIsFullscreenMuseum(false)}
-          >
-            <button
-              type="button"
-              onClick={() => setIsFullscreenMuseum(false)}
-              className="absolute top-5 right-5 text-white/60 hover:text-white text-2xl p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all cursor-pointer z-10"
-              aria-label="Cerrar Modo Museo"
-            >
-              ✕
-            </button>
-
-            <div
-              className="relative max-w-3xl max-h-[85vh] aspect-square rounded-3xl overflow-hidden shadow-2xl border border-white/20"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={currentCoverUrl}
-                alt={currentTitle}
-                className="w-full h-full object-contain notranslate"
-              />
-            </div>
-
-            <div
-              className="text-center mt-4 space-y-1"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <h3
-                translate="no"
-                className="notranslate music-title text-xl sm:text-2xl font-black text-white"
-              >
-                {currentTitle}
-              </h3>
-              <p
-                translate="no"
-                className="notranslate artist-name text-sm text-white/60"
-              >
-                {currentArtist}
-              </p>
-            </div>
-          </div>
-        )}
+        <ArtworkLightbox open={isFullscreenMuseum&&!!currentAlbum} onClose={()=>setIsFullscreenMuseum(false)} src={currentCoverUrl} title={currentTitle} artist={currentArtist} closeLabel="Cerrar Modo Museo"/>
       </div>
 
       <Footer />

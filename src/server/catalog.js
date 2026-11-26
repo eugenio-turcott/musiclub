@@ -141,7 +141,6 @@ export const getPublicArtist = cache(async slug => {
     else discography.push({ id: release.id, name: release.album_name, releaseDate: release.release_date || '', releaseYear: Number(release.release_date?.slice(0,4)) || null, release_type: release.release_type || 'ALBUM', ...metadata });
   }
   const groupedDiscography=commonDiscography(editions.groupReleaseEditions(discography).map(({editionVariants,...release})=>release));
-  groupedDiscography.sort((a,b) => (b.releaseDate || '').localeCompare(a.releaseDate || ''));
   return { albums: clubAlbums, profile: { ...external, success: true, artist: {
     ...external?.artist, name: external?.artist?.name || name,
     image: external?.artist?.image || '',

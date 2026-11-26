@@ -116,10 +116,9 @@
 
 /* Grid de fondo cyberpunk */
 .cyber-grid {
-  background-image:
-    linear-gradient(rgba(245, 87, 108, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(245, 87, 108, 0.03) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background: var(--musiclub-page-background);
+  background-color: var(--musiclub-page-color);
+  background-size: 20px 20px, 20px 20px, 100% 100%;
 }
 
 /* Scrollbar cyberpunk */
@@ -930,3 +929,21 @@
 .review-track-ratings { padding-top: .5rem; border-top: 1px solid #ffffff0d; }
 .review-track-ratings summary::-webkit-details-marker { display: none; }
 @media (min-width:640px) { .review-criteria { grid-template-columns: repeat(7,minmax(0,1fr)); } }
+:root{--musiclub-page-color:#101023;--musiclub-page-background:linear-gradient(#f5576c08 1px,transparent 1px),linear-gradient(90deg,#f5576c08 1px,transparent 1px),radial-gradient(ellipse at 50% 0%,#1b1b3d,#101023 75%)}
+body{background:var(--musiclub-page-background);background-color:var(--musiclub-page-color);background-size:20px 20px,20px 20px,100% 100%;background-attachment:fixed}
+.musiclub-queue-button{position:relative;isolation:isolate;transition:color .25s ease,background-color .25s ease,border-color .25s ease,box-shadow .25s ease,transform .25s ease}
+.musiclub-queue-button::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(110deg,#ffe696,#ffc743);opacity:0;transition:opacity .25s ease}
+.musiclub-queue-button:not(:disabled):is(:hover,:focus-visible)::before{opacity:1}
+.musiclub-queue-button:not(:disabled):is(:hover,:focus-visible){color:#261d08;border-color:#ffd35e;box-shadow:0 7px 24px #ffc74336,inset 0 1px #fff5;transform:translateY(-2px)}
+.musiclub-queue-button:not(:disabled):is(:hover,:focus-visible) svg{color:#261d08!important}
+.release-artwork-zoom{position:absolute;right:14px;bottom:14px;display:grid;place-items:center;width:44px;height:44px;border:1px solid #fff5;border-radius:50%;color:white;background:#101023bb;backdrop-filter:blur(8px);box-shadow:0 4px 18px #0004;transition:background .2s,transform .2s}
+.release-artwork-zoom:hover{background:#101023;transform:scale(1.06)}
+.artwork-lightbox{position:fixed;inset:0;z-index:15000;display:grid;place-items:center;padding:64px 20px 24px;background:#080815ed;backdrop-filter:blur(20px);animation:artwork-reveal .2s ease}
+.artwork-lightbox>button{position:absolute;right:max(20px,env(safe-area-inset-right));top:max(18px,env(safe-area-inset-top));width:44px;height:44px;display:grid;place-items:center;border:1px solid #fff4;border-radius:50%;color:white;background:#ffffff12}
+.artwork-lightbox figure{margin:0;max-width:100%;min-width:0;text-align:center}
+.artwork-lightbox img{display:block;width:auto;height:auto;max-width:min(90vw,1100px);max-height:calc(100svh - 150px);object-fit:contain;box-shadow:0 15px 80px #0008;border-radius:3px}
+.artwork-lightbox figcaption{display:flex;flex-wrap:wrap;gap:3px 14px;justify-content:center;max-width:min(90vw,1100px);color:#f2edf8;font-size:14px;line-height:1.4;margin-top:16px;overflow-wrap:anywhere}
+.artwork-lightbox figcaption span{color:#bdb3cb}
+.cover-art-stage{min-width:0}.cover-rating-panel{min-width:0}.cover-rating-panel>div{padding:20px;border-radius:20px}
+@keyframes artwork-reveal{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.artwork-lightbox{animation:none}.musiclub-queue-button:not(:disabled):is(:hover,:focus-visible){transform:none}}

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import sharp from 'sharp';
 import discs from '../src/utils/trackDiscs.cjs';
 import {reviewContinuations,sameRecording} from '../src/utils/reviewContinuations.mjs';
-import {commonDiscography,verifiedPlatforms} from '../src/utils/verifiedDiscography.mjs';
+import {commonDiscography,verifiedPlatforms,releaseRelevance,PLATFORM_WEIGHTS} from '../src/utils/verifiedDiscography.mjs';
 import {extractArtworkPalette,permittedArtworkURL} from '../scripts/lib/artwork-palette.mjs';
 const songs=Array.from({length:8},(_,i)=>({id:`song-${i}`,name:`Recording ${i}`,duration_ms:180000+i*1000,track_number:i+1}));
 const album=(id,title,tracks=songs)=>({id,album_name:title,artist_name:'Example Artist',release_type:'ALBUM',release_date:'2026-01-01',tracks});
@@ -44,9 +44,14 @@ test('already reviewed aliases, unreleased editions and disabled releases are no
  assert.deepEqual(reviewContinuations([source,{...target,release_date:'2099-01-01'}],[review('a')]),[]);
  assert.deepEqual(reviewContinuations([source,{...target,reviews_enabled:false}],[review('a')]),[]);
 });
-test('discography requires two different verified platforms and ignores search URLs',()=>{
+test('discography ranks all available platform evidence with Spotify 70 and the rest 30',()=>{
  const single={id:'single',sources:[{provider:'APPLE',id:'1'},{provider:'APPLE',id:'2'}]},multiple={id:'multi',sources:[{provider:'APPLE',id:'1'},{provider:'DEEZER',id:'3'}]};
- assert.deepEqual(commonDiscography([single,multiple]).map(r=>r.id),['multi']);
+ assert.deepEqual(commonDiscography([single,multiple]).map(r=>r.id),['multi','single']);
+ assert.equal(Object.values(PLATFORM_WEIGHTS).reduce((a,b)=>a+b,0),100);
+ const spotify={id:'spotify',sources:[{provider:'SPOTIFY',id:'1'}]};
+ assert.equal(releaseRelevance(spotify),70);
+ assert.equal(releaseRelevance(single),6,'duplicate provider IDs do not add relevance');
+ assert.deepEqual(commonDiscography([multiple,spotify]).map(r=>r.id),['spotify','multi']);
  assert.deepEqual(verifiedPlatforms({spotify_link:'https://open.spotify.com/search/artist',apple_music_link:'https://music.apple.com/search?term=album'}),[]);
  for(const provider of ['YOUTUBE_MUSIC','MUSICBRAINZ','TIDAL'])assert.equal(commonDiscography([{sources:[{provider,id:'x'},{provider:'APPLE',id:'1'}]}]).length,1);
 });

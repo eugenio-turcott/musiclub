@@ -1,4 +1,5 @@
 'use client';
+import {SectionHeader} from './SectionHeader';
 import MoodIcon from './MoodIcon';
 import ReviewCriteria from './ReviewCriteria';
 import ReviewTrackRatings from './ReviewTrackRatings';
@@ -235,112 +236,7 @@ export function Reviews({ onClose, isPage = false, initialReviews = [] }) {
           )}
         </div>
 
-        {/* Header Title */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#181226]/80 via-[#120e20]/90 to-[#090812] border border-white/10 shadow-2xl text-center space-y-3">
-          {/* Subtle Ambient Glow */}
-          <div className="absolute -top-12 -left-12 w-60 h-60 bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <MusiclubVinyl
-              src="/musiclub_logo_4.png"
-              alt=""
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(244,114,182,0.3)]"
-            />
-          </div>
-
-          <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-pink-200">
-              Reviews de Miembros
-            </h1>
-            <p className="text-slate-400 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-2 leading-relaxed">
-              Explora todas las reseñas, análisis detallados y puntuaciones
-              ponderadas publicadas por el club.
-            </p>
-          </div>
-        </div>
-
-        {/* Global Stats Summary Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-pink-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-pink-500/5 rounded-full blur-xl group-hover:bg-pink-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-pink-300 p-2.5 sm:p-3 rounded-xl bg-pink-500/10 border border-pink-500/20"><UiIcon name="review" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Total Reviews
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-white"
-                  data-stat="number"
-                >
-                  {loading && totalReviews === 0 ? '...' : totalReviews}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="star" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Promedio Ponderado
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
-                  data-stat="score"
-                >
-                  {loading || avgRating === '...' ? '...' : avgRating}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-emerald-300 p-2.5 sm:p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><UiIcon name="disc" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Álbumes Evaluados
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-white"
-                  data-stat="number"
-                >
-                  {loading ? '...' : evaluatedAlbums.length}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div
-            className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-purple-500/30 transition-all"
-            title={`${new Set(reviews.map((r) => r.reviewer_name)).size} críticos han publicado reseñas`}
-          >
-            <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-xl group-hover:bg-purple-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="text-purple-300 p-2.5 sm:p-3 rounded-xl bg-purple-500/10 border border-purple-500/20"><UiIcon name="users" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Críticos & Miembros
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-purple-400"
-                  data-stat="number"
-                >
-                  {loading ? '...' : totalMembers}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SectionHeader title="Reviews de Miembros" description="Lo que escuchamos. Lo que nos hizo sentir." stats={[["reseñas",totalReviews],["releases",evaluatedAlbums.length],["miembros",totalMembers],["promedio",avgRating]]}/>
 
         {/* Filter and Search Controls */}
         <div className="bg-[#151722]/90 border border-white/5 rounded-2xl p-3 sm:p-5 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-stretch md:items-center">

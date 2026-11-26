@@ -308,8 +308,8 @@ test('artist pages preserve club discography and review badges',async({page})=>{
   await expect(page.getByRole('heading',{name:'Artista de Prueba',exact:true})).toBeVisible();
   await expect(page.getByRole('heading',{name:'Discografía',exact:false})).toBeVisible();
   await expect(page.getByText('Edición compartida oficial',{exact:true})).toBeVisible();
-  await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toHaveCount(0);
-  await expect(page.getByRole('status').filter({hasText:'Catálogo guardado en Musiclub'})).toBeVisible();
+  await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toBeVisible();
+  await expect(page.getByText('Catálogo guardado en Musiclub',{exact:false})).toHaveCount(0);
   await expect(page.getByText('EN MUSICLUB',{exact:true}).first()).toBeVisible();
   await expect(page.getByRole('heading',{name:'Azul',exact:true})).toBeVisible();
 });
@@ -371,7 +371,7 @@ test('a release added after the public catalogue cache was warmed opens immediat
 test('artists with only an upcoming release open immediately from local metadata',async({page})=>{
   await page.goto('/artista/artista-proximo');
   await expect(page.getByRole('heading',{name:'Artista Próximo',exact:true})).toBeVisible();
-  await expect(page.getByText('Aún no hay releases con coincidencias verificadas en dos plataformas.',{exact:false})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Estreno oficial',exact:true})).toBeVisible();
 });
 
 

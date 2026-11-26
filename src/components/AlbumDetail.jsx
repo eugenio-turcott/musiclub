@@ -1,4 +1,5 @@
 'use client';
+import {ArtworkLightbox} from './ArtworkLightbox';
 import {TrackDiscs} from './TrackDiscs';
 import {ArtworkAtmosphere,artworkPageClass} from './ArtworkAtmosphere';
 import {NavigationLoading} from './NavigationLoading';
@@ -232,6 +233,7 @@ export function AlbumDetail({
   const location = useLocation();
   const preloadedAlbum = propPreloadedAlbum || location?.state?.preloadedAlbum;
 
+  const [artworkOpen, setArtworkOpen] = useState(false);
   const [album, setAlbum] = useState(() => normalizeAlbumData(preloadedAlbum));
   const reviewGate = usePoolReviewGate(album?.id, user?.id);
   const reviewAccess = reviewGate.allowed;
@@ -1016,7 +1018,8 @@ export function AlbumDetail({
 
   return (
     <div className={`${artworkPageClass} min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden relative selection:bg-cyan-500 selection:text-black`}>
-      <ArtworkAtmosphere colors={album.dominant_colors || []}/>
+      <ArtworkAtmosphere colors={album.dominant_colors || []} entity="album" id={album.id} imageUrl={album.image_url}/>
+      <ArtworkLightbox open={artworkOpen} onClose={()=>setArtworkOpen(false)} src={album.image_url||'/musiclub_logo_corchea.png'} title={album.album_name} artist={album.artist_name}/>
       {/* Background ambient light */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
       <div className="absolute top-48 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none -z-10" />
@@ -1090,6 +1093,8 @@ export function AlbumDetail({
                       '/musiclub_logo_corchea.png';
                   }}
                 />
+
+                <button type="button" className="release-artwork-zoom" aria-label={`Ampliar portada de ${album.album_name}`} onClick={()=>setArtworkOpen(true)}><UiIcon name="search" size={22}/></button>
 
                 {/* User Ownership Badge */}
                 {user &&

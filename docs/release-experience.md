@@ -1,4 +1,4 @@
-# Releases y artistas · V.12.3.0
+# Releases y artistas · V.12.3.1
 
 Las invitaciones a completar reseñas comparan grabaciones del catálogo con las canciones de las reseñas publicadas de la persona autenticada. Requieren cinco coincidencias, excepto cuando la reseña de origen es de un sencillo. Cada aparición cuenta una vez. Se contrastan ISRC, identificadores compartidos o título y duración; un remix no equivale a la grabación original.
 
@@ -17,10 +17,14 @@ npm run artwork:palettes -- --apply
 
 La primera orden sólo analiza; la segunda guarda usando la conexión administrativa del entorno. No colocar la clave de servicio en el navegador. El script valida las direcciones y redirecciones de las imágenes y guarda un informe en `outputs/v1230/palette-report.json`.
 
-GitHub Actions ejecuta **Musiclub artwork colors** cada seis horas, al minuto 23, y permite ejecución manual. Reutiliza los secretos existentes de Supabase y no genera commits. Sólo procesa imágenes nuevas o cambiadas; la condición sobre la URL evita guardar colores de una portada sustituida durante el análisis. Las consultas de artistas proyectan únicamente la URL de la foto, en lotes de 50, y guardan un informe después de cada lote. No descargan las discografías completas.
+La primera visita sin paleta consulta `/api/artwork-palette` con el identificador de la ficha. El servidor recupera la URL guardada, valida el proveedor y cada redirección, analiza una miniatura JPEG o PNG con decodificadores compatibles con Cloudflare y guarda únicamente los colores. Limita bytes, resolución y solicitudes por IP; agrupa análisis simultáneos. La escritura exige que la imagen siga siendo la misma. La clave administrativa permanece en el servidor. Las paletas existentes se reutilizan y la lectura no invalida el catálogo salvo que se guarde una paleta nueva.
+
+Si el servicio no responde o la portada usa otro formato nativo del navegador, el cliente genera una paleta local para mantener el fondo visible. Esta alternativa no permite escribir colores arbitrarios en la base de datos: el proceso del servidor los persiste después.
+
+Como respaldo, GitHub Actions ejecuta **Musiclub artwork colors** cada seis horas, al minuto 23, y permite ejecución manual. Reutiliza los secretos existentes de Supabase y no genera commits. Sólo procesa imágenes nuevas o cambiadas; la condición sobre la URL evita guardar colores de una portada sustituida durante el análisis. Las consultas de artistas proyectan únicamente la URL de la foto, en lotes de 50, y guardan un informe después de cada lote. No descargan las discografías completas.
 
 ## Discografías verificadas
 
-La página del artista exige dos plataformas distintas. Se reconocen evidencias de Spotify, Apple Music, Deezer, MusicBrainz, YouTube Music y Tidal. Un enlace de búsqueda no constituye verificación. La recolección automática existente consulta Spotify, Apple Music y Deezer; las demás cuentan cuando existe un identificador verificado en los metadatos. No se inventa cobertura de plataformas no consultadas.
+El orden suma evidencias por plataforma, una vez por proveedor: Spotify 70 puntos y Apple Music, Deezer, MusicBrainz, YouTube Music y Tidal 6 puntos cada uno. A igual puntuación, se usa la fecha de lanzamiento más reciente. No representa un número de escuchas ni una popularidad inventada. Los releases con una fuente y los que ya tienen ficha en Musiclub permanecen visibles.
 
-Las entradas de una sola fuente permanecen guardadas para poder contrastarlas después. La regla cambia su visibilidad en la discografía, conserva las fichas y reseñas existentes y no elimina registros.
+La recolección consulta los catálogos disponibles de Spotify, Apple Music y Deezer y contrasta las relaciones de releases de MusicBrainz, que también pueden aportar enlaces directos a YouTube Music y Tidal. Se exige concordancia con títulos conocidos para desambiguar artistas homónimos y se respeta el límite de una consulta por segundo de MusicBrainz. Se conservan las evidencias previas si falla un proveedor. No se cuentan búsquedas, páginas de artista ni enlaces inventados; `linked` distingue enlaces confirmados de un catálogo consultado directamente.

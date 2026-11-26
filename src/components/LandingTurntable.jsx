@@ -91,7 +91,7 @@ export function LandingTurntable({selection,paused=false,children}) {
       <div className={styles.console} data-turntable-console="">
         <button type="button" className={styles.motor} aria-label={down?'Detener vinilo':'Girar vinilo'} aria-pressed={down} disabled={!album} onClick={()=>needle(!down)}><UiIcon name={down?'pause':'play'} size={23} tone="inherit"/><i/></button>
         <div className={styles.readout}>
-          <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" size={22} tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
+          <div className={styles.score} aria-label={`Calificación del club: ${score} de 10`}><UiIcon name="star" tone="inherit"/><strong>{score}<small>/10</small></strong><span>{album?.review_count||0} {album?.review_count===1?'RESEÑA':'RESEÑAS'}</span></div>
           <span className={styles.mood} role="img" aria-label={`Estado de ánimo: ${mood.label}`} title={mood.label}><MoodIcon mood={mood.id} size={42}/></span>
           <div className={styles.visualizer} data-turntable-waveform="" aria-hidden="true">{Array.from({length:32},(_,i)=><i key={i} style={{'--i':i,height:`${7+Math.round((Math.sin(i*.7)+1)*5)}px`}}/>)}</div>
         </div>

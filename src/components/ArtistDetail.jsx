@@ -1,7 +1,7 @@
 'use client';
 import {ArtistHero} from './ArtistHero';
 import {ArtworkAtmosphere,artworkPageClass} from './ArtworkAtmosphere';
-import {verifiedArtistProfile,verifiedPlatforms} from '../utils/verifiedDiscography.mjs';
+import {verifiedArtistProfile} from '../utils/verifiedDiscography.mjs';
 import {NavigationLoading} from './NavigationLoading';
 import {DetailLoading} from './DetailLoading';
 import { InterfaceText } from './UiIcon';
@@ -242,7 +242,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
   if(loading)return <NavigationLoading label='Abriendo perfil y discografía del artista…'/>;
   return (
     <div className={`${artworkPageClass} min-h-screen cyber-grid p-3 sm:p-6 w-full max-w-full overflow-x-hidden`}>
-      <ArtworkAtmosphere colors={artist?.dominant_colors || []}/>
+      <ArtworkAtmosphere colors={artist?.dominant_colors || []} entity="artist" id={slug} imageUrl={artist?.image}/>
       <SEO
         title={`${formattedArtistName} - Discografía, Álbumes y Reviews | Musiclub`}
         description={`Explora la discografía, álbumes, EPs, sencillos, opiniones y calificaciones de la comunidad para ${formattedArtistName} en Musiclub.`}
@@ -354,12 +354,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
                 </div>
               </div>
 
-              <p className="text-xs text-slate-400 mb-4" role="status">
-                  {profileData.discography?.length
-                    ? `Coincidencias verificadas entre ${[...new Set(profileData.discography.flatMap(verifiedPlatforms))].map(provider=>({SPOTIFY:'Spotify',DEEZER:'Deezer',APPLE:'Apple Music',YOUTUBE_MUSIC:'YouTube Music',MUSICBRAINZ:'MusicBrainz',TIDAL:'Tidal'}[provider])).join(' · ')}. Catálogo guardado en Musiclub.`
-                    : 'Estamos contrastando esta discografía entre plataformas.'}
-                  {' Sólo se muestran releases confirmados en al menos dos plataformas.'}
-              </p>
+
 
               {/* Category Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar">
@@ -422,7 +417,7 @@ export function ArtistDetail({ initialProfileData, initialClubAlbums, initialSlu
               {filteredDiscography.length === 0 ? (
                 <div className="bg-[#121424] border border-white/10 rounded-3xl p-10 text-center space-y-2">
                   <p className="text-slate-400 text-sm font-semibold">
-                    {profileData.discography?.length ? 'No se encontraron lanzamientos en esta categoría.' : 'Aún no hay releases con coincidencias verificadas en dos plataformas. Las reseñas del club se conservan.'}
+                    {profileData.discography?.length ? 'No se encontraron lanzamientos en esta categoría.' : 'Estamos preparando la discografía de este artista. Las reseñas del club se conservan.'}
                   </p>
                 </div>
               ) : (

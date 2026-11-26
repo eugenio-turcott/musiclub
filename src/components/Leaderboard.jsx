@@ -1,4 +1,5 @@
 'use client';
+import {SectionHeader} from './SectionHeader';
 import {useLocation} from 'react-router-dom';
 import {DetailLoading} from './DetailLoading';
 import { AchievementBadge } from './AchievementBadge';
@@ -337,121 +338,7 @@ export function Leaderboard({ isPage = false }) {
         {/* Universal Standard App Header */}
         <AppHeader showTitle={false} />
 
-        {/* Header Title */}
-        <div className="relative overflow-hidden rounded-3xl p-6 sm:p-8 md:p-10 bg-linear-to-br from-[#181a28]/80 via-[#101220]/90 to-[#080914] border border-white/10 shadow-2xl text-center space-y-3">
-          {/* Subtle Ambient Glow */}
-          <div className="absolute -top-12 -left-12 w-60 h-60 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          {/* Large Background Spinning Musiclub Vinyl (Watermark Cutoff) */}
-          <div className="absolute -right-16 -bottom-16 sm:-right-20 sm:-bottom-20 md:-right-24 md:-top-16 w-72 h-72 sm:w-80 sm:h-80 md:w-96 md:h-96 lg:w-[440px] lg:h-[440px] pointer-events-none select-none z-0 opacity-25 flex items-center justify-center">
-            <MusiclubVinyl
-              src="/musiclub_logo_2.png"
-              alt=""
-              className="w-full h-full object-contain animate-spin-slow drop-shadow-[0_0_35px_rgba(251,191,36,0.3)]"
-            />
-          </div>
-
-          <div className="relative z-10 space-y-2.5 sm:space-y-3">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-r from-white via-slate-100 to-amber-200">
-              Leaderboard de Miembros
-            </h1>
-            <p className="text-slate-400 text-xs sm:text-sm md:text-base max-w-2xl mx-auto px-2 leading-relaxed">
-              Gana puntos XP por cada reseña, análisis con comentarios y
-              calificación pista por pista. ¡Desbloquea insignias y compite por
-              los récords del club!
-            </p>
-            <div className="pt-1">
-              <button
-                onClick={() => setShowBadgesGuide(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 sm:py-2.5 rounded-xl bg-[#181a28]/95 backdrop-blur-md border border-amber-400/50 hover:border-amber-400 text-amber-300 hover:text-white font-bold text-xs sm:text-sm transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
-              >
-                <span><InterfaceText>{"📖"}</InterfaceText></span>
-                <span>
-                  ¿Cómo funciona el Score XP y las Insignias? Ver Guía
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Global Stats Summary Bar */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-4">
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-amber-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/5 rounded-full blur-xl group-hover:bg-amber-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="leaderboard-stat-icon text-amber-300 p-2.5 sm:p-3 rounded-xl bg-amber-500/10 border border-amber-500/20"><UiIcon name="review" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Total Reviews
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-white"
-                  data-stat="number"
-                >
-                  {loading ? '...' : globalMetrics.totalReviews}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="leaderboard-stat-icon text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="users" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Miembros
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-white"
-                  data-stat="number"
-                >
-                  {loading ? '...' : globalMetrics.totalUsers}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-cyan-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-cyan-500/5 rounded-full blur-xl group-hover:bg-cyan-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="leaderboard-stat-icon text-cyan-300 p-2.5 sm:p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/20"><UiIcon name="notes" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Pistas Calificadas
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-cyan-400"
-                  data-stat="number"
-                >
-                  {loading ? '...' : globalMetrics.totalTracksRated}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-[#151722]/80 border border-white/5 p-3 sm:p-4 rounded-xl sm:rounded-2xl backdrop-blur-sm relative overflow-hidden group hover:border-emerald-500/30 transition-all">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-all" />
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <span className="leaderboard-stat-icon text-emerald-300 p-2.5 sm:p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20"><UiIcon name="star" size={30} tone="inherit"/></span>
-              <div className="min-w-0">
-                <p className="text-[10px] sm:text-xs text-slate-400 font-medium leading-snug">
-                  Promedio del Club
-                </p>
-                <p
-                  translate="no"
-                  className="notranslate text-lg sm:text-2xl font-black text-emerald-400"
-                  data-stat="number"
-                >
-                  {loading ? '...' : `${globalMetrics.avgClubRating} / 10`}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SectionHeader title="Leaderboard de Miembros" description="Tu música, tu actividad y tus logros en el club." stats={[["miembros",globalMetrics.totalUsers],["reseñas",globalMetrics.totalReviews],["XP del club",globalMetrics.totalXp.toLocaleString('es-MX')],["tracks",globalMetrics.totalTracksRated]]}><button type="button" onClick={()=>setShowBadgesGuide(true)}><UiIcon name="award" size={20}/> ¿Cómo funciona el Score XP y las Insignias? Ver Guía</button></SectionHeader>
 
         {/* Podium Top 3 */}
         {isPage&&!loading&&<AdsterraAdvertising variant="inline" slot="leaderboard-ranking"/>}

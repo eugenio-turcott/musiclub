@@ -48,10 +48,13 @@ albums[0].public_content_updated_at='2026-11-12T18:00:00Z';
 // Exercise unassociated release discovery and person categories, even with a catalog association.
 tables.grammy_nominees.push({id:'20000000-0000-4000-8000-000000000003',event_id:'grammys-2027',category_id:'song-of-the-year',title:'Canción sin ficha',artist:'Artista de Prueba'},{id:'20000000-0000-4000-8000-000000000004',event_id:'grammys-2027',category_id:'producer-of-the-year-non-classical',title:'Creador de Prueba',albums:albums[0]});
 
-// A provider-only edition stays stored, but is not public discography evidence.
+// Single-provider editions remain visible with lower weighted relevance.
 tables.artist_discographies[0].profile.discography.push({id:'itunes_only_fixture',name:'Sólo Apple sin verificar',artists:['Artista de Prueba'],release_type:'ALBUM',releaseDate:'2025-03-01',image:'/musiclub_logo.png',sources:[{provider:'APPLE',id:'only-fixture'}]});
 
 // Disc grouping and stored palettes are exercised on the existing release.
 albums[0].tracks[2].disc_number=2;
 albums[0].dominant_colors=['#2878c0','#db477b'];albums[0].palette_image_url=albums[0].image_url;
 tables.artist_discographies[0].dominant_colors=['#3a536f','#c14c79'];tables.artist_discographies[0].palette_image_url='/musiclub_logo.png';
+
+// First-visit artist palette generation has no precomputed color fixture.
+tables.artist_discographies.push({slug:"artista-color",name:"Artista Color",refresh_after:"2099-01-01",profile:{source:"OFFICIAL",artist:{name:"Artista Color",image:"/musiclub_logo.png",genres:["Pop"]},discography:[{id:"color-release",name:"Color",release_type:"ALBUM",sources:[{provider:"APPLE",id:"123"}]}]}});
