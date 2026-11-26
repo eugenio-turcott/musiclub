@@ -1,4 +1,4 @@
-name: Verify SMTP configuration (no email)
+name: Musiclub 2026 approved mail delivery
 on:
   workflow_dispatch:
 permissions:
@@ -6,7 +6,7 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -31,3 +31,37 @@ jobs:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
         run: node scripts/verify-smtp-configuration.mjs
+      - name: Deliver owner-approved annual announcement and pending confirmations
+        if: github.ref == 'refs/heads/codex/annual-mail-2026-approved'
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          REACT_APP_SUPABASE_URL: ${{ secrets.REACT_APP_SUPABASE_URL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          EMAIL_FROM: ${{ secrets.EMAIL_FROM }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs/promises';
+          import {annualAdminDb} from './src/server/annualNotifications.mjs';
+          import {processAnnualNotices} from './src/services/annualMail.mjs';
+          const db=annualAdminDb(),results=[];
+          try {
+            for(const phase of ['announcement','confirmation']){
+              const result=await processAnnualNotices(db,phase);
+              results.push(result);
+              console.log(JSON.stringify(result));
+              if(result.failed||result.recordingWarnings)throw Error('Delivery requires review; do not retry uncertain messages.');
+            }
+          } finally {
+            await fs.mkdir('outputs/approved-annual-mail',{recursive:true});
+            await fs.writeFile('outputs/approved-annual-mail/summary.json',JSON.stringify(results,null,2));
+          }
+          NODE
+      - uses: actions/upload-artifact@v4
+        if: always() && github.ref == 'refs/heads/codex/annual-mail-2026-approved'
+        with:
+          name: approved-annual-mail-summary
+          path: outputs/approved-annual-mail/summary.json
+          retention-days: 7
