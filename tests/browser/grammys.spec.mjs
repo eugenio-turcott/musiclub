@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 import {communityAccount} from './community-session.mjs';
+import {grammyReviewSummary} from '../../src/utils/grammyListening.mjs';
 
 test('Grammy preparation exposes all categories, uses real genre art, and subscribes only after a deliberate click',async({page},info)=>{
  await communityAccount(page);await page.clock.install({time:new Date('2026-11-11T18:00:00Z')});let reads=0,writes=[];
@@ -67,4 +68,18 @@ test('reviewed releases have a gold border, every release has a listening CTA, a
  await expect(reviewed).toHaveAttribute('data-reviewed','true');await expect(reviewed).toHaveCSS('border-top-color','rgb(246, 205, 117)');await expect(reviewed).toContainText('Ya reseñaste este release');await expect(unreviewed).toHaveAttribute('data-reviewed','false');await expect(unreviewed).toHaveAttribute('data-selected','true');await expect(unreviewed).toHaveAttribute('data-selected','true');await expect(dialog.getByRole('link',{name:'Escuchar y calificar',exact:true})).toHaveCount(2);
  dialog=page.getByRole('region',{name:'Canción del año',exact:true});await expect(dialog.getByRole('link',{name:'Escuchar y calificar',exact:true})).toHaveAttribute('href','/catalogo?q=Canci%C3%B3n%20sin%20ficha');
  await expect(page.getByRole('region',{name:'Tu recorrido por los nominados'})).toContainText('Releases reseñados');await expect(page.getByRole('region',{name:'Tu recorrido por los nominados'})).toContainText('Artistas explorados');dialog=page.getByRole('region',{name:'Productor del año, no clásico',exact:true});await expect(dialog.getByText('Creador de Prueba',{exact:true})).toHaveCount(1);await expect(dialog.getByRole('link',{name:'Escuchar y calificar',exact:true})).toHaveCount(0);await expect(dialog.locator('[data-reviewed=true]')).toHaveCount(0);
+});
+
+
+test('an older reviewed work gives its nominated artist a gold border without marking nominated releases',async({page})=>{
+ await communityAccount(page,{expiresAt:Date.parse('2099-01-01')/1000});await page.clock.install({time:new Date('2026-11-17T18:00:00Z')});
+ const reviews=grammyReviewSummary([{album_id:'older-unrelated-to-nominations',albums:{album_name:'Una obra anterior',artist_name:'Creador de Prueba',release_type:'ALBUM'}}]);
+ await page.route('**/api/grammys/me',route=>route.fulfill({json:{subscribed:false,predictions:[],awards:[],reviews}}));
+ await page.goto('/grammys');
+ const creator=page.getByRole('region',{name:'Productor del año, no clásico',exact:true}),card=creator.locator('article');
+ await expect(card).toHaveAttribute('data-reviewed','true');await expect(card).toHaveCSS('border-top-color','rgb(246, 205, 117)');
+ await expect(card).toContainText('Ya reseñaste música de este artista');await expect(card).not.toContainText('Ya reseñaste este release');await expect(creator.getByText('Creador de Prueba',{exact:true})).toHaveCount(1);await expect(creator.getByRole('link',{name:'Escuchar y calificar',exact:true})).toHaveCount(0);
+ await expect(page.getByRole('region',{name:'Álbum del año',exact:true}).locator('[data-reviewed=true]')).toHaveCount(0);
+ await expect(page.getByRole('progressbar',{name:'Artistas explorados',exact:true})).toHaveAttribute('value','1');
+ await expect(page.getByRole('progressbar',{name:'Releases reseñados',exact:true})).toHaveAttribute('value','0');
 });

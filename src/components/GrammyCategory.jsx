@@ -51,7 +51,7 @@ export function GrammyCategory({category,nominees,choice,selected,onChoose,onSav
               <strong>{n.title}</strong>{category.kind!=='person'&&n.artist&&<span className={styles.artist}>{n.artist}</span>}
             </label>
             <div className={styles.cardBottom}>
-              <div className={styles.cardStatus}>{reviewed&&<span className={styles.reviewed}><UiIcon name="check"/>Ya reseñaste este release</span>}{picked&&<span className={styles.chosen}><UiIcon name={n.id===selected?'check':'star'}/>{n.id===selected?'Tu predicción':'Tu selección'}</span>}</div>
+              <div className={styles.cardStatus}>{reviewed&&<span className={styles.reviewed}><UiIcon name="check"/>{category.kind==='person'?'Ya reseñaste música de este artista':'Ya reseñaste este release'}</span>}{picked&&<span className={styles.chosen}><UiIcon name={n.id===selected?'check':'star'}/>{n.id===selected?'Tu predicción':'Tu selección'}</span>}</div>
               <div className={styles.platforms}>{platforms.filter(([key])=>n[key]).map(([key,Logo,name,platform])=><a key={key} data-platform={platform} href={n[key]} target="_blank" rel="noopener noreferrer" aria-label={`Escuchar ${n.title} en ${name}`} title={name}><Logo/></a>)}</div>
               {category.kind!=='person'&&<Link className={styles.releaseLink} href={n.albums?getReleaseUrl(n.albums):grammyListeningFallback(n,category)} prefetch={false}>Escuchar y calificar <UiIcon name="arrow"/></Link>}
             </div>

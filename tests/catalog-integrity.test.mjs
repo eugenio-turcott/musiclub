@@ -30,10 +30,10 @@ test('discography attachment rejects a title match with the wrong edition, track
  assert.equal(compatibleDiscographyRelease(r,{...wrong,artist_name:'Someone Else',release_type:'SENCILLO',total_tracks:2}),false);
  const matched=attachClubReleases([r],[{...wrong,release_type:'SENCILLO',total_tracks:2}])[0];assert.equal(matched.image,'right-cover');assert.equal(matched.totalTracks,2);
 });
-test('Grammy progress deduplicates releases and credits across categories and omits person nominations',()=>{
+test('Grammy progress deduplicates releases and credits across categories and includes person nominations only as artists',()=>{
  const categories=[{id:'album',kind:'release'},{id:'again',kind:'release'},{id:'writer',kind:'person'}],album={id:'a',album_name:'A',artist_name:'One & Two',release_type:'ALBUM'};
  const nominees=[{category_id:'album',album_id:'a',albums:album},{category_id:'again',album_id:'a',albums:album},{category_id:'album',album_id:'b',albums:{...album,id:'b',album_name:'B',artist_name:'Three'}},{category_id:'writer',title:'Four',artist:'Four'}];
- assert.deepEqual(grammyListeningProgress(nominees,categories,{albumIds:['a']}),{totalReleases:2,reviewedReleases:1,totalArtists:3,reviewedArtists:2});
+ assert.deepEqual(grammyListeningProgress(nominees,categories,{albumIds:['a']}),{totalReleases:2,reviewedReleases:1,totalArtists:4,reviewedArtists:2});
 });
 test('all twenty mural works are distinct albums from 2026, with their own catalogue route',()=>{
  assert.equal(ANNUAL_ART.length,20);assert.equal(new Set(academy.releases.map(a=>a.albumId)).size,20);

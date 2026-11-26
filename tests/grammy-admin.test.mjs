@@ -92,7 +92,7 @@ test('both administrative HTTP methods reject unauthorized callers before access
  const failed=await module.exports.POST(request({action:'save-nominee',nominee:{categoryId:'no-category',title:'Invalid'}}));assert.equal(failed.status,400);assert.equal(invalidations.length,1);
 });
 
-import {grammyReviewSummary,grammyNomineeReviewed,grammyListeningFallback} from '../src/utils/grammyListening.mjs';
+import {grammyReviewSummary,grammyNomineeReviewed,grammyListeningFallback,grammyListeningProgress} from '../src/utils/grammyListening.mjs';
 import {readGrammyReviews} from '../src/server/grammyReviews.mjs';
 test('review gold follows catalog identities and grouped editions, never just a title, artist nomination or prediction',()=>{
  const album={id:albumId,album_name:'Azul',artist_name:'Artist',release_type:'ALBUM'},category={kind:'album'};
@@ -111,7 +111,7 @@ test('private review lookup restricts every page to the authenticated email, han
  const calls=[],rows=Array.from({length:1001},(_,i)=>({album_id:`album-${i}`}));
  const db={from(table){assert.equal(table,'reviews');const q={select(columns){assert.equal(columns,'album_id,albums(id,album_name,artist_name,release_type)');return q;},eq(column,value){assert.equal(column,'reviewer_email');assert.equal(value,'own@example.test');return q;},order(column){assert.equal(column,'id');return q;},range(start,end){calls.push([start,end]);return Promise.resolve({data:rows.slice(start,end+1)});}};return q;}};
  const result=await readGrammyReviews(db,'own@example.test');assert.equal(result.albumIds.length,1001);assert.deepEqual(calls,[[0,499],[500,999],[1000,1499]]);
- assert.deepEqual(await readGrammyReviews(db,null),{albumIds:[],releaseKeys:[]});
+ assert.deepEqual(await readGrammyReviews(db,null),{albumIds:[],releaseKeys:[],artistKeys:[]});
  const broken={from(){const q={select:()=>q,eq:()=>q,order:()=>q,range:async()=>({error:true})};return q;}};
  await assert.rejects(readGrammyReviews(broken,'own@example.test'));
 });
@@ -124,4 +124,28 @@ test('personal Grammy HTTP data is private and review ownership comes from the v
  const module={exports:{}};new Function('require','module','exports',compiled.code)(name=>{assert.ok(imports[name],name);return imports[name];},module,module.exports);
  const request=new Request('https://musiclub.test/api/grammys/me?email=someone-else@example.test');assert.equal((await module.exports.GET(request)).status,401);assert.equal(reads,0);
  allowed=true;const response=await module.exports.GET(request);assert.equal(response.headers.get('Cache-Control'),'private, no-store');assert.equal(owner,'verified@example.test');assert.deepEqual((await response.json()).reviews.albumIds,[albumId]);
+});
+
+
+test('nominated artists qualify through any reviewed credited work, without marking other releases',()=>{
+ const reviews=grammyReviewSummary([
+  {album_id:'old',albums:{album_name:'Disco anterior',artist_name:'ROSALÍA feat. The Weeknd',release_type:'ALBUM'}},
+  {album_id:'band',albums:{album_name:'Otro disco',artist_name:'Earth, Wind & Fire',release_type:'ALBUM'}},
+  {album_id:'similar',albums:{album_name:'Un sencillo',artist_name:'Bibie',release_type:'SENCILLO'}},
+  {album_id:'missing',albums:null}
+ ]);
+ for(const title of ['rosalia','The Weeknd','Earth, Wind & Fire'])assert.equal(grammyNomineeReviewed({title},{kind:'person'},reviews),true,title);
+ for(const title of ['BIBI','Earth','Wind','Fire','Un sencillo',''])assert.equal(grammyNomineeReviewed({title},{kind:'person'},reviews),false,title);
+ assert.equal(grammyNomineeReviewed({title:'Another Person',albums:{artist_name:'ROSALÍA'}},{kind:'person'},reviews),false);
+ assert.equal(grammyNomineeReviewed({title:'ROSALÍA'},{kind:'person'},{}),false);
+ assert.equal(grammyNomineeReviewed({album_id:'new',albums:{id:'new',album_name:'Nuevo nominado',artist_name:'ROSALÍA',release_type:'ALBUM'}},{kind:'release'},reviews),false);
+ assert.equal(new Set(reviews.artistKeys).size,reviews.artistKeys.length);
+});
+
+test('older reviews count nominated artists once, with person nominations excluded from release totals',()=>{
+ const categories=[{id:'album',kind:'release'},{id:'artist',kind:'person'},{id:'producer',kind:'person'}];
+ const nominees=[{category_id:'album',albums:{id:'new',album_name:'Nuevo',artist_name:'ROSALÍA & The Weeknd',release_type:'ALBUM'}},{category_id:'artist',title:'Rosalía'},{category_id:'producer',title:'ROSALÍA'},{category_id:'artist',title:'BIBI'}];
+ const reviews=grammyReviewSummary([{album_id:'old',albums:{album_name:'Viejo',artist_name:'ROSALÍA',release_type:'ALBUM'}}]);
+ assert.deepEqual(grammyListeningProgress(nominees,categories,reviews),{totalReleases:1,reviewedReleases:0,totalArtists:3,reviewedArtists:1});
+ assert.deepEqual(grammyListeningProgress(nominees,categories,grammyReviewSummary([])),{totalReleases:1,reviewedReleases:0,totalArtists:3,reviewedArtists:0});
 });

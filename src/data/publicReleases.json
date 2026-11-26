@@ -2,7 +2,7 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.3.3",
+    "latestVersion": "V.12.3.4",
     "date": "2026-11-11",
     "updatedAt": "2026-11-26",
     "title": "Grammy 2027 y el año del club",
@@ -13,6 +13,16 @@
       {
         "title": "Grammy y actividades",
         "changes": [
+          {
+            "title": "Tus artistas, en dorado",
+            "description": "Las tarjetas de artistas nominados muestran el borde dorado si reseñaste al menos un release acreditado a ellos en Musiclub, de cualquier año. También se reconocen colaboraciones, conservando la identidad de los grupos.",
+            "type": "feature"
+          },
+          {
+            "title": "Un recorrido más completo",
+            "description": "Artistas explorados incluye las nominaciones personales y reconoce reseñas de obras anteriores sin duplicar artistas ni marcar otros releases como reseñados. Cada cuenta conserva su propio avance.",
+            "type": "improvement"
+          },
           {
             "title": "Identidades y ediciones correctas",
             "description": "Se corrige expectations y se auditan los enlaces del catálogo. La discografía contrasta título, artistas, tipo y pistas antes de asociar una ficha, prioriza la edición de Spotify y evita mostrar variantes exclusivas sin corroboración.",
@@ -26,16 +36,6 @@
           {
             "title": "Grammy, con tu recorrido",
             "description": "El trofeo dorado se comparte con la homepage. La página cuenta releases reseñados y artistas explorados sin duplicar nominaciones; las personas muestran su nombre una sola vez y desaparece el filtro de todas las categorías.",
-            "type": "design"
-          },
-          {
-            "title": "Veinte portadas de 2026",
-            "description": "El mural usa veinte álbumes distintos de 2026 con portadas verificadas y representación en las categorías Grammy. Se sustituyen las referencias de otros años.",
-            "type": "fix"
-          },
-          {
-            "title": "El color llega hasta arriba",
-            "description": "Las atmósferas de releases y artistas cubren toda la página, con respaldo negro sólido para aislar el anuncio dorado.",
             "type": "design"
           }
         ]
