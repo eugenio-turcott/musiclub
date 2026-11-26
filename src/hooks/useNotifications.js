@@ -316,13 +316,15 @@ export function useNotifications(user) {
   // Carga inicial y recarga al cambiar usuario
   useEffect(() => {
     fetchNotifications();
-
+    // External editions are verified after the first response. Refresh once
+    // they can have arrived, without polling every notification continuously.
+    let continuationTimer=user?.id?window.setTimeout(()=>fetchNotifications(true),30000):null;
     const refresh=()=>{if(document.visibilityState==='visible')fetchNotifications();};
-    const reviewSaved=()=>fetchNotifications(true);
+    const reviewSaved=()=>{fetchNotifications(true);window.clearTimeout(continuationTimer);continuationTimer=window.setTimeout(()=>fetchNotifications(true),30000);};
     window.addEventListener('musiclub:review-saved',reviewSaved);
     window.addEventListener('focus',refresh);
     document.addEventListener('visibilitychange',refresh);
-    return()=>{window.removeEventListener('musiclub:review-saved',reviewSaved);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
+    return()=>{window.clearTimeout(continuationTimer);window.removeEventListener('musiclub:review-saved',reviewSaved);window.removeEventListener('focus',refresh);document.removeEventListener('visibilitychange',refresh);};
   }, [fetchNotifications]);
 
   // Filtrar notificaciones eliminadas

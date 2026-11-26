@@ -1,4 +1,4 @@
-// Twenty project artworks selected from the 2027 Grammy field. Public previews only.
+// Twenty verified 2026 albums represented in the Grammy field. Public art only.
 export const ANNUAL_ART = [
   {
     "id": "raye",
@@ -36,11 +36,11 @@ export const ANNUAL_ART = [
     "catalogPath": "/albumes/bruno-mars-the-romantic"
   },
   {
-    "id": "olivia-dean",
-    "title": "The Art of Loving",
-    "artist": "Olivia Dean",
-    "description": "La portada de The Art of Loving, de Olivia Dean, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/olivia-dean-the-art-of-loving"
+    "id": "jill-scott",
+    "title": "To Whom This May Concern",
+    "artist": "Jill Scott",
+    "description": "La portada de To Whom This May Concern, de Jill Scott, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/jill-scott-to-whom-this-may-concern"
   },
   {
     "id": "ella",
@@ -50,11 +50,11 @@ export const ANNUAL_ART = [
     "catalogPath": "/albumes/ella-langley-dandelion"
   },
   {
-    "id": "taylor",
-    "title": "The Life of a Showgirl",
-    "artist": "Taylor Swift",
-    "description": "La portada de The Life of a Showgirl, de Taylor Swift, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/taylor-swift-the-life-of-a-showgirl"
+    "id": "muse",
+    "title": "The Wow! Signal",
+    "artist": "Muse",
+    "description": "La portada de The Wow! Signal, de Muse, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/muse-the-wow-signal"
   },
   {
     "id": "ariana",
@@ -64,11 +64,11 @@ export const ANNUAL_ART = [
     "catalogPath": "/albumes/ariana-grande-petal"
   },
   {
-    "id": "geese",
-    "title": "Getting Killed",
-    "artist": "Geese",
-    "description": "La portada de Getting Killed, de Geese, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/geese-getting-killed"
+    "id": "rapsody",
+    "title": "God Gotta Afro & Gold Hoops",
+    "artist": "Rapsody",
+    "description": "La portada de God Gotta Afro & Gold Hoops, de Rapsody, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/rapsody-god-gotta-afro-and-gold-hoops"
   },
   {
     "id": "slayyyter",
@@ -78,11 +78,11 @@ export const ANNUAL_ART = [
     "catalogPath": "/albumes/slayyyter-wor-t-girl-in-america"
   },
   {
-    "id": "angine",
-    "title": "Vol.II",
-    "artist": "Angine de Poitrine",
-    "description": "La portada de Vol.II, de Angine de Poitrine, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/angine-de-poitrine-vol-ii"
+    "id": "charli",
+    "title": "Wuthering Heights",
+    "artist": "Charli xcx",
+    "description": "La portada de Wuthering Heights, de Charli xcx, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/charli-xcx-wuthering-heights"
   },
   {
     "id": "don-toliver",
@@ -92,18 +92,18 @@ export const ANNUAL_ART = [
     "catalogPath": "/albumes/don-toliver-octane"
   },
   {
-    "id": "leon-thomas",
-    "title": "PHOLKS",
-    "artist": "Leon Thomas",
-    "description": "La portada de PHOLKS, de Leon Thomas, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/leon-thomas-pholks"
+    "id": "lakecia-benjamin",
+    "title": "We Dream",
+    "artist": "Lakecia Benjamin",
+    "description": "La portada de We Dream, de Lakecia Benjamin, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/lakecia-benjamin-we-dream"
   },
   {
-    "id": "madonna",
-    "title": "CONFESSIONS II",
-    "artist": "Madonna",
-    "description": "La portada de CONFESSIONS II, de Madonna, reinterpretada con planos cubistas y recortes irregulares.",
-    "catalogPath": "/albumes/madonna-confessions-ii"
+    "id": "charlie-puth",
+    "title": "Whatever's Clever!",
+    "artist": "Charlie Puth",
+    "description": "La portada de Whatever's Clever!, de Charlie Puth, reinterpretada con planos cubistas y recortes irregulares.",
+    "catalogPath": "/albumes/charlie-puth-whatevers-clever"
   },
   {
     "id": "laufey",

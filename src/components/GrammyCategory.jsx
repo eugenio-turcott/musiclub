@@ -48,7 +48,7 @@ export function GrammyCategory({category,nominees,choice,selected,onChoose,onSav
             <label className={styles.nomineeLabel}>
               <input type="radio" name={`grammy-${category.id}`} checked={picked} onChange={()=>{onChoose(n.id);setFeedback('');setFailed(false);}}/>
               <span className={styles.cover}>{n.image_url?<CoverImage src={n.image_url} alt="" sizes="(max-width: 620px) 44vw, (max-width: 1100px) 28vw, 260px"/>:<GrammyCategoryArt category={category}/>}</span>
-              <strong>{n.title}</strong>{n.artist&&<span className={styles.artist}>{n.artist}</span>}
+              <strong>{n.title}</strong>{category.kind!=='person'&&n.artist&&<span className={styles.artist}>{n.artist}</span>}
             </label>
             <div className={styles.cardBottom}>
               <div className={styles.cardStatus}>{reviewed&&<span className={styles.reviewed}><UiIcon name="check"/>Ya reseñaste este release</span>}{picked&&<span className={styles.chosen}><UiIcon name={n.id===selected?'check':'star'}/>{n.id===selected?'Tu predicción':'Tu selección'}</span>}</div>

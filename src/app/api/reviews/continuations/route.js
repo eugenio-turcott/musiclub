@@ -1,7 +1,9 @@
-import {NextResponse} from 'next/server';
+import {NextResponse,after} from 'next/server';
 import {authorize} from '../../../../server/authorize';
 import {getPublicCatalog} from '../../../../server/catalog';
 import {reviewContinuations} from '../../../../utils/reviewContinuations.mjs';
+import {discoverReviewContinuations} from '../../../../services/reviewContinuationDiscovery.mjs';
+import {revalidateTag} from 'next/cache';
 async function ownReviews(db,email){
  const rows=[];
  for(let from=0;;from+=500){
@@ -16,6 +18,9 @@ export async function GET(request){
  try{
   const email=auth.user.email?.replace(/[\\%_]/g,'\\$&');if(!email)return NextResponse.json({continuations:[]});
   const [data,catalog]=await Promise.all([ownReviews(auth.db,email),getPublicCatalog()]);
-  return NextResponse.json({continuations:reviewContinuations(catalog.albums,data,{targetId:new URL(request.url).searchParams.get('albumId')||undefined})},{headers:{'Cache-Control':'private, no-store'}});
+  const targetId=new URL(request.url).searchParams.get('albumId')||undefined;
+  // Existing notices and the review form never wait for external catalogues.
+  if(!targetId)after(async()=>{try{const discovered=await discoverReviewContinuations(auth.db,catalog.albums,data,{limit:1});if(discovered.length)revalidateTag('catalog',{expire:0});}catch{ /* Retry on the next notification refresh. */ }});
+  return NextResponse.json({continuations:reviewContinuations(catalog.albums,data,{targetId})},{headers:{'Cache-Control':'private, no-store'}});
  }catch{return NextResponse.json({error:'No se pudieron recuperar tus canciones calificadas.'},{status:503});}
 }

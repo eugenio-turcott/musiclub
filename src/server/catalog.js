@@ -1,3 +1,4 @@
+import {attachClubReleases} from '../utils/discographyIdentity.mjs';
 import {commonDiscography} from '../utils/verifiedDiscography.mjs';
 import cards from '../utils/catalogCards.cjs';
 import editions from '../utils/releaseEditions.cjs';
@@ -123,17 +124,7 @@ export const getPublicArtist = cache(async slug => {
   const name = sample ? (splitArtists(sample.artist_name).find(a => a.slug === canonicalSlug)?.name || sample.artist_name) : upcoming?.[0]?.artist_name || canonicalSlug.replace(/-/g, ' ');
   const external = await getStoredArtistProfile(client(), canonicalSlug, name, Boolean(sample || upcoming?.length));
   if (!sample && !external && !upcoming?.length) return null;
-  const discography = editions.groupReleaseEditions(external?.discography || []);
-  for (const a of clubAlbums) {
-    const links=[a.spotify_link,a.other_link,a.apple_music_link].filter(Boolean).map(link=>link.split('?')[0].replace(/\/$/,''));
-    const editionKey=name=>releaseIdentity.slugify(editions.editionTitle(name).name,true);
-    const match = discography.find(d => (d.sources || []).some(source=>source.url && links.includes(source.url.split('?')[0].replace(/\/$/,'')))) ||
-      discography.find(d => editionKey(d.name)===editionKey(a.album_name));
-    if (match) { match.image = a.image_url || match.image; match.totalTracks = a.total_tracks || a.tracks?.length || match.totalTracks; match.clubAlbumId=a.id; match.genres=a.genres || match.genres;match.spotify_link=a.spotify_link;match.apple_music_link=a.apple_music_link;match.other_link=a.other_link;match.mbid=a.mbid; }
-    else discography.push({ id: a.id, clubAlbumId:a.id, mbid: a.mbid, name: a.album_name, artists: [a.artist_name],
-      image: a.image_url, releaseYear: a.release_year, releaseDate: a.release_date || '',
-      genres:a.genres || [], release_type: a.release_type, totalTracks: a.tracks?.length || a.total_tracks || 0, spotifyUrl: a.spotify_link,spotify_link:a.spotify_link,apple_music_link:a.apple_music_link,other_link:a.other_link });
-  }
+  const discography = attachClubReleases(editions.groupReleaseEditions(external?.discography || []),clubAlbums);
   for (const release of upcoming || []) {
     const match = discography.find(d => d.name.toLowerCase().trim() === release.album_name.toLowerCase().trim());
     const metadata = { image: release.image_url, totalTracks: release.total_tracks, clubUrl: `/albumes/${release.slug}`, isUpcoming: true };

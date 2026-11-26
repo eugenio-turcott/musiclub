@@ -14,7 +14,7 @@ Un club para descubrir discos, reseñar lo que escuchas y compartirlo con otras 
 
 **Participa.** Reseña releases y canciones, gana XP e insignias y prepara tarjetas para tus redes.
 
-**Tu año.** Grammy 2027 y Musiclub 2026 reúnen predicciones, rankings y recuerdos del club.
+**Tu año.** Grammy 2027 muestra tu recorrido entre nominados. Musiclub 2026 reúne rankings, recuerdos y veinte portadas verificadas del año.
 
 ---
 

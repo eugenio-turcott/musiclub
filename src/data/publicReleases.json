@@ -2,7 +2,7 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.3.2",
+    "latestVersion": "V.12.3.3",
     "date": "2026-11-11",
     "updatedAt": "2026-11-26",
     "title": "Grammy 2027 y el año del club",
@@ -10,6 +10,36 @@
     "tag": "Musiclub 12",
     "authorName": "Eugenio Turcott",
     "details": [
+      {
+        "title": "Grammy y actividades",
+        "changes": [
+          {
+            "title": "Identidades y ediciones correctas",
+            "description": "Se corrige expectations y se auditan los enlaces del catálogo. La discografía contrasta título, artistas, tipo y pistas antes de asociar una ficha, prioriza la edición de Spotify y evita mostrar variantes exclusivas sin corroboración.",
+            "type": "fix"
+          },
+          {
+            "title": "Completa también lo que falta en el club",
+            "description": "Las recomendaciones buscan fuera de Musiclub y sólo incorporan ediciones completas después de comprobar canciones compartidas. Se mantiene la excepción de sencillos y la prioridad del álbum normal sobre el Deluxe.",
+            "type": "feature"
+          },
+          {
+            "title": "Grammy, con tu recorrido",
+            "description": "El trofeo dorado se comparte con la homepage. La página cuenta releases reseñados y artistas explorados sin duplicar nominaciones; las personas muestran su nombre una sola vez y desaparece el filtro de todas las categorías.",
+            "type": "design"
+          },
+          {
+            "title": "Veinte portadas de 2026",
+            "description": "El mural usa veinte álbumes distintos de 2026 con portadas verificadas y representación en las categorías Grammy. Se sustituyen las referencias de otros años.",
+            "type": "fix"
+          },
+          {
+            "title": "El color llega hasta arriba",
+            "description": "Las atmósferas de releases y artistas cubren toda la página, con respaldo negro sólido para aislar el anuncio dorado.",
+            "type": "design"
+          }
+        ]
+      },
       {
         "title": "La edición anual",
         "changes": [
@@ -157,36 +187,6 @@
             "title": "La portada marca los límites de la consola",
             "description": "El género queda sobre la esquina superior derecha de la portada. La calificación empieza en su borde izquierdo y la línea de sonido ocupa exactamente su ancho, con ajustes propios para celular.",
             "type": "fix"
-          }
-        ]
-      },
-      {
-        "title": "Grammy y actividades",
-        "changes": [
-          {
-            "title": "Edición completa desde el Panel de Admin",
-            "description": "Actualiza nombres, imágenes, enlaces, asociaciones con el catálogo, categorías, fechas y fuente oficial. Las predicciones conservan su nominado al editarlo.",
-            "type": "feature"
-          },
-          {
-            "title": "Tus releases reseñados llevan borde dorado",
-            "description": "Reconoce los releases que ya calificaste con tu cuenta. Cada nominado a un release incluye Escuchar y calificar; si aún no tiene ficha asociada, abre su búsqueda en el catálogo. Las categorías de artistas no muestran este enlace.",
-            "type": "feature"
-          },
-          {
-            "title": "Recordatorios finalizados fuera de la página",
-            "description": "Después del cierre de recordatorios desaparecen los controles y el mensaje de suscripción, también al abrir una categoría sin nominados.",
-            "type": "fix"
-          },
-          {
-            "title": "Confirmación al activar Notificarme",
-            "description": "Tu suscripción envía su confirmación y permite cancelarla desde la actividad. El panel de administración consulta las entregas y envía las confirmaciones anteriores pendientes sin duplicarlas.",
-            "type": "fix"
-          },
-          {
-            "title": "Domingo 15, a las 7:00 p. m. CDMX",
-            "description": "El aviso previo a las nominaciones queda programado para ese horario, exclusivamente para suscriptores activos. No se envía un tercer correo al publicar nominados. Los dos diseños incorporan imágenes nativas adjuntas y conservan su lectura en celular.",
-            "type": "improvement"
           }
         ]
       }

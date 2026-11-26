@@ -1,0 +1,5 @@
+.art{position:relative;width:100%;aspect-ratio:1;display:grid;place-items:center;isolation:isolate}.art>svg{width:100%;height:100%;opacity:.65}.medallion{position:absolute;inset:11%;display:grid;place-items:center;border-radius:23%;transform:rotate(-9deg);background:linear-gradient(135deg,#fff0b5 0%,#e8c87b 25%,#c3933b 55%,#f4dc96 80%,#fff0b5 100%);box-shadow:inset 2px 2px 5px #fff4c9aa,inset -3px -3px 8px #82561955,0 14px 30px #0005;color:#79531d}.medallion>svg{width:67%;height:67%;filter:drop-shadow(1px 2px 1px #fff0baaa);stroke-width:1.5}
+
+.medallion{overflow:hidden}.medallion::after{content:"";position:absolute;inset:-80%;background:linear-gradient(110deg,transparent 42%,#fff6d458 49%,#fffdf075 51%,transparent 58%);transform:translateX(-45%);animation:goldSheen 8s ease-in-out infinite;pointer-events:none}
+@keyframes goldSheen{0%,30%{transform:translateX(-45%)}75%,100%{transform:translateX(45%)}}
+@media(prefers-reduced-motion:reduce){.medallion::after{animation:none}}

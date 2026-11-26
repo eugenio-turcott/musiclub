@@ -46,7 +46,7 @@ test('already reviewed aliases, unreleased editions and disabled releases are no
 });
 test('discography ranks all available platform evidence with Spotify 70 and the rest 30',()=>{
  const single={id:'single',sources:[{provider:'APPLE',id:'1'},{provider:'APPLE',id:'2'}]},multiple={id:'multi',sources:[{provider:'APPLE',id:'1'},{provider:'DEEZER',id:'3'}]};
- assert.deepEqual(commonDiscography([single,multiple]).map(r=>r.id),['multi','single']);
+ assert.deepEqual(commonDiscography([single,multiple]).map(r=>r.id),['multi']);
  assert.equal(Object.values(PLATFORM_WEIGHTS).reduce((a,b)=>a+b,0),100);
  const spotify={id:'spotify',sources:[{provider:'SPOTIFY',id:'1'}]};
  assert.equal(releaseRelevance(spotify),70);

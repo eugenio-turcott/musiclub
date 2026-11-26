@@ -46,7 +46,7 @@ test('artist artwork is square and source diagnostics stay outside the public pa
  await page.goto('/artista/artista-de-prueba');
  const portrait=await page.locator('[class*="portrait"]').boundingBox();expect(Math.abs(portrait.width-portrait.height)).toBeLessThan(2);
  await expect(page.getByText('Coincidencias verificadas entre',{exact:false})).toHaveCount(0);
- await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toBeVisible();
+ await expect(page.getByText('Sólo Apple sin verificar',{exact:true})).toHaveCount(0);
  await page.screenshot({path:`outputs/v1231/artist-${info.project.name}.png`});
 });
 test('turntable score stays beside its star with a visible gap at every responsive width',async({page},info)=>{
@@ -72,12 +72,13 @@ test('native image decoding retains the background when the palette service is t
  await expect(page.getByRole('heading',{name:'Rojo',exact:true})).toBeVisible();
 });
 
-test('cover atmosphere stays below the hero and never tints navigation or breadcrumbs',async({page})=>{
+test('cover atmosphere fills the page while the gold banner keeps an opaque backing',async({page})=>{
  for(const path of ['/albumes/artista-de-prueba-azul','/artista/artista-de-prueba']){
   await page.goto(path);const layer=page.locator('[data-artwork-boundary]');await expect(layer).toBeAttached();
-  const geometry=await layer.evaluate(el=>({cutoff:parseFloat(getComputedStyle(el).getPropertyValue('--artwork-cutoff')),hero:el.parentElement.querySelector('[data-artwork-start]').getBoundingClientRect().top,nav:document.querySelector('[data-site-navigation]').getBoundingClientRect().bottom,clip:getComputedStyle(el).clipPath}));
-  expect(geometry.cutoff).toBeGreaterThanOrEqual(Math.min(page.viewportSize().height,Math.max(geometry.hero,geometry.nav))-1);expect(geometry.clip).toMatch(/^inset\(/);
+  await expect(layer).toHaveCSS('clip-path','none');
+  const rect=await layer.boundingBox();expect(rect.y).toBe(0);expect(rect.height).toBeGreaterThanOrEqual(page.viewportSize().height);
+  await expect(page.locator('.grammy-announcement')).toHaveCSS('background-color','rgb(0, 0, 0)');
   await expect(page.locator('.musiclub-site-header')).toHaveCSS('background-color','rgb(12, 12, 24)');
-  await page.evaluate(()=>window.scrollBy(0,250));await expect.poll(()=>layer.evaluate(el=>parseFloat(getComputedStyle(el).getPropertyValue('--artwork-cutoff')))).toBeLessThanOrEqual(geometry.cutoff);
+  await page.evaluate(()=>window.scrollBy(0,250));await expect(layer).toHaveCSS('clip-path','none');
  }
 });

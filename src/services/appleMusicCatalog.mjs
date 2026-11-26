@@ -1,7 +1,7 @@
 import appleGenres from '../utils/appleMusicGenres.cjs';
 import identity from '../utils/remoteReleaseGenres.cjs';
 const read=async url=>{const response=await fetch(url,{signal:AbortSignal.timeout(4000)});if(!response.ok)throw new Error('Apple Music unavailable');return response.json();};
-const summary=item=>({id:String(item.collectionId),name:item.collectionName,artist:item.artistName,artists:[item.artistName],genres:appleGenres.normalizeAppleGenres(item),totalTracks:item.trackCount,image:item.artworkUrl100?.replace('100x100bb','1000x1000bb'),external_urls:{itunes:item.collectionViewUrl}});
+const summary=item=>({id:String(item.collectionId),name:item.collectionName,artist:item.artistName,artists:[item.artistName],release_type:/ - Single$/i.test(item.collectionName)?'SENCILLO':/ - EP$/i.test(item.collectionName)?'EP':'ALBUM',genres:appleGenres.normalizeAppleGenres(item),totalTracks:item.trackCount,image:item.artworkUrl100?.replace('100x100bb','1000x1000bb'),external_urls:{itunes:item.collectionViewUrl}});
 export async function searchAppleReleases(query,limit=10){
  const data=await read(`https://itunes.apple.com/search?term=${encodeURIComponent(query)}&entity=album&limit=${Math.min(limit,15)}`);
  return {albums:(data.results||[]).filter(item=>item.collectionId&&item.collectionName).map(summary)};

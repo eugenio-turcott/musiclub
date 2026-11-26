@@ -21,7 +21,7 @@ function preference(release) {
  const canonical=editionTitle(original).name;
  const standard=slugify(original.replace(/ - (Single|EP)$/i,''),true)===slugify(canonical,true);
  const providers=release.sources?.map(source=>source.provider) || [];
- return (standard?1000:0)+(release.type==='CLUB'?5000:0)+(release.explicit===true?100:0)+(providers.includes('SPOTIFY')?30:providers.includes('APPLE')?20:10)+(Number(release.review_count)>0?5:0)+(Number(release.totalTracks || release.total_tracks)||0)/1000;
+ return (standard?1000:0)+(release.type==='CLUB'?5000:0)+(release.explicit===true?100:0)+(providers.includes('SPOTIFY')?700:providers.includes('APPLE')?20:10)+(Number(release.review_count)>0?5:0)+(Number(release.totalTracks || release.total_tracks)||0)/1000;
 }
 function groupReleaseEditions(releases=[],artist='') {
  const groups=new Map();

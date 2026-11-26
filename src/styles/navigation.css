@@ -13,3 +13,9 @@ html,body{overflow-x:clip}
 @keyframes grammyBannerGold{from{background-position:0% 50%}to{background-position:100% 50%}}
 body:has([data-paused=true]) .grammy-announcement,body:has([data-motion-paused=true]) .grammy-announcement{animation-play-state:paused}
 @media(prefers-reduced-motion:reduce){.grammy-announcement{animation:none}}
+
+/* The opaque backing isolates the gold banner from cover atmospheres. */
+.grammy-announcement{position:relative;isolation:isolate;background-color:#000;background-image:none;animation:none}
+.grammy-announcement::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,#c99a3f,#efd184 22%,#d6ad51 45%,#ffe4a0 65%,#d8ad50 85%,#c99a3f);background-size:300% 100%;animation:grammyBannerGold 14s ease-in-out infinite alternate}
+body:has([data-paused=true]) .grammy-announcement::before,body:has([data-motion-paused=true]) .grammy-announcement::before{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.grammy-announcement::before{animation:none}}

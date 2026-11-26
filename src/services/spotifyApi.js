@@ -651,9 +651,10 @@ export async function fetchSpotifyEmbedAlbum(albumId) {
       images[0]?.url ||
       '';
 
+    const releaseDate = typeof entity.releaseDate==='string'?entity.releaseDate:entity.releaseDate?.isoString;
     let releaseYear = null;
-    if (entity.releaseDate) {
-      const y = parseInt(entity.releaseDate.substring(0, 4), 10);
+    if (releaseDate) {
+      const y = parseInt(releaseDate.substring(0, 4), 10);
       if (!isNaN(y) && y >= 1900 && y <= 2100) releaseYear = y;
     }
 
@@ -670,7 +671,7 @@ export async function fetchSpotifyEmbedAlbum(albumId) {
       artists_data: [{ id: null, name: artistName }],
       primaryArtistId: null,
       image: bestImage,
-      releaseDate: entity.releaseDate || null,
+      releaseDate: releaseDate?.slice(0,10) || null,
       releaseYear: releaseYear,
       album_type: releaseType.toLowerCase(),
       release_type: releaseType,

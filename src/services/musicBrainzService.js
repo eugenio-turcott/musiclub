@@ -1,4 +1,5 @@
 import mbIdentity from '../utils/musicBrainzIdentity.cjs';
+import tracklists from '../utils/releaseTracks.cjs';
 // src/services/musicBrainzService.js
 import { searchAlbum } from './spotifyApi.js';
 import { normalizeCanonicalGenres } from '../utils/genreNormalizer.js';
@@ -194,9 +195,8 @@ export async function resolveStreamingLinks(artistName, albumName, existingLinks
     try {
       const spotifyRes = await searchAlbum(query);
       if (spotifyRes?.success && spotifyRes.albums?.length > 0) {
-        const top = spotifyRes.albums[0];
-        result.spotify =
-          top.spotify_url || `https://open.spotify.com/album/${top.id}`;
+        const top = spotifyRes.albums.find(item=>tracklists.sameReleaseTitle(item.name||item.album_name,cleanAlbum)&&tracklists.sameArtistCredit(item.artists||item.artist,cleanArtist));
+        result.spotify = top ? top.spotify_url || `https://open.spotify.com/album/${top.id}` : `https://open.spotify.com/search/${encodedQuery}`;
       } else {
         result.spotify = `https://open.spotify.com/search/${encodedQuery}`;
       }

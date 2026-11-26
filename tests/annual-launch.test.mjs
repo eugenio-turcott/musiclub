@@ -23,7 +23,7 @@ test('annual access requires admin before launch, validates members after launch
 });
 test('discography is newest first, using 70/30 relevance only to break equal dates',()=>{
  const apple=id=>({id,apple_music_link:'https://music.apple.com/us/album/12345'}),spotify=id=>({id,spotify_link:'https://open.spotify.com/album/1234567890123456789012'});
- const r=commonDiscography([{...spotify('old'),releaseDate:'2022-03-18'},{...apple('new'),releaseDate:'2026-04-01'},{...spotify('same-date'),releaseDate:'2026-04-01'},{...apple('unknown')}]);assert.deepEqual(r.map(a=>a.id),['same-date','new','old','unknown']);
+ const r=commonDiscography([{...spotify('old'),releaseDate:'2022-03-18'},{...apple('new'),releaseDate:'2026-04-01'},{...spotify('same-date'),releaseDate:'2026-04-01'},{...apple('unknown')}]);assert.deepEqual(r.map(a=>a.id),['same-date','old']);
 });
 test('EP and single rankings sort by external rating, place unscored last and keep source numbers unchanged',()=>{
  const groups={eps:['a','b','c'],singles:['c','a','b']},releases=[{id:'a',title:'A',global:{user:{score:70,count:100}}},{id:'b',title:'B',global:{user:{score:95,count:30}}},{id:'c',title:'C',global:{}}];

@@ -85,17 +85,17 @@ export const ANNUAL_SELECTION = [
     "nomination": "Álbum del año · Grammy 2027"
   },
   {
-    "id": "olivia-dean",
-    "title": "The Art of Loving",
-    "artist": "Olivia Dean",
-    "genre": "Pop",
-    "year": 2025,
-    "releaseDate": "2025-09-26",
-    "month": 9,
+    "id": "jill-scott",
+    "title": "To Whom This May Concern",
+    "artist": "Jill Scott",
+    "genre": "R&B",
+    "year": 2026,
+    "releaseDate": "2026-02-12",
+    "month": 2,
     "refs": [
       "grammy"
     ],
-    "nomination": "Álbum del año · Grammy 2027"
+    "nomination": "Mejor álbum de R&B · Grammy 2027"
   },
   {
     "id": "ella",
@@ -103,25 +103,25 @@ export const ANNUAL_SELECTION = [
     "artist": "Ella Langley",
     "genre": "Country",
     "year": 2026,
-    "releaseDate": "2026-01-30",
-    "month": 1,
+    "releaseDate": "2026-04-10",
+    "month": 4,
     "refs": [
       "grammy"
     ],
     "nomination": "Álbum del año · Grammy 2027"
   },
   {
-    "id": "taylor",
-    "title": "The Life of a Showgirl",
-    "artist": "Taylor Swift",
-    "genre": "Pop",
-    "year": 2025,
-    "releaseDate": "2025-10-03",
-    "month": 10,
+    "id": "muse",
+    "title": "The Wow! Signal",
+    "artist": "Muse",
+    "genre": "Rock",
+    "year": 2026,
+    "releaseDate": "2026-06-26",
+    "month": 6,
     "refs": [
       "grammy"
     ],
-    "nomination": "Álbum del año · Grammy 2027"
+    "nomination": "Mejor álbum de rock · Grammy 2027"
   },
   {
     "id": "ariana",
@@ -137,17 +137,17 @@ export const ANNUAL_SELECTION = [
     "nomination": "Álbum vocal pop · Grammy 2027"
   },
   {
-    "id": "geese",
-    "title": "Getting Killed",
-    "artist": "Geese",
-    "genre": "Indie Rock",
-    "year": 2025,
-    "releaseDate": "2025-09-26",
-    "month": 9,
+    "id": "rapsody",
+    "title": "God Gotta Afro & Gold Hoops",
+    "artist": "Rapsody",
+    "genre": "Hip-Hop",
+    "year": 2026,
+    "releaseDate": "2026-08-21",
+    "month": 8,
     "refs": [
       "grammy"
     ],
-    "nomination": "Artista nuevo · Música alternativa · Grammy 2027"
+    "nomination": "Mejor portada de álbum · Grammy 2027"
   },
   {
     "id": "slayyyter",
@@ -163,17 +163,17 @@ export const ANNUAL_SELECTION = [
     "nomination": "Artista nuevo · Dance/electrónica · Grammy 2027"
   },
   {
-    "id": "angine",
-    "title": "Vol.II",
-    "artist": "Angine de Poitrine",
-    "genre": "Pop",
+    "id": "charli",
+    "title": "Wuthering Heights",
+    "artist": "Charli xcx",
+    "genre": "Synth-Pop",
     "year": 2026,
-    "releaseDate": "2026-04-03",
-    "month": 4,
+    "releaseDate": "2026-02-13",
+    "month": 2,
     "refs": [
       "grammy"
     ],
-    "nomination": "Artista nuevo · Interpretación rock · Grammy 2027"
+    "nomination": "Mejor banda sonora recopilatoria para medios visuales · Grammy 2027"
   },
   {
     "id": "don-toliver",
@@ -181,7 +181,7 @@ export const ANNUAL_SELECTION = [
     "artist": "Don Toliver",
     "genre": "Hip-Hop",
     "year": 2026,
-    "releaseDate": "2026-01-30",
+    "releaseDate": "2026-01-29",
     "month": 1,
     "refs": [
       "grammy"
@@ -189,30 +189,30 @@ export const ANNUAL_SELECTION = [
     "nomination": "Artista nuevo · Rap · Grammy 2027"
   },
   {
-    "id": "leon-thomas",
-    "title": "PHOLKS",
-    "artist": "Leon Thomas",
-    "genre": "R&B",
-    "year": 2025,
-    "releaseDate": "2025-10-23",
-    "month": 10,
+    "id": "lakecia-benjamin",
+    "title": "We Dream",
+    "artist": "Lakecia Benjamin",
+    "genre": "Jazz",
+    "year": 2026,
+    "releaseDate": "2026-06-05",
+    "month": 6,
     "refs": [
       "grammy"
     ],
-    "nomination": "R&B progresivo · Grammy 2027"
+    "nomination": "Mejor álbum de jazz instrumental · Grammy 2027"
   },
   {
-    "id": "madonna",
-    "title": "CONFESSIONS II",
-    "artist": "Madonna",
-    "genre": "Pop",
+    "id": "charlie-puth",
+    "title": "Whatever's Clever!",
+    "artist": "Charlie Puth",
+    "genre": "Traditional Pop",
     "year": 2026,
-    "releaseDate": "2026-07-03",
-    "month": 7,
+    "releaseDate": "2026-03-27",
+    "month": 3,
     "refs": [
       "grammy"
     ],
-    "nomination": "Dance/electrónica · Grammy 2027"
+    "nomination": "Mejor álbum de pop vocal tradicional · Grammy 2027"
   },
   {
     "id": "laufey",
@@ -233,7 +233,7 @@ export const ANNUAL_SELECTION = [
     "artist": "Kacey Musgraves",
     "genre": "Pop",
     "year": 2026,
-    "releaseDate": "2026-04-17",
+    "releaseDate": "2026-04-30",
     "month": 4,
     "refs": [
       "grammy"

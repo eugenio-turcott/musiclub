@@ -1,4 +1,4 @@
-.artworkBoundary{position:fixed;inset:0;z-index:-1;pointer-events:none;clip-path:inset(var(--artwork-cutoff,240px) 0 0)}
+.artworkBoundary{position:fixed;inset:0;z-index:-1;pointer-events:none}
 .artworkPage{isolation:isolate;position:relative;background-color:var(--musiclub-page-color)}
 .atmosphere{position:fixed;inset:-12%;z-index:-1;pointer-events:none;opacity:.58;background:radial-gradient(ellipse at 10% 15%,var(--art-0),transparent 54%),radial-gradient(ellipse at 90% 30%,var(--art-1),transparent 56%),radial-gradient(ellipse at 35% 88%,var(--art-2),transparent 55%),radial-gradient(ellipse at 85% 85%,var(--art-3),transparent 50%),linear-gradient(140deg,var(--art-4),#080a18);animation:artwork-drift 24s ease-in-out infinite alternate;will-change:transform}
 @keyframes artwork-drift{to{transform:translate3d(3%,-3%,0) scale(1.05)}}

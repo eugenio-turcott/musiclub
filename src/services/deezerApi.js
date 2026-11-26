@@ -67,7 +67,7 @@ export function fetchDeezer(endpoint, timeoutMs = 7000) {
   }
 
   // Fallback para Node.js / SSR
-  return fetch(url)
+  return fetch(url,{signal:AbortSignal.timeout(timeoutMs)})
     .then((res) => {
       if (!res.ok) throw new Error(`Deezer HTTP ${res.status}`);
       return res.json();

@@ -107,8 +107,8 @@ test('personal ranking copy adapts to no albums, one, a few, a larger list and t
 });
 test('the external selection has twenty unique releases with traceable, differentiated sources',()=>{
   assert.equal(ANNUAL_SELECTION.length,20);assert.equal(new Set(ANNUAL_SELECTION.map(r=>r.id)).size,20);
-  assert.equal(ANNUAL_SELECTION.filter(r=>r.nomination.startsWith('Álbum del año')).length,8);
-  for(const r of ANNUAL_SELECTION){assert.ok([2025,2026].includes(r.year));assert.ok(r.nomination);assert.ok(r.refs.includes('grammy'));assert.ok(r.refs.every(id=>ANNUAL_SOURCES.some(s=>s.id===id)));assert.equal('score' in r,false);assert.equal('art' in r,false);}
+  assert.equal(ANNUAL_SELECTION.filter(r=>r.nomination.startsWith('Álbum del año')).length,6);
+  for(const r of ANNUAL_SELECTION){assert.equal(r.year,2026);assert.ok(r.nomination);assert.ok(r.refs.includes('grammy'));assert.ok(r.refs.every(id=>ANNUAL_SOURCES.some(s=>s.id===id)));assert.equal('score' in r,false);assert.equal('art' in r,false);}
   assert.ok(ANNUAL_SOURCES.some(s=>s.id==='billboard'&&s.mirror));assert.ok(ANNUAL_SOURCES.some(s=>s.type==='community'));assert.ok(ANNUAL_SOURCES.some(s=>s.type==='nomination'));
 });
 test('the private read paginates and constrains every query to the verified session, without exposing account fields',async()=>{
