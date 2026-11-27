@@ -226,9 +226,9 @@ export function NotificationsDropdown({
                     >
                       {item.category}
                     </span>
-                    <span className="text-[10px] text-white/40">
+                    {item.dateFormatted && <time dateTime={item.dateFormatted} title="Fecha de envío de la notificación" className="text-[10px] text-white/40">
                       • {formatTimeAgo(item.dateFormatted)}
-                    </span>
+                    </time>}
                   </div>
 
                   <h4

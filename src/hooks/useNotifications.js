@@ -3,6 +3,7 @@ import {authenticatedFetch} from '../services/authenticatedFetch';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase, supabaseService } from '../services/supabaseClient';
 import {createRequestCache} from '../services/requestCache.mjs';
+import {dateDeliveredNotifications} from '../services/notificationTimestamps.mjs';
 const snapshots=createRequestCache({ttl:120000,maxEntries:8});
 
 export function useNotifications(user) {
@@ -80,13 +81,11 @@ export function useNotifications(user) {
         const winner = await supabaseService.getCurrentWinner();
         if (winner && winner.id) {
           notifs.push({
-            id: `winner_${winner.id}_${winner.updated_at || winner.created_at || 'act'}`,
+            id: `winner_${winner.pool_entry_id || winner.id}`,
             type: 'winner',
             category: 'Álbum Ganador',
             title: `🏆 ¡Nuevo Ganador de la Semana!`,
             description: `"${winner.album_name}" de ${winner.artist_name} ha sido elegido como el álbum ganador activo en el club.`,
-            timestamp: new Date(winner.updated_at || winner.created_at || Date.now()).getTime(),
-            dateFormatted: winner.updated_at || winner.created_at || new Date().toISOString(),
             icon: '🏆',
             image: winner.image_url || null,
             badgeColor: 'from-amber-400 to-yellow-600',
@@ -102,7 +101,7 @@ export function useNotifications(user) {
       if (user && (user.email || user.id || user.name)) {
         const uEmail = (user.email || '').toLowerCase().trim();
         const uName = (user.name || '').toLowerCase().trim();
-        if(user.id){try{const response=await authenticatedFetch('/api/reviews/continuations');if(response.ok){const data=await response.json();for(const item of data.continuations||[])notifs.push({id:item.id,type:'continuation',category:'Completa tu reseña',title:item.title,description:item.totalTracks===1?`Ya calificaste esta canción en ${item.sourceTitle}. Usa tu nota y reseña el sencillo.`:`Ya calificaste ${item.matchedTracks} de sus ${item.totalTracks} canciones. Usa tus notas y completa la reseña.`,timestamp:Date.parse(item.createdAt)||0,dateFormatted:item.createdAt,icon:'🎶',image:item.image,badgeColor:'from-cyan-500 to-purple-500',link:item.link});}}catch{ /* Existing notifications remain available during a retry. */ }}
+        if(user.id){try{const response=await authenticatedFetch('/api/reviews/continuations');if(response.ok){const data=await response.json();for(const item of data.continuations||[])notifs.push({id:item.id,type:'continuation',category:'Completa tu reseña',title:item.title,description:item.totalTracks===1?`Ya calificaste esta canción en ${item.sourceTitle}. Usa tu nota y reseña el sencillo.`:`Ya calificaste ${item.matchedTracks} de sus ${item.totalTracks} canciones. Usa tus notas y completa la reseña.`,icon:'🎶',image:item.image,badgeColor:'from-cyan-500 to-purple-500',link:item.link});}}catch{ /* Existing notifications remain available during a retry. */ }}
 
         // A. BUZÓN DE CANCIONES (Recomendaciones recibidas)
         try {
@@ -120,8 +119,6 @@ export function useNotifications(user) {
                 description: `${item.sender_name || item.sender_email || 'Un miembro'} te dedicó "${item.song_title}" de ${item.artist_name}${
                   item.message ? ` — "${item.message}"` : ''
                 }`,
-                timestamp: new Date(item.created_at || Date.now()).getTime(),
-                dateFormatted: item.created_at || new Date().toISOString(),
                 icon: '💌',
                 image: item.album_cover_url || item.sender_avatar || null,
                 avatar: item.sender_avatar || null,
@@ -189,8 +186,6 @@ export function useNotifications(user) {
                     description: `${rev.reviewer_name || 'Un miembro'} calificó ${albTitle}${artistTitle} con ${scoreVal}${
                       rev.comment ? `: "${rev.comment}"` : ''
                     }`,
-                    timestamp: new Date(rev.created_at || Date.now()).getTime(),
-                    dateFormatted: rev.created_at || new Date().toISOString(),
                     icon: '⭐',
                     image: targetAlbum?.image_url || null,
                     avatar: rev.reviewer_avatar || null,
@@ -249,8 +244,6 @@ export function useNotifications(user) {
                   category: 'Estreno Oficial',
                   title: `🎉 ¡"${item.album_name}" ya se estrenó!`,
                   description: `El álbum de ${item.artist_name} que estabas esperando ya está disponible. ¡Escúchalo y califícalo en Musiclub!`,
-                  timestamp: new Date(item.release_date || item.created_at || Date.now()).getTime(),
-                  dateFormatted: item.release_date || new Date().toISOString(),
                   icon: '🎉',
                   image: targetImage,
                   badgeColor: 'from-fuchsia-500 to-pink-500',
@@ -285,8 +278,6 @@ export function useNotifications(user) {
                   category: 'Estreno Oficial',
                   title: `🎉 ¡"${item.albumName}" ya se estrenó!`,
                   description: `El álbum de ${item.artistName} que estabas esperando ya está disponible. ¡Escúchalo y califícalo en Musiclub!`,
-                  timestamp: new Date(item.releaseDate).getTime(),
-                  dateFormatted: item.releaseDate,
                   icon: '🎉',
                   image: item.imageUrl || null,
                   badgeColor: 'from-fuchsia-500 to-pink-500',
@@ -301,9 +292,8 @@ export function useNotifications(user) {
         console.warn('Error checking local upcoming subscriptions:', localUpErr);
       }
 
-      // Ordenar cronológicamente descendente (más recientes primero)
-      notifs.sort((a, b) => b.timestamp - a.timestamp);
-      return notifs;
+      let storage;try {storage=typeof window!=='undefined'?window.localStorage:null;}catch{ /* Restricted browser storage. */ }
+      return dateDeliveredNotifications(notifs,{owner:userKey,userId:user?.id,storage,request:authenticatedFetch});
       });
       if(account.current===userKey){setNotificationOwner(userKey);setRawNotifications(notifs);}
     } catch (err) {

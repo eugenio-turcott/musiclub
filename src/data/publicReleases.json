@@ -2,14 +2,44 @@
   {
     "version": "V.12.0.0",
     "major": 12,
-    "latestVersion": "V.12.3.5",
+    "latestVersion": "V.12.3.6",
     "date": "2026-11-11",
-    "updatedAt": "2026-11-26",
+    "updatedAt": "2026-11-27",
     "title": "Grammy 2027 y el año del club",
     "summary": "Las predicciones de los Grammy y Musiclub 2026 reúnen música, reseñas, logros y recuerdos personales.",
     "tag": "Musiclub 12",
     "authorName": "Eugenio Turcott",
     "details": [
+      {
+        "title": "Mejoras del club",
+        "changes": [
+          {
+            "title": "La fecha pertenece al aviso",
+            "description": "Las invitaciones a completar reseñas y los avisos de estreno dejan de usar la fecha de la reseña, del release o de su incorporación. Cada cuenta conserva una fecha de entrega independiente, sin renovarla al recargar.",
+            "type": "fix"
+          },
+          {
+            "title": "Un ganador, un mismo aviso",
+            "description": "Actualizar la ficha del álbum ganador no genera una notificación nueva. La identidad del aviso corresponde a la entrada ganadora del Pool.",
+            "type": "fix"
+          },
+          {
+            "title": "Colores desde el primer momento",
+            "description": "La primera visita a una nueva ficha calcula y guarda hasta cinco colores de la portada o la foto del artista, sin esperar al siguiente proceso programado. Los fondos animados tienen mayor presencia y respetan la preferencia de reducir movimiento.",
+            "type": "fix"
+          },
+          {
+            "title": "Discografías con relevancia 70/30",
+            "description": "Spotify aporta el 70% del orden y las demás plataformas comparten el 30% restante. Se contrastan las fuentes disponibles y los enlaces de cada release; una sola fuente ya no oculta su ficha. La información técnica desaparece de la vista pública.",
+            "type": "improvement"
+          },
+          {
+            "title": "Más música, menos espacio ocupado",
+            "description": "Reviews de Miembros, Leaderboard y Portadas comparten encabezados compactos. La galería da mayor espacio al arte y conserva sus herramientas de calificación.",
+            "type": "design"
+          }
+        ]
+      },
       {
         "title": "Catálogo y descubrimiento",
         "changes": [
@@ -97,36 +127,6 @@
             "title": "Portadas y fichas consistentes",
             "description": "Las próximas ediciones de Kacey Musgraves y CHVRCHES muestran sus portadas digitales, sin montajes del producto. Las nuevas piezas del mural enlazan con fichas completas del catálogo.",
             "type": "fix"
-          }
-        ]
-      },
-      {
-        "title": "Mejoras del club",
-        "changes": [
-          {
-            "title": "Colores desde el primer momento",
-            "description": "La primera visita a una nueva ficha calcula y guarda hasta cinco colores de la portada o la foto del artista, sin esperar al siguiente proceso programado. Los fondos animados tienen mayor presencia y respetan la preferencia de reducir movimiento.",
-            "type": "fix"
-          },
-          {
-            "title": "Discografías con relevancia 70/30",
-            "description": "Spotify aporta el 70% del orden y las demás plataformas comparten el 30% restante. Se contrastan las fuentes disponibles y los enlaces de cada release; una sola fuente ya no oculta su ficha. La información técnica desaparece de la vista pública.",
-            "type": "improvement"
-          },
-          {
-            "title": "Más música, menos espacio ocupado",
-            "description": "Reviews de Miembros, Leaderboard y Portadas comparten encabezados compactos. La galería da mayor espacio al arte y conserva sus herramientas de calificación.",
-            "type": "design"
-          },
-          {
-            "title": "Una experiencia más consistente",
-            "description": "Los botones A la cola tienen un hover amarillo suave en toda la plataforma. La página principal comparte el fondo del catálogo y el tocadiscos separa la estrella y la nota también en móvil.",
-            "type": "fix"
-          },
-          {
-            "title": "Los colores de cada portada",
-            "description": "Guardamos hasta cinco colores predominantes por portada y foto de artista. Un fondo animado y tenue acompaña la página, con una versión sin movimiento para quienes lo prefieran.",
-            "type": "design"
           }
         ]
       },

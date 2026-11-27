@@ -4,7 +4,7 @@
 
 Un club para descubrir discos, reseñar lo que escuchas y compartirlo con otras personas.
 
-**V.12.3.5** · Novedades agrupadas en [V.12](https://www.musiclub.org/patch-notes).
+**V.12.3.6** · Novedades agrupadas en [V.12](https://www.musiclub.org/patch-notes).
 
 <a href="https://www.musiclub.org/gashapon"><img src="public/readme/genres.png" alt="Los vinilos de Pop, Rock, R&B, Hip-Hop, Indie, Electrónica, Jazz y Latino" width="100%" /></a>
 
@@ -12,7 +12,7 @@ Un club para descubrir discos, reseñar lo que escuchas y compartirlo con otras 
 
 <a href="https://www.musiclub.org/grammys"><img src="public/readme/editions.png" alt="Grammy 2027 y Musiclub 2026 con los elementos gráficos del club" width="100%" /></a>
 
-**Participa.** Reseña releases y canciones, gana XP e insignias y prepara tarjetas para tus redes. Un release de una canción conserva su nota directa, sin criterios.
+**Participa.** Reseña releases y canciones, gana XP e insignias y prepara tarjetas para tus redes. Tus avisos conservan su fecha de entrega, incluso al volver al club.
 
 **Tu año.** Grammy 2027 reconoce con un borde dorado a los artistas de los que ya reseñaste música. Musiclub 2026 reúne rankings, recuerdos y veinte portadas verificadas del año.
 
@@ -27,4 +27,4 @@ npm run dev
 
 [Configuración y pruebas](docs/development.md) · [Publicar una versión](docs/releases.md) · [Géneros pendientes](docs/release-genres.md)
 
-<!-- Musiclub documentation revision: 4b572cb824f10673 -->
+<!-- Musiclub documentation revision: 4048b765a460cf3a -->
